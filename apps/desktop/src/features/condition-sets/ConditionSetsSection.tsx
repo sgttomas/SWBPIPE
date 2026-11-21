@@ -48,7 +48,9 @@ export function ConditionSetsSection(props: EngineCheckedQueueProps) {
   }, []);
   return (
     <section className="model-tree-condition-sets" aria-label="Condition sets" data-testid="condition-sets-section">
-      <h3>Condition sets</h3>
+      {/* Closed on first open, so the tree keeps its height; the summary is the name and the count. */}
+      <details className="model-tree-records-disclosure" data-testid="condition-sets-disclosure">
+      <summary>Condition sets ({sets.length})</summary>
       <p className="model-data-note">
         A condition set states a line's operating values once; a pipe carries one set, and a load case uses a condition key.
         Every value is entered with its unit; nothing is prefilled.
@@ -61,6 +63,7 @@ export function ConditionSetsSection(props: EngineCheckedQueueProps) {
       <details className="condition-set-create" data-testid="condition-set-create">
         <summary>New condition set</summary>
         <CreateConditionSet route={route} {...props} />
+      </details>
       </details>
     </section>
   );

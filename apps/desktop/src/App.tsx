@@ -1,5 +1,5 @@
 import { C2ResultGate } from "./features/results/C2ResultGate";
-import type { SessionAnalysisRun, SessionResult } from "./services/nativeResult";
+import type { SessionResult } from "./services/nativeResult";
 import { reportPackageUnavailableReason } from "./features/report/reportPackageRequest";
 import { CompactSelectScope } from "./features/workspace/CompactSelect";
 import { HangerSelectionPanel } from "./features/hanger-selection";
@@ -21,15 +21,12 @@ import {
   ClipboardCheck,
   Crosshair,
   Database,
-  FileWarning,
   FilePlus,
   FolderOpen,
   HardDrive,
   List,
-  LockKeyhole,
   Play,
   Save,
-  ShieldCheck,
   Sparkles,
   X
 } from "lucide-react";
@@ -49,17 +46,14 @@ import {
   viewForStage,
   viewSwitchItems
 } from "./features/workspace/shellLayout";
-import type { ShellStage, ShellView, TableDrawerState } from "./features/workspace/shellLayout";
+import type { ShellStage, ShellView } from "./features/workspace/shellLayout";
 import { DormantSection } from "./features/workspace/dormantSection";
+import { PartErrorBoundary } from "./features/workspace/shell/PartErrorBoundary";
 import { BOTH_SPLIT_PCT_BOUNDS, TABLE_DRAWER_PX_BOUNDS } from "./features/workspace/uiPreferences";
 import type { UiDensityPreference, UiThemePreference } from "./features/workspace/uiPreferences";
 import type React from "react";
 import { Fragment, useMemo, useState } from "react";
-import { AccessibilityBaselinePanel } from "./features/accessibility-baseline/AccessibilityBaselinePanel";
-import { AdapterFrameworkPanel } from "./features/adapter-framework/AdapterFrameworkPanel";
 import { AgentProposalPanel } from "./features/agent-proposals/AgentProposalPanel";
-import { BuildReadinessPanel } from "./features/build-readiness/BuildReadinessPanel";
-import { CaepipeExternalHarnessPanel } from "./features/caepipe-external/CaepipeExternalHarnessPanel";
 import { CaepipeMbfExportPanel } from "./features/caepipe-mbf/CaepipeMbfExportPanel";
 import { ComparisonPanel } from "./features/comparison/ComparisonPanel";
 import { ComparisonPackageNotice } from "./features/comparison/ComparisonPackageNotice";
@@ -69,12 +63,6 @@ import type { ModelCheckRun } from "./features/diagnostics/modelChecks";
 import { DesignWorkspacePanel } from "./features/design-workspace/DesignWorkspacePanel";
 import { DiffPreviewPanel } from "./features/diff-preview/DiffPreviewPanel";
 import { EditorContractPanel } from "./features/editor-contract/EditorContractPanel";
-import { ExportAdapterSdkPanel } from "./features/export-adapter-sdk/ExportAdapterSdkPanel";
-import { ExportReviewPanel } from "./features/export-review/ExportReviewPanel";
-import { ExternalProverBoundaryPanel } from "./features/external-prover/ExternalProverBoundaryPanel";
-import { RedactionExportControlsPanel } from "./features/redaction-controls/RedactionExportControlsPanel";
-import { HandoffPanel } from "./features/handoff/HandoffPanel";
-import { HeadlessRunnerPanel } from "./features/headless-runner/HeadlessRunnerPanel";
 import { KnowledgePanel } from "./features/knowledge/KnowledgePanel";
 import { LibraryManagerPanel } from "./features/library/LibraryManagerPanel";
 import { LoadCaseManagerPanel } from "./features/load-cases/LoadCaseManagerPanel";
@@ -88,6 +76,7 @@ import {
   type WorkspaceSectionId
 } from "./features/workspace/workspaceSections";
 import {
+  VIEW_MENU_SECTIONS,
   type MenuCommandId,
   type MenuId,
   type MenuItemSpec
@@ -95,7 +84,6 @@ import {
 import { useWorkspaceSession } from "./features/workspace/workspaceSession";
 import { WorkspaceSessionProvider } from "./features/workspace/WorkspaceSessionContext";
 import { ModelTree } from "./features/model-tree/ModelTree";
-import { NativePackagePanel } from "./features/native-package/NativePackagePanel";
 import { OperationApplyPanel } from "./features/operations/OperationApplyPanel";
 import { OperationLedgerPanel } from "./features/operations/OperationLedgerPanel";
 import { PcfExportPanel } from "./features/pcf-export/PcfExportPanel";
@@ -114,9 +102,8 @@ import { ProjectValidationPanel } from "./features/project-validation/ProjectVal
 import { ToolkitPalette, type PaletteShellCommand } from "./features/toolkit/ToolkitPalette";
 import { toolkitCapabilities } from "./features/toolkit/capabilityCatalog";
 import { PropertyInspector } from "./features/model-tree/PropertyInspector";
-import { ReportLintPanel } from "./features/report-lint/ReportLintPanel";
 import { ReportPanel } from "./features/report/ReportPanel";
-import { RenderedReportPanel } from "./features/report/RenderedReportPanel";
+import { RenderedReportPanel, ReportPackageSaveStatus } from "./features/report/RenderedReportPanel";
 import { ReportOutputStatus } from "./features/report/ReportOutputStatus";
 import { ResultExportPanel } from "./features/result-export/ResultExportPanel";
 import { ResultsPanel } from "./features/results/ResultsPanel";
@@ -136,15 +123,12 @@ import { LinesSection } from "./features/model-data/LinesSection";
 import { AssumptionsPanel } from "./features/model-data/AssumptionsPanel";
 import { ConstraintsPanel } from "./features/model-data/ConstraintsPanel";
 import { RunAuditPanel } from "./features/run-audit/RunAuditPanel";
-import { SecretPrivateLibraryPanel } from "./features/secret-private-library/SecretPrivateLibraryPanel";
-import { SecurityThreatModelPanel } from "./features/security-threat-model/SecurityThreatModelPanel";
 import { HistoricalRunPanel } from "./features/results/HistoricalRunContext";
 import { SolvePanel } from "./features/solve/SolvePanel";
 import { solveWithheldReason } from "./features/workspace/solveGates";
 import { SolveProgressPanel } from "./features/solve/SolveProgressPanel";
 import { StressNeutralExportPanel } from "./features/stress-neutral/StressNeutralExportPanel";
 import { TelemetryBoundaryPanel } from "./features/telemetry/TelemetryBoundaryPanel";
-import { ValidationEvidencePanel } from "./features/validation-evidence/ValidationEvidencePanel";
 import {
   PipeViewport,
   type CreationTool
@@ -160,7 +144,6 @@ import type {
   EditorOperationIntent,
   EntityRef,
   LocalProjectSummary,
-  LocalStorageCapability,
   MechanicsResult,
   ModelHashEvidence,
   OperationOutcome,
@@ -351,7 +334,6 @@ function AppSession() {
     inspectorToggleRef,
     operationTab, setOperationTab,
     reviewDetailsOpen, setReviewDetailsOpen,
-    auditDrawerOpen, setAuditDrawerOpen,
     issuesDrawerOpen, setIssuesDrawerOpen,
     modelCheckRun,
     modelCheckBusy,
@@ -448,7 +430,6 @@ function AppSession() {
       {showInAppMenuBar ? (
         <MenuBar
           activeSection={activeSection}
-          auditOpen={auditDrawerOpen}
           canRedo={redoStack.length > 0 && !operationBusy}
           canUndo={undoStack.length > 0 && !operationBusy}
           inspectorCollapsed={inspectorCollapsed}
@@ -464,7 +445,6 @@ function AppSession() {
           stage={shell.stage}
           stageViewMemory={stageViewMemory}
           pageOpen={shell.page !== null}
-          tableDrawer={tableDrawer}
           run={runPresenceFromCells({ result, historicalRun, solveJob, hasQualifiedCurrentResult: currentSolvedResult !== null, numericalHealthHold })}
           theme={uiPreferences.theme}
           density={uiPreferences.density}
@@ -474,7 +454,7 @@ function AppSession() {
         />
       ) : null}
 
-      <ShellToolbar issueCount={issueCount}>
+      <ShellToolbar>
           <ToolkitPalette
             context={{ selection, selectionCardinality: orderedSelection.orderedKeys.length, canUndo: undoStack.length > 0, canRedo: redoStack.length > 0, busy: operationRequest.current.busy || operationBusy, windConfigured: Boolean(selection.type === "load" && model.load_cases.find((load) => load.id === selection.id)?.equivalent_static?.wind) }}
             onChoose={handleToolkitCommand}
@@ -521,7 +501,9 @@ function AppSession() {
               onToggle={() => toggleWorkspaceRail("tree")}
             />
             <div className="shell-table-body" id="shell-table-body">
+            <PartErrorBoundary subject="The table drawer" resetKey={projectSessionGeneration}>
             <div className={shell.tab === "model-tree" ? "shell-tree-host" : "shell-tree-host inactive"} data-testid="shell-tree-host">
+            <PartErrorBoundary subject="The model tree" resetKey={projectSessionGeneration}>
             <ModelTree
               boundedGrid
               compactGrid={tableDrawer.collapsible}
@@ -562,6 +544,7 @@ function AppSession() {
                 />
               }
             />
+            </PartErrorBoundary>
             </div>
           <div className={shell.tab === "model-tree" ? "workspace-dock-body shell-stage-sections inactive" : "workspace-dock-body shell-stage-sections"}>
             <section
@@ -571,7 +554,7 @@ function AppSession() {
               tabIndex={-1}
             >
               {activeSection === "operations" || activatedExpensiveSections.has("operations") ? (
-              <DormantSection active={activeSection === "operations"} guardGeneration={requestEpoch} sessionGeneration={projectSessionGeneration}>
+              <DormantSection page="operations" active={activeSection === "operations"} guardGeneration={requestEpoch} sessionGeneration={projectSessionGeneration}>
               <nav className="operation-tabs" aria-label="Editing and review tools">
                 {[["review", "Review changes"], ["bulk", "Bulk change"], ["geometry", "Geometry"], ["supports", "Supports"], ["weight", "Self weight"], ["agent", "Agent"], ["records", "Model records"], ["details", "Details"]].map(([id, label]) => (
                   <button type="button" key={id} aria-pressed={operationTab === id} data-testid={`operation-tab-${id}`} onClick={() => setOperationTab(id)}>{label}</button>
@@ -628,6 +611,7 @@ function AppSession() {
               />
               </div>
               <div className="operation-tool-page" hidden={operationTab !== "agent"}>
+              <PartErrorBoundary subject="The Agent tab" resetKey={projectSessionGeneration}>
             <EmbeddedAgentPanel session={session.agent} active={activeSection === "operations" && operationTab === "agent"} onReview={() => {setActiveSection("operations");setOperationTab("review");}} />
             <AgentWorkbenchPanel
               appliedOperationCount={appliedOperations.length}
@@ -658,6 +642,7 @@ function AppSession() {
                 }}
                 loadOperationExamples={() => operationExamples(model)}
               />
+              </PartErrorBoundary>
               </div>
               <div className="operation-tool-page" hidden={operationTab !== "geometry"}>
               <GeometryToolsPanel
@@ -766,7 +751,7 @@ function AppSession() {
               data-testid="workspace-section-loads"
             >
               {activeSection === "loads" || activatedExpensiveSections.has("loads") ? (
-              <DormantSection active={activeSection === "loads"} guardGeneration={requestEpoch} sessionGeneration={projectSessionGeneration}>
+              <DormantSection page="loads" active={activeSection === "loads"} guardGeneration={requestEpoch} sessionGeneration={projectSessionGeneration}>
               <LoadCaseManagerPanel
                 model={model}
                 queuedIntents={editorIntents}
@@ -785,7 +770,7 @@ function AppSession() {
               data-testid="workspace-section-results"
             >
               {activeSection === "results" || activatedExpensiveSections.has("results") ? (
-              <DormantSection active={activeSection === "results"} sessionGeneration={projectSessionGeneration}>
+              <DormantSection page="results" active={activeSection === "results"} sessionGeneration={projectSessionGeneration}>
               <Fragment key={`results:${dormantOutputBasis}`}>
               <div className="results-actions" role="group" aria-label="Results actions">
                 <button type="button" onClick={() => void handleInspectBundledReference()}>
@@ -891,7 +876,7 @@ function AppSession() {
 
             <section
               className={dockSectionClass("evidence", activeSection)}
-              aria-label="Audit and boundaries section"
+              aria-label="Evidence section"
               data-testid="workspace-section-evidence"
             >
               {visibleSolveProof ? (
@@ -903,14 +888,11 @@ function AppSession() {
                 />
               ) : null}
               {activeSection === "evidence" || activatedExpensiveSections.has("evidence") ? (
-              <DormantSection active={activeSection === "evidence"} sessionGeneration={projectSessionGeneration}>
+              <DormantSection page="evidence" active={activeSection === "evidence"} sessionGeneration={projectSessionGeneration}>
+              {/* The run's identity and hashes, and telemetry's state and reason. The review-packet
+                  panels this page held are not mounted in v1.0 (docs/RELEASE_LIMITATIONS_v1.0.md, LIM-039). */}
               <RunAuditPanel model={model} result={result} analysisRun={analysisRun} />
-              <ValidationEvidencePanel model={model} />
-              <BuildReadinessPanel model={model} />
               <TelemetryBoundaryPanel model={model} storageCapability={storageCapability} />
-              <SecretPrivateLibraryPanel model={model} storageCapability={storageCapability} />
-              <SecurityThreatModelPanel model={model} storageCapability={storageCapability} />
-              <AccessibilityBaselinePanel model={model} />
               </DormantSection>) : null}
             </section>
 
@@ -920,12 +902,13 @@ function AppSession() {
               data-testid="workspace-section-report"
             >
               {activeSection === "report" || activatedExpensiveSections.has("report") ? (
-              <DormantSection active={activeSection === "report"} sessionGeneration={projectSessionGeneration}>
+              <DormantSection page="report" active={activeSection === "report"} sessionGeneration={projectSessionGeneration}>
               <Fragment key={`report:${dormantOutputBasis}`}>
               <ComparisonPackageNotice packaged={packagedWithinRun} dropped={droppedWithinRunBases} testId="report-comparison-package-notice" />
               {/* DEL-08-01 REQ-017, REQ-024: the rendered report's own source (a readable exact-route
                   result whatever its standing); its package save stays on currentSolvedResult. */}
-              <C2ResultGate result={renderableSolvedResult} analysisRun={analysisRun} feature="the rendered report">
+              <C2ResultGate result={renderableSolvedResult} analysisRun={analysisRun} feature="the rendered report"
+                withheld={reportPackageRoute ? <ReportPackageSaveStatus route={reportPackageRoute} announce /> : null}>
                 {(full) => (
                   <RenderedReportPanel
                     model={model}
@@ -943,6 +926,7 @@ function AppSession() {
                     packageRoute={reportPackageRoute}
                     onPackagePrivateIntentChange={setReportPackagePrivateIntent}
                     packageNeedsCurrent={currentSolvedResult === null}
+                    restoredRun={historicalRun?.designation === "historical_saved_run" && !running}
                     onSaveReportPackage={reportPackageUnavailable ? undefined : () => void handleSaveReportPackage()}
                     onSaveShareableReportPackage={reportPackageUnavailable ? undefined : () => void requestSaveShareableReportPackage()}
                     reportSource={reportOutput.source}
@@ -972,11 +956,11 @@ function AppSession() {
                   />
                 )}
               </C2ResultGate>
-              <ReportLintPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
               </Fragment>
               </DormantSection>) : null}
             </section>
           </div>
+            </PartErrorBoundary>
             </div>
           </div>
           <button
@@ -994,6 +978,7 @@ function AppSession() {
             type="button"
           />
           <div className="workspace-pane workspace-pane-viewport">
+            <PartErrorBoundary subject="The 3D view" resetKey={projectSessionGeneration}>
             <PipeViewport
               fullResult={session.results.fullResult}
               authoringPanelContainer={routingPanelContainer}
@@ -1035,6 +1020,7 @@ function AppSession() {
               theme={resolvedTheme}
               treePublication={treePublication}
             />
+            </PartErrorBoundary>
           </div>
           <button
             aria-label="Resize table drawer"
@@ -1062,6 +1048,7 @@ function AppSession() {
               ><X size={14} aria-hidden="true" /></button>
             ) : null}
             <div id="shell-routing-panel" className="shell-routing-panel" ref={setRoutingPanelContainer} />
+            <PartErrorBoundary subject="The inspector" resetKey={projectSessionGeneration}>
             <PropertyInspector
               getPreparationEpoch={getPreparationEpoch}
               model={model}
@@ -1077,6 +1064,7 @@ function AppSession() {
               selectionState={orderedSelection}
               taskRequest={propertyTaskRequest}
             />
+            </PartErrorBoundary>
           </div>
         </section>
 
@@ -1158,7 +1146,7 @@ function AppSession() {
               tabIndex={-1}
             >
               {activeSection === "libraries" || activatedExpensiveSections.has("libraries") ? (
-              <DormantSection active={activeSection === "libraries"} sessionGeneration={projectSessionGeneration}>
+              <DormantSection page="libraries" active={activeSection === "libraries"} sessionGeneration={projectSessionGeneration}>
               <LibraryManagerPanel model={model} onR3JourneyEvent={recordR3JourneyEvent}
                 selection={selection} onQueueBatch={handleQueueOperationBatch} operationBusy={operationBusy} />
               </DormantSection>) : null}
@@ -1170,7 +1158,7 @@ function AppSession() {
               data-testid="workspace-section-rule-packs"
             >
               {activeSection === "rule-packs" || activatedExpensiveSections.has("rule-packs") ? (
-              <DormantSection active={activeSection === "rule-packs"} sessionGeneration={projectSessionGeneration}>
+              <DormantSection page="rule-packs" active={activeSection === "rule-packs"} sessionGeneration={projectSessionGeneration}>
               <RulePackManagerPanel model={model} result={currentSolvedResult} onR3JourneyEvent={recordR3JourneyEvent}
                 queuedIntents={editorIntents} onQueueIntent={handleQueueEditorIntent} operationBusy={operationBusy} />
               </DormantSection>) : null}
@@ -1182,7 +1170,7 @@ function AppSession() {
               data-testid="workspace-section-solve"
             >
               {activeSection === "solve" || activatedExpensiveSections.has("solve") ? (
-              <DormantSection active={activeSection === "solve"} sessionGeneration={projectSessionGeneration}>
+              <DormantSection page="solve" active={activeSection === "solve"} sessionGeneration={projectSessionGeneration}>
               <SolvePanel
                 analysisRun={analysisRun}
                 inputManifest={inputManifest?.manifest ?? null}
@@ -1233,7 +1221,7 @@ function AppSession() {
               data-testid="workspace-section-project"
             >
               {activeSection === "project" || activatedExpensiveSections.has("project") ? (
-              <DormantSection active={activeSection === "project"} sessionGeneration={projectSessionGeneration}>
+              <DormantSection page="project" active={activeSection === "project"} sessionGeneration={projectSessionGeneration}>
               <ProjectStorageAuditPanel
                 model={model}
                 storageCapability={storageCapability}
@@ -1269,81 +1257,38 @@ function AppSession() {
               data-testid="workspace-section-exports"
             >
               {activeSection === "exports" || activatedExpensiveSections.has("exports") ? (
-              <DormantSection active={activeSection === "exports"} sessionGeneration={projectSessionGeneration}>
+              <DormantSection page="exports" active={activeSection === "exports"} sessionGeneration={projectSessionGeneration}>
               <Fragment key={`exports:${dormantOutputBasis}`}>
-              <C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the result JSON export">
-                {(full) => (
-                  <ResultExportPanel model={model} result={full.result} analysisRun={full.analysisRun} inputManifest={inputManifest} />
-                )}
-              </C2ResultGate>
-              <C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the stress-neutral export">
-                {(full) => (
-                  <StressNeutralExportPanel model={model} result={full.result} analysisRun={full.analysisRun} />
-                )}
-              </C2ResultGate>
-              <PcfExportPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
-              <CaepipeMbfExportPanel model={model} onExportMbf={() => { void requestExportMbf(); }} />
-              <CaepipeExternalHarnessPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
-              <ExportAdapterSdkPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
-              <AdapterFrameworkPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
-              <C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the local FEA handoff">
-                {(full) => (
-                  <LocalFeaHandoffPanel model={model} result={full.result} analysisRun={full.analysisRun} />
-                )}
-              </C2ResultGate>
-              <ExternalProverBoundaryPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
-              <ReviewGeometryPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
-              <C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the headless runner package">
-                {(full) => (
-                  <HeadlessRunnerPanel model={model} result={full.result} analysisRun={full.analysisRun} solveJob={solveJob} />
-                )}
-              </C2ResultGate>
-              <C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the native package">
-                {(full) => (
-                  <NativePackagePanel
-                    model={model}
-                    modelHash={modelHash}
-                    result={full.result}
-                    analysisRun={full.analysisRun}
-                    editorIntents={editorIntents}
-                    projectSummary={projectSummary}
-                    proposal={proposal}
-                    selectedReviewTarget={selectedReviewTarget}
-                    storageCapability={storageCapability}
-                  />
-                )}
-              </C2ResultGate>
-              <ComparisonPackageNotice packaged={packagedWithinRun} dropped={droppedWithinRunBases} testId="handoff-comparison-package-notice" />
-              <C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the handoff package">
-                {(full) => (
-                  <HandoffPanel
-                    model={model}
-                    knowledge={knowledge}
-                    result={full.result}
-                    analysisRun={full.analysisRun}
-                    comparison={comparison}
-                    comparisonUnavailable={comparisonUnavailable}
-                    editorIntents={editorIntents}
-                    proposal={proposal}
-                    selectedReviewTarget={selectedReviewTarget}
-                  />
-                )}
-              </C2ResultGate>
-              <ExportReviewPanel
-                model={model}
-                knowledge={knowledge}
-                result={currentSolvedResult}
-                analysisRun={analysisRun}
-                comparison={comparison}
-                comparisonUnavailable={comparisonUnavailable}
-                editorIntents={editorIntents}
-                projectOperation={projectOperation}
-                projectSummary={projectSummary}
-                proposal={proposal}
-                selectedReviewTarget={selectedReviewTarget}
-                storageCapability={storageCapability}
-              />
-              <RedactionExportControlsPanel model={model} />
+              {/* The exports a person takes, one row each: its name, its link and its refusal line.
+                  The review-packet panels this page held are not mounted in v1.0
+                  (DEL-07-12's inventory; docs/RELEASE_LIMITATIONS_v1.0.md, LIM-039). A handoff
+                  package is saved by File › Save Handoff…. */}
+              <ul className="export-list" aria-label="Exports" data-testid="export-list">
+                <li>
+                  <C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the result JSON export">
+                    {(full) => (
+                      <ResultExportPanel model={model} result={full.result} analysisRun={full.analysisRun} inputManifest={inputManifest} />
+                    )}
+                  </C2ResultGate>
+                </li>
+                <li>
+                  <C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the stress-neutral export">
+                    {(full) => (
+                      <StressNeutralExportPanel model={model} result={full.result} analysisRun={full.analysisRun} />
+                    )}
+                  </C2ResultGate>
+                </li>
+                <li><PcfExportPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} /></li>
+                <li><CaepipeMbfExportPanel model={model} onExportMbf={() => { void requestExportMbf(); }} /></li>
+                <li><ReviewGeometryPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} /></li>
+                <li>
+                  <C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the local FEA handoff">
+                    {(full) => (
+                      <LocalFeaHandoffPanel model={model} result={full.result} analysisRun={full.analysisRun} />
+                    )}
+                  </C2ResultGate>
+                </li>
+              </ul>
               </Fragment>
               </DormantSection>) : null}
             </section>
@@ -1353,8 +1298,11 @@ function AppSession() {
         <AgentStrip />
       </div>
 
+      <PartErrorBoundary subject="The Solve progress panel" className="solve-progress-panel" resetKey={projectSessionGeneration}>
       <SolveProgressPanel solveJob={solveJob} running={running} onCancel={handleCancelRun} />
+      </PartErrorBoundary>
       {keyResults.open ? (
+        <PartErrorBoundary subject="The Key results panel" className="key-results-panel" resetKey={projectSessionGeneration}>
         <KeyResultsPanel
           fullResult={session.results.fullResult}
           model={model}
@@ -1368,20 +1316,12 @@ function AppSession() {
           panelRef={keyResults.panelRef}
           {...keyResults.actions}
         />
+        </PartErrorBoundary>
       ) : null}
       <ShellStatusBar issueCount={issueCount} />
 
-      {auditDrawerOpen ? (
-        <AuditBoundaryDrawer
-          model={model}
-          result={result}
-          analysisRun={analysisRun}
-          storageCapability={storageCapability}
-          onClose={() => setAuditDrawerOpen(false)}
-        />
-      ) : null}
-
       {issuesDrawerOpen ? (
+        <PartErrorBoundary subject="The Issues drawer" className="workspace-drawer issues-drawer" back="close-issues" resetKey={projectSessionGeneration}>
         <IssuesHome
           model={model}
           knowledge={knowledge}
@@ -1396,6 +1336,7 @@ function AppSession() {
           onRunModelChecks={() => { void handleRunModelChecks(); }}
           onSelectEntity={(entity) => { handleSelectEntity(entity); }}
         />
+        </PartErrorBoundary>
       ) : null}
       <ReplaceProjectPrompt prompt={replaceProjectPrompt} />
       <UnsavedChangesPrompt prompt={unsavedChangesPrompt} />
@@ -1454,7 +1395,6 @@ function dockSectionClass(sectionId: WorkspaceSectionId, activeSection: Workspac
 
 function MenuBar({
   activeSection,
-  auditOpen,
   canRedo,
   canUndo,
   inspectorCollapsed,
@@ -1470,7 +1410,6 @@ function MenuBar({
   stage,
   stageViewMemory,
   pageOpen,
-  tableDrawer,
   run,
   theme,
   density,
@@ -1481,13 +1420,11 @@ function MenuBar({
   stage: ShellStage;
   stageViewMemory: Parameters<typeof viewSwitchItems>[1];
   pageOpen: boolean;
-  tableDrawer: TableDrawerState;
   run: Parameters<typeof railStageStates>[0];
   theme: UiThemePreference;
   density: UiDensityPreference;
   keyResultsOpen?: boolean;
   activeSection: WorkspaceSectionId | null;
-  auditOpen: boolean;
   canRedo: boolean;
   canUndo: boolean;
   inspectorCollapsed: boolean;
@@ -1563,17 +1500,10 @@ function MenuBar({
           reason: state.reason
         })),
         { kind: "separator" },
-        {
-          kind: "command",
-          id: "view.tree",
-          label: "Table Drawer",
-          active: tableDrawer.expanded,
-          disabled: !tableDrawer.collapsible,
-          reason: tableDrawer.reason
-        },
         { kind: "command", id: "view.inspector", label: "Inspector", active: inspector.latched, disabled: !inspector.enabled, reason: inspector.reason },
         { kind: "separator" },
-        ...WORKSPACE_SECTIONS.map(
+        // The sections the rail and the stage tabs do not reach in every state (VIEW_MENU_SECTIONS).
+        ...WORKSPACE_SECTIONS.filter((section) => VIEW_MENU_SECTIONS.has(section.id)).map(
           (section): MenuItemSpec => ({
             kind: "command",
             id: `view.section.${section.id}`,
@@ -1583,7 +1513,6 @@ function MenuBar({
         ),
         { kind: "separator" },
         { kind: "command", id: "view.issues", label: "Issues", active: issuesOpen },
-        { kind: "command", id: "view.audit", label: "Audit & Boundaries", active: auditOpen },
         { kind: "command", id: "view.key-results", label: "Key Results", active: keyResultsOpen },
         { kind: "separator" },
         ...(["light", "dark", "system"] as const).map((value): MenuItemSpec => ({
@@ -1781,67 +1710,6 @@ function AgentFocusFact({ label, value, testId }: { label: string; value: string
   );
 }
 
-function AuditBoundaryDrawer({
-  model,
-  result,
-  analysisRun,
-  storageCapability,
-  onClose
-}: {
-  model: PreviewModel;
-  result: SessionResult | null;
-  analysisRun: SessionAnalysisRun | null;
-  storageCapability: LocalStorageCapability | null;
-  onClose: () => void;
-}) {
-  return (
-    <aside className="workspace-drawer audit-drawer" aria-label="Audit and boundaries drawer" data-testid="audit-boundary-drawer">
-      <div className="drawer-header">
-        <div>
-          <span>Audit & boundaries</span>
-          <h2>Local preview evidence</h2>
-        </div>
-        <button type="button" onClick={onClose}>
-          Close
-        </button>
-      </div>
-      <section className="boundary-grid" aria-label="Preview boundary details">
-        <BoundaryItem icon={<Database size={15} aria-hidden="true" />} label="Public data" value={boundaryValue(model, "public_examples_policy")} />
-        <BoundaryItem
-          icon={<ShieldCheck size={15} aria-hidden="true" />}
-          label="Protected content"
-          value={boundaryValue(model, "protected_source_policy")}
-        />
-        <BoundaryItem icon={<LockKeyhole size={15} aria-hidden="true" />} label="Private data" value={boundaryValue(model, "private_data_policy")} />
-        <BoundaryItem
-          icon={<FileWarning size={15} aria-hidden="true" />}
-          label="Professional boundary"
-          value={boundaryValue(model, "professional_boundary")}
-        />
-      </section>
-      <section className="storage-capability" data-testid="local-project-status">
-        <strong>{storageCapability ? storageBadgeLabel(storageCapability) : "Storage check pending"}</strong>
-        <span>
-          {storageCapability
-            ? `${storageCapability.engine} local store; network=${String(storageCapability.network_required)}; daemon=${String(
-                storageCapability.daemon_required
-              )}; telemetry=${String(storageCapability.telemetry_enabled)}; FTS5=${String(storageCapability.fts5_available)}.`
-            : "Checking local storage."}
-        </span>
-      </section>
-      <div className="drawer-panel-grid">
-        <RunAuditPanel model={model} result={result} analysisRun={analysisRun} />
-        <ValidationEvidencePanel model={model} />
-        <BuildReadinessPanel model={model} />
-        <TelemetryBoundaryPanel model={model} storageCapability={storageCapability} />
-        <SecretPrivateLibraryPanel model={model} storageCapability={storageCapability} />
-        <SecurityThreatModelPanel model={model} storageCapability={storageCapability} />
-        <AccessibilityBaselinePanel model={model} />
-      </div>
-    </aside>
-  );
-}
-
 function IssuesHome({
   model,
   knowledge,
@@ -1973,25 +1841,8 @@ function r3ExitJourneyStatus({
   return `Packaged A12/R3 human pass not recorded; ${solveStatus}; R3 exit review not started.`;
 }
 
-function BoundaryItem({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
-  return (
-    <span className="boundary-item">
-      {icon}
-      <strong>{label}</strong>
-      {/* title carries the full value when the strip ellipsizes at narrow widths */}
-      <code title={value}>{value}</code>
-    </span>
-  );
-}
-
 function boundaryValue(model: PreviewModel, key: string): string {
   return model.data_boundary[key] ?? "TBD";
-}
-
-function storageBadgeLabel(storageCapability: LocalStorageCapability): string {
-  if (storageCapability.fts5_available) return "SQLite + FTS5";
-  if (storageCapability.engine.toLowerCase().includes("browser")) return "Local preview store";
-  return "Local store";
 }
 
 function projectReviewContext(

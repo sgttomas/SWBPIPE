@@ -11,6 +11,13 @@ needs:
     The workspace shell applies the chosen theme and density to every mounted panel, carries focus
     between panels in a stated order, and gives every panel the same keyboard route to its commands.
   gating: false
+- from: DEL-07-11
+  when: Taking a walkthrough of the launched application by script for the interface review
+  condition: >-
+    The scripted-run build drives the desktop by script, and what it substitutes is what the shell's
+    scope declares: the file the chooser returns, the native menu commands and the report print
+    dialog.
+  gating: true
 - from: DEL-07-02
   when: Examining the timed-entry use case
   condition: >-
@@ -85,11 +92,15 @@ code_paths:
 - apps/desktop/e2e/b3-accessibility.spec.ts
 - apps/desktop/e2e/workspace-layout.spec.ts
 - apps/desktop/e2e/workspace-driver.ts
+# The screenshot walkthrough: drives the browser build through the use cases by its own controls and
+# writes numbered screens with their word and control counts. It records what a person sees and where
+# a journey stops; it judges nothing and is no check of AC-007.
+- apps/desktop/walkthrough/**
 # AC-007's missing-data use case: its start model, requests and person-entered values, and the
 # offline judge of a trace of it. No driver runs it yet.
 - fixtures/embedded_agent/use_cases/missing-data/**
 - tools/agent_missing_data_judge.py
-# A review-export panel mounted in the evidence section and the drawer, and a Python reference
+# A review-export panel the v1.0 interface does not mount (LIM-039), and a Python reference
 # module with its own contract test. No criterion of this scope covers either.
 - apps/desktop/src/features/accessibility-baseline/**
 - core/gui/accessibility/**

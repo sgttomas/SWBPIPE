@@ -169,10 +169,28 @@ account. It says what it read and what it did not. Each review is a fresh
 reviewer: a view of the work as it stands at that moment. One reading is
 enough when it answers the question. When a matter takes more rounds, give
 the next reviewer the earlier findings and what was done about them. Aim to
-resolve within two rounds, continue past three only while still converging,
-and stop at six. Unresolved findings return to whoever integrates the work,
-to decide within its authority; ending the rounds waives no required check or
-reserved choice.
+resolve within two rounds and stop at three. After the third, the agent that
+initiated the reviews decides the path forward within its authority, and
+says why in the pull request; findings beyond that authority go to whoever
+integrates the work. Ending the rounds waives no required check or reserved
+choice.
+
+**Scoring the interface** is not an independent review round and has no round
+limit. The owner's gate for the desktop's human controls: "When you're judging
+the UI, develop a set of criteria that can be judged on a scale of 1 to 5, with
+1 being novice and 5 being professional grade. A minimum of 4 in each category
+from both independent reviewers is necessary before a human would be asked to
+use it." If the gate is unmet, the responsible lanes address the findings and
+the desktop is scored again until it passes. On each attempt, the two
+independent reviewers are fresh agents who did not write the work and have seen
+no scores, findings or pictures from earlier attempts. Each scores
+independently from the screens and index of the launched-application
+walkthrough specified in DEL-07-06 VER-007, using the same nine criteria and
+scoring rules in DEL-07-06 REQ-017 and AC-008. A reviewer retained across
+attempts may advise the lane. Only the fresh pair's scores count toward the
+gate. Agent 0 decides any change to the scoring criteria under the posture
+above and records the reason in the governing scope. The three-round limit
+above still governs the review of each change.
 
 **The INTERLOCUTOR** advises Agent 0 on direction in a session the owner opts
 in; it is never an entry or default role. Agent 0 keeps the same one as
@@ -364,9 +382,9 @@ act it describes.
 Under every delegation, and under the posture's grant, changed commitment text
 still gets an independent review, and a change of numerical meaning gets
 targeted regression checks and independent scrutiny. Release, acceptance and
-issuance, purchases, the native-smoke `expected.json` values and the
-reservations in `docs/RELEASE_TARGET_v1.0.md` ("Reserved to the owner") stay
-with the owner. The product and data boundaries (`docs/PRD.md` §4.3,
+issuance, purchases, the native-smoke `expected.json` values (but for the
+consequent change `docs/RELEASE_TARGET_v1.0.md`, "Reserved to the owner",
+provides) and the reservations in that section stay with the owner. The product and data boundaries (`docs/PRD.md` §4.3,
 `docs/IP_AND_DATA_BOUNDARY.md`) are unchanged.
 
 When an owner instruction overrides a standing rule, note the exception in the
@@ -388,7 +406,8 @@ any further push to the branch. `main` does not require an up-to-date branch:
 before merging or arming, Agent 0 updates the branch and waits for a fresh run
 when a PR merged since the branch's base touched the same files or the same
 deliverable. Open PRs that overlap this way merge in turn: the later one stays
-unarmed until the earlier has landed and the later has been updated. Where a
+unarmed until the earlier has landed. Agent 0 then updates the later one or
+applies the record-only exception below. Where a
 PR's head contains current `main` and the reviewed heads of earlier PRs, and
 the hosted `harness` result is green on that exact head, Agent 0 may instead
 merge it and so land the earlier ones without their own fresh runs. "Contains"
@@ -432,6 +451,67 @@ Agent 0 says on each PR landed this way which head carried it. Agents working un
 merge and wait for that Agent 0 to merge it. A Type 1 the owner started directly reports its PR ready to this project's Agent 0; where the owner works with it alone and no Agent 0 holds the project, it holds that perspective and merges under this grant. Explicit holds and reserved decisions
 apply. This grant excludes protection bypasses, history rewrites, force pushes,
 permission changes and releases. Use [Git conventions](#git-conventions) below.
+
+**Record-only overlap.** The update and fresh run may be omitted for one PR
+with a green hosted `harness` on its reviewed head when its overlap with what
+has merged to `main` since its base is confined to derived content of one or
+both of two records. Auto-merge is off before this assessment begins and
+through the merge, which Agent 0 makes by hand.
+
+- The records are `tools/validation/pressure_elongation_inventory.json`,
+  regenerated on each side by
+  `tools/validation/pressure_elongation_inventory.py`, and
+  `tools/hosted-ci-routing.json`, in which either side may change only existing
+  digest values in `piping_runtime_reads.source_trees`, existing `sha256`
+  values on its readers, and the membership of an input's `files` list where
+  that input has an unchanged `scan`; and no reader whose `sha256` changes on
+  one side has a `files` list or any declared input file changed on the other.
+  Every other edit to the routing record takes the update and the fresh run. No
+  other generated or partly generated file qualifies, whatever produced it.
+- From the merge-base of `main` and the reviewed head, Agent 0 compares the
+  PR's diff with each first-parent change landed on `main` since, and reads
+  both sides' diffs of each shared record. On the merged tree built below, and
+  under the declarations at each range's endpoints, it runs `python3 -m
+  tools.deliverables --project . touches <range>` for each range, keeps the
+  union of the matches, and removes only the qualifying shared record paths
+  from `unmapped_paths` and from each deliverable's `relevant` list. No
+  remaining path, and no deliverable with a remaining match, occurs on both
+  sides.
+- Agent 0 builds a local Git merge commit of the current `main` commit and the
+  reviewed head in a clean checkout and edits nothing in it. The merge is
+  conflict-free, each shared record's diff against the merge-base holds only
+  the content above, and each merged record parses with no duplicate JSON key.
+- On that tree: for a shared pressure inventory, `python3
+  tools/validation/pressure_elongation_inventory.py --check` and
+  `tools/validation/test_pressure_elongation_inventory.py` pass; for a shared
+  routing record, `tests/test_ci_numerical.py` and
+  `tools/software_workflow/test_hosted_ci.py` pass and every `source_trees` key
+  is a discovered Cargo manifest whose digest equals
+  `numerical_ci.rust_tree_digest`; and `python3 -m tools.deliverables --project
+  . check` reports no error.
+- The merged candidate's effective hosted selection equals the green run's.
+  From the merge commit against the checked `main` (`python3
+  tools/software_workflow/hosted_ci.py plan --event pull_request --base <main>
+  --head HEAD --suite piping --output <plan>`), the plan's `modes`, `checks`,
+  `piping_numerical_selection.manifests` and `piping_browser_selection.specs`,
+  the Python selection (`python3 tools/ci/python_ci.py --plan <plan>
+  --repository-checks-run --dry-run`) and the registration output
+  (`--registration`) match those produced the same way in a clean checkout of
+  the reviewed head against its merge-base, and the documentation mode and
+  repository regressions selected are the same. A different selection takes the
+  update and the fresh run.
+- Agent 0 binds the merge to the reviewed head and has exclusive control of
+  advances to `main` from the final tip check through the merge: no other PR
+  has auto-merge armed and Agent 0 makes no other merge. Immediately before
+  merging, `main` still names the checked commit; if either tip has moved, the
+  assessment is repeated or the branch is updated. Agent 0 records on the PR
+  the `main` commit, the PR head, the merged tree, the shared records and the
+  results of the checks.
+
+Agent 0 updates the branch and waits for a fresh run if any condition above
+fails or cannot be established, and unless it establishes that neither side
+changed priced sources, frozen references or numerical meaning. Holds, required
+reviews and the conditions for composed branches are unchanged.
 
 ## Git conventions
 

@@ -2,12 +2,14 @@
 // DEL-12-02 AC-007): Save canonical HTML… and Print…, both route
 // DREP-HTML-SAVE-005. In the native application a `download` link and a print
 // iframe do nothing (the shell has no download handler, and its print reaches
-// only the main frame), so the report panel sends the canonical HTML to
-// `save_rendered_report_html` (system save chooser, atomic writer) and to
+// only the main frame), so the report panel asks
+// `save_rendered_report_html` (system save chooser, atomic writer) and
 // `print_rendered_report` (the print view in a window of its own, the system
-// print dialog). The native side admits the HTML only when its SHA-256 is the
-// one it recorded for the current render, reads the context and the block from
-// that record and derives the print view itself
+// print dialog) for the render it shows. The native side keeps the current
+// render's canonical HTML; a request carries no document and names the render
+// by the SHA-256 the render's reply gave, which is admitted only when it is the
+// current render's. The native side reads the context and the block from its
+// record, saves exactly the bytes it holds and derives the print view from them
 // (`src-tauri/src/rendered_report_routes.rs`, `rendered_report_print.rs`).
 // Each request names the report source number its render was prepared for
 // (`features/workspace/reportSourceSequence.ts`); the native side refuses one
@@ -96,6 +98,10 @@ export function renderedReportRouteOpen(controlled: ControlledRouteExport, html:
  * gated by the render's own public gate alone (the render input controlled
  * under DREP-IPC-003 and the renderer's export gates), as before. */
 type RouteRequest = {
+  /** The SHA-256 the render's reply gave: it names the render; no document is sent. */
+  sha256Hex: string;
+  /** The canonical HTML as the web view holds it. Used here only to check the
+   * controlled export against it; it is never part of what is sent. */
   html: string;
   context: RenderedReportRouteContext;
   explicitLocalPrivateIntent: boolean;
@@ -106,7 +112,7 @@ type RouteRequest = {
 
 function routeArgs(request: RouteRequest): Record<string, unknown> {
   return {
-    html: request.html,
+    sha256Hex: request.sha256Hex,
     exportContext: request.context,
     explicitLocalPrivateIntent: request.explicitLocalPrivateIntent,
     evidence: {
@@ -126,8 +132,10 @@ function isRouteError(value: unknown): value is RenderedReportRouteError {
   return typeof candidate.code === "string" && typeof candidate.stage === "string" && typeof candidate.message === "string";
 }
 
-// The two commands take the canonical HTML as a raw body under the ingress
-// lease, as `render_calculation_report` does.
+// The two commands take their arguments as a raw body under the ingress lease,
+// as `render_calculation_report` does. The route check (`renderedReportRouteOpen`,
+// which compares the controlled payload with the canonical HTML) runs here as
+// before, on the web view's own copy; the document itself is not sent.
 async function send<T>(
   command: "save_rendered_report_html" | "print_rendered_report",
   request: RouteRequest,

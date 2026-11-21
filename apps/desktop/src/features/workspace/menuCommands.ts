@@ -25,7 +25,6 @@ export type MenuCommandId =
   | "view.tree"
   | "view.inspector"
   | "view.issues"
-  | "view.audit"
   | "view.close-panels"
   // A6 key results: the browser menu's route. The native menu has no item for it yet, so it is
   // not in NATIVE_MENU_COMMAND_IDS, and App handles it before the session's runMenuCommand.
@@ -55,6 +54,29 @@ export type MenuItemSpec =
       shortcut?: { label: string; aria: string } }
   | { kind: "separator" };
 
+/**
+ * The workspace sections both View menus list (the in-app one here, the native one in
+ * `src-tauri/src/lib.rs`, NATIVE_VIEW_SECTIONS). Review changes and Load Cases are not
+ * listed: the Model stage's Review changes tab and the Loads stage reach them in every
+ * state. Results, Evidence and Report stay, because their stages are disabled until a
+ * run (or a current solved run) exists while the sections still hold what needs none:
+ * the weight summary (DEL-07-05 REQ-022), the telemetry state, and a held result's
+ * report (DEL-08-01 REQ-017). Their `view.section.*` commands are all still accepted.
+ */
+export const VIEW_MENU_SECTIONS: ReadonlySet<WorkspaceSectionId> = new Set<WorkspaceSectionId>([
+  "libraries",
+  "rule-packs",
+  "solve",
+  "results",
+  "report",
+  "project",
+  "exports",
+  "evidence"
+]);
+
+// Every id a native menu event may carry, and so every id the command sink accepts from
+// it. It keeps `view.tree` and every `view.section.*` the menus no longer list: the
+// scripted-run build and the tests still dispatch them.
 const NATIVE_MENU_COMMAND_IDS: ReadonlySet<string> = new Set([
   "file.new-local",
   "file.new-blank",
@@ -73,7 +95,6 @@ const NATIVE_MENU_COMMAND_IDS: ReadonlySet<string> = new Set([
   "view.tree",
   "view.inspector",
   "view.issues",
-  "view.audit",
   "view.close-panels",
   ...["table", "model", "both"].map((view) => `view.view.${view}`),
   ...["model", "loads", "results", "review"].map((stage) => `view.stage.${stage}`),
