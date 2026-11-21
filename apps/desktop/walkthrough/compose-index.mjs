@@ -6,6 +6,10 @@
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
+// The surface of an attended launch's part (native/run.mjs --attended): its screens are captures of the actual window.
+export const ATTENDED_SURFACE = "launched app, its actual window driven by an attendant";
+const attendedJourney = (journey) => journey.surface === ATTENDED_SURFACE;
+
 const escapeHtml = (text) => String(text).replace(/[&<>"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[character]);
 
 export function readParts(out) {
@@ -52,7 +56,8 @@ export function composeIndex(out, { size = null } = {}) {
       substitutions: "each substitution of the scripted-run build the step used: the file a chooser returns, a native menu command, the report print dialog",
       native_surfaces: "each native surface not pictured, what prevents it (the permission prompt, or the substitution) and whether that leaves evidence missing",
       native_menus: "for each launch of the app, the menu it built, read from it once by the scripted-run build: each menu's items in order with label, command identifier, enabled and ticked state, and separators; names, order and state, not appearance or placement",
-      window_shown: "on a native screen, whether the run brought the app's window to the front (--show-window) so its web view drew; page_visibility is what the page reported at that step"
+      window_shown: "on a native screen, whether the run brought the app's window to the front (--show-window) so its web view drew; page_visibility is what the page reported at that step",
+      ...(journeys.some(attendedJourney) ? { capture: "on an attended launch's screen: \"the actual window\" where the picture is a capture of the launched app's actual window that the attendant put in captures/ with a sidecar saying what it shows, redrawn false and scripted false; \"unexplained\" where a picture has no such sidecar, and nothing is claimed for it" } : {})
     },
     native_surfaces: nativeSurfaces,
     native_menus: nativeMenus,
@@ -165,7 +170,7 @@ details { margin-top: 8px; } summary { cursor: pointer; color: var(--muted); fon
 th, td { border-bottom: 1px solid var(--line); padding: 3px 8px; text-align: left; } .n { text-align: right; font-variant-numeric: tabular-nums; }
 </style></head><body><main>
 <h1>SWBPIPE walkthrough</h1>
-<p class="lede">Screens of the application (${escapeHtml(index.surface)}${index.window ? `, at ${escapeHtml(index.window)}` : ""}), taken by driving its own controls. Each screen lists what a person has in front of them. A journey that stops shows where a person would be stuck.${index.journeys.some((journey) => journey.surface !== "browser build") ? " Journeys of the launched app are not captures of its window: each picture is the launched app's document, recorded in its own web view, redrawn by Chromium, so fonts and form controls may differ in detail. Each journey states its surface." : ""}</p>
+<p class="lede">Screens of the application (${escapeHtml(index.surface)}${index.window ? `, at ${escapeHtml(index.window)}` : ""}), taken by driving its own controls. Each screen lists what a person has in front of them. A journey that stops shows where a person would be stuck.${index.journeys.some((journey) => journey.surface !== "browser build" && !attendedJourney(journey)) ? " Journeys of the launched app are not captures of its window: each picture is the launched app's document, recorded in its own web view, redrawn by Chromium, so fonts and form controls may differ in detail. Each journey states its surface." : ""}${index.journeys.some(attendedJourney) ? " An attended launch's pictures are captures of the actual window, taken by the attendant who drove it, not redrawn and not scripted; each is evidence only of what it shows." : ""}</p>
 <nav><ol>${index.journeys.map((journey) => `<li><a href="#j${journey.number}">${escapeHtml(journey.title)}</a>${journey.stopped_at ? ` <span class="stop">(stopped at “${escapeHtml(journey.stopped_at)}”)</span>` : ""}</li>`).join("")}</ol></nav>
 ${index.native_surfaces.length ? `<h2>Native surfaces not pictured</h2><ul class="surfaces">${index.native_surfaces.map((item) => `<li><strong>${escapeHtml(item.surface)}</strong>: ${escapeHtml(item.prevented_by)}. Instead: ${escapeHtml(item.instead)}.${item.missing_evidence ? ' <span class="stop">Missing evidence.</span>' : item.evidence === "supplied" ? " Evidence supplied." : ""}</li>`).join("")}</ul>` : ""}
 ${index.native_menus.length ? renderMenus(index.native_menus) : ""}

@@ -339,3 +339,272 @@ test("every declared journey placement names a committed fixture and an open the
     if (spec.open.file) assert.ok(placements.some((item) => item.key === spec.open.file), name);
   }
 });
+
+// ---------------------------------------------------------------- the attended launch (--attended)
+
+import { constants as fsConstants, copyFileSync, lstatSync } from "node:fs";
+import { ATTENDED, ATTENDED_SURFACE, CAPTURE_BASIS, UNEXPLAINED_BASIS, attendedEnding, attendedStartLines, emptyAttendedOutput, endLaunchGroup, parseCommandLine, readCaptures, readProcessTable, watchAttended, writeAttendedPart } from "./run.mjs";
+import { judgedPhase } from "../../native-smoke/judged-launch.mjs";
+import { censusOf } from "../../native-smoke/launch-env.mjs";
+import { acquireBuildLock } from "../../scripts/worktreeBuildLock.mjs";
+
+test("attended arguments: the option, its defaults, and every refusal by name", () => {
+  assert.deepEqual(parseCommandLine(["--attended", "--out", "/o"]), { buildOnly: false, journeys: [], out: "/o", showWindow: true, attended: { start: null, limitMinutes: 20, hidden: false } });
+  assert.deepEqual(parseCommandLine(["--attended", "--hidden", "--limit-minutes", "1", "--out", "/o"]).attended, { start: null, limitMinutes: 1, hidden: true });
+  assert.equal(parseCommandLine(["--attended", "--hidden", "--out", "/o"]).showWindow, false);
+  assert.equal(parseCommandLine(["--attended", "--journey", "prepared-project", "--out", "/o"]).attended.start, "prepared-project");
+  assert.equal(parseCommandLine(["--attended", "--journey", "reference-system", "--limit-minutes", "60", "--out", "/o"]).attended.start, "reference-system");
+  // Refusals.
+  assert.match(parseCommandLine(["--attended", "--build-only", "--out", "/o"]).error, /cannot be given with --build-only/);
+  assert.match(parseCommandLine(["--build-only", "--attended"]).error, /cannot be given with --build-only/);
+  assert.match(parseCommandLine(["--attended", "--journey", "prepared-project,reference-system", "--out", "/o"]).error, /at most one journey/);
+  assert.match(parseCommandLine(["--attended", "--journey", "solve-and-results", "--out", "/o"]).error, /places nothing before launch/);
+  assert.match(parseCommandLine(["--attended", "--journey", "orientation", "--out", "/o"]).error, /unknown journey orientation/);
+  for (const limit of ["0", "61", "x", "1.5", "-1", ""]) assert.ok(parseCommandLine(["--attended", "--limit-minutes", limit, "--out", "/o"]).error, limit);
+  assert.match(parseCommandLine(["--attended", "--limit-minutes", "61", "--out", "/o"]).error, /from 1 to 60/);
+  assert.match(parseCommandLine(["--hidden"]).error, /--hidden is an option of --attended/);
+  assert.match(parseCommandLine(["--journey", "report", "--hidden"]).error, /--hidden is an option of --attended/);
+  assert.match(parseCommandLine(["--limit-minutes", "5"]).error, /--limit-minutes is an option of --attended/);
+  assert.match(parseCommandLine(["--attended"]).error, /needs --out/);
+  assert.match(parseCommandLine(["--attended", "--show-window", "--out", "/o"]).error, /unless --hidden/);
+  assert.match(parseCommandLine(["--attended", "--attended", "--out", "/o"]).error, /given twice/);
+  assert.match(parseCommandLine(["--attended", "--hidden", "--hidden", "--out", "/o"]).error, /given twice/);
+  assert.match(parseCommandLine(["--attended", "--out", "/o", "--grep", "x"]).error, /unknown argument --grep/);
+  // Without --attended the journeys' command line is unchanged.
+  assert.deepEqual(parseCommandLine(["--journey", "report", "--out", "/w"]), { ...parseArguments(["--journey", "report", "--out", "/w"]), attended: null });
+});
+
+test("attended start lines: one per fact, a script can read them, the last says ready", () => {
+  const lines = attendedStartLines({ pid: 4242, boundApp: "/b/app", launchCopy: "/c/app", finishFile: "/r/attended-finish", captures: "/o/captures", limitMinutes: 20, endsAt: "2026-01-01T00:20:00.000Z", shown: true, start: null });
+  const facts = Object.fromEntries(lines.map((line) => line.match(/^attended\.([a-z_]+)=(.*)$/).slice(1)));
+  assert.equal(facts.pid, "4242");
+  assert.equal(facts.bound_app, "/b/app");
+  assert.equal(facts.window_title_ends_with, "SWBPIPE");
+  assert.equal(facts.finish_file, "/r/attended-finish");
+  assert.equal(facts.captures, "/o/captures");
+  assert.equal(facts.limit_minutes, "20");
+  assert.match(facts.chooser, /strict chooser ends the application if a file chooser is opened/);
+  assert.equal(lines.at(-1), "attended.ready=yes");
+});
+
+test("attended output: an earlier attended part goes, other journeys and an earlier captures folder are kept, and the captures folder refuses a new attended run", (t) => {
+  const out = scratch(t);
+  for (const name of ["part-21-report.json", "2101-report-run.png", "part-90-attended.json", "INDEX.json"]) writeFileSync(path.join(out, name), "x");
+  emptyAttendedOutput(out);
+  assert.deepEqual(readdirSync(out).sort(), ["2101-report-run.png", "part-21-report.json"]);
+  mkdirSync(path.join(out, "captures"));
+  writeFileSync(path.join(out, "captures", "a.png"), "x");
+  // A journey run into the same folder keeps the attendant's folder as it is.
+  emptyNativeOutput(out, ["report"]);
+  assert.deepEqual(readdirSync(out), ["captures"]);
+  assert.deepEqual(readdirSync(path.join(out, "captures")), ["a.png"]);
+  assert.throws(() => emptyAttendedOutput(out), /earlier attended launch's captures/);
+});
+
+test("ending the launch's group: only a group of its own whose leader is this runner's child", () => {
+  const sent = [];
+  const signal = (pgid, name) => sent.push([pgid, name]);
+  const table = new Map([[100, { ppid: 1, pgid: 100 }], [200, { ppid: 100, pgid: 200 }], [201, { ppid: 200, pgid: 200 }], [300, { ppid: 1, pgid: 300 }], [301, { ppid: 300, pgid: 300 }], [101, { ppid: 100, pgid: 100 }]]);
+  const ok = endLaunchGroup(201, { table, self: 100, signal });
+  assert.equal(ok.delivered, true);
+  assert.equal(ok.target, "group 200");
+  assert.deepEqual(sent, [[200, "SIGKILL"]]);
+  assert.match(endLaunchGroup(301, { table, self: 100, signal }).error, /leader is not this runner's child/);
+  assert.match(endLaunchGroup(101, { table, self: 100, signal }).error, /this runner's own process group/);
+  assert.match(endLaunchGroup(999, { table, self: 100, signal }).error, /not found/);
+  assert.match(endLaunchGroup(null, { table, self: 100, signal }).error, /not found/);
+  assert.equal(sent.length, 1);
+});
+
+test("an attended launch's ending: each way named, a failed start and an unreported start never pass", () => {
+  const start = { nonce: "n", ok: true };
+  const outcome = (fields) => ({ status: null, signal: null, timed_out: false, ...fields });
+  assert.deepEqual(attendedEnding({ outcome: outcome({ status: 0 }), start, nonce: "n" }).by, "app-exited");
+  assert.equal(attendedEnding({ outcome: outcome({ status: 0 }), start, nonce: "n" }).ok, true);
+  assert.equal(attendedEnding({ outcome: outcome({ status: 3 }), start, nonce: "n" }).ok, false);
+  assert.equal(attendedEnding({ outcome: outcome({ signal: "SIGSEGV" }), start, nonce: "n" }).ok, false);
+  assert.equal(attendedEnding({ outcome: outcome({ signal: "SIGKILL", timed_out: true }), start, nonce: "n", limitMinutes: 5 }).by, "limit");
+  assert.equal(attendedEnding({ outcome: outcome({ signal: "SIGKILL" }), finish: { receipt: { delivered: true } }, start, nonce: "n" }).by, "finish-file");
+  assert.equal(attendedEnding({ outcome: outcome({ status: 86 }), start, nonce: "n" }).by, "strict-chooser");
+  const failed = attendedEnding({ outcome: outcome({ status: 0 }), finalReport: { error: "the journey declares nothing to open" }, start: { nonce: "n", ok: false, error: "x" }, nonce: "n" });
+  assert.deepEqual([failed.by, failed.ok], ["start-failed", false]);
+  assert.equal(attendedEnding({ outcome: outcome({ status: 0 }), start: { nonce: "other", ok: true }, nonce: "n" }).ok, false);
+  assert.equal(attendedEnding({ outcome: null }).ok, false);
+});
+
+test("captures: each PNG with its sidecar is a capture of the actual window; without one it is unexplained, not dropped; nothing is followed", (t) => {
+  const root = scratch(t);
+  const folder = path.join(root, "captures");
+  mkdirSync(folder);
+  const png = (width, height) => { const head = Buffer.alloc(33); Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]).copy(head); head.writeUInt32BE(13, 8); head.write("IHDR", 12, "latin1"); head.writeUInt32BE(width, 16); head.writeUInt32BE(height, 20); return head; };
+  writeFileSync(path.join(folder, "01-menu.png"), png(1440, 920));
+  writeFileSync(path.join(folder, "01-menu.json"), JSON.stringify({ step: "file-menu-open", note: "The File menu, opened from the menu bar", acted: ["clicked File in the menu bar"] }));
+  writeFileSync(path.join(folder, "02-bare.png"), png(800, 600));
+  writeFileSync(path.join(folder, "03-bad.png"), png(10, 10));
+  writeFileSync(path.join(folder, "03-bad.json"), JSON.stringify({ step: "", note: "n", acted: [] }));
+  writeFileSync(path.join(folder, "04-fake.png"), "not a png");
+  writeFileSync(path.join(folder, "04-fake.json"), JSON.stringify({ step: "s", note: "n", acted: [] }));
+  writeFileSync(path.join(folder, "05-orphan.json"), JSON.stringify({ step: "s", note: "no picture", acted: [] }));
+  writeFileSync(path.join(folder, "notes.txt"), "x");
+  symlinkSync(path.join(folder, "01-menu.png"), path.join(folder, "06-link.png"));
+  const before = readdirSync(folder).map((name) => [name, lstatSync(path.join(folder, name)).mtimeMs]);
+  const found = readCaptures(folder);
+  assert.deepEqual(found.screens.map((screen) => [screen.number, screen.file, screen.capture]), [
+    [9001, "captures/01-menu.png", "the actual window"], [9002, "captures/02-bare.png", "unexplained"], [9003, "captures/03-bad.png", "unexplained"], [9004, "captures/04-fake.png", "unexplained"]
+  ]);
+  const [capture, bare, bad, fake] = found.screens;
+  assert.deepEqual([capture.step, capture.note, capture.acted, capture.redrawn, capture.scripted, capture.picture, capture.png.width, capture.png.height], ["file-menu-open", "The File menu, opened from the menu bar", ["clicked File in the menu bar"], false, false, CAPTURE_BASIS, 1440, 920]);
+  assert.match(bare.unexplained, /no sidecar/);
+  assert.match(bad.unexplained, /names no step/);
+  assert.match(fake.unexplained, /not a PNG/);
+  assert.ok([bare, bad, fake].every((screen) => screen.picture === UNEXPLAINED_BASIS && screen.redrawn === false && screen.scripted === false));
+  assert.deepEqual(found.records_without_picture.map((item) => [item.file, item.step]), [["captures/05-orphan.json", "s"]]);
+  assert.deepEqual(found.other.map((item) => [item.file, item.why]), [["captures/06-link.png", "a link, not followed"], ["captures/notes.txt", "neither a PNG picture nor a sidecar"]]);
+  // The runner neither takes nor alters a capture.
+  assert.deepEqual(readdirSync(folder).map((name) => [name, lstatSync(path.join(folder, name)).mtimeMs]), before);
+  assert.deepEqual(readCaptures(path.join(root, "none")), { screens: [], records_without_picture: [], other: [] });
+});
+
+test("the attended part joins the index beside the journeys, marked as captures of the actual window, the journeys' entries unchanged", (t) => {
+  const out = scratch(t);
+  const journeyScreens = screensFromRecords([{ number: 2401, step: "first-open", note: "Opened", window: "1440x920" }], { journey: "prepared-project", number: 24 });
+  writePart(out, { number: 24, name: "prepared-project", title: "P", use_case: "u", revision: { commit: "abc", uncommitted_paths: 0 }, build: { kind: "k" }, screens: journeyScreens, launch: { ended_cleanly: true } });
+  composeIndex(out);
+  const journeysOnly = JSON.parse(readFileSync(path.join(out, "INDEX.json"), "utf8"));
+  const htmlBefore = readFileSync(path.join(out, "index.html"), "utf8");
+  const screens = [{ number: 9001, journey: "attended", file: "captures/a.png", redrawn: false, scripted: false, step: "s", note: "n", acted: ["x"], capture: "the actual window", picture: CAPTURE_BASIS }];
+  writeAttendedPart(out, { title: "Attended", revision: { commit: "abc", uncommitted_paths: 0 }, build: { kind: "k" }, launch: { attended: true, scripted_steps_after_start: 0, ended_by: "finish-file" }, captures: { screens, records_without_picture: [], other: [] } });
+  composeIndex(out);
+  const index = JSON.parse(readFileSync(path.join(out, "INDEX.json"), "utf8"));
+  assert.deepEqual(index.journeys.map((journey) => [journey.number, journey.surface]), [[24, journeysOnly.journeys[0].surface], [90, ATTENDED_SURFACE]]);
+  assert.deepEqual(index.journeys[0], journeysOnly.journeys[0]);
+  assert.deepEqual(index.screens.filter((screen) => screen.journey === "prepared-project"), journeysOnly.screens);
+  assert.equal(index.journeys[1].launch.scripted_steps_after_start, 0);
+  const captured = index.screens.find((screen) => screen.journey === "attended");
+  assert.deepEqual([captured.redrawn, captured.scripted, captured.capture, captured.picture], [false, false, "the actual window", CAPTURE_BASIS]);
+  assert.match(index.marks_explained.capture, /capture of the launched app's actual window/);
+  assert.equal(journeysOnly.marks_explained.capture, undefined);
+  const html = readFileSync(path.join(out, "index.html"), "utf8");
+  assert.match(html, /An attended launch's pictures are captures of the actual window/);
+  assert.match(html, /Journeys of the launched app are not captures of its window/);
+  assert.doesNotMatch(htmlBefore, /attended launch/);
+});
+
+test("the driver's attended start: the start checkpoint, then no step and no finish; a failed start is recorded and ends the app", async () => {
+  const driver = readFileSync(new URL("./driver.js", import.meta.url), "utf8");
+  const launch = async (plan, waitMs = 400) => {
+    const calls = [];
+    const document = { visibilityState: "hidden", querySelector: (selector) => (/desktop-preview-shell|tree-row-project/.test(selector) ? {} : null), querySelectorAll: () => [], hasFocus: () => false, body: {} };
+    let finished = null;
+    const window = {
+      __TAURI_INTERNALS__: {
+        invoke: async (command, args) => {
+          calls.push([command, args]);
+          if (command === "native_smoke_plan") return { ...plan, nonce: "n", journey: "attended", timeouts: { ui: 50, step: 50 } };
+          if (command === "native_smoke_menu_items") return [];
+          if (command === "native_smoke_clear_choices") return 0;
+          if (command === "native_smoke_finish") finished = args.report;
+          return null;
+        }
+      },
+      addEventListener: () => {}
+    };
+    vm.runInNewContext(composeDriver(driver), { window, document, navigator: { userAgent: "test" }, CSS: { escape: (text) => text }, setTimeout, Date, JSON, Promise, String, Error, Boolean, Object, Math, Array, Set, Map, encodeURIComponent, getComputedStyle: () => ({}), requestAnimationFrame: (callback) => setTimeout(callback, 0), innerWidth: 1, innerHeight: 1, devicePixelRatio: 1, matchMedia: () => ({ matches: false }) });
+    await new Promise((resolve) => setTimeout(resolve, 1500 + waitMs));
+    const checkpoints = calls.filter(([command]) => command === "native_smoke_checkpoint").map(([, args]) => args);
+    return { calls, finished, checkpoints };
+  };
+  const plain = await launch({ attended: true, show_window: false, start: null });
+  const start = plain.checkpoints.find((item) => item.name === "start")?.report;
+  assert.deepEqual([start?.nonce, start?.attended, start?.ok, start?.start], ["n", true, true, null]);
+  assert.equal(plain.finished, null, "the driver never ends an attended launch that started");
+  assert.deepEqual(plain.checkpoints.map((item) => item.name), ["menu", "start"]);
+  assert.equal(plain.calls.some(([command]) => command === "native_smoke_menu" || command === "native_smoke_choose"), false);
+  const failed = await launch({ attended: true, show_window: false, start: "x", open: { by: "unknown" } });
+  const failedStart = failed.checkpoints.find((item) => item.name === "start")?.report;
+  assert.deepEqual([failedStart?.ok, failedStart?.error], [false, "the journey declares an unknown way to open: unknown"]);
+  assert.match(failed.finished?.error ?? "", /the attended start failed/);
+  assert.ok(failed.calls.some(([command]) => command === "native_smoke_clear_choices"));
+});
+
+// The three ways an attended launch ends, and the strict chooser's exit, through the real judged launch and the watcher,
+// with a stand-in app as `native-smoke/judged-launch.test.mjs` stubs it: a private copy of this Node executable
+// running an invented script, so that the census finds it as it finds the app's copy. The runner holds a build lock in
+// a scratch folder, so the launch leads a process group of its own as it does in the command.
+const ATTENDED_STAND_IN = `
+const fs = require("node:fs");
+const plan = JSON.parse(process.env.SWBPIPE_NATIVE_SMOKE_PLAN);
+const report = process.env.SWBPIPE_NATIVE_SMOKE_REPORT;
+fs.writeFileSync(report + ".start.json", JSON.stringify({ nonce: plan.nonce, attended: true, ok: true }));
+if (plan.mode === "quit") setTimeout(() => process.exit(0), 1500);
+else if (plan.mode === "chooser") setTimeout(() => process.exit(86), 1500);
+else setInterval(() => {}, 1000);
+`;
+
+test("the three ways an attended launch ends, each censused: the app exits, the finish file appears, the limit passes", { skip: !["darwin", "linux"].includes(process.platform) && "the census runs on macOS and Linux" }, async (t) => {
+  const dir = scratch(t);
+  const executable = path.join(dir, "stand-in-app");
+  copyFileSync(process.execPath, executable, fsConstants.COPYFILE_FICLONE);
+  const script = path.join(dir, "stand-in.cjs");
+  writeFileSync(script, ATTENDED_STAND_IN);
+  const lock = acquireBuildLock({ purpose: "attended launch test", root: dir });
+  try {
+    const marksAbsent = (command) => ({ status: command.endsWith("pgrep") ? 1 : 0, stdout: "", stderr: "", error: undefined });
+    const nonce = "0123456789abcdef0123456789abcdef";
+    const wrapper = process.platform === "darwin" ? ["/usr/bin/caffeinate", ["-di", executable, script]] : [executable, [script]];
+    async function attendedLaunch(mode, { timeoutMs = 30_000, finishAfterReady = false } = {}) {
+      const root = mkdtempSync(path.join(dir, `root-${mode}-`));
+      const report = path.join(root, "report-attended.json");
+      const finishFile = path.join(root, ATTENDED.finish_file);
+      const launches = {};
+      const lines = [];
+      let watch;
+      let ready;
+      const readyNow = new Promise((resolve) => { ready = resolve; });
+      const result = judgedPhase({
+        phase: mode, checkName: "judged", launches, check: () => {}, summaryPath: path.join(root, "summary.json"),
+        executable, command: wrapper[0], commandArgs: wrapper[1], cwd: root, stdio: ["ignore", "ignore", "ignore"],
+        env: { ...process.env, SWBPIPE_NATIVE_SMOKE_PLAN: JSON.stringify({ mode, nonce }), SWBPIPE_NATIVE_SMOKE_REPORT: report },
+        timeoutMs, reportPath: `${report}.start.json`, nonce, censusBoundMs: 5_000, marksRun: marksAbsent,
+        beforeStart: () => {
+          watch = watchAttended({ executable, finishFile, startReport: `${report}.start.json`, nonce, census: censusOf, pollMs: 100, onReady: ({ pid }) => {
+            lines.push(...attendedStartLines({ pid, boundApp: executable, launchCopy: executable, finishFile, captures: root, limitMinutes: 1, endsAt: "t", shown: false, start: null }));
+            ready(pid);
+          } });
+        }
+      });
+      if (finishAfterReady) { await readyNow; writeFileSync(finishFile, ""); }
+      const judged = await result;
+      const watched = watch.stop();
+      const ending = attendedEnding({ outcome: launches[mode].outcome, finish: watched.finish, start: watched.start, nonce, limitMinutes: 1 });
+      return { judged, watched, ending, lines, outcome: launches[mode].outcome };
+    }
+    const quit = await attendedLaunch("quit");
+    assert.deepEqual([quit.ending.by, quit.ending.ok], ["app-exited", true], quit.ending.what);
+    assert.equal(quit.judged.census.resolved, true);
+    assert.equal(quit.watched.finish, null);
+    assert.match(quit.lines.find((line) => line.startsWith("attended.pid=")) ?? "", /^attended\.pid=\d+$/);
+    assert.equal(quit.lines.at(-1), "attended.ready=yes");
+
+    const finished = await attendedLaunch("idle", { finishAfterReady: true });
+    assert.deepEqual([finished.ending.by, finished.ending.ok], ["finish-file", true], finished.ending.what);
+    assert.equal(finished.watched.finish.receipt.delivered, true, JSON.stringify(finished.watched.finish));
+    assert.match(finished.watched.finish.receipt.target, /^group \d+$/);
+    assert.deepEqual([finished.outcome.signal, finished.outcome.timed_out], ["SIGKILL", false]);
+    assert.equal(finished.judged.census.resolved, true);
+    assert.deepEqual(censusOf(executable), { ok: true, pids: [] });
+
+    const limited = await attendedLaunch("idle", { timeoutMs: 2_500 });
+    assert.deepEqual([limited.ending.by, limited.ending.ok], ["limit", true], limited.ending.what);
+    assert.equal(limited.outcome.timed_out, true);
+    assert.equal(limited.watched.finish, null);
+    assert.equal(limited.judged.census.resolved, true);
+
+    const chooser = await attendedLaunch("chooser");
+    assert.deepEqual([chooser.ending.by, chooser.ending.ok], ["strict-chooser", true], chooser.ending.what);
+    assert.equal(chooser.judged.census.resolved, true);
+    assert.ok(readProcessTable().has(process.pid));
+  } finally {
+    lock.release();
+  }
+});

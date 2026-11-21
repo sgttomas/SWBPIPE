@@ -39,13 +39,16 @@ export function parseArguments(argv) {
 // The browser journeys are numbered 1 to 19 and the native ones from 20
 // (native/run.mjs), so both can sit in one folder: `removes(journeyNumber)` says
 // which journeys' screens and part files this run replaces; the others stay, and
-// INDEX.json and index.html, written again from every part, always go.
+// INDEX.json and index.html, written again from every part, always go. The
+// folder `captures`, an attended launch's (native/run.mjs --attended), holds the
+// attendant's own pictures: it is kept as it is, never entered or emptied here.
 const OWN_FILE = /^((\d{3,4})-[a-z0-9-]+(-FAILED)?\.png|part-(\d{2})-[a-z0-9-]+\.json|INDEX\.json|index\.html)$/;
 export const BROWSER_JOURNEYS = (journeyNumber) => journeyNumber < 20;
+const KEPT_FOLDER = "captures";
 
 export function emptyOutput(out, removes = BROWSER_JOURNEYS) {
   if (!existsSync(out)) { mkdirSync(out, { recursive: true }); return; }
-  const entries = readdirSync(out, { withFileTypes: true });
+  const entries = readdirSync(out, { withFileTypes: true }).filter((entry) => !(entry.isDirectory() && entry.name === KEPT_FOLDER));
   const foreign = entries.filter((entry) => !entry.isFile() || !OWN_FILE.test(entry.name)).map((entry) => entry.name);
   if (foreign.length > 0) {
     throw new Error(`walkthrough: ${out} holds files this command did not write (${foreign.slice(0, 5).join(", ")}); choose an empty folder with --out`);

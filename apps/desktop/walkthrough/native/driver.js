@@ -13,6 +13,8 @@
 // page to report itself visible, writes the outcome as the checkpoint `window`, and at each step waits for a drawn
 // frame of the 3D view before the record. A step whose control is missing or disabled is recorded as where a
 // person stops, with the reason the window gives, and the journey's later steps as not reached. It judges nothing.
+// With the plan's `attended` (the runner's --attended) it makes only the start, writes the checkpoint `start` and then
+// takes no step and touches nothing until the launch ends (attendedStart).
 (() => {
   const ipc = window.__TAURI_INTERNALS__;
   // The scripted-run build's substitutions for a person's act (DEL-07-11 REQ-010). Each one a step uses is recorded
@@ -210,6 +212,39 @@
     const record = { nonce, read_when: "once, when the shell first showed and before the journey's first step" };
     try { record.menus = await call("native_smoke_menu_items"); } catch (error) { record.error = String(error?.message ?? error).slice(0, 400); }
     await call("native_smoke_checkpoint", { name: "menu", report: record, storeSnapshot: false });
+  }
+
+  // ------------------------------------------------------------ the attended launch's start (run.mjs --attended)
+
+  // The start and nothing after it. With the plan's `open` (a journey's `place` and `open`), the prepared project is
+  // opened by the File menu exactly as that journey opens it (openPrepared, its own action, no step recorded), and any
+  // chooser answer left queued is cleared, so the attendant's own chooser meets the strict chooser. The checkpoint
+  // `start` records what was done, then the driver takes no step and touches nothing: the promise never settles, so
+  // native_smoke_finish is never called. A failed start is recorded, and the app is then ended by native_smoke_finish.
+  async function attendedStart(journey, plan) {
+    const record = { nonce, attended: true, start: plan.start ?? null, at: Date.now(), window_shown: windowShown, opened: null, substitutions: [], unused_answers: null };
+    try {
+      if (plan.open) {
+        substitutions = [];
+        try {
+          const opening = { step: async (step, note, action) => { record.opened = { step, note, outcome: (await action()) ?? null }; } };
+          await openPrepared(opening, plan, `the start of ${plan.start}`);
+        } finally {
+          record.substitutions = substitutions ?? [];
+          substitutions = null;
+          record.unused_answers = await call("native_smoke_clear_choices");
+        }
+      }
+      record.ok = true;
+    } catch (error) {
+      record.ok = false;
+      record.error = String(error?.message ?? error).split("\n")[0].slice(0, 400);
+    }
+    record.ready_at = Date.now();
+    await call("native_smoke_checkpoint", { name: "start", report: record, storeSnapshot: false });
+    if (!record.ok) throw new Error(`the attended start failed: ${record.error}`);
+    await log("attended: the start is made; the driver takes no further step");
+    return new Promise(() => {});
   }
 
   // ------------------------------------------------------------ shared acts
@@ -485,7 +520,7 @@
       result.nonce = plan.nonce;
       result.journey = plan.journey;
       if (plan.timeouts) T = { ...T, ...plan.timeouts };
-      const run = JOURNEYS[plan.journey];
+      const run = plan.attended === true ? attendedStart : JOURNEYS[plan.journey];
       if (!run) throw new Error(`unknown journey ${plan.journey}`);
       await waitFor("the desktop shell", () => byTestId("desktop-preview-shell") && byTestId(`tree-row-project-${encodeURIComponent(plan.bundled_project_id)}`), T.step);
       await sleep(1000);

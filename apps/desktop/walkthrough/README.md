@@ -196,6 +196,81 @@ embedded agent, printing, and anything outside the window. A step is driven by
 test identifiers, as in the browser walkthrough, so it finds a control a person
 might not.
 
+## The attended launch
+
+```sh
+npm run walkthrough:native --workspace apps/desktop -- --attended [--journey <name>] [--limit-minutes N] [--hidden] --out <folder>
+```
+
+**What it is for.** The journeys above cannot show the actual window: the 3D
+view as drawn, the menu bar, focus and hover, a drag, a person's Quit. The
+attended launch starts the app for an attendant, an agent or a person who
+drives the actual window as a person does, and then leaves it alone. The
+runner drives nothing after the start and captures nothing.
+
+**How it is launched.** It is one launch made by the same launch function
+as every journey's, with all of the confinement under "How it is confined"
+above: an environment built from nothing, a new throwaway home with TMPDIR
+inside it, the strict chooser, a non-persistent web view store, a private copy
+of the bound app checked before the launch, the marks checked directly before
+the start, the census after it, the tripwire, and the run's close on every
+exit. It builds nothing: build first with `--build-only`, as its own job.
+With `--journey <name>`, only that journey's start is used: the files it
+places in the home before launch, and the opening it declares by the File menu
+(`place` and `open`; a journey that places nothing is refused). None of its
+steps runs. Without `--journey`, the start is the app as first opened. The app
+brings its own window to the front, as `--show-window` does (the window's own
+API, kept above other windows; nothing captured). `--hidden` leaves the window
+where the system puts it; it exists only so that the launch's life can be
+checked without taking the screen. `--out` is required; it may already hold
+journeys' screens, but not an earlier attended launch's `captures/` folder.
+
+**What it prints.** Once the start is made, lines of the form
+`attended.<key>=<value>`: `pid` (the app's process), `process_name`,
+`bound_app`, `launch_copy` (the private copy that runs), `window_title_ends_with`
+(the app titles its window `SWBPIPE`, `<project> — SWBPIPE` or `<project> ·
+Edited — SWBPIPE`), `window_shown`, `start`, `finish_file`, `captures`,
+`limit_minutes`, `ends_at`, `chooser`, and last `attended.ready=yes`.
+
+**How it ends.** At the first of: the app exits by itself (the attendant chose
+Quit, or closed the window); the finish file appears (the runner then ends the
+app as a time limit ends any launch, with SIGKILL to the launch's process
+group); or the limit passes (`--limit-minutes`, default 20, 1 to 60). A file
+chooser opened by the attendant meets the strict chooser, which ends the app
+before any panel (exit 86); the record says so. Then the census, the home's
+removal and the tripwire, as after every launch.
+
+**The record.** The index gets one part, `part-90-attended.json`: the
+revision and build, the start, that the launch was attended and that no step
+was scripted after the start, whether the window was shown, when the launch
+started and ended and how, the menu the app built (read once, as every launch
+reads it), and the census. Then one screen for each picture the attendant put
+in `<out>/captures/`. A picture `name.png` with a sidecar `name.json` of the
+form `{ "step": "...", "note": "...", "acted": ["..."] }` is a screen marked as
+a capture of the actual window (`capture: "the actual window"`, `redrawn:
+false`, `scripted: false`). A picture without a sidecar, with one of another
+form, or that is not a PNG is listed as unexplained, with the reason, and
+nothing is claimed for it. A sidecar with no picture, a link, a folder or any
+other file is listed, not followed. The runner neither takes nor alters a
+capture. A journey run into the same folder later keeps `captures/` as it is.
+
+**What the attendant may do, and may not.** The attendant may accept the
+system's prompt that lets its screen-driving tool see and control the
+application under test. It enters no password, secret or licence key. It may
+raise the print dialog and must cancel it or print to a file inside the
+throwaway home, never to a printer; in the scripted-run build, Print records
+the print document and opens the print view's window instead of the system's
+dialog. It opens no folder of the machine's user outside the throwaway home:
+the app's own choosers end the app (the strict chooser), but a page field that
+asks for a file (Operations: Supports, "Import hanger library"; Operations:
+Agent, "Proposal file") opens the system's open panel, which the strict chooser
+does not govern; cancel it. It saves no provider settings and does not start
+the embedded agent; this build refuses every Keychain item in any case.
+
+**What a capture is evidence of.** Only what it shows, at the revision and
+build its part records: what the attendant saw in the window then. It does not
+show that a step works for everyone, and it is not a test.
+
 ## Adding or changing a journey
 
 Browser journeys are in `journeys.walk.ts`, one Playwright test each, in the order of
