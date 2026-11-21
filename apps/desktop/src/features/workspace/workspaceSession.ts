@@ -3026,10 +3026,10 @@ export function useWorkspaceSession() {
     }
   }
 
-  /** W-17 §3: "New blank", "Blank load/reference model" and `file.new-blank` ask for
-   * the project units first. Create builds the blank with the chosen map; Cancel
-   * creates nothing. */
-  function requestBlankProject(kind: BlankProjectKind) {
+  /** W-17 §3: New (the Project page) and `file.new-blank` open the one "New blank project"
+   * dialog: the starting model (`initialKind` selected, the ordinary blank by default) and the
+   * project units. Create builds the chosen kind with the chosen map; Cancel creates nothing. */
+  function requestBlankProject(initialKind: BlankProjectKind = "local") {
     // A project operation in flight refuses a blank, as the create itself would.
     if (projectSessionBusy()) return;
     // Captured before the workspace turns inert, which drops its focus.
@@ -3038,12 +3038,12 @@ export function useWorkspaceSession() {
       const close = () => { projectUnitsDialogOpenRef.current = false; setBlankProjectUnitsRequest(null); };
       projectUnitsDialogOpenRef.current = true;
       setBlankProjectUnitsRequest({
-        kind,
+        kind: initialKind,
         opener,
         cancel: close,
-        create: (units) => {
+        create: (units, chosenKind = initialKind) => {
           close();
-          void (kind === "load_state" ? handleCreateBlankLoadStateProject(units) : handleCreateBlankProject(units));
+          void (chosenKind === "load_state" ? handleCreateBlankLoadStateProject(units) : handleCreateBlankProject(units));
         }
       });
     };
@@ -3053,7 +3053,7 @@ export function useWorkspaceSession() {
       return;
     }
     void confirmReplacingEdits({
-      action: kind === "load_state" ? "Creating a new blank load/reference model" : "Creating a new blank project",
+      action: initialKind === "load_state" ? "Creating a new blank load/reference model" : "Creating a new blank project",
       verb: "create it"
     }).then((guarded) => {
       if (guarded !== "proceed") {
@@ -4534,7 +4534,7 @@ export function useWorkspaceSession() {
         void handleCreateProject();
         break;
       case "file.new-blank":
-        requestBlankProject("local");
+        requestBlankProject();
         break;
       case "file.open-model":
         void handleOpenModelDocument();

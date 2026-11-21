@@ -394,7 +394,7 @@ describe("model states in the session (W-12 S1)", () => {
       fireEvent.click(open);
       // Every model-replacing command starts nothing: no prompt, no native call.
       for (const command of ["file.open-local", "file.open-model", "file.new-blank"]) act(() => nativeMenuCommand(command));
-      for (const id of ["project-new", "open-model-document", "new-blank-040"]) expect(screen.getByTestId(id)).toBeDisabled();
+      for (const id of ["project-new", "open-model-document"]) expect(screen.getByTestId(id)).toBeDisabled();
       expect(screen.queryByTestId("unsaved-changes-prompt")).not.toBeInTheDocument();
       expect(screen.queryByTestId("project-units-dialog")).not.toBeInTheDocument();
       expect(invokeMock.mock.calls.slice(callsBefore).map(([name]) => name)

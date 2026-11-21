@@ -415,7 +415,7 @@ describe("views, stages and mounted panels", () => {
 
   it("keeps the Project page's buttons findable by role and name while the page is closed, and opens them on it", async () => {
     await renderShell();
-    const names = [/^New$/, /^Blank load\/reference model$/, /^Open…$/, /^Save$/];
+    const names = [/^New$/, /^Open…$/, /^Save$/];
     expect(screen.getByTestId("workspace-dock")).toHaveClass("collapsed");
     for (const name of names) expect(screen.getByRole("button", { name })).toBeInTheDocument();
     expect(screen.getByTestId("project-save")).toHaveAccessibleName("Save");

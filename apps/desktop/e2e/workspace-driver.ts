@@ -295,8 +295,8 @@ export async function projectCommand(page: Page, command: ProjectCommand, keyboa
 }
 
 /**
- * W-17: "New blank", "Blank load/reference model" and the File-menu command open
- * the units dialog first. Create accepts its selection (SI unless changed).
+ * W-17: New on the Project page and the File-menu command open the "New blank
+ * project" dialog first (its starting model and units). Create accepts its selection (SI unless changed).
  * `keyboard` focuses Create and presses Enter, for tests that hold a pointer.
  */
 export async function confirmProjectUnits(page: Page, keyboard = false): Promise<void> {

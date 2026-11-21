@@ -143,7 +143,7 @@ async function runMechanicsButton() {
 }
 
 // The Project page's header buttons; the File menu holds the rest of the project commands.
-const PROJECT_CONTROL_IDS = ["project-new", "new-blank-040", "open-model-document", "project-save"];
+const PROJECT_CONTROL_IDS = ["project-new", "open-model-document", "project-save"];
 
 function projectControls() {
   return PROJECT_CONTROL_IDS.map((id) => screen.getByTestId(id));

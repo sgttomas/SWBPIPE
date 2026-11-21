@@ -29,9 +29,9 @@ describe("the Project page in a saved project", () => {
     const page = await within(section).findByTestId("project-page");
     expect(within(page).getByTestId("project-page-saved-line")).toHaveTextContent(/^Not saved as a project\.$/);
 
-    // The header holds New, Open… and Save (and the blank load/reference model, which no menu has).
+    // The header holds New, Open… and Save; New's dialog offers the starting model.
     const controls = screen.getByLabelText("Local project controls");
-    expect(within(controls).getAllByRole("button").map((button) => button.textContent?.trim())).toEqual(["New", "Blank load/reference model", "Open…", "Save"]);
+    expect(within(controls).getAllByRole("button").map((button) => button.textContent?.trim())).toEqual(["New", "Open…", "Save"]);
 
     fireEvent.click(screen.getByTestId("project-save"));
     await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Saved"));

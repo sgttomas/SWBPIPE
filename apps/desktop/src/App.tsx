@@ -1074,14 +1074,11 @@ function AppSession() {
             <h2>{shell.page ? WORKSPACE_SECTIONS.find((candidate) => candidate.id === shell.page)?.label ?? shell.page : ""}</h2>
             <div className={shell.page === "project" ? "titlebar-actions shell-project-controls" : "titlebar-actions shell-project-controls inactive"} aria-label="Local project controls">
           {/* New, Open… and Save: the File menu keeps the complete list (Save as New Local Project,
-              Open Local Project…, List Local Projects); the saved projects are listed on the page. */}
-          <button type="button" data-testid="project-new" onClick={() => requestBlankProject("local")} disabled={projectBusy}>
+              Open Local Project…, List Local Projects); the saved projects are listed on the page.
+              New's dialog offers the starting model, the ordinary blank or the one set up for internal pressure. */}
+          <button type="button" data-testid="project-new" onClick={() => requestBlankProject()} disabled={projectBusy}>
             <FilePlus size={15} aria-hidden="true" />
             New
-          </button>
-          <button type="button" data-testid="new-blank-040" onClick={() => requestBlankProject("load_state")} disabled={projectBusy}>
-            <FilePlus size={15} aria-hidden="true" />
-            Blank load/reference model
           </button>
           <button data-testid="open-model-document" type="button" onClick={() => void handleOpenModelDocument()} disabled={projectBusy}>
             <FolderOpen size={15} aria-hidden="true" />
