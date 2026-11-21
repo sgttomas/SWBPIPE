@@ -1,5 +1,5 @@
 {
- "about": "Release exit criterion 18 (LIM-026): every diagnostic code of fixtures/diagnostics/exact_route_codes.json, classified by whether its text states a pass, a bound or an established state that rests on the ordinary solve's integrity bound, which SWBPIPE does not verify. 'claim': every message of the code states such a claim, and the note always stands beside it. 'quotes_claim': a message of the code may quote one, recognised by the solver's fixed phrases below. 'no_claim': the code states none; the retained-precision route's and the pressure-source recovery's own certificate texts are here, since another certificate establishes them. A text with no code (a published limitation, a confirmation's quoted detail) and a code outside the table are decided by the phrases. integrityStatusClaims.test.ts fails when a code of the table is not classified here.",
+ "about": "Release exit criterion 18 (LIM-026): every diagnostic code of fixtures/diagnostics/exact_route_codes.json, classified by whether its text states, or may quote, a pass, a bound or an established state that rests on the ordinary solve's integrity bound, which SWBPIPE does not verify. 'claim': every message of the code states such a claim. 'quotes_claim': a message of the code may quote one (the ordinary solve's structural report, its equilibrium checks, a prior checks-passed outcome), in wording a list of phrases cannot close; every message of the code takes the note, whatever its words, and the reason says why. The note always stands beside a message of either class. 'no_claim': the code states none, and its messages never take the note; the retained-precision route's and the pressure-source recovery's own certificate texts are here, since another certificate establishes them. A text with no code (a published limitation, a confirmation's quoted detail) and a code outside the table are decided by the solver's fixed phrases below, the second guard. integrityStatusClaims.test.ts fails when a code of the table is not classified here, and names where each phrase is found.",
  "phrases": [
   {
    "text": "NUMERICAL_INTEGRITY_CHECKS_PASSED",
@@ -32,6 +32,10 @@
   {
    "text": "Established within its stated numerical bound for the explicitly held system",
    "rests_on": "A held-constraint comparison's outcome E: the held system's support-state confirmation, which rests on the ordinary solve's integrity bound (held_status.rs ESTABLISHED)."
+  },
+  {
+   "text": "quality: Passed",
+   "rests_on": "The ordinary solve's structural integrity report, quoted in a diagnostic message in its Rust debug form (StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Passed, ... }), stating its quality as passed."
   }
  ],
  "claim": {
@@ -41,10 +45,10 @@
   "EXACT_COMBINATION_DERIVED_FROM_CASE_RESULTS": "Says that the row groups the combination certificate establishes carry a stated bound; that certificate is formed from the operand cases' ordinary member bounds."
  },
  "quotes_claim": {
-  "NUMERICAL_INTEGRITY_SENSITIVE": "A demoted checks-passed message keeps the solver's sentences that its equilibrium checks passed and, for a nonlinear case, that its converged support state is established.",
-  "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED": "The inspection-only message states that the ordinary solve's separate zero count/cap/contact/sliding checks passed.",
-  "NUMERICAL_INTEGRITY_INSPECTION_ONLY": "Quotes the case's prior outcome code NUMERICAL_INTEGRITY_CHECKS_PASSED and its integrity message.",
-  "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED": "Its token retained_source_attempt=not_required_ordinary_checks_passed states that the ordinary solve's checks passed."
+  "NUMERICAL_INTEGRITY_SENSITIVE": "Quotes the ordinary solve's structural report and, for a nonlinear case, its equilibrium checks; a demoted checks-passed message keeps the report's quality: Passed, the solver's sentence that its equilibrium checks passed and, where confirmed, that its converged support state is established. Noted by code: a sensitive message's wording is not closed.",
+  "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED": "Quotes the ordinary solve's structural report (quality: Passed) and its selected-state equilibrium, and the inspection-only message states that its separate zero count/cap/contact/sliding checks passed. Noted by code.",
+  "NUMERICAL_INTEGRITY_INSPECTION_ONLY": "Quotes the case's prior outcome code NUMERICAL_INTEGRITY_CHECKS_PASSED or NUMERICAL_INTEGRITY_SENSITIVE and that outcome's integrity message verbatim. Noted by code.",
+  "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED": "Its token retained_source_attempt=not_required_ordinary_checks_passed states that the ordinary solve's checks passed; the message is the ordinary route's, never the recovery's (it is published only where no recovery is selected). Noted by code."
  },
  "no_claim": [
   "ARC_TOROIDAL_HOOP_DOMAIN",
