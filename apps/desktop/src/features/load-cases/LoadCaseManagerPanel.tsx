@@ -1,6 +1,6 @@
-import { PressureAuthoringPanel } from "../pressure-authoring/PressureAuthoringPanel";
+import { PressureAuthoringPanel, PressureRegionsEditor } from "../pressure-authoring/PressureAuthoringPanel";
 import { LoadReferenceStateInputs } from "./LoadReferenceStateInputs";
-import { ConditionUseControl } from "../condition-sets/ConditionUseControl";
+import { ConditionUseControl, describeUse } from "../condition-sets/ConditionUseControl";
 import { isPressureFree } from "../condition-sets/conditionSetIntents";
 import {
   OPERATING_DIFFERENCE_BASIS,
@@ -21,8 +21,8 @@ import {
   primitiveLoadUsesSupportTarget,
   type PrimitiveLoadCategory
 } from "./primitiveLoadVocabulary";
-import { ListPlus, Scale, SlidersHorizontal, Trash2 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { ChevronDown, ListPlus, Plus, Scale, Trash2 } from "lucide-react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
 import {
   acceptedUnits,
@@ -34,7 +34,7 @@ import {
 import { convertDisplayQuantities } from "../../services/displayQuantityService";
 import { VirtualMultiTargetPicker, VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 import { VirtualList } from "../workspace/VirtualList";
-import { combinationTermOperand, combinationTermsText, type Combination, type CombinationTerm } from "./combinationOperands";
+import { combinationTermOperand, type Combination, type CombinationTerm } from "./combinationOperands";
 import {
   DIFFERENCE_BASIS_OPERAND_CODE,
   NONLINEAR_MECHANICS_TEXT,
@@ -59,7 +59,9 @@ import {
   type TermDraft
 } from "./combinationAuthoring";
 import { SeismicTemplateSection } from "./SeismicTemplateSection";
-import { SEISMIC_TEMPLATE_PROVENANCE } from "./seismicTemplate";
+import { SEISMIC_TEMPLATE_LABEL, SEISMIC_TEMPLATE_PROVENANCE } from "./seismicTemplate";
+import { isLoadStateModel } from "./loadStateAuthoring";
+import { CaseSectionList, CreateForm, More, basisLabel, categoryLabel, directionLabel, plural, shortRef, type CaseSection } from "./LoadsPageParts";
 import {
   DELETE_REFERENCED_CODE,
   NUMBER_DISPLAY_ENGINE_ABSENT,
@@ -129,6 +131,7 @@ const COMBINATION_BASIS_OPTIONS = ["mechanics", "result_state_subtraction", "ran
 type CombinationBasis = (typeof COMBINATION_BASIS_OPTIONS)[number];
 
 const COMBINATION_RANGE_MODES = ["min", "max", "min_abs", "max_abs"] as const;
+const PRIMITIVE_CATEGORY_CHOICES = ["concentrated_force", "distributed_force", "concentrated_moment", "thermal", "imposed_displacement"] as const;
 const DIMENSIONLESS_UNIT_VALIDATION_STATUS = "not_required_dimensionless";
 
 type CombinationDraft = {
@@ -190,7 +193,24 @@ export function LoadCaseManagerPanel({
   ], [model.load_cases, model.combinations, shadowedCombinations]);
   const constantEffortSupports = useMemo(() => constantEffortSupportIds(model), [model]);
   const nonlinearSupports = useMemo(() => nonlinearSupportIds(model), [model]);
-  const createLoadCaseIdRef = useRef<HTMLInputElement>(null);
+  const createLoadCaseLabelRef = useRef<HTMLInputElement>(null);
+  const createCombinationLabelRef = useRef<HTMLInputElement>(null);
+  const caseFormRef = useRef<HTMLDetailsElement>(null);
+  const combinationFormRef = useRef<HTMLDetailsElement>(null);
+  const templateFormRef = useRef<HTMLDetailsElement>(null);
+  const templatesButtonRef = useRef<HTMLButtonElement>(null);
+  // Which entity the editor column shows; it follows `selection`, and a row chosen here.
+  const [pane, setPane] = useState<"case" | "combination">(selection.type === "combination" ? "combination" : "case");
+  // Creation forms are shown only after their command is chosen.
+  const [caseFormOpen, setCaseFormOpen] = useState(false);
+  const [combinationFormOpen, setCombinationFormOpen] = useState(false);
+  const [templateOpen, setTemplateOpen] = useState(false);
+  const [templatesMenuOpen, setTemplatesMenuOpen] = useState(false);
+  const [addLoadOpen, setAddLoadOpen] = useState(false);
+  const [addTermOpen, setAddTermOpen] = useState(false);
+  // The load row or term row whose edit is open in place.
+  const [editingPrimitiveKey, setEditingPrimitiveKey] = useState<string | null>(null);
+  const [editingTermKey, setEditingTermKey] = useState<string | null>(null);
   const [selectedPrimitiveKey, setSelectedPrimitiveKey] = useState(primitiveLoads[0] ? primitiveKey(primitiveLoads[0]) : "");
   const [selectedCombinationTermKey, setSelectedCombinationTermKey] = useState(
     combinationTerms[0] ? combinationTermKey(combinationTerms[0]) : ""
@@ -398,8 +418,7 @@ export function LoadCaseManagerPanel({
       })
     : null;
   const primitiveDraftDimension = primitiveLoadDraftDimension(primitiveLoadDraft.category, primitiveLoadDraft.direction);
-  const primitiveDraftUnit = primitiveLoadDraft.unit;
-  const primitiveDraftUnitBasis = describeUnitBasis(unitCatalogRoute, primitiveDraftUnit, primitiveDraftDimension);
+  const primitiveDraftUnitBasis = describeUnitBasis(unitCatalogRoute, primitiveLoadDraft.unit, primitiveDraftDimension);
   const primitiveDefaultUnitChoice = primitiveLoadDefaultUnitChoice(model, primitiveLoadDraft.category, primitiveLoadDraft.direction, unitCatalogRoute);
   const primitiveDraftUnitOptions = unitOptions(unitCatalogRoute, primitiveDraftDimension, primitiveDefaultUnitChoice.symbol);
   // a composed default the catalog lacks leaves the unit unselected, and says why.
@@ -410,7 +429,6 @@ export function LoadCaseManagerPanel({
   const selectedPrimitiveUnitBasis = selectedPrimitive
     ? describeUnitBasis(unitCatalogRoute, proposedMagnitudeUnit, primitiveDimension(selectedPrimitive.load))
     : null;
-  const primitiveDraftTarget = primitiveLoadDraftTargetDisplay(primitiveLoadDraft);
 
   useEffect(() => {
     if (!primitiveLoads.length) {
@@ -612,23 +630,42 @@ export function LoadCaseManagerPanel({
     setCombinationDraft((draft) => ({ ...draft, operandIds }));
   }
 
+  useEffect(() => {
+    if (selection.type === "load") setPane("case");
+    else if (selection.type === "combination") setPane("combination");
+  }, [selection.type, selection.id]);
+
+  useEffect(() => {
+    setAddLoadOpen(false);
+    setEditingPrimitiveKey(null);
+  }, [selectedLoadCase?.id]);
+
+  useEffect(() => {
+    setAddTermOpen(false);
+    setEditingTermKey(null);
+  }, [selectedCombination?.id]);
+
   function handleSelectPrimitive(primitive: PrimitiveLoadView) {
+    setPane("case");
     setSelectedPrimitiveKey(primitiveKey(primitive));
     onSelect({ type: "load", id: primitive.loadCase.id });
   }
 
   function handleSelectLoadCase(loadCase: LoadCase) {
+    setPane("case");
     onSelect({ type: "load", id: loadCase.id });
     const firstPrimitive = primitiveLoads.find((primitive) => primitive.loadCase.id === loadCase.id);
     if (firstPrimitive) setSelectedPrimitiveKey(primitiveKey(firstPrimitive));
   }
 
   function handleSelectCombinationTerm(termView: CombinationTermView) {
+    setPane("combination");
     setSelectedCombinationTermKey(combinationTermKey(termView));
     onSelect({ type: "combination", id: termView.combination.id });
   }
 
   function handleSelectCombination(combination: Combination) {
+    setPane("combination");
     onSelect({ type: "combination", id: combination.id });
     setCombinationTermDraft((draft) => (draft.combinationId === combination.id ? draft : {
       ...draft,
@@ -638,457 +675,128 @@ export function LoadCaseManagerPanel({
     }));
   }
 
-  return (
-    <section className="panel load-case-manager-panel" aria-label="Load case manager" data-testid="load-case-manager">
-      <div className="panel-title">
-        <Scale size={16} aria-hidden="true" />
-        Load Cases
-      </div>
-      <p className="muted" data-testid="load-case-manager-summary">
-        {model.load_cases.length} load cases; {primitiveLoads.length} primitive loads; {model.combinations?.length ?? 0} combinations;
-        unit posture=single_unit_system_preview; saved_project_mutated=false
-      </p>
+  const createLoadCaseStatus = createLoadCaseIntent
+    ? null
+    : loadCaseDraft.id.trim() && model.load_cases.some((loadCase) => loadCase.id === loadCaseDraft.id.trim())
+      ? `id=${loadCaseDraft.id.trim()} already exists; no load case queued`
+      : "complete id/label/kind/status/provenance to queue an empty load case";
+  const createPrimitiveStatus = createPrimitiveLoadIntent
+    ? null
+    : primitiveLoadDraft.id.trim() && primitiveLoadExists(model, primitiveLoadDraft.id.trim())
+      ? `id=${primitiveLoadDraft.id.trim()} already exists; no primitive load queued`
+      : primitiveUnitNotice ?? (!primitiveUnitReady ? primitiveUnitDiagnostic
+      : "complete case/id/target/direction/nonzero magnitude/provenance to queue a primitive load");
+  const createCombinationStatus = createCombinationIntent
+    ? null
+    : combinationDraft.id.trim() && model.combinations?.some((combination) => combination.id === combinationDraft.id.trim())
+      ? `id=${combinationDraft.id.trim()} already exists; no combination queued`
+      : combinationDraftHelpText(model, combinationDraft);
+  const metadataStatus = metadataIntent ? null : `current=${currentMetadataValue}; no changed ${metadataField} queued`;
+  const loadCaseDeleteStatus = loadCaseDeleteIntent ? null : "select a load case and provide rationale to queue deletion";
+  const magnitudeStatus = intent
+    ? null
+    : changed && !proposedMagnitudeValid
+      ? `current=${currentMagnitude} ${selectedPrimitive ? primitiveUnit(selectedPrimitive.load) : ""}; enter a finite nonzero magnitude; no changed magnitude queued`
+      : `current=${currentMagnitude} ${selectedPrimitive ? primitiveUnit(selectedPrimitive.load) : ""}; no changed magnitude queued`;
+  const primitiveDeleteStatus = primitiveDeleteIntent ? null : "select a primitive load and provide rationale to queue deletion";
+  const createTermStatus = createCombinationTermIntent
+    ? null
+    : `select combination/load case and finite factor to queue a combination term${combinationTermDraftProblem(model, combinationTermDraft) ? `; ${combinationTermDraftProblem(model, combinationTermDraft)}` : ""}`;
+  const basisStatus = combinationBasisIntent ? null : `current=${currentCombinationBasis}; no changed combination basis queued`;
+  const entityDeleteStatus = combinationEntityDeleteIntent
+    ? null
+    : entityDeleteUnavailable
+      ? NUMBER_DISPLAY_ENGINE_ABSENT
+      : selectedCombination && combinationEntityDeleteRationale.trim()
+        ? "computing the stored record's canonical JSON for the delete's before value"
+        : "select a combination and provide rationale to queue deletion";
+  const factorStatus = combinationIntent
+    ? null
+    : combinationFactorChanged && !proposedCombinationFactorValid
+      ? `current=${currentCombinationFactor}; enter a finite factor; no changed combination factor queued`
+      : `current=${currentCombinationFactor}; no changed combination factor queued`;
+  const termDeleteStatus = combinationDeleteIntent
+    ? null
+    : termDeleteUnavailable
+      ? NUMBER_DISPLAY_ENGINE_ABSENT
+      : selectedCombinationTerm && combinationDeleteRationale.trim()
+        ? "computing the stored term's canonical JSON for the delete's before value"
+        : "select a combination term and provide rationale to queue deletion";
 
-      <PressureAuthoringPanel model={model} selection={selection} queuedIntents={queuedIntents} operationBusy={operationBusy} preparationEpoch={preparationEpoch} getPreparationEpoch={getPreparationEpoch} onQueueIntent={onQueueIntent} loadCaseId={selectedLoadCase?.id} />
-      <LoadReferenceStateInputs model={model} selection={selection} queuedIntents={queuedIntents} operationBusy={operationBusy} preparationEpoch={preparationEpoch} getPreparationEpoch={getPreparationEpoch} onQueueIntent={onQueueIntent} loadCase={selectedLoadCase} />
-      <ConditionUseControl key={selectedLoadCase?.id ?? "no-case"} model={model} queuedIntents={queuedIntents} operationBusy={operationBusy} preparationEpoch={preparationEpoch} getPreparationEpoch={getPreparationEpoch} onQueueIntent={onQueueIntent} loadCase={selectedLoadCase} />
-      <section className="load-case-create-editor" aria-label="Create load case">
-        <div className="load-editor-heading" data-testid="load-manager-create-load-case-heading">
-          <ListPlus size={14} aria-hidden="true" />
-          <strong>{loadCaseDraft.id}</strong>
-          <span>new empty load case; primitives=0; unit=none</span>
-        </div>
-        <div className="load-case-create-controls">
-          <label>
-            <span>ID</span>
-            <input
-              aria-label="New load case id"
-              data-testid="load-manager-create-load-id"
-              ref={createLoadCaseIdRef}
-              onChange={(event) => updateLoadCaseDraft("id", event.target.value)}
-              value={loadCaseDraft.id}
-            />
-          </label>
-          <label>
-            <span>Label</span>
-            <input
-              aria-label="New load case label"
-              data-testid="load-manager-create-load-label"
-              onChange={(event) => updateLoadCaseDraft("label", event.target.value)}
-              value={loadCaseDraft.label}
-            />
-          </label>
-          <label>
-            <span>Kind</span>
-            <input
-              aria-label="New load case kind"
-              data-testid="load-manager-create-load-kind"
-              list="load-manager-kind-suggestions"
-              onChange={(event) => updateLoadCaseDraft("kind", event.target.value)}
-              value={loadCaseDraft.kind}
-            />
-            <datalist id="load-manager-kind-suggestions" data-testid="load-manager-kind-suggestions">
-              {loadMetadataOptions(model, "kind", "").filter((value) => value !== "TBD").map((value) => <option key={value} value={value} />)}
-            </datalist>
-          </label>
-          <label>
-            <span>Status</span>
-            <input
-              aria-label="New load case status"
-              data-testid="load-manager-create-load-status"
-              onChange={(event) => updateLoadCaseDraft("status", event.target.value)}
-              value={loadCaseDraft.status}
-            />
-          </label>
-          <label>
-            <span>Provenance</span>
-            <input
-              aria-label="New load case provenance"
-              data-testid="load-manager-create-load-provenance"
-              onChange={(event) => updateLoadCaseDraft("provenance", event.target.value)}
-              value={loadCaseDraft.provenance}
-            />
-          </label>
-          <button
-            data-testid="queue-create-load-case-intent"
-            disabled={!createLoadCaseIntent}
-            onClick={() => createLoadCaseIntent && onQueueIntent(createLoadCaseIntent)}
-            title="Queue load-case creation operation"
-            type="button"
-          >
-            <ListPlus size={14} aria-hidden="true" />
-            Queue case
-          </button>
-        </div>
-        <p className="muted load-edit-preview" data-testid="load-manager-create-load-preview">
-          {createLoadCaseIntent
-            ? `${createLoadCaseIntent.operation_id}; before=${createLoadCaseIntent.change.before}; after=${loadCaseDraft.id}; unit=${createLoadCaseIntent.change.unit}; ${createLoadCaseIntent.change.dimension}; primitive_loads=0; unit_validation=${createLoadCaseIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
-            : loadCaseDraft.id.trim() && model.load_cases.some((loadCase) => loadCase.id === loadCaseDraft.id.trim())
-              ? `id=${loadCaseDraft.id.trim()} already exists; no load case queued`
-              : "complete id/label/kind/status/provenance to queue an empty load case"}
-        </p>
-      </section>
+  const showCombination = pane === "combination" && selectedCombination !== null;
+  const caseLoads = selectedLoadCase ? primitiveLoads.filter((primitive) => primitive.loadCase.id === selectedLoadCase.id) : [];
+  const editingPrimitive = selectedPrimitive && editingPrimitiveKey === primitiveKey(selectedPrimitive) && selectedPrimitive.loadCase.id === selectedLoadCase?.id
+    ? selectedPrimitive
+    : null;
+  const shownTerms = selectedCombination ? combinationTerms.filter((term) => term.combination.id === selectedCombination.id) : [];
+  const editingTerm = selectedCombinationTerm && editingTermKey === combinationTermKey(selectedCombinationTerm) && selectedCombinationTerm.combination.id === selectedCombination?.id
+    ? selectedCombinationTerm
+    : null;
+  const canAddTerm = Boolean(model.combinations?.length && model.load_cases.length);
 
-      <section className="primitive-load-create-editor" aria-label="Create primitive load">
-        <div className="load-editor-heading" data-testid="load-manager-create-primitive-heading">
-          <ListPlus size={14} aria-hidden="true" />
-          <strong>{primitiveLoadDraft.id}</strong>
-          <span>
-            {primitiveLoadDraft.category}; target={primitiveDraftTarget}; unit={primitiveDraftUnit}
-          </span>
-        </div>
-        <div className="primitive-load-create-controls">
-          <label>
-            <span>Type</span>
-            <select
-              aria-label="Primitive load category"
-              data-testid="load-manager-create-primitive-category"
-              onChange={(event) => updatePrimitiveLoadDraft("category", event.target.value)}
-              value={primitiveLoadDraft.category}
-            >
-              <option value="concentrated_force">concentrated_force</option>
-              <option value="distributed_force">distributed_force</option>
-              <option value="concentrated_moment">concentrated_moment</option>
-              <option value="thermal">thermal</option>
-              <option value="imposed_displacement">imposed_displacement</option>
-            </select>
-          </label>
-          <p className="muted" data-testid="load-manager-pressure-primitive-retired">
-            Legacy pressure primitives are retired. Author pressure as exact pressure regions in the pressure mechanics profile.
-          </p>
-          <VirtualTargetPicker label="Primitive load case" testId="load-manager-create-primitive-load-case" options={loadCaseOptions} value={primitiveLoadDraft.loadCaseId} onChange={(value) => updatePrimitiveLoadDraft("loadCaseId", value)} />
-          <label>
-            <span>ID</span>
-            <input
-              aria-label="New primitive load id"
-              data-testid="load-manager-create-primitive-id"
-              onChange={(event) => updatePrimitiveLoadDraft("id", event.target.value)}
-              value={primitiveLoadDraft.id}
-            />
-          </label>
-          {primitiveLoadUsesSupportTarget(primitiveLoadDraft.category) ? (
-            <VirtualTargetPicker label="Primitive support target" testId="load-manager-create-primitive-support" options={supportOptions} value={primitiveLoadDraft.targetSupport} onChange={(value) => updatePrimitiveLoadDraft("targetSupport", value)} />
-          ) : primitiveLoadUsesPipeTarget(primitiveLoadDraft.category) ? (
-            <VirtualTargetPicker label="Primitive element target pipe" testId="load-manager-create-primitive-pipe" options={pipeOptions} value={primitiveLoadDraft.targetPipe} onChange={(value) => updatePrimitiveLoadDraft("targetPipe", value)} />
-          ) : (
-            <VirtualTargetPicker label="Concentrated force target node" testId="load-manager-create-primitive-node" options={nodeOptions} value={primitiveLoadDraft.targetNode} onChange={(value) => updatePrimitiveLoadDraft("targetNode", value)} />
-          )}
-          <label>
-            <span>Dir</span>
-            <select
-              aria-label="Primitive load direction"
-              data-testid="load-manager-create-primitive-direction"
-              onChange={(event) => updatePrimitiveLoadDraft("direction", event.target.value)}
-              value={primitiveLoadDraft.direction}
-            >
-              {primitiveLoadDirectionOptions(primitiveLoadDraft.category).map((direction) => (
-                <option key={direction} value={direction}>
-                  {direction}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            <span>Magnitude unit</span>
-            <select
-              aria-label="Primitive load unit"
-              data-testid="load-manager-create-primitive-unit"
-              onChange={(event) => updatePrimitiveLoadDraft("unit", event.target.value)}
-              value={primitiveLoadDraft.unit}
-            >
-              {primitiveDraftUnitOptions.map((option) => (
-                <option key={option.symbol} value={option.symbol}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            {primitiveUnitNotice ? <span className="muted" data-testid="load-manager-create-primitive-unit-notice">{primitiveUnitNotice}</span> : null}
-          </label>
-          <label>
-            <span>Magnitude ({primitiveDraftUnitBasis.label})</span>
-            <input
-              aria-label="Primitive load magnitude"
-              data-testid="load-manager-create-primitive-magnitude"
-              onChange={(event) => updatePrimitiveLoadDraft("magnitude", event.target.value)}
-              value={primitiveLoadDraft.magnitude}
-            />
-          </label>
-          <label>
-            <span>Provenance</span>
-            <input
-              aria-label="Primitive load provenance"
-              data-testid="load-manager-create-primitive-provenance"
-              onChange={(event) => updatePrimitiveLoadDraft("provenance", event.target.value)}
-              value={primitiveLoadDraft.provenance}
-            />
-          </label>
-          <button
-            data-testid="queue-create-primitive-intent"
-            disabled={!createPrimitiveLoadIntent}
-            onClick={() => createPrimitiveLoadIntent && onQueueIntent(createPrimitiveLoadIntent)}
-            title="Queue primitive load operation"
-            type="button"
-          >
-            <ListPlus size={14} aria-hidden="true" />
-            Queue load
-          </button>
-        </div>
-        <p className="muted load-edit-preview" data-testid="load-manager-create-primitive-preview">
-          {createPrimitiveLoadIntent
-            ? `${createPrimitiveLoadIntent.operation_id}; before=${createPrimitiveLoadIntent.change.before}; after=${primitiveLoadDraft.id}; target=${primitiveDraftTarget}; direction=${primitiveLoadDraft.direction}; unit=${createPrimitiveLoadIntent.change.unit}; ${createPrimitiveLoadIntent.change.dimension}; unit_validation=${createPrimitiveLoadIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
-            : primitiveLoadDraft.id.trim() && primitiveLoadExists(model, primitiveLoadDraft.id.trim())
-              ? `id=${primitiveLoadDraft.id.trim()} already exists; no primitive load queued`
-              : primitiveUnitNotice ?? (!primitiveUnitReady ? primitiveUnitDiagnostic
-              : "complete case/id/target/direction/nonzero magnitude/provenance to queue a primitive load")}
-          </p>
-      </section>
+  function openCreateLoadCase() {
+    setCaseFormOpen(true);
+    if (caseFormRef.current) caseFormRef.current.open = true;
+    createLoadCaseLabelRef.current?.focus();
+    caseFormRef.current?.scrollIntoView?.({ block: "nearest" });
+  }
 
-      <section className="combination-create-editor" aria-label="Create combination">
-        <div className="load-editor-heading" data-testid="load-manager-create-combination-heading">
-          <ListPlus size={14} aria-hidden="true" />
-          <strong>{combinationDraft.id}</strong>
-          <span>{combinationDraftSummary(combinationDraft)}</span>
-        </div>
-        <div className="combination-create-controls">
-          <label>
-            <span>ID</span>
-            <input
-              aria-label="New combination id"
-              data-testid="load-manager-create-combination-id"
-              onChange={(event) => updateCombinationDraft("id", event.target.value)}
-              value={combinationDraft.id}
-            />
-          </label>
-          <label>
-            <span>Label</span>
-            <input
-              aria-label="New combination label"
-              data-testid="load-manager-create-combination-label"
-              onChange={(event) => updateCombinationDraft("label", event.target.value)}
-              value={combinationDraft.label}
-            />
-          </label>
-          <label>
-            <span>Basis</span>
-            <select
-              aria-label="New combination basis"
-              data-testid="load-manager-create-combination-basis"
-              onChange={(event) => updateCombinationDraft("basis", event.target.value)}
-              value={combinationDraft.basis}
-            >
-              {COMBINATION_BASIS_OPTIONS.map((basis) => (
-                <option key={basis} value={basis}>
-                  {basis}
-                </option>
-              ))}
-            </select>
-          </label>
-          {combinationDraft.basis === "result_state_subtraction" ? (
-            <>
-              <fieldset className="combination-template" data-testid="load-manager-operating-difference">
-                <legend>Template</legend>
-                <label>
-                  <input
-                    type="checkbox"
-                    aria-label={OPERATING_DIFFERENCE_TEMPLATE_LABEL}
-                    data-testid="load-manager-operating-difference-toggle"
-                    checked={combinationDraft.operatingDifference}
-                    disabled={!isPressureFree(model)}
-                    aria-describedby={!isPressureFree(model) ? "load-manager-operating-difference-refused" : undefined}
-                    onChange={(event) => updateCombinationDraftTemplate(event.target.checked)}
-                  />
-                  {OPERATING_DIFFERENCE_TEMPLATE_LABEL} (difference_basis {OPERATING_DIFFERENCE_BASIS})
-                </label>
-                {!isPressureFree(model) ? (
-                  <p role="note" id="load-manager-operating-difference-refused" data-testid="load-manager-operating-difference-refused">
-                    <strong>Refused: {OPERATING_DIFFERENCE_EXACT_REFUSAL.code}</strong> — {OPERATING_DIFFERENCE_EXACT_REFUSAL.text}
-                  </p>
-                ) : combinationDraft.operatingDifference ? (
-                  <p className="muted" data-testid="load-manager-operating-difference-note">
-                    Choose the operating case as the minuend and the sustained case as the subtrahend; neither is chosen for you. {OPERATING_DIFFERENCE_SOLVE_NOTE}
-                  </p>
-                ) : null}
-              </fieldset>
-              <VirtualTargetPicker label={combinationDraft.operatingDifference ? "Operating case (minuend)" : "Subtraction minuend (load case or combination)"} testId="load-manager-create-combination-minuend" options={combinationDraft.operatingDifference ? loadCaseOptions : referenceOptions} value={combinationDraft.minuendId} onChange={(value) => updateCombinationDraft("minuendId", value)} />
-              <VirtualTargetPicker label={combinationDraft.operatingDifference ? "Sustained case (subtrahend)" : "Subtraction subtrahend (load case or combination)"} testId="load-manager-create-combination-subtrahend" options={combinationDraft.operatingDifference ? loadCaseOptions : referenceOptions} value={combinationDraft.subtrahendId} onChange={(value) => updateCombinationDraft("subtrahendId", value)} />
-              <p className="muted" data-testid="load-manager-create-combination-resolved">
-                Minuend: {resolvedReferenceText(model, combinationDraft.minuendId)}. Subtrahend: {resolvedReferenceText(model, combinationDraft.subtrahendId)}.
-                {combinationDraft.operatingDifference ? ` A declared operating comparison names load cases only (${DIFFERENCE_BASIS_OPERAND_CODE}), so only load cases are offered.` : ""}
-              </p>
-            </>
-          ) : combinationDraft.basis === "range_envelope" ? (
-            <>
-              <VirtualMultiTargetPicker label="Range envelope operands (load cases or combinations)" testId="load-manager-create-combination-operands" options={referenceOptions} values={combinationDraft.operandIds} onChange={(values) => updateCombinationDraftOperands([...values])} />
-              <p className="muted" data-testid="load-manager-create-combination-resolved">
-                Operands: {combinationDraft.operandIds.length ? combinationDraft.operandIds.map((id) => resolvedReferenceText(model, id)).join("; ") : "none chosen"}.
-              </p>
-              <label>
-                <span>Mode</span>
-                <select
-                  aria-label="Range envelope mode"
-                  data-testid="load-manager-create-combination-mode"
-                  onChange={(event) => updateCombinationDraft("mode", event.target.value)}
-                  value={combinationDraft.mode}
-                >
-                  <option value="">Choose…</option>
-                  {COMBINATION_RANGE_MODES.map((mode) => (
-                    <option key={mode} value={mode}>
-                      {mode}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </>
-          ) : (
-            <fieldset className="combination-terms" data-testid="load-manager-create-combination-terms">
-              <legend>Terms, in authored order</legend>
-              {combinationDraft.terms.map((term, index) => {
-                const position = index + 1;
-                const kindOptions = term.kind === "combination"
-                  ? combinationOptions.map((option) => {
-                      const refusal = combinationOperandRefusal(model, combinationDraft.id.trim(), option.value);
-                      return refusal ? { ...option, label: `${option.label} (refused: ${refusal})`, disabled: true } : option;
-                    })
-                  : loadCaseOptions;
-                return (
-                  <div className="combination-term-draft" data-testid={`load-manager-create-combination-term-${index}`} key={index} role="group" aria-label={`Term ${position}`}>
-                    <label>
-                      <span>Operand kind</span>
-                      <select
-                        aria-label={`Term ${position} operand kind`}
-                        data-testid={`load-manager-create-combination-term-${index}-kind`}
-                        onChange={(event) => updateCombinationDraftTerm(index, { kind: event.target.value === "combination" ? "combination" : "load_case" })}
-                        value={term.kind}
-                      >
-                        <option value="load_case">Load case</option>
-                        <option value="combination" disabled={!combinationOptions.length}>Combination</option>
-                      </select>
-                    </label>
-                    <VirtualTargetPicker
-                      label={index === 0 && term.kind === "load_case" ? "New combination initial load case" : `Term ${position} ${term.kind === "combination" ? "combination" : "load case"}`}
-                      testId={index === 0 && term.kind === "load_case" ? "load-manager-create-combination-load-case" : `load-manager-create-combination-term-${index}-${term.kind === "combination" ? "combination" : "load-case"}`}
-                      options={kindOptions}
-                      value={term.ref}
-                      onChange={(value) => updateCombinationDraftTerm(index, { ref: value })}
-                    />
-                    <label>
-                      <span>Factor</span>
-                      <input
-                        aria-label={index === 0 ? "New combination factor" : `Term ${position} factor`}
-                        data-testid={index === 0 ? "load-manager-create-combination-factor" : `load-manager-create-combination-term-${index}-factor`}
-                        onChange={(event) => updateCombinationDraftTerm(index, { factor: event.target.value })}
-                        value={term.factor}
-                      />
-                    </label>
-                    <button type="button" aria-label={`Move term ${position} up`} data-testid={`load-manager-create-combination-term-${index}-up`} disabled={index === 0} onClick={() => moveCombinationDraftTerm(index, -1)}>Up</button>
-                    <button type="button" aria-label={`Move term ${position} down`} data-testid={`load-manager-create-combination-term-${index}-down`} disabled={index === combinationDraft.terms.length - 1} onClick={() => moveCombinationDraftTerm(index, 1)}>Down</button>
-                    <button type="button" aria-label={`Remove term ${position}`} data-testid={`load-manager-create-combination-term-${index}-remove`} disabled={combinationDraft.terms.length === 1} title={combinationDraft.terms.length === 1 ? "A terms combination keeps at least one term." : undefined} onClick={() => removeCombinationDraftTerm(index)}>Remove</button>
-                  </div>
-                );
-              })}
-              <button type="button" data-testid="load-manager-create-combination-add-term" onClick={addCombinationDraftTerm}>
-                <ListPlus size={14} aria-hidden="true" />
-                Add term
-              </button>
-              {combinationTermsGateNote(combinationDraft, constantEffortSupports, nonlinearSupports) ? (
-                <p className="muted" role="note" data-testid="load-manager-create-combination-gates">
-                  {combinationTermsGateNote(combinationDraft, constantEffortSupports, nonlinearSupports)}
-                </p>
-              ) : null}
-            </fieldset>
-          )}
-          <label>
-            <span>Provenance</span>
-            <input
-              aria-label="New combination provenance"
-              data-testid="load-manager-create-combination-provenance"
-              onChange={(event) => updateCombinationDraft("provenance", event.target.value)}
-              value={combinationDraft.provenance}
-            />
-          </label>
-          <label>
-            <span>Rationale</span>
-            <input
-              aria-label="New combination rationale"
-              data-testid="load-manager-create-combination-rationale"
-              onChange={(event) => updateCombinationDraft("rationale", event.target.value)}
-              value={combinationDraft.rationale}
-            />
-          </label>
-          <button
-            data-testid="queue-create-combination-intent"
-            disabled={!createCombinationIntent}
-            onClick={() => createCombinationIntent && onQueueIntent(createCombinationIntent)}
-            title="Queue combination creation operation"
-            type="button"
-          >
-            <ListPlus size={14} aria-hidden="true" />
-            Queue combo
-          </button>
-        </div>
-        <p className="muted load-edit-preview" data-testid="load-manager-create-combination-preview">
-          {createCombinationIntent
-            ? `${createCombinationIntent.operation_id}; before=${createCombinationIntent.change.before}; after=${combinationDraft.id}; ${combinationDraftExpression(combinationDraft)}; unit=${createCombinationIntent.change.unit}; ${createCombinationIntent.change.dimension}; unit_validation=${createCombinationIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
-            : combinationDraft.id.trim() &&
-                model.combinations?.some((combination) => combination.id === combinationDraft.id.trim())
-              ? `id=${combinationDraft.id.trim()} already exists; no combination queued`
-              : combinationDraftHelpText(model, combinationDraft)}
-        </p>
-      </section>
+  function openCreateCombination(template?: "operating-difference") {
+    if (template === "operating-difference") {
+      updateCombinationDraft("basis", "result_state_subtraction");
+      if (isPressureFree(model)) updateCombinationDraftTemplate(true);
+    }
+    setCombinationFormOpen(true);
+    if (combinationFormRef.current) combinationFormRef.current.open = true;
+    createCombinationLabelRef.current?.focus();
+    combinationFormRef.current?.scrollIntoView?.({ block: "nearest" });
+  }
 
-      <SeismicTemplateSection
-        model={model}
-        onQueueIntent={onQueueIntent}
-        queuedIntents={queuedIntents}
-        operationBusy={operationBusy}
-        preparationEpoch={preparationEpoch}
-        getPreparationEpoch={getPreparationEpoch}
-        avoidIds={[combinationDraft.id.trim()]}
-        onCreateLoadCase={() => {
-          const input = createLoadCaseIdRef.current;
-          input?.closest("section")?.scrollIntoView?.({ block: "nearest" });
-          input?.focus();
-        }}
-      />
+  function openSeismicTemplate() {
+    setTemplateOpen(true);
+    if (templateFormRef.current) templateFormRef.current.open = true;
+    templateFormRef.current?.scrollIntoView?.({ block: "nearest" });
+  }
 
-      <VirtualList
-        ariaLabel="Load cases"
-        className="load-case-list"
-        height={Math.min(360, Math.max(56, model.load_cases.length * 56))}
-        itemKey={(loadCase) => loadCase.id}
-        items={model.load_cases}
-        renderItem={(loadCase) => (
-          <button
-            className={selection.type === "load" && selection.id === loadCase.id ? "load-case-row active" : "load-case-row"}
-            data-testid={`load-manager-case-${loadCase.id}`}
-            key={loadCase.id}
-            onClick={() => handleSelectLoadCase(loadCase)}
-            type="button"
-          >
-            <strong>{loadCaseLabelDisplay(loadCase)}</strong>
-            <small>
-              {loadCase.id}; {metadataDisplay(loadCase.kind)}; {metadataDisplay(loadCase.status)}; primitives={loadCase.primitive_loads?.length ?? 0}
-            </small>
-            <small>{loadCase.provenance}</small>
-          </button>
-        )}
-        role="list"
-        rowHeight={56}
-        testId="load-case-manager-cases"
-      />
+  function openAddLoad(open: boolean) {
+    setAddLoadOpen(open);
+    if (open && selectedLoadCase && primitiveLoadDraft.loadCaseId !== selectedLoadCase.id) updatePrimitiveLoadDraft("loadCaseId", selectedLoadCase.id);
+  }
 
-      {selectedLoadCase ? (
-        <section className="load-metadata-editor" aria-label="Load case metadata editor">
-          <div className="load-editor-heading" data-testid="load-manager-selected-case">
-            <SlidersHorizontal size={14} aria-hidden="true" />
-            <strong>{selectedLoadCase.id}</strong>
-            <span>
-              field={metadataField}; current={metadataDisplay(currentMetadataValue)}; path={metadataField}
-            </span>
-          </div>
-          <div className="load-metadata-controls">
+  function openAddTerm(open: boolean) {
+    setAddTermOpen(open);
+    if (open && selectedCombination && combinationTermDraft.combinationId !== selectedCombination.id) updateCombinationTermDraft("combinationId", selectedCombination.id);
+  }
+
+  function choosePrimitiveRow(primitive: PrimitiveLoadView) {
+    const key = primitiveKey(primitive);
+    if (editingPrimitiveKey === key && selectedPrimitive && primitiveKey(selectedPrimitive) === key) {
+      setEditingPrimitiveKey(null);
+      return;
+    }
+    handleSelectPrimitive(primitive);
+    setEditingPrimitiveKey(key);
+  }
+
+  function chooseTermRow(termView: CombinationTermView) {
+    const key = combinationTermKey(termView);
+    if (editingTermKey === key && selectedCombinationTerm && combinationTermKey(selectedCombinationTerm) === key) {
+      setEditingTermKey(null);
+      return;
+    }
+    handleSelectCombinationTerm(termView);
+    setEditingTermKey(key);
+  }
+
+  const caseSections: CaseSection[] = selectedLoadCase ? [
+    {
+      id: "case",
+      title: "Case",
+      render: () => (
+        <>
+          <div className="loads-fields loads-fields-inline load-metadata-controls">
             <label>
-              <span>Field</span>
+              <span>Change</span>
               <select
                 aria-label="Load case metadata field"
                 data-testid="load-manager-metadata-field"
@@ -1100,7 +808,7 @@ export function LoadCaseManagerPanel({
               </select>
             </label>
             <label>
-              <span>Value</span>
+              <span>To</span>
               <select
                 aria-label="Load case metadata value"
                 data-testid="load-manager-metadata-value"
@@ -1114,15 +822,6 @@ export function LoadCaseManagerPanel({
                 ))}
               </select>
             </label>
-            <label>
-              <span>Rationale</span>
-              <input
-                aria-label="Load case metadata rationale"
-                data-testid="load-manager-metadata-rationale"
-                onChange={(event) => setMetadataRationale(event.target.value)}
-                value={metadataRationale}
-              />
-            </label>
             <button
               data-testid="queue-load-metadata-intent"
               disabled={!metadataIntent}
@@ -1130,26 +829,10 @@ export function LoadCaseManagerPanel({
               title="Queue load-case metadata operation"
               type="button"
             >
-              <ListPlus size={14} aria-hidden="true" />
-              Queue metadata
+              Queue change
             </button>
-          </div>
-          <p className="muted load-edit-preview" data-testid="load-manager-metadata-preview">
-            {metadataIntent
-              ? `${metadataIntent.operation_id}; before=${metadataIntent.change.before}; after=${metadataIntent.change.after}; unit=${metadataIntent.change.unit}; ${metadataIntent.change.dimension}; unit_validation=${metadataIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
-              : `current=${currentMetadataValue}; no changed ${metadataField} queued`}
-          </p>
-          <div className="load-case-delete-controls">
-            <label>
-              <span>Delete rationale</span>
-              <input
-                aria-label="Load case delete rationale"
-                data-testid="load-manager-load-case-delete-rationale"
-                onChange={(event) => setLoadCaseDeleteRationale(event.target.value)}
-                value={loadCaseDeleteRationale}
-              />
-            </label>
             <button
+              className="loads-danger-button"
               data-testid="queue-delete-load-case-intent"
               disabled={!loadCaseDeleteIntent}
               onClick={() => loadCaseDeleteIntent && onQueueIntent(loadCaseDeleteIntent)}
@@ -1160,445 +843,1035 @@ export function LoadCaseManagerPanel({
               Queue delete case
             </button>
           </div>
-          <p className="muted load-edit-preview" data-testid="load-manager-load-case-delete-preview">
-            {loadCaseDeleteIntent
-              ? `${loadCaseDeleteIntent.operation_id}; before=${loadCaseDeleteIntent.change.before}; after=${loadCaseDeleteIntent.change.after}; unit=${loadCaseDeleteIntent.change.unit}; ${loadCaseDeleteIntent.change.dimension}; unit_validation=${loadCaseDeleteIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
-              : "select a load case and provide rationale to queue deletion"}
-          </p>
-        </section>
-      ) : null}
-
-      <div className="load-primitive-list" data-testid="load-case-manager-primitives">
-        {primitiveLoads.map((primitive) => (
-          <button
-            aria-pressed={Boolean(selectedPrimitive && primitiveKey(primitive) === primitiveKey(selectedPrimitive))}
-            className={selectedPrimitive && primitiveKey(primitive) === primitiveKey(selectedPrimitive) ? "primitive-load-row active" : "primitive-load-row"}
-            data-testid={`load-manager-primitive-${primitiveId(primitive.load)}`}
-            key={primitiveKey(primitive)}
-            onClick={() => handleSelectPrimitive(primitive)}
-            type="button"
-          >
-            <strong>
-              {primitiveCategory(primitive.load)}; {primitiveMagnitudeDisplay(primitive.load)} {primitiveUnit(primitive.load)}
-            </strong>
-            <small>
-              {primitiveId(primitive.load)}; {primitiveTarget(primitive.load)}; {primitiveDirection(primitive.load)};
-              dimension={primitiveDimension(primitive.load)}
-            </small>
-          </button>
-        ))}
-      </div>
-
-      {selectedPrimitive ? (
-        <section className="load-magnitude-editor" aria-label="Primitive load magnitude editor">
-          <div className="load-editor-heading" data-testid="load-manager-selected-primitive">
-            <SlidersHorizontal size={14} aria-hidden="true" />
-            <strong>{primitiveId(selectedPrimitive.load)}</strong>
-            <span>
-              {selectedPrimitive.loadCase.id}; path=primitive_loads.{selectedPrimitive.index}.magnitude.value
-            </span>
-          </div>
-          <div className="load-editor-controls">
+          {metadataStatus ? <p className="loads-status" data-testid="load-manager-metadata-preview">{metadataStatus}</p> : null}
+          {loadCaseDeleteStatus ? <p className="loads-status" data-testid="load-manager-load-case-delete-preview">{loadCaseDeleteStatus}</p> : null}
+          <More testId="load-manager-case-more">
             <label>
-              <span>Magnitude unit</span>
-              <select
-                aria-label="Selected primitive load unit"
-                data-testid="load-manager-magnitude-unit"
-                onChange={(event) => setProposedMagnitudeUnit(event.target.value)}
-                value={proposedMagnitudeUnit}
-              >
-                {selectedPrimitiveUnitOptions.map((option) => (
-                  <option key={option.symbol} value={option.symbol}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              <span>Magnitude ({selectedPrimitiveUnitBasis?.label ?? currentMagnitudeUnit})</span>
+              <span>Change rationale</span>
               <input
-                aria-label="Primitive load magnitude"
-                data-testid="load-manager-magnitude-value"
-                onChange={(event) => setProposedMagnitude(event.target.value)}
-                value={proposedMagnitude}
+                aria-label="Load case metadata rationale"
+                data-testid="load-manager-metadata-rationale"
+                onChange={(event) => setMetadataRationale(event.target.value)}
+                value={metadataRationale}
               />
             </label>
-            <label>
-              <span>Rationale</span>
-              <input
-                aria-label="Load case edit rationale"
-                data-testid="load-manager-rationale"
-                onChange={(event) => setRationale(event.target.value)}
-                value={rationale}
-              />
-            </label>
-            <button
-              data-testid="queue-load-magnitude-intent"
-              disabled={!intent}
-              onClick={() => intent && onQueueIntent(intent)}
-              title="Queue load-magnitude operation"
-              type="button"
-            >
-              <ListPlus size={14} aria-hidden="true" />
-              Queue magnitude
-            </button>
-          </div>
-          <p className="muted load-edit-preview" data-testid="load-manager-edit-preview">
-            {intent
-              ? `${intent.operation_id}; before=${intent.change.before}; after=${intent.change.after}; unit=${intent.change.unit}; ${intent.change.dimension}; unit_validation=${intent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
-              : changed && !proposedMagnitudeValid
-              ? `current=${currentMagnitude} ${primitiveUnit(selectedPrimitive.load)}; enter a finite nonzero magnitude; no changed magnitude queued`
-              : `current=${currentMagnitude} ${primitiveUnit(selectedPrimitive.load)}; no changed magnitude queued`}
-          </p>
-          <div className="primitive-load-delete-controls">
             <label>
               <span>Delete rationale</span>
               <input
-                aria-label="Primitive load delete rationale"
-                data-testid="load-manager-primitive-delete-rationale"
-                onChange={(event) => setPrimitiveDeleteRationale(event.target.value)}
-                value={primitiveDeleteRationale}
+                aria-label="Load case delete rationale"
+                data-testid="load-manager-load-case-delete-rationale"
+                onChange={(event) => setLoadCaseDeleteRationale(event.target.value)}
+                value={loadCaseDeleteRationale}
               />
             </label>
-            <button
-              data-testid="queue-delete-primitive-load-intent"
-              disabled={!primitiveDeleteIntent}
-              onClick={() => primitiveDeleteIntent && onQueueIntent(primitiveDeleteIntent)}
-              title="Queue primitive-load delete operation"
-              type="button"
-            >
-              <Trash2 size={14} aria-hidden="true" />
-              Queue delete
-            </button>
-          </div>
-          <p className="muted load-edit-preview" data-testid="load-manager-primitive-delete-preview">
-            {primitiveDeleteIntent
-              ? `${primitiveDeleteIntent.operation_id}; before=${primitiveDeleteIntent.change.before}; after=${primitiveDeleteIntent.change.after}; unit=${primitiveDeleteIntent.change.unit}; ${primitiveDeleteIntent.change.dimension}; unit_validation=${primitiveDeleteIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
-              : "select a primitive load and provide rationale to queue deletion"}
-          </p>
-        </section>
-      ) : (
-        <p className="muted" data-testid="load-case-manager-empty">
-          No primitive loads are available in the current model.
-        </p>
-      )}
-
-      {model.combinations?.length ? (
-        <div className="load-combination-list" data-testid="load-case-manager-combinations">
-          {model.combinations.map((combination) => {
-            const terms = combinationTerms.filter((term) => term.combination.id === combination.id);
-            return (
-              <article className="load-combination-row" data-testid={`load-manager-combination-${combination.id}`} key={combination.id}>
+          </More>
+        </>
+      )
+    },
+    {
+      id: "loads",
+      title: "Loads",
+      actions: (
+        <button type="button" data-testid="load-manager-add-load" aria-expanded={addLoadOpen} onClick={() => openAddLoad(!addLoadOpen)}>
+          <Plus size={14} aria-hidden="true" />
+          Add load
+        </button>
+      ),
+      render: () => (
+        <>
+          {caseLoads.length ? (
+            <table className="loads-table" data-testid="load-case-manager-primitives">
+              <thead>
+                <tr>
+                  <th scope="col">Type</th>
+                  <th scope="col">Applied to</th>
+                  <th scope="col">Direction</th>
+                  <th scope="col" className="loads-number">Value</th>
+                  <th scope="col">Unit</th>
+                </tr>
+              </thead>
+              <tbody>
+                {caseLoads.map((primitive) => {
+                  const key = primitiveKey(primitive);
+                  const open = editingPrimitive !== null && primitiveKey(editingPrimitive) === key;
+                  return (
+                    <Fragment key={key}>
+                      <tr className={open ? "loads-row open" : "loads-row"} onClick={(event) => { if (!(event.target as HTMLElement).closest("button")) choosePrimitiveRow(primitive); }}>
+                        <td>
+                          <button
+                            type="button"
+                            className="loads-row-button"
+                            aria-expanded={open}
+                            aria-controls={open ? "load-manager-primitive-editor" : undefined}
+                            data-testid={`load-manager-primitive-${primitiveId(primitive.load)}`}
+                            title={primitiveId(primitive.load)}
+                            onClick={() => choosePrimitiveRow(primitive)}
+                          >
+                            {categoryLabel(primitiveCategory(primitive.load))}
+                          </button>
+                        </td>
+                        <td>{primitiveTargetLabel(primitive.load)}</td>
+                        <td>{directionLabel(primitiveDirection(primitive.load))}</td>
+                        <td className="loads-number">{primitiveMagnitudeDisplay(primitive.load)}</td>
+                        <td>{primitiveUnit(primitive.load)}</td>
+                      </tr>
+                      {open && selectedPrimitive ? (
+                        <tr className="loads-row-editor">
+                          <td colSpan={5}>
+                            <section id="load-manager-primitive-editor" className="loads-inline-editor" aria-label="Primitive load magnitude editor" data-testid="load-manager-selected-primitive">
+                              <p className="loads-ref">{primitiveId(selectedPrimitive.load)}</p>
+                              <div className="loads-fields loads-fields-inline">
+                                <label>
+                                  <span>Magnitude ({selectedPrimitiveUnitBasis?.label ?? currentMagnitudeUnit})</span>
+                                  <input
+                                    aria-label="Primitive load magnitude"
+                                    data-testid="load-manager-magnitude-value"
+                                    inputMode="decimal"
+                                    onChange={(event) => setProposedMagnitude(event.target.value)}
+                                    value={proposedMagnitude}
+                                  />
+                                </label>
+                                <label>
+                                  <span>Unit</span>
+                                  <select
+                                    aria-label="Selected primitive load unit"
+                                    data-testid="load-manager-magnitude-unit"
+                                    onChange={(event) => setProposedMagnitudeUnit(event.target.value)}
+                                    value={proposedMagnitudeUnit}
+                                  >
+                                    {selectedPrimitiveUnitOptions.map((option) => (
+                                      <option key={option.symbol} value={option.symbol}>
+                                        {option.label}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </label>
+                                <button
+                                  data-testid="queue-load-magnitude-intent"
+                                  disabled={!intent}
+                                  onClick={() => intent && onQueueIntent(intent)}
+                                  title="Queue load-magnitude operation"
+                                  type="button"
+                                >
+                                  Queue magnitude
+                                </button>
+                                <button
+                                  className="loads-danger-button"
+                                  data-testid="queue-delete-primitive-load-intent"
+                                  disabled={!primitiveDeleteIntent}
+                                  onClick={() => primitiveDeleteIntent && onQueueIntent(primitiveDeleteIntent)}
+                                  title="Queue primitive-load delete operation"
+                                  type="button"
+                                >
+                                  <Trash2 size={14} aria-hidden="true" />
+                                  Queue delete
+                                </button>
+                              </div>
+                              {magnitudeStatus ? <p className="loads-status" data-testid="load-manager-edit-preview">{magnitudeStatus}</p> : null}
+                              {primitiveDeleteStatus ? <p className="loads-status" data-testid="load-manager-primitive-delete-preview">{primitiveDeleteStatus}</p> : null}
+                              <More testId="load-manager-primitive-more">
+                                <label>
+                                  <span>Rationale</span>
+                                  <input
+                                    aria-label="Load case edit rationale"
+                                    data-testid="load-manager-rationale"
+                                    onChange={(event) => setRationale(event.target.value)}
+                                    value={rationale}
+                                  />
+                                </label>
+                                <label>
+                                  <span>Delete rationale</span>
+                                  <input
+                                    aria-label="Primitive load delete rationale"
+                                    data-testid="load-manager-primitive-delete-rationale"
+                                    onChange={(event) => setPrimitiveDeleteRationale(event.target.value)}
+                                    value={primitiveDeleteRationale}
+                                  />
+                                </label>
+                              </More>
+                            </section>
+                          </td>
+                        </tr>
+                      ) : null}
+                    </Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
+          ) : (
+            <p className="muted" data-testid="load-case-manager-empty">No loads in this case.</p>
+          )}
+          <CreateForm open={addLoadOpen} onOpenChange={openAddLoad} title="Add load" testId="load-manager-add-load-form" cancelTestId="load-manager-add-load-cancel">
+            <section className="primitive-load-create-editor" aria-label="Create primitive load">
+              <div className="loads-fields">
+                <label>
+                  <span>Type</span>
+                  <select
+                    aria-label="Primitive load category"
+                    data-testid="load-manager-create-primitive-category"
+                    onChange={(event) => updatePrimitiveLoadDraft("category", event.target.value)}
+                    value={primitiveLoadDraft.category}
+                  >
+                    {PRIMITIVE_CATEGORY_CHOICES.map((category) => (
+                      <option key={category} value={category}>{categoryLabel(category)}</option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  <span>Direction</span>
+                  <select
+                    aria-label="Primitive load direction"
+                    data-testid="load-manager-create-primitive-direction"
+                    onChange={(event) => updatePrimitiveLoadDraft("direction", event.target.value)}
+                    value={primitiveLoadDraft.direction}
+                  >
+                    {primitiveLoadDirectionOptions(primitiveLoadDraft.category).map((direction) => (
+                      <option key={direction} value={direction}>
+                        {directionLabel(direction)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  <span>Magnitude ({primitiveDraftUnitBasis.label})</span>
+                  <input
+                    aria-label="Primitive load magnitude"
+                    data-testid="load-manager-create-primitive-magnitude"
+                    inputMode="decimal"
+                    onChange={(event) => updatePrimitiveLoadDraft("magnitude", event.target.value)}
+                    value={primitiveLoadDraft.magnitude}
+                  />
+                </label>
+                <label>
+                  <span>Unit</span>
+                  <select
+                    aria-label="Primitive load unit"
+                    data-testid="load-manager-create-primitive-unit"
+                    onChange={(event) => updatePrimitiveLoadDraft("unit", event.target.value)}
+                    value={primitiveLoadDraft.unit}
+                  >
+                    {primitiveDraftUnitOptions.map((option) => (
+                      <option key={option.symbol} value={option.symbol}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                  {primitiveUnitNotice ? <span className="loads-status" data-testid="load-manager-create-primitive-unit-notice">{primitiveUnitNotice}</span> : null}
+                </label>
+              </div>
+              <div className="loads-picker">
+                {primitiveLoadUsesSupportTarget(primitiveLoadDraft.category) ? (
+                  <VirtualTargetPicker label="Primitive support target" testId="load-manager-create-primitive-support" options={supportOptions} value={primitiveLoadDraft.targetSupport} onChange={(value) => updatePrimitiveLoadDraft("targetSupport", value)} />
+                ) : primitiveLoadUsesPipeTarget(primitiveLoadDraft.category) ? (
+                  <VirtualTargetPicker label="Primitive element target pipe" testId="load-manager-create-primitive-pipe" options={pipeOptions} value={primitiveLoadDraft.targetPipe} onChange={(value) => updatePrimitiveLoadDraft("targetPipe", value)} />
+                ) : (
+                  <VirtualTargetPicker label="Concentrated force target node" testId="load-manager-create-primitive-node" options={nodeOptions} value={primitiveLoadDraft.targetNode} onChange={(value) => updatePrimitiveLoadDraft("targetNode", value)} />
+                )}
+              </div>
+              {createPrimitiveStatus ? <p className="loads-status" data-testid="load-manager-create-primitive-preview">{createPrimitiveStatus}</p> : null}
+              <More testId="load-manager-create-primitive-more">
+                <div className="loads-picker">
+                  <VirtualTargetPicker label="Primitive load case" testId="load-manager-create-primitive-load-case" options={loadCaseOptions} value={primitiveLoadDraft.loadCaseId} onChange={(value) => updatePrimitiveLoadDraft("loadCaseId", value)} />
+                </div>
+                <label>
+                  <span>ID</span>
+                  <input
+                    aria-label="New primitive load id"
+                    data-testid="load-manager-create-primitive-id"
+                    onChange={(event) => updatePrimitiveLoadDraft("id", event.target.value)}
+                    value={primitiveLoadDraft.id}
+                  />
+                </label>
+                <label>
+                  <span>Provenance</span>
+                  <input
+                    aria-label="Primitive load provenance"
+                    data-testid="load-manager-create-primitive-provenance"
+                    onChange={(event) => updatePrimitiveLoadDraft("provenance", event.target.value)}
+                    value={primitiveLoadDraft.provenance}
+                  />
+                </label>
+              </More>
+              <div className="loads-form-actions">
                 <button
-                  aria-pressed={selectedCombination?.id === combination.id}
-                  className={
-                    selectedCombination?.id === combination.id ? "combination-summary-row active" : "combination-summary-row"
-                  }
-                  data-testid={`load-manager-combination-select-${combination.id}`}
-                  onClick={() => handleSelectCombination(combination)}
+                  className="loads-primary-button"
+                  data-testid="queue-create-primitive-intent"
+                  disabled={!createPrimitiveLoadIntent}
+                  onClick={() => {
+                    if (!createPrimitiveLoadIntent) return;
+                    onQueueIntent(createPrimitiveLoadIntent);
+                    setAddLoadOpen(false);
+                  }}
+                  title="Queue primitive load operation"
                   type="button"
                 >
-                  <strong>{combination.label}</strong>
-                  <small>
-                    {combination.id}; basis={combination.basis}; {combinationRowExpression(combination)}{combinationDeclaredMembersText(combination)}
-                  </small>
+                  <ListPlus size={14} aria-hidden="true" />
+                  Queue load
                 </button>
-                {storedReferenceIds(combination).length ? (
-                  <small className="muted" data-testid={`load-manager-combination-resolved-${combination.id}`}>
-                    References: {storedReferenceIds(combination).map((id) => resolvedReferenceText(model, id)).join("; ")}
-                  </small>
-                ) : null}
-                {terms.length ? (
-                  <div className="combination-term-list">
-                    {terms.map((term) => (
-                      <button
-                        className={
-                          selectedCombinationTerm && combinationTermKey(term) === combinationTermKey(selectedCombinationTerm)
-                            ? "combination-term-row active"
-                            : "combination-term-row"
-                        }
-                        data-testid={`load-manager-combination-term-${safeToken(term.combination.id)}-${term.index}`}
-                        key={combinationTermKey(term)}
-                        onClick={() => handleSelectCombinationTerm(term)}
-                        type="button"
-                      >
-                        {combinationTermLoadCase(term.term)} x {combinationTermFactorDisplay(term.term)}
-                      </button>
-                    ))}
-                  </div>
-                ) : null}
-              </article>
-            );
-          })}
+              </div>
+            </section>
+          </CreateForm>
+        </>
+      )
+    },
+    {
+      id: "pressure",
+      title: "Pressure",
+      summary: pressureSummary(selectedLoadCase),
+      hasContent: (selectedLoadCase.pressure_regions?.length ?? 0) > 0,
+      render: () => (
+        <PressureRegionsEditor model={model} selection={selection} queuedIntents={queuedIntents} operationBusy={operationBusy} preparationEpoch={preparationEpoch} getPreparationEpoch={getPreparationEpoch} onQueueIntent={onQueueIntent} loadCase={selectedLoadCase} />
+      )
+    },
+    {
+      id: "conditions",
+      title: "Conditions",
+      summary: selectedLoadCase.condition_use ? describeUse(selectedLoadCase.condition_use) : "none",
+      hasContent: selectedLoadCase.condition_use !== undefined,
+      render: () => (
+        <ConditionUseControl model={model} queuedIntents={queuedIntents} operationBusy={operationBusy} preparationEpoch={preparationEpoch} getPreparationEpoch={getPreparationEpoch} onQueueIntent={onQueueIntent} loadCase={selectedLoadCase} />
+      )
+    },
+    {
+      id: "reference-state",
+      title: "Reference state",
+      summary: referenceStateSummary(model, selectedLoadCase),
+      hasContent: selectedLoadCase.analysis_state !== undefined && selectedLoadCase.analysis_state !== null,
+      render: () => (
+        <LoadReferenceStateInputs model={model} selection={selection} queuedIntents={queuedIntents} operationBusy={operationBusy} preparationEpoch={preparationEpoch} getPreparationEpoch={getPreparationEpoch} onQueueIntent={onQueueIntent} loadCase={selectedLoadCase} />
+      )
+    }
+  ] : [];
+
+  return (
+    <section className="panel load-case-manager-panel" aria-label="Load case manager" data-testid="load-case-manager">
+      <header className="loads-header">
+        <div className="loads-title">
+          <h2 className="panel-title">
+            <Scale size={16} aria-hidden="true" />
+            Loads
+          </h2>
+          <p className="muted" data-testid="load-case-manager-summary">
+            {model.load_cases.length} load cases; {primitiveLoads.length} primitive loads; {model.combinations?.length ?? 0} combinations
+          </p>
         </div>
-      ) : null}
-
-      {model.combinations?.length && model.load_cases.length ? (
-        <section className="combination-term-create-editor" aria-label="Create combination term">
-          <div className="load-editor-heading" data-testid="load-manager-create-combination-term-heading">
-            <ListPlus size={14} aria-hidden="true" />
-            <strong>{combinationTermDraft.combinationId}</strong>
-            <span>
-              new term; {combinationTermDraft.operandKind === "combination" ? `combination=${combinationTermDraft.combinationRef || "TBD"}` : `load=${combinationTermDraft.loadCaseId || "TBD"}`}; factor={combinationTermDraft.factor.trim() || "TBD"}
-            </span>
-          </div>
-          <div className="combination-term-create-controls">
-            <VirtualTargetPicker label="Combination term target combination" testId="load-manager-create-combination-term-combination" options={combinationOptions} value={combinationTermDraft.combinationId} onChange={(value) => updateCombinationTermDraft("combinationId", value)} />
-            <label>
-              <span>Operand kind</span>
-              <select
-                aria-label="Combination term operand kind"
-                data-testid="load-manager-create-combination-term-kind"
-                onChange={(event) => updateCombinationTermDraft("operandKind", event.target.value)}
-                value={combinationTermDraft.operandKind}
-              >
-                <option value="load_case">Load case</option>
-                <option value="combination">Combination</option>
-              </select>
-            </label>
-            {combinationTermDraft.operandKind === "combination" ? (
-              <VirtualTargetPicker
-                label="Combination term operand combination"
-                testId="load-manager-create-combination-term-operand-combination"
-                options={combinationOptions.map((option) => {
-                  const refusal = combinationTermOperandRefusal(model, combinationTermDraft.combinationId, option.value);
-                  return refusal ? { ...option, label: `${option.label} (refused: ${refusal})`, disabled: true } : option;
-                })}
-                value={combinationTermDraft.combinationRef}
-                onChange={(value) => updateCombinationTermDraft("combinationRef", value)}
-              />
-            ) : (
-              <VirtualTargetPicker label="Combination term load case" testId="load-manager-create-combination-term-load-case" options={loadCaseOptions} value={combinationTermDraft.loadCaseId} onChange={(value) => updateCombinationTermDraft("loadCaseId", value)} />
-            )}
-            <label>
-              <span>Factor</span>
-              <input
-                aria-label="Combination term factor"
-                data-testid="load-manager-create-combination-term-factor"
-                onChange={(event) => updateCombinationTermDraft("factor", event.target.value)}
-                value={combinationTermDraft.factor}
-              />
-            </label>
-            <label>
-              <span>Rationale</span>
-              <input
-                aria-label="Combination term creation rationale"
-                data-testid="load-manager-create-combination-term-rationale"
-                onChange={(event) => updateCombinationTermDraft("rationale", event.target.value)}
-                value={combinationTermDraft.rationale}
-              />
-            </label>
+        <div className="loads-commands" role="group" aria-label="Loads commands">
+          <button type="button" data-testid="load-manager-new-case" aria-expanded={caseFormOpen} onClick={() => (caseFormOpen ? setCaseFormOpen(false) : openCreateLoadCase())}>
+            <Plus size={14} aria-hidden="true" />
+            New case
+          </button>
+          <button type="button" data-testid="load-manager-new-combination" aria-expanded={combinationFormOpen} onClick={() => (combinationFormOpen ? setCombinationFormOpen(false) : openCreateCombination())}>
+            <Plus size={14} aria-hidden="true" />
+            New combination
+          </button>
+          <div className="loads-menu" onKeyDown={(event) => { if (event.key === "Escape" && templatesMenuOpen) { setTemplatesMenuOpen(false); templatesButtonRef.current?.focus(); } }}>
             <button
-              data-testid="queue-create-combination-term-intent"
-              disabled={!createCombinationTermIntent}
-              onClick={() => createCombinationTermIntent && onQueueIntent(createCombinationTermIntent)}
-              title="Queue combination-term creation operation"
+              ref={templatesButtonRef}
               type="button"
+              data-testid="load-manager-templates"
+              aria-expanded={templatesMenuOpen}
+              aria-controls="load-manager-templates-menu"
+              onClick={() => setTemplatesMenuOpen((open) => !open)}
             >
-              <ListPlus size={14} aria-hidden="true" />
-              Queue term
+              Templates
+              <ChevronDown size={14} aria-hidden="true" />
             </button>
+            {templatesMenuOpen ? (
+              <div className="loads-menu-list" id="load-manager-templates-menu" role="group" aria-label="Templates">
+                <button type="button" data-testid="load-manager-template-seismic" onClick={() => { setTemplatesMenuOpen(false); openSeismicTemplate(); }}>
+                  {SEISMIC_TEMPLATE_LABEL}
+                </button>
+                <button type="button" data-testid="load-manager-template-operating-difference" onClick={() => { setTemplatesMenuOpen(false); openCreateCombination("operating-difference"); }}>
+                  {OPERATING_DIFFERENCE_TEMPLATE_LABEL}
+                </button>
+              </div>
+            ) : null}
           </div>
-          <p className="muted load-edit-preview" data-testid="load-manager-create-combination-term-preview">
-            {createCombinationTermIntent
-              ? `${createCombinationTermIntent.operation_id}; before=${createCombinationTermIntent.change.before}; after=${combinationTermDraft.operandKind === "combination" ? `combination ${combinationTermDraft.combinationRef}` : combinationTermDraft.loadCaseId} x ${combinationTermDraft.factor}; unit=${createCombinationTermIntent.change.unit}; ${createCombinationTermIntent.change.dimension}; unit_validation=${createCombinationTermIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
-              : `select combination/load case and finite factor to queue a combination term${combinationTermDraftProblem(model, combinationTermDraft) ? `; ${combinationTermDraftProblem(model, combinationTermDraft)}` : ""}`}
-          </p>
-        </section>
-      ) : null}
+        </div>
+      </header>
 
-      {selectedCombination ? (
-        <section className="combination-basis-editor" aria-label="Combination basis editor">
-          <div className="load-editor-heading" data-testid="load-manager-selected-combination">
-            <SlidersHorizontal size={14} aria-hidden="true" />
-            <strong>{selectedCombination.id}</strong>
-            <span>field=basis; current={currentCombinationBasis}; path=basis</span>
-          </div>
-          {retainedCombinationMembers(selectedCombination).length ? (
-            <p className="muted" data-testid="load-manager-combination-retained">
-              Retained as stored (this editor does not edit them; a basis, factor or term edit writes only its own member):{" "}
-              {retainedCombinationMembers(selectedCombination).join(", ")}.
-            </p>
-          ) : null}
-          <div className="combination-basis-controls">
-            <label>
-              <span>Basis</span>
-              <select
-                aria-label="Combination basis"
-                data-testid="load-manager-combination-basis-value"
-                onChange={(event) => setProposedCombinationBasis(event.target.value)}
-                value={proposedCombinationBasis}
-              >
-                {!COMBINATION_BASIS_OPTIONS.some((basis) => basis === currentCombinationBasis) && (
-                  <option value={currentCombinationBasis}>{currentCombinationBasis} (stored)</option>
-                )}
-                {COMBINATION_BASIS_OPTIONS.map((basis) => (
-                  <option key={basis} value={basis}>
-                    {basis}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              <span>Rationale</span>
-              <input
-                aria-label="Combination basis rationale"
-                data-testid="load-manager-combination-basis-rationale"
-                onChange={(event) => setCombinationBasisRationale(event.target.value)}
-                value={combinationBasisRationale}
-              />
-            </label>
-            <button
-              data-testid="queue-combination-basis-intent"
-              disabled={!combinationBasisIntent}
-              onClick={() => combinationBasisIntent && onQueueIntent(combinationBasisIntent)}
-              title="Queue combination-basis operation"
-              type="button"
-            >
-              <ListPlus size={14} aria-hidden="true" />
-              Queue basis
-            </button>
-          </div>
-          <p className="muted load-edit-preview" data-testid="load-manager-combination-basis-preview">
-            {combinationBasisIntent
-              ? `${combinationBasisIntent.operation_id}; before=${combinationBasisIntent.change.before}; after=${combinationBasisIntent.change.after}; unit=${combinationBasisIntent.change.unit}; ${combinationBasisIntent.change.dimension}; unit_validation=${combinationBasisIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
-              : `current=${currentCombinationBasis}; no changed combination basis queued`}
-          </p>
-          <div className="combination-delete-controls">
-            <label>
-              <span>Delete rationale</span>
-              <input
-                aria-label="Combination delete rationale"
-                data-testid="load-manager-combination-entity-delete-rationale"
-                onChange={(event) => setCombinationEntityDeleteRationale(event.target.value)}
-                value={combinationEntityDeleteRationale}
-              />
-            </label>
-            <button
-              data-testid="queue-delete-combination-intent"
-              disabled={!combinationEntityDeleteIntent || entityDeleteQueue.busy}
-              aria-describedby={entityDeleteReferences.length ? "load-manager-combination-entity-delete-references" : undefined}
-              onClick={() => {
-                const combination = selectedCombination;
-                const rationale = combinationEntityDeleteRationale;
-                void entityDeleteQueue.submit(async (canonicalize: Canonicalize) =>
-                  buildDeleteCombinationIntent({ model, combination, rationale, before: await combinationDeleteBefore(combination, canonicalize) }));
+      <div className="loads-layout">
+        <nav className="loads-lists" aria-label="Cases and combinations">
+          <h3 className="loads-list-title">Cases</h3>
+          {model.load_cases.length ? (
+            <VirtualList
+              ariaLabel="Load cases"
+              className="load-case-list"
+              height={Math.min(440, Math.max(44, model.load_cases.length * 44))}
+              itemKey={(loadCase) => loadCase.id}
+              items={model.load_cases}
+              renderItem={(loadCase) => {
+                const current = !showCombination && selectedLoadCase?.id === loadCase.id;
+                return (
+                  <button
+                    aria-current={current ? "true" : undefined}
+                    className={selection.type === "load" && selection.id === loadCase.id ? "load-case-row loads-list-row active" : current ? "load-case-row loads-list-row current" : "load-case-row loads-list-row"}
+                    data-testid={`load-manager-case-${loadCase.id}`}
+                    key={loadCase.id}
+                    onClick={() => handleSelectLoadCase(loadCase)}
+                    title={loadCase.id}
+                    type="button"
+                  >
+                    <strong>{loadCaseLabelDisplay(loadCase)}</strong>
+                    <small>
+                      {metadataDisplay(loadCase.kind)} · {plural(loadCase.primitive_loads?.length ?? 0, "load", "loads")}
+                    </small>
+                  </button>
+                );
               }}
-              title="Queue combination delete operation"
-              type="button"
-            >
-              <Trash2 size={14} aria-hidden="true" />
-              Queue delete combo
-            </button>
-          </div>
-          {entityDeleteReferences.length ? (
-            <p role="note" id="load-manager-combination-entity-delete-references" data-testid="load-manager-combination-entity-delete-references">
-              {combinationDeleteReferenceText(model, selectedCombination.id, entityDeleteReferences)}
-            </p>
-          ) : null}
-          <p className="muted load-edit-preview" data-testid="load-manager-combination-entity-delete-preview">
-            {combinationEntityDeleteIntent
-              ? `${combinationEntityDeleteIntent.operation_id}; before=${combinationEntityDeleteIntent.change.before}; after=${combinationEntityDeleteIntent.change.after}; unit=${combinationEntityDeleteIntent.change.unit}; ${combinationEntityDeleteIntent.change.dimension}; unit_validation=${combinationEntityDeleteIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
-              : entityDeleteUnavailable
-                ? NUMBER_DISPLAY_ENGINE_ABSENT
-                : selectedCombination && combinationEntityDeleteRationale.trim()
-                ? "computing the stored record's canonical JSON for the delete's before value"
-                : "select a combination and provide rationale to queue deletion"}
-          </p>
-          <EngineFeedback error={entityDeleteQueue.error} notice={entityDeleteQueue.notice} diagnostics={entityDeleteQueue.diagnostics} testId="load-manager-combination-entity-delete-engine" />
-        </section>
-      ) : null}
+              role="list"
+              rowHeight={44}
+              testId="load-case-manager-cases"
+            />
+          ) : (
+            <p className="muted">No load cases.</p>
+          )}
+          <h3 className="loads-list-title">Combinations</h3>
+          {model.combinations?.length ? (
+            <ul className="load-combination-list" aria-label="Combinations" data-testid="load-case-manager-combinations">
+              {model.combinations.map((combination) => {
+                const current = showCombination && selectedCombination?.id === combination.id;
+                return (
+                  <li className="load-combination-row" data-testid={`load-manager-combination-${combination.id}`} key={combination.id}>
+                    <button
+                      aria-current={current ? "true" : undefined}
+                      className={current ? "combination-summary-row loads-list-row active" : "combination-summary-row loads-list-row"}
+                      data-testid={`load-manager-combination-select-${combination.id}`}
+                      onClick={() => handleSelectCombination(combination)}
+                      title={combination.id}
+                      type="button"
+                    >
+                      <strong>{combination.label || combination.id}</strong>
+                      <small>{basisLabel(combination.basis)}</small>
+                      <small className="loads-expression">{combinationExpression(combination)}</small>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <p className="muted">No combinations.</p>
+          )}
+        </nav>
 
-      {selectedCombinationTerm ? (
-        <section className="combination-factor-editor" aria-label="Combination term factor editor">
-          <div className="load-editor-heading" data-testid="load-manager-selected-combination-term">
-            <SlidersHorizontal size={14} aria-hidden="true" />
-            <strong>{selectedCombinationTerm.combination.id}</strong>
-            <span>
-              term={combinationTermLoadCase(selectedCombinationTerm.term)}; path=terms.{selectedCombinationTerm.index}.factor
-            </span>
-          </div>
-          <div className="combination-factor-controls">
-            <label>
-              <span>Factor</span>
-              <input
-                aria-label="Combination term factor"
-                data-testid="load-manager-combination-factor-value"
-                onChange={(event) => setProposedCombinationFactor(event.target.value)}
-                value={proposedCombinationFactor}
-              />
-            </label>
-            <label>
-              <span>Rationale</span>
-              <input
-                aria-label="Combination term rationale"
-                data-testid="load-manager-combination-factor-rationale"
-                onChange={(event) => setCombinationRationale(event.target.value)}
-                value={combinationRationale}
-              />
-            </label>
-            <button
-              data-testid="queue-combination-factor-intent"
-              disabled={!combinationIntent}
-              onClick={() => combinationIntent && onQueueIntent(combinationIntent)}
-              title="Queue combination-factor operation"
-              type="button"
-            >
-              <ListPlus size={14} aria-hidden="true" />
-              Queue factor
-            </button>
-          </div>
-          <p className="muted load-edit-preview" data-testid="load-manager-combination-factor-preview">
-            {combinationIntent
-              ? `${combinationIntent.operation_id}; before=${combinationIntent.change.before}; after=${combinationIntent.change.after}; unit=${combinationIntent.change.unit}; ${combinationIntent.change.dimension}; unit_validation=${combinationIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
-              : combinationFactorChanged && !proposedCombinationFactorValid
-              ? `current=${currentCombinationFactor}; enter a finite factor; no changed combination factor queued`
-              : `current=${currentCombinationFactor}; no changed combination factor queued`}
-          </p>
-          <div className="combination-delete-controls">
-            <label>
-              <span>Delete rationale</span>
-              <input
-                aria-label="Combination term delete rationale"
-                data-testid="load-manager-combination-delete-rationale"
-                onChange={(event) => setCombinationDeleteRationale(event.target.value)}
-                value={combinationDeleteRationale}
-              />
-            </label>
-            <button
-              data-testid="queue-delete-combination-term-intent"
-              disabled={!combinationDeleteIntent || termDeleteQueue.busy}
-              onClick={() => {
-                const termView = selectedCombinationTerm;
-                const rationale = combinationDeleteRationale;
-                void termDeleteQueue.submit(async (canonicalize: Canonicalize) =>
-                  buildDeleteCombinationTermIntent({ model, termView, rationale, before: await combinationTermDeleteBefore(termView.term, canonicalize) }));
-              }}
-              title="Queue combination-term delete operation"
-              type="button"
-            >
-              <Trash2 size={14} aria-hidden="true" />
-              Queue delete
-            </button>
-          </div>
-          <p className="muted load-edit-preview" data-testid="load-manager-combination-delete-preview">
-            {combinationDeleteIntent
-              ? `${combinationDeleteIntent.operation_id}; before=${combinationDeleteIntent.change.before}; after=${combinationDeleteIntent.change.after}; unit=${combinationDeleteIntent.change.unit}; ${combinationDeleteIntent.change.dimension}; unit_validation=${combinationDeleteIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
-              : termDeleteUnavailable
-                ? NUMBER_DISPLAY_ENGINE_ABSENT
-                : selectedCombinationTerm && combinationDeleteRationale.trim()
-                ? "computing the stored term's canonical JSON for the delete's before value"
-                : "select a combination term and provide rationale to queue deletion"}
-          </p>
-          <EngineFeedback error={termDeleteQueue.error} notice={termDeleteQueue.notice} diagnostics={termDeleteQueue.diagnostics} testId="load-manager-combination-delete-engine" />
-        </section>
-      ) : null}
+        <div className="loads-editor">
+          <CreateForm ref={caseFormRef} open={caseFormOpen} onOpenChange={setCaseFormOpen} title="New load case" testId="load-manager-create-load-case-form" cancelTestId="load-manager-create-load-cancel">
+            <section className="load-case-create-editor" aria-label="Create load case">
+              <div className="loads-fields">
+                <label>
+                  <span>Label</span>
+                  <input
+                    aria-label="New load case label"
+                    data-testid="load-manager-create-load-label"
+                    ref={createLoadCaseLabelRef}
+                    onChange={(event) => updateLoadCaseDraft("label", event.target.value)}
+                    value={loadCaseDraft.label}
+                  />
+                </label>
+                <label>
+                  <span>Kind</span>
+                  <input
+                    aria-label="New load case kind"
+                    data-testid="load-manager-create-load-kind"
+                    list="load-manager-kind-suggestions"
+                    onChange={(event) => updateLoadCaseDraft("kind", event.target.value)}
+                    value={loadCaseDraft.kind}
+                  />
+                  <datalist id="load-manager-kind-suggestions" data-testid="load-manager-kind-suggestions">
+                    {loadMetadataOptions(model, "kind", "").filter((value) => value !== "TBD").map((value) => <option key={value} value={value} />)}
+                  </datalist>
+                </label>
+              </div>
+              {createLoadCaseStatus ? <p className="loads-status" data-testid="load-manager-create-load-preview">{createLoadCaseStatus}</p> : null}
+              <More testId="load-manager-create-load-more">
+                <label>
+                  <span>ID</span>
+                  <input
+                    aria-label="New load case id"
+                    data-testid="load-manager-create-load-id"
+                    onChange={(event) => updateLoadCaseDraft("id", event.target.value)}
+                    value={loadCaseDraft.id}
+                  />
+                </label>
+                <label>
+                  <span>Status</span>
+                  <input
+                    aria-label="New load case status"
+                    data-testid="load-manager-create-load-status"
+                    onChange={(event) => updateLoadCaseDraft("status", event.target.value)}
+                    value={loadCaseDraft.status}
+                  />
+                </label>
+                <label>
+                  <span>Provenance</span>
+                  <input
+                    aria-label="New load case provenance"
+                    data-testid="load-manager-create-load-provenance"
+                    onChange={(event) => updateLoadCaseDraft("provenance", event.target.value)}
+                    value={loadCaseDraft.provenance}
+                  />
+                </label>
+              </More>
+              <div className="loads-form-actions">
+                <button
+                  className="loads-primary-button"
+                  data-testid="queue-create-load-case-intent"
+                  disabled={!createLoadCaseIntent}
+                  onClick={() => {
+                    if (!createLoadCaseIntent) return;
+                    onQueueIntent(createLoadCaseIntent);
+                    setCaseFormOpen(false);
+                  }}
+                  title="Queue load-case creation operation"
+                  type="button"
+                >
+                  <ListPlus size={14} aria-hidden="true" />
+                  Queue case
+                </button>
+              </div>
+            </section>
+          </CreateForm>
 
-      <small className="report-note" data-testid="load-case-manager-boundary">
-        Load edits are queued as structured operations, applied only after user action, and remain local-session changes
-        until saved. This panel does not add rule-code combinations, protected standards content, or professional
-        approval.
-      </small>
+          <CreateForm ref={combinationFormRef} open={combinationFormOpen} onOpenChange={setCombinationFormOpen} title="New combination" testId="load-manager-create-combination-form" cancelTestId="load-manager-create-combination-cancel">
+            <section className="combination-create-editor" aria-label="Create combination">
+              <div className="loads-fields">
+                <label>
+                  <span>Label</span>
+                  <input
+                    aria-label="New combination label"
+                    data-testid="load-manager-create-combination-label"
+                    ref={createCombinationLabelRef}
+                    onChange={(event) => updateCombinationDraft("label", event.target.value)}
+                    value={combinationDraft.label}
+                  />
+                </label>
+                <label>
+                  <span>Basis</span>
+                  <select
+                    aria-label="New combination basis"
+                    data-testid="load-manager-create-combination-basis"
+                    onChange={(event) => updateCombinationDraft("basis", event.target.value)}
+                    value={combinationDraft.basis}
+                  >
+                    {COMBINATION_BASIS_OPTIONS.map((basis) => (
+                      <option key={basis} value={basis}>
+                        {basisLabel(basis)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              {combinationDraft.basis === "result_state_subtraction" ? (
+                <>
+                  <fieldset className="combination-template" data-testid="load-manager-operating-difference">
+                    <legend>Template</legend>
+                    <label>
+                      <input
+                        type="checkbox"
+                        aria-label={OPERATING_DIFFERENCE_TEMPLATE_LABEL}
+                        data-testid="load-manager-operating-difference-toggle"
+                        checked={combinationDraft.operatingDifference}
+                        disabled={!isPressureFree(model)}
+                        aria-describedby={!isPressureFree(model) ? "load-manager-operating-difference-refused" : undefined}
+                        onChange={(event) => updateCombinationDraftTemplate(event.target.checked)}
+                      />
+                      {OPERATING_DIFFERENCE_TEMPLATE_LABEL} (difference_basis {OPERATING_DIFFERENCE_BASIS})
+                    </label>
+                    {!isPressureFree(model) ? (
+                      <p role="note" id="load-manager-operating-difference-refused" data-testid="load-manager-operating-difference-refused">
+                        <strong>Refused: {OPERATING_DIFFERENCE_EXACT_REFUSAL.code}</strong> — {OPERATING_DIFFERENCE_EXACT_REFUSAL.text}
+                      </p>
+                    ) : combinationDraft.operatingDifference ? (
+                      <p className="muted" data-testid="load-manager-operating-difference-note">
+                        Choose the operating case as the minuend and the sustained case as the subtrahend; neither is chosen for you. {OPERATING_DIFFERENCE_SOLVE_NOTE}
+                      </p>
+                    ) : null}
+                  </fieldset>
+                  <div className="loads-picker-pair">
+                    <VirtualTargetPicker label={combinationDraft.operatingDifference ? "Operating case (minuend)" : "Subtraction minuend (load case or combination)"} testId="load-manager-create-combination-minuend" options={combinationDraft.operatingDifference ? loadCaseOptions : referenceOptions} value={combinationDraft.minuendId} onChange={(value) => updateCombinationDraft("minuendId", value)} />
+                    <VirtualTargetPicker label={combinationDraft.operatingDifference ? "Sustained case (subtrahend)" : "Subtraction subtrahend (load case or combination)"} testId="load-manager-create-combination-subtrahend" options={combinationDraft.operatingDifference ? loadCaseOptions : referenceOptions} value={combinationDraft.subtrahendId} onChange={(value) => updateCombinationDraft("subtrahendId", value)} />
+                  </div>
+                  <p className="muted" data-testid="load-manager-create-combination-resolved">
+                    Minuend: {resolvedReferenceText(model, combinationDraft.minuendId)}. Subtrahend: {resolvedReferenceText(model, combinationDraft.subtrahendId)}.
+                    {combinationDraft.operatingDifference ? ` A declared operating comparison names load cases only (${DIFFERENCE_BASIS_OPERAND_CODE}), so only load cases are offered.` : ""}
+                  </p>
+                </>
+              ) : combinationDraft.basis === "range_envelope" ? (
+                <>
+                  <div className="loads-fields">
+                    <label>
+                      <span>Mode</span>
+                      <select
+                        aria-label="Range envelope mode"
+                        data-testid="load-manager-create-combination-mode"
+                        onChange={(event) => updateCombinationDraft("mode", event.target.value)}
+                        value={combinationDraft.mode}
+                      >
+                        <option value="">Choose…</option>
+                        {COMBINATION_RANGE_MODES.map((mode) => (
+                          <option key={mode} value={mode}>
+                            {mode}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                  <div className="loads-picker">
+                    <VirtualMultiTargetPicker label="Range envelope operands (load cases or combinations)" testId="load-manager-create-combination-operands" options={referenceOptions} values={combinationDraft.operandIds} onChange={(values) => updateCombinationDraftOperands([...values])} />
+                  </div>
+                  <p className="muted" data-testid="load-manager-create-combination-resolved">
+                    Operands: {combinationDraft.operandIds.length ? combinationDraft.operandIds.map((id) => resolvedReferenceText(model, id)).join("; ") : "none chosen"}.
+                  </p>
+                </>
+              ) : (
+                <fieldset className="combination-terms" data-testid="load-manager-create-combination-terms">
+                  <legend>Terms</legend>
+                  {combinationDraft.terms.map((term, index) => {
+                    const position = index + 1;
+                    const kindOptions = term.kind === "combination"
+                      ? combinationOptions.map((option) => {
+                          const refusal = combinationOperandRefusal(model, combinationDraft.id.trim(), option.value);
+                          return refusal ? { ...option, label: `${option.label} (refused: ${refusal})`, disabled: true } : option;
+                        })
+                      : loadCaseOptions;
+                    return (
+                      <div className="combination-term-draft" data-testid={`load-manager-create-combination-term-${index}`} key={index} role="group" aria-label={`Term ${position}`}>
+                        <div className="loads-fields loads-fields-inline">
+                          <label>
+                            <span>Operand</span>
+                            <select
+                              aria-label={`Term ${position} operand kind`}
+                              data-testid={`load-manager-create-combination-term-${index}-kind`}
+                              onChange={(event) => updateCombinationDraftTerm(index, { kind: event.target.value === "combination" ? "combination" : "load_case" })}
+                              value={term.kind}
+                            >
+                              <option value="load_case">Load case</option>
+                              <option value="combination" disabled={!combinationOptions.length}>Combination</option>
+                            </select>
+                          </label>
+                          <label>
+                            <span>Factor</span>
+                            <input
+                              aria-label={index === 0 ? "New combination factor" : `Term ${position} factor`}
+                              data-testid={index === 0 ? "load-manager-create-combination-factor" : `load-manager-create-combination-term-${index}-factor`}
+                              inputMode="decimal"
+                              onChange={(event) => updateCombinationDraftTerm(index, { factor: event.target.value })}
+                              value={term.factor}
+                            />
+                          </label>
+                          <button type="button" aria-label={`Move term ${position} up`} data-testid={`load-manager-create-combination-term-${index}-up`} disabled={index === 0} onClick={() => moveCombinationDraftTerm(index, -1)}>Up</button>
+                          <button type="button" aria-label={`Move term ${position} down`} data-testid={`load-manager-create-combination-term-${index}-down`} disabled={index === combinationDraft.terms.length - 1} onClick={() => moveCombinationDraftTerm(index, 1)}>Down</button>
+                          <button type="button" aria-label={`Remove term ${position}`} data-testid={`load-manager-create-combination-term-${index}-remove`} disabled={combinationDraft.terms.length === 1} title={combinationDraft.terms.length === 1 ? "A terms combination keeps at least one term." : undefined} onClick={() => removeCombinationDraftTerm(index)}>Remove</button>
+                        </div>
+                        <div className="loads-picker">
+                          <VirtualTargetPicker
+                            label={index === 0 && term.kind === "load_case" ? "New combination initial load case" : `Term ${position} ${term.kind === "combination" ? "combination" : "load case"}`}
+                            testId={index === 0 && term.kind === "load_case" ? "load-manager-create-combination-load-case" : `load-manager-create-combination-term-${index}-${term.kind === "combination" ? "combination" : "load-case"}`}
+                            options={kindOptions}
+                            value={term.ref}
+                            onChange={(value) => updateCombinationDraftTerm(index, { ref: value })}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                  <button type="button" data-testid="load-manager-create-combination-add-term" onClick={addCombinationDraftTerm}>
+                    <Plus size={14} aria-hidden="true" />
+                    Add term
+                  </button>
+                  {combinationTermsGateNote(combinationDraft, constantEffortSupports, nonlinearSupports) ? (
+                    <p className="muted" role="note" data-testid="load-manager-create-combination-gates">
+                      {combinationTermsGateNote(combinationDraft, constantEffortSupports, nonlinearSupports)}
+                    </p>
+                  ) : null}
+                </fieldset>
+              )}
+              {createCombinationStatus ? <p className="loads-status" data-testid="load-manager-create-combination-preview">{createCombinationStatus}</p> : null}
+              <More testId="load-manager-create-combination-more">
+                <label>
+                  <span>ID</span>
+                  <input
+                    aria-label="New combination id"
+                    data-testid="load-manager-create-combination-id"
+                    onChange={(event) => updateCombinationDraft("id", event.target.value)}
+                    value={combinationDraft.id}
+                  />
+                </label>
+                <label>
+                  <span>Provenance</span>
+                  <input
+                    aria-label="New combination provenance"
+                    data-testid="load-manager-create-combination-provenance"
+                    onChange={(event) => updateCombinationDraft("provenance", event.target.value)}
+                    value={combinationDraft.provenance}
+                  />
+                </label>
+                <label>
+                  <span>Rationale</span>
+                  <input
+                    aria-label="New combination rationale"
+                    data-testid="load-manager-create-combination-rationale"
+                    onChange={(event) => updateCombinationDraft("rationale", event.target.value)}
+                    value={combinationDraft.rationale}
+                  />
+                </label>
+              </More>
+              <div className="loads-form-actions">
+                <button
+                  className="loads-primary-button"
+                  data-testid="queue-create-combination-intent"
+                  disabled={!createCombinationIntent}
+                  onClick={() => {
+                    if (!createCombinationIntent) return;
+                    onQueueIntent(createCombinationIntent);
+                    setCombinationFormOpen(false);
+                  }}
+                  title="Queue combination creation operation"
+                  type="button"
+                >
+                  <ListPlus size={14} aria-hidden="true" />
+                  Queue combination
+                </button>
+              </div>
+            </section>
+          </CreateForm>
+
+          <CreateForm ref={templateFormRef} open={templateOpen} onOpenChange={setTemplateOpen} title={SEISMIC_TEMPLATE_LABEL} testId="load-manager-seismic-template-form" cancelTestId="load-manager-seismic-template-cancel">
+            <SeismicTemplateSection
+              model={model}
+              onQueueIntent={onQueueIntent}
+              queuedIntents={queuedIntents}
+              operationBusy={operationBusy}
+              preparationEpoch={preparationEpoch}
+              getPreparationEpoch={getPreparationEpoch}
+              avoidIds={[combinationDraft.id.trim()]}
+              onCreateLoadCase={openCreateLoadCase}
+            />
+          </CreateForm>
+
+          {showCombination && selectedCombination ? (
+            <section className="combination-basis-editor loads-entity" aria-label="Combination editor" data-testid="load-manager-selected-combination">
+              <div className="loads-entity-head">
+                <h3>{selectedCombination.label || selectedCombination.id}</h3>
+                <p className="muted">{shortRef(selectedCombination.id)} · {basisLabel(currentCombinationBasis)}</p>
+              </div>
+              <div className="loads-case-section">
+                <div className="loads-section-head">
+                  <h4>Terms</h4>
+                  {canAddTerm ? (
+                    <button type="button" data-testid="load-manager-add-term" aria-expanded={addTermOpen} onClick={() => openAddTerm(!addTermOpen)}>
+                      <Plus size={14} aria-hidden="true" />
+                      Add term
+                    </button>
+                  ) : null}
+                </div>
+                {storedReferenceIds(selectedCombination).length ? (
+                  <p className="muted" data-testid={`load-manager-combination-resolved-${selectedCombination.id}`}>
+                    {combinationReferenceLine(model, selectedCombination)}
+                  </p>
+                ) : null}
+                {combinationDeclaredMembersText(selectedCombination) ? (
+                  <p className="muted" data-testid="load-manager-combination-declared">{combinationDeclaredMembersText(selectedCombination).replace(/^; /, "")}</p>
+                ) : null}
+                {shownTerms.length ? (
+                  <table className="loads-table" data-testid="load-manager-combination-terms">
+                    <thead>
+                      <tr>
+                        <th scope="col">Operand</th>
+                        <th scope="col" className="loads-number">Factor</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {shownTerms.map((term) => {
+                        const key = combinationTermKey(term);
+                        const open = editingTerm !== null && combinationTermKey(editingTerm) === key;
+                        return (
+                          <Fragment key={key}>
+                            <tr className={open ? "loads-row open" : "loads-row"} onClick={(event) => { if (!(event.target as HTMLElement).closest("button")) chooseTermRow(term); }}>
+                              <td>
+                                <button
+                                  type="button"
+                                  className="loads-row-button"
+                                  aria-expanded={open}
+                                  aria-controls={open ? "load-manager-term-editor" : undefined}
+                                  data-testid={`load-manager-combination-term-${safeToken(term.combination.id)}-${term.index}`}
+                                  onClick={() => chooseTermRow(term)}
+                                >
+                                  {termOperandLabel(term.term)}
+                                </button>
+                              </td>
+                              <td className="loads-number">{combinationTermFactorDisplay(term.term)}</td>
+                            </tr>
+                            {open && selectedCombinationTerm ? (
+                              <tr className="loads-row-editor">
+                                <td colSpan={2}>
+                                  <section id="load-manager-term-editor" className="combination-factor-editor loads-inline-editor" aria-label="Combination term factor editor" data-testid="load-manager-selected-combination-term">
+                                    <div className="loads-fields loads-fields-inline">
+                                      <label>
+                                        <span>Factor</span>
+                                        <input
+                                          aria-label="Combination term factor"
+                                          data-testid="load-manager-combination-factor-value"
+                                          inputMode="decimal"
+                                          onChange={(event) => setProposedCombinationFactor(event.target.value)}
+                                          value={proposedCombinationFactor}
+                                        />
+                                      </label>
+                                      <button
+                                        data-testid="queue-combination-factor-intent"
+                                        disabled={!combinationIntent}
+                                        onClick={() => combinationIntent && onQueueIntent(combinationIntent)}
+                                        title="Queue combination-factor operation"
+                                        type="button"
+                                      >
+                                        Queue factor
+                                      </button>
+                                      <button
+                                        className="loads-danger-button"
+                                        data-testid="queue-delete-combination-term-intent"
+                                        disabled={!combinationDeleteIntent || termDeleteQueue.busy}
+                                        onClick={() => {
+                                          const termView = selectedCombinationTerm;
+                                          const rationale = combinationDeleteRationale;
+                                          void termDeleteQueue.submit(async (canonicalize: Canonicalize) =>
+                                            buildDeleteCombinationTermIntent({ model, termView, rationale, before: await combinationTermDeleteBefore(termView.term, canonicalize) }));
+                                        }}
+                                        title="Queue combination-term delete operation"
+                                        type="button"
+                                      >
+                                        <Trash2 size={14} aria-hidden="true" />
+                                        Queue remove term
+                                      </button>
+                                    </div>
+                                    {factorStatus ? <p className="loads-status" data-testid="load-manager-combination-factor-preview">{factorStatus}</p> : null}
+                                    {termDeleteStatus ? <p className="loads-status" data-testid="load-manager-combination-delete-preview">{termDeleteStatus}</p> : null}
+                                    <EngineFeedback error={termDeleteQueue.error} notice={termDeleteQueue.notice} diagnostics={termDeleteQueue.diagnostics} testId="load-manager-combination-delete-engine" />
+                                    <More testId="load-manager-term-more">
+                                      <label>
+                                        <span>Rationale</span>
+                                        <input
+                                          aria-label="Combination term rationale"
+                                          data-testid="load-manager-combination-factor-rationale"
+                                          onChange={(event) => setCombinationRationale(event.target.value)}
+                                          value={combinationRationale}
+                                        />
+                                      </label>
+                                      <label>
+                                        <span>Remove rationale</span>
+                                        <input
+                                          aria-label="Combination term delete rationale"
+                                          data-testid="load-manager-combination-delete-rationale"
+                                          onChange={(event) => setCombinationDeleteRationale(event.target.value)}
+                                          value={combinationDeleteRationale}
+                                        />
+                                      </label>
+                                    </More>
+                                  </section>
+                                </td>
+                              </tr>
+                            ) : null}
+                          </Fragment>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                ) : isTermsBasis(currentCombinationBasis) || !storedReferenceIds(selectedCombination).length ? (
+                  <p className="muted">No terms.</p>
+                ) : null}
+                {canAddTerm ? (
+                  <CreateForm open={addTermOpen} onOpenChange={openAddTerm} title="Add term" testId="load-manager-add-term-form" cancelTestId="load-manager-add-term-cancel">
+                    <section className="combination-term-create-editor" aria-label="Create combination term">
+                      <div className="loads-fields">
+                        <label>
+                          <span>Operand</span>
+                          <select
+                            aria-label="Combination term operand kind"
+                            data-testid="load-manager-create-combination-term-kind"
+                            onChange={(event) => updateCombinationTermDraft("operandKind", event.target.value)}
+                            value={combinationTermDraft.operandKind}
+                          >
+                            <option value="load_case">Load case</option>
+                            <option value="combination">Combination</option>
+                          </select>
+                        </label>
+                        <label>
+                          <span>Factor</span>
+                          <input
+                            aria-label="Combination term factor"
+                            data-testid="load-manager-create-combination-term-factor"
+                            inputMode="decimal"
+                            onChange={(event) => updateCombinationTermDraft("factor", event.target.value)}
+                            value={combinationTermDraft.factor}
+                          />
+                        </label>
+                      </div>
+                      <div className="loads-picker">
+                        {combinationTermDraft.operandKind === "combination" ? (
+                          <VirtualTargetPicker
+                            label="Combination term operand combination"
+                            testId="load-manager-create-combination-term-operand-combination"
+                            options={combinationOptions.map((option) => {
+                              const refusal = combinationTermOperandRefusal(model, combinationTermDraft.combinationId, option.value);
+                              return refusal ? { ...option, label: `${option.label} (refused: ${refusal})`, disabled: true } : option;
+                            })}
+                            value={combinationTermDraft.combinationRef}
+                            onChange={(value) => updateCombinationTermDraft("combinationRef", value)}
+                          />
+                        ) : (
+                          <VirtualTargetPicker label="Combination term load case" testId="load-manager-create-combination-term-load-case" options={loadCaseOptions} value={combinationTermDraft.loadCaseId} onChange={(value) => updateCombinationTermDraft("loadCaseId", value)} />
+                        )}
+                      </div>
+                      {createTermStatus ? <p className="loads-status" data-testid="load-manager-create-combination-term-preview">{createTermStatus}</p> : null}
+                      <More testId="load-manager-create-term-more">
+                        <div className="loads-picker">
+                          <VirtualTargetPicker label="Combination term target combination" testId="load-manager-create-combination-term-combination" options={combinationOptions} value={combinationTermDraft.combinationId} onChange={(value) => updateCombinationTermDraft("combinationId", value)} />
+                        </div>
+                        <label>
+                          <span>Rationale</span>
+                          <input
+                            aria-label="Combination term creation rationale"
+                            data-testid="load-manager-create-combination-term-rationale"
+                            onChange={(event) => updateCombinationTermDraft("rationale", event.target.value)}
+                            value={combinationTermDraft.rationale}
+                          />
+                        </label>
+                      </More>
+                      <div className="loads-form-actions">
+                        <button
+                          className="loads-primary-button"
+                          data-testid="queue-create-combination-term-intent"
+                          disabled={!createCombinationTermIntent}
+                          onClick={() => {
+                            if (!createCombinationTermIntent) return;
+                            onQueueIntent(createCombinationTermIntent);
+                            setAddTermOpen(false);
+                          }}
+                          title="Queue combination-term creation operation"
+                          type="button"
+                        >
+                          <ListPlus size={14} aria-hidden="true" />
+                          Queue term
+                        </button>
+                      </div>
+                    </section>
+                  </CreateForm>
+                ) : null}
+              </div>
+              <div className="loads-case-section">
+                <div className="loads-section-head">
+                  <h4>Combination</h4>
+                </div>
+                {retainedCombinationMembers(selectedCombination).length ? (
+                  <p className="muted" data-testid="load-manager-combination-retained">
+                    Retained as stored (this editor does not edit them; a basis, factor or term edit writes only its own member):{" "}
+                    {retainedCombinationMembers(selectedCombination).join(", ")}.
+                  </p>
+                ) : null}
+                <div className="loads-fields loads-fields-inline combination-basis-controls">
+                  <label>
+                    <span>Basis</span>
+                    <select
+                      aria-label="Combination basis"
+                      data-testid="load-manager-combination-basis-value"
+                      onChange={(event) => setProposedCombinationBasis(event.target.value)}
+                      value={proposedCombinationBasis}
+                    >
+                      {!COMBINATION_BASIS_OPTIONS.some((basis) => basis === currentCombinationBasis) && (
+                        <option value={currentCombinationBasis}>{currentCombinationBasis} (stored)</option>
+                      )}
+                      {COMBINATION_BASIS_OPTIONS.map((basis) => (
+                        <option key={basis} value={basis}>
+                          {basisLabel(basis)}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <button
+                    data-testid="queue-combination-basis-intent"
+                    disabled={!combinationBasisIntent}
+                    onClick={() => combinationBasisIntent && onQueueIntent(combinationBasisIntent)}
+                    title="Queue combination-basis operation"
+                    type="button"
+                  >
+                    Queue basis
+                  </button>
+                  <button
+                    className="loads-danger-button"
+                    data-testid="queue-delete-combination-intent"
+                    disabled={!combinationEntityDeleteIntent || entityDeleteQueue.busy}
+                    aria-describedby={entityDeleteReferences.length ? "load-manager-combination-entity-delete-references" : undefined}
+                    onClick={() => {
+                      const combination = selectedCombination;
+                      const rationale = combinationEntityDeleteRationale;
+                      void entityDeleteQueue.submit(async (canonicalize: Canonicalize) =>
+                        buildDeleteCombinationIntent({ model, combination, rationale, before: await combinationDeleteBefore(combination, canonicalize) }));
+                    }}
+                    title="Queue combination delete operation"
+                    type="button"
+                  >
+                    <Trash2 size={14} aria-hidden="true" />
+                    Queue delete combination
+                  </button>
+                </div>
+                {basisStatus ? <p className="loads-status" data-testid="load-manager-combination-basis-preview">{basisStatus}</p> : null}
+                {entityDeleteReferences.length ? (
+                  <p role="note" id="load-manager-combination-entity-delete-references" data-testid="load-manager-combination-entity-delete-references">
+                    {combinationDeleteReferenceText(model, selectedCombination.id, entityDeleteReferences)}
+                  </p>
+                ) : null}
+                {entityDeleteStatus ? <p className="loads-status" data-testid="load-manager-combination-entity-delete-preview">{entityDeleteStatus}</p> : null}
+                <EngineFeedback error={entityDeleteQueue.error} notice={entityDeleteQueue.notice} diagnostics={entityDeleteQueue.diagnostics} testId="load-manager-combination-entity-delete-engine" />
+                <More testId="load-manager-combination-more">
+                  <label>
+                    <span>Basis rationale</span>
+                    <input
+                      aria-label="Combination basis rationale"
+                      data-testid="load-manager-combination-basis-rationale"
+                      onChange={(event) => setCombinationBasisRationale(event.target.value)}
+                      value={combinationBasisRationale}
+                    />
+                  </label>
+                  <label>
+                    <span>Delete rationale</span>
+                    <input
+                      aria-label="Combination delete rationale"
+                      data-testid="load-manager-combination-entity-delete-rationale"
+                      onChange={(event) => setCombinationEntityDeleteRationale(event.target.value)}
+                      value={combinationEntityDeleteRationale}
+                    />
+                  </label>
+                </More>
+              </div>
+            </section>
+          ) : selectedLoadCase ? (
+            <section className="load-metadata-editor loads-entity" aria-label="Load case editor" data-testid="load-manager-selected-case">
+              <div className="loads-entity-head">
+                <h3>{loadCaseLabelDisplay(selectedLoadCase)}</h3>
+                <p className="muted">{shortRef(selectedLoadCase.id)} · {metadataDisplay(selectedLoadCase.kind)} · {metadataDisplay(selectedLoadCase.status)}</p>
+              </div>
+              <CaseSectionList caseId={selectedLoadCase.id} sections={caseSections} />
+            </section>
+          ) : (
+            <section className="loads-entity" aria-label="Load case editor">
+              <p className="muted">No load cases. New case adds one.</p>
+              {/* The reference configurations are model-wide, so they stay reachable before any case exists. */}
+              <details className="loads-case-section loads-disclosure" data-testid="load-case-section-reference-state">
+                <summary>
+                  <span className="loads-disclosure-title">Reference state:</span> <span className="loads-disclosure-summary">{isLoadStateModel(model) ? "reference configurations" : "needs the current exact model"}</span>
+                </summary>
+                <div className="loads-disclosure-body">
+                  <LoadReferenceStateInputs model={model} selection={selection} queuedIntents={queuedIntents} operationBusy={operationBusy} preparationEpoch={preparationEpoch} getPreparationEpoch={getPreparationEpoch} onQueueIntent={onQueueIntent} loadCase={null} />
+                </div>
+              </details>
+            </section>
+          )}
+        </div>
+      </div>
+
+      <details className="loads-settings" data-testid="load-manager-analysis-settings">
+        <summary>Analysis settings</summary>
+        <PressureAuthoringPanel model={model} selection={selection} queuedIntents={queuedIntents} operationBusy={operationBusy} preparationEpoch={preparationEpoch} getPreparationEpoch={getPreparationEpoch} onQueueIntent={onQueueIntent} />
+      </details>
     </section>
   );
 }
@@ -2685,19 +2958,7 @@ function combinationBasisFromValue(value: string): CombinationBasis {
   return COMBINATION_BASIS_OPTIONS.find((basis) => basis === value) ?? "mechanics";
 }
 
-function combinationDraftSummary(draft: CombinationDraft): string {
-  return `basis=${draft.basis}; ${combinationDraftExpression(draft)}`;
-}
 
-function combinationDraftExpression(draft: CombinationDraft): string {
-  if (draft.basis === "result_state_subtraction") {
-    return `minuend=${draft.minuendId || "TBD"}; subtrahend=${draft.subtrahendId || "TBD"}${draft.operatingDifference ? `; difference_basis=${OPERATING_DIFFERENCE_BASIS}` : ""}`;
-  }
-  if (draft.basis === "range_envelope") {
-    return `mode=${draft.mode || "TBD"}; operands=${draft.operandIds.length ? draft.operandIds.join(", ") : "TBD"}`;
-  }
-  return draft.terms.length === 1 ? `term=${termDraftText(draft.terms[0])}` : `terms=${draft.terms.map(termDraftText).join("; ") || "none"}`;
-}
 
 function combinationDraftHelpText(model: PreviewModel, draft: CombinationDraft): string {
   const basis = draft.basis;
@@ -2811,17 +3072,6 @@ function useStoredBefore<T>(stored: T | null, historical: (value: T) => string |
   return { before: sync ?? (canonical?.stored === stored ? canonical.value : null), unavailable };
 }
 
-function combinationRowExpression(combination: Combination): string {
-  if (combination.basis === "result_state_subtraction") {
-    return `minuend=${combination.minuend_id ?? "TBD"}; subtrahend=${combination.subtrahend_id ?? "TBD"}`;
-  }
-  if (combination.basis === "range_envelope") {
-    return `mode=${combination.mode ?? "TBD"}; operands=${
-      combination.operand_ids?.length ? combination.operand_ids.join(", ") : "TBD"
-    }`;
-  }
-  return `terms=${combinationTermsText(combination) ?? "absent"}`;
-}
 
 function primitiveId(load: PrimitiveLoad): string {
   return stringField(load, "id");
@@ -2889,10 +3139,6 @@ function unitOptions(route: UnitCatalogRoute | null, dimensionId: string, fallba
   return options;
 }
 
-function primitiveLoadDraftTargetDisplay(draft: PrimitiveLoadDraft): string {
-  if (primitiveLoadUsesSupportTarget(draft.category)) return draft.targetSupport || "support:TBD";
-  return primitiveLoadUsesPipeTarget(draft.category) ? draft.targetPipe || "pipe:TBD" : draft.targetNode || "node:TBD";
-}
 
 function primitiveLoadFieldLabel(category: PrimitiveLoadCategory): string {
   if (category === "distributed_force") return "Distributed force primitive load";
@@ -2932,6 +3178,55 @@ function stringField(record: Record<string, unknown>, key: string): string {
 /** A test-id token only (display); operation ids use `operationIdToken`. */
 function safeToken(value: string): string {
   return value.replace(/[^A-Za-z0-9_.:-]+/g, "-");
+}
+
+/** What the case's pressure-region declaration holds, for the Pressure section's summary. */
+function pressureSummary(loadCase: LoadCase): string {
+  const regions = loadCase.pressure_regions;
+  if (regions === undefined) return "none";
+  return regions.length ? plural(regions.length, "region", "regions") : "none (declared empty)";
+}
+
+/** What the case's load/reference state holds, for its section's summary. */
+function referenceStateSummary(model: PreviewModel, loadCase: LoadCase): string {
+  if (!isLoadStateModel(model)) return "needs the current exact model";
+  const state = loadCase.analysis_state;
+  return state === undefined ? "none" : state === null ? "explicit null" : "analysis state applied";
+}
+
+/** A combination as an expression a person reads: "L-100 × 1 + L-200 × 0.5", "L-1 − L-2",
+ * "max of L-1, L-2". Display only; nothing absent is filled in. */
+function combinationExpression(combination: Combination): string {
+  if (combination.basis === "result_state_subtraction") {
+    return `${combination.minuend_id ? shortRef(combination.minuend_id) : "minuend not set"} − ${combination.subtrahend_id ? shortRef(combination.subtrahend_id) : "subtrahend not set"}`;
+  }
+  if (combination.basis === "range_envelope") {
+    const operands = combination.operand_ids?.length ? combination.operand_ids.map(shortRef).join(", ") : "no operands";
+    return combination.mode ? `${combination.mode} of ${operands}` : `mode not set; ${operands}`;
+  }
+  if (!combination.terms?.length) return "no terms";
+  return combination.terms.map((term) => `${shortRef(term.load_case ?? term.combination ?? "")} × ${String(term.factor)}`).join(" + ");
+}
+
+/** A subtraction's or envelope's stored references, each resolved as the engine resolves it. */
+function combinationReferenceLine(model: PreviewModel, combination: Combination): string {
+  if (combination.basis === "result_state_subtraction") {
+    return `Minuend: ${resolvedReferenceText(model, combination.minuend_id ?? "")}. Subtrahend: ${resolvedReferenceText(model, combination.subtrahend_id ?? "")}.`;
+  }
+  return `References: ${storedReferenceIds(combination).map((id) => resolvedReferenceText(model, id)).join("; ")}`;
+}
+
+function termOperandLabel(term: CombinationTerm): string {
+  return term.load_case ? shortRef(term.load_case) : `${shortRef(term.combination ?? "")} (combination)`;
+}
+
+/** Where a primitive load applies, as a person reads it: the target's id without its type prefix. */
+function primitiveTargetLabel(load: PrimitiveLoad): string {
+  const target = load.target;
+  if (!target || typeof target !== "object" || Array.isArray(target)) return "not set";
+  const record = target as Record<string, unknown>;
+  const ref = optionalString(record.pipe) ?? optionalString(record.node) ?? optionalString(record.support);
+  return ref ? shortRef(ref) : "not set";
 }
 
 /** The Load Case Manager's create paths (default drafts and intent builders),

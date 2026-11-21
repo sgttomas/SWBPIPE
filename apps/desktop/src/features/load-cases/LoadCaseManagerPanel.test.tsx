@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { useEffect, useState } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { buildBlankLocalModelDocument } from "../../services/projectService";
 import { chooseVirtualMultiTarget, chooseVirtualTarget } from "../../test-support/workspaceTestControls";
@@ -38,12 +39,24 @@ function inventedModel(): PreviewModel {
   return model;
 }
 
+/** The panel as the workspace mounts it: a row chosen through onSelect becomes the selection. */
+function Harness({ model, selection, queue, select }: {
+  model: PreviewModel;
+  selection: EntityRef;
+  queue: (intent: EditorOperationIntent) => void;
+  select: (ref: EntityRef) => void;
+}) {
+  const [current, setCurrent] = useState(selection);
+  useEffect(() => setCurrent(selection), [selection]);
+  return <LoadCaseManagerPanel model={model} onQueueIntent={queue} onSelect={(ref) => { select(ref); setCurrent(ref); }} selection={current} />;
+}
+
 function mount(model: PreviewModel = inventedModel(), selection: EntityRef = { type: "project", id: model.project.id }) {
   const queue = vi.fn<(intent: EditorOperationIntent) => void>();
   const select = vi.fn<(ref: EntityRef) => void>();
-  const view = render(<LoadCaseManagerPanel model={model} onQueueIntent={queue} onSelect={select} selection={selection} />);
+  const view = render(<Harness model={model} queue={queue} select={select} selection={selection} />);
   const rerender = (next: PreviewModel, nextSelection: EntityRef = selection) =>
-    view.rerender(<LoadCaseManagerPanel model={next} onQueueIntent={queue} onSelect={select} selection={nextSelection} />);
+    view.rerender(<Harness model={next} queue={queue} select={select} selection={nextSelection} />);
   return { model, queue, select, rerender };
 }
 
@@ -51,48 +64,64 @@ const byId = (testId: string) => screen.getByTestId(testId);
 const type = (testId: string, value: string) => fireEvent.change(byId(testId), { target: { value } });
 const lastIntent = (queue: ReturnType<typeof mount>["queue"]) => queue.mock.calls.at(-1)![0];
 const optionValues = (testId: string) => within(byId(testId)).getAllByRole("option").map((option) => (option as HTMLOptionElement).value);
+/** A virtual target picker's shown value. */
+const pickerValue = (testId: string) => byId(testId).querySelector(".virtual-target-picker-current");
+const open = (testId: string) => fireEvent.click(byId(testId));
+const row = (testId: string) => byId(testId).closest("tr")!;
 
 describe("LoadCaseManagerPanel rendering states", () => {
   it("summarises an empty model and hides combination editors", () => {
     const model = buildBlankLocalModelDocument(new Date("2026-01-01T00:00:00Z"));
     model.load_cases = [{ id: "load:only", label: "Only", kind: "sustained", status: "draft", provenance: "invented" }];
     mount(model);
-    expect(byId("load-case-manager-summary")).toHaveTextContent("1 load cases; 0 primitive loads; 0 combinations;");
-    expect(byId("load-case-manager-empty")).toHaveTextContent("No primitive loads are available in the current model.");
-    for (const absent of ["load-case-manager-combinations", "load-manager-create-combination-term-heading", "load-manager-selected-combination", "load-manager-selected-combination-term", "load-manager-selected-primitive"]) {
+    expect(byId("load-case-manager-summary")).toHaveTextContent("1 load cases; 0 primitive loads; 0 combinations");
+    expect(byId("load-case-manager-empty")).toHaveTextContent("No loads in this case.");
+    for (const absent of ["load-case-manager-combinations", "load-manager-add-term", "load-manager-selected-combination", "load-manager-selected-combination-term", "load-manager-selected-primitive"]) {
       expect(screen.queryByTestId(absent)).not.toBeInTheDocument();
     }
-    expect(byId("load-manager-selected-case")).toHaveTextContent("load:only");
+    expect(byId("load-manager-selected-case")).toHaveTextContent("Only");
     // A model with no nodes leaves the new primitive target unset.
-    expect(byId("load-manager-create-primitive-heading")).toHaveTextContent("target=node:TBD");
+    open("load-manager-add-load");
+    expect(pickerValue("load-manager-create-primitive-node")).toHaveTextContent("No target selected");
   });
 
   it("lists cases, primitives and combinations with display fallbacks", () => {
     mount();
-    expect(byId("load-case-manager-summary")).toHaveTextContent("2 load cases; 1 primitive loads; 3 combinations;");
+    expect(byId("load-case-manager-summary")).toHaveTextContent("2 load cases; 1 primitive loads; 3 combinations");
     // An empty label shows the case id.
     expect(within(byId("load-manager-case-load:hot")).getByText("load:hot", { selector: "strong" })).toBeInTheDocument();
-    expect(byId("load-manager-case-load:dead")).toHaveTextContent("load:dead; sustained; draft; primitives=1");
-    expect(byId("load-manager-primitive-load:existing")).toHaveTextContent("concentrated_force; 12 kN");
-    expect(byId("load-manager-primitive-load:existing")).toHaveTextContent("load:existing; node:node:A; global_y; dimension=force");
-    expect(byId("load-manager-primitive-load:existing")).toHaveAttribute("aria-pressed", "true");
-    expect(byId("load-manager-combination-select-combo:ops")).toHaveTextContent("combo:ops; basis=mechanics; terms=load:dead x 1");
-    expect(byId("load-manager-combination-select-combo:legacy")).toHaveTextContent("combo:legacy; basis=custom_basis; terms=");
-    expect(byId("load-manager-combination-select-combo:range")).toHaveTextContent("combo:range; basis=range_envelope; mode=TBD; operands=TBD");
-    expect(byId("load-manager-combination-term-combo:ops-0")).toHaveTextContent("load:dead x 1");
+    expect(byId("load-manager-case-load:hot")).toHaveTextContent("thermal · 0 loads");
+    expect(byId("load-manager-case-load:dead")).toHaveTextContent("Deadsustained · 1 load");
+    // The selected case's loads, one row each: type, applied to, direction, value, unit.
+    expect([...row("load-manager-primitive-load:existing").cells].map((cell) => cell.textContent)).toEqual(["Force", "A", "Global Y", "12", "kN"]);
+    // A load's edit opens only when its row is chosen.
+    expect(byId("load-manager-primitive-load:existing")).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByTestId("load-manager-selected-primitive")).toBeNull();
+    expect(byId("load-manager-combination-select-combo:ops")).toHaveTextContent("OperatingAlgebraic sumdead × 1");
+    expect(byId("load-manager-combination-select-combo:legacy")).toHaveTextContent("Legacycustom_basisno terms");
+    expect(byId("load-manager-combination-select-combo:range")).toHaveTextContent("RangeRange envelopemode not set; no operands");
+    open("load-manager-combination-select-combo:ops");
+    expect([...row("load-manager-combination-term-combo:ops-0").cells].map((cell) => cell.textContent)).toEqual(["dead", "1"]);
   });
 
   it("marks the selected case row active and reports row clicks through onSelect", () => {
     const { select } = mount(inventedModel(), { type: "load", id: "load:hot" });
     expect(byId("load-manager-case-load:hot")).toHaveClass("active");
+    // The selected row is marked by more than colour: aria-current, and a bar drawn for it.
+    expect(byId("load-manager-case-load:hot")).toHaveAttribute("aria-current", "true");
     expect(byId("load-manager-case-load:dead")).not.toHaveClass("active");
+    expect(byId("load-manager-case-load:dead")).not.toHaveAttribute("aria-current");
     expect(byId("load-manager-selected-case")).toHaveTextContent("load:hot");
     fireEvent.click(byId("load-manager-case-load:dead"));
     expect(select).toHaveBeenLastCalledWith({ type: "load", id: "load:dead" });
+    expect(byId("load-manager-case-load:dead")).toHaveAttribute("aria-current", "true");
     fireEvent.click(byId("load-manager-primitive-load:existing"));
     expect(select).toHaveBeenLastCalledWith({ type: "load", id: "load:dead" });
     fireEvent.click(byId("load-manager-combination-select-combo:legacy"));
     expect(select).toHaveBeenLastCalledWith({ type: "combination", id: "combo:legacy" });
+    expect(byId("load-manager-combination-select-combo:legacy")).toHaveAttribute("aria-current", "true");
+    expect(byId("load-manager-case-load:dead")).not.toHaveAttribute("aria-current");
+    fireEvent.click(byId("load-manager-combination-select-combo:ops"));
     fireEvent.click(byId("load-manager-combination-term-combo:ops-0"));
     expect(select).toHaveBeenLastCalledWith({ type: "combination", id: "combo:ops" });
   });
@@ -103,11 +132,15 @@ describe("LoadCaseManagerPanel load-case creation", () => {
     const model = inventedModel();
     model.load_cases.push({ id: "load:L-300", label: "Taken", kind: "sustained", status: "draft", provenance: "invented" });
     const { queue } = mount(model);
+    open("load-manager-new-case");
+    expect(byId("load-manager-create-load-label")).toHaveFocus();
     expect(byId("load-manager-create-load-id")).toHaveValue("load:L-301");
     type("load-manager-create-load-id", "  load:new case  ");
     type("load-manager-create-load-label", "  New case ");
     fireEvent.click(byId("queue-create-load-case-intent"));
     expect(queue).toHaveBeenCalledOnce();
+    // Queue closes the form.
+    expect(byId("load-manager-create-load-case-form")).not.toHaveAttribute("open");
     const intent = lastIntent(queue);
     expect(intent).toMatchObject({
       // A character outside [A-Za-z0-9_.:-] is escaped reversibly (space -> ~20), so distinct ids never share an operation id.
@@ -125,6 +158,7 @@ describe("LoadCaseManagerPanel load-case creation", () => {
 
   it("refuses blank fields and existing ids with a reason", () => {
     mount();
+    open("load-manager-new-case");
     const button = byId("queue-create-load-case-intent");
     expect(button).toBeEnabled();
     for (const field of ["label", "kind", "status", "provenance"]) {
@@ -142,6 +176,7 @@ describe("LoadCaseManagerPanel load-case creation", () => {
 
   it("re-proposes the draft id when a model update takes it, as the combination draft does", () => {
     const { model, rerender } = mount();
+    open("load-manager-new-case");
     expect(byId("load-manager-create-load-id")).toHaveValue("load:L-300");
     const next = structuredClone(model);
     next.load_cases.push({ id: "load:L-300", label: "Applied", kind: "sustained", status: "draft", provenance: "invented" });
@@ -154,7 +189,6 @@ describe("LoadCaseManagerPanel load-case creation", () => {
 describe("LoadCaseManagerPanel load-case metadata and deletion", () => {
   it("orders metadata choices and queues only a changed value", () => {
     const { queue } = mount();
-    expect(byId("load-manager-selected-case")).toHaveTextContent("field=status; current=draft; path=status");
     expect(optionValues("load-manager-metadata-value")).toEqual(["draft", "preview_only", "reviewed", "TBD"]);
     expect(byId("queue-load-metadata-intent")).toBeDisabled();
     expect(byId("load-manager-metadata-preview")).toHaveTextContent("current=draft; no changed status queued");
@@ -207,12 +241,16 @@ describe("LoadCaseManagerPanel load-case metadata and deletion", () => {
 describe("LoadCaseManagerPanel primitive-load creation", () => {
   it("defaults a concentrated force on the first node of the first case", async () => {
     const { queue } = mount();
-    expect(byId("load-manager-create-primitive-heading")).toHaveTextContent("load:dead-F300");
-    expect(byId("load-manager-create-primitive-heading")).toHaveTextContent("concentrated_force; target=node:A; unit=kN");
+    open("load-manager-add-load");
+    expect(byId("load-manager-create-primitive-id")).toHaveValue("load:dead-F300");
+    expect(byId("load-manager-create-primitive-category")).toHaveValue("concentrated_force");
+    expect(pickerValue("load-manager-create-primitive-node")).toHaveTextContent("Node A (node:A)");
+    expect(byId("load-manager-create-primitive-unit")).toHaveValue("kN");
     expect(byId("load-manager-create-primitive-direction")).toHaveValue("global_y");
     expect(optionValues("load-manager-create-primitive-unit")).toEqual(["kN"]);
     await waitFor(() => expect(byId("queue-create-primitive-intent")).toBeEnabled());
     fireEvent.click(byId("queue-create-primitive-intent"));
+    expect(byId("load-manager-add-load-form")).not.toHaveAttribute("open");
     const intent = lastIntent(queue);
     expect(intent).toMatchObject({
       operation_id: "op:load-manager-load:dead-load:dead-F300-primitive",
@@ -228,6 +266,7 @@ describe("LoadCaseManagerPanel primitive-load creation", () => {
 
   it("re-derives target, direction, id and unit when the category or DOF changes", async () => {
     const { queue } = mount();
+    open("load-manager-add-load");
     type("load-manager-create-primitive-category", "imposed_displacement");
     expect(byId("load-manager-create-primitive-support")).toBeInTheDocument();
     expect(screen.queryByTestId("load-manager-create-primitive-node")).not.toBeInTheDocument();
@@ -249,7 +288,7 @@ describe("LoadCaseManagerPanel primitive-load creation", () => {
     expect(byId("load-manager-create-primitive-id")).toHaveValue("load:dead-T300");
     expect(byId("load-manager-create-primitive-direction")).toHaveValue("global_z");
     expect(byId("load-manager-create-primitive-unit")).toHaveValue("degC");
-    expect(byId("load-manager-create-primitive-heading")).toHaveTextContent("thermal; target=pipe:AB; unit=degC");
+    expect(pickerValue("load-manager-create-primitive-pipe")).toHaveTextContent("Pipe AB (pipe:AB)");
 
     type("load-manager-create-primitive-category", "concentrated_moment");
     expect(byId("load-manager-create-primitive-node")).toBeInTheDocument();
@@ -266,12 +305,14 @@ describe("LoadCaseManagerPanel primitive-load creation", () => {
     const model = inventedModel();
     model.load_cases[1].primitive_loads = [{ id: "load:hot-F300", category: "concentrated_force", target: { type: "node", node: "node:B" }, direction: "global_x", magnitude: { value: 1, unit: "kN" }, dimension: "force", provenance: "invented" }];
     mount(model);
+    open("load-manager-add-load");
     chooseVirtualTarget("load-manager-create-primitive-load-case", "load:hot");
     expect(byId("load-manager-create-primitive-id")).toHaveValue("load:hot-F301");
   });
 
   it("re-proposes the draft id when a model update takes it, as the load-case draft does", async () => {
     const { model, rerender } = mount();
+    open("load-manager-add-load");
     expect(byId("load-manager-create-primitive-id")).toHaveValue("load:dead-F300");
     const next = structuredClone(model);
     next.load_cases[0].primitive_loads!.push({
@@ -289,6 +330,7 @@ describe("LoadCaseManagerPanel primitive-load creation", () => {
 
   it("refuses zero, non-numeric, duplicate and incomplete primitive drafts", async () => {
     mount();
+    open("load-manager-add-load");
     const button = byId("queue-create-primitive-intent");
     await waitFor(() => expect(button).toBeEnabled());
     const help = "complete case/id/target/direction/nonzero magnitude/provenance to queue a primitive load";
@@ -339,8 +381,9 @@ describe("LoadCaseManagerPanel primitive-load creation", () => {
 describe("LoadCaseManagerPanel existing primitive editing", () => {
   it("queues a changed magnitude with the stored unit and dimension", () => {
     const { queue } = mount();
+    open("load-manager-primitive-load:existing");
+    expect(byId("load-manager-primitive-load:existing")).toHaveAttribute("aria-expanded", "true");
     expect(byId("load-manager-selected-primitive")).toHaveTextContent("load:existing");
-    expect(byId("load-manager-selected-primitive")).toHaveTextContent("load:dead; path=primitive_loads.0.magnitude.value");
     expect(byId("queue-load-magnitude-intent")).toBeDisabled();
     expect(byId("load-manager-edit-preview")).toHaveTextContent("current=12 kN; no changed magnitude queued");
     type("load-manager-magnitude-value", " 15.5 ");
@@ -356,6 +399,7 @@ describe("LoadCaseManagerPanel existing primitive editing", () => {
 
   it("refuses a non-numeric, blank or zero magnitude, as the create form does", () => {
     const { queue } = mount();
+    open("load-manager-primitive-load:existing");
     for (const magnitude of ["abc", "1e", "", "   ", "Infinity", "0x10", "0", "-0"]) {
       type("load-manager-magnitude-value", magnitude);
       expect(byId("queue-load-magnitude-intent")).toBeDisabled();
@@ -368,6 +412,7 @@ describe("LoadCaseManagerPanel existing primitive editing", () => {
 
   it("queues an indexed primitive delete with the full before-display", () => {
     const { queue } = mount();
+    open("load-manager-primitive-load:existing");
     type("load-manager-primitive-delete-rationale", "");
     expect(byId("queue-delete-primitive-load-intent")).toBeDisabled();
     expect(byId("load-manager-primitive-delete-preview")).toHaveTextContent("select a primitive load and provide rationale to queue deletion");
@@ -384,13 +429,14 @@ describe("LoadCaseManagerPanel existing primitive editing", () => {
     const model = inventedModel();
     model.load_cases[0].primitive_loads = [{ id: "load:sparse", category: "concentrated_force" }];
     mount(model);
-    expect(byId("load-manager-primitive-load:sparse")).toHaveTextContent("concentrated_force; TBD TBD");
-    expect(byId("load-manager-primitive-load:sparse")).toHaveTextContent("load:sparse; target:TBD; TBD; dimension=TBD");
+    expect([...row("load-manager-primitive-load:sparse").cells].map((cell) => cell.textContent)).toEqual(["Force", "not set", "TBD", "TBD", "TBD"]);
+    open("load-manager-primitive-load:sparse");
     expect(byId("load-manager-edit-preview")).toHaveTextContent("current=TBD TBD; no changed magnitude queued");
   });
 
   it("falls back to the empty state when a model update removes the selected primitive", () => {
     const { model, rerender } = mount();
+    open("load-manager-primitive-load:existing");
     expect(byId("load-manager-selected-primitive")).toBeInTheDocument();
     const next = structuredClone(model);
     next.load_cases[0].primitive_loads = [];
@@ -403,9 +449,13 @@ describe("LoadCaseManagerPanel existing primitive editing", () => {
 describe("LoadCaseManagerPanel combination creation", () => {
   it("queues an explicitly entered mechanics combination and refuses a non-finite factor or existing id", () => {
     const { queue } = mount();
-    expect(byId("load-manager-create-combination-heading")).toHaveTextContent("combination:C-300");
+    open("load-manager-new-combination");
+    expect(byId("load-manager-create-combination-label")).toHaveFocus();
+    expect(byId("load-manager-create-combination-id")).toHaveValue("combination:C-300");
     // Nothing is proposed: no first case, no factor 1.
-    expect(byId("load-manager-create-combination-heading")).toHaveTextContent("basis=mechanics; term=TBD x TBD");
+    expect(byId("load-manager-create-combination-basis")).toHaveValue("mechanics");
+    expect(pickerValue("load-manager-create-combination-load-case")).toHaveTextContent("No target selected");
+    expect(byId("load-manager-create-combination-factor")).toHaveValue("");
     expect(byId("queue-create-combination-intent")).toBeDisabled();
     expect(byId("load-manager-create-combination-preview")).toHaveTextContent("term 1: not chosen: its load case");
     chooseVirtualTarget("load-manager-create-combination-load-case", "load:dead");
@@ -421,6 +471,7 @@ describe("LoadCaseManagerPanel combination creation", () => {
     expect(byId("queue-create-combination-intent")).toBeEnabled();
     type("load-manager-create-combination-factor", "-1.5");
     fireEvent.click(byId("queue-create-combination-intent"));
+    expect(byId("load-manager-create-combination-form")).not.toHaveAttribute("open");
     const intent = lastIntent(queue);
     expect(intent).toMatchObject({
       operation_id: "op:load-manager-create-combination:C-300",
@@ -439,14 +490,15 @@ describe("LoadCaseManagerPanel combination creation", () => {
 
   it("requires distinct minuend and subtrahend for a subtraction", () => {
     const { queue } = mount();
+    open("load-manager-new-combination");
     type("load-manager-create-combination-basis", "result_state_subtraction");
-    expect(byId("load-manager-create-combination-heading")).toHaveTextContent("minuend=TBD; subtrahend=TBD");
+    expect(byId("load-manager-create-combination-resolved")).toHaveTextContent("Minuend: not chosen. Subtrahend: not chosen.");
     expect(byId("queue-create-combination-intent")).toBeDisabled();
     expect(byId("load-manager-create-combination-preview")).toHaveTextContent("not chosen: the minuend");
     chooseVirtualTarget("load-manager-create-combination-minuend", "load:dead");
     expect(byId("load-manager-create-combination-preview")).toHaveTextContent("not chosen: the subtrahend");
     chooseVirtualTarget("load-manager-create-combination-subtrahend", "load:hot");
-    expect(byId("load-manager-create-combination-heading")).toHaveTextContent("minuend=load:dead; subtrahend=load:hot");
+    expect(byId("load-manager-create-combination-resolved")).toHaveTextContent("Minuend: load:dead resolves to the load case. Subtrahend: load:hot resolves to the load case.");
     fireEvent.click(byId("queue-create-combination-intent"));
     expect(JSON.parse(lastIntent(queue).change.after)).toEqual({
       id: "combination:C-300", label: "User mechanics combination", basis: "result_state_subtraction", provenance: "user_entered_local_preview",
@@ -461,22 +513,25 @@ describe("LoadCaseManagerPanel combination creation", () => {
     const model = inventedModel();
     model.load_cases = [model.load_cases[0]];
     mount(model);
+    open("load-manager-new-combination");
     type("load-manager-create-combination-basis", "result_state_subtraction");
     chooseVirtualTarget("load-manager-create-combination-minuend", "load:dead");
-    expect(byId("load-manager-create-combination-heading")).toHaveTextContent("minuend=load:dead; subtrahend=TBD");
+    expect(pickerValue("load-manager-create-combination-subtrahend")).toHaveTextContent("No target selected");
     expect(byId("queue-create-combination-intent")).toBeDisabled();
   });
 
   it("queues a range envelope with its operands and mode", () => {
     const { queue } = mount();
+    open("load-manager-new-combination");
     type("load-manager-create-combination-basis", "range_envelope");
-    expect(byId("load-manager-create-combination-heading")).toHaveTextContent("mode=TBD; operands=TBD");
+    expect(byId("load-manager-create-combination-mode")).toHaveValue("");
+    expect(byId("load-manager-create-combination-resolved")).toHaveTextContent("Operands: none chosen.");
     expect(byId("queue-create-combination-intent")).toBeDisabled();
     expect(byId("load-manager-create-combination-preview")).toHaveTextContent("not chosen: any operand");
     chooseVirtualMultiTarget("load-manager-create-combination-operands", "load:dead");
     expect(byId("load-manager-create-combination-preview")).toHaveTextContent("not chosen: the mode");
     type("load-manager-create-combination-mode", "min");
-    expect(byId("load-manager-create-combination-heading")).toHaveTextContent("mode=min; operands=load:dead");
+    expect(byId("load-manager-create-combination-resolved")).toHaveTextContent("Operands: load:dead resolves to the load case.");
     fireEvent.click(byId("queue-create-combination-intent"));
     expect(JSON.parse(lastIntent(queue).change.after)).toEqual({
       id: "combination:C-300", label: "User mechanics combination", basis: "range_envelope", provenance: "user_entered_local_preview",
@@ -486,6 +541,7 @@ describe("LoadCaseManagerPanel combination creation", () => {
 
   it("re-proposes the draft id when a model update takes it", () => {
     const { model, rerender } = mount();
+    open("load-manager-new-combination");
     const next = structuredClone(model);
     next.combinations!.push({ id: "combination:C-300", label: "Applied", basis: "mechanics", terms: [], provenance: "invented" });
     rerender(next);
@@ -499,8 +555,7 @@ describe("LoadCaseManagerPanel combination creation", () => {
 describe("LoadCaseManagerPanel combination editing", () => {
   it("keeps a stored non-closed basis visible and queues a basis change", () => {
     const { queue } = mount(inventedModel(), { type: "combination", id: "combo:legacy" });
-    expect(byId("load-manager-selected-combination")).toHaveTextContent("combo:legacy");
-    expect(byId("load-manager-selected-combination")).toHaveTextContent("field=basis; current=custom_basis; path=basis");
+    expect(byId("load-manager-selected-combination")).toHaveTextContent("Legacy");
     expect(within(byId("load-manager-combination-basis-value")).getByRole("option", { name: "custom_basis (stored)" })).toBeInTheDocument();
     expect(byId("queue-combination-basis-intent")).toBeDisabled();
     expect(byId("load-manager-combination-basis-preview")).toHaveTextContent("current=custom_basis; no changed combination basis queued");
@@ -532,8 +587,10 @@ describe("LoadCaseManagerPanel combination editing", () => {
 
   it("edits and deletes an indexed combination term", async () => {
     const { queue } = mount();
-    expect(byId("load-manager-selected-combination-term")).toHaveTextContent("combo:ops");
-    expect(byId("load-manager-selected-combination-term")).toHaveTextContent("term=load:dead; path=terms.0.factor");
+    open("load-manager-combination-select-combo:ops");
+    open("load-manager-combination-term-combo:ops-0");
+    expect(byId("load-manager-combination-term-combo:ops-0")).toHaveAttribute("aria-expanded", "true");
+    expect(byId("load-manager-selected-combination-term")).toBeInTheDocument();
     expect(byId("queue-combination-factor-intent")).toBeDisabled();
     type("load-manager-combination-factor-value", "  ");
     expect(byId("queue-combination-factor-intent")).toBeDisabled();
@@ -555,6 +612,8 @@ describe("LoadCaseManagerPanel combination editing", () => {
 
   it("refuses a non-numeric existing-term factor, as the create forms do", () => {
     const { queue } = mount();
+    open("load-manager-combination-select-combo:ops");
+    open("load-manager-combination-term-combo:ops-0");
     for (const factor of ["abc", "1e", "Infinity", "0x10"]) {
       type("load-manager-combination-factor-value", factor);
       expect(byId("queue-combination-factor-intent")).toBeDisabled();
@@ -568,17 +627,20 @@ describe("LoadCaseManagerPanel combination editing", () => {
 
   it("drafts a new term only from an explicitly chosen case and entered factor", () => {
     const { queue } = mount();
-    expect(byId("load-manager-create-combination-term-heading")).toHaveTextContent("combo:ops");
+    open("load-manager-combination-select-combo:ops");
+    open("load-manager-add-term");
+    expect(pickerValue("load-manager-create-combination-term-combination")).toHaveTextContent("Operating (combo:ops)");
     // No prefill: neither a case nor a factor is proposed.
-    expect(byId("load-manager-create-combination-term-heading")).toHaveTextContent("new term; load=TBD; factor=TBD");
+    expect(pickerValue("load-manager-create-combination-term-load-case")).toHaveTextContent("No target selected");
+    expect(byId("load-manager-create-combination-term-factor")).toHaveValue("");
     expect(byId("queue-create-combination-term-intent")).toBeDisabled();
     expect(byId("load-manager-create-combination-term-preview")).toHaveTextContent("not chosen: the load case the new term names");
     chooseVirtualTarget("load-manager-create-combination-term-load-case", "load:hot");
     expect(byId("queue-create-combination-term-intent")).toBeDisabled();
     expect(byId("load-manager-create-combination-term-preview")).toHaveTextContent("not entered: the factor");
     type("load-manager-create-combination-term-factor", "1");
-    expect(byId("load-manager-create-combination-term-heading")).toHaveTextContent("new term; load=load:hot; factor=1");
     fireEvent.click(byId("queue-create-combination-term-intent"));
+    expect(byId("load-manager-add-term-form")).not.toHaveAttribute("open");
     const intent = lastIntent(queue);
     expect(intent).toMatchObject({
       operation_id: "op:load-manager-combo:ops-term-1-create",
@@ -586,8 +648,10 @@ describe("LoadCaseManagerPanel combination editing", () => {
       change: { change_kind: "create_combination_term", field_path: "terms", before: "not_present", after: JSON.stringify({ load_case: "load:hot", factor: 1 }) }
     });
     // A new target combination clears the chosen case; the entered factor stays as typed.
+    open("load-manager-add-term");
     chooseVirtualTarget("load-manager-create-combination-term-combination", "combo:legacy");
-    expect(byId("load-manager-create-combination-term-heading")).toHaveTextContent("new term; load=TBD; factor=1");
+    expect(pickerValue("load-manager-create-combination-term-load-case")).toHaveTextContent("No target selected");
+    expect(byId("load-manager-create-combination-term-factor")).toHaveValue("1");
     chooseVirtualTarget("load-manager-create-combination-term-load-case", "load:dead");
     type("load-manager-create-combination-term-factor", "x");
     expect(byId("queue-create-combination-term-intent")).toBeDisabled();
@@ -600,7 +664,60 @@ describe("LoadCaseManagerPanel combination editing", () => {
   it("retargets the term draft when a combination row is selected", () => {
     mount();
     fireEvent.click(byId("load-manager-combination-select-combo:range"));
-    expect(byId("load-manager-create-combination-term-heading")).toHaveTextContent("combo:range");
-    expect(byId("load-manager-create-combination-term-heading")).toHaveTextContent("load=TBD");
+    open("load-manager-add-term");
+    expect(pickerValue("load-manager-create-combination-term-combination")).toHaveTextContent("Range (combo:range)");
+    expect(pickerValue("load-manager-create-combination-term-load-case")).toHaveTextContent("No target selected");
+  });
+});
+
+describe("LoadCaseManagerPanel layout", () => {
+  it("shows what exists first and opens each creation form only on its command", () => {
+    const model = inventedModel();
+    model.load_cases[0].pressure_regions = [];
+    model.load_cases[0].condition_use = { temperature: "T1" };
+    mount(model);
+    for (const form of ["load-manager-create-load-case-form", "load-manager-create-combination-form", "load-manager-seismic-template-form", "load-manager-add-load-form"]) {
+      expect(byId(form)).not.toHaveAttribute("open");
+    }
+    expect(byId("load-manager-analysis-settings")).not.toHaveAttribute("open");
+    // The selected case's sections, in order; a disclosure states what the case has and is open when it has content.
+    const sections = within(byId("load-manager-selected-case")).getAllByTestId(/^load-case-section-/).map((section) => section.dataset.testid);
+    expect(sections).toEqual(["load-case-section-case", "load-case-section-loads", "load-case-section-pressure", "load-case-section-conditions", "load-case-section-reference-state"]);
+    expect(byId("load-case-section-pressure")).toHaveTextContent("Pressure: none (declared empty)");
+    expect(byId("load-case-section-pressure")).not.toHaveAttribute("open");
+    expect(byId("load-case-section-conditions")).toHaveTextContent("Conditions: temperature T1");
+    expect(byId("load-case-section-conditions")).toHaveAttribute("open");
+    // Identifier, status and provenance are in a closed "More" inside their form.
+    open("load-manager-new-case");
+    expect(byId("load-manager-new-case")).toHaveAttribute("aria-expanded", "true");
+    expect(byId("load-manager-create-load-case-form")).toHaveAttribute("open");
+    expect(byId("load-manager-create-load-more")).not.toHaveAttribute("open");
+    expect(byId("load-manager-create-load-more")).toContainElement(byId("load-manager-create-load-id"));
+    open("load-manager-create-load-cancel");
+    expect(byId("load-manager-create-load-case-form")).not.toHaveAttribute("open");
+  });
+
+  it("offers the templates from one command and closes the template on Cancel", () => {
+    mount();
+    open("load-manager-templates");
+    open("load-manager-template-seismic");
+    expect(byId("load-manager-seismic-template-form")).toHaveAttribute("open");
+    expect(screen.queryByTestId("load-manager-template-seismic")).toBeNull();
+    open("load-manager-seismic-template-cancel");
+    expect(byId("load-manager-seismic-template-form")).not.toHaveAttribute("open");
+    open("load-manager-templates");
+    open("load-manager-template-operating-difference");
+    expect(byId("load-manager-create-combination-form")).toHaveAttribute("open");
+    expect(byId("load-manager-create-combination-basis")).toHaveValue("result_state_subtraction");
+    expect(byId("load-manager-operating-difference-toggle")).toBeChecked();
+  });
+
+  it("opens Add load with the selected case chosen", () => {
+    const model = inventedModel();
+    model.load_cases[1].primitive_loads = [];
+    mount(model, { type: "load", id: "load:hot" });
+    open("load-manager-add-load");
+    expect(pickerValue("load-manager-create-primitive-load-case")).toHaveTextContent("(load:hot)");
+    expect(byId("load-manager-create-primitive-id")).toHaveValue("load:hot-F300");
   });
 });
