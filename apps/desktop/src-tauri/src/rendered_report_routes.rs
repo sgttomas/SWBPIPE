@@ -229,14 +229,16 @@ pub(crate) fn held_document_bytes(len: usize) -> u64 {
     envelope(len).saturating_add(envelope(2 * std::mem::size_of::<usize>() + std::mem::size_of::<HeldDocument>()))
 }
 
-/// The closing words of a memory refusal: advice to wait only for the kinds
-/// that waiting can cure (`headroom_insufficient`, `pool_exhausted`: `retry`),
-/// a plain statement for a document over the per-invocation budget and for an
-/// unknown capacity, and nothing for any other kind.
+/// The closing words of a memory refusal: advice to wait (`retry`) only for
+/// `headroom_insufficient`; for `pool_exhausted` that the pool may have room
+/// once other work has finished, promising nothing; a plain statement for a
+/// need over the per-invocation budget and for an unknown capacity; and
+/// nothing for any other kind.
 pub(crate) fn memory_refusal_note(refusal: &ResourceRefusal, retry: &'static str) -> &'static str {
     match refusal {
-        ResourceRefusal::HeadroomInsufficient { .. } | ResourceRefusal::PoolExhausted { .. } => retry,
-        ResourceRefusal::IngressExceedsBudget { .. } => "The document is larger than the memory the desktop allows one command.",
+        ResourceRefusal::HeadroomInsufficient { .. } => retry,
+        ResourceRefusal::PoolExhausted { .. } => "The desktop's memory pool does not have that much free; it may have room once other work in the desktop has finished.",
+        ResourceRefusal::IngressExceedsBudget { .. } => "This needs more memory than the desktop allows one command.",
         ResourceRefusal::CapacityUnknown => "The desktop could not read the machine's memory.",
         _ => "",
     }
@@ -316,16 +318,15 @@ pub(crate) struct RenderCustody {
     slot: Mutex<Slot>,
     handoff_done: Condvar,
     /// The reservation gate: one completion reserves at a time (module docs,
-    /// "Lock order"). It is held for one completion's reservation only, from
-    /// taking it to its recording or the release of what it
-    /// reserved, and released by its guard on every exit (a refusal, a
-    /// supersession, a stopped wait and a panic: it is taken recovering from
-    /// poisoning). Its longest hold against a later render, which supersedes
-    /// the completion holding it, is one re-sampling tick of the pool
-    /// (`memory_pool::HEADROOM_RESAMPLE_TICK`, 50 ms) plus one copy of the
-    /// document, with, as for every change of custody, a print hand-off in
-    /// progress; for a completion that is still the current one, which nobody
-    /// waits behind, it is one re-sampling window plus one copy.
+    /// "Lock order"). It is held for one completion's reservation, from taking
+    /// it to its recording or the release of what it reserved, and released by
+    /// its guard on every exit (a refusal, a supersession, a stopped wait and a
+    /// panic: it is taken recovering from poisoning). A superseded completion
+    /// gives it up at its next ticket check: before taking it, each interval
+    /// while waiting for it, after each wait of the headroom retry, and before
+    /// recording. What a ticket check cannot interrupt is an operation already
+    /// in progress: a pool verdict, the copy of the document, the wait for a
+    /// print hand-off.
     reserving: Mutex<()>,
 }
 
@@ -672,10 +673,10 @@ impl RenderCustody {
     /// current record is that render: the same generation and the same
     /// recorded SHA-256 the request named, checked under the custody mutex. A
     /// render that replaced it since admission is never handed out in its
-    /// place. This is the one way a route takes a share of the document. The
-    /// hash comparison cannot be isolated by a test: a generation is unique
-    /// per recording, so a different render always fails the generation
-    /// comparison first.
+    /// place. This is the one way a route takes a share of the document. No
+    /// admitted request can name the current generation with another hash,
+    /// because a generation is unique per recording; the hash comparison is
+    /// held by a direct test (`the_take_compares_the_hash_as_well_as_the_generation`).
     pub(crate) fn document_if_current(&self, generation: u64, sha256_hex: &str) -> Option<Arc<HeldDocument>> {
         self.lock()
             .current
@@ -1693,17 +1694,28 @@ mod tests {
         assert_eq!(pool.status(JobCounts::default()).last_refusal, None, "A's passing headroom refusal is not recorded");
     }
 
-    /// The render's refusal advises waiting only where waiting can cure it, and says plainly
-    /// what is wrong for a document over the per-invocation budget and an unknown capacity;
-    /// its code, stage and the refusal's JSON stay.
+    /// The take compares the recorded hash as well as the generation: the current generation
+    /// with another hash hands out nothing; with the recorded hash, the held document.
+    #[test]
+    fn the_take_compares_the_hash_as_well_as_the_generation() {
+        let custody = RenderCustody::new();
+        let generation = custody.record(Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false);
+        assert!(custody.document_if_current(generation, &sha256_hex(b"another render")).is_none());
+        let held = custody.document_if_current(generation, &sha256_hex(HTML.as_bytes())).expect("the current render's document");
+        assert!(Arc::ptr_eq(&held, &custody.held_document().unwrap()));
+    }
+
+    /// The render's refusal advises waiting only for insufficient headroom, promises nothing for an
+    /// exhausted pool, and says plainly what is wrong for a need over the per-invocation budget
+    /// and an unknown capacity; its code, stage and the refusal's JSON stay.
     #[test]
     fn a_custody_refusal_advises_waiting_only_where_waiting_can_help() {
         let lead = "The desktop could not reserve memory to keep this render's document";
         let tail = "the render was not recorded and nothing can be saved or printed from it.";
         for (refusal, ending) in [
             (ResourceRefusal::HeadroomInsufficient { required_bytes: 9, available_bytes: 1 }, " Render the report again when more memory is free."),
-            (ResourceRefusal::PoolExhausted { requested_bytes: 9, reserved_bytes: 1, pool_bytes: 2 }, " Render the report again when more memory is free."),
-            (ResourceRefusal::IngressExceedsBudget { required_bytes: 9, budget_bytes: 1 }, " The document is larger than the memory the desktop allows one command."),
+            (ResourceRefusal::PoolExhausted { requested_bytes: 9, reserved_bytes: 1, pool_bytes: 2 }, " The desktop's memory pool does not have that much free; it may have room once other work in the desktop has finished."),
+            (ResourceRefusal::IngressExceedsBudget { required_bytes: 9, budget_bytes: 1 }, " This needs more memory than the desktop allows one command."),
             (ResourceRefusal::CapacityUnknown, " The desktop could not read the machine's memory."),
         ] {
             let error = custody_unavailable(&refusal);

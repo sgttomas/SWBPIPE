@@ -704,17 +704,17 @@ mod tests {
         assert_eq!((pool.reserved(crate::memory_pool::LeasePurpose::Custody), pool.reserved_total()), (bytes, bytes));
     }
 
-    /// The print's refusal advises waiting only where waiting can cure it, and says plainly
-    /// what is wrong for a document over the per-invocation budget and an unknown capacity;
-    /// its code, stage and the refusal's JSON stay.
+    /// The print's refusal advises waiting only for insufficient headroom, promises nothing for an
+    /// exhausted pool, and says plainly what is wrong for a need over the per-invocation budget
+    /// and an unknown capacity; its code, stage and the refusal's JSON stay.
     #[test]
     fn a_derivation_refusal_advises_waiting_only_where_waiting_can_help() {
         use crate::memory_pool::ResourceRefusal;
         let lead = "The desktop could not reserve memory to derive the print view";
         for (refusal, ending) in [
             (ResourceRefusal::HeadroomInsufficient { required_bytes: 9, available_bytes: 1 }, "nothing was printed. Try again when more memory is free."),
-            (ResourceRefusal::PoolExhausted { requested_bytes: 9, reserved_bytes: 1, pool_bytes: 2 }, "nothing was printed. Try again when more memory is free."),
-            (ResourceRefusal::IngressExceedsBudget { required_bytes: 9, budget_bytes: 1 }, "nothing was printed. The document is larger than the memory the desktop allows one command."),
+            (ResourceRefusal::PoolExhausted { requested_bytes: 9, reserved_bytes: 1, pool_bytes: 2 }, "nothing was printed. The desktop's memory pool does not have that much free; it may have room once other work in the desktop has finished."),
+            (ResourceRefusal::IngressExceedsBudget { required_bytes: 9, budget_bytes: 1 }, "nothing was printed. This needs more memory than the desktop allows one command."),
             (ResourceRefusal::CapacityUnknown, "nothing was printed. The desktop could not read the machine's memory."),
         ] {
             let error = derivation_unavailable(&refusal);
