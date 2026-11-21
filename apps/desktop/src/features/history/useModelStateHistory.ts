@@ -123,10 +123,10 @@ export type SaveModelStateForm = { labels: StateLabels; kind: ModelStateKind };
  * is empty (a successful listing leaves the message as it was). */
 export const NO_MODEL_STATES_LISTED = "No model states listed yet.";
 
-/** Record Run's line while the session does not know whether a saved state holds the solved model
- * (its hash is not computed yet, or the project's states are not listed). The store decides: a model
- * already saved keeps its one state under the name it was saved with, and a name typed here is not used. */
-export const RECORD_RUN_STATE_NOT_KNOWN = "If the solved model is already saved, the run is recorded against that saved state under its name, and the name below is not used; otherwise the run is recorded against a new post-solve snapshot of the solved model with that name.";
+/** Record Run's line under the snapshot name while the session does not know whether a saved state
+ * holds the solved model (its hash is not computed yet, or the project's states are not listed). The
+ * store decides: a model already saved keeps its one state under the name it was saved with. */
+export const RECORD_RUN_SNAPSHOT_NAME_NOTE = "Used only if this model is not already saved.";
 
 /** Record Run's form: the run's labels and, when no saved state holds the solved
  * model, the name of the post-solve snapshot written with it. */
