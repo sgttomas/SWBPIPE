@@ -1202,27 +1202,21 @@ function AppSession() {
               <button type="button" onClick={() => void handleInspectBundledReference()}>
                 Inspect bundled reference
               </button>
-              {/* The Solve section is open when a solve lands: its rule checks read full rows (C2), so
-                  they load them only when the person asks, never at a solve's first paint. */}
-              <C2ResultGate result={currentSolvedResult} analysisRun={null} feature="rule checks" explicit>
-                {(full) => (
-                  <>
-                    <RuleCheckPanel model={model} result={full.result} />
-                    <RuleCheckRunPanel
-                      basis={ruleCheckRunBasis}
-                      model={model}
-                      result={full.result}
-                      onAggregateChange={(aggregate, run) => void handleRuleCheckAggregate(aggregate, {
-                        projectSessionGeneration,
-                        modelRevision: uiModelRevision,
-                        result: currentSolvedResult,
-                        inputManifest
-                      }, run ?? null)}
-                      onR3JourneyEvent={recordR3JourneyEvent}
-                    />
-                  </>
-                )}
-              </C2ResultGate>
+              {/* Rule checks run on the result native custody holds: the run and the selector
+                  preview send its handle, so no full copy enters the webview for them. */}
+              <RuleCheckPanel model={model} result={currentSolvedResult} />
+              <RuleCheckRunPanel
+                basis={ruleCheckRunBasis}
+                model={model}
+                result={currentSolvedResult}
+                onAggregateChange={(aggregate, run) => void handleRuleCheckAggregate(aggregate, {
+                  projectSessionGeneration,
+                  modelRevision: uiModelRevision,
+                  result: currentSolvedResult,
+                  inputManifest
+                }, run ?? null)}
+                onR3JourneyEvent={recordR3JourneyEvent}
+              />
               <KnowledgePanel knowledge={knowledge} result={currentSolvedResult} />
               </DormantSection>) : null}
             </section>

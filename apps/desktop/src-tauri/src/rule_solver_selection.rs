@@ -470,6 +470,72 @@ pub(crate) fn resolve_rule_pack_solver_inputs(
     resolution
 }
 
+/// The display facts of one matched row: what the rule-check panel shows of it.
+fn preview_row(envelope: &Value, row: &Value) -> Value {
+    let mut shown = serde_json::json!({
+        "id": row.get("id").cloned().unwrap_or(Value::Null),
+        "value": row.get("value").cloned().unwrap_or(Value::Null),
+        "unit": row.get("unit").cloned().unwrap_or(Value::Null),
+        "dimension": row.get("dimension").cloned().unwrap_or(Value::Null),
+        "binding_refusal": open_pipe_stress_result_export::semantic_contract::rule_binding_refusal(envelope, row),
+    });
+    if let Some(body) = row.get("component_body") {
+        shown["component_body"] = serde_json::json!({
+            "component_ref": body.get("component_ref").cloned().unwrap_or(Value::Null),
+            "stiffness_scale": body.get("stiffness_scale").cloned().unwrap_or(Value::Null),
+        });
+    }
+    shown
+}
+
+/// Display only (the rule-check panel's selector preview and binding
+/// pre-check, read from a held result): for each query `{input_id, selector,
+/// bases}`, which rows the selector names on each basis, with the run's own
+/// index ([`RowIndex`]) and row gate (`rule_binding_refusal`), and whether the
+/// result publishes any row on the basis. A selector or basis that does not
+/// parse is reported unreadable and matches nothing. Nothing here binds a
+/// value; the run decides on its own terms.
+pub(crate) fn preview_solver_rows(envelope: &Value, queries: &[Value]) -> Value {
+    let index = RowIndex::new(envelope);
+    let row_count = envelope.get("results").and_then(Value::as_array).map_or(0, Vec::len);
+    let inputs: Vec<Value> = queries
+        .iter()
+        .map(|query| {
+            let input_id = query.get("input_id").cloned().unwrap_or(Value::Null);
+            let Some(selector) = query
+                .get("selector")
+                .and_then(|reference| parse_solver_result_ref(reference).ok())
+            else {
+                return serde_json::json!({"input_id": input_id, "selector_readable": false, "bases": []});
+            };
+            let bases: Vec<Value> = query
+                .get("bases")
+                .and_then(Value::as_array)
+                .map(Vec::as_slice)
+                .unwrap_or(&[])
+                .iter()
+                .filter_map(BasisRef::from_value)
+                .map(|basis| {
+                    let rows: Vec<Value> = index.select(&selector, &basis).into_iter().map(|row| preview_row(envelope, row)).collect();
+                    let solved = index.is_solved(&basis);
+                    serde_json::json!({
+                        "basis_ref": {"ref_type": basis.ref_type, "ref_id": basis.ref_id},
+                        "solved": solved,
+                        "rows": rows,
+                    })
+                })
+                .collect();
+            serde_json::json!({"input_id": input_id, "selector_readable": true, "bases": bases})
+        })
+        .collect();
+    serde_json::json!({
+        "document_kind": "swbpipe.desktop.rule_solver_rows_preview",
+        "version": 1,
+        "row_count": row_count,
+        "inputs": inputs,
+    })
+}
+
 /// The selector that names `row` (test support): its kind, entity, location,
 /// component, section basis and, for a rod row, the rod of its connector's
 /// `tie_rods` record that the reader binds it to ([`row_tie_rod`]). `None`
