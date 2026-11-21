@@ -190,12 +190,15 @@ export const PROPOSAL_FINDING_TEXT=200;
 export const PROPOSAL_CODE_ONLY_KINDS=Object.freeze(['MODEL-SLOT-SHAPE','MODEL-SLOT-ID-DUPLICATE','MODEL-SLOT-REF-DUPLICATE','MODEL-TAGS-INVALID','MODEL-NOTES-INVALID','MODEL-LINE-PIPE-MISSING','MODEL-LINE-PIPE-DUPLICATE','MODEL-LINE-PIPE-SHARED','MODEL-ASSUMPTION-KIND-INVALID','MODEL-ASSUMPTION-STATUS-INVALID','MODEL-ASSUMPTION-RESOLUTION-NOTE-REQUIRED','MODEL-CONSTRAINT-KIND-INVALID','MODEL-CONSTRAINT-STATE-INVALID','SPECTRUM_RECORD_INVALID','SPECTRUM_ID_DUPLICATE','EMPTY_ID']);
 const ENGINE_CODE=/^[A-Za-z0-9][A-Za-z0-9_.:-]*$/;
 const charCount=(text:string)=>{let n=0;for(let i=0;i<text.length;i++){if(highSurrogate(text,i))i++;n++;}return n;};
-/** A message as a JSON string of at most PROPOSAL_FINDING_TEXT characters, its text cut (an
- * ellipsis marking the cut) until the escaped form fits. */
+/** A message as a JSON string of at most PROPOSAL_FINDING_TEXT characters: the longest cut of its
+ * text (an ellipsis marking the cut) whose escaped form fits. */
 function quotedFinding(message:string):string{
- let limit=PROPOSAL_FINDING_TEXT-2,quoted=JSON.stringify(clip(message,limit));
- while(charCount(quoted)>PROPOSAL_FINDING_TEXT&&limit>1){limit=Math.max(1,limit-(charCount(quoted)-PROPOSAL_FINDING_TEXT));quoted=JSON.stringify(clip(message,limit));}
- return quoted;
+ const quote=(limit:number)=>JSON.stringify(clip(message,limit)),fits=(limit:number)=>charCount(quote(limit))<=PROPOSAL_FINDING_TEXT;
+ let low=1,high=PROPOSAL_FINDING_TEXT-2;
+ if(fits(high))return quote(high);
+ // The escaped length grows with the cut, so the longest cut that fits is found by bisection.
+ while(low<high){const mid=Math.ceil((low+high)/2);if(fits(mid))low=mid;else high=mid-1;}
+ return quote(low);
 }
 /** The propose tool's message on a refused proposal: the fixed first sentence; then, when the
  * engine reported blocking findings, how many and how many are not listed, the labelling

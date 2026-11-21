@@ -813,6 +813,8 @@ describe('a proposal the operation engine refuses',()=>{
   expect(cut.outcome.message).toContain(' [2] OP-SHORT "Short message."');
   const escaped=/ \[3\] OP-QUOTED ("(?:[^"\\]|\\.)*")$/.exec(cut.outcome.message)![1];
   expect(chars(escaped)).toBeLessThanOrEqual(PROPOSAL_FINDING_TEXT);expect(JSON.parse(escaped)).toMatch(/^"+…$/);
+  // The longest cut that fits: each quote escapes to two characters, so 98 of them and the ellipsis.
+  expect(JSON.parse(escaped)).toBe(`${'"'.repeat(98)}…`);
   expect(cut.outcome.message.startsWith(head(3))).toBe(true);expect(chars(cut.outcome.message)).toBeLessThanOrEqual(1000);
   // A long engine code is listed whole; one that is not an engine code is counted, never altered.
   const odd=await propose(refused([finding('not a code','Hidden.'),{code:7,severity:'blocking',message:'Hidden.'},finding('OP-REAL','Shown.')]));
@@ -829,7 +831,8 @@ describe('a proposal the operation engine refuses',()=>{
   // The finding is one JSON string: its quotes are escaped, so the identifier cannot close it or start a second entry.
   const rest=message.slice(label+PROPOSAL_FINDINGS_LABEL.length);
   const parsed=/^ \[1\] OP-STALE-BEFORE-VALUE ("(?:[^"\\]|\\.)*")$/.exec(rest);expect(parsed).not.toBeNull();expect(JSON.parse(parsed![1])).toBe(stale);
-  expect([...message.matchAll(/ \[\d+\] /g)]).toHaveLength(1);
+  // The identifier's own "[2] OP-OK" is inside that string, not a second entry.
+  expect(rest.split(PROPOSAL_FINDINGS_LABEL)).toHaveLength(1);expect(JSON.parse(parsed![1])).toContain('[2] OP-OK "');
   expect(chars(message)).toBeLessThanOrEqual(1000);expect(outcome.data).toBeNull();expect(owner.register).not.toHaveBeenCalled();expect(owner.solve).not.toHaveBeenCalled();
   expect(JSON.parse(raw).message).toBe(message);
  });
