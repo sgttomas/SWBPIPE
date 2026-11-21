@@ -12,6 +12,7 @@ import {
   composedVisibilityHiddenKeys,
   createRenderTransform,
   displayedBoundsForEntityKeys,
+  displayedEntityKeys,
   effectiveHiddenEntityKeys,
   formatMeasurementDisplayValue,
   hideSelectionVisibility,
@@ -231,6 +232,8 @@ describe("viewport coordinates and broad phase", () => {
     expect(visible).not.toBeNull();
     expect(visible!.max.x - visible!.min.x).toBeCloseTo(0.86);
     expect(displayedBoundsForEntityKeys(index, [pipeKey], new Set([pipeKey]), new Map([[pipeKey, 8]]))).toBeNull();
+    // The keys a fit of them frames: the hidden ones are not among them.
+    expect(displayedEntityKeys(index, [pipeKey, supportKey, componentKey], new Set([pipeKey, componentKey]), new Map([[pipeKey, 8]]))).toEqual([supportKey]);
   });
 
   it("structurally caps labels with primary, hover, selected, and diagnostics first", () => {

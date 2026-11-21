@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { gotoModel, readFixture } from "./ui-foundation-workflows";
+import { gotoModel, readFixture, selectTreeRow } from "./ui-foundation-workflows";
 import { viewportControl } from "./workspace-driver";
 
 // DEL-07-01 REQ-012: a view or stage switch keeps the camera where the person set it, and a fitted
@@ -196,6 +196,30 @@ test.describe("the camera: fitted views refit, a view the person set is kept", (
       expectSamePose(await pose(page), fitted);
     });
   }
+
+  test("Fit Selection keeps the entities it framed: a hidden one, shown again, stays out of the refit", async ({ page }) => {
+    await open(page);
+    const control = async (name: string) => {
+      await (await viewportControl(page, page.getByRole("button", { name, exact: true }))).click();
+      if (await page.getByTestId("viewport-more-menu").count()) await page.keyboard.press("Escape");
+    };
+    const fitSelection = async () => {
+      await page.getByTestId("viewport-fit-selection").click();
+      return pose(page);
+    };
+    // B (CAM-3) hidden; then A (CAM-1, visible) and B selected from the table.
+    await selectTreeRow(page, "pipe", "pipe:CAM-3");
+    await control("Hide");
+    await selectTreeRow(page, "pipe", "pipe:CAM-1");
+    await selectTreeRow(page, "pipe", "pipe:CAM-3", { toggle: true });
+    await fitSelection();
+    await control("Show all");
+    await resize(page, WIDER.width, WIDER.height);
+    const refitted = await pose(page);
+    // The refit frames A alone: what Fit Selection of A gives on this canvas.
+    await selectTreeRow(page, "pipe", "pipe:CAM-1");
+    expectSamePose(await fitSelection(), refitted);
+  });
 
   test("Fit after an orbit keeps the direction the person looks from", async ({ page }) => {
     await open(page);

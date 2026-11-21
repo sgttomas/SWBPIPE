@@ -88,6 +88,7 @@ import {
   claimBoxSelectionPointerDown,
   createRenderTransform,
   displayedBoundsForEntityKeys,
+  displayedEntityKeys,
   formatMeasurementDisplayValue,
   fittedViewportDistance,
   hideSelectionVisibility,
@@ -2564,7 +2565,12 @@ export function PipeViewport({
     if (resource) {
       fitAuthoredBounds(resource, authoredBounds);
       const size = viewportCanvasSize(resource);
-      cameraRuleRef.current = fitApplied(cameraRuleRef.current, kind, size.width, size.height, kind === "fit-selection" ? orderedSelectionKeys : undefined);
+      // A Fit Selection keeps the keys it framed: a hidden selected entity, outside the bounds now,
+      // stays outside the refit after it is shown again.
+      const fittedKeys = kind === "fit-selection"
+        ? displayedEntityKeys(activeModelIndex, orderedSelectionKeys, hiddenKeys, geometryMode === "actual-od" ? actualOd.radii : new Map())
+        : undefined;
+      cameraRuleRef.current = fitApplied(cameraRuleRef.current, kind, size.width, size.height, fittedKeys);
       resource.invalidate();
     }
     setViewCommandStatus(resource

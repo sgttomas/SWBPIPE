@@ -146,6 +146,40 @@ export function applyMeasurementTargetCommand(
   });
 }
 
+/** The marker or radius envelope an entity is drawn with, or null when it adds nothing to the
+ * displayed bounds (hidden, invalid, without geometry). */
+function displayedExtent(
+  index: ModelIndex,
+  key: EntityKey,
+  hiddenKeys: ReadonlySet<EntityKey>,
+  actualOdRadii: ReadonlyMap<EntityKey, number>
+): number | null {
+  if (hiddenKeys.has(key) || index.invalidGeometry.has(key)) return null;
+  const indexed = index.entities.get(key);
+  if (!indexed?.geometryBounds) return null;
+  const extent = indexed.ref.type === "pipe"
+    ? actualOdRadii.get(key) ?? 0.052
+    : indexed.ref.type === "node"
+      ? 0.095
+      : indexed.ref.type === "support"
+        ? 0.43
+        : indexed.ref.type === "component"
+          ? 0.3
+          : 0;
+  return Number.isFinite(extent) && extent >= 0 ? extent : null;
+}
+
+/** The keys among `keys` that contribute to displayedBoundsForEntityKeys: the ones a fit of them
+ * frames. */
+export function displayedEntityKeys(
+  index: ModelIndex,
+  keys: Iterable<EntityKey>,
+  hiddenKeys: ReadonlySet<EntityKey>,
+  actualOdRadii: ReadonlyMap<EntityKey, number>
+): EntityKey[] {
+  return [...keys].filter((key) => displayedExtent(index, key, hiddenKeys, actualOdRadii) !== null);
+}
+
 /**
  * Bounds the geometry as displayed, including schematic or converted OD pipe
  * radius and the actual marker envelopes used by the renderer.
@@ -158,19 +192,10 @@ export function displayedBoundsForEntityKeys(
 ): Bounds3 | null {
   let result: Bounds3 | null = null;
   for (const key of keys) {
-    if (hiddenKeys.has(key) || index.invalidGeometry.has(key)) continue;
-    const indexed = index.entities.get(key);
-    if (!indexed?.geometryBounds) continue;
-    const extent = indexed.ref.type === "pipe"
-      ? actualOdRadii.get(key) ?? 0.052
-      : indexed.ref.type === "node"
-        ? 0.095
-        : indexed.ref.type === "support"
-          ? 0.43
-          : indexed.ref.type === "component"
-            ? 0.3
-            : 0;
-    if (!Number.isFinite(extent) || extent < 0) continue;
+    const extent = displayedExtent(index, key, hiddenKeys, actualOdRadii);
+    if (extent === null) continue;
+    const indexed = index.entities.get(key)!;
+    if (!indexed.geometryBounds) continue;
     const expanded = {
       min: {
         x: indexed.geometryBounds.min.x - extent,
