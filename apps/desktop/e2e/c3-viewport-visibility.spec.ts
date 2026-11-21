@@ -105,10 +105,10 @@ test("C3 snapshot, Hide precedence, persistent hidden count, theme and Show All 
   await (await control(page, "Hide")).click();
   await expect(label(page, "pipe:C3-B")).toHaveCount(0);
   const hidden = page.getByTestId("viewport-hidden-count");
-  await expect(hidden).toHaveText("1 hidden · Show all");
+  await expect(hidden).toHaveText("1 hidden · 1 isolated · Show all");
   await selectTreeRow(page, "pipe", "pipe:C3-B", { toggle: true });
   await expect.poll(() => selected(page)).toEqual([]);
-  await expect(hidden).toHaveText("1 hidden · Show all");
+  await expect(hidden).toHaveText("1 hidden · 1 isolated · Show all");
   await selectTreeRow(page, "pipe", "pipe:C3-B");
   await expect(label(page, "pipe:C3-B")).toHaveCount(0);
   await narrowBothPane(page);
@@ -201,7 +201,8 @@ test("C3 nearer dimmed pipe wins unchanged point ordering and viewport keyboard 
   await expect.poll(() => selected(page)).toEqual([{ type: "pipe", id: "pipe:C3-B" }]);
   await selectTreeRow(page, "pipe", "pipe:C3-A");
   await canvas.focus(); await page.keyboard.press("i");
-  await expect(await control(page, "Show all")).toBeEnabled();
+  // The focus is read before Show all is looked for: on this narrow canvas Show all is in More,
+  // and opening More takes the focus.
   const focus = await canvas.evaluate(el => {
     const s = getComputedStyle(el), r = el.getBoundingClientRect();
     return { visible: el.matches(":focus-visible"), width: s.outlineWidth, offset: s.outlineOffset, color: s.outlineColor, rect: r.toJSON() };
@@ -209,16 +210,19 @@ test("C3 nearer dimmed pipe wins unchanged point ordering and viewport keyboard 
   expect(focus.visible).toBe(true); expect(parseFloat(focus.width)).toBeGreaterThan(0); expect(parseFloat(focus.offset)).toBeLessThan(0);
   await info.attach("canvas-keyboard-focus", { body: await canvas.screenshot(), contentType: "image/png" });
   await info.attach("canvas-focus-style", { body: JSON.stringify(focus), contentType: "application/json" });
+  await expect(await control(page, "Show all")).toBeEnabled();
+  if (await page.getByTestId("viewport-more-menu").isVisible()) await page.keyboard.press("Escape");
+  await expect(page.getByTestId("viewport-more-menu")).toHaveCount(0);
   const p = await point(page, { x: 0, y: 0, z: 2 });
   expect(p.x).toBeCloseTo(near.x, 5); expect(p.y).toBeCloseTo(near.y, 5);
   await expectMainCanvasPoint(page, p); await page.mouse.click(p.x, p.y);
   await expect.poll(() => selected(page)).toEqual([{ type: "pipe", id: "pipe:C3-B" }]);
   await canvas.focus(); await page.keyboard.press("h");
-  await expect(page.getByTestId("viewport-hidden-count")).toHaveText("1 hidden · Show all");
+  await expect(page.getByTestId("viewport-hidden-count")).toHaveText("1 hidden · 1 isolated · Show all");
   // Shortcuts are inert while typing outside the viewport and with modifiers.
   const filter = page.getByTestId("model-tree-filter-input");
   await filter.fill("i"); await filter.press("h");
-  await expect(page.getByTestId("viewport-hidden-count")).toHaveText("1 hidden · Show all");
+  await expect(page.getByTestId("viewport-hidden-count")).toHaveText("1 hidden · 1 isolated · Show all");
   await filter.fill("");
   await (await control(page, "Show all")).click();
   await canvas.focus(); await page.keyboard.press("Alt+i");
