@@ -85,13 +85,17 @@ export function loadsPage(root: () => HTMLElement, select: (entity: EntityRef) =
       chooseCase(caseId);
       return (): Scope => within(within(caseSection(caseId, "reference-state")).getByTestId("load-state-analysis-state"));
     },
-    /** Step combinations: New combination, opened, with its "More" (ID, provenance, rationale) opened. */
+    /** Step combinations: the form New combination opens, with its "More" (ID, provenance, rationale)
+     * opened. The form's own summary is hidden from a person, so only the button may open the form:
+     * it is never disclosed here, only checked open after the press. */
     openCreateCombination: (projectId: string) => {
       select({ type: "project", id: projectId });
       return (): Scope => {
         const command = page().getByTestId("load-manager-new-combination");
         if (command.getAttribute("aria-expanded") !== "true") fireEvent.click(command);
-        const form = disclose(page().getByTestId("load-manager-create-combination-form"));
+        expect(command.getAttribute("aria-expanded"), "New combination expanded").toBe("true");
+        const form = page().getByTestId("load-manager-create-combination-form") as HTMLDetailsElement;
+        expect(form.open, "New combination's form open").toBe(true);
         disclose(within(form).getByTestId("load-manager-create-combination-more"));
         return within(form);
       };
