@@ -918,10 +918,14 @@ fn seismic_terms_and_their_combinations_are_admitted_over_generating_cases() {
             assert_eq!(published, !withheld, "{id} {mode:?}: expected outcome {}; diagnostics {:?}", item["expected_outcome"], codes(&out));
             let naming = out["diagnostics"].as_array().unwrap().iter().filter(|d| d["affected_refs"].as_array().is_some_and(|r| r.contains(&json!(id))))
                 .map(|d| d["code"].as_str().unwrap().to_string()).collect::<Vec<_>>();
-            // The fixed-load count gate (DEL-05-02 REQ-011) by its code (the
-            // user guide's names): a mechanics combination whose count is not
-            // 1 needs a solve; an SRSS or absolute sum of operands whose count
-            // is not exactly 0 counts the constant-effort force once per term.
+            // The reference fixes only that the item is withheld by the
+            // fixed-load count gate (DEL-05-02 REQ-011); it specifies no code,
+            // so these are not reference values. They are the codes the
+            // product emits for that gate, as its user guide names them
+            // (docs/user_guide/index.md), asserted so that a change of code is
+            // seen: a mechanics combination whose count is not 1 needs a
+            // solve; an SRSS or absolute sum of operands whose count is not
+            // exactly 0 would count the constant-effort force once per term.
             let gate = match item["basis"].as_str().unwrap() {
                 "mechanics" => "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE",
                 _ => "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND",
