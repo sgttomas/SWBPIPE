@@ -135,6 +135,8 @@ checks:
 - tests/test_results_schema.py
 - tests/test_results_dispatcher_v0_3.py
 - core/reporting/result_export/tests/derivative_contract.rs
+- core/reporting/result_export/tests/combined_connector_metadata.rs
+- core/product_physics/tests/combined_connector_export.rs
 - core/reporting/report_package/tests/schema_eval.rs
 - tests/test_schema_eval_parity.py
 - apps/desktop/src/features/result-export/resultExportAdapter.test.ts

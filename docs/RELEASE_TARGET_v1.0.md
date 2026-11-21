@@ -305,6 +305,13 @@ target remains adequate. A failure alone does not justify relaxing one.
    - Every use case in DEL-07-06's acceptance criteria completes in the desktop
      with no step outside it. This is tested thoroughly before the owner is
      asked.
+   - Before the owner or any other person is asked to use the desktop, two
+     independent reviewers each score its interface, from a walkthrough of
+     those use cases in the launched application, on DEL-07-06's nine
+     interface criteria. Both give at least 4 overall on every criterion, and
+     neither gives any use case less than 3 on any criterion that applies to
+     it, with no applicable criterion left unscored (DEL-07-06 REQ-017 and
+     AC-008).
    - The owner then uses the desktop and answers yes or no on whether it is
      ready. The criterion is met on yes.
 

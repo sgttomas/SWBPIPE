@@ -34,7 +34,7 @@ use crate::user_release::{self, ProducerEntry, USER_RELEASED_CONTEXT, USER_RELEA
 use crate::wire::{LinkedSolverIdentity, ReportPackageRequest};
 use open_pipe_stress_audit_manifest as audit;
 use open_pipe_stress_canonical_json::canonical_number;
-use open_pipe_stress_result_export::derivative::{digest, guard_json, validate_document};
+use open_pipe_stress_result_export::derivative::{digest, guard_json, validate_document_naming_row};
 use open_pipe_stress_result_export::semantic_contract::for_source;
 use serde_json::{json, Value};
 use std::collections::BTreeSet;
@@ -461,7 +461,7 @@ pub(crate) fn check_request_in(
     // against it (row accounting, witnesses, origin and carrier hash).
     let (source_table, _) = for_source(source).map_err(|detail| format!("{SOURCE_INVALID}: {detail}"))?;
     require(std::ptr::eq(source_table, header_table), "the source and the document select different tables")?;
-    validate_document(document, source).map_err(|detail| format!("{SOURCE_INVALID}: {detail}"))?;
+    validate_document_naming_row(document, source).map_err(|detail| format!("{SOURCE_INVALID}: {detail}"))?;
     // Every checksum record names the subject its location derives (§2.4,
     // "Checksum subjects"); `validate_document` binds the row records to the
     // origin's carrier reference, and this binds that reference.
