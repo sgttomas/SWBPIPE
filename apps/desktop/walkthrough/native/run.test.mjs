@@ -357,13 +357,16 @@ test("every declared journey placement names a committed fixture and an open the
 
 // ---------------------------------------------------------------- the attended launch (--attended)
 
-import { constants as fsConstants, copyFileSync, lstatSync, renameSync } from "node:fs";
+import { constants as fsConstants, copyFileSync, lstatSync, renameSync, utimesSync } from "node:fs";
 import { ATTENDED, ATTENDED_SURFACE, CAPTURE_BASIS, UNEXPLAINED_BASIS, attendedEnding, attendedStartLines, attendedWatch, emptyAttendedOutput, parseCommandLine, readCaptures, readProcessTable, writeAttendedPart } from "./run.mjs";
 import { judgedPhase } from "../../native-smoke/judged-launch.mjs";
 import { censusOf } from "../../native-smoke/launch-env.mjs";
 import { readReport } from "../../native-smoke/launch-outcome.mjs";
 import { acquireBuildLock } from "../../scripts/worktreeBuildLock.mjs";
 import { deflateSync } from "node:zlib";
+
+/** An attended capture's sidecar as the attendant writes it, with the required members the claims leave out. */
+const sidecarJson = (claims) => JSON.stringify({ use_case: "Save, close and resume", taken_at: new Date().toISOString(), ...claims });
 
 /** A real PNG, `width` x `height`, RGBA 8-bit, all `value`: small, decodable and with correct checksums. */
 function makePng(width, height, value = 0) {
@@ -466,13 +469,13 @@ test("captures: each PNG with its sidecar is a capture of the actual window; wit
   mkdirSync(folder);
   const png = (width, height) => makePng(width, height);
   writeFileSync(path.join(folder, "01-menu.png"), png(48, 30));
-  writeFileSync(path.join(folder, "01-menu.json"), JSON.stringify({ step: "file-menu-open", note: "The File menu, opened from the menu bar", acted: ["clicked File in the menu bar"] }));
+  writeFileSync(path.join(folder, "01-menu.json"), sidecarJson({ step: "file-menu-open", note: "The File menu, opened from the menu bar", acted: ["clicked File in the menu bar"] }));
   writeFileSync(path.join(folder, "02-bare.png"), png(8, 6));
   writeFileSync(path.join(folder, "03-bad.png"), png(10, 10));
-  writeFileSync(path.join(folder, "03-bad.json"), JSON.stringify({ step: "", note: "n", acted: [] }));
+  writeFileSync(path.join(folder, "03-bad.json"), sidecarJson({ step: "", note: "n", acted: ["looked"] }));
   writeFileSync(path.join(folder, "04-fake.png"), "not a png");
-  writeFileSync(path.join(folder, "04-fake.json"), JSON.stringify({ step: "s", note: "n", acted: [] }));
-  writeFileSync(path.join(folder, "05-orphan.json"), JSON.stringify({ step: "s", note: "no picture", acted: [] }));
+  writeFileSync(path.join(folder, "04-fake.json"), sidecarJson({ step: "s", note: "n", acted: [] }));
+  writeFileSync(path.join(folder, "05-orphan.json"), sidecarJson({ step: "s", note: "no picture", acted: ["looked"] }));
   writeFileSync(path.join(folder, "notes.txt"), "x");
   symlinkSync(path.join(folder, "01-menu.png"), path.join(folder, "06-link.png"));
   const before = readdirSync(folder).map((name) => [name, lstatSync(path.join(folder, name)).mtimeMs]);
@@ -558,7 +561,9 @@ async function runAttendedDriver(plan, { waitMs = 400, invoke = () => undefined 
   class MutationObserver { constructor(callback) { this.callback = callback; observers.push(this); } observe(target, options) { this.target = target; this.options = options; } }
   class HTMLInputElement {}
   HTMLInputElement.prototype.showPicker = function showPicker() { calls.push(["showPicker", this.type]); };
-  const context = { window, document, navigator: { userAgent: "test" }, CSS: { escape: (text) => text }, setTimeout, clearTimeout, setInterval, clearInterval, Date, JSON, Promise, String, Error, Boolean, Object, Math, Array, Set, Map, encodeURIComponent, getComputedStyle: () => ({}), requestAnimationFrame: (callback) => setTimeout(callback, 0), innerWidth: 1, innerHeight: 1, devicePixelRatio: 1, matchMedia: () => ({ matches: false }), MutationObserver, HTMLInputElement };
+  // The driver's timers do not hold the test process open: an attended driver records until the launch ends.
+  const unref = (start) => (...args) => { const timer = start(...args); timer.unref?.(); return timer; };
+  const context = { window, document, navigator: { userAgent: "test" }, CSS: { escape: (text) => text }, setTimeout: unref(setTimeout), clearTimeout, setInterval: unref(setInterval), clearInterval, Date, JSON, Promise, String, Error, Boolean, Object, Math, Array, Set, Map, encodeURIComponent, getComputedStyle: () => ({}), requestAnimationFrame: (callback) => setTimeout(callback, 0), innerWidth: 1, innerHeight: 1, devicePixelRatio: 1, matchMedia: () => ({ matches: false }), MutationObserver, HTMLInputElement };
   vm.runInNewContext(composeDriver(driver), context);
   await new Promise((resolve) => setTimeout(resolve, 1500 + waitMs));
   const checkpoints = () => calls.filter(([command]) => command === "native_smoke_checkpoint").map(([, args]) => args);
@@ -699,7 +704,7 @@ function surfacesIndex(t, { journeyRevision = "abc", captureRevision = "abc", jo
     const base = `${String(index + 1).padStart(2, "0")}-capture`;
     if (sidecar.picture !== false) writeFileSync(path.join(folder, `${base}.png`), png);
     const { picture, ...claims } = sidecar;
-    writeFileSync(path.join(folder, `${base}.json`), JSON.stringify({ step: `step-${index + 1}`, note: "n", acted: ["looked"], ...claims }));
+    writeFileSync(path.join(folder, `${base}.json`), sidecarJson({ step: `step-${index + 1}`, note: "n", acted: ["looked"], ...claims }));
   });
   const captures = readCaptures(folder, { identity: lstatSync(folder), bindTo: { revision: { commit: captureRevision, uncommitted_paths: 0 }, build_app_sha256: captureBuild } });
   writeAttendedPart(out, { title: "Attended", revision: { commit: captureRevision, uncommitted_paths: 0 }, build: { kind: "k", app_sha256: captureBuild }, launch: { attended: true, prevented: [], ...launch }, captures });
@@ -849,14 +854,14 @@ test("a capture supplies a surface only while it is its launch's own: another bu
   assert.match(replaced.index.screens.find((screen) => screen.journey === "attended").binding_check, /replaced/);
   assert.match(replaced.html, /Not counted as evidence: the picture on disk is not the one its launch recorded/);
   missing(surfacesIndex(t, { sidecars: claim, after: (folder) => rmSync(path.join(folder, "01-capture.png")) }), /removed after its launch ended/);
-  missing(surfacesIndex(t, { sidecars: claim, after: (folder) => writeFileSync(path.join(folder, "01-capture.json"), JSON.stringify({ step: "step-1", note: "changed", acted: ["looked"], surfaces: ["menu_bar"] })) }), /edited after the launch ended/);
+  missing(surfacesIndex(t, { sidecars: claim, after: (folder) => writeFileSync(path.join(folder, "01-capture.json"), sidecarJson({ step: "step-1", note: "changed", acted: ["looked"], surfaces: ["menu_bar"] })) }), /edited after the launch ended/);
   const intact = surfacesIndex(t, { sidecars: claim });
   assert.match(intact.index.screens.find((screen) => screen.journey === "attended").binding_check, /^intact/);
   // A file that is not an image is unexplained at the launch's end and supplies nothing.
   const fake = scratch(t);
   mkdirSync(path.join(fake, "captures"));
   writeFileSync(path.join(fake, "captures", "01.png"), "not an image");
-  writeFileSync(path.join(fake, "captures", "01.json"), JSON.stringify({ step: "s", note: "n", acted: ["looked"], surfaces: ["menu_bar"] }));
+  writeFileSync(path.join(fake, "captures", "01.json"), sidecarJson({ step: "s", note: "n", acted: ["looked"], surfaces: ["menu_bar"] }));
   const read = readCaptures(path.join(fake, "captures"), { bindTo: { revision: { commit: "abc" }, build_app_sha256: "sha256:feed" } });
   assert.deepEqual([read.screens[0].capture, read.screens[0].binding], ["unexplained", undefined]);
   assert.match(read.screens[0].unexplained, /not a PNG/);
@@ -868,7 +873,7 @@ test("a capture supplies a surface only while it is its launch's own: another bu
 test("a capture added after its launch ended is unbound, and every unexplained entry reaches both indexes under the launch", (t) => {
   const result = surfacesIndex(t, { sidecars: [{ surfaces: ["menu_bar"] }, { surfaces: "window" }], after: (folder) => {
     writeFileSync(path.join(folder, "09-late.png"), makePng(2, 2));
-    writeFileSync(path.join(folder, "09-late.json"), JSON.stringify({ step: "late", note: "n", acted: ["looked"], surfaces: ["window"] }));
+    writeFileSync(path.join(folder, "09-late.json"), sidecarJson({ step: "late", note: "n", acted: ["looked"], surfaces: ["window"] }));
   } });
   assert.equal(result.entry("window").evidence, "missing");
   const attended = result.index.journeys.find((journey) => journey.name === "attended");
@@ -971,4 +976,148 @@ test("an attended launch stops the embedded agent's Start agent, whatever provid
   const [stop] = run.checkpoints().filter((item) => item.name === "substitutions").at(-1).report.substitutions;
   assert.deepEqual([stop.kind, stop.control], ["agent start stopped by the launch", "Embedded agent: Start agent"]);
   assert.match(stop.what, /no other provider is used/);
+});
+
+test("an attended capture's sidecar: the use case, the step, what was done, the note and when it was taken are required; each missing one leaves the picture unexplained", (t) => {
+  const root = scratch(t);
+  const folder = path.join(root, "captures");
+  mkdirSync(folder);
+  const now = new Date().toISOString();
+  const cases = {
+    "01-ok": { use_case: "Failed solve", step: "s", acted: ["observed only"], note: "", taken_at: now },
+    "02-journey": { use_case: "prepared-project", step: "s", acted: ["clicked Run"], note: "n", taken_at: now },
+    "03-no-use-case": { step: "s", acted: ["x"], note: "n", taken_at: now },
+    "04-other-use-case": { use_case: "Something else", step: "s", acted: ["x"], note: "n", taken_at: now },
+    "05-empty-acted": { use_case: "Failed solve", step: "s", acted: [], note: "n", taken_at: now },
+    "06-blank-acted": { use_case: "Failed solve", step: "s", acted: [" "], note: "n", taken_at: now },
+    "07-no-time": { use_case: "Failed solve", step: "s", acted: ["x"], note: "n" },
+    "08-zoneless-time": { use_case: "Failed solve", step: "s", acted: ["x"], note: "n", taken_at: "2026-11-21T10:00:00" },
+    "09-no-note": { use_case: "Failed solve", step: "s", acted: ["x"], taken_at: now }
+  };
+  for (const [base, sidecar] of Object.entries(cases)) {
+    writeFileSync(path.join(folder, `${base}.png`), makePng(2, 2));
+    writeFileSync(path.join(folder, `${base}.json`), JSON.stringify(sidecar));
+  }
+  const found = readCaptures(folder, { journeyUseCase: { name: "prepared-project", use_case: "none of its own: the start" } });
+  const by = Object.fromEntries(found.screens.map((screen) => [screen.file.replace(/^captures\/|\.png$/g, ""), screen]));
+  assert.deepEqual([by["01-ok"].capture, by["01-ok"].use_case], ["the actual window", "DEL-07-06 AC-007 Failed solve, as the attendant states"]);
+  assert.deepEqual(by["01-ok"].stated_by_attendant, { use_case: "Failed solve", step: "s", acted: ["observed only"], note: "", taken_at: now });
+  assert.deepEqual([by["02-journey"].capture, by["02-journey"].use_case], ["the actual window", "none of its own: the start, as the attendant states"]);
+  assert.match(by["03-no-use-case"].unexplained, /names no use case/);
+  assert.match(by["04-other-use-case"].unexplained, /"Something else" is neither one of DEL-07-06 AC-007's by its name there nor the launch's journey \(prepared-project\)/);
+  assert.match(by["05-empty-acted"].unexplained, /does not say what was done since the previous capture/);
+  assert.match(by["06-blank-acted"].unexplained, /does not say what was done/);
+  assert.match(by["07-no-time"].unexplained, /does not say when the picture was taken/);
+  assert.match(by["08-zoneless-time"].unexplained, /does not say when the picture was taken/);
+  assert.match(by["09-no-note"].unexplained, /has no note/);
+  // Without a journey, the journey's name is not a use case.
+  assert.match(readCaptures(folder).screens.find((screen) => screen.file === "captures/02-journey.png").unexplained, /nor the launch's journey \(it has none\)/);
+});
+
+test("an attended capture carries the application's own report nearest at or before its stated time, and the substitutions since the previous capture", (t) => {
+  const root = scratch(t);
+  const folder = path.join(root, "captures");
+  mkdirSync(folder);
+  const t0 = Date.now() - 60_000;
+  const iso = (ms) => new Date(ms).toISOString();
+  const side = (base, at, extra = {}) => {
+    writeFileSync(path.join(folder, `${base}.png`), makePng(2, 2));
+    writeFileSync(path.join(folder, `${base}.json`), JSON.stringify({ use_case: "Failed solve", step: base, acted: ["x"], note: "n", taken_at: iso(at), ...extra }));
+    utimesSync(path.join(folder, `${base}.png`), new Date(at), new Date(at));
+  };
+  // Named out of time order: the order is the attendant's stated times.
+  side("b-second", t0 + 30_000);
+  side("a-first", t0 + 10_000);
+  side("c-before-any", t0 + 1_000);
+  side("d-late-file", t0 + 40_000);
+  utimesSync(path.join(folder, "d-late-file.png"), new Date(t0 + 50_000), new Date(t0 + 50_000));
+  const record = (n, at, words) => ({ nonce: "n", n, at, page_visibility: "visible", words_on_screen: words, words_in_page: words * 2, prose_blocks_on_screen: 1, buttons_on_screen: 2, inputs_on_screen: 3, longest_scroll_screens: 1, controls: ["button: Run"] });
+  const observed = [record(2, t0 + 20_000, 200), record(1, t0 + 5_000, 100), record(3, t0 + 30_001, 300)];
+  const substitutions = [
+    { at: t0 + 8_000, kind: "file panel stopped by the launch", control: "Import hanger library", what: "The launch stopped this control from opening the system's file panel." },
+    { at: t0 + 25_000, kind: "report print dialog", what: "printed", print_sha256: "ab" },
+    { at: t0 + 30_000, kind: "agent start stopped by the launch", control: "Embedded agent: Start agent", what: "stopped" },
+    { at: t0 + 45_000, kind: "report print dialog", what: "late" }
+  ];
+  const found = readCaptures(folder, { observed, substitutions, launchTimes: { from: t0, to: t0 + 60_000 } });
+  const by = Object.fromEntries(found.screens.map((screen) => [screen.step, screen]));
+  assert.equal(by["c-before-any"].counts_source, "no report of the application's own at or before the time the attendant states: the words and controls on screen are not recorded for this capture");
+  assert.equal(by["c-before-any"].words_on_screen, undefined);
+  assert.deepEqual([by["a-first"].words_on_screen, by["a-first"].counts_at], [100, iso(t0 + 5_000)]);
+  assert.match(by["a-first"].counts_source, /^the application's own report at .* \(record 1 of the launch's driver, read as the page settled\), not the attendant's$/);
+  // A record exactly at the stated time counts; one a millisecond after it does not.
+  assert.equal(by["b-second"].words_on_screen, 200);
+  assert.deepEqual(by["c-before-any"].substitutions, []);
+  assert.deepEqual(by["a-first"].substitutions.map((item) => item.control), ["Import hanger library"]);
+  assert.deepEqual(by["b-second"].substitutions.map((item) => item.kind), ["report print dialog", "agent start stopped by the launch"]);
+  assert.equal(by["b-second"].substitutions[0].print_sha256, "ab");
+  assert.match(by["b-second"].substitutions_since, /the previous capture, stated as taken at/);
+  assert.deepEqual(by["d-late-file"].substitutions, []);
+  assert.match(by["a-first"].taken_at_check, /^agrees with the picture's file time/);
+  assert.match(by["d-late-file"].taken_at_check, /^disagrees with the picture's file time .*: 10 s apart$/);
+  // A picture whose file time lies outside the launch is unexplained.
+  side("e-before-launch", t0 - 3_600_000);
+  const later = readCaptures(folder, { observed, substitutions, launchTimes: { from: t0, to: t0 + 60_000 } });
+  assert.match(later.screens.find((screen) => screen.file === "captures/e-before-launch.png").unexplained, /is before this launch started/);
+});
+
+test("the composed index labels an attended capture's parts: the attendant's statements, and the application's own report with its time", (t) => {
+  const out = scratch(t);
+  const folder = path.join(out, "captures");
+  mkdirSync(folder);
+  const at = Date.now() - 1000;
+  writeFileSync(path.join(folder, "01-results.png"), makePng(4, 3));
+  writeFileSync(path.join(folder, "01-results.json"), JSON.stringify({ use_case: "Review and export results", step: "results-open", acted: ["clicked Results in the stage bar"], note: "The Results stage", taken_at: new Date(at).toISOString(), surfaces: ["window"] }));
+  const observed = [{ nonce: "n", n: 4, at: at - 500, page_visibility: "visible", words_on_screen: 321, words_in_page: 900, prose_blocks_on_screen: 4, buttons_on_screen: 20, inputs_on_screen: 2, longest_scroll_screens: 1.5, controls: ["button: Run"] }];
+  const substitutions = [{ at: at - 200, kind: "file panel stopped by the launch", control: "Proposal file", what: "The launch stopped this control from opening the system's file panel." }];
+  const captures = readCaptures(folder, { identity: lstatSync(folder), bindTo: { revision: { commit: "abc", uncommitted_paths: 0 }, build_app_sha256: "sha256:feed" }, observed, substitutions });
+  writeAttendedPart(out, { title: "Attended", revision: { commit: "abc", uncommitted_paths: 0 }, build: { kind: "k", app_sha256: "sha256:feed" }, launch: { attended: true }, captures });
+  composeIndex(out);
+  const index = JSON.parse(readFileSync(path.join(out, "INDEX.json"), "utf8"));
+  const screen = index.screens[0];
+  assert.equal(screen.use_case, "DEL-07-06 AC-007 Review and export results, as the attendant states");
+  assert.equal(screen.stated_by_attendant.acted[0], "clicked Results in the stage bar");
+  assert.equal(screen.words_on_screen, 321);
+  assert.match(screen.counts_source, /the application's own report at .* not the attendant's/);
+  assert.match(index.marks_explained.stated_by_attendant, /not checked by the runner except taken_at/);
+  const html = readFileSync(path.join(out, "index.html"), "utf8");
+  assert.match(html, /Stated by the attendant, with the step and the note above: use case Review and export results; taken at .* \(agrees with the picture's file time/);
+  assert.match(html, /Words and controls on screen: the application's own report at/);
+  assert.match(html, /Since the start of the launch, stopped by the launch or substituted by the build: .*file panel stopped by the launch \(Proposal file\)/);
+  assert.match(html, /attended capture; counts the application's own/);
+});
+
+test("the attended driver records the screen as the page settles and each report print, pressing nothing", async () => {
+  let prints = 0;
+  const run = await runAttendedDriver({ attended: true, show_window: false, start: null }, {
+    waitMs: 1800,
+    invoke: (command) => (command === "native_smoke_take_report_prints" ? (prints += 1) === 2 ? [{ print_sha256_hex: "cd", served_to_print_window: true, dialog_presented: false, print_html: "<html>…</html>" }] : [] : undefined)
+  });
+  const observed = () => run.checkpoints().filter((item) => /^observed-\d+$/.test(item.name));
+  // One record at the handover, after the start checkpoint.
+  const names = run.checkpoints().map((item) => item.name);
+  assert.ok(names.indexOf("start") < names.indexOf("observed-1"), JSON.stringify(names));
+  assert.equal(observed().length, 1);
+  const first = observed()[0].report;
+  assert.deepEqual([first.nonce, first.n, typeof first.at, first.page_visibility], ["n", 1, "number", "hidden"]);
+  // The stand-in page has no tree walker: the record says so instead of a count.
+  assert.match(first.counts_error, /createTreeWalker/);
+  // It watches the whole document, scrolls and resizes, and starts nothing else.
+  assert.equal(run.observers.length, 1);
+  assert.deepEqual([run.observers[0].target, run.observers[0].options], [run.context.document.documentElement, { subtree: true, childList: true, characterData: true, attributes: true }]);
+  assert.ok(run.listeners.document.some((item) => item.type === "scroll" && item.options?.capture === true && item.options?.passive === true));
+  assert.ok(run.listeners.window.some((item) => item.type === "resize" && item.options?.passive === true));
+  // A burst of changes gives one record, once the page is quiet (0.8 s) and at least 1.5 s after the previous one.
+  for (let index = 0; index < 5; index += 1) run.observers[0].callback([]);
+  await new Promise((resolve) => setTimeout(resolve, 400));
+  assert.equal(observed().length, 1);
+  await new Promise((resolve) => setTimeout(resolve, 1600));
+  assert.equal(observed().length, 2);
+  assert.equal(observed()[1].report.n, 2);
+  // The print the build recorded in place of the dialog is a substitution, with its hash and not its document.
+  const subs = run.checkpoints().filter((item) => item.name === "substitutions").at(-1)?.report.substitutions ?? [];
+  assert.deepEqual(subs.map((item) => [item.kind, item.print_sha256, item.dialog_presented]), [["report print dialog", "cd", false]]);
+  assert.equal(JSON.stringify(subs).includes("<html>"), false);
+  // Nothing pressed, chosen or sent through the menu.
+  assert.equal(run.calls.some(([command]) => ["native_smoke_menu", "native_smoke_choose", "native_smoke_finish"].includes(command)), false);
 });

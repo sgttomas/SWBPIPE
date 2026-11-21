@@ -492,6 +492,13 @@ export function attendedEnding({ outcome, receipt = null, stop = null, start = n
 }
 
 const SIDECAR_LIMIT = 64 * 1024;
+/** DEL-07-06 AC-007's use cases by their names there: an attended capture's sidecar names one of them, or the launch's journey. */
+export const AC007_USE_CASES = Object.freeze(["Blank to released report", "Timed entry", "Missing data", "Failed solve", "Change a support and compare", "Review and export results", "Every required analysis", "User rule pack", "Save, close and resume"]);
+/** How far a sidecar's taken_at may lie from its picture's file time before the index says the two disagree. */
+export const TAKEN_AT_TOLERANCE_MS = 5000;
+/** The driver's settled-page records (driver.js OBSERVED), in words. */
+export const OBSERVED_BOUNDS = "a record when the page has been quiet for 0.8 s after a change (a mutation, a scroll or a resize), at least 1.5 s after the previous record and at most 5 s after the first change it covers, and one at the handover; at most 1200 records, each at most 256 KiB, its controls cut to fit";
+const ISO_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,9})?)?(Z|[+-]\d{2}:\d{2})$/;
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
 /**
@@ -515,7 +522,12 @@ export function surfaceClaims(value) {
   return claims;
 }
 
-/** A sidecar's claims: { step, note, acted, ...surfaceClaims } or { why } when it is not one. */
+/**
+ * A sidecar's claims, every one the attendant's statement: { use_case, step, acted, note, taken_at, taken_at_ms,
+ * ...surfaceClaims } or { why } when it is not one. use_case (one of AC007_USE_CASES by its name, or the launch's
+ * journey: checked by readCaptures), step and acted (what was done since the previous capture; "observed only" when
+ * nothing was) are required and not empty; note is a string; taken_at is an ISO 8601 time with its zone.
+ */
 export function readSidecar(file) {
   let text;
   try {
@@ -529,12 +541,15 @@ export function readSidecar(file) {
   let value;
   try { value = JSON.parse(text); } catch { return { why: "its sidecar is not JSON" }; }
   if (!value || typeof value !== "object" || Array.isArray(value)) return { why: "its sidecar is not a JSON object" };
+  if (typeof value.use_case !== "string" || value.use_case.trim() === "" || value.use_case.length > 200) return { why: "its sidecar names no use case (DEL-07-06 AC-007's name for it, or the launch's journey)" };
   if (typeof value.step !== "string" || value.step.trim() === "" || value.step.length > 200) return { why: "its sidecar names no step (a string of 1 to 200 characters)" };
+  if (!Array.isArray(value.acted) || value.acted.length === 0 || value.acted.length > 200 || !value.acted.every((item) => typeof item === "string" && item.trim() !== "" && item.length <= 1000)) return { why: "its sidecar's acted does not say what was done since the previous capture (a list of at least one non-empty string; \"observed only\" when nothing was done)" };
   if (typeof value.note !== "string" || value.note.length > 4000) return { why: "its sidecar has no note (a string of at most 4000 characters)" };
-  if (!Array.isArray(value.acted) || value.acted.length > 200 || !value.acted.every((item) => typeof item === "string" && item.length <= 1000)) return { why: "its sidecar's acted is not a list of what was done (strings)" };
+  const takenAt = typeof value.taken_at === "string" && ISO_TIME.test(value.taken_at) ? Date.parse(value.taken_at) : Number.NaN;
+  if (!Number.isFinite(takenAt)) return { why: "its sidecar does not say when the picture was taken (taken_at, an ISO 8601 time with its zone)" };
   const claims = surfaceClaims(value);
   if (claims.why) return claims;
-  return { step: value.step.trim(), note: value.note, acted: value.acted, ...claims, raw: value };
+  return { use_case: value.use_case.trim(), step: value.step.trim(), acted: value.acted.map((item) => item.trim()), note: value.note, taken_at: value.taken_at, taken_at_ms: takenAt, ...claims, raw: value };
 }
 
 const CRC_TABLE = (() => {
@@ -606,6 +621,64 @@ const readBounded = (file, limit) => {
 };
 const PICTURE_LIMIT = 64 * 1024 * 1024;
 
+/** The use case a sidecar names, as the index states it: an AC-007 use case by its name there, or the launch's journey's; null otherwise. */
+function useCaseOf(named, journeyUseCase) {
+  if (AC007_USE_CASES.includes(named)) return `DEL-07-06 AC-007 ${named}, as the attendant states`;
+  if (journeyUseCase && (named === journeyUseCase.name || named === journeyUseCase.use_case)) return `${journeyUseCase.use_case}, as the attendant states`;
+  return null;
+}
+/** Why a picture's file time places it outside the launch (before it started, or after it ended), or null. */
+function outsideLaunch(fileTime, launchTimes) {
+  if (!launchTimes || fileTime === null) return null;
+  if (fileTime < launchTimes.from - TAKEN_AT_TOLERANCE_MS) return `its file time (${new Date(fileTime).toISOString()}) is before this launch started (${new Date(launchTimes.from).toISOString()})`;
+  if (fileTime > launchTimes.to + TAKEN_AT_TOLERANCE_MS) return `its file time (${new Date(fileTime).toISOString()}) is after this launch ended (${new Date(launchTimes.to).toISOString()})`;
+  return null;
+}
+/** The sidecar's taken_at checked against the picture's own file time, in words. */
+function takenAtCheck(takenAt, fileTime) {
+  if (fileTime === null) return "the picture's file time could not be read, so the time the attendant states is not checked";
+  const apart = Math.abs(fileTime - takenAt);
+  return apart <= TAKEN_AT_TOLERANCE_MS
+    ? `agrees with the picture's file time (${new Date(fileTime).toISOString()}), within ${TAKEN_AT_TOLERANCE_MS / 1000} s`
+    : `disagrees with the picture's file time (${new Date(fileTime).toISOString()}): ${Math.round(apart / 100) / 10} s apart`;
+}
+/** The application's own report of the words and controls on screen nearest at or before `at` (records sorted by time). */
+function observedFor(records, at) {
+  let nearest = null;
+  for (const record of records) { if (record.at <= at) nearest = record; else break; }
+  if (nearest === null) return { counts_source: "no report of the application's own at or before the time the attendant states: the words and controls on screen are not recorded for this capture" };
+  const when = new Date(nearest.at).toISOString();
+  if (nearest.counts_error) return { counts_source: `the application's own report at ${when} could not count the screen (${nearest.counts_error})`, counts_at: when };
+  return {
+    words_on_screen: nearest.words_on_screen, words_in_page: nearest.words_in_page, prose_blocks_on_screen: nearest.prose_blocks_on_screen,
+    buttons_on_screen: nearest.buttons_on_screen, inputs_on_screen: nearest.inputs_on_screen, longest_scroll_screens: nearest.longest_scroll_screens,
+    controls: Array.isArray(nearest.controls) ? nearest.controls : [],
+    ...(nearest.controls_cut ? { controls_cut: nearest.controls_cut } : {}),
+    page_visibility: nearest.page_visibility ?? null,
+    counts_at: when,
+    counts_source: `the application's own report at ${when} (record ${nearest.n} of the launch's driver, read as the page settled), not the attendant's`
+  };
+}
+
+/**
+ * The driver's settled-page records of the attended launch (`<report>.observed-<n>.json`, driver.js observeAttended)
+ * whose nonce is the launch's: { records (sorted by time), rejected }.
+ */
+export function readObserved(report, nonce) {
+  const dir = path.dirname(report);
+  const prefix = `${path.basename(report)}.observed-`;
+  let names = [];
+  try { names = fs.readdirSync(dir).filter((name) => name.startsWith(prefix) && /^\d+\.json$/.test(name.slice(prefix.length))); } catch { names = []; }
+  const records = [];
+  let rejected = 0;
+  for (const name of names) {
+    const record = readReport(path.join(dir, name)).report;
+    if (record && nonce && record.nonce === nonce && Number.isFinite(record.at) && Number.isInteger(record.n)) records.push(record);
+    else rejected += 1;
+  }
+  return { records: records.sort((a, b) => a.at - b.at || a.n - b.n), rejected };
+}
+
 /** The words a scorer reads for each thing in an attended launch's captures that supplies nothing. */
 export function unexplainedOf(captures) {
   return [
@@ -621,13 +694,16 @@ export function unexplainedOf(captures) {
  * { screens, records_without_picture, other, error? }. The folder must still be the one the runner created for this
  * launch (`identity`, its device and inode; not a link); otherwise, or when it cannot be read, `error` says why and
  * nothing in it is taken. Each `.png` that is a regular file becomes a screen. With a sidecar `<same name>.json` of the
- * form { step, note, acted } and a picture that decodes (pngDecode), it is a capture of the actual window, bound to
- * this launch: `binding` holds the SHA-256 of the picture and of the sidecar, the decoded width and height, and the
- * launch's revision and build (`bindTo`). Without a sidecar, with one of another form, or with a picture that does not
+ * form readSidecar takes, naming a use case useCaseOf accepts, and a picture that decodes (pngDecode) and whose file
+ * time lies within the launch (`launchTimes`), it is a capture of the actual window, bound to this launch: `binding`
+ * holds the SHA-256 of the picture and of the sidecar, the decoded width and height, and the launch's revision and
+ * build (`bindTo`). What the attendant states is kept as `stated_by_attendant`; from the driver's records each capture
+ * also gets the application's own report nearest at or before its stated time (`observed`; counts_source says whose
+ * and when) and the substitutions recorded since the previous capture (`substitutions`). Without a sidecar, with one of another form, or with a picture that does not
  * decode, it is unexplained and says why. A sidecar with no picture is listed in records_without_picture, anything
  * else (a link, a folder, another kind of file) in other; nothing is dropped and nothing is followed.
  */
-export function readCaptures(folder, { number = ATTENDED.number, journey = ATTENDED.name, identity = null, bindTo = {} } = {}) {
+export function readCaptures(folder, { number = ATTENDED.number, journey = ATTENDED.name, identity = null, bindTo = {}, journeyUseCase = null, observed = [], substitutions = [], launchTimes = null } = {}) {
   const found = { screens: [], records_without_picture: [], other: [] };
   const stat = lstatOrNull(folder);
   if (stat === null) return { ...found, error: "it is not there" };
@@ -639,6 +715,7 @@ export function readCaptures(folder, { number = ATTENDED.number, journey = ATTEN
   const pictures = entries.filter((name) => /\.png$/i.test(name) && regular(name));
   const pictureBases = new Set(pictures.map((name) => name.replace(/\.png$/i, "")));
   let count = 0;
+  const times = new Map();
   for (const name of pictures) {
     count += 1;
     const base = name.replace(/\.png$/i, "");
@@ -649,7 +726,11 @@ export function readCaptures(folder, { number = ATTENDED.number, journey = ATTEN
     try { bytes = readBounded(path.join(folder, name), PICTURE_LIMIT); decoded = pngDecode(bytes); } catch (error) { decoded = { why: `it could not be read (${error.code ?? error.message})` }; }
     const sidecarFile = path.join(folder, `${base}.json`);
     const sidecar = entries.includes(`${base}.json`) ? readSidecar(sidecarFile) : { why: "it has no sidecar of the same name" };
-    const why = decoded.why ?? sidecar.why;
+    const useCase = sidecar.why ? null : useCaseOf(sidecar.use_case, journeyUseCase);
+    const fileTime = lstatOrNull(path.join(folder, name))?.mtimeMs ?? null;
+    const why = decoded.why ?? sidecar.why
+      ?? (useCase === null ? `its sidecar's use case "${sidecar.use_case}" is neither one of DEL-07-06 AC-007's by its name there nor the launch's journey${journeyUseCase ? ` (${journeyUseCase.name})` : " (it has none)"}` : null)
+      ?? outsideLaunch(fileTime, launchTimes);
     if (why) {
       found.screens.push({ ...entry, step: `unexplained-${base}`.slice(0, 120), note: `${name}: unexplained, because ${why}`, capture: "unexplained", unexplained: why, picture: UNEXPLAINED_BASIS });
       continue;
@@ -662,7 +743,22 @@ export function readCaptures(folder, { number = ATTENDED.number, journey = ATTEN
     }
     const binding = { picture_sha256: sha256Of(bytes), sidecar_sha256: sha256Of(sidecarBytes), width: decoded.width, height: decoded.height, bytes: bytes.length, revision: bindTo.revision ?? null, build_app_sha256: bindTo.build_app_sha256 ?? null };
     const { surfaces, surfaces_unexplained, prevented, prevented_unexplained } = sidecar;
-    found.screens.push({ ...entry, step: sidecar.step, note: sidecar.note, acted: sidecar.acted, capture: "the actual window", driven_by: "an attendant, through the window", picture: CAPTURE_BASIS, binding, surfaces, surfaces_unexplained, prevented, prevented_unexplained });
+    const stated = { use_case: sidecar.use_case, step: sidecar.step, acted: sidecar.acted, note: sidecar.note, taken_at: sidecar.taken_at, ...(surfaces.length || surfaces_unexplained.length ? { surfaces: [...surfaces, ...surfaces_unexplained] } : {}), ...(sidecar.raw.prevented !== undefined ? { prevented: sidecar.raw.prevented } : {}) };
+    const screen = { ...entry, use_case: useCase, step: sidecar.step, note: sidecar.note, acted: sidecar.acted, taken_at: sidecar.taken_at, taken_at_check: takenAtCheck(sidecar.taken_at_ms, fileTime), stated_by_attendant: stated, capture: "the actual window", driven_by: "an attendant, through the window", picture: CAPTURE_BASIS, binding, surfaces, surfaces_unexplained, prevented, prevented_unexplained };
+    times.set(screen, sidecar.taken_at_ms);
+    found.screens.push(screen);
+  }
+  // In the order the attendant states the captures were taken: each gets the application's own report nearest at or
+  // before its time, and every substitution recorded after the previous capture's time and up to its own.
+  const records = [...observed].filter((record) => Number.isFinite(record?.at)).sort((a, b) => a.at - b.at);
+  const marks = [...substitutions].filter((item) => Number.isFinite(item?.at)).sort((a, b) => a.at - b.at);
+  let previous = -Infinity;
+  for (const screen of [...times.keys()].sort((a, b) => times.get(a) - times.get(b) || a.number - b.number)) {
+    const at = times.get(screen);
+    Object.assign(screen, observedFor(records, at));
+    screen.substitutions = marks.filter((item) => item.at > previous && item.at <= at).map((item) => ({ at: new Date(item.at).toISOString(), kind: item.kind ?? "a substitution", ...(item.control ? { control: item.control } : {}), what: item.what ?? "", ...(item.print_sha256 ? { print_sha256: item.print_sha256 } : {}) }));
+    screen.substitutions_since = previous === -Infinity ? "the start of the launch" : `the previous capture, stated as taken at ${new Date(previous).toISOString()}`;
+    previous = at;
   }
   for (const name of entries) {
     if (pictures.includes(name)) continue;
@@ -1103,12 +1199,20 @@ async function main() {
       : windowShownRecord(true, windowRecord, { before: lockedBefore, after: readScreenLock() });
     check("the menu the app built was read", nativeMenu.read, nativeMenu.read ? `${nativeMenu.menus.length} menus` : nativeMenu.error);
     if (!hidden) check("the window was brought to the front", shown.shown, shown);
-    const found = readCaptures(captures, { identity: capturesIdentity, bindTo: { revision: { commit: revision, uncommitted_paths: uncommitted }, build_app_sha256: app.identity.sha256 } });
-    if (found.error) check("the captures folder was read at the end of the launch", false, found.error);
     const startRecord = watched.start ?? readReport(startReport).report;
-    // The driver's record of what the launch stopped and what the build substituted while the attendant worked.
+    // The driver's records, made while the attendant worked: what the launch stopped and what the build substituted,
+    // and the application's own report of the screen whenever the page settled.
     const substitutionsRead = readReport(`${report}.substitutions.json`).report;
     const substitutions = substitutionsRead?.nonce === outcome?.nonce && Array.isArray(substitutionsRead?.substitutions) ? substitutionsRead.substitutions : [];
+    const observed = readObserved(report, outcome?.nonce);
+    const found = readCaptures(captures, {
+      identity: capturesIdentity,
+      bindTo: { revision: { commit: revision, uncommitted_paths: uncommitted }, build_app_sha256: app.identity.sha256 },
+      journeyUseCase: spec ? { name: start, use_case: spec.use_case } : null,
+      observed: observed.records, substitutions,
+      launchTimes: { from: startedAt ?? Date.now(), to: Date.now() }
+    });
+    if (found.error) check("the captures folder was read at the end of the launch", false, found.error);
     writeAttendedPart(out, {
       title: `Attended launch (launched app): the actual window, driven by an attendant, from ${start ? `the start of ${start}` : "the application as first opened"}`,
       revision: { commit: revision, uncommitted_paths: uncommitted },
@@ -1132,6 +1236,7 @@ async function main() {
         guards: startRecord?.guards ?? [],
         substitutions,
         stopped_by_launch: substitutions.filter((item) => /stopped by the launch$/.test(item.kind ?? "")),
+        observed: { records: observed.records.length, rejected: observed.rejected, bounds: OBSERVED_BOUNDS, what: "the application's own report of the words and controls on screen, made by the driver without pressing, focusing or changing anything" },
         prevented: ending.by === "strict-chooser" ? [{ surface: "file_chooser", what: "the attendant opened a file chooser and the strict chooser ended the application before any panel (exit 86): this build shows no chooser without a queued answer" }] : [],
         judged: judged.map(({ name: checkName, ok, detail }) => ({ name: checkName, ok, detail: detail ?? null }))
       }

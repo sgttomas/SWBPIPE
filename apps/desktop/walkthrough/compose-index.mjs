@@ -185,7 +185,7 @@ export function composeIndex(out, { size = null } = {}) {
     ...screen,
     revision: journey.revision ?? null,
     build: journey.build ?? null,
-    use_case: journey.use_case ?? journey.title,
+    use_case: screen.use_case ?? journey.use_case ?? journey.title,
     ...(screen.file && !screen.redrawn ? { redrawn: false } : {}),
     ...(bindings.checks.has(screen.file) ? { binding_check: bindings.checks.get(screen.file) ?? "intact: the picture and its sidecar are the ones its launch recorded" } : {})
   })));
@@ -204,7 +204,12 @@ export function composeIndex(out, { size = null } = {}) {
       native_surfaces: "each native surface of the launched app: supplied (the attended captures of the actual window that show it, with their revision and build), unseen (an attempt was recorded and what prevented it), or missing evidence (not supplied: no attended capture of it in this walkthrough); and what the scripted runner does instead",
       native_menus: "for each launch of the app, the menu it built, read from it once by the scripted-run build: each menu's items in order with label, command identifier, enabled and ticked state, and separators; names, order and state, not appearance or placement",
       window_shown: "on a native screen, whether the run brought the app's window to the front (--show-window) so its web view drew; page_visibility is what the page reported at that step",
-      ...(journeys.some(attendedJourney) ? { capture: "on an attended launch's screen: \"the actual window\" where the picture is a capture of the launched app's actual window that the attendant put in captures/ with a sidecar saying what it shows, redrawn false and scripted false; \"unexplained\" where a picture has no such sidecar, and nothing is claimed for it" } : {})
+      ...(journeys.some(attendedJourney) ? {
+        capture: "on an attended launch's screen: \"the actual window\" where the picture is a capture of the launched app's actual window that the attendant put in captures/ with a sidecar saying what it shows, redrawn false and scripted false; \"unexplained\" where a picture has no such sidecar, and nothing is claimed for it",
+        stated_by_attendant: "on an attended capture: what the attendant states in its sidecar (the use case, the step, what was done since the previous capture, the note, when it was taken, the surfaces it shows), not checked by the runner except taken_at against the picture's file time (taken_at_check)",
+        counts_source: "on an attended capture: whose the words and controls on screen are, and when: the application's own report nearest at or before the time the attendant states, recorded by the launch's driver as the page settled",
+        attended_substitutions: "on an attended capture: each act the launch stopped and each substitution the build made, with its time, since the previous capture"
+      } : {})
     },
     native_surfaces: nativeSurfaces,
     ...(unexplainedSurfaces.length > 0 ? { native_surfaces_unexplained: unexplainedSurfaces } : {}),
@@ -257,11 +262,16 @@ function renderScreen(screen) {
   const controls = screen.controls ? `<details><summary>${screen.controls.length} controls on screen</summary><ul class="controls">${screen.controls.map((control) => `<li>${escapeHtml(control)}</li>`).join("")}</ul></details>` : "";
   const stop = screen.failed ? `<p class="stop">A person stops here: ${escapeHtml(screen.failed)}</p>` : "";
   const basis = screen.picture ? `<p class="basis">${escapeHtml(screen.picture)}${screen.view_3d === "not captured" ? " The 3D view was not captured at this step: a labelled placeholder stands in its place." : ""}</p>` : "";
-  const substituted = screen.substitutions?.length ? `<p class="substituted">Substituted (scripted-run build): ${screen.substitutions.map((item) => `${escapeHtml(item.kind)}: ${escapeHtml(item.what)}`).join("; ")}.</p>` : "";
+  const attended = screen.capture === "the actual window";
+  const substituted = !screen.substitutions?.length ? ""
+    : attended ? `<p class="substituted">Since ${escapeHtml(screen.substitutions_since ?? "the previous capture")}, stopped by the launch or substituted by the build: ${screen.substitutions.map((item) => `${escapeHtml(item.at)}, ${escapeHtml(item.kind)}${item.control ? ` (${escapeHtml(item.control)})` : ""}: ${escapeHtml(item.what)}`).join("; ")}</p>`
+    : `<p class="substituted">Substituted (scripted-run build): ${screen.substitutions.map((item) => `${escapeHtml(item.kind)}: ${escapeHtml(item.what)}`).join("; ")}.</p>`;
+  const stated = attended && screen.stated_by_attendant ? `<p class="basis">Stated by the attendant, with the step and the note above: use case ${escapeHtml(screen.stated_by_attendant.use_case)}; taken at ${escapeHtml(screen.stated_by_attendant.taken_at)} (${escapeHtml(screen.taken_at_check ?? "not checked")}); done since the previous capture: ${screen.stated_by_attendant.acted.map(escapeHtml).join("; ")}${screen.stated_by_attendant.surfaces?.length ? `; surfaces shown: ${screen.stated_by_attendant.surfaces.map(escapeHtml).join(", ")}` : ""}.</p>` : "";
+  const source = attended && screen.counts_source ? `<p class="basis">Words and controls on screen: ${escapeHtml(screen.counts_source)}.${screen.controls_cut ? ` ${escapeHtml(screen.controls_cut)}.` : ""}</p>` : "";
   const unbound = screen.binding_check && !screen.binding_check.startsWith("intact") ? `<p class="stop">Not counted as evidence: ${escapeHtml(screen.binding_check)}.</p>` : "";
   const unpictured = screen.picture_error ? `<p class="stop">No picture: the redraw failed (${escapeHtml(screen.picture_error)}).</p>` : "";
   const picture = screen.file ? `<a href="${escapeHtml(screen.file)}"><img loading="lazy" src="${escapeHtml(screen.file)}" alt="${escapeHtml(screen.note)}"></a>` : "";
-  return `<li class="screen${screen.failed ? " stopped" : ""}" id="s${screen.number}"><h3>${screen.number} · ${escapeHtml(screen.step)}</h3><p>${escapeHtml(screen.note)}</p>${stop}${substituted}${picture}${basis}${unbound}${unpictured}${counts}${controls}</li>`;
+  return `<li class="screen${screen.failed ? " stopped" : ""}" id="s${screen.number}"><h3>${screen.number} · ${escapeHtml(screen.step)}</h3><p>${escapeHtml(screen.note)}</p>${stop}${stated}${substituted}${picture}${basis}${unbound}${unpictured}${source}${counts}${controls}</li>`;
 }
 
 // One native surface: supplied (with the captures that show it), unseen (what prevented it), or missing evidence.
@@ -304,7 +314,7 @@ function renderHtml(index) {
     return `<section id="j${journey.number}"><h2>${journey.number}. ${escapeHtml(journey.title)}</h2>${facts}${surface}${stopped}${stops}${unexplained}<ol class="screens">${screens.map(renderScreen).join("")}</ol></section>`;
   }).join("");
   const rows = index.screens.filter((screen) => screen.words_on_screen !== undefined).map((screen) =>
-    `<tr><td><a href="#s${screen.number}">${screen.number}</a></td><td>${escapeHtml(screen.journey)}</td><td>${escapeHtml(screen.step)}</td><td>${[screen.redrawn ? "redrawn" : "", screen.substitutions?.length ? "substituted" : "", screen.window_shown ? "window shown" : ""].filter(Boolean).join(", ")}</td><td class="n">${screen.words_on_screen}</td><td class="n">${screen.words_in_page}</td><td class="n">${screen.buttons_on_screen}</td><td class="n">${screen.inputs_on_screen}</td><td class="n">${screen.longest_scroll_screens}</td></tr>`).join("");
+    `<tr><td><a href="#s${screen.number}">${screen.number}</a></td><td>${escapeHtml(screen.journey)}</td><td>${escapeHtml(screen.step)}</td><td>${[screen.redrawn ? "redrawn" : "", screen.capture === "the actual window" ? "attended capture; counts the application's own" : "", screen.substitutions?.length ? "substituted" : "", screen.window_shown ? "window shown" : ""].filter(Boolean).join(", ")}</td><td class="n">${screen.words_on_screen}</td><td class="n">${screen.words_in_page}</td><td class="n">${screen.buttons_on_screen}</td><td class="n">${screen.inputs_on_screen}</td><td class="n">${screen.longest_scroll_screens}</td></tr>`).join("");
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SWBPIPE walkthrough</title>
