@@ -16,7 +16,7 @@ The persisted project document is a versioned, schema-governed domain artifact. 
 
 The project document envelope owns persistence metadata: schema version, project identity, migration status, canonical JSON/JCS hash metadata, private-data markers, diagnostics, and round-trip manifest entries. The actual model payload is delegated to `schemas/model.schema.yaml`.
 
-The MVP physical project package/container is the SCA-003 local storage profile:
+The MVP physical project store is the SCA-003 local storage profile:
 a user-chosen, local SQLite-backed project store/index owned by the
 application-service persistence boundary. SQLite is the durable local
 container and query/index substrate; it is not the canonical domain contract.
