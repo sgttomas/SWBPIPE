@@ -1,6 +1,7 @@
 /** Frozen T0R notices, gate reasons and standing reasons (S1_INTERFACE §10).
  * Text only. N-A: these strings are UI labels and reasons; they are never
  * written into an exported results or stress-neutral document or its manifest. */
+import { needsSolverReportNote, SOLVER_REPORT_NOTE } from "./integrityStatus";
 import { PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID, PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, isRetainedIdentity, isRetainedRoute } from "./numericalResultQuality";
 import { currentSemanticContract, displayRoute, type ContractBinding } from "./resultReader";
 import { classificationSummary, retainedRowClasses } from "./retainedPrecisionStanding";
@@ -162,7 +163,8 @@ export function knownSemanticNotices(source: MechanicsResult | NativeResult | nu
     }
     // RT-A5: the held standing of each admitted held-constraint comparison (never the subtrahend case's own).
     for (const held of heldStatusStandings(source)) {
-      notices.push({ id: `held-status:${held.combination_id}`, text: `${held.combination_id}: subtrahend held at the minuend's final support status. ${held.reason}` });
+      // Release exit criterion 18: an outcome the held system's confirmation reports established has the note after it.
+      notices.push({ id: `held-status:${held.combination_id}`, text: `${held.combination_id}: subtrahend held at the minuend's final support status. ${held.reason}${needsSolverReportNote({ message: held.reason }) ? ` ${SOLVER_REPORT_NOTE}` : ""}` });
     }
   }
   // D2 4.9.9 UI summary: per-case counts over the registered validated classes (either

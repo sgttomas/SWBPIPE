@@ -212,7 +212,6 @@ function DiagnosticDetail({ interpretation, result }: { interpretation: Diagnost
       <dl>
         <DetailLine label="Diagnostic" value={interpretation.diagnostic_id} testId="selected-diagnostic-id" />
         <DetailLine label="Code" value={interpretation.code} testId="selected-diagnostic-code" />
-        {needsSolverReportNote(interpretation) ? <DetailLine label="Solver report" value={SOLVER_REPORT_NOTE} testId="selected-diagnostic-solver-report-note" /> : null}
         <DetailLine label="Class" value={interpretation.diagnostic_class} testId="selected-diagnostic-class" />
         <DetailLine label="Severity" value={interpretation.severity} />
         <DetailLine label="Source" value={interpretation.source} />
@@ -244,7 +243,8 @@ function DiagnosticDetail({ interpretation, result }: { interpretation: Diagnost
               : "none linked"
           }
         />
-        <DetailLine label="Explanation" value={interpretation.review_explanation} testId="selected-diagnostic-explanation" />
+        {/* Release exit criterion 18: the explanation repeats the solver's message, so the note stands with it. */}
+        <DetailLine label="Explanation" value={needsSolverReportNote(interpretation) ? <>{interpretation.review_explanation} <span data-testid="selected-diagnostic-solver-report-note">{SOLVER_REPORT_NOTE}</span></> : interpretation.review_explanation} testId="selected-diagnostic-explanation" />
         <DetailLine label="Remediation" value={interpretation.remediation} testId="selected-diagnostic-remediation" />
         <DetailLine label="Provenance" value={interpretation.provenance} testId="selected-diagnostic-provenance" />
         <DetailLine label="Boundary" value={interpretation.professional_boundary} />
