@@ -94,8 +94,8 @@ code_paths:
 # The results feature. In this folder: retainedPrecision* are DEL-04-08's; HangerSizing*,
 # hangerSizingResult.ts and hangerSizingView.ts are DEL-04-11's; *Csv.ts and
 # resultGroupCsvStream.ts are DEL-08-04's; analysisResultHashScope.ts is DEL-14-02's;
-# componentBody.ts is DEL-03-05's; C2ResultGate.tsx, NativeResultsPanel.tsx and useNativeRowKey.ts
-# are DEL-07-07's; outputPolicy.ts is shared with DEL-04-08, which owns the retained-precision
+# componentBody.ts is DEL-03-05's; C2ResultGate.tsx, NativeResultsPanel.tsx, useNativeRowKey.ts and
+# useRuleCheckRows.ts are DEL-07-07's; outputPolicy.ts is shared with DEL-04-08, which owns the retained-precision
 # refusals it names. resultReader.ts, resultStanding.ts, resultSemantics.ts and
 # numericalResultQuality.ts are this deliverable's bindings to DEL-05-02's reader, and
 # hangerPreload.ts is its standing-line sentence for the solver's hanger-preload warnings; the
@@ -128,6 +128,7 @@ code_paths:
 # orientation cases, captured by a probe compiled against the kernel.
 - apps/desktop/src/test-support/frameKernelOrientationCases.json
 - apps/desktop/src/test-support/keyResultsFixtures.ts
+- apps/desktop/src/test-support/ruleCheckRunOn.ts
 - apps/desktop/src/test-support/resultOverlayFixtures.ts
 - apps/desktop/e2e/result-overlays/
 - apps/desktop/e2e/result-overlays.spec.ts

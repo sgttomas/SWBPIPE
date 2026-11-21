@@ -816,7 +816,6 @@ function AppSession() {
                 <StressRatioTablePanel
                   model={model}
                   result={result}
-                  fullResult={session.results.fullResult}
                   analysisRun={currentSolvedResult !== null && result === currentSolvedResult ? analysisRun : null}
                   standing={viewportResultStanding}
                   ruleCheckRun={currentSolvedResult !== null && result === currentSolvedResult ? ruleCheckReportRun : null}
@@ -980,7 +979,6 @@ function AppSession() {
           <div className="workspace-pane workspace-pane-viewport">
             <PartErrorBoundary subject="The 3D view" resetKey={projectSessionGeneration}>
             <PipeViewport
-              fullResult={session.results.fullResult}
               authoringPanelContainer={routingPanelContainer}
               presentationBottomInsetPx={treeCollapsed && (stageView === "model" || (stageView === "both" && narrowWindow)) ? 28 : 0}
               viewCommandRef={viewportViewCommandRef}
@@ -1298,7 +1296,6 @@ function AppSession() {
       {keyResults.open ? (
         <PartErrorBoundary subject="The Key results panel" className="key-results-panel" resetKey={projectSessionGeneration}>
         <KeyResultsPanel
-          fullResult={session.results.fullResult}
           model={model}
           result={result}
           standing={viewportResultStanding}

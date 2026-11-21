@@ -104,6 +104,7 @@ code_paths:
 - apps/desktop/src/features/results/C2ResultGate.tsx
 - apps/desktop/src/features/results/NativeResultsPanel.tsx
 - apps/desktop/src/features/results/useNativeRowKey.ts
+- apps/desktop/src/features/results/useRuleCheckRows.ts
 # Records formed from a held result. analysis_run_v03_build.rs, analysis_run_v03_validate.rs,
 # native_persistence.rs, stored_custody.rs and stored_save.rs are shared with DEL-14-02, which owns
 # the record's form; native_csv_stream.rs is shared with DEL-08-04, which owns the CSV it streams.

@@ -23,14 +23,15 @@ import { buildReactionOverlay } from "../viewport/reactionOverlay";
 import { buildDeformationOverlay, buildRotationOverlay } from "../viewport/deformationOverlay";
 import { componentBodies } from "./componentBody";
 import { buildDisplacementExtremes } from "./displacementExtremes";
-import { buildKeyResults, withheldSupportStateRows } from "./keyResults";
+import { buildKeyResults, keyResultsWithRuleCheckRun, withheldSupportStateRows } from "./keyResults";
 import { numericalHealthView, parseNumericalHealth, type ResultOverlayStanding } from "./numericalHealth";
 import { countResultFamilies, countResultFrames } from "./ResultsPanel";
 import { navigatorCases } from "./resultsNavigator";
 import { readerDispatch, rememberReceivedText } from "./resultReader";
 import { documentCombinationIdentities, rosterCheckedByReader } from "./suppliedDiagnostics";
 import { semanticLabels } from "./resultSemantics";
-import { buildStressRatioTable } from "./stressRatioTable";
+import { buildStressRatioTable, ruleCheckBoundResultIds, stressRatioTableWithRuleRows } from "./stressRatioTable";
+import { ruleCheckRunOn } from "../../test-support/ruleCheckRunOn";
 import { buildSupportLoadSummaries, supportLoadCases } from "./supportLoadSummary";
 
 /** C1 slice 2 (DEL-04-05 `c1-native-custody-plan.md`): the TypeScript builders over the full rows
@@ -162,6 +163,21 @@ describe("C1 slice 2: S is the TypeScript builders' output", () => {
     expect(displacementExtremesFromSummary(summary), "displacement extremes").toEqual(buildDisplacementExtremes({ model, result: source, standing }));
     expect(tables.support_load_summaries, "support load summaries").toEqual(buildSupportLoadSummaries({ model, result: source, standing }));
     expect(stressRatioTableFromSummary(summary, resolveId), "stress and ratio table").toEqual(buildStressRatioTable({ model, result: source, standing }));
+    // With a rule-check run (C1, by handle): the table and the key results formed from S and the rows
+    // the run binds, each looked up by id as the native lookup gives it ("last"), equal the
+    // builders' on the full rows; a run binding an id this result does not hold is another result's.
+    const byId = new Map(rows.map((row) => [row.id, row] as const));
+    for (const foreign of [null, "invented:not-a-row-of-this-result"]) {
+      const run = ruleCheckRunOn(source, foreign);
+      const bound = new Map(ruleCheckBoundResultIds(run).flatMap((id) => (byId.has(id) ? [[id, byId.get(id)!] as const] : [])));
+      const withRun = stressRatioTableWithRuleRows({ summaryTable: stressRatioTableFromSummary(summary, resolveId), cases: tables.support_load_cases, standing, ruleCheckRun: run, rows: bound });
+      const expectedTable = buildStressRatioTable({ model, result: source, standing, ruleCheckRun: run });
+      expect(withRun, `stress and ratio table with a run (${foreign ?? "this result's rows"})`).toEqual(expectedTable);
+      if (source.status.mechanics === "MECHANICS_SOLVED") expect(expectedTable.run.state, "the run is read").toBe(foreign ? "not_this_result" : "used");
+      const expectedKey: Json = { ...buildKeyResults({ model, result: source, standing, ruleCheckRun: run }) };
+      delete expectedKey.standingText;
+      expect(keyResultsWithRuleCheckRun({ model, summaryKeyResults: tables.key_results, table: withRun, ruleCheckRun: run }), `key results with a run (${foreign ?? "this result's rows"})`).toEqual(expectedKey);
+    }
     expect(tables.component_bodies, "component bodies").toEqual([...componentBodies(source)]);
     const keyResults: Json = { ...buildKeyResults({ model, result: source, standing }) };
     delete keyResults.standingText;
