@@ -102,6 +102,12 @@ needs:
     The reference system exists as a fixture with a run sheet that lists each entry step in order
     and the differences allowed between a hand-entered model and the fixture.
   gating: true
+- from: DEL-07-06
+  when: Asking a person to perform the timed, unassisted entry
+  condition: >-
+    DEL-07-06 AC-008 is met, on a walkthrough of the launched application at the revision that
+    person will use.
+  gating: true
 code_paths:
 - apps/desktop/src/features/model-tree/**
 - apps/desktop/src/features/workspace/table/**
