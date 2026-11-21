@@ -533,6 +533,7 @@ UNPUBLISHED_MEMBERS = {"pipe:RS-P180"}
 def member_state_misses(case, published, expected):
     """Every difference between a case's published member states and the reference's, by member."""
     misses = []
+    assert len({member["pipe_id"] for member in published}) == len(published), (case, "a member published twice")
     by_pipe = {member["pipe_id"]: member for member in published}
     expected = [row for row in expected if row["member"] not in UNPUBLISHED_MEMBERS]
     assert len(expected) == 25 and sorted(by_pipe) == sorted(row["member"] for row in expected), (case, sorted(by_pipe))

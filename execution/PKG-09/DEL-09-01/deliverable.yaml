@@ -49,8 +49,10 @@ needs:
     On a load/reference-state document, an element state that selects a material point at a
     temperature other than its member's operating temperature solves when it records an
     analysis-basis override with its reason and provenance, and the published load reference
-    state gives each member's consumed material point, modulus, shear modulus, analysis-basis
-    reason and thermal strain.
+    state gives, for each member it publishes, the consumed material point, modulus, shear
+    modulus, analysis-basis reason and thermal strain. It publishes 25 of a case's 26 members:
+    the replaced span RS-P180's record is removed before publication, though the member is still
+    resolved. The independent reference derives all 26.
   gating: true
   when: Solving the reference system's RS-OPE-REF and reading its members' states.
 - from: DEL-10-05

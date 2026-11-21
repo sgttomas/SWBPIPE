@@ -12,7 +12,7 @@ through `openpipestress-runner` in both solver modes and checks the values here.
 
 | Id | Check | Basis |
 |---|---|---|
-| Member states | For each member of RS-OPE and of RS-OPE-REF, the published load reference state's consumed material point(s), E, ν, G, thermal strain and, for RS-OPE-REF, the analysis-basis reason | closed form from the specification's material table and expansion law: `references.json` `member_states` |
+| Member states | For each member of RS-OPE and of RS-OPE-REF that the product publishes, the published load reference state's consumed material point(s), E, ν, G, thermal strain and, for RS-OPE-REF, the analysis-basis reason. The reference derives all 26 members of each case; the product publishes 25, removing the replaced span RS-P180's record before publication though it still resolves the member | closed form from the specification's material table and expansion law: `references.json` `member_states` |
 | EQ-1 (RS-OPE-REF) | The sum of the global Z support action components over every support, RS-VS1 and RS-CE1 included, equals W_total | the r1_ce package's W_total, bound by identity of record (below): `eq1_eq2.key_values` |
 | EQ-2 (RS-OPE-REF) | The horizontal (X, Y) resultant is zero, and the support action moment resultant about the origin equals minus the weight's moment | the same binding: `eq1_eq2.key_values.reaction_moment_about_origin_N_m` |
 | EQ-3 | On every published signed component row, RS-EXP equals RS-OPE-REF − RS-SUS; magnitude rows are recomputed from the combined components; withheld rows are excluded | exact identity of the combination's algebra, nothing about either solve: `eq3` |
