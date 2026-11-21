@@ -16,7 +16,11 @@
 //! number the checked canonical form does not admit are each written out in
 //! some form by the builder and refused here. One difference is not a
 //! refusal: given a run record entry with no row digest the builder writes
-//! `TBD`, and the producer writes the row's digest.
+//! `TBD`, and the producer writes the row's digest. Two things the builder
+//! writes are not produced here at all: the generic route's numerical-health
+//! lines, which it appends to `result_rows` ([`place_members`]), and the
+//! result document of a run with an excluded rule-pack reference
+//! ([`result_document`]).
 //!
 //! The rows and the Diagnostics are the projections the request checks
 //! already apply ([`crate::bindings::expected_report_result_rows`],
@@ -24,8 +28,9 @@
 //! row digest [`crate::bindings::check_report_result_refs`] requires. Parity:
 //! `tests/report_members_parity.rs`, on report inputs the desktop's builder
 //! wrote (`fixtures/reports/invented/exact_report_package_requests/`,
-//! `fixtures/reports/invented/user_release_exact/` and
-//! `fixtures/reports/invented/user_release_derivation_vectors.json`).
+//! `fixtures/reports/invented/user_release_exact/`,
+//! `fixtures/reports/invented/user_release_derivation_vectors.json` and the
+//! render inputs of `fixtures/reports/invented/report_standing_witnesses/`).
 //!
 //! Nothing here binds a source to a job, decides what may leave, or renders:
 //! the caller has bound the result before it derives from it. Standard claim
@@ -231,10 +236,12 @@ pub fn place_members(report: &mut Value, model: &Value, source: &Value) -> Resul
 /// section member is in place. Called after [`place_members`] and after any
 /// other member the host writes into the sections.
 ///
-/// The entry must be the builder's: it names these sections
-/// (`report_sections`, their `report_section_id`), and its checksum states
-/// SHA-256 over RFC 8785 for that same reference. Any other entry refuses and
-/// nothing is written.
+/// Four things about the entry are required, and no more: its reference
+/// names these sections (`report_sections`, their `report_section_id`), and
+/// its checksum states SHA-256, RFC 8785 and that same reference as its
+/// payload. An entry that fails one refuses and nothing is written. The
+/// entry's other members (its schema reference, its provenance) are not
+/// examined here.
 pub fn seal_report_sections(report: &mut Value) -> Result<(), String> {
     let sections = report.get("report_sections").filter(|sections| sections.is_object()).ok_or_else(|| not_placed("the report input has no report_sections object"))?;
     let id = sections["report_section_id"].as_str().ok_or_else(|| not_placed("the report sections have no report_section_id"))?;

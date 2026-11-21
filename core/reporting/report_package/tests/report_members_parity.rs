@@ -3,9 +3,11 @@
 //! desktop's builder wrote: the five exact-route witness requests
 //! (`fixtures/reports/invented/exact_report_package_requests/`, written by
 //! `apps/desktop/src/features/report/exactReportBelowGate.test.tsx`), the two
-//! exact user-release fixtures (`fixtures/reports/invented/user_release_exact/`)
-//! and the pressure-free user-release vectors
-//! (`fixtures/reports/invented/user_release_derivation_vectors.json`).
+//! exact user-release fixtures (`fixtures/reports/invented/user_release_exact/`),
+//! the pressure-free user-release vectors
+//! (`fixtures/reports/invented/user_release_derivation_vectors.json`) and the
+//! two standing witnesses' render inputs
+//! (`fixtures/reports/invented/report_standing_witnesses/`).
 //!
 //! Equality is on canonical bytes (RFC 8785): a produced member's canonical
 //! text is the committed member's. Invented data only. Standard claim fence
@@ -349,8 +351,9 @@ fn a_placed_input_is_not_a_renderer_input_until_it_is_sealed() {
     use open_pipe_stress_report_renderer::decode_renderable_report_input;
     let built = built_reports().into_iter().next().unwrap();
     let committed = built.report["calculation_report"]["report_section_refs"][0]["checksum"]["value"].clone();
-    // Whatever the input states is removed: the builder's own digest, stale once the
-    // result's Diagnostics are placed, and a placeholder alike.
+    // Whatever the input states is removed: the builder's own digest (which the
+    // stripped input no longer matches, and which placing the result's Diagnostics
+    // makes right again) and a placeholder alike. Only the seal writes one.
     for stated in [committed.clone(), json!("TBD"), json!("0".repeat(64))] {
         let mut report = without_row_scale_members(&built);
         report["calculation_report"]["report_section_refs"][0]["checksum"]["value"] = stated;

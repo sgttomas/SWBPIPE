@@ -22,11 +22,11 @@
 //!   `currentReceivedOrigin` and `currentResultDocumentBase`
 //!   (`resultExportAdapter.ts`), then `derive_document`, unchanged;
 //! - [`minimal_renderer_input`]: the desktop's user-released renderable input
-//!   (`userReleasedRenderableReportInput`, `renderableReportInput.ts`), with
-//!   the shared row projection ([`expected_report_result_rows`], whose value
-//!   text is `quantity_display::display_quantity`), the shared unit display
-//!   rule ([`QUANTITY_DISPLAY_POLICY`], [`source_displays_scaled_value`]) and
-//!   the shared diagnostics projection ([`expected_report_diagnostics`]);
+//!   (`userReleasedRenderableReportInput`, `renderableReportInput.ts`), its
+//!   row-scale members from the shared producers ([`crate::report_members`]):
+//!   the shared row projection, whose value text is
+//!   `quantity_display::display_quantity`, the shared unit display rule and
+//!   the shared diagnostics projection;
 //! - [`derive`]: the request as `assembleUserReleasedReportPackageRequest`
 //!   (`reportPackageRequest.ts`) writes it, self-checked with the producer's
 //!   [`check_report_result_refs`] and [`check_unit_display_summary`].
