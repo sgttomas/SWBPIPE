@@ -146,7 +146,7 @@ export function InsertBendAtCornerForm(props: RichFormProps & { node: string }) 
         : <TextField label="Bend component ID" value={draft.component} onChange={v => update("component", v)} />}
       <TextField label="Geometry source reference" value={draft.geometrySource} onChange={v => update("geometrySource", v)} />
       <TextField label="Corner bend provenance" value={draft.provenance} onChange={v => update("provenance", v)} />
-      <p>Both pipes shorten to the tangent points; the arc joins them.</p>
+      <p>Both pipes shorten to the tangent points and the arc, carrying your k, joins them; nothing is repartitioned. Remove supports, loads and regions on the corner or either pipe first.</p>
       <button type="button" onClick={() => void submit()}>Queue insert bend at corner</button>
     </fieldset><QueueFeedback {...state} />
   </section>;
