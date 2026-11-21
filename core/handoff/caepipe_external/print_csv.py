@@ -226,7 +226,12 @@ PRINT_CSV_COVERAGE = _coverage()
 def read_caepipe_print_csv(path: str | Path) -> dict[str, Any]:
     """Read and parse a Print > To File CSV, decoding it as cp1252 (latin-1 if cp1252 cannot decode it)."""
 
-    data = Path(path).read_bytes()
+    return parse_caepipe_print_bytes(Path(path).read_bytes())
+
+
+def parse_caepipe_print_bytes(data: bytes) -> dict[str, Any]:
+    """Parse the bytes of a Print > To File CSV, decoding them as cp1252 (latin-1 if cp1252 cannot decode them)."""
+
     try:
         return parse_caepipe_print_csv(data.decode("cp1252"))
     except UnicodeDecodeError as error:
