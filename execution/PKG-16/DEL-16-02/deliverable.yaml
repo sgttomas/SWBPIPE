@@ -93,7 +93,13 @@ checks:
 - apps/desktop/src/features/offline-proposal-intake/unitPairFamily.import.test.tsx
 # Issue 382, the session's single-operation route: the same ten members validated and applied
 # through the Wasm engine's single-operation exports, a refusal leaving the document and both
-# history stacks unchanged, and undo and redo restoring whole pairs.
+# history stacks unchanged; for the elastic modulus alone, undo and redo restoring whole pairs,
+# with a refused edit between them leaving the redo stack as it was.
 - apps/desktop/src/features/workspace/unitPairSingleOperation.test.tsx
+# Issue 382, the native desktop's four operation commands (single and batch, validate and apply):
+# each refuses the witness's bare edit of the elastic modulus and returns no model, and the two
+# apply commands store its explicit pair (the test
+# model_operation_commands_refuse_a_bare_number_naming_another_unit in this file).
+- apps/desktop/src-tauri/src/lib.rs
 - apps/desktop/src/services/operationService.test.ts
 - apps/desktop/src/services/operationBatchService.test.ts

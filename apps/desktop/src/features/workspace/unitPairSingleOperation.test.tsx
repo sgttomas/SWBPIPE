@@ -30,6 +30,9 @@ function outcomeOf(session: SessionRef) {
 }
 const blocking = (session: SessionRef) => outcomeOf(session).diagnostics.filter((item) => item.severity === "blocking").map((item) => item.code);
 const history = (session: SessionRef) => [session.current.operations.undoStack.length, session.current.operations.redoStack.length];
+/** Whether any outcome the session holds carries the blocking unit refusal: after an applied pair, only a later refused edit can. */
+const refusedOnUnit = (session: SessionRef) =>
+  Object.values(session.current.operations.operationOutcomes).some((outcome) => outcome.diagnostics.some((item) => item.severity === "blocking" && item.code === MISMATCH));
 
 describe.each(FAMILY_MEMBERS)("single operation: $name ($fieldPath)", (member) => {
   it("validation refuses a bare number with another unit of the field's dimension", async () => {
@@ -71,14 +74,25 @@ describe("history around a refused edit (material elastic modulus, the issue 382
     // stored now, so "200000000000" with unit Pa is refused and nothing moves.
     const stale = familyOperation(member, "200000000000", "Pa", member.dimension, "bare-old-unit") as unknown as EditorOperationIntent;
     (stale.change as { before: string }).before = "210";
+    expect(refusedOnUnit(session)).toBe(false);
     await act(async () => { applied = await session.current.operations.handleApplyIntent(stale); });
     expect(applied).toBe(false);
+    expect(refusedOnUnit(session)).toBe(true);
     expect(member.read(session.current.model.model!)).toEqual({ value: 210, unit: "GPa" });
     expect(history(session)).toEqual([1, 0]);
 
     await act(async () => { session.current.operations.handleUndoSessionModelEdit(); });
     expect(member.read(session.current.model.model!)).toEqual({ value: 200000000000, unit: "Pa" });
     expect(history(session)).toEqual([0, 1]);
+
+    // A refused edit between undo and redo leaves the redo stack as it was: the issue's own bare
+    // 210 with unit GPa against the restored 200000000000 Pa.
+    await act(async () => { applied = await session.current.operations.handleApplyIntent(bare(member, "bare-between")); });
+    expect(applied).toBe(false);
+    expect(refusedOnUnit(session)).toBe(true);
+    expect(member.read(session.current.model.model!)).toEqual({ value: 200000000000, unit: "Pa" });
+    expect(history(session)).toEqual([0, 1]);
+
     await act(async () => { session.current.operations.handleRedoSessionModelEdit(); });
     expect(member.read(session.current.model.model!)).toEqual({ value: 210, unit: "GPa" });
     expect(history(session)).toEqual([1, 0]);

@@ -146,7 +146,7 @@ describe('unit refusal explanation', () => {
    expect(run([operation('label'), operation(G)], {materials: [material()]})).toBe(`${head(G, 2, 2)}, and no value is stored. Create it with before TBD and ${PAIR}.`);
   });
 
-  it('is not explained after an earlier operation on another record that is not a set_field, or whose rows name this record', () => {
+  it('is not explained after an earlier operation on another record that is not a set_field, whose rows name this record, or whose rows are not the engine\'s account of it', () => {
    const elsewhere = (members: AnyRecord, change: AnyRecord = {}) => {
     const base = operation('label', 'Node', 'node:c');
     return {...base, ...members, change: {...(base.change as AnyRecord), ...change}};
@@ -158,8 +158,16 @@ describe('unit refusal explanation', () => {
    const first = elsewhere({}), ops = [first, operation()];
    const named = {...passed(0, first), diff_preview: [{entity_ref: 'material:m', object_type: 'Material', field_path: 'elastic_modulus.value', before: '1', after: '2', unit: 'GPa', dimension: 'stress', change_kind: 'set_field'}]};
    expect(unitRefusalMessage(outcome([named, refused(1, ops[1])]), ops, model('Pa'))).toBe(GENERIC_REFUSAL);
-   // The control: the same set_field elsewhere with its own row is explained from the starting document.
+   // A set_field elsewhere with no engine account to read: no row, a first row that is not the
+   // submitted edit's, or a row that names no record.
+   const own = row(first);
+   for (const rows of [[], [{...own, entity_ref: 'node:d'}], [{...own, object_type: 'Element'}], [{...own, object_type: undefined}], [{...own, entity_ref: 7}],
+    [own, {...own, object_type: undefined}], [own, {field_path: 'label'}]])
+    expect(unitRefusalMessage(outcome([{...passed(0, first), diff_preview: rows}, refused(1, ops[1])]), ops, model('Pa')), JSON.stringify(rows)).toBe(GENERIC_REFUSAL);
+   // The control: the same set_field elsewhere with its own row, alone or followed by a row of
+   // a third record, is explained from the starting document.
    expect(run(ops, model('Pa'))).toBe(stated('Pa', MISMATCH, E, 2, 2));
+   expect(unitRefusalMessage(outcome([{...passed(0, first), diff_preview: [own, {...own, entity_ref: 'node:d'}]}, refused(1, ops[1])]), ops, model('Pa'))).toBe(stated('Pa', MISMATCH, E, 2, 2));
   });
 
   it('is not explained after another kind of earlier operation on the same record', () => {

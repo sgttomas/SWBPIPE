@@ -246,7 +246,12 @@ function explain(outcome: unknown, operations: unknown, model: unknown): string 
   const earlier = ops[i], earlierTarget = own(earlier, 'target'), earlierChange = own(earlier, 'change');
   if (own(earlierTarget, 'object_type') !== field.objectType || own(earlierTarget, 'ref') !== ref) {
    if (own(earlier, 'operation_kind') !== 'modify' || own(earlierChange, 'change_kind') !== 'set_field') return unfit();
-   if (list(own(steps[i], 'diff_preview'), MAX_ROWS).some(row => own(row, 'object_type') === field.objectType && own(row, 'entity_ref') === ref)) return unfit();
+   // The engine's account must be there to read: a first row for the submitted edit, and a
+   // record named by type and reference on every row. Without it nothing shows what the edit touched.
+   const rows = list(own(steps[i], 'diff_preview'), MAX_ROWS);
+   if (!rows.length || own(rows[0], 'object_type') !== own(earlierTarget, 'object_type') || own(rows[0], 'entity_ref') !== own(earlierTarget, 'ref')) return unfit();
+   if (rows.some(row => typeof own(row, 'object_type') !== 'string' || typeof own(row, 'entity_ref') !== 'string')) return unfit();
+   if (rows.some(row => own(row, 'object_type') === field.objectType && own(row, 'entity_ref') === ref)) return unfit();
    continue;
   }
   const path = own(earlierChange, 'field_path');

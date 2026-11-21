@@ -758,13 +758,16 @@ fn a_later_bare_number_is_judged_against_the_unit_an_earlier_step_of_the_batch_s
             assert!(finding["message"].as_str().unwrap().contains(&format!("stored unit `{}`", member.other_unit)),
                 "{}: the refusal names the unit step 1 stored: {}", member.name, finding["message"]);
         }
-        // The control: the same second step naming the unit step 1 stored is applied,
-        // and the batch stores that number beside that unit.
-        let second = step(&member, "bare-new-unit", &in_other_unit.to_string(), &in_other_unit.to_string(), member.other_unit);
+        // The control: a second step naming the unit step 1 stored is applied, and the
+        // batch stores its number beside that unit. Its number differs from step 1's,
+        // so the final pair shows that the second write happened.
+        let later = in_other_unit * 1.01;
+        assert_ne!(later, in_other_unit, "{}", member.name);
+        let second = step(&member, "bare-new-unit", &in_other_unit.to_string(), &later.to_string(), member.other_unit);
         let batch = json!({"batch_id": "batch:unit-then-bare-control", "operations": [first, second]});
         let outcome = apply_operation_batch(&model, &batch, Some(&claim(&model)));
         assert_eq!(outcome["simulation_disposition"], "committed_as_one_batch", "{}: {}", member.name, outcome["diagnostics"]);
-        assert_eq!(stored(&outcome["applied_model"], &member), json!({"value": in_other_unit, "unit": member.other_unit}), "{}", member.name);
+        assert_eq!(stored(&outcome["applied_model"], &member), json!({"value": later, "unit": member.other_unit}), "{}", member.name);
     }
     assert_eq!(model, original);
 }
@@ -893,6 +896,8 @@ fn every_optional_quantity_slot_refuses_a_bare_number_naming_another_unit() {
         // The control: the same bare number naming the stored unit is not refused on this ground.
         let named = apply_operation(&model, &intent(&slot, &before, &before, stored_unit, dimension), None);
         assert!(!blocking(&named).contains(&MISMATCH), "{path}: {:?}", named.diagnostics);
+        // Nor on any other unit ground: the stored unit is read and admitted.
+        assert_eq!(named.validation.unit_validation, "passed", "{path}: {:?}", named.diagnostics);
     }
     assert_eq!(model, original);
 }
