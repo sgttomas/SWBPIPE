@@ -231,6 +231,7 @@ export function composeIndex(out, { size = null } = {}) {
       screens: journey.screens.filter((screen) => screen.file && !screen.failed).length,
       stopped_at: journey.screens.find((screen) => screen.failed)?.step ?? null,
       not_reached: journey.screens.filter((screen) => screen.not_reached).map((screen) => screen.step),
+      ...(attendedJourney(journey) ? { stopped_by_launch: (journey.launch?.stopped_by_launch ?? []).map((item) => ({ at: typeof item.at === "number" ? new Date(item.at).toISOString() : null, control: item.control ?? null, what: item.what ?? null })) } : {}),
       ...(attendedJourney(journey) ? { unexplained: [...(journey.captures?.unexplained ?? []), ...[...bindings.checks].filter(([, why]) => why).map(([file, why]) => ({ file, why: `a capture that supplies nothing: ${why}` })), ...bindings.unbound] } : {})
     })),
     screens
@@ -298,7 +299,8 @@ function renderHtml(index) {
     const build = journey.build ? (typeof journey.build === "string" ? journey.build : `${journey.build.kind}${journey.build.app_sha256 ? `, app ${journey.build.app_sha256.replace(/^sha256:/, "").slice(0, 12)}` : ""}`) : "not recorded";
     const facts = `<p class="surface">Use case: ${escapeHtml(journey.use_case)}. Revision: ${escapeHtml(revision)}. Build: ${escapeHtml(build)}.</p>`;
     const unexplained = journey.unexplained?.length ? `<p class="stop">In this launch's captures, supplying nothing:</p><ul class="unexplained">${journey.unexplained.map((item) => `<li>${escapeHtml(item.file)}: ${escapeHtml(item.why)}</li>`).join("")}</ul>` : "";
-    return `<section id="j${journey.number}"><h2>${journey.number}. ${escapeHtml(journey.title)}</h2>${facts}${surface}${stopped}${unexplained}<ol class="screens">${screens.map(renderScreen).join("")}</ol></section>`;
+    const stops = journey.stopped_by_launch?.length ? `<p class="substituted">Stopped by the launch, while the attendant worked:</p><ul class="stops">${journey.stopped_by_launch.map((item) => `<li>${escapeHtml(item.at ?? "at an unrecorded time")}, ${escapeHtml(item.control ?? "an unnamed control")}: ${escapeHtml(item.what ?? "")}</li>`).join("")}</ul>` : "";
+    return `<section id="j${journey.number}"><h2>${journey.number}. ${escapeHtml(journey.title)}</h2>${facts}${surface}${stopped}${stops}${unexplained}<ol class="screens">${screens.map(renderScreen).join("")}</ol></section>`;
   }).join("");
   const rows = index.screens.filter((screen) => screen.words_on_screen !== undefined).map((screen) =>
     `<tr><td><a href="#s${screen.number}">${screen.number}</a></td><td>${escapeHtml(screen.journey)}</td><td>${escapeHtml(screen.step)}</td><td>${[screen.redrawn ? "redrawn" : "", screen.substitutions?.length ? "substituted" : "", screen.window_shown ? "window shown" : ""].filter(Boolean).join(", ")}</td><td class="n">${screen.words_on_screen}</td><td class="n">${screen.words_in_page}</td><td class="n">${screen.buttons_on_screen}</td><td class="n">${screen.inputs_on_screen}</td><td class="n">${screen.longest_scroll_screens}</td></tr>`).join("");

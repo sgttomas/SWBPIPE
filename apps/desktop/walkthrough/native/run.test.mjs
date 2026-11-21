@@ -523,35 +523,58 @@ test("the attended part joins the index beside the journeys, marked as captures 
   assert.doesNotMatch(htmlBefore, /attended launch/);
 });
 
-test("the driver's attended start: the start checkpoint, then no step and no finish; a failed start is recorded and ends the app", async () => {
+/**
+ * The composed driver run against stand-ins for the web view, as the earlier driver tests do: the IPC calls it makes,
+ * the listeners it adds to the document and the window, and the mutation observers it starts. `invoke` may answer
+ * more commands. Waits `waitMs` after the start for the driver to settle.
+ */
+async function runAttendedDriver(plan, { waitMs = 400, invoke = () => undefined } = {}) {
   const driver = readFileSync(new URL("./driver.js", import.meta.url), "utf8");
-  const launch = async (plan, waitMs = 400) => {
-    const calls = [];
-    const document = { visibilityState: "hidden", querySelector: (selector) => (/desktop-preview-shell|tree-row-project/.test(selector) ? {} : null), querySelectorAll: () => [], hasFocus: () => false, body: {} };
-    let finished = null;
-    const window = {
-      __TAURI_INTERNALS__: {
-        invoke: async (command, args) => {
-          calls.push([command, args]);
-          if (command === "native_smoke_plan") return { ...plan, nonce: "n", journey: "attended", timeouts: { ui: 50, step: 50 } };
-          if (command === "native_smoke_menu_items") return [];
-          if (command === "native_smoke_clear_choices") return 0;
-          if (command === "native_smoke_finish") finished = args.report;
-          return null;
-        }
-      },
-      addEventListener: () => {}
-    };
-    vm.runInNewContext(composeDriver(driver), { window, document, navigator: { userAgent: "test" }, CSS: { escape: (text) => text }, setTimeout, Date, JSON, Promise, String, Error, Boolean, Object, Math, Array, Set, Map, encodeURIComponent, getComputedStyle: () => ({}), requestAnimationFrame: (callback) => setTimeout(callback, 0), innerWidth: 1, innerHeight: 1, devicePixelRatio: 1, matchMedia: () => ({ matches: false }) });
-    await new Promise((resolve) => setTimeout(resolve, 1500 + waitMs));
-    const checkpoints = calls.filter(([command]) => command === "native_smoke_checkpoint").map(([, args]) => args);
-    return { calls, finished, checkpoints };
+  const calls = [];
+  const listeners = { document: [], window: [] };
+  const observers = [];
+  const document = {
+    visibilityState: "hidden", documentElement: {}, body: {},
+    querySelector: (selector) => (/desktop-preview-shell|tree-row-project/.test(selector) ? {} : null), querySelectorAll: () => [], hasFocus: () => false,
+    addEventListener: (type, listener, options) => listeners.document.push({ type, listener, options })
   };
+  let finished = null;
+  const window = {
+    __TAURI_INTERNALS__: {
+      invoke: async (command, args) => {
+        calls.push([command, args]);
+        const answer = invoke(command, args);
+        if (answer !== undefined) return answer;
+        if (command === "native_smoke_plan") return { ...plan, nonce: "n", journey: plan.journey ?? "attended", timeouts: { ui: 50, step: 50 } };
+        if (command === "native_smoke_menu_items") return [];
+        if (command === "native_smoke_clear_choices") return 0;
+        if (command === "native_smoke_take_report_prints") return [];
+        if (command === "native_smoke_finish") finished = args.report;
+        return null;
+      }
+    },
+    addEventListener: (type, listener, options) => listeners.window.push({ type, listener, options })
+  };
+  class MutationObserver { constructor(callback) { this.callback = callback; observers.push(this); } observe(target, options) { this.target = target; this.options = options; } }
+  class HTMLInputElement {}
+  HTMLInputElement.prototype.showPicker = function showPicker() { calls.push(["showPicker", this.type]); };
+  const context = { window, document, navigator: { userAgent: "test" }, CSS: { escape: (text) => text }, setTimeout, clearTimeout, setInterval, clearInterval, Date, JSON, Promise, String, Error, Boolean, Object, Math, Array, Set, Map, encodeURIComponent, getComputedStyle: () => ({}), requestAnimationFrame: (callback) => setTimeout(callback, 0), innerWidth: 1, innerHeight: 1, devicePixelRatio: 1, matchMedia: () => ({ matches: false }), MutationObserver, HTMLInputElement };
+  vm.runInNewContext(composeDriver(driver), context);
+  await new Promise((resolve) => setTimeout(resolve, 1500 + waitMs));
+  const checkpoints = () => calls.filter(([command]) => command === "native_smoke_checkpoint").map(([, args]) => args);
+  return { calls, get finished() { return finished; }, checkpoints, listeners, observers, context };
+}
+/** A click event on `target`, as the capture listener receives it. */
+const clickOn = (target) => ({ target, defaultPrevented: false, stopped: false, preventDefault() { this.defaultPrevented = true; }, stopImmediatePropagation() { this.stopped = true; } });
+
+test("the driver's attended start: the start checkpoint, then no step and no finish; a failed start is recorded and ends the app", async () => {
+  const launch = async (plan) => { const run = await runAttendedDriver(plan); return { calls: run.calls, finished: run.finished, checkpoints: run.checkpoints() }; };
   const plain = await launch({ attended: true, show_window: false, start: null });
   const start = plain.checkpoints.find((item) => item.name === "start")?.report;
   assert.deepEqual([start?.nonce, start?.attended, start?.ok, start?.start], ["n", true, true, null]);
   assert.equal(plain.finished, null, "the driver never ends an attended launch that started");
-  assert.deepEqual(plain.checkpoints.map((item) => item.name), ["menu", "start"]);
+  assert.deepEqual(plain.checkpoints.map((item) => item.name).slice(0, 2), ["menu", "start"]);
+  assert.ok(plain.checkpoints.every((item) => ["menu", "start", "substitutions"].includes(item.name) || /^observed-\d+$/.test(item.name)), JSON.stringify(plain.checkpoints.map((item) => item.name)));
   assert.equal(plain.calls.some(([command]) => command === "native_smoke_menu" || command === "native_smoke_choose"), false);
   const failed = await launch({ attended: true, show_window: false, start: "x", open: { by: "unknown" } });
   const failedStart = failed.checkpoints.find((item) => item.name === "start")?.report;
@@ -885,4 +908,48 @@ test("the captures folder is the launch's own: replaced, a link or gone, it is a
   const index = JSON.parse(readFileSync(path.join(out, "INDEX.json"), "utf8"));
   assert.match(index.journeys[0].unexplained[0].why, /the captures folder was not read at the end of the launch: it is not there/);
   assert.match(readFileSync(path.join(out, "index.html"), "utf8"), /the captures folder was not read at the end of the launch/);
+});
+
+test("an attended launch stops every page file field from opening the system's file panel, and records each stop; a journey's page is untouched", async () => {
+  const run = await runAttendedDriver({ attended: true, show_window: false, start: null });
+  assert.deepEqual(run.checkpoints().find((item) => item.name === "start").report.guards.slice(0, 1), ["file panels"]);
+  const clicks = run.listeners.document.filter((item) => item.type === "click");
+  assert.equal(clicks.length, 1);
+  assert.equal(clicks[0].options, true, "in the capture phase");
+  const input = { type: "file", labels: [{ textContent: " Import hanger library " }], matches: (selector) => selector === 'input[type="file"]', closest: () => null, getAttribute: () => null };
+  const label = { matches: () => false, closest: (selector) => (selector === "label" ? { control: input } : null) };
+  const button = { matches: () => false, closest: () => null, textContent: "Run" };
+  for (const target of [input, label]) {
+    const event = clickOn(target);
+    clicks[0].listener(event);
+    assert.deepEqual([event.defaultPrevented, event.stopped], [true, true]);
+  }
+  const other = clickOn(button);
+  clicks[0].listener(other);
+  assert.deepEqual([other.defaultPrevented, other.stopped], [false, false]);
+  // showPicker on a file field does nothing; on another field it does what it did.
+  new run.context.HTMLInputElement().showPicker.call({ type: "file", labels: [{ textContent: "Proposal file" }] });
+  run.context.HTMLInputElement.prototype.showPicker.call({ type: "date" });
+  assert.deepEqual(run.calls.filter(([command]) => command === "showPicker").map(([, type]) => type), ["date"]);
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  const substitutions = run.checkpoints().filter((item) => item.name === "substitutions").at(-1).report.substitutions;
+  assert.deepEqual(substitutions.map((item) => [item.kind, item.control, item.what]), [
+    ["file panel stopped by the launch", "Import hanger library", "The launch stopped this control from opening the system's file panel."],
+    ["file panel stopped by the launch", "Import hanger library", "The launch stopped this control from opening the system's file panel."],
+    ["file panel stopped by the launch", "Proposal file", "The launch stopped this control from opening the system's file panel."]
+  ]);
+  assert.ok(substitutions.every((item) => typeof item.at === "number"));
+  // A scripted journey's page gets no listener and no replaced showPicker.
+  const scripted = await runAttendedDriver({ journey: "probe-none", show_window: false });
+  assert.equal(scripted.listeners.document.length, 0);
+  assert.equal(scripted.observers.length, 0);
+});
+
+test("the launch's stops reach both indexes under the attended launch", (t) => {
+  const out = scratch(t);
+  writeAttendedPart(out, { title: "Attended", revision: { commit: "abc" }, build: { kind: "k" }, launch: { attended: true, stopped_by_launch: [{ at: Date.UTC(2026, 0, 1), kind: "file panel stopped by the launch", control: "Import hanger library", what: "The launch stopped this control from opening the system's file panel." }] }, captures: { screens: [], records_without_picture: [], other: [] } });
+  composeIndex(out);
+  const index = JSON.parse(readFileSync(path.join(out, "INDEX.json"), "utf8"));
+  assert.deepEqual(index.journeys[0].stopped_by_launch, [{ at: "2026-01-01T00:00:00.000Z", control: "Import hanger library", what: "The launch stopped this control from opening the system's file panel." }]);
+  assert.match(readFileSync(path.join(out, "index.html"), "utf8"), /Import hanger library: The launch stopped this control from opening the system&#39;s file panel\.|Import hanger library: The launch stopped this control from opening the system's file panel\./);
 });

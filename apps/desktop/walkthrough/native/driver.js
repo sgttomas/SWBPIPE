@@ -214,6 +214,48 @@
     await call("native_smoke_checkpoint", { name: "menu", report: record, storeSnapshot: false });
   }
 
+  // ------------------------------------------------------------ the attended launch's guards and records
+
+  // In an attended launch only, before the handover. Each act the launch stops, and each substitution the build
+  // performs while the attendant works, is recorded with its time in the checkpoint `substitutions` (rewritten whole
+  // on each, at most ATTENDED_LIMITS.substitutions of them); the runner marks each on the capture that follows it.
+  const ATTENDED_LIMITS = { substitutions: 2000 };
+  const STOPPED_FILE_PANEL = "The launch stopped this control from opening the system's file panel.";
+  const attendedSubstitutions = [];
+  const substituted = (item) => {
+    if (attendedSubstitutions.length >= ATTENDED_LIMITS.substitutions) return;
+    attendedSubstitutions.push({ at: Date.now(), ...item });
+    call("native_smoke_checkpoint", { name: "substitutions", report: { nonce, substitutions: attendedSubstitutions }, storeSnapshot: false }).catch(() => {});
+  };
+  const accessibleName = (element) => String(element?.labels?.[0]?.textContent ?? element?.getAttribute?.("aria-label") ?? element?.textContent ?? "").replace(/\s+/g, " ").trim().slice(0, 200) || "an unnamed control";
+  const fileInputOf = (target) => {
+    if (typeof target?.closest !== "function") return null;
+    if (target.matches('input[type="file"]')) return target;
+    const control = target.closest("label")?.control;
+    return control && typeof control.matches === "function" && control.matches('input[type="file"]') ? control : null;
+  };
+  // A page file field (Import hanger library, Proposal file) would open the system's file panel, which the strict
+  // chooser does not govern: every activation of one is stopped. A click on the field or on its label (which is how
+  // a keyboard press reaches it too) has its default prevented in the capture phase, before anything else sees it,
+  // and showPicker on a file field does nothing. Nothing else on the page is changed.
+  function installAttendedGuards() {
+    document.addEventListener("click", (event) => {
+      const input = fileInputOf(event.target);
+      if (!input) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      substituted({ kind: "file panel stopped by the launch", control: accessibleName(input), what: STOPPED_FILE_PANEL });
+    }, true);
+    const Input = typeof HTMLInputElement === "function" ? HTMLInputElement : null;
+    const showPicker = Input?.prototype?.showPicker;
+    if (typeof showPicker === "function") {
+      Input.prototype.showPicker = function attendedShowPicker() {
+        if (this.type === "file") { substituted({ kind: "file panel stopped by the launch", control: accessibleName(this), what: STOPPED_FILE_PANEL }); return undefined; }
+        return showPicker.call(this);
+      };
+    }
+  }
+
   // ------------------------------------------------------------ the attended launch's start (run.mjs --attended)
 
   // The start and nothing after it. With the plan's `open` (a journey's `place` and `open`), the prepared project is
@@ -239,6 +281,9 @@
     } catch (error) {
       record.ok = false;
       record.error = String(error?.message ?? error).split("\n")[0].slice(0, 400);
+    }
+    if (record.ok) {
+      try { installAttendedGuards(); record.guards = ["file panels"]; } catch (error) { record.ok = false; record.error = `the launch's guards could not be installed: ${String(error?.message ?? error).slice(0, 300)}`; }
     }
     record.ready_at = Date.now();
     await call("native_smoke_checkpoint", { name: "start", report: record, storeSnapshot: false });

@@ -1106,6 +1106,9 @@ async function main() {
     const found = readCaptures(captures, { identity: capturesIdentity, bindTo: { revision: { commit: revision, uncommitted_paths: uncommitted }, build_app_sha256: app.identity.sha256 } });
     if (found.error) check("the captures folder was read at the end of the launch", false, found.error);
     const startRecord = watched.start ?? readReport(startReport).report;
+    // The driver's record of what the launch stopped and what the build substituted while the attendant worked.
+    const substitutionsRead = readReport(`${report}.substitutions.json`).report;
+    const substitutions = substitutionsRead?.nonce === outcome?.nonce && Array.isArray(substitutionsRead?.substitutions) ? substitutionsRead.substitutions : [];
     writeAttendedPart(out, {
       title: `Attended launch (launched app): the actual window, driven by an attendant, from ${start ? `the start of ${start}` : "the application as first opened"}`,
       revision: { commit: revision, uncommitted_paths: uncommitted },
@@ -1126,6 +1129,9 @@ async function main() {
         limit_minutes: limitMinutes, finish_file: finishFile, stop: watched.stop, abort: receipt,
         status: outcome?.status ?? null, signal: outcome?.signal ?? null, timed_out: outcome?.timed_out ?? null,
         census: outcome?.census ?? null,
+        guards: startRecord?.guards ?? [],
+        substitutions,
+        stopped_by_launch: substitutions.filter((item) => /stopped by the launch$/.test(item.kind ?? "")),
         prevented: ending.by === "strict-chooser" ? [{ surface: "file_chooser", what: "the attendant opened a file chooser and the strict chooser ended the application before any panel (exit 86): this build shows no chooser without a queued answer" }] : [],
         judged: judged.map(({ name: checkName, ok, detail }) => ({ name: checkName, ok, detail: detail ?? null }))
       }
