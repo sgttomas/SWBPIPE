@@ -1072,8 +1072,6 @@ fn check_request_object_form(request: &Value) -> Result<(), ReportPackageSaveCom
     }
 }
 
-/// Whether the parsed request is an exact-route request (§3.6): its result
-/// document has an exact identity or its report carries `exact_route`.
 /// Whether the request's result is a pressure-free Timoshenko result: its source,
 /// as the save's diagnostics check reads it. The producer binds the document's
 /// identity to the source's (item 4).
@@ -1111,6 +1109,8 @@ fn record_route(request: &Value) -> user_release::RecordRoute {
     }
 }
 
+/// Whether the parsed request is an exact-route request (§3.6): its result
+/// document has an exact identity or its report carries `exact_route`.
 fn exact_request(request: &Value) -> bool {
     let identity = text_at(request, "/result_documents/0/result_envelope/producer/semantic_contract_id");
     identity.is_some_and(open_pipe_stress_report_package::exact_sections::is_exact_identity)
