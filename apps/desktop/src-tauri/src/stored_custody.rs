@@ -543,7 +543,10 @@ fn recorded_dispatch_of(found: &HistoricalFindings, result: &Value) -> Option<Va
 /// `analysis_run.reproducibility.semantic_contract` binds result rules at a revision this
 /// version does not read. The decision is the recorded read's (`recorded_tables::read_recorded`,
 /// against the installed binding of the result's identity): the current binding and a registry
-/// variant are read and restored as before; any other binding is refused by its code. A result
+/// variant are read and restored as before; any other binding is refused by its code, in a
+/// sentence that quotes the result's installed identity and nothing from the record. So is a
+/// record whose binding is read while one of its result references names other rules or another
+/// revision. A result
 /// that does not render, an identity this version installs no table for (a retired one, refused
 /// by name in the findings), a record with no binding and a record of another version are left
 /// to the findings, as before.
@@ -554,9 +557,25 @@ fn unread_table_binding(result: &Value, record: &Value) -> Option<String> {
     let binding = record.pointer("/analysis_run/reproducibility/semantic_contract")?;
     let id = result["producer"]["semantic_contract_id"].as_str()?;
     let current = open_pipe_stress_result_export::reader_verdict::current_binding(id)?;
-    let code = open_pipe_stress_result_export::recorded_tables::read_recorded(binding, result, Some((id, current)), || ()).err()?;
-    let named = binding["id"].as_str().unwrap_or(id);
-    Some(format!("its record binds the result rules `{}` at a revision this version does not read ({code}), so its rows are not shown; solve the model again.", stored_read::shown(named)))
+    // Nothing of the record is quoted: `id` is the stored result's identity, which equals an
+    // identifier this version installs a table for (`current_binding` found it).
+    let (why, code) = match open_pipe_stress_result_export::recorded_tables::read_recorded(binding, result, Some((id, current)), || ()) {
+        Err(code) if code == open_pipe_stress_result_export::recorded_tables::SOURCE_RECORDED_BINDING_IDENTITY => {
+            (format!("its record binds the result rules of another kind of result, not the stored result's `{id}`"), code)
+        }
+        Err(code) => (format!("its record does not bind the stored result's rules `{id}` at a revision this version reads"), code),
+        Ok(()) => {
+            // The run's binding is read. Every result reference must bind the same rules at the
+            // same revision: a reference that names another is the same unestablished meaning,
+            // for its row (the record validator's `ANALYSIS_ROW_SOURCE_BINDING_MISMATCH`).
+            let agree = |reference: &Value| ["id", "sha256"].iter().all(|key| reference["semantic_contract"][*key] == binding[*key]);
+            if record.pointer("/analysis_run/result_refs").and_then(Value::as_array).map_or(true, |references| references.iter().all(agree)) {
+                return None;
+            }
+            (format!("a result reference of its record does not bind the rules `{id}` at the revision the record binds"), "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH".to_string())
+        }
+    };
+    Some(format!("{why} ({code}), so its rows are not shown; solve the model again."))
 }
 
 fn restore_refusal(error: SolveJobError) -> String {
