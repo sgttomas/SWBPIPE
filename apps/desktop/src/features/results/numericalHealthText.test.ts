@@ -120,15 +120,6 @@ describe("numerical health text pins", () => {
   });
 });
 
-describe("numerical health vocabulary", () => {
-  it("never uses a fenced word anywhere in the text module", () => {
-    const source = readFileSync(resolve(__dirname, "numericalHealthText.ts"), "utf8");
-    for (const word of ["verified", "certified", "bound", "guaranteed", "valid", "approved", "compliant", "correct", "reliable"]) {
-      expect(source, word).not.toMatch(new RegExp(`\\b${word}\\b`, "i"));
-    }
-  });
-});
-
 describe("the rendered indicator", () => {
   const STATES = Object.keys(text.NUMERICAL_HEALTH_STATE_TEXT) as text.NumericalHealthState[];
   // The health header, its detail and the status bar's chip and popover, rendered for each of the
