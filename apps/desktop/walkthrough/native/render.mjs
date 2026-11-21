@@ -43,8 +43,8 @@ export const NATIVE_SURFACES = Object.freeze([
   {
     surface: "the system print dialog",
     captured: false,
-    prevented_by: "substituted in the scripted-run build: the print document is recorded in place of the dialog; these journeys do not press Print",
-    instead: "none: no journey here reaches it",
+    prevented_by: "substituted in the scripted-run build: the print document is recorded in place of the dialog; only report-timoshenko presses Print",
+    instead: "where Print is pressed, the print document as the build recorded it and the print window closed by the harness, each marked as substituted on that step",
     missing_evidence: false
   },
   {

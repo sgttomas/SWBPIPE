@@ -119,6 +119,7 @@ nothing. A launch invocation builds nothing: anything stale refuses it by name.
 | `change-and-compare` | 34 | AC-007 Change a support and compare: solved, Save Model State… and Record Run…, support:S-120 moved to node:N-110, what Results says of the held result, saved and solved again and recorded, the two states and the two runs compared, each comparison's Export CSV, the 3D view. |
 | `rule-pack` | 35 | AC-007 User rule pack: solved, the Rules page's new draft validated and saved into the local store, Analyze > Rule Checks, the saved pack loaded for a run, Run rule checks, its outcomes, the Issues drawer. |
 | `save-and-resume` | 36 | AC-007 Save, close and resume, in part: two launches over one home. The first: solved, File > Save as New Local Project, a saved state, a recorded run and a saved report package, the autosave interval at its shortest, an edit, the autosave by the app's own timing, the window's words on saving before and after; ended by the harness without saving. The second: the recovery offer, Discard's question and Cancel, Keep, Recover Autosave…, Open autosave, the model after recovery, Model History, the Report tab, File > Open Local Project…. Quit and reopen are not walked: this build cannot deliver Quit by a person's route. |
+| `report-timoshenko` | 37 | The report journey's steps on another document: `fixtures/walkthrough/timoshenko_demo_model.json` (the demonstration model stating the Timoshenko shear selection) opened, Run, the health line and headline, the Report tab, Render (local private), the standing in the window's words, Print (the build's record of the print document; the print window closed by the harness, both marked), Save canonical HTML…, Save Report Package…, Save Shareable Report Package… and its dialog. |
 
 Without `--journey` the first three run, one launch each. `--show-window`, off
 by default, brings each launched window to the front for its run so that the
@@ -178,8 +179,9 @@ answer queued inside that home before any system dialog; a non-persistent web
 view store; a private copy of the bound app; the marks check before each start;
 the census of the private copy after each launch; the tripwire over the real
 user's product-named Library paths; and the run's close on every exit it can
-catch. The print dialog is replaced by a record in this build, and Print is not
-pressed. The embedded agent is never started: no provider, model, key, network
+catch. The print dialog is replaced by a record in this build; Print is pressed
+only in `report-timoshenko`, where that record and the harness closing the
+print window are marked as substituted. The embedded agent is never started: no provider, model, key, network
 or sign-in. The run's folder (reports, step records, snapshots) is kept in the
 system's temporary folder; the command prints where.
 

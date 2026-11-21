@@ -69,8 +69,12 @@ test("the composed driver is one script: the shared counts, the snapshot, then t
   const counts = composed.indexOf("const readScreenCounts = function readScreenCounts()");
   const snapshot = composed.indexOf("const takeSnapshot = async function takeSnapshot(");
   assert.ok(counts > 0 && snapshot > counts && composed.indexOf(driver) > snapshot);
-  // The driver does not press Print, and starts no agent.
-  assert.doesNotMatch(driver, /rendered-report-print"|report-print|toggle-agent|embedded_agent/);
+  // The driver starts no agent. Print is pressed in one journey only, where the build records the print document in
+  // place of the system print dialog and the harness closes the print window: both are marked as substituted.
+  assert.doesNotMatch(driver, /toggle-agent|embedded_agent/);
+  assert.equal((driver.match(/press\("rendered-report-print"\)/g) ?? []).length, 1);
+  assert.match(driver, /native_smoke_take_report_prints: \(\) =>/);
+  assert.match(driver, /native_smoke_close_report_print: \(\) =>/);
 });
 
 test("the driver reads the built menu once per launch and shows the window only when the plan asks", async () => {

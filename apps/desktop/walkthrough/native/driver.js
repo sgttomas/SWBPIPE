@@ -5,7 +5,9 @@
 //
 // It works the window as a person would: native menu commands through the dispatch a menu click uses, and the
 // window's own controls. The only substitution is the file chooser: `native_smoke_choose` names the file the next
-// one returns (every answer the runner plans lies inside the throwaway home). Print is not pressed. At each step it
+// one returns (every answer the runner plans lies inside the throwaway home). Print is pressed in one journey only
+// (report-timoshenko): the build records the print document in place of the system print dialog and the harness closes
+// the print window, each marked as substituted on that step. At each step it
 // records the counts and a snapshot of the document as drawn, and writes them as the checkpoint `step-<number>`
 // (`native_smoke_checkpoint`, no store copy). Once per launch it reads the menu the app built
 // (`native_smoke_menu_items`) and writes it as the checkpoint `menu`; with the plan's `show_window` (the runner's
@@ -21,7 +23,8 @@
   const SUBSTITUTED = {
     native_smoke_choose: (args) => ({ kind: "file chooser", what: `the next file chooser returns ${String(args.path).split("/").pop()}, named by the harness; no chooser is shown` }),
     native_smoke_menu: (args) => ({ kind: "native menu command", what: `${args.commandId} delivered through the menu's own dispatch, not by a click in the menu bar` }),
-    native_smoke_take_report_prints: () => ({ kind: "report print dialog", what: "the print document recorded in place of the system print dialog" })
+    native_smoke_take_report_prints: () => ({ kind: "report print dialog", what: "the print document recorded in place of the system print dialog" }),
+    native_smoke_close_report_print: () => ({ kind: "report print dialog", what: "the print window closed by the harness, in place of the person finishing or cancelling the system print dialog" })
   };
   const call = (command, args) => {
     if (substitutions && SUBSTITUTED[command]) substitutions.push(SUBSTITUTED[command](args ?? {}));
@@ -1065,8 +1068,137 @@
     throw new Error(`the journey has no launch ${plan.launch}`);
   }
 
+  // The words the rendered report panel shows about the report as it stands: its gate, precondition, route, standing,
+  // blocking reasons and the like, each as the window shows it.
+  const REPORT_WORDS = ["rendered-report-gate", "rendered-report-precondition", "rendered-report-route", "rendered-report-hash", "rendered-report-error", "rendered-report-blocking-reasons", "rendered-report-sink-blocked", "rendered-report-local-private-warning", "rendered-report-unit-basis"];
+  const reportWords = () => REPORT_WORDS.map((id) => { const words = shown(id); return words ? `${id.replace("rendered-report-", "")}: ${words.slice(0, 240)}` : null; }).filter(Boolean).join(" | ");
+
+  // 37. The report journey on another document: a committed document placed in the home and opened by File > Open
+  // Model Document…, solved, its health line and headline, the report rendered (local private), Print (the build's
+  // record of the print document), Save canonical HTML…, then the local report package and the shareable one. Each
+  // outcome is recorded in the window's words; nothing is judged.
+  async function reportOnDocument(journey, plan) {
+    await journey.step("first-open", "The application as first opened");
+    await openPrepared(journey, plan, "the document");
+    await journey.step("run", "Run pressed on the opened document", pressRun);
+    await journey.step("run-answer", "What the window says after Run", runAnswer);
+    await journey.step("health-line", "The numerical health line, as the Results stage shows it", async () => {
+      await openStage("results");
+      const line = await waitFor("the health line", () => (visible(byTestId("numerical-health-header-line")) ? byTestId("numerical-health-header-line") : null), T.ui).catch(() => null);
+      if (line) await scrollTo(line, "center");
+      return line ? said(line).slice(0, 400) : "the Results stage shows no health line";
+    });
+    await journey.step("headline", "The result's standing headline, as the window shows it", async () => {
+      const standing = await waitFor("the standing", () => (visible(byTestId("numerical-result-standing")) ? byTestId("numerical-result-standing") : null), T.ui).catch(() => null);
+      if (standing) await scrollTo(standing, "center");
+      return standing ? said(standing).slice(0, 400) : "the Results stage shows no standing headline";
+    });
+    await journey.step("review-stage", "The Review stage", async () => { await openStage("review"); });
+    await journey.step("report-tab", "The Report tab as first shown", async () => {
+      await press("stage-tab-report");
+      await waitFor("the report panel", () => byTestId("rendered-report-panel") || byTestId("report-panel"), T.step);
+      return reportWords();
+    });
+    await journey.scrolled("report-tab", "The Report tab", 2);
+    await journey.step("render", "Render, local private", async () => {
+      const intent = await control("rendered-report-local-private-intent", { timeoutMs: T.step });
+      if (!intent.checked) { intent.click(); await waitFor("the local-private intent ticked", () => byTestId("rendered-report-local-private-intent")?.checked, T.ui); }
+      const render = await control("rendered-report-render", { timeoutMs: T.step });
+      await scrollTo(render, "center");
+      render.click();
+      await waitFor("the render's outcome", () => byTestId("rendered-report-hash") || byTestId("rendered-report-error") || byTestId("rendered-report-route"), T.save).catch(() => null);
+      await waitFor("the render settled", () => !/Rendering/.test(byTestId("rendered-report-render")?.textContent ?? ""), T.save).catch(() => null);
+      const error = byTestId("rendered-report-error");
+      if (error) await scrollTo(error, "center");
+      return reportWords() || "the panel shows nothing about the render";
+    });
+    await journey.step("standing-line", "The rendered report's standing, as words on screen", async () => {
+      const preview = byTestId("rendered-report-preview");
+      if (visible(preview)) await scrollTo(preview, "start");
+      return reportWords();
+    });
+    await journey.step("print", "Print pressed: the print document as this build records it in place of the system print dialog", async () => {
+      await call("native_smoke_take_report_prints");
+      const print = await control("rendered-report-print", { timeoutMs: T.ui });
+      await scrollTo(print, "center");
+      const prior = text("rendered-report-print-status") ?? "";
+      await press("rendered-report-print");
+      const status = await waitFor("the print outcome", () => { const now = text("rendered-report-print-status") ?? ""; return now && now !== prior ? now : null; }, T.step).catch(() => text("rendered-report-print-status") ?? "no print status shown");
+      const records = [];
+      if (/^Print window opened/.test(status)) {
+        const started = Date.now();
+        while (records.length === 0 && Date.now() - started < 30000) {
+          records.push(...(await call("native_smoke_take_report_prints")));
+          if (records.length === 0) await sleep(250);
+        }
+      }
+      const closed = await call("native_smoke_close_report_print");
+      const record = records.map((item) => Object.entries(item).filter(([, value]) => typeof value !== "object").map(([key, value]) => `${key}=${String(value).slice(0, 80)}`).join(", ")).join("; ");
+      return `${status}; the recorded print document: ${record || "none recorded"}; the print window ${closed ? "closed" : "was not open to close"}`;
+    });
+    await journey.step("save-html", "Save canonical HTML…, its chooser answered inside the throwaway home", async () => {
+      const save = [byTestId("rendered-report-save-local-private"), byTestId("rendered-report-save")].find(visible);
+      if (!save) throw new Error("the window shows no Save canonical HTML control");
+      if (save.disabled) throw new Error(`the control ${save.getAttribute("data-testid")} is disabled: "${disabledReason(save)}"`);
+      await scrollTo(save, "center");
+      const prior = text("rendered-report-save-status") ?? "";
+      await call("native_smoke_choose", { path: plan.html_save });
+      await press(save.getAttribute("data-testid"));
+      const status = await waitFor("the save's outcome", () => { const now = text("rendered-report-save-status") ?? ""; return now && now !== prior && !/^Saving/.test(now) ? now : null; }, T.save).catch(() => text("rendered-report-save-status") ?? "no save status shown");
+      const unused = await call("native_smoke_clear_choices");
+      return `${status}${unused > 0 ? " (the queued chooser answer was not taken)" : ""}`;
+    });
+    await journey.step("local-package", "File > Save Report Package… (local private), its chooser answered inside the throwaway home", async () => {
+      const intent = byTestId("report-package-private-intent");
+      if (visible(intent) && !intent.checked) { (await control("report-package-private-intent")).click(); await settle(); }
+      const prior = text("report-package-save-status") ?? "";
+      await call("native_smoke_choose", { path: plan.local_package });
+      await menuCommand("file.save-report-package");
+      const saving = () => /Saving report package/.test(byTestId("report-package-save")?.textContent ?? "");
+      const status = await waitFor("the save's outcome", () => { const now = text("report-package-save-status") ?? ""; return now && now !== prior && !saving() ? now : null; }, T.save).catch(() => text("report-package-save-status") ?? "no package status shown");
+      const unused = await call("native_smoke_clear_choices");
+      const shownStatus = byTestId("report-package-save-status");
+      if (visible(shownStatus)) await scrollTo(shownStatus, "center");
+      return `${status}${unused > 0 ? " (the queued chooser answer was not taken)" : ""}`;
+    });
+    await journey.step("shareable-dialog", "File > Save Shareable Report Package…: the dialog as shown", async () => {
+      await menuCommand("file.save-shareable-report-package");
+      const dialog = await waitFor("the release dialog", () => (visible(byTestId("user-release-dialog")) ? byTestId("user-release-dialog") : null), T.step).catch(() => null);
+      if (!dialog) return `no dialog: ${shown("report-package-user-release-status") ?? shown("report-package-save-status") ?? "nothing shown"}`;
+      return [shown("user-release-scope"), shown("user-release-refusal"), visible(byTestId("user-release-statement", dialog)) ? "the statement is offered" : "no statement is offered"].filter(Boolean).join(" | ");
+    });
+    await journey.step("shareable-outcome", "The shareable package attempted: the statement ticked and confirmed where the dialog offers them, otherwise Cancel", async () => {
+      const dialog = byTestId("user-release-dialog");
+      if (!visible(dialog)) return "no dialog was open";
+      const statement = byTestId("user-release-statement", dialog);
+      if (!visible(statement)) {
+        await press("user-release-cancel", { root: dialog });
+        return `the dialog offers no statement to tick; Cancel pressed: ${shown("user-release-refusal") ?? "no refusal words"}`;
+      }
+      if (!statement.checked) { (await control("user-release-statement", { root: dialog })).click(); await settle(); }
+      const confirm = byTestId("user-release-confirm", dialog);
+      if (!confirm || confirm.disabled) {
+        const why = confirm ? disabledReason(confirm) : "no confirm control";
+        await press("user-release-cancel", { root: dialog });
+        return `the confirm control is not available ("${why}"); Cancel pressed`;
+      }
+      const prior = text("report-package-save-status") ?? "";
+      await call("native_smoke_choose", { path: plan.shareable_package });
+      await press("user-release-confirm", { root: dialog });
+      const status = await waitFor("the save's outcome", () => { const now = text("report-package-save-status") ?? ""; return now && now !== prior && !/Saving/.test(now) ? now : null; }, T.save).catch(() => text("report-package-save-status") ?? "no package status shown");
+      const unused = await call("native_smoke_clear_choices");
+      return `${status}; ${shown("report-package-user-release-status") ?? ""}${unused > 0 ? " (the queued chooser answer was not taken)" : ""}`;
+    });
+    await journey.step("outcome-list", "The report outputs' outcome list", async () => {
+      const list = byTestId("report-output-status");
+      if (!visible(list)) return "the window shows no outcome list";
+      await scrollTo(list, "center");
+      return said(list).slice(0, 400);
+    });
+  }
+
   const JOURNEYS = { "solve-and-results": solveAndResults, report, exports: exportsPage, "reference-system": referenceSystem, "prepared-project": preparedProject };
-  Object.assign(JOURNEYS, { "missing-data": missingData, "failed-solve": failedSolve, "change-and-compare": changeAndCompare, "rule-pack": rulePack, "save-and-resume": saveAndResume });
+  Object.assign(JOURNEYS, { "missing-data": missingData, "failed-solve": failedSolve, "change-and-compare": changeAndCompare, "rule-pack": rulePack, "save-and-resume": saveAndResume, "report-timoshenko": reportOnDocument });
 
   (async () => {
     const result = { nonce: null, ok: false, journey: null, user_agent: navigator.userAgent };

@@ -37,6 +37,10 @@
 //   save-and-resume    36  AC-007 Save, close and resume, in part: two launches over one home (`launches`): saved with a
 //                          state, a run and a report, edited, autosaved by the app's own timing, ended without saving;
 //                          reopened, the recovery offer and each of its choices, the work recovered, the project.
+//   report-timoshenko  37  The report journey's steps on another document (fixtures/walkthrough/timoshenko_demo_model.json,
+//                          the demonstration model stating the Timoshenko shear selection): opened, solved, the health
+//                          line and headline, Render, the standing, Print (the build's record), Save canonical HTML…, the
+//                          local and shareable report packages, each outcome in the window's words.
 //
 // A journey may be several launches over one throwaway home (`launches`, launchesOf), each declaring how it ends
 // (`ends_by`). Today the harness ends every launch, an end without saving (LAUNCH_ENDS); an end by the application's
@@ -66,7 +70,8 @@
 // launch, the tripwire over the real user's product-named Library paths before the first launch and after the last,
 // and closeRun on every exit the runner can catch. A home is removed only as evidence-journeys.mjs removes one
 // (homeRemovalRefusal, removalIdentityRefusal, the run's token in its marker). In this build the print dialog is
-// replaced by a record, and Print is not pressed. The embedded agent is never started; no provider, model, key,
+// replaced by a record; Print is pressed only in report-timoshenko, where the record and the harness closing the print
+// window are marked as substituted. The embedded agent is never started; no provider, model, key,
 // network or sign-in is used. Chromium renders after the app has ended, loads nothing, and is given no file of the
 // home. Evidence of what a person sees, not a test: a journey that stops is a finding in the index.
 import { randomBytes } from "node:crypto";
@@ -148,6 +153,13 @@ export const JOURNEYS = Object.freeze({
     number: 36, title: "Save, close and resume (launched app), two launches over one home: solved and saved with a state, a run and a report, edited, autosaved, ended without saving; reopened, the recovery offer and each choice, the work recovered, the project as it stands",
     use_case: "DEL-07-06 AC-007 Save, close and resume, in part: the recovery after an end without saving. Quit and reopen are not walked: this build cannot deliver the Quit command by the route a person's Quit takes, so each launch is ended by the harness, which is an end without saving and is recorded as one",
     launches: [{ name: "save-edit-end", ends_by: "harness" }, { name: "reopen-recover", ends_by: "harness" }],
+    saves_report_package: true
+  },
+  "report-timoshenko": {
+    number: 37, title: "Report (launched app), on a pressure-free document stating the Timoshenko shear selection: opened, solved, the health line and headline, Render, the standing, Print, Save canonical HTML…, the local and the shareable report packages",
+    use_case: "DEL-07-06 AC-007 Blank to released report, in part, on another document: the report journey's steps on the committed demonstration model with model_settings.shear_model stated as timoshenko_annulus_energy_v1, from its opening to each report output's outcome in the window's words; Print is the build's record of the print document",
+    place: [{ key: "model", at: "chooser/models/timoshenko_demo_model.json", from: "fixtures/walkthrough/timoshenko_demo_model.json" }],
+    open: { by: "model-document", file: "model" },
     saves_report_package: true
   }
 });
@@ -624,6 +636,7 @@ async function main() {
     const timeoutMs = spec.launch_ms ?? LAUNCH_MS;
     if (spec.timeouts) plan.timeouts = spec.timeouts;
     if (name === "report" || spec.saves_report_package) plan.local_package = path.join(where.saved, "walkthrough-local.opsproj");
+    if (spec.saves_report_package) Object.assign(plan, { html_save: path.join(where.saved, "walkthrough-report.html"), shareable_package: path.join(where.saved, "walkthrough-shareable.opsproj") });
     // The prepared files, in the home before the app starts; refused by name when a declaration is wrong.
     try {
       const placements = placementsFor(spec.place, { home: where.home, identifier: IDENTIFIER, projectRoot: project });
