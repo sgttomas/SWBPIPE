@@ -93,6 +93,12 @@ export class ViewportInvalidationScheduler {
   }
 }
 
+/** How far a pressed pointer travels, in device pixels, before the press is the person moving the
+ * camera rather than a click. */
+export const INPUT_TRAVEL_DEVICE_PX = 2;
+/** The canvas input listeners that tell the person's moves from the controls' rounding. */
+const INPUT_LISTENER_COUNT = 5;
+
 export class ViewportResourceRegistry {
   private readonly resources = new Set<{ dispose(): void }>();
   private disposed = false;
@@ -475,9 +481,10 @@ export type ViewportResourceOptions = {
   onCameraChange?: (resource: ViewportResource) => void;
   /**
    * The person's own navigation (orbit, pan, zoom) changed the camera's pose. Called once per
-   * gesture, when the pose first differs from where the gesture began; a press that does not move
-   * the camera (a click, a right-click, a press released where it began) never calls it, and a
-   * programmatic pose never does.
+   * gesture, at the first pose change after their input asked for one (a pressed pointer that
+   * travelled more than INPUT_TRAVEL_DEVICE_PX device pixels, or a wheel); a press that does not
+   * move the pointer (a click, a right-click, a press released where it began) never calls it,
+   * whatever the controls' rounding does to the pose, and a programmatic pose never does.
    */
   onCameraMovedByPerson?: (resource: ViewportResource) => void;
   /** The drawing surface took a new size; the camera's aspect is already updated. */
@@ -537,44 +544,48 @@ export class ViewportResource {
   private suppressControlsChange = false;
   /**
    * The person's gesture with the controls: pressed (from the controls' start), released (after
-   * their end, until the render loop has applied what the gesture asked), or none. Only a gesture
-   * that changes the camera's pose reports a move.
+   * their end, until the render loop has applied what the gesture asked), or none.
    */
   private gesture: "pressed" | "released" | null = null;
-  /** The pose where the person's gesture began. */
-  private gestureStart: { position: THREE.Vector3; quaternion: THREE.Quaternion; target: THREE.Vector3; zoom: number } | null = null;
+  /**
+   * Whether the person's input asked the camera to move during the gesture: a pointer that travelled
+   * more than INPUT_TRAVEL_DEVICE_PX device pixels while pressed, or a wheel. A pose change with no
+   * such input is the controls' own normalisation (it recomputes the pose from spherical
+   * coordinates; looking straight down, as the Top view does, it moves the polar angle by 1e-6),
+   * never the person's move.
+   */
+  private inputMoved = false;
+  /** Where each pointer pressed on the canvas went down, in CSS pixels. */
+  private readonly pointersDown = new Map<number, { x: number; y: number }>();
+
+  private notePointerDown(event: Pick<PointerEvent, "pointerId" | "clientX" | "clientY">): void {
+    if (this.pointersDown.size === 0) this.inputMoved = false;
+    this.pointersDown.set(event.pointerId, { x: event.clientX, y: event.clientY });
+  }
+
+  private notePointerMove(event: Pick<PointerEvent, "pointerId" | "clientX" | "clientY">): void {
+    const down = this.pointersDown.get(event.pointerId);
+    if (!down || this.inputMoved) return;
+    const ratio = typeof window === "undefined" ? 1 : window.devicePixelRatio || 1;
+    if (Math.hypot(event.clientX - down.x, event.clientY - down.y) * ratio > INPUT_TRAVEL_DEVICE_PX) this.inputMoved = true;
+  }
+
+  private notePointerUp(event: Pick<PointerEvent, "pointerId">): void {
+    this.pointersDown.delete(event.pointerId);
+  }
+
+  private noteWheel(): void {
+    this.inputMoved = true;
+  }
 
   private noteGestureStart(): void {
     this.gesture = "pressed";
-    this.gestureStart = {
-      position: this.camera.position.clone(),
-      quaternion: this.camera.quaternion.clone(),
-      target: this.controls.target.clone(),
-      zoom: this.camera.zoom
-    };
   }
 
-  /**
-   * Whether the pose has left where the gesture began. The controls recompute the pose from
-   * spherical coordinates on every update, which rounds it by a few units in the last place even
-   * when nothing was asked; a move is a change larger than one part in 10^9 of the viewing
-   * distance (or of the orientation or zoom).
-   */
-  private gestureMovedCamera(): boolean {
-    const start = this.gestureStart;
-    if (!start) return true;
-    const scale = Math.max(start.position.distanceTo(start.target), Number.MIN_VALUE);
-    const tolerance = 1e-9 * scale;
-    return start.position.distanceTo(this.camera.position) > tolerance ||
-      start.target.distanceTo(this.controls.target) > tolerance ||
-      1 - Math.abs(start.quaternion.dot(this.camera.quaternion)) > 1e-12 ||
-      Math.abs(start.zoom - this.camera.zoom) > 1e-9 * Math.abs(start.zoom);
-  }
-
+  /** A pose change during a gesture whose input moved: the person moved the camera. */
   private noteGestureMove(): void {
-    if (!this.gesture || !this.gestureMovedCamera()) return;
-    this.gesture = null;
-    this.gestureStart = null;
+    if (!this.gesture || !this.inputMoved) return;
+    this.clearGesture();
     this.options.onCameraMovedByPerson?.(this);
   }
 
@@ -584,8 +595,15 @@ export class ViewportResource {
 
   private clearGesture(): void {
     this.gesture = null;
-    this.gestureStart = null;
+    this.inputMoved = false;
   }
+
+  // Bound once: the canvas's input listeners, added before the controls' own (capture, on the
+  // target), so that the input is known when the controls apply it.
+  private readonly handleInputPointerDown = (event: PointerEvent): void => this.notePointerDown(event);
+  private readonly handleInputPointerMove = (event: PointerEvent): void => this.notePointerMove(event);
+  private readonly handleInputPointerUp = (event: PointerEvent): void => this.notePointerUp(event);
+  private readonly handleInputWheel = (): void => this.noteWheel();
   private presentationBottomInsetPx = 0;
   private readonly ownership = new ViewportOwnershipLedger(this.resourceGeneration);
   // The edge line is one CSS pixel wide, which is this many device pixels. It is the renderer's
@@ -640,13 +658,14 @@ export class ViewportResource {
     this.controls.addEventListener("end", this.handleControlsEnd);
     this.renderer.domElement.addEventListener("webglcontextlost", this.handleContextLost);
     this.renderer.domElement.addEventListener("webglcontextrestored", this.handleContextRestored);
+    for (const [type, listener] of this.inputListeners()) this.renderer.domElement.addEventListener(type, listener, { capture: true, passive: true });
     window.addEventListener("resize", this.resize);
     document.addEventListener("visibilitychange", this.handleVisibilityChange);
     this.resizeObserver = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(this.resize);
     this.resizeObserver?.observe(host);
     this.ownership.createLifecycle({
       controls: 1,
-      eventBindings: 7,
+      eventBindings: 7 + INPUT_LISTENER_COUNT,
       resizeObservers: this.resizeObserver ? 1 : 0
     });
     this.resize();
@@ -954,6 +973,17 @@ export class ViewportResource {
     this.scheduler.invalidate();
   };
 
+  private inputListeners(): ReadonlyArray<readonly [string, EventListener]> {
+    const listeners: ReadonlyArray<readonly [string, EventListener]> = [
+      ["pointerdown", this.handleInputPointerDown as EventListener],
+      ["pointermove", this.handleInputPointerMove as EventListener],
+      ["pointerup", this.handleInputPointerUp as EventListener],
+      ["pointercancel", this.handleInputPointerUp as EventListener],
+      ["wheel", this.handleInputWheel as EventListener]
+    ];
+    return listeners;
+  }
+
   /**
    * Clear OrbitControls' retained damping offsets without moving the visible
    * camera. OrbitControls has no public stop-inertia method, but disabling
@@ -1007,6 +1037,7 @@ export class ViewportResource {
     this.controls.removeEventListener("end", this.handleControlsEnd);
     this.renderer.domElement.removeEventListener("webglcontextlost", this.handleContextLost);
     this.renderer.domElement.removeEventListener("webglcontextrestored", this.handleContextRestored);
+    for (const [type, listener] of this.inputListeners()) this.renderer.domElement.removeEventListener(type, listener, { capture: true });
     // The halo first: it leaves the scene, counts out what it created and disposes it, and never
     // touches the geometries it shares with the layers, which the walk below counts and disposes.
     this.halo?.dispose();
@@ -1014,7 +1045,7 @@ export class ViewportResource {
     this.ownership.disposeObjects(this.gizmoScene.children);
     this.ownership.disposeLifecycle({
       controls: 1,
-      eventBindings: 7,
+      eventBindings: 7 + INPUT_LISTENER_COUNT,
       resizeObservers: this.resizeObserver ? 1 : 0
     });
     this.controls.dispose();

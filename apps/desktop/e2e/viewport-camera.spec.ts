@@ -99,7 +99,7 @@ async function longModel() {
 const NARROW = { width: 1440, height: 1000 };
 const WIDER = { width: 1440, height: 900 };
 
-async function open(page: Page) {
+async function open(page: Page, view: "front" | "top" = "front") {
   await page.setViewportSize(NARROW);
   const model = await longModel();
   await gotoModel(page, model);
@@ -107,7 +107,7 @@ async function open(page: Page) {
   // Labels off, so that a press on the canvas reaches the canvas.
   const labels = page.getByTestId("toggle-viewport-labels");
   if (await labels.getAttribute("aria-pressed") === "true") await labels.click();
-  await page.getByTestId("viewport-view-front").click();
+  await page.getByTestId(`viewport-view-${view}`).click();
   await settled(page);
   return model;
 }
@@ -131,24 +131,28 @@ test.describe("the camera: fitted views refit, a view the person set is kept", (
     expectSamePose(await pose(page), set);
   });
 
-  test("a click on an entity, a right-click and a press released where it began leave the view fitted", async ({ page }) => {
-    const model = await open(page);
-    const fitted = await pose(page);
-    const onEntity = await canvasPoint(page, model.nodes[1].position);
-    await page.mouse.click(onEntity.x, onEntity.y);
-    const box = await canvasBox(page);
-    await page.mouse.click(box.x + box.width * 0.5, box.y + box.height * 0.15, { button: "right" });
-    await page.keyboard.press("Escape");
-    await page.mouse.move(box.x + box.width * 0.5, box.y + box.height * 0.2);
-    await page.mouse.down();
-    await page.mouse.up();
-    expectSamePose(await pose(page), fitted);
-    await expect(page.getByTestId("viewport-view-front")).toHaveAttribute("aria-pressed", "true");
-    await resize(page, WIDER.width, WIDER.height);
-    expect(moved(await pose(page), fitted)).toBe(true);
-    await resize(page, NARROW.width, NARROW.height);
-    expectSamePose(await pose(page), fitted);
-  });
+  // Top looks straight down: there the controls' own normalisation moves the camera on every
+  // update, so a press is the person's move only when their pointer travelled.
+  for (const view of ["front", "top"] as const) {
+    test(`in the ${view} view, a click on an entity, a right-click and a press released where it began leave the view fitted`, async ({ page }) => {
+      const model = await open(page, view);
+      const fitted = await pose(page);
+      const onEntity = await canvasPoint(page, model.nodes[1].position);
+      await page.mouse.click(onEntity.x, onEntity.y);
+      const box = await canvasBox(page);
+      await page.mouse.click(box.x + box.width * 0.5, box.y + box.height * 0.15, { button: "right" });
+      await page.keyboard.press("Escape");
+      await page.mouse.move(box.x + box.width * 0.5, box.y + box.height * 0.2);
+      await page.mouse.down();
+      await page.mouse.up();
+      await expect(page.getByTestId(`viewport-view-${view}`)).toHaveAttribute("aria-pressed", "true");
+      await resize(page, WIDER.width, WIDER.height);
+      expect(moved(await pose(page), fitted)).toBe(true);
+      await expect(page.getByTestId(`viewport-view-${view}`)).toHaveAttribute("aria-pressed", "true");
+      await resize(page, NARROW.width, NARROW.height);
+      expectSamePose(await pose(page), fitted);
+    });
+  }
 
   for (const command of ["viewport-fit-model", "viewport-fit-visible", "viewport-fit-selection", "viewport-view-front", "viewport-view-top", "viewport-view-side", "viewport-view-isometric"] as const) {
     test(`${command} returns a moved view to fitted, and it refits as that command would`, async ({ page }) => {

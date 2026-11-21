@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { entityKey } from "../workspace/selectionState";
 import {
   applyPalettePresentation,
@@ -23,9 +24,11 @@ import {
   ViewportInvalidationScheduler,
   ViewportOwnershipLedger,
   ViewportResource,
+  INPUT_TRAVEL_DEVICE_PX,
   ViewportResourceRegistry
 } from "./viewportResource";
 import { createFigureMaterial } from "./viewportFigureMaterial";
+import { standardViewPose, type StandardView } from "./viewportCameraRule";
 import { viewportRoleHex, viewportShadeRatio, viewportTokenColour } from "./viewportPalette";
 
 // Selection is a halo (`viewportHalo.ts`, tested in `viewportHalo.test.ts`): a selected element is
@@ -159,66 +162,105 @@ describe("viewport resource primitives", () => {
     expect(cancelNavigation).toHaveBeenCalledTimes(1);
   });
 
-  it("reports the person's move once per gesture, and not for a press whose update only rounds the pose", () => {
-    const camera = new THREE.PerspectiveCamera();
-    camera.position.set(0.1, 0.2, 30);
-    const target = new THREE.Vector3(0.1, 0.2, 0);
-    camera.lookAt(target);
-    let step: () => void = () => {};
-    const controls = { target, update: vi.fn(() => { step(); return false; }) };
-    const onCameraMovedByPerson = vi.fn();
-    let fake!: ViewportResource;
-    fake = Object.assign(Object.create(ViewportResource.prototype), {
-      disposed: false,
-      contextStatus: "ready",
-      navigationAdvancing: false,
-      suppressControlsChange: false,
-      gesture: null,
-      gestureStart: null,
-      controls,
-      camera,
-      renderer: {
-        setScissorTest: vi.fn(), setViewport: vi.fn(), render: vi.fn(), info: { memory: {}, render: {} }
-      },
-      host: { clientWidth: 100, clientHeight: 100 },
-      scene: new THREE.Scene(),
-      frameSubmissionSequence: 0,
-      options: { onCameraMovedByPerson },
-      invalidate: vi.fn(),
-      markCameraProjectionChanged: vi.fn(),
-      cancelNavigation: vi.fn((options?: { keepGesture?: boolean }) => {
-        const state = fake as unknown as { navigationAdvancing: boolean; gesture: unknown; gestureStart: unknown };
-        state.navigationAdvancing = false;
-        if (!options?.keepGesture) { state.gesture = null; state.gestureStart = null; }
-      }),
-      renderGizmo: vi.fn(), labelUpdater: null
-    }) as ViewportResource;
-    // What the controls' start and end handlers do (they are instance fields, absent from this fake).
-    const handlers = fake as unknown as { noteGestureStart(): void; noteGestureEnd(): void; render(time: number): boolean; navigationAdvancing: boolean };
-    const press = (change: () => void) => {
-      handlers.noteGestureStart();
-      handlers.navigationAdvancing = true;
-      step = change;
-      handlers.render(1);
-      handlers.noteGestureEnd();
-      handlers.navigationAdvancing = true;
-      step = () => {};
-      handlers.render(2);
+  describe("the person's move is decided from their input", () => {
+    type GestureFake = {
+      notePointerDown(event: { pointerId: number; clientX: number; clientY: number }): void;
+      notePointerMove(event: { pointerId: number; clientX: number; clientY: number }): void;
+      notePointerUp(event: { pointerId: number }): void;
+      noteWheel(): void;
+      noteGestureStart(): void;
+      noteGestureEnd(): void;
+      render(time: number): boolean;
+      cancelNavigation(options?: { keepGesture?: boolean }): void;
+      navigationAdvancing: boolean;
     };
+    const bounds = { min: { x: -20, y: 0, z: 0 }, max: { x: 20, y: 3, z: 0 } };
 
-    // The controls' spherical round trip: a few units in the last place, nothing asked.
-    press(() => { camera.position.x += 1e-15; camera.position.z += 4e-15; });
-    expect(onCameraMovedByPerson).not.toHaveBeenCalled();
-    expect((fake as unknown as { gesture: unknown }).gesture).toBeNull();
+    function gestureFake(view: StandardView) {
+      const camera = new THREE.PerspectiveCamera(42, 603 / 743, 0.1, 10_000);
+      const pose = standardViewPose(view, bounds, 42, 603 / 743);
+      const controls = new OrbitControls(camera, document.createElement("div"));
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.08;
+      camera.position.set(pose.position.x, pose.position.y, pose.position.z);
+      controls.target.set(pose.target.x, pose.target.y, pose.target.z);
+      camera.lookAt(controls.target);
+      const onCameraMovedByPerson = vi.fn();
+      const fake = Object.assign(Object.create(ViewportResource.prototype), {
+        disposed: false,
+        contextStatus: "ready",
+        navigationAdvancing: false,
+        suppressControlsChange: false,
+        gesture: null,
+        inputMoved: false,
+        pointersDown: new Map(),
+        controls,
+        camera,
+        renderer: {
+          setScissorTest: vi.fn(), setViewport: vi.fn(), render: vi.fn(), info: { memory: {}, render: {} }
+        },
+        host: { clientWidth: 603, clientHeight: 743 },
+        scene: new THREE.Scene(),
+        frameSubmissionSequence: 0,
+        options: { onCameraMovedByPerson },
+        invalidate: vi.fn(),
+        markCameraProjectionChanged: vi.fn(),
+        renderGizmo: vi.fn(), labelUpdater: null
+      }) as unknown as GestureFake;
+      // What the canvas's listeners and the controls' start and end handlers do (the handlers are
+      // instance fields, absent from this fake), in the order a press delivers them.
+      const down = (x = 100, y = 100) => { fake.notePointerDown({ pointerId: 1, clientX: x, clientY: y }); fake.noteGestureStart(); fake.navigationAdvancing = true; };
+      const frame = () => { fake.render(1); };
+      const up = () => { fake.notePointerUp({ pointerId: 1 }); fake.noteGestureEnd(); fake.navigationAdvancing = true; fake.render(2); };
+      const orbitBy = (angle: number) => {
+        const offset = camera.position.clone().sub(controls.target).applyAxisAngle(new THREE.Vector3(0, 1, 0), angle);
+        camera.position.copy(controls.target).add(offset);
+        camera.lookAt(controls.target);
+      };
+      return { fake, camera, controls, onCameraMovedByPerson, down, frame, up, orbitBy };
+    }
 
-    press(() => { camera.position.x += 0.5; });
-    expect(onCameraMovedByPerson).toHaveBeenCalledTimes(1);
+    for (const view of ["front", "top", "side", "iso"] as const) {
+      it(`a press that does not move the pointer is not a move, in the ${view} view, though the controls round the pose`, () => {
+        const { fake, camera, onCameraMovedByPerson, down, frame, up } = gestureFake(view);
+        const before = camera.position.clone();
+        down();
+        fake.notePointerMove({ pointerId: 1, clientX: 101, clientY: 100 });
+        frame();
+        up();
+        expect(onCameraMovedByPerson).not.toHaveBeenCalled();
+        // Looking straight down, the controls' own normalisation moves the camera.
+        if (view === "top") expect(camera.position.distanceTo(before)).toBeGreaterThan(1e-9 * 40);
+      });
+    }
 
-    // A programmatic pose after the gesture is not the person's.
-    camera.position.x += 2;
-    handlers.navigationAdvancing = true;
-    handlers.render(3);
-    expect(onCameraMovedByPerson).toHaveBeenCalledTimes(1);
+    it("a drag past the travel threshold is the person's move, reported once", () => {
+      const { fake, onCameraMovedByPerson, down, frame, up, orbitBy } = gestureFake("front");
+      down();
+      fake.notePointerMove({ pointerId: 1, clientX: 100 + INPUT_TRAVEL_DEVICE_PX + 1, clientY: 100 });
+      orbitBy(0.1);
+      frame();
+      orbitBy(0.1);
+      frame();
+      up();
+      expect(onCameraMovedByPerson).toHaveBeenCalledTimes(1);
+    });
+
+    it("a wheel is the person's move; a programmatic pose afterwards is not", () => {
+      const { fake, camera, controls, onCameraMovedByPerson, frame } = gestureFake("front");
+      fake.noteWheel();
+      fake.noteGestureStart();
+      fake.navigationAdvancing = true;
+      camera.position.lerp(controls.target, 0.1);
+      frame();
+      fake.noteGestureEnd();
+      expect(onCameraMovedByPerson).toHaveBeenCalledTimes(1);
+      fake.cancelNavigation();
+      camera.position.lerp(controls.target, 0.1);
+      fake.navigationAdvancing = true;
+      frame();
+      expect(onCameraMovedByPerson).toHaveBeenCalledTimes(1);
+    });
   });
 
   it("clears retained controls movement while preserving the exact public camera pose and input mapping", () => {
