@@ -4742,6 +4742,12 @@ body { min-width: 760px; min-height: 540px; }
 /* Status bar: the selection's type is a quiet label and its id is set as an identifier. */
 .app-shell .shell-status-selection .shell-status-selection-type { color: var(--text-secondary); }
 .app-shell .shell-status-selection .shell-status-selection-id { color: var(--ui-text); font-family: var(--font-mono); font-size: var(--type-size-caption); }
+/* The selection gives way type first, then the count, and the identifier last. */
+.app-shell .shell-status-selection { display: flex; align-items: baseline; min-width: 0; }
+.app-shell .shell-status-selection > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: pre; }
+.app-shell .shell-status-selection > .shell-status-selection-type { flex: 0 1000 auto; }
+.app-shell .shell-status-selection > .shell-status-selection-count { flex: 0 100 auto; }
+.app-shell .shell-status-selection > .shell-status-selection-id { flex: 0 1 auto; margin-inline-start: 0.3em; }
 
 /* Results actions (Inspect bundled reference, Key results) are ordinary commands in one group at
    the head of the results column, not full-width bars. */

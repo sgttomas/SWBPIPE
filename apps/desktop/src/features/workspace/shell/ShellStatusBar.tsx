@@ -63,8 +63,14 @@ export function ShellStatusBar({ issueCount }: { issueCount: number }) {
       >
         <Flag size={12} aria-hidden="true" /> {issueCount} Issues
       </button>
-      <span className="shell-status-selection" data-testid="status-selection" title="Selection">
-        {selection ? <><span className="shell-status-selection-type">{selection.type}:</span> <span className="shell-status-selection-id">{selection.id}</span></> : null}{count > 1 ? ` · ${count} selected` : ""}
+      {/* The primary selection, typed, with how many are selected. Its title is the whole of it; when
+          the bar is narrow the type and the count give way before the identifier does. */}
+      <span
+        className="shell-status-selection"
+        data-testid="status-selection"
+        title={selection ? `${selection.type}: ${selection.id}${count > 1 ? ` · ${count} selected` : ""}` : undefined}
+      >
+        {selection ? <><span className="shell-status-selection-type">{selection.type}:</span> <span className="shell-status-selection-id">{selection.id}</span></> : null}{count > 1 ? <span className="shell-status-selection-count">{` · ${count} selected`}</span> : null}
       </span>
       <span className="shell-status-units" data-testid="status-display-units" title="Display units">{DISPLAY_UNIT_FACES[preference]}</span>
     </footer>

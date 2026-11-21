@@ -950,7 +950,7 @@ test("selection IDs and cardinality keep the viewport rectangle fixed at three w
       expect(await readPaneState(page)).toEqual(paneState);
       await expect(page.getByTestId("command-selection-readout")).toContainText(`${selected.type}: ${selected.id}`);
       const toolbarStatus = await readViewportToolbarSelectionStatus(page);
-      expectToolbarSelectionStatus(toolbarStatus, selected.id, `${width}px ${selected.type} selection`);
+      expectToolbarSelectionStatus(toolbarStatus, `${selected.type}: ${selected.id}`, `${width}px ${selected.type} selection`);
       const selection = await readPublishedSelection(page);
       expect(selection.orderedRefs).toEqual([{ type: selected.type, id: selected.id }]);
       states.push({ name: selected.type, selection, toolbarStatus, witness });
@@ -966,7 +966,7 @@ test("selection IDs and cardinality keep the viewport rectangle fixed at three w
     expect(emptySelection.orderedRefs).toEqual([]);
     await expect(page.getByTestId("command-selection-readout")).toContainText(`project: ${model.project.id}`);
     const emptyToolbarStatus = await readViewportToolbarSelectionStatus(page);
-    expectToolbarSelectionStatus(emptyToolbarStatus, model.project.id, `${width}px empty ordered selection`);
+    expectToolbarSelectionStatus(emptyToolbarStatus, `project: ${model.project.id}`, `${width}px empty ordered selection`);
     states.push({ name: "empty", selection: emptySelection, toolbarStatus: emptyToolbarStatus, witness: emptyWitness });
 
     await selectTreeRow(page, "node", node.id);
@@ -982,7 +982,7 @@ test("selection IDs and cardinality keep the viewport rectangle fixed at three w
     expect(multiSelection.primaryRef).toEqual({ type: "support", id: support.id });
     await expect(page.getByTestId("command-selection-readout")).toContainText(`support: ${support.id}`);
     const multiToolbarStatus = await readViewportToolbarSelectionStatus(page);
-    expectToolbarSelectionStatus(multiToolbarStatus, support.id, `${width}px multi-selection`);
+    expectToolbarSelectionStatus(multiToolbarStatus, `support: ${support.id} · 2 selected`, `${width}px multi-selection`);
     states.push({ name: "multi", selection: multiSelection, toolbarStatus: multiToolbarStatus, witness: multiWitness });
     evidence.push({ width, baseline, paneState, states });
   }
@@ -1315,7 +1315,7 @@ test("node visibility owns attached symbols while connected spans remain indepen
   await expect(await revealTreeRow(page, "node", node.id)).toContainText("Hidden");
   await expect(await revealTreeRow(page, "node", isolatePeer.id)).not.toContainText("Hidden");
   await expect(await revealTreeRow(page, "pipe", other.id)).not.toContainText("Hidden");
-  await activateWithKeyboard(page, (await viewportControl(page, page.getByRole("button", { name: "Show All", exact: true }))));
+  await activateWithKeyboard(page, (await viewportControl(page, page.getByRole("button", { name: "Show all", exact: true }))));
   await expect(await revealTreeRow(page, "node", node.id)).not.toContainText("Hidden");
   await expect(await revealTreeRow(page, "pipe", other.id)).not.toContainText("Hidden");
 
@@ -1325,7 +1325,7 @@ test("node visibility owns attached symbols while connected spans remain indepen
   await expect(await revealTreeRow(page, "node", node.id)).not.toContainText("Hidden");
   await expect(await revealTreeRow(page, "component", component.id)).not.toContainText("Hidden");
   await expect(await revealTreeRow(page, "pipe", other.id)).not.toContainText("Hidden");
-  await activateWithKeyboard(page, (await viewportControl(page, page.getByRole("button", { name: "Show All", exact: true }))));
+  await activateWithKeyboard(page, (await viewportControl(page, page.getByRole("button", { name: "Show all", exact: true }))));
   expect(await currentModelHashThroughVisibleExport(page)).toBe(hashBefore);
 });
 
@@ -1375,7 +1375,7 @@ test("ordinary typed edit preserves view state and same-ID project replacement c
   await activateWithKeyboard(page, page.getByTestId("unsaved-changes-discard"));
   await expect(page.getByTestId("unsaved-changes-prompt")).toHaveCount(0);
   await expect(page.getByTestId("command-selection-readout")).toContainText(`project: ${model.project.id}`);
-  await expect((await viewportControl(page, page.getByRole("button", { name: "Show All", exact: true })))).toBeDisabled();
+  await expect((await viewportControl(page, page.getByRole("button", { name: "Show all", exact: true })))).toBeDisabled();
   await expect(page.getByTestId("viewport-measurement-readout")).toHaveCount(0);
   await expect(await revealTreeRow(page, "node", node.id)).not.toContainText("Hidden");
 });
@@ -1595,8 +1595,10 @@ async function readViewportToolbarSelectionStatus(page: Page): Promise<any> {
   });
 }
 
-function expectToolbarSelectionStatus(status: any, id: string, label: string): void {
-  expect(status.text, `${label} full selected ID`).toContain(id);
+/** The status bar states the primary selection exactly, type and full ID, and its title repeats it. */
+function expectToolbarSelectionStatus(status: any, text: string, label: string): void {
+  expect(status.text, `${label} full selected ID`).toBe(text);
+  expect(status.title, `${label} full selected ID in the title`).toBe(text);
   expect(status.rect.left, `${label} selected status left bound`).toBeGreaterThanOrEqual(status.toolbarRect.left - 0.5);
   expect(status.rect.right, `${label} selected status right bound`).toBeLessThanOrEqual(status.toolbarRect.right + 0.5);
   expect(status.rect.top, `${label} selected status top bound`).toBeGreaterThanOrEqual(status.toolbarRect.top - 0.5);
@@ -1729,7 +1731,7 @@ for (const size of [1000, 10000]) {
     await page.setViewportSize({ width: 1440, height: 920 });
     const model = await gotoRoutedFixture(page, `ui-foundation-${size}.model.json`);
     await activateWithKeyboard(page, page.getByTestId("viewport-view-isometric"));
-    await activateWithKeyboard(page, await viewportControl(page, page.getByTestId("viewport-fit-model")));
+    await activateWithKeyboard(page, page.getByTestId("viewport-fit-model"));
     const actual = await readCameraProjectionWitness(page, []);
     const index = buildModelIndex(model, 1, 0);
     const bounds = displayedBoundsForEntityKeys(index, index.visibilityEligibleKeys, new Set(), new Map())!;
@@ -1858,7 +1860,7 @@ test("empty ordered selection publishes independently from project inspector", a
   await activateWithKeyboard(page, (await viewportControl(page, page.getByRole("button", { name: "Hide", exact: true }))));
   await identity([node], node, node);
   await capturePresented("hidden-selected-node-presentation");
-  await activateWithKeyboard(page, (await viewportControl(page, page.getByRole("button", { name: "Show All", exact: true }))));
+  await activateWithKeyboard(page, (await viewportControl(page, page.getByRole("button", { name: "Show all", exact: true }))));
   await identity([node], node, node);
   await selectTreeRow(page, node.type, node.id, { toggle: true });
   const empty = await identity([], null, project);
