@@ -103,7 +103,7 @@ pub fn check_runner_profile(export_profile_id: &str, document: &Value) -> Result
 pub fn check_user_released_profile(export_profile_id: &str, document: &Value) -> Result<(), String> {
     if export_profile_id == crate::user_release::USER_RELEASED_DESKTOP_PROFILE && producer_contract_id(document).is_some_and(is_exact_identity) {
         return Err(format!(
-            "{}: a user-release record of version 1.0.0 covers a pressure-free (preview-physics-2) result only; this exact-route result is shared with a record of version 1.2.0, or can be saved in a local private package.",
+            "{}: a user-release record of version 1.0.0 covers a pressure-free Euler–Bernoulli (preview-physics-2) result only; this exact-route result is shared with a record of version 1.2.0, or can be saved in a local private package.",
             crate::user_release::EXACT_ROUTE_NOT_ADMITTED
         ));
     }
@@ -354,9 +354,12 @@ pub fn check_exact_sections(
             return Err(mismatch("limitations: the result is not an exact-route result"));
         }
         // DEL-08-01 REQ-024: a standing record is packaged only where a boundary
-        // re-derives it from a bound exact-route result.
-        if report.get("numerical_standing").is_some_and(|record| !record.is_null()) {
-            return Err(mismatch("numerical_standing: the result is not an exact-route result"));
+        // re-derives it: from a bound exact-route result, or, on a pressure-free
+        // Timoshenko document, from the request's own source and the bound model
+        // (the producer's item 9 decides that one by profile, `bindings.rs`).
+        let pf_timoshenko = producer_contract_id(document).is_some_and(crate::pf_timoshenko::is_pf_timoshenko_identity);
+        if !pf_timoshenko && report.get("numerical_standing").is_some_and(|record| !record.is_null()) {
+            return Err(mismatch("numerical_standing: the result is neither an exact-route nor a pressure-free Timoshenko result"));
         }
         return Ok(());
     }

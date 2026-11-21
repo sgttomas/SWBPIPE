@@ -7,7 +7,11 @@
 //! custody and delivered texts, then the derivation rebuilds exact sections,
 //! limitations and Diagnostics from the bound source. An exact result's record
 //! is 1.2.0 (DEL-08-01 REQ-024; D-6's 1.1.0 is retired, [`check_record_version`]),
-//! a pressure-free result's 1.0.0, unchanged with its vectors.
+//! a pressure-free Euler–Bernoulli (preview-physics-2) result's 1.0.0, unchanged
+//! with its vectors, and a pressure-free Timoshenko result's 1.3.0. A Timoshenko
+//! derivation adds the identity's limitation 0 entry and the standing record the
+//! reader derives from the bound result and model, and binds the report's
+//! Diagnostics to the result's ([`RecordRoute`]).
 //!
 //! The bound basis is the model `M`, the source carrier `S` (attested for `M`
 //! with the solver mode `m`), the run record `R` (checked by native
@@ -103,32 +107,95 @@ pub const UNBOUND: &str = "REPORT-USER-RELEASE-UNBOUND";
 /// standing. It is not read and not migrated.
 pub const RECORD_VERSION_RETIRED: &str = "REPORT-USER-RELEASE-RECORD-VERSION-RETIRED";
 /// The record's version is not its result's route's (DEL-08-01 REQ-024): a
-/// pressure-free result carries record 1.0.0, an exact-route result 1.2.0.
+/// pressure-free Euler–Bernoulli result carries record 1.0.0, a pressure-free
+/// Timoshenko result 1.3.0 and an exact-route result 1.2.0.
 pub const RECORD_VERSION_NOT_OF_ROUTE: &str = "REPORT-USER-RELEASE-RECORD-VERSION-NOT-OF-ROUTE";
 /// The retired record versions ([`RECORD_VERSION_RETIRED`]).
 pub const RETIRED_RECORD_VERSIONS: [&str; 1] = ["1.1.0"];
+
+/// The route a user-release record's version follows (DEL-08-01 REQ-024), read
+/// from its result's identity.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RecordRoute {
+    /// A pressure-free Euler–Bernoulli (`preview-physics-2`) result, or any
+    /// identity that is neither of the others (each caller's route check then
+    /// refuses it): record 1.0.0.
+    PressureFree,
+    /// A pressure-free Timoshenko (`preview-physics-timoshenko-1`) result: record 1.3.0.
+    PfTimoshenko,
+    /// An exact-route (`pressure-3`, `pressure-source-1`) result: record 1.2.0.
+    Exact,
+}
+
+impl RecordRoute {
+    /// The route of a result with semantic contract `identity`.
+    pub fn of_identity(identity: Option<&str>) -> Self {
+        match identity {
+            Some(id) if crate::exact_sections::is_exact_identity(id) => Self::Exact,
+            Some(id) if crate::pf_timoshenko::is_pf_timoshenko_identity(id) => Self::PfTimoshenko,
+            _ => Self::PressureFree,
+        }
+    }
+
+    /// The route of a source result (`/producer/semantic_contract_id`).
+    pub fn of_source(source: &Value) -> Self {
+        Self::of_identity(source.pointer("/producer/semantic_contract_id").and_then(Value::as_str))
+    }
+
+    /// The route of a result document (`result_envelope.producer`).
+    pub fn of_document(document: &Value) -> Self {
+        Self::of_identity(crate::document_form::producer_contract_id(document))
+    }
+
+    /// The record version this route's result carries.
+    pub fn record_version(self) -> &'static str {
+        match self {
+            Self::PressureFree => open_pipe_stress_report_renderer::USER_RELEASE_RECORD_VERSION,
+            Self::PfTimoshenko => open_pipe_stress_report_renderer::USER_RELEASE_PF_TIMOSHENKO_RECORD_VERSION,
+            Self::Exact => open_pipe_stress_report_renderer::USER_RELEASE_EXACT_RECORD_VERSION,
+        }
+    }
+
+    fn result_words(self) -> &'static str {
+        match self {
+            Self::PressureFree => "a pressure-free Euler–Bernoulli (preview-physics-2) result",
+            Self::PfTimoshenko => "a pressure-free Timoshenko (preview-physics-timoshenko-1) result",
+            Self::Exact => "an exact-route (pressure-3, pressure-source-1) result",
+        }
+    }
+}
 
 /// The record version's checks, first among a record's checks wherever one is
 /// read (native admission, the derivation, the producer and the reader), before
 /// any check that speaks of the route:
 /// - a retired version refuses by name ([`RECORD_VERSION_RETIRED`]);
-/// - with the result's route known (`exact_result`), the exact record version
-///   on a pressure-free result refuses by name ([`RECORD_VERSION_NOT_OF_ROUTE`]).
+/// - with the result's route known (`route`), a version of another route
+///   refuses by name ([`RECORD_VERSION_NOT_OF_ROUTE`]): 1.2.0 or 1.3.0 on a
+///   pressure-free Euler–Bernoulli result, 1.0.0 or 1.2.0 on a pressure-free
+///   Timoshenko result, and 1.3.0 on an exact-route result.
 ///
-/// The pressure-free record version on an exact-route result keeps the route's
-/// own refusal ([`EXACT_ROUTE_NOT_ADMITTED`]), which each caller's route check
-/// gives next; any other version is the record's form defect (`record_version`).
-pub fn check_record_version(version: &str, exact_result: Option<bool>) -> Result<(), String> {
-    use open_pipe_stress_report_renderer::USER_RELEASE_EXACT_RECORD_VERSION;
+/// The pressure-free Euler–Bernoulli record version on an exact-route result
+/// keeps the route's own refusal ([`EXACT_ROUTE_NOT_ADMITTED`]), which each
+/// caller's route check gives next; any other version is the record's form
+/// defect (`record_version`).
+pub fn check_record_version(version: &str, route: Option<RecordRoute>) -> Result<(), String> {
+    use open_pipe_stress_report_renderer::{USER_RELEASE_EXACT_RECORD_VERSION, USER_RELEASE_PF_TIMOSHENKO_RECORD_VERSION, USER_RELEASE_RECORD_VERSION};
     if RETIRED_RECORD_VERSIONS.contains(&version) {
         return Err(format!(
             "{RECORD_VERSION_RETIRED}: user-release record version {version} is retired and is not read; save the shareable report package again from its project."
         ));
     }
-    if exact_result == Some(false) && version == USER_RELEASE_EXACT_RECORD_VERSION {
+    let Some(route) = route else { return Ok(()) };
+    let crossed = match route {
+        RecordRoute::PressureFree => [USER_RELEASE_EXACT_RECORD_VERSION, USER_RELEASE_PF_TIMOSHENKO_RECORD_VERSION].contains(&version),
+        RecordRoute::PfTimoshenko => [USER_RELEASE_RECORD_VERSION, USER_RELEASE_EXACT_RECORD_VERSION].contains(&version),
+        RecordRoute::Exact => version == USER_RELEASE_PF_TIMOSHENKO_RECORD_VERSION,
+    };
+    if crossed {
         return Err(format!(
-            "{RECORD_VERSION_NOT_OF_ROUTE}: a pressure-free result's user-release record is version {}, not {version}.",
-            open_pipe_stress_report_renderer::USER_RELEASE_RECORD_VERSION
+            "{RECORD_VERSION_NOT_OF_ROUTE}: {}'s user-release record is version {}, not {version}.",
+            route.result_words(),
+            route.record_version()
         ));
     }
     Ok(())
@@ -811,6 +878,18 @@ pub fn minimal_renderer_input(
         })).collect::<Vec<_>>(),
         "professional_boundary": boundary()
     });
+    // DEL-05-03 `pf-timoshenko.md` §4: a pressure-free Timoshenko report carries the
+    // identity's limitation 0 after the technical-preview entry, with its effect and
+    // provenance (`pf_timoshenko::expected_limitation`).
+    if source.pointer("/producer/semantic_contract_id").and_then(Value::as_str).is_some_and(crate::pf_timoshenko::is_pf_timoshenko_identity) {
+        let entry = crate::pf_timoshenko::expected_limitation(source, source_run)?;
+        let preview = report_sections["limitations"][0].clone();
+        report_sections["limitations"].as_array_mut().ok_or_else(|| invalid("limitations"))?.push(json!({
+            "limitation_id": entry["limitation_id"], "source": entry["source"],
+            "affected_scope": entry["affected_scope"], "statement": entry["statement"],
+            "effect": preview["effect"], "provenance": preview["provenance"]
+        }));
+    }
     if source.pointer("/producer/semantic_contract_id").and_then(Value::as_str).is_some_and(crate::exact_sections::is_exact_identity) {
         let entries = crate::exact_sections::expected_exact_limitations(source, source_run)?;
         let preview = report_sections["limitations"][0].clone();
@@ -933,14 +1012,16 @@ fn derived_composition(composition: &Value) -> Result<Value, String> {
     serde_json::to_value(&typed).map_err(|_| invalid("composition serialization"))
 }
 
-/// The source's identity must be pressure-free (§0, §2.1). Its exact-route
-/// refusal is reached only for an exact-route source whose record is not of
-/// version 1.2.0 ([`derive_in`]): a 1.0.0 record covers a pressure-free result.
+/// The source's identity must be pressure-free Euler–Bernoulli (§0, §2.1). Its
+/// exact-route refusal is reached only for an exact-route source whose record is
+/// not of version 1.2.0 ([`derive_in`]): a 1.0.0 record covers a preview-physics-2
+/// result. A pressure-free Timoshenko source takes its own route
+/// ([`RecordRoute::PfTimoshenko`]) and does not reach this check.
 fn check_pressure_free(source: &Value) -> Result<(), String> {
     match source.pointer("/producer/semantic_contract_id").and_then(Value::as_str) {
         Some(PREVIEW_PHYSICS_ID) => Ok(()),
         Some(id @ (PRESSURE_ID | PRESSURE_SOURCE_ID)) => Err(format!(
-            "{EXACT_ROUTE_NOT_ADMITTED}: a user-release record of version 1.0.0 covers a pressure-free (preview-physics-2) result only; this exact-route result ({id}) is shared with a record of version 1.2.0, or can be saved in a local private package."
+            "{EXACT_ROUTE_NOT_ADMITTED}: a user-release record of version 1.0.0 covers a pressure-free Euler–Bernoulli (preview-physics-2) result only; this exact-route result ({id}) is shared with a record of version 1.2.0, or can be saved in a local private package."
         )),
         other => Err(invalid(format_args!("the source's identity {} is not preview-physics-2", other.unwrap_or("(none)")))),
     }
@@ -964,17 +1045,24 @@ pub fn derive_exact(basis: &UserReleaseBasis<'_>, native_job_id: &str, received_
 
 fn derive_in(basis: &UserReleaseBasis<'_>, custody: Option<(&str, &str)>) -> Result<UserReleaseDerivation, String> {
     let UserReleaseBasis { model, source, solver_mode, run_record, software, record, composition } = *basis;
-    let exact = source.pointer("/producer/semantic_contract_id").and_then(Value::as_str).is_some_and(crate::exact_sections::is_exact_identity);
-    check_record_version(&record.record_version, Some(exact))?;
-    if exact {
-        if record.record_version != open_pipe_stress_report_renderer::USER_RELEASE_EXACT_RECORD_VERSION {
-            check_pressure_free(source)?;
+    let route = RecordRoute::of_source(source);
+    check_record_version(&record.record_version, Some(route))?;
+    match route {
+        RecordRoute::Exact => {
+            if record.record_version != open_pipe_stress_report_renderer::USER_RELEASE_EXACT_RECORD_VERSION {
+                check_pressure_free(source)?;
+            }
+            if let Some(defect) = record.form_defect() { return Err(invalid(format_args!("record {defect}"))); }
+            if custody.is_none() { return Err(invalid("exact custody facts are required")); }
         }
-        if let Some(defect) = record.form_defect() { return Err(invalid(format_args!("record {defect}"))); }
-        if custody.is_none() { return Err(invalid("exact custody facts are required")); }
-    } else {
-        check_pressure_free(source)?;
-        if custody.is_some() { return Err(invalid("pressure-free source carries exact custody facts")); }
+        RecordRoute::PfTimoshenko => {
+            if let Some(defect) = record.form_defect() { return Err(invalid(format_args!("record {defect}"))); }
+            if custody.is_some() { return Err(invalid("pressure-free source carries exact custody facts")); }
+        }
+        RecordRoute::PressureFree => {
+            check_pressure_free(source)?;
+            if custody.is_some() { return Err(invalid("pressure-free source carries exact custody facts")); }
+        }
     }
     let run = run_record.get("analysis_run").ok_or_else(|| invalid("the run record has no analysis_run"))?;
     let model_id = text(model, "/project/id")?;
@@ -1081,6 +1169,17 @@ fn derive_in(basis: &UserReleaseBasis<'_>, custody: Option<(&str, &str)>) -> Res
             .map_err(|refusal| invalid(format_args!("numerical standing: {refusal}")))?;
         crate::bindings::check_report_diagnostics(&request["report"], source)?;
         crate::exact_sections::check_exact_sections(source, &document, &audit, &request["report"])?;
+    }
+    if route == RecordRoute::PfTimoshenko {
+        // DEL-08-01 REQ-024: the standing record the reader derives from the request's
+        // own source and the bound model, as the desktop's builder carries it (the
+        // reader takes no invocation on the preview-physics route); the report's
+        // Diagnostics are the result's, so no integrity warning is dropped beside it.
+        let standing = open_pipe_stress_result_export::reader_verdict::standing(source, Some(model), None);
+        request["report"]["numerical_standing"] = open_pipe_stress_report_standing::report_standing::historical_standing_record(source, model, &standing)
+            .map_err(|refusal| invalid(format_args!("numerical standing: {refusal}")))?;
+        crate::bindings::check_report_diagnostics(&request["report"], source)?;
+        crate::pf_timoshenko::check_sections(source, &request["report"])?;
     }
     Ok(UserReleaseDerivation { input_manifest, input_manifest_sha256, input_manifest_ref: manifest_ref, request })
 }
@@ -1294,8 +1393,7 @@ pub fn assemble_derived(
     input_manifest: &Value,
 ) -> Result<crate::ReportPackageContainerOutcome, String> {
     for document in request.get("result_documents").and_then(Value::as_array).into_iter().flatten() {
-        let exact = crate::document_form::producer_contract_id(document).is_some_and(crate::exact_sections::is_exact_identity);
-        check_record_version(&inputs.record.record_version, Some(exact))?;
+        check_record_version(&inputs.record.record_version, Some(RecordRoute::of_document(document)))?;
         crate::document_form::check_route_admitted(document)?;
         if inputs.record.record_version != open_pipe_stress_report_renderer::USER_RELEASE_EXACT_RECORD_VERSION {
             crate::exact_sections::check_user_released_profile(USER_RELEASED_DESKTOP_PROFILE, document)?;

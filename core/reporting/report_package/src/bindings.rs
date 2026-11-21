@@ -348,8 +348,9 @@ pub fn expected_report_diagnostics(source: &Value) -> Result<Vec<Value>, String>
 /// result, and none of them may carry an integrity code. An integrity warning
 /// the result carries can therefore be neither removed, renamed, downgraded,
 /// edited nor moved, and none can be added, so the standing line's lead states
-/// the result's. Exact route only: the package's item 9 and the native exact
-/// render apply it; the pressure-free package and the runner profile do not
+/// the result's. The package's item 9 and the native render apply it to an exact
+/// and a pressure-free Timoshenko result (`pf_timoshenko::check_sections`), and so
+/// does the user-release derivation; a preview-physics-2 package does not
 /// (§6.3 item 4).
 pub fn check_report_diagnostics(report: &Value, source: &Value) -> Result<(), String> {
     let expected = expected_report_diagnostics(source)?;
@@ -450,8 +451,14 @@ pub(crate) fn check_request_in(
             return Err(user_release::general_entry_refusal(marker));
         }
     }
-    // D-6 (§11): legacy record 1.0.0 retains its pressure-free scope.
-    if request.report.pointer("/report_context/user_release/record_version").and_then(Value::as_str) != Some(open_pipe_stress_report_renderer::USER_RELEASE_EXACT_RECORD_VERSION) {
+    // DEL-08-01 REQ-024: a record's version follows its result's route, before any
+    // check that speaks of the route; D-6 (§11): legacy record 1.0.0 retains its
+    // pressure-free scope.
+    let record_version = request.report.pointer("/report_context/user_release/record_version").and_then(Value::as_str);
+    if let Some(version) = record_version {
+        user_release::check_record_version(version, Some(user_release::RecordRoute::of_document(document)))?;
+    }
+    if record_version != Some(open_pipe_stress_report_renderer::USER_RELEASE_EXACT_RECORD_VERSION) {
         exact_sections::check_user_released_profile(&request.export_profile_id, document)?;
     }
     document_form::validate_result_export_form(document)?;
@@ -800,6 +807,21 @@ pub(crate) fn check_request_in(
     // identity carries that entry.
     crate::pf_timoshenko::check_sections(source, report)?;
     exact_sections::check_exact_sections(source, document, audit_manifest, report)?;
+    // DEL-08-01 REQ-024: a pressure-free Timoshenko report on the two desktop
+    // profiles carries the standing record, which the desktop's native save (and,
+    // for a user release, the derivation) re-derived from this request's own
+    // source and the bound model and required equal; the producer holds no model
+    // and re-derives nothing. The runner profile carries none.
+    if document_form::producer_contract_id(document).is_some_and(crate::pf_timoshenko::is_pf_timoshenko_identity) {
+        let carried = report.get("numerical_standing").is_some_and(|record| !record.is_null());
+        let desktop = request.export_profile_id == DESKTOP_PROFILE || request.export_profile_id == USER_RELEASED_DESKTOP_PROFILE;
+        if carried != desktop {
+            return Err(format!(
+                "{}: numerical_standing: a pressure-free Timoshenko report carries the standing record on the desktop profiles only, and requires it there",
+                exact_sections::EXACT_SECTIONS_MISMATCH
+            ));
+        }
+    }
 
     // Item 10 (W-18b §2.8): the record against the request's members.
     if user_release {
@@ -826,8 +848,7 @@ fn check_user_release_record(request: &ReportPackageRequest, audit_manifest: &au
     let value = request.report.pointer("/report_context/user_release").ok_or_else(|| unbound("presence"))?;
     let record: open_pipe_stress_report_renderer::UserReleaseRecord =
         serde::Deserialize::deserialize(value).map_err(|_| format!("{}: the user-release record is not of its form", user_release::PACKAGE_UNBOUND))?;
-    let exact = document_form::producer_contract_id(document).is_some_and(exact_sections::is_exact_identity);
-    user_release::check_record_version(&record.record_version, Some(exact))?;
+    user_release::check_record_version(&record.record_version, Some(user_release::RecordRoute::of_document(document)))?;
     if let Some(member) = record.form_defect() {
         return Err(format!("{}: the user-release record's {member} is not of its form", user_release::PACKAGE_UNBOUND));
     }

@@ -272,14 +272,29 @@ fn pf_request(model: &Value, manifest: &Value, source: &Value, session: &[Value]
     request
 }
 
-/// The pressure-free save request over the stand-in, its section checksum
-/// rebound: `(request, model, manifest)`.
-fn pf_save_args(session: &[Value]) -> ReportPackageSaveRequest {
+/// The standing record the reader derives from `source` and `model`, as the desktop's
+/// builder carries it on a pressure-free Timoshenko package (no invocation on the
+/// preview-physics route), and as the save re-derives it (DEL-08-01 REQ-024).
+fn pf_standing_record(source: &Value, model: &Value) -> Value {
+    let standing = open_pipe_stress_result_export::reader_verdict::standing(source, Some(model), None);
+    open_pipe_stress_report_standing::report_standing::historical_standing_record(source, model, &standing).expect("the stand-in's standing record derives")
+}
+
+/// The pressure-free Timoshenko save request over the stand-in, carrying its
+/// standing record, its section checksum rebound.
+fn pf_save_request(session: &[Value]) -> (Value, Value, Value) {
     let (model, source) = (pf_model(), pf_source());
     let manifest = open_pipe_stress_report_package::user_release::derive_input_manifest(&model, &source, MODE).unwrap();
     let mut request = pf_request(&model, &manifest, &source, session);
     let checksum = digest(&request["report"]["report_sections"]).unwrap();
     request["report"]["calculation_report"]["report_section_refs"][0]["checksum"]["value"] = json!(checksum);
+    request["report"]["numerical_standing"] = pf_standing_record(&source, &model);
+    (request, model, manifest)
+}
+
+/// The pressure-free save request over the stand-in: `(request, model, manifest)`.
+fn pf_save_args(session: &[Value]) -> ReportPackageSaveRequest {
+    let (request, model, manifest) = pf_save_request(session);
     save_request_with(&request, &model, &manifest)
 }
 
@@ -433,19 +448,39 @@ fn the_pf_timoshenko_save_admits_only_the_session_entries_the_host_derives() {
     assert_eq!(save(None, pf_save_args(&[changed.clone(), not_held.clone()])), save_refusal(results.len() + 1, NOT_DERIVED));
 }
 
-/// Scrutiny of PR 328, finding 1: a pressure-free save request carries no standing
-/// record (the desktop builds one only for an exact source, which this save binds
-/// and re-derives). One it carried would be packaged unverified, so it is refused
-/// by name before the save's content checks.
+/// Scrutiny of PR 328, finding 1: a preview-physics-2 save request carries no standing
+/// record (no boundary re-derives one for it). One it carried would be packaged
+/// unverified, so it is refused by name before the save's content checks.
 #[test]
-fn a_pressure_free_save_carrying_a_standing_record_is_refused() {
-    let (model, source) = (pf_model(), pf_source());
+fn a_preview_physics_2_save_carrying_a_standing_record_is_refused() {
+    let (model, source) = (invented_model(), witness_source());
+    assert_eq!(source["producer"]["semantic_contract_id"], open_pipe_stress_result_export::semantic_contract::PREVIEW_PHYSICS_ID);
     let manifest = open_pipe_stress_report_package::user_release::derive_input_manifest(&model, &source, MODE).unwrap();
-    let mut request = pf_request(&model, &manifest, &source, &[]);
+    let mut request = desktop_request_from(&model, &manifest, &source);
     request["report"]["numerical_standing"] = json!({"record_version": "historical_1", "evidence_member": "absent", "cases": []});
     let (code, message) = save(None, save_request_with(&request, &model, &manifest)).unwrap_err();
     assert_eq!(code, SECTIONS_MISMATCH, "{message}");
     assert!(message.contains("numerical_standing"), "{message}");
+}
+
+/// DEL-08-01 REQ-024: a pressure-free Timoshenko save re-derives the standing record from
+/// the request's own source and the bound model and requires it equal: the derived record
+/// is admitted; an absent, altered or foreign one is refused by name, before any file.
+#[test]
+fn a_pressure_free_timoshenko_save_requires_the_standing_record_it_derives() {
+    let (request, model, manifest) = pf_save_request(&[]);
+    assert_eq!(save(None, save_request_with(&request, &model, &manifest)), Ok(false), "the derived record is admitted unblocked");
+    let refused = |edit: &dyn Fn(&mut Value)| {
+        let mut changed = request.clone();
+        edit(&mut changed["report"]);
+        let (code, message) = save(None, save_request_with(&changed, &model, &manifest)).unwrap_err();
+        assert_eq!(code, SECTIONS_MISMATCH, "{message}");
+        assert!(message.contains("numerical_standing"), "{message}");
+    };
+    refused(&|report| { report.as_object_mut().unwrap().remove("numerical_standing"); });
+    refused(&|report| report["numerical_standing"] = Value::Null);
+    refused(&|report| report["numerical_standing"] = json!({"record_version": "historical_1", "evidence_member": "absent", "cases": []}));
+    refused(&|report| report["numerical_standing"]["cases"][0]["health"] = json!("sensitive"));
 }
 
 /// The render and the save of the stand-in with its session entries, each

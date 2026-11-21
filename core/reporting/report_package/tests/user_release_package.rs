@@ -706,9 +706,9 @@ fn a_coherently_rewritten_package_is_accepted_as_a_documented_limit() {
 // --- The record's version (DEL-08-01 REQ-024) -----------------------------
 
 use open_pipe_stress_report_package::user_release::{
-    check_record_version, derive_exact, RECORD_VERSION_NOT_OF_ROUTE, RECORD_VERSION_RETIRED,
+    check_record_version, derive_exact, RecordRoute, RECORD_VERSION_NOT_OF_ROUTE, RECORD_VERSION_RETIRED,
 };
-use open_pipe_stress_report_renderer::{USER_RELEASE_EXACT_RECORD_VERSION, USER_RELEASE_RECORD_VERSION};
+use open_pipe_stress_report_renderer::{USER_RELEASE_EXACT_RECORD_VERSION, USER_RELEASE_PF_TIMOSHENKO_RECORD_VERSION, USER_RELEASE_RECORD_VERSION};
 
 /// The committed D-6 exact vector, whose record is the exact-route record 1.2.0.
 const D6_EXACT_VECTOR: &str = include_str!("../../../../fixtures/reports/invented/user_release_exact/pressure_2_straight.json");
@@ -817,7 +817,7 @@ fn the_derivation_and_the_producer_refuse_a_record_version_by_name() {
     let id = x.v["source"]["producer"]["semantic_contract_id"].as_str().unwrap();
     assert_eq!(
         error,
-        format!("{EXACT_ROUTE_NOT_ADMITTED}: a user-release record of version 1.0.0 covers a pressure-free (preview-physics-2) result only; this exact-route result ({id}) is shared with a record of version 1.2.0, or can be saved in a local private package."),
+        format!("{EXACT_ROUTE_NOT_ADMITTED}: a user-release record of version 1.0.0 covers a pressure-free Euler–Bernoulli (preview-physics-2) result only; this exact-route result ({id}) is shared with a record of version 1.2.0, or can be saved in a local private package."),
     );
     refused_with(x.assemble(request, &legacy), EXACT_ROUTE_NOT_ADMITTED);
 
@@ -828,13 +828,194 @@ fn the_derivation_and_the_producer_refuse_a_record_version_by_name() {
     assert!(error.starts_with(&format!("{RECORD_VERSION_NOT_OF_ROUTE}:")), "{error}");
     refused_with(assemble_derived(case.request(), &linked(), &UserReleaseInputs { record: &crossed, ..case.inputs() }, case.input_manifest()), RECORD_VERSION_NOT_OF_ROUTE);
 
-    // The rule itself, over every pair.
-    assert_eq!(check_record_version(USER_RELEASE_RECORD_VERSION, Some(false)), Ok(()));
-    assert_eq!(check_record_version(USER_RELEASE_EXACT_RECORD_VERSION, Some(true)), Ok(()));
-    assert_eq!(check_record_version(USER_RELEASE_RECORD_VERSION, Some(true)), Ok(()), "left to the route's own refusal");
-    assert!(check_record_version(USER_RELEASE_EXACT_RECORD_VERSION, Some(false)).unwrap_err().starts_with(RECORD_VERSION_NOT_OF_ROUTE));
-    for exact in [None, Some(false), Some(true)] {
-        assert!(check_record_version("1.1.0", exact).unwrap_err().starts_with(RECORD_VERSION_RETIRED));
+    // The rule itself, over every pair of the three routes and four versions.
+    use RecordRoute::{Exact, PfTimoshenko, PressureFree};
+    let (eb, ti, ex) = (USER_RELEASE_RECORD_VERSION, USER_RELEASE_PF_TIMOSHENKO_RECORD_VERSION, USER_RELEASE_EXACT_RECORD_VERSION);
+    for (version, route, expected) in [
+        (eb, PressureFree, None),
+        (ex, PressureFree, Some(RECORD_VERSION_NOT_OF_ROUTE)),
+        (ti, PressureFree, Some(RECORD_VERSION_NOT_OF_ROUTE)),
+        (ti, PfTimoshenko, None),
+        (eb, PfTimoshenko, Some(RECORD_VERSION_NOT_OF_ROUTE)),
+        (ex, PfTimoshenko, Some(RECORD_VERSION_NOT_OF_ROUTE)),
+        (ex, Exact, None),
+        (ti, Exact, Some(RECORD_VERSION_NOT_OF_ROUTE)),
+        // Left to the exact route's own refusal (EXACT_ROUTE_NOT_ADMITTED), above.
+        (eb, Exact, None),
+    ] {
+        match (check_record_version(version, Some(route)), expected) {
+            (Ok(()), None) => {}
+            (Err(error), Some(code)) => {
+                assert!(error.starts_with(&format!("{code}: ")), "{version} on {route:?}: {error}");
+                assert!(error.contains(route.record_version()) && error.contains(&format!("not {version}.")), "{version} on {route:?}: {error}");
+            }
+            (found, expected) => panic!("{version} on {route:?}: {found:?}, expected {expected:?}"),
+        }
     }
-    assert_eq!(check_record_version(USER_RELEASE_EXACT_RECORD_VERSION, None), Ok(()));
+    for route in [None, Some(PressureFree), Some(PfTimoshenko), Some(Exact)] {
+        assert!(check_record_version("1.1.0", route).unwrap_err().starts_with(RECORD_VERSION_RETIRED));
+    }
+    for version in [eb, ti, ex] {
+        assert_eq!(check_record_version(version, None), Ok(()));
+    }
+    assert_eq!(
+        check_record_version(ti, Some(PressureFree)).unwrap_err(),
+        format!("{RECORD_VERSION_NOT_OF_ROUTE}: a pressure-free Euler–Bernoulli (preview-physics-2) result's user-release record is version 1.0.0, not 1.3.0.")
+    );
+    assert_eq!(
+        check_record_version(eb, Some(PfTimoshenko)).unwrap_err(),
+        format!("{RECORD_VERSION_NOT_OF_ROUTE}: a pressure-free Timoshenko (preview-physics-timoshenko-1) result's user-release record is version 1.3.0, not 1.0.0.")
+    );
+    assert_eq!(
+        check_record_version(ti, Some(Exact)).unwrap_err(),
+        format!("{RECORD_VERSION_NOT_OF_ROUTE}: an exact-route (pressure-3, pressure-source-1) result's user-release record is version 1.2.0, not 1.3.0.")
+    );
+}
+
+// --- The pressure-free Timoshenko record 1.3.0 (DEL-08-01 REQ-024) ---------
+
+/// The desktop's Timoshenko vectors (`userReleasePfTimoshenko.parity.test.ts`): the product's own
+/// eligible Timoshenko results, their shareable request (record 1.3.0) and their local-private request.
+const PF_TIMOSHENKO_VECTORS: [(&str, &str); 2] = [
+    ("straight_sparse", include_str!("../../../../fixtures/reports/invented/user_release_pf_timoshenko/straight_sparse.json")),
+    ("arc_sparse", include_str!("../../../../fixtures/reports/invented/user_release_pf_timoshenko/arc_sparse.json")),
+];
+
+struct PfVector {
+    name: &'static str,
+    v: Value,
+    software: SoftwareIdentity,
+    record: UserReleaseRecord,
+}
+
+fn pf_vectors() -> Vec<PfVector> {
+    PF_TIMOSHENKO_VECTORS
+        .iter()
+        .map(|(name, text)| {
+            let v: Value = serde_json::from_str(text).unwrap();
+            let record: UserReleaseRecord = serde_json::from_value(v["user_release"].clone()).unwrap();
+            assert_eq!(record.record_version, USER_RELEASE_PF_TIMOSHENKO_RECORD_VERSION, "{name}");
+            let software = SoftwareIdentity { name: v["software"]["name"].as_str().unwrap().into(), version: v["software"]["version"].as_str().unwrap().into() };
+            PfVector { name, v, software, record }
+        })
+        .collect()
+}
+
+impl PfVector {
+    fn basis<'a>(&'a self, record: &'a UserReleaseRecord) -> UserReleaseBasis<'a> {
+        UserReleaseBasis {
+            model: &self.v["model"],
+            source: &self.v["source"],
+            solver_mode: "sparse_interactive",
+            run_record: &self.v["run_record"],
+            software: &self.software,
+            record,
+            composition: None,
+        }
+    }
+
+    fn assemble(&self, request: Value, record: &UserReleaseRecord) -> Result<ReportPackageContainerOutcome, String> {
+        let inputs = UserReleaseInputs { model: &self.v["model"], solver_mode: "sparse_interactive", run_record: &self.v["run_record"], software: &self.software, record };
+        assemble_derived(request, &linked(), &inputs, &self.v["input_manifest"])
+    }
+}
+
+fn with_version(record: &UserReleaseRecord, version: &str) -> UserReleaseRecord {
+    let mut record = record.clone();
+    record.record_version = version.into();
+    record
+}
+
+/// The rendered report member's text.
+fn report_html(outcome: &ReportPackageContainerOutcome) -> String {
+    let member = outcome.members.iter().find(|member| member.role == open_pipe_stress_report_package::ROLE_REPORT_HTML).unwrap();
+    String::from_utf8(member.bytes.clone()).unwrap()
+}
+
+/// What the packaged report says of the result's kind and its standing, in the words on the page:
+/// limitation 0, the arc diagnostic where the result has one, and the standing line.
+const LIMITATION_0_WORDS: &str = "straight members, including geometry-only bends, are Timoshenko with the energy-matched annular shear factor (timoshenko_annulus_energy_v1)";
+const STANDING_LINE_WORDS: &str = "Numerical health, as the solver reports it:";
+
+/// The derivation equals the desktop's shareable request, which carries the standing record and the
+/// identity's limitation 0; the admitting entry packages it and the reader reads it back; the
+/// packaged report states the standing and the identity's limitation 0, and, with a realized arc, its
+/// diagnostic. The local-private request packages through the general entry with the same words.
+#[test]
+fn a_pressure_free_timoshenko_result_is_shared_with_record_1_3_0_and_states_its_standing() {
+    for x in pf_vectors() {
+        let derived = derive(&x.basis(&x.record)).unwrap_or_else(|error| panic!("{}: {error}", x.name)).request;
+        assert_eq!(canonical_json(&derived).unwrap(), canonical_json(&x.v["request"]).unwrap(), "{}: the derivation is the desktop's request", x.name);
+        assert!(derived["report"]["numerical_standing"].is_object(), "{}", x.name);
+        assert!(derived["report"].get("pf_timoshenko").is_none(), "{}", x.name);
+        let outcome = x.assemble(derived.clone(), &x.record).unwrap_or_else(|error| panic!("{}: {error}", x.name));
+        assert!(!outcome.export_blocked, "{}: {:?}", x.name, outcome.blocking_reasons);
+        let read = read_report_package_container(&outcome.container_bytes).unwrap_or_else(|error| panic!("{}: {error}", x.name));
+        assert_eq!(read.user_release.as_ref().unwrap()["record_version"], USER_RELEASE_PF_TIMOSHENKO_RECORD_VERSION);
+        let local = general(&x.v["local_private_request"]).unwrap_or_else(|error| panic!("{} local private: {error}", x.name));
+        assert!(!local.export_blocked, "{}: {:?}", x.name, local.blocking_reasons);
+        for (package, html) in [("shareable", report_html(&outcome)), ("local private", report_html(&local))] {
+            assert!(html.contains(LIMITATION_0_WORDS), "{} {package}: limitation 0", x.name);
+            assert!(html.contains(STANDING_LINE_WORDS), "{} {package}: the standing line", x.name);
+            let arc = x.v["source"]["diagnostics"].as_array().unwrap().iter().find(|d| d["code"] == "PF_TIMOSHENKO_REALIZED_ARCS_EULER_BERNOULLI");
+            if let Some(arc) = arc {
+                assert!(html.contains(arc["message"].as_str().unwrap()), "{} {package}: the arc diagnostic", x.name);
+            }
+            // For the record of what a person reads today (run with --nocapture).
+            for line in html.split(['<', '>']).filter(|text| text.contains("Timoshenko") || text.contains("shear deformation") || text.starts_with(STANDING_LINE_WORDS)) {
+                println!("{} {package}: {line}", x.name);
+            }
+        }
+    }
+}
+
+/// A Timoshenko request whose standing record differs from the derivation's, or has none, is refused
+/// by the derivation's whole-request equality.
+#[test]
+fn a_timoshenko_shareable_request_whose_standing_record_differs_is_refused() {
+    let x = &pf_vectors()[0];
+    let mut altered = x.v["request"].clone();
+    altered["report"]["numerical_standing"]["cases"][0]["health"] = json!("sensitive");
+    refused_with(x.assemble(altered, &x.record), CONTENT_NOT_DERIVED);
+    let mut without = x.v["request"].clone();
+    without["report"].as_object_mut().unwrap().remove("numerical_standing");
+    refused_with(x.assemble(without, &x.record), CONTENT_NOT_DERIVED);
+}
+
+/// Every crossed pair is refused by name at the derivation, the producer's admitting entry and the
+/// package reader: 1.0.0 and 1.2.0 on a Timoshenko result, 1.3.0 on a preview-physics-2 result and
+/// 1.3.0 on an exact-route result.
+#[test]
+fn a_record_version_not_of_its_results_route_is_refused_at_every_boundary() {
+    let x = &pf_vectors()[0];
+    let request = x.v["request"].clone();
+    let outcome = x.assemble(request.clone(), &x.record).unwrap();
+    for version in [USER_RELEASE_RECORD_VERSION, USER_RELEASE_EXACT_RECORD_VERSION] {
+        let crossed = with_version(&x.record, version);
+        let error = derive(&x.basis(&crossed)).unwrap_err();
+        assert!(error.starts_with(&format!("{RECORD_VERSION_NOT_OF_ROUTE}:")), "derivation, {version} on Timoshenko: {error}");
+        refused_with(x.assemble(request.clone(), &crossed), RECORD_VERSION_NOT_OF_ROUTE);
+        let read = unbound(&repacked(&outcome, record_edit(|record| record["record_version"] = json!(version))), version);
+        assert!(read.contains(RECORD_VERSION_NOT_OF_ROUTE), "reader, {version} on Timoshenko: {read}");
+    }
+
+    // 1.3.0 on a preview-physics-2 result.
+    let (case, eb_outcome) = admitted_package();
+    let crossed = with_version(&case.record, USER_RELEASE_PF_TIMOSHENKO_RECORD_VERSION);
+    let error = derive(&UserReleaseBasis { record: &crossed, ..case.basis() }).unwrap_err();
+    assert!(error.starts_with(&format!("{RECORD_VERSION_NOT_OF_ROUTE}:")), "derivation, 1.3.0 on preview-physics-2: {error}");
+    refused_with(assemble_derived(case.request(), &linked(), &UserReleaseInputs { record: &crossed, ..case.inputs() }, case.input_manifest()), RECORD_VERSION_NOT_OF_ROUTE);
+    let read = unbound(&repacked(&eb_outcome, record_edit(|record| record["record_version"] = json!(USER_RELEASE_PF_TIMOSHENKO_RECORD_VERSION))), "1.3.0 on preview-physics-2");
+    assert!(read.contains(RECORD_VERSION_NOT_OF_ROUTE), "{read}");
+
+    // 1.3.0 on an exact-route result.
+    let e = exact_vector();
+    let exact_request = e.derived(&e.record).unwrap();
+    let exact_outcome = e.assemble(exact_request.clone(), &e.record).unwrap();
+    let crossed = with_version(&e.record, USER_RELEASE_PF_TIMOSHENKO_RECORD_VERSION);
+    let error = e.derived(&crossed).unwrap_err();
+    assert!(error.starts_with(&format!("{RECORD_VERSION_NOT_OF_ROUTE}:")), "derivation, 1.3.0 on exact: {error}");
+    refused_with(e.assemble(exact_request, &crossed), RECORD_VERSION_NOT_OF_ROUTE);
+    let read = unbound(&repacked(&exact_outcome, record_edit(|record| record["record_version"] = json!(USER_RELEASE_PF_TIMOSHENKO_RECORD_VERSION))), "1.3.0 on exact");
+    assert!(read.contains(RECORD_VERSION_NOT_OF_ROUTE), "{read}");
 }

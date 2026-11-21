@@ -1519,3 +1519,127 @@ fn route_010_binds_model_input_tables_to_its_model() {
         }
     }
 }
+
+// ---------------------------------------------------------------------------
+// The pressure-free Timoshenko kind (DEL-08-01 REQ-024): record 1.3.0 and the
+// standing record the save re-derives from the request's own source and the
+// bound model, on both routes. The vectors are the desktop's
+// (`userReleasePfTimoshenko.parity.test.ts`) over the product's own results.
+// ---------------------------------------------------------------------------
+
+const PF_TIMOSHENKO_VECTORS: [(&str, &str); 2] = [
+    ("straight_sparse", include_str!("../../../../fixtures/reports/invented/user_release_pf_timoshenko/straight_sparse.json")),
+    ("arc_sparse", include_str!("../../../../fixtures/reports/invented/user_release_pf_timoshenko/arc_sparse.json")),
+];
+
+fn pf_user_released_args(vector: &Value, request: &Value) -> ReportPackageSaveRequest {
+    let mut args = save_request_with(request, &vector["model"], &vector["input_manifest"]);
+    user_release_evidence(&mut args);
+    args.analysis_run_text = Some(canonical_json(&vector["run_record"]));
+    args
+}
+
+/// Saves `admitted` to a sandbox and reads it back with the production reader; returns the
+/// read package and its report HTML.
+fn pf_saved(admitted: crate::report_package_save::AdmittedReportPackage, label: &str) -> (open_pipe_stress_report_package::ReadReportPackage, String) {
+    assert!(!admitted.package.export_blocked, "{label}: {:?}", admitted.package.blocking_reasons);
+    let dir = sandbox(label);
+    let mut chosen = None;
+    crate::report_package_save::save_admitted_report_package_in(admitted, &crate::report_package_save::no_custody, |file| {
+        let path = dir.join(file);
+        chosen = Some(path.clone());
+        Some(Ok(path))
+    })
+    .unwrap_or_else(|error| panic!("{label}: {error:?}"));
+    let read = read_report_package_container(&std::fs::read(chosen.unwrap()).unwrap()).unwrap_or_else(|refusal| panic!("{label}: {refusal:?}"));
+    let html = read.members.iter().find(|member| member.file_name == "calculation_report.html").expect("the HTML member");
+    let html = String::from_utf8(html.bytes.clone()).unwrap();
+    (read, html)
+}
+
+/// The words of the standing line the request's standing record gives, as the package's frame
+/// states it.
+fn pf_standing_line(request: &Value) -> String {
+    use open_pipe_stress_report_renderer::standing::{standing_line, NumericalStanding};
+    let record: NumericalStanding = serde_json::from_value(request["report"]["numerical_standing"].clone()).unwrap();
+    format!("<div class=\"standing-line\">{}</div>", open_pipe_stress_report_renderer::escape_html(&standing_line(&record)))
+}
+
+/// Both saves of each Timoshenko vector are admitted, saved and read back, and each package's
+/// report states the standing line its standing record gives and the identity's limitation 0; a
+/// request whose standing record differs from the save's derivation is refused by name.
+#[test]
+fn both_saves_of_a_pressure_free_timoshenko_result_state_its_standing() {
+    for (name, text) in PF_TIMOSHENKO_VECTORS {
+        let v: Value = serde_json::from_str(text).unwrap();
+        let limitation = v["source"]["formulation_basis"]["limitations"][0].as_str().unwrap().replace('\'', "&#39;");
+        // Route 009: the local-private package.
+        let local = v["local_private_request"].clone();
+        let admitted = crate::report_package_save::admit_report_package_in(save_request_with(&local, &v["model"], &v["input_manifest"]), &software(), &mut no_store, &crate::report_package_save::no_custody)
+            .unwrap_or_else(|error| panic!("{name}: {} {}", error.code, error.message));
+        let (read, html) = pf_saved(admitted, &format!("pf-timoshenko-local-{name}"));
+        assert!(read.user_release.is_none());
+        assert!(html.contains(&pf_standing_line(&local)), "{name}: the local package states the standing line");
+        assert!(html.contains(&limitation), "{name}: the local package states limitation 0");
+        let mut altered = local.clone();
+        altered["report"]["numerical_standing"]["cases"][0]["health"] = json!("sensitive");
+        let error = crate::report_package_save::admit_report_package_in(save_request_with(&altered, &v["model"], &v["input_manifest"]), &software(), &mut no_store, &crate::report_package_save::no_custody).err().expect("refused");
+        assert_eq!(error.code, crate::exact_source_binding::SECTIONS_MISMATCH, "{name}: {}", error.message);
+        assert!(error.message.ends_with(": numerical_standing"), "{name}: {}", error.message);
+
+        // Route 010: the shareable package, record 1.3.0.
+        let shared = v["request"].clone();
+        let registry = registry(ScriptedHost::normal());
+        registry.record_attested_solve_for_tests(1, PreviewSolverMode::SparseInteractive, SolveAttestation::of(&v["model"], &v["source"]).unwrap());
+        let mut lease = registry.acquire_interactive_ingress(1024).unwrap();
+        let args = pf_user_released_args(&v, &shared);
+        lease.grow_to(1024 + ingress_lease_bytes(&args).unwrap()).unwrap();
+        let admitted = admit(args, &registry, &mut lease).unwrap_or_else(|refusal| panic!("{name}: {refusal:?}"));
+        let (read, html) = pf_saved(admitted, &format!("pf-timoshenko-shared-{name}"));
+        assert_eq!(read.user_release.as_ref().unwrap()["record_version"], open_pipe_stress_report_renderer::USER_RELEASE_PF_TIMOSHENKO_RECORD_VERSION, "{name}");
+        assert!(html.contains(&pf_standing_line(&shared)), "{name}: the shareable package states the standing line");
+        assert!(html.contains(&limitation), "{name}: the shareable package states limitation 0");
+        assert!(html.contains("USER-RELEASED REPORT"), "{name}");
+        let mut altered = shared.clone();
+        altered["report"]["numerical_standing"]["cases"][0]["health"] = json!("sensitive");
+        let (path, message) = refused(pf_user_released_args(&v, &altered), &registry, crate::exact_source_binding::SECTIONS_MISMATCH);
+        assert_eq!(path, "/request/report/numerical_standing", "{name}: {message}");
+    }
+}
+
+/// Route 010's first check, the record's version, at the native save: 1.0.0 and 1.2.0 on a
+/// Timoshenko request, 1.3.0 on a preview-physics-2 request and 1.3.0 on an exact-route request
+/// are each refused by name (`REPORT-USER-RELEASE-RECORD-VERSION-NOT-OF-ROUTE`) at the record's
+/// version, before the route's other checks.
+#[test]
+fn route_010_refuses_a_record_version_not_of_its_results_route_for_every_route() {
+    let version = "/request/report/report_context/user_release/record_version";
+    let v: Value = serde_json::from_str(PF_TIMOSHENKO_VECTORS[0].1).unwrap();
+    let registry = registry(ScriptedHost::normal());
+    registry.record_attested_solve_for_tests(1, PreviewSolverMode::SparseInteractive, SolveAttestation::of(&v["model"], &v["source"]).unwrap());
+    for crossed in ["1.0.0", "1.2.0"] {
+        let mut request = v["request"].clone();
+        request["report"]["report_context"]["user_release"]["record_version"] = json!(crossed);
+        let (path, message) = refused(pf_user_released_args(&v, &request), &registry, RECORD_VERSION_NOT_OF_ROUTE);
+        assert_eq!(path, version, "{crossed}: {message}");
+        assert!(message.contains("pressure-free Timoshenko") && message.contains(&format!("not {crossed}.")), "{message}");
+    }
+    let basis = basis();
+    let (registry, _) = basis.session(PreviewSolverMode::SparseInteractive);
+    let mut request = basis.request();
+    request["report"]["report_context"]["user_release"]["record_version"] = json!("1.3.0");
+    let (path, message) = refused(basis.args_for(&request, &basis.model, &basis.manifest), &registry, RECORD_VERSION_NOT_OF_ROUTE);
+    assert_eq!(path, version, "{message}");
+    let exact: Value = serde_json::from_str(D6_VECTORS[0]).unwrap();
+    let registry = registry_for_exact(&exact);
+    let mut request = exact["request"].clone();
+    request["report"]["report_context"]["user_release"]["record_version"] = json!("1.3.0");
+    let (path, message) = refused(d6_args(&exact, &request), &registry, RECORD_VERSION_NOT_OF_ROUTE);
+    assert_eq!(path, version, "{message}");
+}
+
+fn registry_for_exact(vector: &Value) -> SolveJobRegistry {
+    let registry = registry(ScriptedHost::normal());
+    registry.record_attested_solve_for_tests(1, PreviewSolverMode::SparseInteractive, SolveAttestation::of(&vector["model"], &vector["source"]).unwrap());
+    registry
+}

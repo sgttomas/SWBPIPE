@@ -287,8 +287,7 @@ pub(crate) fn read_report_package_container_in(
     if let Some(version) = record_version {
         crate::user_release::check_record_version(version, None).map_err(user_release_unbound)?;
     }
-    let exact_user_release = record_version == Some(open_pipe_stress_report_renderer::USER_RELEASE_EXACT_RECORD_VERSION);
-    let members = verify_members(bytes, &archive, &rows, fields.export_blocked, &fields.export_profile_id, user_released, exact_user_release, admitted)?;
+    let members = verify_members(bytes, &archive, &rows, fields.export_blocked, &fields.export_profile_id, user_released, record_version, admitted)?;
     // W-18b (§2.9): the record's checks, after the members are verified and
     // before the rebuild; the rebuild then holds the record's form exactly.
     let caller_record = match &fields.user_release {
@@ -896,7 +895,7 @@ fn verify_members(
     export_blocked: bool,
     export_profile_id: &str,
     user_released: bool,
-    exact_user_release: bool,
+    record_version: Option<&str>,
     admitted: AdmittedSet,
 ) -> Result<Vec<ContainerMember>, PackageReadRefusal> {
     let content_entries = &archive.entries[1..];
@@ -1021,13 +1020,15 @@ fn verify_members(
                             exact_sections::check_runner_profile(export_profile_id, &document).map_err(&defect)?;
                             // The exact record version on a pressure-free result
                             // refuses as not of its route (DEL-08-01 REQ-024).
-                            if user_released && exact_user_release {
-                                let exact = document_form::producer_contract_id(&document).is_some_and(exact_sections::is_exact_identity);
-                                crate::user_release::check_record_version(open_pipe_stress_report_renderer::USER_RELEASE_EXACT_RECORD_VERSION, Some(exact))
+                            // A record's version follows its result's route
+                            // (DEL-08-01 REQ-024): a crossed pair refuses as not
+                            // of its route.
+                            if let (true, Some(version)) = (user_released, record_version) {
+                                crate::user_release::check_record_version(version, Some(crate::user_release::RecordRoute::of_document(&document)))
                                     .map_err(user_release_unbound)?;
                             }
                             // Keep the legacy record's refusal and its precedence.
-                            if user_released && !exact_user_release {
+                            if user_released && record_version != Some(open_pipe_stress_report_renderer::USER_RELEASE_EXACT_RECORD_VERSION) {
                                 exact_sections::check_user_released_profile(crate::user_release::USER_RELEASED_DESKTOP_PROFILE, &document)
                                     .map_err(user_release_unbound)?;
                             }

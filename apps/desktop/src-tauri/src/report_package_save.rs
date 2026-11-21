@@ -1074,6 +1074,43 @@ fn check_request_object_form(request: &Value) -> Result<(), ReportPackageSaveCom
 
 /// Whether the parsed request is an exact-route request (§3.6): its result
 /// document has an exact identity or its report carries `exact_route`.
+/// Whether the request's result is a pressure-free Timoshenko result: its source,
+/// as the save's diagnostics check reads it. The producer binds the document's
+/// identity to the source's (item 4).
+fn pf_timoshenko_request(request: &Value) -> bool {
+    text_at(request, "/source_results/0/producer/semantic_contract_id").is_some_and(open_pipe_stress_report_package::pf_timoshenko::is_pf_timoshenko_identity)
+}
+
+/// DEL-08-01 REQ-024: a pressure-free Timoshenko request's report carries the
+/// standing record the reader derives from the request's own source and the
+/// model text bound by the audit model hash, exactly, on both routes; it is
+/// stated, never a ground for refusing the save. This is the trust the
+/// pressure-free package has: the save holds no custody of this result. The
+/// reader takes no invocation on the preview-physics route.
+fn check_pf_timoshenko_standing(request: &Value, model: &Value) -> Result<(), ReportPackageSaveCommandError> {
+    let source = request.pointer("/source_results/0").unwrap_or(&Value::Null);
+    let standing = open_pipe_stress_result_export::reader_verdict::standing(source, Some(model), None);
+    let derived = open_pipe_stress_report_standing::report_standing::historical_standing_record(source, model, &standing).ok();
+    if derived.is_none() || request.pointer("/report/numerical_standing") != derived.as_ref() {
+        return Err(exact_refused(exact_binding::sections_mismatch("numerical_standing"), "/request/report/numerical_standing"));
+    }
+    Ok(())
+}
+
+/// The route a request's user-release record version follows (DEL-08-01 REQ-024).
+fn record_route(request: &Value) -> user_release::RecordRoute {
+    if exact_request(request) {
+        user_release::RecordRoute::Exact
+    } else if pf_timoshenko_request(request)
+        || text_at(request, "/result_documents/0/result_envelope/producer/semantic_contract_id")
+            .is_some_and(open_pipe_stress_report_package::pf_timoshenko::is_pf_timoshenko_identity)
+    {
+        user_release::RecordRoute::PfTimoshenko
+    } else {
+        user_release::RecordRoute::PressureFree
+    }
+}
+
 fn exact_request(request: &Value) -> bool {
     let identity = text_at(request, "/result_documents/0/result_envelope/producer/semantic_contract_id");
     identity.is_some_and(open_pipe_stress_report_package::exact_sections::is_exact_identity)
@@ -1495,10 +1532,11 @@ fn admit_both_routes(
         Some(bind_exact_save_source(&request_value, &model_text, exact_result_text.as_deref(), exact_intake_text.as_deref(), custody)?)
     } else if exact_result_text.is_some() || exact_intake_text.is_some() {
         return Err(exact_refused(exact_binding::sections_mismatch("exact_route"), "/request/report/exact_route").into());
-    } else if request_value.pointer("/report/numerical_standing").is_some_and(|record| !record.is_null()) {
+    } else if !pf_timoshenko_request(&request_value) && request_value.pointer("/report/numerical_standing").is_some_and(|record| !record.is_null()) {
         // DEL-08-01 REQ-024: a standing record is carried only where this boundary
-        // re-derives it from a bound result (an exact-route request); on any other
-        // request it would be persisted unverified.
+        // re-derives it: from a bound exact-route result, or, on a pressure-free
+        // Timoshenko request, from its own source and the bound model (below); on
+        // any other request it would be persisted unverified.
         return Err(exact_refused(exact_binding::sections_mismatch("numerical_standing"), "/request/report/numerical_standing").into());
     } else {
         None
@@ -1523,6 +1561,9 @@ fn admit_both_routes(
     // pointer, never a value.
     open_pipe_stress_report_package::model_input::check_model_input_tables(&model_value, request_value.get("report").unwrap_or(&Value::Null))
         .map_err(|message| coded("/request/report/model_input_tables", &message))?;
+    if pf_timoshenko_request(&request_value) {
+        check_pf_timoshenko_standing(&request_value, &model_value)?;
+    }
     // The package's item 9 refuses only integrity codes among the Diagnostics
     // after the result's (review of c2cc050ea, R8): on an exact or pressure-free
     // Timoshenko document, those entries are the session entries the host
@@ -1658,15 +1699,16 @@ fn refused_sized(code: &str, path: &str, detail: &str) -> ReportPackageSaveComma
 /// DEL-08-01 REQ-024: the user-release record's version, first among route 010's
 /// checks of the request, before the exact source binding and every check that
 /// speaks of the route: a retired version is refused for its version, and the
-/// version follows the request's result natively, pressure-free with record
-/// 1.0.0 and exact with 1.2.0 (`user_release::check_record_version`). The
+/// version follows the request's result natively: pressure-free Euler–Bernoulli
+/// with record 1.0.0, pressure-free Timoshenko with 1.3.0 and exact with 1.2.0
+/// (`user_release::check_record_version`). The
 /// record's other members are step 4's ([`check_user_release_record`]).
 fn check_user_release_record_version(request: &Value) -> Result<(), ReportPackageSaveCommandError> {
     const VERSION: &str = "/request/report/report_context/user_release/record_version";
     let Some(version) = text_at(request, "/report/report_context/user_release/record_version") else {
         return Ok(());
     };
-    user_release::check_record_version(version, Some(exact_request(request))).map_err(|message| {
+    user_release::check_record_version(version, Some(record_route(request))).map_err(|message| {
         // The library's refusal is "CODE: text", its code one of the two version codes.
         let (code, text) = message.split_once(": ").unwrap_or((user_release::RECORD_VERSION_RETIRED, message.as_str()));
         refuse(code, VERSION, text.to_string())

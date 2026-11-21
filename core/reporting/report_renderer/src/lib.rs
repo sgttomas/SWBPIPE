@@ -142,6 +142,13 @@ pub const USER_RELEASE_RECORD_VERSION: &str = "1.0.0";
 /// for its version wherever a record is read, before any check of the route
 /// (`report_package::user_release::check_record_version`), with no migration.
 pub const USER_RELEASE_EXACT_RECORD_VERSION: &str = "1.2.0";
+/// The pressure-free Timoshenko record (`preview-physics-timoshenko-1`). Version
+/// 1.3.0 extends a user release to that result whatever its numerical standing,
+/// which its report states (DEL-08-01 REQ-024, "Package and user release"); its
+/// members and `scope.not_carried` are 1.0.0's. A record's version follows its
+/// result's route, and a crossed pair is refused by name wherever a record is read
+/// (`report_package::user_release::check_record_version`).
+pub const USER_RELEASE_PF_TIMOSHENKO_RECORD_VERSION: &str = "1.3.0";
 /// The statement the user ticks in the dialog, verbatim (§2.2, §2.3).
 pub const USER_RELEASE_STATEMENT: &str =
     "I hold the right to share this project's data, and I release my project data in this report for sharing.";
@@ -240,8 +247,7 @@ impl UserReleaseRecord {
         if let Some((member, _, _)) = constants.iter().find(|(_, found, expected)| found != expected) {
             return Some(member);
         }
-        let exact = self.record_version == USER_RELEASE_EXACT_RECORD_VERSION;
-        if !exact && self.record_version != USER_RELEASE_RECORD_VERSION {
+        if ![USER_RELEASE_RECORD_VERSION, USER_RELEASE_EXACT_RECORD_VERSION, USER_RELEASE_PF_TIMOSHENKO_RECORD_VERSION].contains(&self.record_version.as_str()) {
             return Some("record_version");
         }
         // The same items on every record version; none names a result as not carried

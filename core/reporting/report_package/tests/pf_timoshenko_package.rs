@@ -5,6 +5,12 @@
 //! the limitation, or the diagnostic's text or references, while keeping the
 //! result, is refused. Euler–Bernoulli reports carry no such entry.
 //!
+//! DEL-08-01 REQ-024: on the two desktop profiles a Timoshenko report carries
+//! the standing record the reader derives from its source and model, which the
+//! desktop's native save and the user-release derivation re-derive and require
+//! equal; the producer requires it there, holds no model and re-derives nothing.
+//! The runner profile carries none, and an Euler–Bernoulli report carries none.
+//!
 //! Most cases use a TRANSFORMED STAND-IN (the last packages the product's own
 //! result with a realized arc): the committed DEL-10-05 witness source with the identity, the profile and
 //! limitation 0 swapped, plus a hand-built arc diagnostic, from which the shared
@@ -16,6 +22,7 @@ mod common;
 mod package_basis;
 
 use open_pipe_stress_report_package::bindings::{expected_report_diagnostics, SOURCE_INVALID};
+use open_pipe_stress_report_package::exact_sections::EXACT_SECTIONS_MISMATCH;
 use open_pipe_stress_report_package::document_form::ADMITTED_SEMANTIC_CONTRACTS;
 use open_pipe_stress_report_package::pf_timoshenko::{PF_TIMOSHENKO_SECTIONS_MISMATCH, REALIZED_ARCS_DIAGNOSTIC};
 use open_pipe_stress_report_package::wire::{assemble_wire_request, LinkedSolverIdentity, ReportPackageRequest};
@@ -53,8 +60,21 @@ fn request(edit_source: impl FnOnce(&mut Value), projection: bool) -> Value {
     request_of(serde_json::from_str(MODEL).unwrap(), source, projection)
 }
 
-/// The desktop basis over `source`, solved from `model` (as [`request`]).
+/// The standing record the reader derives from `source` and `model` (the desktop's and the
+/// native save's derivation; no invocation on the preview-physics route).
+fn standing_record(source: &Value, model: &Value) -> Value {
+    let standing = open_pipe_stress_result_export::reader_verdict::standing(source, Some(model), None);
+    open_pipe_stress_report_standing::report_standing::historical_standing_record(source, model, &standing).unwrap()
+}
+
+/// The desktop basis over `source`, solved from `model` (as [`request`]); a Timoshenko report
+/// carries its standing record (DEL-08-01 REQ-024).
 fn request_of(model: Value, source: Value, projection: bool) -> Value {
+    request_in(model, source, projection, Profile::Desktop)
+}
+
+fn request_in(model: Value, source: Value, projection: bool, profile: Profile) -> Value {
+    let record = (source["producer"]["semantic_contract_id"] == PREVIEW_PHYSICS_TIMOSHENKO_ID).then(|| standing_record(&source, &model));
     let runner = runner();
     let manifest: Value = serde_json::from_str(INPUT_MANIFEST).unwrap();
     let manifest_id = runner["audit_manifest"]["input_manifest_hash"]["payload_ref"].as_str().unwrap().to_string();
@@ -68,7 +88,7 @@ fn request_of(model: Value, source: Value, projection: bool) -> Value {
         input_manifest_id: &manifest_id,
         solver_name: solver["solver_name"].as_str().unwrap(),
         solver_version: solver["solver_version"].as_str().unwrap(),
-        profile: Profile::Desktop,
+        profile,
         run_override: None,
     };
     let mut request = build(&inputs).unwrap().export_results;
@@ -90,6 +110,9 @@ fn request_of(model: Value, source: Value, projection: bool) -> Value {
     sections["limitations"] = Value::Array(limitations);
     sections["diagnostics"] = Value::Array(
         expected_report_diagnostics(&source).unwrap().into_iter().map(|mut entry| { entry["provenance"] = provenance.clone(); entry }).collect());
+    if let Some(record) = record {
+        request["report"]["numerical_standing"] = record;
+    }
     request
 }
 
@@ -232,4 +255,33 @@ fn the_products_timoshenko_result_with_a_realized_arc_packages_its_projection() 
     refused(&refs, PF_TIMOSHENKO_SECTIONS_MISMATCH, "the product's arc references altered");
     let (model, source) = product_arc();
     refused(&request_of(model, source, false), PF_TIMOSHENKO_SECTIONS_MISMATCH, "the product's result without the projection");
+}
+
+/// DEL-08-01 REQ-024 at the producer: the desktop profile's Timoshenko report requires its
+/// standing record; the runner profile and an Euler–Bernoulli report carry none.
+#[test]
+fn a_timoshenko_report_carries_its_standing_record_on_the_desktop_profile_only() {
+    let request = request(timoshenko, true);
+    assert!(request["report"]["numerical_standing"].is_object());
+    assemble(&request).unwrap_or_else(|error| panic!("refused: {error}"));
+    let mut without = request.clone();
+    without["report"].as_object_mut().unwrap().remove("numerical_standing");
+    refused(&without, EXACT_SECTIONS_MISMATCH, "desktop Timoshenko report without its standing record");
+    let mut null = request.clone();
+    null["report"]["numerical_standing"] = Value::Null;
+    refused(&null, EXACT_SECTIONS_MISMATCH, "desktop Timoshenko report with a null standing record");
+    // The runner profile: the same source carries no record, and is refused with one.
+    let mut source = runner()["source_results"][0].clone();
+    timoshenko(&mut source);
+    let model: Value = serde_json::from_str(MODEL).unwrap();
+    let mut on_runner = request_in(model, source, true, Profile::Runner);
+    assert!(on_runner["report"]["numerical_standing"].is_object());
+    let error = assemble(&on_runner).unwrap_err();
+    assert!(error.starts_with(&format!("{EXACT_SECTIONS_MISMATCH}: numerical_standing")), "{error}");
+    on_runner["report"].as_object_mut().unwrap().remove("numerical_standing");
+    assert!(assemble(&on_runner).is_ok_and(|outcome| !outcome.export_blocked), "the runner's Timoshenko package without a record");
+    // An Euler–Bernoulli report with a record is refused as before.
+    let mut eb = request_eb();
+    eb["report"]["numerical_standing"] = request["report"]["numerical_standing"].clone();
+    refused(&eb, EXACT_SECTIONS_MISMATCH, "Euler-Bernoulli report with a standing record");
 }
