@@ -6,14 +6,41 @@ import { documentShearModel, SHEAR_MODEL_CHOICES as PROFILE_SHEAR_CHOICES } from
 import { SHEAR_MODEL_CHOICES, UNSTATED_SHEAR_MODEL } from "../model-settings/ModelSettingsSection";
 import { PROJECT_UNIT_KEYS } from "../../services/projectService";
 
+/** Below this turn, in radians, two pipes run straight through their node beyond any doubt. This is
+ * not the operation engine's rule: it is three orders of magnitude inside the engine's own lower bound
+ * (alpha_tan, 1e-3 rad), so every corner the engine can accept is offered. */
+const STRAIGHT_THROUGH_RAD = 1.0e-6;
+
+type Vec3 = [number, number, number];
+const position = (model: PreviewModel, id: string): Vec3 | null => {
+  const p = model.nodes.find((node) => node.id === id)?.position;
+  return p && [p.x, p.y, p.z].every((value) => typeof value === "number" && Number.isFinite(value)) ? [p.x, p.y, p.z] : null;
+};
+
 /**
- * Whether "Bend at this corner" is offered on a node: where it joins exactly two pipes, the
- * topology a person can see. The inspector refuses nothing itself; whether the corner can
- * take a bend is the operation engine's to say, by its own code, when the form is queued
+ * Whether "Bend at this corner" is offered on a node: where it joins exactly two pipes that turn
+ * there, the topology and shape a person can see. The line is hidden only where the two pipes run
+ * straight through the node beyond any doubt (a turn below STRAIGHT_THROUGH_RAD, from the node
+ * positions the model holds), with no reason given: there is no corner. Every other two-pipe node
+ * is offered, including a turn between that and the engine's bound, or one near a half circle; the
+ * inspector refuses nothing itself, and the operation engine refuses on Queue by its own code
  * (operation_applier bend_authoring.rs `insert_at_corner`).
  */
 export function offersBendAtCorner(model: PreviewModel, nodeId: string): boolean {
-  return model.pipe_segments.filter((pipe) => pipe.from === nodeId || pipe.to === nodeId).length === 2;
+  const pipes = model.pipe_segments.filter((pipe) => pipe.from === nodeId || pipe.to === nodeId);
+  if (pipes.length !== 2) return false;
+  const corner = position(model, nodeId);
+  const far = pipes.map((pipe) => position(model, pipe.from === nodeId ? pipe.to : pipe.from));
+  if (!corner || !far[0] || !far[1]) return true;
+  const incoming: Vec3 = [corner[0] - far[0][0], corner[1] - far[0][1], corner[2] - far[0][2]];
+  const outgoing: Vec3 = [far[1][0] - corner[0], far[1][1] - corner[1], far[1][2] - corner[2]];
+  const length = (v: Vec3) => Math.hypot(v[0], v[1], v[2]);
+  if (!(length(incoming) > 0) || !(length(outgoing) > 0)) return true;
+  const a = incoming.map((value) => value / length(incoming)) as Vec3;
+  const t = outgoing.map((value) => value / length(outgoing)) as Vec3;
+  // The turn between the two directions, 2 atan2(|a - t|, |a + t|), as the engine measures it.
+  const turn = 2 * Math.atan2(length([a[0] - t[0], a[1] - t[1], a[2] - t[2]]), length([a[0] + t[0], a[1] + t[1], a[2] + t[2]]));
+  return !(turn < STRAIGHT_THROUGH_RAD);
 }
 
 /** The selection kinds the support form acts on (capabilityCatalog's support context). */

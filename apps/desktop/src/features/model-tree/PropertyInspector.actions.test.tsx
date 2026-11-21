@@ -45,13 +45,32 @@ function openLine(name: string | RegExp) {
 }
 
 describe("Bend at this corner: offered on what a person can see, refused only by the engine", () => {
-  it("is offered on a node that joins exactly two pipes, and nowhere else", () => {
+  it("is offered on a node where two pipes turn, and not on a run's end or a straight run", () => {
     const model = inventedModel();
     expect(offersBendAtCorner(model, "node:C")).toBe(true);
-    expect(offersBendAtCorner(model, "node:M")).toBe(true);
     expect(offersBendAtCorner(model, "node:A")).toBe(false);
-    mount({ type: "node", id: "node:A" });
+    expect(offersBendAtCorner(model, "node:M")).toBe(false);
+    mount({ type: "node", id: "node:M" });
     expect(screen.queryByText("Bend at this corner")).toBeNull();
+    expect(screen.queryByTestId("insert-bend-at-corner-details")).toBeNull();
+  });
+
+  it("offers a slight turn the engine refuses, and the engine's refusal is shown by its code on Queue", async () => {
+    const model = inventedModel();
+    // node:M turned by 1e-4 rad: inside the engine's lower bound, far outside straight-through.
+    model.nodes.find((node) => node.id === "node:D")!.position = { x: 9, y: 3 + 3 * Math.tan(1e-4), z: 0 };
+    expect(offersBendAtCorner(model, "node:M")).toBe(true);
+    const { queue } = mount({ type: "node", id: "node:M" }, {}, model);
+    const details = openLine("Bend at this corner");
+    const field = (label: string, value: string) => fireEvent.change(within(details).getByLabelText(label), { target: { value } });
+    field("Bend radius R value", "0.5"); field("Corner bend flexibility factor k", "1.5"); field("Corner bend source of k", "invented k source");
+    field("Geometry source reference", "invented geometry source"); field("Corner bend provenance", "invented provenance");
+    fireEvent.click(within(details).getByRole("button", { name: "Queue insert bend at corner" }));
+    const finding = await within(details).findByTestId("insert-bend-at-corner-engine-diagnostic-OP-BEND-CORNER-ANGLE-INVALID", {}, { timeout: 20_000 });
+    expect(finding).toBeVisible();
+    expect(finding).toHaveTextContent("OP-BEND-CORNER-ANGLE-INVALID");
+    expect(finding).toHaveTextContent("a bend needs a turn above alpha_tan");
+    expect(queue).not.toHaveBeenCalled();
   });
 
   it("shows the form closed, and an untouched form shows no error when it is opened", () => {
