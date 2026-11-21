@@ -249,8 +249,13 @@ export function requeueRetainedRecord(intent: unknown, index: number): RequeueRe
     return { refused: `This stored record carries ${entered.label}, a value only you enter, which the operation engine would not write for it. ${KEPT} Enter the value yourself in the component inspector, or prepare the change again without it.` };
   }
   if (agentOrImported) {
+    // Who proposed it is what an audit reads: an agent's or an import's stored reference and channel are kept as
+    // stored. Only an empty one, the desktop's own channel or the commit binding's reference is replaced by the
+    // retained mark, so a requeued proposal never reads as a live desktop editor's.
+    const storedRef = typeof source?.source_ref === "string" ? source.source_ref : "";
+    const kept = storedRef !== "" && channel !== "" && channel !== "local_desktop_preview" && !storedRef.startsWith("desktop-editor:");
     return { batch: { batch_id, operations: [{ ...structuredClone(intent), author_type: "agent",
-      source: retainedSource(index, "agent") } as unknown as EditorOperationIntent] } };
+      source: kept ? { source_ref: storedRef, source_channel: channel, source_role: "agent" } : { source_ref: `retained:${index}`, source_channel: "retained_requeue", source_role: "agent" } } as unknown as EditorOperationIntent] } };
   }
   if (intent.author_type === "user") {
     if (entered) return { refused: "This stored record writes a value only you enter (a flexibility factor k, a SIF or another component modifier), and its author cannot be verified after reopening. Enter the value again in the component inspector." };
@@ -258,10 +263,10 @@ export function requeueRetainedRecord(intent: unknown, index: number): RequeueRe
   }
   return { refused: "This stored record does not say who proposed it, so it cannot be requeued. Prepare the change again." };
 }
-/** The source every requeued record carries, whatever source it was stored with: it says the operation is a stored
- * record requeued after reopening, so once applied from review it never reads as a live editor's commit or as the
- * live channel it first came by. The author is the one requeue's rules decide. */
-function retainedSource(index: number, role: "agent" | "retained_user") {
+/** The source a requeued record of the person's carries, whatever source it was stored with: it says the operation
+ * is a stored record requeued, so once applied from review it never reads as a live desktop editor's commit. The
+ * stored record keeps its original source at the same index of the retained context. */
+function retainedSource(index: number, role: "retained_user") {
   return { source_ref: `retained:${index}`, source_channel: "retained_requeue", source_role: role };
 }
 

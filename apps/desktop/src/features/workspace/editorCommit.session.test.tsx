@@ -319,12 +319,36 @@ describe("the stamp's allowlist, on what a builder returned", () => {
     expect(refused(await run(() => commit({ key: "again" }))).reason).toContain("is a record already committed once");
   });
 
-  it("requeue gives every record it requeues the retained source, keeping the author its rules decide", () => {
+  describe("requeue", () => {
     const record = { operation_id: "op", operation_kind: "modify", target: { object_type: "Node", ref: "n" }, change: { change_kind: "set_field", field_path: "position.x", before: "0", after: "1" }, rationale: "r" };
-    const person = requeueRetainedRecord({ ...record, author_type: "user", source: { source_ref: "desktop-editor:gui_editor:op:1", source_channel: "local_desktop_preview", source_role: "gui_editor" } }, 3);
-    const agent = requeueRetainedRecord({ ...record, author_type: "agent", source: { source_ref: "turn", source_channel: "embedded_agent", source_role: "agent" } }, 4);
-    expect("batch" in person && person.batch.operations[0]).toMatchObject({ author_type: "user", source: { source_ref: "retained:3", source_channel: "retained_requeue", source_role: "retained_user" } });
-    expect("batch" in agent && agent.batch.operations[0]).toMatchObject({ author_type: "agent", source: { source_ref: "retained:4", source_channel: "retained_requeue", source_role: "agent" } });
+    const requeued = (stored: object, index: number) => {
+      const out = requeueRetainedRecord({ ...record, ...stored }, index);
+      if (!("batch" in out)) throw new Error(out.refused);
+      return out.batch.operations[0];
+    };
+    const RETAINED = (index: number) => ({ source_ref: `retained:${index}`, source_channel: "retained_requeue", source_role: "agent" });
+    it("keeps an embedded agent's stored reference and channel", () => {
+      expect(requeued({ author_type: "agent", source: { source_ref: "agent:turn:call", source_channel: "embedded_agent", source_role: "agent" } }, 4))
+        .toMatchObject({ author_type: "agent", source: { source_ref: "agent:turn:call", source_channel: "embedded_agent", source_role: "agent" } });
+    });
+    it("keeps an offline import's stored reference and channel", () => {
+      expect(requeued({ author_type: "agent", source: { source_ref: "offline-import:file:1", source_channel: "offline_intake", source_role: "imported" } }, 5))
+        .toMatchObject({ author_type: "agent", source: { source_ref: "offline-import:file:1", source_channel: "offline_intake", source_role: "agent" } });
+    });
+    it("gives an agent record with an empty stored source the retained mark", () => {
+      expect(requeued({ author_type: "agent", source: { source_ref: "", source_channel: "", source_role: "agent" } }, 6)).toMatchObject({ author_type: "agent", source: RETAINED(6) });
+      expect(requeued({ author_type: "agent" }, 7)).toMatchObject({ author_type: "agent", source: RETAINED(7) });
+    });
+    it("gives an agent record on the desktop's own channel the retained mark", () => {
+      expect(requeued({ author_type: "agent", source: { source_ref: "turn", source_channel: "local_desktop_preview", source_role: "agent" } }, 8)).toMatchObject({ author_type: "agent", source: RETAINED(8) });
+    });
+    it("gives an agent record carrying the commit binding's reference the retained mark", () => {
+      expect(requeued({ author_type: "agent", source: { source_ref: "desktop-editor:gui_editor:op:1", source_channel: "embedded_agent", source_role: "agent" } }, 9)).toMatchObject({ author_type: "agent", source: RETAINED(9) });
+    });
+    it("gives a record of the person's the retained mark", () => {
+      expect(requeued({ author_type: "user", source: { source_ref: "desktop-editor:gui_editor:op:1", source_channel: "local_desktop_preview", source_role: "gui_editor" } }, 3))
+        .toMatchObject({ author_type: "user", source: { source_ref: "retained:3", source_channel: "retained_requeue", source_role: "retained_user" } });
+    });
   });
 });
 
