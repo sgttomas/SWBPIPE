@@ -102,7 +102,7 @@ describe("a native result's first paint in the app", () => {
     expect(sent("take_preview_mechanics_job_result")).toBe(0);
   }, 90_000);
 
-  it("refuses for a run record above the limit only the outputs given it: comparisons and rule checks load, the report shows the record's sizes", async () => {
+  it("refuses for a run record above the limit only the outputs given it: comparisons load, rule checks need no copy, the report shows the record's sizes", async () => {
     const mechanics = await installPreviewReplay();
     const sent = (command: string) => mechanics.commands().filter((name) => name === command).length;
     const fullRecordBuilds = vi.spyOn(previewService, "buildAnalysisRunPreview");
@@ -112,10 +112,12 @@ describe("a native result's first paint in the app", () => {
     await screen.findByTestId("workspace-toolbar");
     await solve();
 
+    // Rule checks read the held result by its handle: available at once, with no full copy.
     const solveSection = screen.getByTestId("workspace-section-solve");
-    fireEvent.click(within(solveSection).getByTestId("c2-result-load"));
     expect(await within(solveSection).findByTestId("rule-check-load-demo")).toBeInTheDocument();
+    expect(within(solveSection).queryByTestId("c2-result-load")).toBeNull();
     expect(within(solveSection).queryByTestId("c2-result-refused")).toBeNull();
+    expect(sent("read_preview_mechanics_job_rows_all")).toBe(0);
 
     nativeMenuCommand("view.section.results");
     const resultsSection = screen.getByTestId("workspace-section-results");
@@ -150,9 +152,16 @@ describe("a native result's first paint in the app", () => {
     render(<App />);
     await screen.findByTestId("workspace-toolbar");
     await solve();
+    // Rule checks need no copy: available, nothing refused.
     const solveSection = screen.getByTestId("workspace-section-solve");
-    fireEvent.click(within(solveSection).getByTestId("c2-result-load"));
-    expect(await within(solveSection).findByTestId("c2-result-refused")).toHaveTextContent(`RESULT-DETAIL-WEBVIEW-LIMIT: This result is ${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1} bytes`);
+    expect(await within(solveSection).findByTestId("rule-check-load-demo")).toBeInTheDocument();
+    expect(within(solveSection).queryByTestId("c2-result-load")).toBeNull();
+    expect(within(solveSection).queryByTestId("c2-result-refused")).toBeNull();
+    // The comparison's loader is refused for the result's size.
+    nativeMenuCommand("view.section.results");
+    const resultsSection = screen.getByTestId("workspace-section-results");
+    fireEvent.click(within(resultsSection).getByTestId("c2-result-load"));
+    expect(await within(resultsSection).findByTestId("c2-result-refused")).toHaveTextContent(`RESULT-DETAIL-WEBVIEW-LIMIT: This result is ${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1} bytes`);
     nativeMenuCommand("view.section.report");
     const refusals = await within(screen.getByTestId("workspace-section-report")).findAllByTestId("c2-result-refused");
     for (const refusal of refusals) expect(refusal).toHaveTextContent(`RESULT-DETAIL-WEBVIEW-LIMIT: This result is ${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1} bytes`);

@@ -17,7 +17,7 @@ import { isNavigatorExcludedTarget } from "./resultsNavigator";
 import { stressRatioTableFromSummary } from "../../services/resultSummary";
 import { stressRatioTableWithRuleRows } from "./stressRatioTable";
 import type { SupportLoadCase } from "./supportLoadSummary";
-import { useRuleCheckRows } from "./useRuleCheckRows";
+import { ruleRowsRead, useRuleCheckRows } from "./useRuleCheckRows";
 import {
   KEY_DEFLECTION_NO_CASES,
   KEY_RATIO_NONE,
@@ -67,16 +67,18 @@ export function KeyResultsPanel(props: KeyResultsPanelProps) {
   const { model, result, standing, ruleCheckRun = null, historical = false, canvasHidden = false } = props;
   // C1: a native result's key results are S's (not historical) with the standing text the builder
   // adds; with a rule-check run, the ratio section is formed from the rows the run binds, read from
-  // the held result by id. Until they are read the key results are as they are with no result.
+  // the held result by id. The summary's key results are shown throughout; only the ratio waits
+  // for the rows (its note says they are being read) or, if the read is refused, says they could
+  // not be read, in the refusal's words.
   const nativeSummary = boundSummary(result, model);
   const ruleRows = useRuleCheckRows(historical ? null : result, ruleCheckRun);
   const titleId = useId();
   const data = useMemo(
     () => {
       if (!result || !isNativeResult(result) || historical) return buildKeyResults({ model, result: result && isNativeResult(result) ? null : result as MechanicsResult | null, standing, ruleCheckRun, historical });
-      if (!nativeSummary || (ruleCheckRun && !ruleRows)) return buildKeyResults({ model, result: null, standing, ruleCheckRun: null, historical });
+      if (!nativeSummary) return buildKeyResults({ model, result: null, standing, ruleCheckRun: null, historical });
       const summaryTable = nativeSummary.header.tables.key_results as ReturnType<typeof buildKeyResults>;
-      const table = ruleCheckRun && ruleRows
+      const table = ruleCheckRun
         ? keyResultsWithRuleCheckRun({
           model,
           summaryKeyResults: summaryTable,
@@ -85,7 +87,7 @@ export function KeyResultsPanel(props: KeyResultsPanelProps) {
             cases: nativeSummary.header.tables.support_load_cases as unknown as SupportLoadCase[],
             standing,
             ruleCheckRun,
-            rows: ruleRows
+            rows: ruleRowsRead(ruleRows)
           }),
           ruleCheckRun
         })

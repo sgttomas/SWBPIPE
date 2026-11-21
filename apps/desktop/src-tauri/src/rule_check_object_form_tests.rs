@@ -273,7 +273,7 @@ fn the_raw_ipc_form_refuses_positional_arguments_and_records() {
         }
         let args = json!({"rulePackDocument": restamp(probe), "model": request["model"], "jobId": job});
         let (mut args, _lease) = admit_json(&pool, "run_rule_checks", ArgsDecoding::Moved, &args).expect("admitted");
-        let outcome: Value = serde_json::from_str(&run_rule_checks_args(&mut args, &no_store, &pool).expect("the run answers")).unwrap();
+        let outcome: Value = serde_json::from_str(&run_rule_checks_args(&mut args, &no_store, &pool).expect("the run answers").0).unwrap();
         assert_eq!(outcome["aggregate_status"], "RULE_INPUTS_INCOMPLETE", "{positional_provenance}");
         assert_eq!(outcome["checks"], json!([]), "{positional_provenance}");
         let expected = if positional_provenance { "MISSING_REVIEW_STATUS" } else { "PROTECTED_CONTENT_SUSPECTED" };

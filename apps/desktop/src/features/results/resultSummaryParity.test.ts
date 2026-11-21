@@ -31,6 +31,10 @@ import { readerDispatch, rememberReceivedText } from "./resultReader";
 import { documentCombinationIdentities, rosterCheckedByReader } from "./suppliedDiagnostics";
 import { semanticLabels } from "./resultSemantics";
 import { buildStressRatioTable, ruleCheckBoundResultIds, stressRatioTableWithRuleRows } from "./stressRatioTable";
+import { collectRuleCheckRows } from "./useRuleCheckRows";
+import { emulateLookup } from "../../test-support/resultDetailEmulation";
+import { nativeRowKey, withPublishedIds } from "../../services/nativeResult";
+import type { Lookup, LookupRequest } from "../../services/resultDetail";
 import { ruleCheckRunOn } from "../../test-support/ruleCheckRunOn";
 import { buildSupportLoadSummaries, supportLoadCases } from "./supportLoadSummary";
 
@@ -103,6 +107,16 @@ function standingOf(testCase: SummaryCase, sourceText: string, engine: Json): { 
   return { health, standing: { eligible, health: numericalHealthView(parseNumericalHealth(health), { eligible, verdictHold: false }) } };
 }
 
+/** The summary cases whose rule-check run offered a rule-ratio colour (checked below to be some). */
+/** `value` with every Map as its entries, in order, so its keys and values are compared as written. */
+function entries(value: unknown): unknown {
+  if (value instanceof Map) return [...value].map(([key, item]) => [entries(key), entries(item)]);
+  if (Array.isArray(value)) return value.map(entries);
+  if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, entries(item)]));
+  return value;
+}
+const RULE_RATIO_OVERLAYS = new Set<string>();
+
 describe("C1 slice 2: S is the TypeScript builders' output", () => {
   it("keeps the committed cases file equal to its generator", () => {
     const text = resultSummaryCasesText();
@@ -163,20 +177,43 @@ describe("C1 slice 2: S is the TypeScript builders' output", () => {
     expect(displacementExtremesFromSummary(summary), "displacement extremes").toEqual(buildDisplacementExtremes({ model, result: source, standing }));
     expect(tables.support_load_summaries, "support load summaries").toEqual(buildSupportLoadSummaries({ model, result: source, standing }));
     expect(stressRatioTableFromSummary(summary, resolveId), "stress and ratio table").toEqual(buildStressRatioTable({ model, result: source, standing }));
-    // With a rule-check run (C1, by handle): the table and the key results formed from S and the rows
-    // the run binds, each looked up by id as the native lookup gives it ("last"), equal the
-    // builders' on the full rows; a run binding an id this result does not hold is another result's.
-    const byId = new Map(rows.map((row) => [row.id, row] as const));
+    // With a rule-check run (C1, by handle): the table, the key results and the viewport's rule
+    // ratios formed as the native displays form them (S keyed by native row keys, and the run's
+    // bound rows read through `collectRuleCheckRows` from the native lookup, here its emulation
+    // over the same rows, each kept as the displays keep it), their row keys then published as ids,
+    // equal the builders' on the full rows; a run binding an id this result does not hold is
+    // another result's.
+    const lookup = async (request: LookupRequest): Promise<Lookup> => {
+      const found = emulateLookup(rows, request);
+      const entry = (ordinal: number | null) => (ordinal === null ? null : { ordinal, text: JSON.stringify(rows[ordinal]), row: rows[ordinal] });
+      return { rowCount: rows.length, ordinals: found.ordinals.map(entry), ids: found.ids.map(entry), kinds: found.kinds.map(entry) } as unknown as Lookup;
+    };
+    const published = new Map(rows.map((row, ordinal) => [ordinal, row.id] as const));
+    const nativeReduced = { ...header.envelope, results: displayRows(summary, nativeRowKey) } as MechanicsResult;
     for (const foreign of [null, "invented:not-a-row-of-this-result"]) {
       const run = ruleCheckRunOn(source, foreign);
-      const bound = new Map(ruleCheckBoundResultIds(run).flatMap((id) => (byId.has(id) ? [[id, byId.get(id)!] as const] : [])));
-      const withRun = stressRatioTableWithRuleRows({ summaryTable: stressRatioTableFromSummary(summary, resolveId), cases: tables.support_load_cases, standing, ruleCheckRun: run, rows: bound });
+      const bound = await collectRuleCheckRows(ruleCheckBoundResultIds(run), lookup);
+      const withRun = stressRatioTableWithRuleRows({ summaryTable: stressRatioTableFromSummary(summary, nativeRowKey), cases: tables.support_load_cases, standing, ruleCheckRun: run, rows: { state: "ready", rows: bound } });
       const expectedTable = buildStressRatioTable({ model, result: source, standing, ruleCheckRun: run });
-      expect(withRun, `stress and ratio table with a run (${foreign ?? "this result's rows"})`).toEqual(expectedTable);
+      const label = foreign ?? "this result's rows";
+      expect(withPublishedIds(withRun, published), `stress and ratio table with a run (${label})`).toEqual(expectedTable);
       if (source.status.mechanics === "MECHANICS_SOLVED") expect(expectedTable.run.state, "the run is read").toBe(foreign ? "not_this_result" : "used");
       const expectedKey: Json = { ...buildKeyResults({ model, result: source, standing, ruleCheckRun: run }) };
       delete expectedKey.standingText;
-      expect(keyResultsWithRuleCheckRun({ model, summaryKeyResults: tables.key_results, table: withRun, ruleCheckRun: run }), `key results with a run (${foreign ?? "this result's rows"})`).toEqual(expectedKey);
+      expect(withPublishedIds(keyResultsWithRuleCheckRun({ model, summaryKeyResults: tables.key_results, table: withRun, ruleCheckRun: run }), published), `key results with a run (${label})`).toEqual(expectedKey);
+      // The viewport's colour quantities and every rule-ratio overlay, over every overlay case and
+      // both resolutions.
+      const quantities = availableResultColourQuantities(model, nativeReduced, withRun);
+      expect(quantities, `colour quantities with a run (${label})`).toEqual(availableResultColourQuantities(model, source, expectedTable));
+      for (const quantity of quantities.filter((item) => item.source === "rule_ratio")) {
+        RULE_RATIO_OVERLAYS.add(testCase.name);
+        for (const overlayCase of [null, ...resultOverlayCases(model, source)]) {
+          for (const resolution of ["member", "station"] as const) {
+            expect(withPublishedIds(entries(buildResultColourOverlay({ model, result: nativeReduced, standing, quantity, overlayCase, resolution, ratioTable: withRun })), published), `${quantity.id} ${overlayCase?.key} ${resolution}`)
+              .toEqual(entries(buildResultColourOverlay({ model, result: source, standing, quantity, overlayCase, resolution, ratioTable: expectedTable })));
+          }
+        }
+      }
     }
     expect(tables.component_bodies, "component bodies").toEqual([...componentBodies(source)]);
     const keyResults: Json = { ...buildKeyResults({ model, result: source, standing }) };
@@ -209,6 +246,10 @@ describe("C1 slice 2: S is the TypeScript builders' output", () => {
         expect(buildRotationOverlay(model, reduced, { basisKey }), `rotation ${basisKey}`).toEqual(buildRotationOverlay(model, source, { basisKey }));
       }
     }
+  });
+
+  it("compares the rule-ratio colour on some summary case (the loop above is not empty)", () => {
+    expect(RULE_RATIO_OVERLAYS.size).toBeGreaterThan(0);
   });
 });
 

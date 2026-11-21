@@ -254,6 +254,29 @@ impl<'a> RowIndex<'a> {
     }
 
     /// Every row the selector matches on `basis`, in envelope order.
+    /// The first `most` rows [`Self::select`] names, in its order, stopping there.
+    pub(crate) fn select_up_to(
+        &self,
+        selector: &SolverResultSelector,
+        basis: &BasisRef,
+        most: usize,
+    ) -> Vec<&'a Value> {
+        self.rows
+            .get(&(
+                basis.clone(),
+                selector.result_kind.as_str(),
+                selector.entity_ref.as_str(),
+            ))
+            .map(|rows| {
+                rows.iter()
+                    .filter(|(row, rod)| row_matches(selector, basis, row, *rod))
+                    .map(|(row, _)| *row)
+                    .take(most)
+                    .collect()
+            })
+            .unwrap_or_default()
+    }
+
     pub(crate) fn select(
         &self,
         selector: &SolverResultSelector,
@@ -470,30 +493,85 @@ pub(crate) fn resolve_rule_pack_solver_inputs(
     resolution
 }
 
-/// The display facts of one matched row: what the rule-check panel shows of it.
-fn preview_row(envelope: &Value, row: &Value) -> Value {
+/// Writes the display facts of one matched row, what the rule-check panel shows
+/// of it, from the row's own members, borrowed, through `out`.
+fn emit_preview_row(envelope: &Value, row: &Value, out: &mut PreviewWriter<'_>) -> Result<(), String> {
     #[cfg(test)]
     PREVIEW_ROWS_BUILT.with(|count| count.set(count.get() + 1));
-    let mut shown = serde_json::json!({
-        "id": row.get("id").cloned().unwrap_or(Value::Null),
-        "value": row.get("value").cloned().unwrap_or(Value::Null),
-        "unit": row.get("unit").cloned().unwrap_or(Value::Null),
-        "dimension": row.get("dimension").cloned().unwrap_or(Value::Null),
-        "binding_refusal": open_pipe_stress_result_export::semantic_contract::rule_binding_refusal(envelope, row),
-    });
+    let member = |key: &str| row.get(key).unwrap_or(&Value::Null);
+    out.put(b"{\"id\":")?;
+    out.json(member("id"))?;
+    out.put(b",\"value\":")?;
+    out.json(member("value"))?;
+    out.put(b",\"unit\":")?;
+    out.json(member("unit"))?;
+    out.put(b",\"dimension\":")?;
+    out.json(member("dimension"))?;
+    out.put(b",\"binding_refusal\":")?;
+    out.json(&open_pipe_stress_result_export::semantic_contract::rule_binding_refusal(envelope, row))?;
     if let Some(body) = row.get("component_body") {
-        shown["component_body"] = serde_json::json!({
-            "component_ref": body.get("component_ref").cloned().unwrap_or(Value::Null),
-            "stiffness_scale": body.get("stiffness_scale").cloned().unwrap_or(Value::Null),
-        });
+        out.put(b",\"component_body\":{\"component_ref\":")?;
+        out.json(body.get("component_ref").unwrap_or(&Value::Null))?;
+        out.put(b",\"stiffness_scale\":")?;
+        out.json(body.get("stiffness_scale").unwrap_or(&Value::Null))?;
+        out.put(b"}")?;
     }
-    shown
+    out.put(b"}")
+}
+
+/// The most bytes the preview hands its sink at once: a long member is written in
+/// pieces of at most this size, so a count refuses within one piece of its limit.
+pub(crate) const PREVIEW_WRITE_PIECE_BYTES: usize = 64 * 1024;
+
+/// The preview's writer: every byte of the reply goes through `sink`, in pieces of
+/// at most [`PREVIEW_WRITE_PIECE_BYTES`]; a sink's refusal stops the writing and
+/// is kept, so the caller returns it.
+struct PreviewWriter<'s> {
+    sink: &'s mut dyn FnMut(&[u8]) -> Result<(), String>,
+    refusal: Option<String>,
+}
+
+impl PreviewWriter<'_> {
+    fn put(&mut self, bytes: &[u8]) -> Result<(), String> {
+        for piece in bytes.chunks(PREVIEW_WRITE_PIECE_BYTES) {
+            #[cfg(test)]
+            PREVIEW_LARGEST_PIECE.with(|largest| largest.set(largest.get().max(piece.len())));
+            (self.sink)(piece)?;
+        }
+        Ok(())
+    }
+    /// `value`'s compact JSON, written as serde writes it, borrowed.
+    fn json(&mut self, value: &impl serde::Serialize) -> Result<(), String> {
+        match serde_json::to_writer(&mut *self, value) {
+            Ok(()) => Ok(()),
+            Err(error) => Err(self.refusal.take().unwrap_or_else(|| error.to_string())),
+        }
+    }
+}
+
+impl std::io::Write for PreviewWriter<'_> {
+    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+        match self.put(buf) {
+            Ok(()) => Ok(buf.len()),
+            Err(refusal) => {
+                self.refusal = Some(refusal);
+                Err(std::io::Error::other("the preview's sink refused"))
+            }
+        }
+    }
+    fn flush(&mut self) -> std::io::Result<()> {
+        Ok(())
+    }
 }
 
 #[cfg(test)]
 thread_local! {
     /// Test support: how many matched rows the preview has built on this thread.
     pub(crate) static PREVIEW_ROWS_BUILT: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+    /// Test support: the largest piece the preview has handed a sink on this thread.
+    pub(crate) static PREVIEW_LARGEST_PIECE: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+    /// Test support: the most rows one basis's selection has collected on this thread.
+    pub(crate) static PREVIEW_MOST_SELECTED: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
 }
 
 /// The most queries one selector preview may carry: one per solver input of a pack.
@@ -605,46 +683,52 @@ pub(crate) fn parse_preview_queries(queries: Value) -> Result<Vec<PreviewQuery>,
 /// basis. The display distinguishes no row, one row and more than one, so
 /// `matched` is 0, 1 or 2 (two or more) and `rows` holds the row only when it is
 /// the one the run would bind. Nothing here binds a value.
-fn emit_preview(envelope: &Value, queries: &[PreviewQuery], job_id: &str, sink: &mut dyn FnMut(&str) -> Result<(), String>) -> Result<(), String> {
-    let text = |value: &Value| serde_json::to_string(value).expect("a JSON value serializes");
+fn emit_preview(envelope: &Value, queries: &[PreviewQuery], job_id: &str, sink: &mut dyn FnMut(&[u8]) -> Result<(), String>) -> Result<(), String> {
+    let mut out = PreviewWriter { sink, refusal: None };
     let index = RowIndex::new(envelope);
     let row_count = envelope.get("results").and_then(Value::as_array).map_or(0, Vec::len);
-    sink(&format!(
-        r#"{{"document_kind":"swbpipe.desktop.rule_solver_rows_preview","version":1,"row_count":{row_count},"job_id":{},"inputs":["#,
-        text(&Value::String(job_id.to_string()))
-    ))?;
+    out.put(format!(r#"{{"document_kind":"swbpipe.desktop.rule_solver_rows_preview","version":1,"row_count":{row_count},"job_id":"#).as_bytes())?;
+    out.json(&job_id)?;
+    out.put(b",\"inputs\":[")?;
     for (at, query) in queries.iter().enumerate() {
-        sink(if at == 0 { "" } else { "," })?;
+        if at > 0 {
+            out.put(b",")?;
+        }
+        out.put(b"{\"input_id\":")?;
+        out.json(&query.input_id)?;
         let Some(selector) = &query.selector else {
-            sink(&format!(r#"{{"input_id":{},"selector_readable":false,"bases":[]}}"#, text(&Value::String(query.input_id.clone()))))?;
+            out.put(b",\"selector_readable\":false,\"bases\":[]}")?;
             continue;
         };
-        sink(&format!(r#"{{"input_id":{},"selector_readable":true,"bases":["#, text(&Value::String(query.input_id.clone()))))?;
+        out.put(b",\"selector_readable\":true,\"bases\":[")?;
         for (number, basis) in query.bases.iter().enumerate() {
-            let selected = index.select(selector, basis);
-            let rows: Vec<Value> = match selected.as_slice() {
-                [row] => vec![preview_row(envelope, row)],
-                _ => Vec::new(),
-            };
-            let entry = serde_json::json!({
-                "basis_ref": {"ref_type": basis.ref_type, "ref_id": basis.ref_id},
-                "solved": index.is_solved(basis),
-                "matched": selected.len().min(2),
-                "rows": rows,
-            });
-            sink(if number == 0 { "" } else { "," })?;
-            sink(&text(&entry))?;
+            // Two rows are enough to say "more than one": the selection stops there.
+            let selected = index.select_up_to(selector, basis, 2);
+            #[cfg(test)]
+            PREVIEW_MOST_SELECTED.with(|most| most.set(most.get().max(selected.len())));
+            if number > 0 {
+                out.put(b",")?;
+            }
+            out.put(b"{\"basis_ref\":{\"ref_type\":")?;
+            out.json(&basis.ref_type)?;
+            out.put(b",\"ref_id\":")?;
+            out.json(&basis.ref_id)?;
+            out.put(format!(r#"}},"solved":{},"matched":{},"rows":["#, index.is_solved(basis), selected.len()).as_bytes())?;
+            if let [row] = selected.as_slice() {
+                emit_preview_row(envelope, row, &mut out)?;
+            }
+            out.put(b"]}")?;
         }
-        sink("]}")?;
+        out.put(b"]}")?;
     }
-    sink("]}")
+    out.put(b"]}")
 }
 
 /// The exact length of the preview reply, counted as it would be written and
 /// refused by name as soon as the running count passes `limit`.
 pub(crate) fn preview_reply_length(envelope: &Value, queries: &[PreviewQuery], job_id: &str, limit: u64) -> Result<u64, String> {
     let mut length = 0u64;
-    emit_preview(envelope, queries, job_id, &mut |piece| {
+    emit_preview(envelope, queries, job_id, &mut |piece: &[u8]| {
         length += piece.len() as u64;
         if length > limit {
             return Err(format!(
@@ -656,15 +740,16 @@ pub(crate) fn preview_reply_length(envelope: &Value, queries: &[PreviewQuery], j
     Ok(length)
 }
 
-/// The preview reply's text ([`emit_preview`]), written once its length is leased.
-pub(crate) fn write_preview_reply(envelope: &Value, queries: &[PreviewQuery], job_id: &str) -> String {
-    let mut text = String::new();
-    emit_preview(envelope, queries, job_id, &mut |piece| {
-        text.push_str(piece);
+/// The preview reply's text ([`emit_preview`]), written once its `length` is
+/// leased, into a buffer of exactly that capacity.
+pub(crate) fn write_preview_reply(envelope: &Value, queries: &[PreviewQuery], job_id: &str, length: u64) -> String {
+    let mut bytes = Vec::with_capacity(length as usize);
+    emit_preview(envelope, queries, job_id, &mut |piece: &[u8]| {
+        bytes.extend_from_slice(piece);
         Ok(())
     })
-    .expect("writing to a string does not refuse");
-    text
+    .expect("writing to a buffer does not refuse");
+    String::from_utf8(bytes).expect("the preview writes JSON text")
 }
 
 /// The selector that names `row` (test support): its kind, entity, location,

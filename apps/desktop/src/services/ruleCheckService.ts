@@ -257,10 +257,8 @@ async function checkSolvedSource(
     invokeArgs.suppliedValueBindings = args.suppliedValueBindings;
   }
   if (args.projectId) invokeArgs.projectId = args.projectId;
-  const result = await invokeWithIngress<RuleCheckRunResult>("run_rule_checks", invokeArgs);
-  // A reply that arrives after local custody of that handle ended is discarded: the result it
-  // speaks for is no longer the session's.
-  if (nativeHeldMechanicsResultJob(source) !== jobId) throw new Error(NOT_HELD_MESSAGE);
+  const stillHeld = () => nativeHeldMechanicsResultJob(source) === jobId;
+  const result = await deliveredWhileHeld(stillHeld, () => invokeWithIngress<RuleCheckRunResult>("run_rule_checks", invokeArgs, { stillCurrent: stillHeld }));
   return { route: "tauri_backend", result, loadReferenceDisclosure: disclosure };
 }
 
@@ -792,7 +790,8 @@ export async function previewSolverRowsByHandle(source: NativeResult, queries: r
   if (!isTauriRuntime()) throw new Error(RULE_CHECK_BACKEND_DIAGNOSTIC);
   const { jobId } = nativeCustody(source);
   if (!isNativeJobLive(jobId)) throw new Error(NOT_HELD_MESSAGE);
-  const preview = await invokeWithIngress<NativeSolverRowsPreview>("preview_rule_solver_rows", {
+  const stillHeld = () => isNativeJobLive(jobId);
+  return deliveredWhileHeld(stillHeld, () => invokeWithIngress<NativeSolverRowsPreview>("preview_rule_solver_rows", {
     jobId,
     queries: queries.map((query) => ({
       input_id: query.input_id,
@@ -800,10 +799,24 @@ export async function previewSolverRowsByHandle(source: NativeResult, queries: r
       // Each basis once: the native preview refuses a basis named twice in one query.
       bases: query.bases.flatMap((loadCase, index) => (loadCase.basis_ref && query.bases.findIndex((other) => sameBasis(other.basis_ref, loadCase.basis_ref!)) === index ? [loadCase.basis_ref] : []))
     }))
-  });
-  // A reply that arrives after local custody of that handle ended is discarded.
-  if (!isNativeJobLive(jobId)) throw new Error(NOT_HELD_MESSAGE);
-  return preview;
+  }, { stillCurrent: stillHeld }));
+}
+
+/** C1 custody at delivery: the outcome of `send`, a reply or a refusal, only while `stillHeld`; a
+ * reply or a refusal that arrives after local custody of the handle ended is discarded and the
+ * not-held refusal given instead, so nothing read for a result the session no longer holds (its
+ * standing, a parse refusal) is passed on. `send` is given `stillHeld` for its re-sends, so none is
+ * sent after custody ends. */
+async function deliveredWhileHeld<T>(stillHeld: () => boolean, send: () => Promise<T>): Promise<T> {
+  let delivered: { ok: true; value: T } | { ok: false; error: unknown };
+  try {
+    delivered = { ok: true, value: await send() };
+  } catch (error) {
+    delivered = { ok: false, error };
+  }
+  if (!stillHeld()) throw new Error(NOT_HELD_MESSAGE);
+  if (!delivered.ok) throw delivered.error;
+  return delivered.value;
 }
 
 /** `resolveSolverSelector`'s reading of one input from the native preview. */

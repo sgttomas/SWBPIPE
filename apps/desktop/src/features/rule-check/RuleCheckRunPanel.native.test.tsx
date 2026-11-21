@@ -3,7 +3,9 @@
 // the webview. The native solve's readers answer from the actual Rust commands' recorded replies;
 // `preview_rule_solver_rows` and `run_rule_checks` are mocked here (their native behaviour is
 // pinned by `rule_check_handle_tests.rs`), the preview's reply computed from the same bytes by the
-// webview's mirror of the run's selection. Unit transport replay; NOT native UI qualification.
+// webview's mirror of the run's selection, held to the native selection's answer: a held-status
+// operand row is never selected (`rule_solver_selection_tests.rs`), where the mirror alone would
+// select it. Unit transport replay; NOT native UI qualification.
 // Invented data only.
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
@@ -19,6 +21,7 @@ import { ruleBindingRefusal } from "../results/knownSemanticLimitations";
 import { RuleCheckRunPanel } from "./RuleCheckRunPanel";
 import type { MechanicsResult } from "../../types";
 import demoPack from "../../../../../fixtures/product_preview/invented_demo_rule_pack.json";
+import heldCorpus from "../../../../../fixtures/results/preview_physics_held_status_corpus.json";
 
 const RULE_ANSWER = {
   document_kind: "openpipestress.rule_check.run",
@@ -46,22 +49,28 @@ afterEach(() => {
   delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
 });
 
-/** The preview reply for `queries`, from the full bytes, by the webview's mirror of the run's selection. */
-function previewReply(queries: { input_id: string; selector: SolverResultRef; bases: RuleCheckBasisRef[] }[]) {
+type PreviewQuery = { input_id: string; selector: SolverResultRef; bases: RuleCheckBasisRef[] };
+
+/** A held-status operand row (`metadata.basis` `held_status_operand`), which the native selection never selects. */
+const heldOperand = (row: MechanicsResult["results"][number]) => (row.metadata as Record<string, unknown> | undefined)?.basis === "held_status_operand";
+
+/** The preview reply for `queries` on `source`, by the webview's mirror of the run's selection with
+ * the native selection's exclusion of held-status operands. */
+function previewReply(queries: PreviewQuery[], source: MechanicsResult = full) {
   return {
     document_kind: "swbpipe.desktop.rule_solver_rows_preview",
     version: 1,
-    row_count: full.results.length,
+    row_count: source.results.length,
     inputs: queries.map((query) => ({
       input_id: query.input_id,
       selector_readable: true,
       bases: query.bases.map((basis) => {
-        const selected = selectSolverRows(full, query.selector, basis);
+        const selected = selectSolverRows(source, query.selector, basis).filter((row) => !heldOperand(row));
         return {
           basis_ref: basis,
-          solved: full.results.some((row) => { const read = readBasisRef(row.basis_ref); return read?.ref_type === basis.ref_type && read.ref_id === basis.ref_id; }),
+          solved: source.results.some((row) => { const read = readBasisRef(row.basis_ref); return read?.ref_type === basis.ref_type && read.ref_id === basis.ref_id; }),
           matched: Math.min(selected.length, 2),
-          rows: selected.length === 1 ? selected.map((row) => ({ id: row.id, value: row.value, unit: row.unit, dimension: row.dimension ?? null, binding_refusal: ruleBindingRefusal(full, row) })) : []
+          rows: selected.length === 1 ? selected.map((row) => ({ id: row.id, value: row.value, unit: row.unit, dimension: row.dimension ?? null, binding_refusal: ruleBindingRefusal(source, row) })) : []
         };
       })
     })),
@@ -154,4 +163,20 @@ it("discards a preview reply that arrives after the result's custody ended, and 
   await waitFor(() => expect(screen.getByTestId("rule-check-run-status").textContent).toContain("RULE_CHECK_RESULT_NOT_HELD"));
   const basis = row.basis_ref as RuleCheckBasisRef;
   expect(screen.queryByTestId(`rule-check-solver-basis-demo_actual_quantity--${basis.ref_type}--${basis.ref_id}`)).toBeNull();
+});
+
+it("answers a selector naming a held combination's node as the native selection does: its held-status operand is not selected", () => {
+  // The held-status corpus's first document: node:a on comb:o-s-held has the combination's own
+  // displacement row and the held system's operand row of the same kind and entity.
+  const held = heldCorpus.documents[0].document as unknown as MechanicsResult;
+  const own = held.results.find((row) => row.id === "result:combination:comb-o-s-held:disp:node-a:ux")!;
+  const operand = held.results.find((row) => row.id === "result:combination:comb-o-s-held:held:disp:node-a:ux")!;
+  expect(heldOperand(operand)).toBe(true);
+  const selector = solverSelectorForRow(held, own)!;
+  const basis = own.basis_ref as RuleCheckBasisRef;
+  // The mirror alone selects both; the native selection, and so the mocked reply, only the combination's own row.
+  expect(selectSolverRows(held, selector, basis).map((row) => row.id)).toEqual(expect.arrayContaining([own.id, operand.id]));
+  const reply = previewReply([{ input_id: "demo_actual_quantity", selector, bases: [basis] }], held).inputs[0].bases[0];
+  expect(reply.matched).toBe(1);
+  expect(reply.rows.map((row) => row.id)).toEqual([own.id]);
 });

@@ -863,6 +863,41 @@ describe("custody that ends while a reply is awaited, and the transient solve's 
     expect(sent("preview_rule_solver_rows")).toHaveLength(1);
   });
 
+  it("refuses a run or preview refusal that arrives after the handle's custody ended as not held, not as the command's refusal", async () => {
+    let held: NativeResult | null = null;
+    const result = await heldHandle(async (command) => {
+      await disposeDeliveredMechanicsResult(held);
+      throw `RULE_CHECK_RESULT_UNREADABLE: ${command} could not read the job`;
+    });
+    held = result;
+    await expect(runRuleChecks({ rulePackDocument: pack, model: pair.model, solvedEnvelope: result })).rejects.toThrow(`${RULE_CHECK_RESULT_NOT_HELD}: the solved result is no longer held.`);
+    const again = await heldHandle(async () => {
+      await disposeDeliveredMechanicsResult(held);
+      throw "RULE_CHECK_RESULT_UNREADABLE: preview_rule_solver_rows could not read the job";
+    });
+    held = again;
+    await expect(previewSolverRowsByHandle(again, [])).rejects.toThrow(`${RULE_CHECK_RESULT_NOT_HELD}: the solved result is no longer held.`);
+  });
+
+  it("sends no resend for a headroom refusal once the handle's custody has ended", async () => {
+    let held: NativeResult | null = null;
+    const headroom = { code: "RESOURCE_UNAVAILABLE", refusal: { kind: "headroom_insufficient", required_bytes: 68165632, available_bytes: 52641792 }, pool: null };
+    const result = await heldHandle(async () => {
+      await disposeDeliveredMechanicsResult(held);
+      throw headroom;
+    });
+    held = result;
+    await expect(runRuleChecks({ rulePackDocument: pack, model: pair.model, solvedEnvelope: result })).rejects.toThrow(`${RULE_CHECK_RESULT_NOT_HELD}: the solved result is no longer held.`);
+    expect(sent("run_rule_checks")).toHaveLength(1);
+    const again = await heldHandle(async () => {
+      await disposeDeliveredMechanicsResult(held);
+      throw headroom;
+    });
+    held = again;
+    await expect(previewSolverRowsByHandle(again, [])).rejects.toThrow(`${RULE_CHECK_RESULT_NOT_HELD}: the solved result is no longer held.`);
+    expect(sent("preview_rule_solver_rows")).toHaveLength(1);
+  });
+
   /** The transient solve's transport, with `fail` failing one command and releases answered late. */
   function transient(fail: string) {
     const replay = createNativeMechanicsReplay({ profile: "preview" });

@@ -113,7 +113,9 @@ export type KeyRatioCategory = Readonly<{
   unavailableReason: string | null;
 }>;
 
-export type KeyRatioState = "absent" | "not_run" | "not_this_result" | "no_outcomes" | "used";
+/** "rows_pending", "rows_unread": the run's bound rows are being read from the held result, or could
+ * not be read (its note says why); the ratio is withheld. */
+export type KeyRatioState = "absent" | "not_run" | "not_this_result" | "no_outcomes" | "rows_pending" | "rows_unread" | "used";
 
 export type KeyRatioSection = Readonly<{
   state: KeyRatioState;
@@ -186,6 +188,7 @@ function ratioSection(input: {
   const token = ruleCheckRun!.result.aggregate_status;
   const aggregate = Object.freeze({ token, text: statusDisplay(token) });
   if (run.state === "not_this_result") return Object.freeze({ ...base, state: "not_this_result" as const, note: KEY_RATIO_NOT_THIS_RESULT });
+  if (run.state === "rows_pending" || run.state === "rows_unread") return Object.freeze({ ...base, aggregate, state: run.state, note: run.note });
   if (run.state === "no_outcomes") return Object.freeze({ ...base, aggregate, state: "no_outcomes" as const, note: keyRatioNoOutcomesText(run.rulePackId ?? "") });
   const pipeIds = new Set(model.pipe_segments.map((pipe) => pipe.id));
   const groups = table.groups.filter((group) => group.source === "rule_category");

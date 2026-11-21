@@ -286,6 +286,13 @@ export function ruleOutcomePlace(row: StressRatioGroup["rows"][number], pipeIds:
   return { member, fraction: fractions.size === 1 ? [...fractions][0] : null };
 }
 
+/** A requested rule ratio the run does not (yet) offer: kept as asked, so the view draws no other
+ * quantity in its place and its legend says why (`buildResultColourOverlay`). */
+export function requestedRuleRatioQuantity(id: string): ResultColourQuantity | null {
+  if (!id.startsWith(RULE_RATIO_QUANTITY_PREFIX)) return null;
+  return Object.freeze({ id, label: "Rule ratio", kind: id.slice(RULE_RATIO_QUANTITY_PREFIX.length), dimension: "ratio" as const, attachment: "member" as const, source: "rule_ratio" as const });
+}
+
 /** The ratio quantities of the session's rule-check run: one per stress category of the user's
  * rule pack with at least one outcome located on a single pipe of the model. None without a run. */
 export function ruleRatioColourQuantities(model: PreviewModel, table: StressRatioTable | null | undefined): ResultColourQuantity[] {
@@ -560,7 +567,8 @@ export function buildResultColourOverlay(input: {
     const group = ratioTable?.run.state === "used"
       ? ratioTable.groups.find((item) => item.source === "rule_category" && `${RULE_RATIO_QUANTITY_PREFIX}${item.id}` === quantity.id)
       : undefined;
-    if (!group) return empty("No rule-check run of this result for the ratio");
+    // A native run whose rows are being read, or could not be read, says so.
+    if (!group) return empty(ratioTable?.run.state === "rows_pending" || ratioTable?.run.state === "rows_unread" ? ratioTable.run.note : "No rule-check run of this result for the ratio");
     gathered = ruleContributions(model, group, overlayCase);
   } else {
     gathered = rowContributions(model, result, standing, quantity, overlayCase, resolution);

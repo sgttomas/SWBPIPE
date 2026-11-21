@@ -119,6 +119,7 @@ import { instancedRotationGlyphMeshes, type RotationGlyphPlacement } from "./vie
 import {
   availableResultColourQuantities,
   buildResultColourOverlay,
+  requestedRuleRatioQuantity,
   resultColourTable,
   resultOverlayCases,
   type ResultColourDisplay,
@@ -132,7 +133,7 @@ import { buildResultContourMesh, contourMeshMembers, type ContourMeshMember } fr
 import { ResultValueLabels, resultValueLabelAnchors } from "./ResultValueLabels";
 import { buildStressRatioTable, stressRatioTableWithRuleRows } from "../results/stressRatioTable";
 import type { SupportLoadCase } from "../results/supportLoadSummary";
-import { useRuleCheckRows } from "../results/useRuleCheckRows";
+import { ruleRowsRead, useRuleCheckRows } from "../results/useRuleCheckRows";
 import type { SessionRuleCheckRun } from "../report/renderableReportInput";
 import type { ResultOverlayStanding } from "../results/numericalHealth";
 import type { ViewportPaletteRole } from "./viewportPalette";
@@ -747,13 +748,13 @@ export function PipeViewport({
       if (!resultColourOn || !ruleCheckRun || !result) return null;
       if (!isNativeResult(sessionResult)) return buildStressRatioTable({ model, result, standing: resultStanding, ruleCheckRun });
       const summary = boundSummary(sessionResult, model);
-      return summary && ruleRows
+      return summary
         ? stressRatioTableWithRuleRows({
           summaryTable: stressRatioTableFromSummary(summary, nativeRowKey),
           cases: summary.header.tables.support_load_cases as unknown as SupportLoadCase[],
           standing: resultStanding,
           ruleCheckRun,
-          rows: ruleRows
+          rows: ruleRowsRead(ruleRows)
         })
         : null;
     },
@@ -761,7 +762,11 @@ export function PipeViewport({
   );
   const overlayQuantities = useMemo(() => availableResultColourQuantities(model, result, ratioTable), [model, ratioTable, result]);
   const overlayCase = overlayCases.find((item) => item.key === overlayCaseKey) ?? overlayCases[0] ?? null;
-  const overlayQuantity = overlayQuantities.find((item) => item.id === overlayQuantityId) ?? overlayQuantities[0] ?? null;
+  // A requested rule ratio the run does not offer (its rows still being read, or refused) is kept,
+  // drawing nothing, rather than replaced by the first quantity.
+  const overlayQuantity = overlayQuantities.find((item) => item.id === overlayQuantityId)
+    ?? (overlayQuantityId !== null && ruleCheckRun ? requestedRuleRatioQuantity(overlayQuantityId) : null)
+    ?? overlayQuantities[0] ?? null;
   const colourOverlay = useMemo(
     () => resultColourOn
       ? buildResultColourOverlay({ model, result, standing: resultStanding, quantity: overlayQuantity, overlayCase, resolution: overlayResolution, ratioTable })

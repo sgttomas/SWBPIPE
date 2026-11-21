@@ -3887,16 +3887,40 @@ async fn run_rule_checks(
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError> {
-    let (mut args, lease) = command_ingress::admit(&registry, &invoke, "run_rule_checks", ArgsDecoding::Moved)?;
+    let (mut args, lease) = admit_rule_check_args(&registry, invoke.body(), invoke.headers())?;
     let registry = registry.inner().clone();
     tauri::async_runtime::spawn_blocking(move || {
         // The reply's text is made, and custody rechecked, before it is handed over.
-        let response = run_rule_checks_args(&mut args, &|| app_store_path(&app), &registry).map(tauri::ipc::Response::new);
+        let response = run_rule_checks_args(&mut args, &|| app_store_path(&app), &registry).map(|(text, reply_lease)| {
+            let response = tauri::ipc::Response::new(text);
+            drop(reply_lease);
+            response
+        });
         drop(lease);
         response
     })
     .await
     .unwrap_or_else(|_| Err(CommandError::Command("RULE-CHECK-WORKER-FAILED: the rule check's worker did not complete.".to_string())))
+}
+
+/// `run_rule_checks`'s admission of its raw arguments, the command's own
+/// ([`command_ingress::admit_body`]).
+fn admit_rule_check_args(
+    registry: &SolveJobRegistry,
+    body: &tauri::ipc::InvokeBody,
+    headers: &tauri::http::HeaderMap,
+) -> Result<(Args, memory_pool::Lease), solve_jobs::SolveJobError> {
+    command_ingress::admit_body(registry, body, headers, "run_rule_checks", ArgsDecoding::Moved)
+}
+
+/// `preview_rule_solver_rows`'s admission of its raw arguments, bounded before
+/// their prescan and parse: see [`rule_solver_selection::MAX_PREVIEW_ARGS_BYTES`].
+fn admit_preview_args(
+    registry: &SolveJobRegistry,
+    body: &tauri::ipc::InvokeBody,
+    headers: &tauri::http::HeaderMap,
+) -> Result<(Args, memory_pool::Lease), solve_jobs::SolveJobError> {
+    command_ingress::admit_body_within(registry, body, headers, "preview_rule_solver_rows", ArgsDecoding::Moved, rule_solver_selection::MAX_PREVIEW_ARGS_BYTES)
 }
 
 /// The refusal of a rule check sent a copy of the result instead of its handle.
@@ -4017,8 +4041,7 @@ async fn preview_rule_solver_rows(
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError> {
-    // Bounded before the prescan and parse of the arguments: see `MAX_PREVIEW_ARGS_BYTES`.
-    let (mut args, lease) = command_ingress::admit_within(&registry, &invoke, "preview_rule_solver_rows", ArgsDecoding::Moved, rule_solver_selection::MAX_PREVIEW_ARGS_BYTES)?;
+    let (mut args, lease) = admit_preview_args(&registry, invoke.body(), invoke.headers())?;
     let registry = registry.inner().clone();
     tauri::async_runtime::spawn_blocking(move || {
         // The reply's text is built under its own lease, held until it is handed over.
@@ -4059,7 +4082,7 @@ fn preview_rule_solver_rows_reply_within(args: &mut Args, registry: &SolveJobReg
         let reply_lease = registry.acquire_result_parse(length)?;
         #[cfg(test)]
         crate::native_verdict::tests::gate::pass(crate::native_verdict::tests::gate::key(registry, "rule-check-serialize"));
-        let text = rule_solver_selection::write_preview_reply(&envelope, &queries, &job_id);
+        let text = rule_solver_selection::write_preview_reply(&envelope, &queries, &job_id, length);
         debug_assert_eq!(text.len() as u64, length);
         drop(envelope);
         drop(parse);
@@ -4078,9 +4101,14 @@ fn preview_rule_solver_rows_reply_within(args: &mut Args, registry: &SolveJobReg
 /// (`RULE_CALLER_SOLVER_BINDING_RETIRED`; DEL-06-01 Design
 /// `rule-pack-0.5.0.md` §2.5); it is still read so that it is refused rather
 /// than silently ignored.
-/// The answer is the reply's text, made under the held share and returned through
-/// [`answer_while_held`].
-fn run_rule_checks_args(args: &mut Args, store: &dyn Fn() -> Result<PathBuf, String>, registry: &SolveJobRegistry) -> Result<String, CommandError> {
+/// The answer is the reply's text and its lease, made under the held share and
+/// returned through [`answer_while_held`]. Bounded before the runner: the pack's
+/// projected outcomes ([`rule_check_projection`]) are refused by name when even
+/// their least reply passes [`MAX_RULE_CHECK_REPLY_BYTES`], and their priced
+/// working memory is leased once the result is parsed. The reply is counted as it
+/// would be written and refused by name as soon as the count passes the limit;
+/// its exact length is then leased and its text written.
+fn run_rule_checks_args(args: &mut Args, store: &dyn Fn() -> Result<PathBuf, String>, registry: &SolveJobRegistry) -> Result<(String, memory_pool::Lease), CommandError> {
     if args.keys().any(|key| key == "solvedEnvelope") {
         return Err(CommandError::Command(format!(
             "{RULE_CHECK_SOLVED_ENVELOPE_RETIRED}: a rule check reads the solved result held natively; send its jobId, not a copy of the result"
@@ -4101,9 +4129,22 @@ fn run_rule_checks_args(args: &mut Args, store: &dyn Fn() -> Result<PathBuf, Str
     let job_id = job_id.ok_or_else(|| CommandError::Command(
         "RULE_CHECK_SOLVED_ENVELOPE_REQUIRED: run the solve job and supply its jobId".to_string(),
     ))?;
+    let projection = rule_check_projection(&rule_pack_document);
+    let least = projection.outcomes.saturating_mul(RULE_CHECK_OUTCOME_LEAST_BYTES);
+    if least > MAX_RULE_CHECK_REPLY_BYTES {
+        return Err(CommandError::Command(format!(
+            "{RULE_CHECK_RESPONSE_LIMIT}: the rule check would return {} outcomes, at least {least} bytes, past its {MAX_RULE_CHECK_REPLY_BYTES}-byte reply limit; check fewer load cases or checks",
+            projection.outcomes
+        )));
+    }
     let held = acquire_rule_check_source(registry, &job_id, false)?;
     let outcome = (|| {
         let (envelope, parse) = read_rule_check_source(registry, &held)?;
+        #[cfg(test)]
+        crate::native_verdict::tests::gate::pass(crate::native_verdict::tests::gate::key(registry, "rule-check-work-lease"));
+        let work = registry.acquire_result_parse(projection.work_bytes)?;
+        #[cfg(test)]
+        RULE_CHECK_RUNS_STARTED.with(|count| count.set(count.get() + 1));
         let answer = run_rule_checks_value(
             store,
             rule_pack_document,
@@ -4118,10 +4159,103 @@ fn run_rule_checks_args(args: &mut Args, store: &dyn Fn() -> Result<PathBuf, Str
         drop(parse);
         #[cfg(test)]
         crate::native_verdict::tests::gate::pass(crate::native_verdict::tests::gate::key(registry, "rule-check-serialize"));
-        serde_json::to_string(&answer).map_err(|error| CommandError::Response(error.to_string()))
+        let length = capped_reply_length(&answer, MAX_RULE_CHECK_REPLY_BYTES).map_err(|()| {
+            CommandError::Command(format!(
+                "{RULE_CHECK_RESPONSE_LIMIT}: the rule check's reply passes its {MAX_RULE_CHECK_REPLY_BYTES}-byte limit; check fewer load cases or checks"
+            ))
+        })?;
+        let reply_lease = registry.acquire_result_parse(length)?;
+        // Written into a buffer of exactly the leased length.
+        let mut bytes = Vec::with_capacity(length as usize);
+        serde_json::to_writer(&mut bytes, &answer).map_err(|error| CommandError::Response(error.to_string()))?;
+        debug_assert_eq!(bytes.len() as u64, length);
+        let text = String::from_utf8(bytes).map_err(|error| CommandError::Response(error.to_string()))?;
+        drop(answer);
+        drop(work);
+        Ok((text, reply_lease))
     })();
     // A result disposed while it was checked answers with the refusal, never with findings.
     answer_while_held(registry, &job_id, held, outcome)
+}
+
+/// The refusal of a rule check whose reply would pass [`MAX_RULE_CHECK_REPLY_BYTES`].
+const RULE_CHECK_RESPONSE_LIMIT: &str = "RULE_CHECK_RESPONSE_LIMIT";
+/// The most bytes a rule check's reply may hold: the selector preview's limit
+/// ([`rule_solver_selection::MAX_PREVIEW_REPLY_BYTES`]), the bound on a rule-check
+/// reply the display reads whole.
+pub(crate) const MAX_RULE_CHECK_REPLY_BYTES: u64 = rule_solver_selection::MAX_PREVIEW_REPLY_BYTES;
+/// The fewest bytes one outcome takes in the reply: the runner's `CheckOutcome`
+/// serializes every member but its two values, so its member names, punctuation
+/// and separator with every value empty are always written.
+pub(crate) const RULE_CHECK_OUTCOME_LEAST_BYTES: u64 = r#"{"check_id":"","category_ref":"","basis_ref":null,"status":"","acceptability_relation":"","bound_inputs":[],"completeness_findings":[],"evaluator_findings":[],"diagnostic_codes":[]},"#.len() as u64;
+/// One outcome's text is priced at this many bytes, and this many more for each
+/// input and value slot its check names (a bound input, and a finding about it,
+/// for each). The
+/// committed rule-check runs stay within it (`rule_check_handle_tests.rs`).
+pub(crate) const RULE_CHECK_OUTCOME_TEXT_BYTES: u64 = 4096;
+pub(crate) const RULE_CHECK_INPUT_TEXT_BYTES: u64 = 1024;
+/// The working memory of one outcome, as a multiple of its priced text: the
+/// runner's typed outcome, the JSON value of the answer (whose maps and strings
+/// take several times their text) and the reply's text.
+pub(crate) const RULE_CHECK_OUTCOME_WORK_FACTOR: u64 = 8;
+
+/// A rule check's size, projected from the pack alone with the runner's own basis
+/// plan (`plan_check_bases`): one outcome per check and mapped basis, and one for
+/// a check the plan gives no basis list; and the working memory they are priced
+/// at ([`RULE_CHECK_OUTCOME_TEXT_BYTES`], [`RULE_CHECK_INPUT_TEXT_BYTES`],
+/// [`RULE_CHECK_OUTCOME_WORK_FACTOR`]).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct RuleCheckProjection {
+    pub(crate) outcomes: u64,
+    pub(crate) work_bytes: u64,
+}
+
+pub(crate) fn rule_check_projection(pack: &Value) -> RuleCheckProjection {
+    let checks = pack.get("check_definitions").and_then(Value::as_array).map(Vec::as_slice).unwrap_or(&[]);
+    let mut projection = RuleCheckProjection { outcomes: 0, work_bytes: 0 };
+    for (check, plan) in checks.iter().zip(rule_pack_document::plan_check_bases(pack)) {
+        let bases = plan.bases.as_ref().map_or(1, Vec::len) as u64;
+        let named = |key: &str| check.get(key).and_then(Value::as_array).map_or(0, Vec::len) as u64;
+        let inputs = named("required_input_refs").saturating_add(named("value_slot_refs"));
+        let text = RULE_CHECK_INPUT_TEXT_BYTES.saturating_mul(inputs).saturating_add(RULE_CHECK_OUTCOME_TEXT_BYTES);
+        projection.outcomes = projection.outcomes.saturating_add(bases);
+        projection.work_bytes = projection.work_bytes.saturating_add(bases.saturating_mul(text).saturating_mul(RULE_CHECK_OUTCOME_WORK_FACTOR));
+    }
+    projection
+}
+
+/// The exact length of `value`'s compact JSON, counted as it is written and
+/// stopped as soon as the count passes `limit`; nothing is kept.
+fn capped_reply_length(value: &Value, limit: u64) -> Result<u64, ()> {
+    struct Count {
+        length: u64,
+        limit: u64,
+    }
+    impl std::io::Write for Count {
+        fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+            self.length += buf.len() as u64;
+            #[cfg(test)]
+            RULE_CHECK_REPLY_COUNTED.with(|counted| counted.set(self.length));
+            if self.length > self.limit {
+                return Err(std::io::Error::other("the reply passes its limit"));
+            }
+            Ok(buf.len())
+        }
+        fn flush(&mut self) -> std::io::Result<()> {
+            Ok(())
+        }
+    }
+    let mut count = Count { length: 0, limit };
+    serde_json::to_writer(&mut count, value).map_err(|_| ())?;
+    Ok(count.length)
+}
+
+#[cfg(test)]
+thread_local! {
+    /// Test support: how many rule checks have reached the runner on this thread.
+    pub(crate) static RULE_CHECK_RUNS_STARTED: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+    /// Test support: how many reply bytes the last count had seen when it stopped or ended.
+    pub(crate) static RULE_CHECK_REPLY_COUNTED: std::cell::Cell<u64> = const { std::cell::Cell::new(0) };
 }
 
 #[allow(clippy::too_many_arguments)]

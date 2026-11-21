@@ -217,6 +217,21 @@
    "source_path": "fixtures/product_preview/pressure_source/load_reference_source/mixed-sparse_interactive.raw.json"
   },
   {
+   "key": "034c56d49c0a8630929d1066cc6321c69ef87aae77ad8d30a51e1998c88a1806",
+   "command": "lookup_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$JOB",
+    "ids": [
+     "result:stress:pipe-fixture-span:end-i:axial-normal",
+     "result:stress:pipe-fixture-span:end-i:bending-normal-y",
+     "result:stress:pipe-fixture-span:end-i:bending-normal-z"
+    ],
+    "match": "last"
+   },
+   "source_sha256": "34862037bcf42e42fca7d9772f6b1ad79d7961aadadbbba7fe3cc0a7351739d1",
+   "source_path": "fixtures/results/preview_physics_connected_sparse.json"
+  },
+  {
    "key": "03534402c32566d062f67a41efa05552602d1ce1b2f85892f435eaec1a6e0c56",
    "command": "read_preview_mechanics_job_verdict",
    "args": {
@@ -8335,6 +8350,19 @@
    "source_sha256": "180cdcac7af02b9383aa065eddd72f802c503db93ccd023c51099c805f850d39"
   },
   {
+   "key": "7206709f78a8f7763f3614697b60d0db609072ccc4cdb07650b1e8322a222cd7",
+   "command": "lookup_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$JOB",
+    "ordinals": [
+     73
+    ],
+    "match": "first"
+   },
+   "source_sha256": "34862037bcf42e42fca7d9772f6b1ad79d7961aadadbbba7fe3cc0a7351739d1",
+   "source_path": "fixtures/results/preview_physics_connected_sparse.json"
+  },
+  {
    "key": "721a9d95062bbe61b71e38a25bcb9968160a5904b719c751594e8b0c6a69f848",
    "command": "query_preview_mechanics_job_rows",
    "args": {
@@ -15422,6 +15450,22 @@
      "result:disp:node-fixture-tip"
     ],
     "match": "first"
+   },
+   "source_sha256": "34862037bcf42e42fca7d9772f6b1ad79d7961aadadbbba7fe3cc0a7351739d1",
+   "source_path": "fixtures/results/preview_physics_connected_sparse.json"
+  },
+  {
+   "key": "d6a2ad69feb99346c6f7c152f1a9fecf98d348d4e8271199ca0c40ee1cfec3d0",
+   "command": "lookup_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$JOB",
+    "ids": [
+     "result:stress:pipe-fixture-span:end-i:axial-normal",
+     "result:stress:pipe-fixture-span:end-i:bending-normal-y",
+     "result:stress:pipe-fixture-span:end-i:bending-normal-z",
+     "invented:not-a-row-of-this-result"
+    ],
+    "match": "last"
    },
    "source_sha256": "34862037bcf42e42fca7d9772f6b1ad79d7961aadadbbba7fe3cc0a7351739d1",
    "source_path": "fixtures/results/preview_physics_connected_sparse.json"

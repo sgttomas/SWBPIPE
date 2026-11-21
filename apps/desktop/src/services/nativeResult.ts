@@ -448,11 +448,17 @@ function refusalOf(error: unknown): unknown {
 }
 async function page<T>(jobId: string, read: () => Promise<T>): Promise<T> {
   live(jobId);
+  let delivered: T;
   try {
-    return await read();
+    delivered = await read();
   } catch (error) {
+    // A refusal for a handle whose custody ended meanwhile is the disposal, not the reply.
+    live(jobId);
     throw refusalOf(error);
   }
+  // A reply for a handle whose custody ended meanwhile is neither returned nor kept.
+  live(jobId);
+  return delivered;
 }
 const detailInvoke = bytesInvoke as unknown as Parameters<typeof queryResultRows>[0];
 

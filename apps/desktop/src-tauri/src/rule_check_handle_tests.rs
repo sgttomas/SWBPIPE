@@ -51,7 +51,7 @@ fn restored_holding(registry: &SolveJobRegistry, text: &str) -> String {
 fn run_by_handle(registry: &SolveJobRegistry, args: Value) -> Result<Value, String> {
     let (mut args, _lease) = admit_json(registry, "run_rule_checks", ArgsDecoding::Moved, &args).expect("admitted");
     run_rule_checks_args(&mut args, &no_store, registry)
-        .map(|text| serde_json::from_str(&text).unwrap())
+        .map(|(text, _reply_lease)| serde_json::from_str(&text).unwrap())
         .map_err(|error| match error {
             CommandError::Command(message) => message,
             other => format!("{other:?}"),
@@ -71,6 +71,80 @@ fn preview_within(registry: &SolveJobRegistry, args: Value, limit: u64) -> Resul
             CommandError::Command(message) => message,
             other => format!("{other:?}"),
         })
+}
+
+fn command_message(error: CommandError) -> String {
+    match error {
+        CommandError::Command(message) => message,
+        other => format!("{other:?}"),
+    }
+}
+
+fn ingress_body(registry: &SolveJobRegistry, body: Vec<u8>, admit: fn(&SolveJobRegistry, &tauri::ipc::InvokeBody, &tauri::http::HeaderMap) -> Result<(command_ingress::Args, crate::memory_pool::Lease), crate::solve_jobs::SolveJobError>) -> Result<(command_ingress::Args, crate::memory_pool::Lease), String> {
+    let headers = crate::command_ingress::test_support::headers(Some(crate::command_ingress::INGRESS_ARGS_JSON_V1));
+    admit(registry, &tauri::ipc::InvokeBody::Raw(body), &headers).map_err(|error| format!("{error:?}"))
+}
+
+/// The selector preview as its command answers raw bytes: its own admission
+/// ([`admit_preview_args`]) and its reply under the production limit.
+fn preview_command(registry: &SolveJobRegistry, body: Vec<u8>) -> Result<Value, String> {
+    let (mut args, _lease) = ingress_body(registry, body, admit_preview_args)?;
+    preview_rule_solver_rows_reply(&mut args, registry).map(|(text, _reply_lease)| serde_json::from_str(&text).unwrap()).map_err(command_message)
+}
+
+/// The rule check as its command answers raw bytes: its own admission
+/// ([`admit_rule_check_args`]) and its reply under the production limits.
+fn run_command(registry: &SolveJobRegistry, args: &Value) -> Result<Value, String> {
+    let (mut args, _lease) = ingress_body(registry, serde_json::to_vec(args).unwrap(), admit_rule_check_args)?;
+    run_rule_checks_args(&mut args, &no_store, registry).map(|(text, _reply_lease)| serde_json::from_str(&text).unwrap()).map_err(command_message)
+}
+
+/// Each outcome of `answer` takes at least its least reply bytes and at most its
+/// priced text, and the pack's projection counts exactly the runner's outcomes.
+fn outcomes_within_their_price(pack: &Value, answer: &Value, label: &str) {
+    let named = |check: &Value, key: &str| check.get(key).and_then(Value::as_array).map_or(0, Vec::len) as u64;
+    let inputs: std::collections::HashMap<&str, u64> = pack["check_definitions"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|check| (check["check_id"].as_str().unwrap(), named(check, "required_input_refs") + named(check, "value_slot_refs")))
+        .collect();
+    let outcomes = answer["checks"].as_array().unwrap();
+    for outcome in outcomes {
+        let text = serde_json::to_string(outcome).unwrap().len() as u64 + 1;
+        let priced = RULE_CHECK_OUTCOME_TEXT_BYTES + RULE_CHECK_INPUT_TEXT_BYTES * inputs[outcome["check_id"].as_str().unwrap()];
+        assert!(text >= RULE_CHECK_OUTCOME_LEAST_BYTES && text <= priced, "{label}: an outcome of {text} bytes, priced at {priced}: {outcome}");
+    }
+    if !outcomes.is_empty() {
+        assert_eq!(rule_check_projection(pack).outcomes, outcomes.len() as u64, "{label}: the projection counts the runner's outcomes");
+    }
+}
+
+/// `pack` with `checks` copies of its first check and `cases` required load cases
+/// on its mapping: its own first case, then cases naming load cases the model does
+/// not hold (each such basis an incomplete outcome with its finding). The runner
+/// makes `checks × cases` outcomes.
+fn widened(pack: &Value, checks: usize, cases: usize) -> Value {
+    let mut pack = pack.clone();
+    let check = pack["check_definitions"][0].clone();
+    let check_id = check["check_id"].as_str().unwrap().to_string();
+    pack["check_definitions"] = Value::Array((0..checks).map(|at| {
+        let mut copy = check.clone();
+        copy["check_id"] = json!(format!("{check_id}_{at}"));
+        copy
+    }).collect());
+    let case = pack["required_load_cases"][0].clone();
+    let list: Vec<Value> = (0..cases).map(|at| {
+        let mut copy = case.clone();
+        if at > 0 {
+            copy["required_load_case_id"] = json!(format!("widened_case_{at}"));
+            copy["basis_ref"] = json!({"ref_type": "load_case", "ref_id": format!("invented:absent-{at}")});
+        }
+        copy
+    }).collect();
+    pack["load_case_mappings"][0]["required_load_case_refs"] = Value::Array(list.iter().map(|copy| json!({"ref_type": "required_load_case", "ref_id": copy["required_load_case_id"]})).collect());
+    pack["required_load_cases"] = Value::Array(list);
+    restamp(pack)
 }
 
 fn restamp(mut pack: Value) -> Value {
@@ -300,11 +374,14 @@ fn a_rule_check_by_handle_answers_as_the_envelope_route_did() {
             invocation.clone(),
         );
         let job = solve_holding(&registry, &gate, text, ResultCustody::Native);
-        let mut args = json!({"rulePackDocument": pack, "jobId": job, "model": model, "suppliedValueBindings": supplied});
+        let mut args = json!({"rulePackDocument": pack.clone(), "jobId": job, "model": model, "suppliedValueBindings": supplied});
         if let Some(invocation) = invocation {
             args["sourceBlockInvocation"] = invocation.clone();
         }
         let by_handle = run_by_handle(&registry, args);
+        if let Ok(answer) = &by_handle {
+            outcomes_within_their_price(&pack, answer, label);
+        }
         let canonical = |outcome: &Result<Value, String>| outcome.as_ref().map(|value| serde_json::to_string(value).unwrap()).map_err(Clone::clone);
         assert_eq!(canonical(&by_handle), canonical(&by_envelope), "{label}");
         let reached = match &by_handle {
@@ -760,7 +837,6 @@ fn the_profile_walk_refuses_numbers_it_cannot_read_as_finite() {
 #[test]
 fn the_selector_preview_refuses_an_oversized_body_before_it_is_parsed() {
     let (registry, _gate) = registry();
-    let headers = crate::command_ingress::test_support::headers(Some(crate::command_ingress::INGRESS_ARGS_JSON_V1));
     let cap = rule_solver_selection::MAX_PREVIEW_ARGS_BYTES;
     assert_eq!(cap, 5_049_241, "the cap the description derives");
     for body in [vec![b'['; cap + 1], {
@@ -769,15 +845,16 @@ fn the_selector_preview_refuses_an_oversized_body_before_it_is_parsed() {
         body.extend_from_slice(br#""}"#);
         body
     }] {
-        let error = crate::command_ingress::admit_body_within(&registry, &tauri::ipc::InvokeBody::Raw(body.clone()), &headers, "preview_rule_solver_rows", ArgsDecoding::Moved, cap).unwrap_err();
-        assert_eq!(format!("{error:?}"), format!("{:?}", crate::solve_jobs::SolveJobError::InvalidRequest { message: format!("INGRESS-ARGS-TOO-LARGE: `preview_rule_solver_rows` takes at most {cap} bytes of arguments; {} were sent.", body.len()) }));
+        let error = preview_command(&registry, body.clone()).unwrap_err();
+        assert_eq!(error, format!("{:?}", crate::solve_jobs::SolveJobError::InvalidRequest { message: format!("INGRESS-ARGS-TOO-LARGE: `preview_rule_solver_rows` takes at most {cap} bytes of arguments; {} were sent.", body.len()) }));
     }
-    // At the cap, a body is admitted to its prescan and parse.
+    // At the cap, the command admits the body to its prescan and parse, and answers past the size check.
     let mut body = br#"{"jobId":"j","queries":[],"pad":""#.to_vec();
     body.resize(cap - 2, b'x');
     body.extend_from_slice(br#""}"#);
     assert_eq!(body.len(), cap);
-    assert!(crate::command_ingress::admit_body_within(&registry, &tauri::ipc::InvokeBody::Raw(body), &headers, "preview_rule_solver_rows", ArgsDecoding::Moved, cap).is_ok());
+    let error = preview_command(&registry, body).unwrap_err();
+    assert!(!error.contains("INGRESS-ARGS-TOO-LARGE"), "{error}");
 }
 
 /// The selector preview's queries are read and bounded before the result is
@@ -947,3 +1024,131 @@ fn a_published_negative_zero_is_read_as_published() {
 /// twin where the two sections coincide: `section_basis::twin_values` requires the twins to be
 /// bit-equal there ("a signed zero is not its twin's zero").
 const TWIN_MISMATCH_READER_CODE: &str = "SOURCE_PHYSICS_ROW_BASIS_SECTION";
+
+/// One query of the preview, on `row`'s selector and basis.
+fn row_query(envelope: &Value, row: &Value) -> Value {
+    let selector = rule_solver_selection::selector_for_row(envelope, row).expect("the row has a selector");
+    json!({"input_id": "in_0", "selector": serde_json::to_value(&selector).unwrap(), "bases": [row["basis_ref"].clone()]})
+}
+
+/// A single basis entry longer than the whole reply limit, through the command: a
+/// matched row whose id is one byte longer than the limit. The row's members are
+/// written borrowed, in pieces of at most `PREVIEW_WRITE_PIECE_BYTES`, so the count
+/// refuses by name within one piece of its limit, the row built once and never
+/// copied whole.
+#[test]
+fn the_selector_preview_refuses_an_oversized_entry_within_a_piece_of_its_limit() {
+    let (registry, gate) = registry();
+    let probe = probe();
+    let mut parsed = probe.parsed.clone();
+    let at = parsed["results"].as_array().unwrap().iter().position(|candidate| candidate["id"] == probe.row["id"]).unwrap();
+    let limit = rule_solver_selection::MAX_PREVIEW_REPLY_BYTES;
+    parsed["results"][at]["id"] = json!("r".repeat(limit as usize + 1));
+    let row = parsed["results"][at].clone();
+    let job = solve_holding(&registry, &gate, &serde_json::to_string(&parsed).unwrap(), ResultCustody::Native);
+    rule_solver_selection::PREVIEW_LARGEST_PIECE.with(|largest| largest.set(0));
+    rule_solver_selection::PREVIEW_ROWS_BUILT.with(|count| count.set(0));
+    let body = serde_json::to_vec(&json!({"jobId": job, "queries": [row_query(&parsed, &row)]})).unwrap();
+    let error = preview_command(&registry, body).unwrap_err();
+    assert_eq!(error, format!("RULE_SOLVER_PREVIEW_RESPONSE_LIMIT: the preview's reply passes its {limit}-byte limit; preview fewer inputs or load cases"));
+    assert!(rule_solver_selection::PREVIEW_LARGEST_PIECE.with(std::cell::Cell::get) <= rule_solver_selection::PREVIEW_WRITE_PIECE_BYTES);
+    assert_eq!(rule_solver_selection::PREVIEW_ROWS_BUILT.with(std::cell::Cell::get), 1);
+    registry.dispose_result(&job).unwrap();
+}
+
+/// A selector naming many rows on a basis, through the command: the selection
+/// stops at the second row, which is enough to say "more than one", and no row is
+/// returned.
+#[test]
+fn an_ambiguous_selection_stops_at_its_second_row() {
+    let (registry, gate) = registry();
+    let probe = probe();
+    let mut parsed = probe.parsed.clone();
+    for copy in 0..100 {
+        let mut row = probe.row.clone();
+        row["id"] = json!(format!("{}:copy-{copy}", probe.row["id"].as_str().unwrap()));
+        parsed["results"].as_array_mut().unwrap().push(row);
+    }
+    let job = solve_holding(&registry, &gate, &serde_json::to_string(&parsed).unwrap(), ResultCustody::Native);
+    rule_solver_selection::PREVIEW_MOST_SELECTED.with(|most| most.set(0));
+    let body = serde_json::to_vec(&json!({"jobId": job, "queries": [row_query(&parsed, &probe.row)]})).unwrap();
+    let preview = preview_command(&registry, body).unwrap();
+    let basis = &preview["inputs"][0]["bases"][0];
+    assert_eq!((&basis["matched"], &basis["rows"]), (&json!(2), &json!([])));
+    assert_eq!(rule_solver_selection::PREVIEW_MOST_SELECTED.with(std::cell::Cell::get), 2);
+    registry.dispose_result(&job).unwrap();
+}
+
+/// A rule check whose projected outcomes cannot fit its reply, through the
+/// command: refused by name from the pack alone, before custody is read (a handle
+/// naming nothing gets the same refusal) and before the runner starts.
+#[test]
+fn a_rule_check_too_large_for_its_reply_is_refused_before_it_runs() {
+    let (registry, gate) = registry();
+    let probe = probe();
+    let pack = widened(&pack_for(&probe.model, &probe.parsed, &probe.row), 200, 250);
+    let projection = rule_check_projection(&pack);
+    assert_eq!(projection.outcomes, 50_000);
+    assert!(projection.outcomes * RULE_CHECK_OUTCOME_LEAST_BYTES > MAX_RULE_CHECK_REPLY_BYTES);
+    let job = solve_holding(&registry, &gate, &probe.text, ResultCustody::Native);
+    let started = RULE_CHECK_RUNS_STARTED.with(std::cell::Cell::get);
+    let expected = format!(
+        "RULE_CHECK_RESPONSE_LIMIT: the rule check would return 50000 outcomes, at least {} bytes, past its {MAX_RULE_CHECK_REPLY_BYTES}-byte reply limit; check fewer load cases or checks",
+        50_000 * RULE_CHECK_OUTCOME_LEAST_BYTES
+    );
+    for handle in [job.as_str(), "a-handle-naming-nothing"] {
+        let error = run_command(&registry, &json!({"rulePackDocument": pack, "jobId": handle, "model": probe.model})).unwrap_err();
+        assert_eq!(error, expected, "{handle}");
+    }
+    assert_eq!(RULE_CHECK_RUNS_STARTED.with(std::cell::Cell::get), started, "the runner did not start");
+    registry.dispose_result(&job).unwrap();
+}
+
+/// A rule check's working memory is leased at its price before the runner
+/// starts: refused by the pool, by its own typed refusal, when the host has too
+/// little headroom for it; with headroom, the same run reaches the runner.
+#[test]
+fn a_rule_check_leases_its_priced_work_before_it_runs() {
+    let host = crate::memory_pool::test_host::ScriptedHost::normal();
+    let gate = Gate::new("rule-check-work");
+    let pool = crate::memory_pool::MemoryPool::with_timing(host.clone(), std::time::Duration::from_millis(5), std::time::Duration::from_millis(40), std::time::Duration::from_millis(5));
+    pool.set_max_running_workers(4);
+    let registry = SolveJobRegistry::with_hooks(pool, gate.launcher(), Arc::new(|job: Box<dyn FnOnce() + Send + 'static>| std::thread::Builder::new().spawn(job).map(drop)));
+    let probe = probe();
+    let pack = widened(&pack_for(&probe.model, &probe.parsed, &probe.row), 1000, 2);
+    let projection = rule_check_projection(&pack);
+    let per_outcome = RULE_CHECK_OUTCOME_WORK_FACTOR * (RULE_CHECK_OUTCOME_TEXT_BYTES + 3 * RULE_CHECK_INPUT_TEXT_BYTES);
+    assert_eq!(projection, RuleCheckProjection { outcomes: 2000, work_bytes: 2000 * per_outcome });
+    let job = solve_holding(&registry, &gate, &probe.text, ResultCustody::Native);
+    let args = json!({"rulePackDocument": pack, "jobId": job, "model": probe.model});
+    let started = RULE_CHECK_RUNS_STARTED.with(std::cell::Cell::get);
+    host.set(|script| script.headroom_bytes = Some(64 * 1024 * 1024));
+    let error = run_command(&registry, &args).unwrap_err();
+    assert!(error.contains("Headroom") || error.contains("headroom") || error.contains("RESOURCE"), "{error}");
+    assert_eq!(RULE_CHECK_RUNS_STARTED.with(std::cell::Cell::get), started, "the runner did not start");
+    host.set(|script| script.headroom_bytes = Some(64 * crate::memory_pool::test_host::GIB));
+    let _ = run_command(&registry, &args);
+    assert_eq!(RULE_CHECK_RUNS_STARTED.with(std::cell::Cell::get), started + 1, "with headroom the runner starts");
+    registry.dispose_result(&job).unwrap();
+}
+
+/// A rule check whose reply passes its limit though its projection fits: the
+/// reply is counted as it would be written and refused by name as soon as the
+/// count passes the limit, so no more than one write past it is ever counted.
+#[test]
+fn a_rule_check_reply_past_its_limit_is_refused_as_it_is_counted() {
+    let (registry, gate) = registry();
+    let probe = probe();
+    let pack = widened(&pack_for(&probe.model, &probe.parsed, &probe.row), 20_000, 1);
+    let projection = rule_check_projection(&pack);
+    assert!(projection.outcomes * RULE_CHECK_OUTCOME_LEAST_BYTES <= MAX_RULE_CHECK_REPLY_BYTES, "the projection fits");
+    let job = solve_holding(&registry, &gate, &probe.text, ResultCustody::Native);
+    let supplied = supplied_for(&probe.parsed, &probe.row, false);
+    let started = RULE_CHECK_RUNS_STARTED.with(std::cell::Cell::get);
+    let error = run_command(&registry, &json!({"rulePackDocument": pack, "jobId": job, "model": probe.model, "suppliedValueBindings": supplied})).unwrap_err();
+    assert_eq!(error, format!("RULE_CHECK_RESPONSE_LIMIT: the rule check's reply passes its {MAX_RULE_CHECK_REPLY_BYTES}-byte limit; check fewer load cases or checks"));
+    assert_eq!(RULE_CHECK_RUNS_STARTED.with(std::cell::Cell::get), started + 1, "the runner ran");
+    let counted = RULE_CHECK_REPLY_COUNTED.with(std::cell::Cell::get);
+    assert!(counted > MAX_RULE_CHECK_REPLY_BYTES && counted <= MAX_RULE_CHECK_REPLY_BYTES + 64 * 1024, "{counted} bytes counted");
+    registry.dispose_result(&job).unwrap();
+}
