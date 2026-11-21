@@ -7,7 +7,7 @@ import rangeEnvelopeResult from "../../../../../fixtures/results/preview_physics
 import rangeEnvelopeModel from "../../../../../core/product_physics/tests/fixtures/preview_physics_range_envelope_model.json";
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import { buildAnalysisRunPreview, buildPreviewComparison } from "../../services/previewService";
+import { buildAnalysisRunPreview, buildPreviewComparison, loadBundledMechanicsReference } from "../../services/previewService";
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
 import type { MechanicsResult, PreviewModel } from "../../types";
 import { buildHandoffPackage } from "../handoff/HandoffPanel";
@@ -15,7 +15,7 @@ import { buildStateComparisonHandoffSections } from "../report/stateComparisonHa
 import { reportComparisonFields, reportComparisonLine } from "../report/ReportPanel";
 import { ExportReviewPanel } from "../export-review/ExportReviewPanel";
 import { DesignWorkspacePanel } from "../design-workspace/DesignWorkspacePanel";
-import { buildWithinRunComparison } from "./withinRunComparison";
+import { buildWithinRunComparison, fixedPairComparison, packagedComparison, packageNotice, resolveWithinRun, withinRunBasisOptions } from "./withinRunComparison";
 
 afterEach(cleanup);
 const RANGE = "combination:U4B-RANGE-MAX";
@@ -80,5 +80,36 @@ describe("with an unavailable record, the documents carry it with the chosen bas
     cleanup();
     const workspace = render(<DesignWorkspacePanel model={model} knowledge={null} result={result} analysisRun={analysisRun} comparison={null} comparisonUnavailable={unavailable} editorIntents={[]} proposal={null} selectedReviewTarget={null} />);
     expect(workspace.container.textContent).toContain(`comparison=${unavailable.comparison_id}`);
+  });
+});
+
+// The demonstration model (the invented utility loop), as the app reads its bundled
+// solved result: the solve withholds C-OPER-ALT, so it has no result rows, yet
+// without a choice the packages carry the fixed pair's comparison.
+describe("the demonstration model's withheld combination", () => {
+  async function demo() {
+    const { model, source: result } = await loadBundledMechanicsReference();
+    const inputManifest = await buildCurrentSessionInputManifest({ model, solver: { solver_name: result.producer!.component_name, solver_version: result.producer!.component_version, solver_build_ref: "fixture", solver_mode: "sparse_interactive", settings: {} }, active_rule_packs: [], external_assets: [] });
+    const analysisRun = await buildAnalysisRunPreview(result, { inputManifest });
+    const options = withinRunBasisOptions(result, model);
+    const fixed = fixedPairComparison(result, analysisRun)!;
+    const resolved = resolveWithinRun({ result, analysisRun, options, held: null, fixedPair: fixed });
+    return { model, result, analysisRun, options, fixed, resolved, packaged: packagedComparison(resolved, fixed) };
+  }
+
+  it("the combination has no rows, the fixed pair's build compares none and the notice says it is included", async () => {
+    const { result, options, fixed, resolved, packaged } = await demo();
+    expect(result.results.filter((row) => row.basis_ref?.ref_id === "combination:C-OPER-ALT")).toHaveLength(0);
+    expect(result.diagnostics.some((item) => item.code === "NONLINEAR_COMBINATION_REQUIRES_SOLVE" && item.affected_refs?.includes("combination:C-OPER-ALT"))).toBe(true);
+    expect(options.combinations).toEqual([]);
+    expect(resolved.view.status).toBe("unavailable");
+    expect(packaged).toBe(fixed);
+    expect(fixed.unavailable).toBeNull();
+    expect(fixed.comparison!.right.result_count).toBe(0);
+    expect(fixed.comparison!.left.result_count).toBeGreaterThan(0);
+    expect(fixed.comparison!.summary.comparable_result_pairs).toBe(0);
+    expect(fixed.comparison!.result_deltas).toEqual([]);
+    expect(fixed.comparison!.diagnostics.map((item) => item.code)).toEqual(["COMPARISON_REFERENCE_ROWS_UNMATCHED"]);
+    expect(packageNotice(packaged)).toBe("Packages include: load:L-100 vs combination:C-OPER-ALT.");
   });
 });
