@@ -27,8 +27,9 @@
 //! Criterion (DEC-024/DEC-026, unchanged): |obs - exp| <= 1e-9 |exp|; an
 //! exactly zero expectation uses 1e-9 times the case's frozen zero scale of its
 //! family.
+use open_pipe_stress_product_physics::self_weight::{generate_self_weight_operations, SelfWeightGravity, SelfWeightRequest};
 use open_pipe_stress_product_physics::{
-    run_linear_static_preview_value_with_mode, run_linear_static_preview_value_with_retained_direct, PreviewSolverMode,
+    run_linear_static_preview_value_with_mode, PreviewModel, run_linear_static_preview_value_with_retained_direct, PreviewSolverMode,
     RetainedByteLimit,
 };
 use serde_json::{json, Value};
@@ -1041,35 +1042,89 @@ fn load_state_generated_case_commits_whole_or_not_at_all() {
 
 /// Decision 2 (v) of issue 452, named: a hydrostatic test case elsewhere in a
 /// load/reference-state document does not put its contents density into a
-/// seismic case. The document carries the seismic case and a test case that
-/// takes a test contents density (1000 kg/m^3, against the section's own) from
-/// an operating condition. Today the exact route refuses that test case whole
+/// seismic case. The document carries the seismic case and a test case built
+/// as the hydrostatic test branch admits one: its own generated self-weight
+/// (listed in its ledger), its own pressure region, the test condition, and a
+/// contents density from an operating condition. That density (1337.25
+/// kg/m^3) is one the model holds nowhere else, so a leak into the seismic
+/// case's mass would move its rows; the section's own contents density is the
+/// reference's. Without the test marking the case is an ordinary pressurised
+/// weight case, which solves here and leaves the seismic rows unchanged. With
+/// it, the exact route on this branch refuses the test case whole
 /// (LOAD_CASE_TEST_CONDITION_UNSUPPORTED, and the condition use with
-/// LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED), so the test admits only those two
-/// codes and no other blocking finding. Once the test case is admitted the
-/// document solves, and then the seismic case's every row must equal, bit for
-/// bit, the same document without the test case: the comparison branch bites
-/// from that change on without editing this test.
+/// LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED), so the test admits only those
+/// two codes and no other blocking finding. Once the test case is admitted
+/// the document solves, and then the seismic case's every row must equal, bit
+/// for bit, the same document without the test case. On a head that admits
+/// the test case, the refused arm and its two codes are removed and the
+/// document must solve.
 #[test]
 fn a_hydrostatic_test_case_does_not_put_its_contents_into_a_seismic_case() {
     let (_, plain) = reference_request(&case_ref("W16C-SEISMIC-EX-EB"));
     let twin = load_state_document_of(&plain);
     let mut with_test = twin.clone();
+    const TEST_DENSITY: f64 = 1337.25;
     let model = &mut with_test["model"];
+    for key in ["material_density", "contents_density", "insulation_density"] {
+        let held = &model["pipe_segments"][0]["section"][key];
+        assert!(held.is_null() || held["value"].as_f64() != Some(TEST_DENSITY), "{key}: the test density must be one the model does not hold");
+    }
     model["condition_sets"] = json!([{"id": "cs:line", "provenance": PROV,
-        "conditions": [{"key": "HYDRO", "contents_density": qv(1000.0, "kg/m^3")}]}]);
+        "conditions": [{"key": "HYDRO", "contents_density": qv(TEST_DENSITY, "kg/m^3")}]}]);
     model["pipe_segments"][0]["condition_set_ref"] = json!("cs:line");
-    let mut test_case = model["load_cases"][0].clone();
-    test_case["id"] = json!("case:hydrotest");
-    test_case.as_object_mut().unwrap().remove("equivalent_static");
+    // The test case as the hydrostatic test branch admits it, in its order
+    // (`hydrostatic_four_span_journey.rs` there): (1) the case and its
+    // generated self-weight from the product's self-weight plan over every
+    // pipe, its loads listed in the case's ledger at factor 1; (2) its own
+    // pressure region over every pipe, both ends closed with the cap thrust
+    // carried by the wall; (3) the hydrostatic test condition; (4) the
+    // contents selection of HYDRO, held by the set every weighted pipe carries.
+    const TEST: &str = "case:hydrotest";
+    let pipes = model["pipe_segments"].as_array().unwrap().iter().map(|p| p["id"].as_str().unwrap().to_string()).collect::<Vec<_>>();
+    let mut source = model.clone();
+    source["load_cases"] = json!([]);
+    let digest: String = Sha256::digest(serde_json::to_string(&source).unwrap().as_bytes()).iter().map(|b| format!("{b:02x}")).collect();
+    let request = SelfWeightRequest {
+        case_id: TEST.into(), label: "Hydrostatic test".into(), pipe_refs: pipes.clone(),
+        gravity: SelfWeightGravity { value: -9.80665, unit: "m/s^2".into(), axis: "global_z".into() },
+        provenance: PROV.into(), source_model_hash: format!("sha256:{digest}"),
+    };
+    let typed: PreviewModel = serde_json::from_value(source).expect("model parses");
+    let plan = generate_self_weight_operations(&typed, &request).unwrap_or_else(|d| panic!("self-weight plan refused: {d:?}"));
+    let weights: Vec<Value> = plan.changes[1..].iter().map(|c| serde_json::from_str(&c.after).unwrap()).collect();
+    assert_eq!(weights.len(), pipes.len(), "one generated weight per pipe");
+    let mut test_case: Value = serde_json::from_str(&plan.changes[0].after).unwrap();
+    test_case["id"] = json!(TEST);
+    test_case["primitive_loads"] = json!(weights);
+    test_case["provenance"] = json!(PROV);
+    let mut state = model["load_cases"][0]["analysis_state"].clone();
+    state["load_sources"] = json!(weights.iter().map(|w| json!({"source_ref": w["id"], "factor": 1.0})).collect::<Vec<_>>());
+    test_case["analysis_state"] = state;
+    let terminal = |node: &str| json!({"node_ref": node, "closure_transfer": "transfers_to_wall", "provenance": PROV});
+    test_case["pressure_regions"] = json!([{"id": format!("region:{TEST}"), "member_pipe_ids": pipes,
+        "pressure_basis": "internal_differential_zero_external_v1", "pressure": qv(1.5e6, "Pa"),
+        "terminals": [terminal("node:a"), terminal("node:b")], "provenance": PROV}]);
     test_case["test_condition"] = json!({"kind": "hydrostatic", "held_supports": "none"});
     test_case["condition_use"] = json!({"contents_density": "HYDRO"});
     model["load_cases"].as_array_mut().unwrap().push(test_case);
+    let seismic = |out: &Value| row_bits(out).into_iter().filter(|(key, _)| key.contains(&format!("\"{CASE}\""))).collect::<Vec<_>>();
+    // Steps (1) and (2) alone are an ordinary pressurised weight case, which
+    // solves here beside the seismic case and leaves its rows unchanged.
+    let mut unmarked = with_test.clone();
+    for key in ["test_condition", "condition_use"] {
+        unmarked["model"]["load_cases"][1].as_object_mut().unwrap().remove(key);
+    }
+    for mode in MODES {
+        let twin_out = solved(&twin, Route::Exact, mode, "twin");
+        let out = solved(&unmarked, Route::Exact, mode, "the test case without its marking");
+        assert!(rows(&out).iter().any(|r| r["basis_ref"]["ref_id"] == TEST), "{mode:?}: the weight case publishes rows");
+        assert!(!seismic(&twin_out).is_empty());
+        assert_eq!(seismic(&out), seismic(&twin_out), "{mode:?}: an ordinary case beside the seismic case changes none of its rows");
+    }
     const PENDING: [&str; 2] = ["LOAD_CASE_TEST_CONDITION_UNSUPPORTED", "LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED"];
     for mode in MODES {
         let out = run(&with_test, mode);
         if out["status"]["mechanics"] == "MECHANICS_SOLVED" {
-            let seismic = |out: &Value| row_bits(out).into_iter().filter(|(key, _)| key.contains(&format!("\"{CASE}\""))).collect::<Vec<_>>();
             let twin_out = solved(&twin, Route::Exact, mode, "twin");
             assert!(!seismic(&twin_out).is_empty());
             assert_eq!(seismic(&out), seismic(&twin_out), "{mode:?}: the seismic case is independent of the test case's contents");
