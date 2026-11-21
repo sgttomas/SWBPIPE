@@ -175,6 +175,19 @@ says why in the pull request; findings beyond that authority go to whoever
 integrates the work. Ending the rounds waives no required check or reserved
 choice.
 
+**Scoring the interface** is not an independent review round and has no round
+limit. The owner's gate for the desktop's human controls: "When you're judging
+the UI, develop a set of criteria that can be judged on a scale of 1 to 5, with
+1 being novice and 5 being professional grade. A minimum of 4 in each category
+from both independent reviewers is necessary before a human would be asked to
+use it." The lane that owns a screen iterates and has it scored again until the
+gate is met. The scores that count are those of two fresh scorers who have seen
+no earlier score, finding or picture of the product and who score the
+application in use from one fixed sheet; a scorer kept across iterations
+advises the climb and does not count. Agent 0 decides the sheet and any change
+to it, with the reason. The three-round limit above still governs the review of
+each change.
+
 **The INTERLOCUTOR** advises Agent 0 on direction in a session the owner opts
 in; it is never an entry or default role. Agent 0 keeps the same one as
 its child through the session, continued by message; a replacement starts only
