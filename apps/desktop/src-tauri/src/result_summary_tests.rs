@@ -888,3 +888,59 @@ fn the_header_carries_each_cases_support_confirmation() {
     assert!(outcomes.contains(&"solver_reported_established"), "{confirmations}");
     assert_eq!(header(None)["support_confirmations"], Value::Null);
 }
+
+/// Release exit criterion 18: a confirmation that quotes its reason
+/// (`not_established_detail_quoted`) carries the solver's reason, so the desktop
+/// shows it beneath the statement that says it is quoted; every other outcome
+/// carries none.
+#[test]
+fn the_header_carries_a_quoted_confirmation_detail() {
+    let corpus: Value = serde_json::from_str(&read_text("fixtures/results/preview_physics_held_status_corpus.json")).unwrap();
+    let entry = corpus["documents"].as_array().unwrap().iter().find(|d| d["name"] == "h15c_zero_limit").unwrap();
+    let source_text = serde_json::to_string(&entry["document"]).unwrap();
+    let (source, model) = (entry["document"].clone(), entry["model"].clone());
+    let findings = serde_json::to_string(&Vec::<String>::new()).unwrap();
+    let health: Value = serde_json::from_str(&open_pipe_stress_operation_applier::numerical_health_json(&source_text, Some(&findings)).unwrap()).unwrap();
+    let standing = Standing { eligible: false, health: tables::health_view(&health) };
+    let presentation = crate::diagnostics_presentation::facts(&source_text, &source, None, None);
+    let header = decode(&build("held", &source, &model, Some(&standing), &health, None, &presentation, |_| Ok::<(), ()>(())).unwrap().0).unwrap().header;
+    let confirmations = header["support_confirmations"].as_array().unwrap().clone();
+    let quoted: Vec<&Value> = confirmations.iter().filter(|c| c["outcome"] == "not_established_detail_quoted").collect();
+    assert!(!quoted.is_empty(), "{confirmations:?}");
+    for c in &quoted {
+        assert!(c["detail"].as_str().is_some_and(|d| !d.is_empty()), "{c}");
+    }
+    for c in confirmations.iter().filter(|c| c["outcome"] != "not_established_detail_quoted") {
+        assert_eq!(c["detail"], Value::Null, "{c}");
+    }
+}
+
+/// Release exit criterion 18: a restored run's S (`modelUse: "confirmations"`)
+/// reads its support-state confirmations with the saved model and every table
+/// with no model: its header is the no-model read's, but for the
+/// confirmations, which are the model read's. Any other `modelUse` is refused.
+#[test]
+fn a_confirmations_only_model_reads_the_confirmations_and_no_table() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let model = read_text(DEMO_MODEL);
+    let job = retained(&registry, &gate, &read_text(DEMO));
+    let standing = json!({"eligible": false, "findings": []});
+    let header = |args: &Value| decode(&read_summary(&registry, args).unwrap()).unwrap().header;
+    let with_model = header(&args(&job, &model, standing.clone()));
+    let without_model = header(&args(&job, "null", standing.clone()));
+    let mut confirmations_only = args(&job, &model, standing.clone());
+    confirmations_only["modelUse"] = json!("confirmations");
+    let restored = header(&confirmations_only);
+    assert_eq!(without_model["support_confirmations"], Value::Null);
+    assert!(with_model["support_confirmations"].as_array().is_some_and(|c| !c.is_empty()));
+    assert_eq!(restored["support_confirmations"], with_model["support_confirmations"]);
+    let mut expected = without_model.clone();
+    expected["support_confirmations"] = with_model["support_confirmations"].clone();
+    assert_eq!(restored, expected);
+    let mut other = args(&job, &model, standing);
+    other["modelUse"] = json!("tables");
+    assert!(matches!(read_summary(&registry, &other), Err(CommandError::Command(message)) if message.contains("modelUse")));
+    registry.dispose_result(&job).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
