@@ -21,7 +21,7 @@ mod common;
 #[path = "common/package_basis.rs"]
 mod package_basis;
 
-use open_pipe_stress_report_package::bindings::{expected_report_diagnostics, SOURCE_INVALID};
+use open_pipe_stress_report_package::bindings::{expected_report_diagnostics, REPORT_ROWS_MISMATCH, SOURCE_INVALID};
 use open_pipe_stress_report_package::exact_sections::EXACT_SECTIONS_MISMATCH;
 use open_pipe_stress_report_package::document_form::ADMITTED_SEMANTIC_CONTRACTS;
 use open_pipe_stress_report_package::pf_timoshenko::{PF_TIMOSHENKO_SECTIONS_MISMATCH, REALIZED_ARCS_DIAGNOSTIC};
@@ -284,4 +284,23 @@ fn a_timoshenko_report_carries_its_standing_record_on_the_desktop_profile_only()
     let mut eb = request_eb();
     eb["report"]["numerical_standing"] = request["report"]["numerical_standing"].clone();
     refused(&eb, EXACT_SECTIONS_MISMATCH, "Euler-Bernoulli report with a standing record");
+}
+
+/// DEL-08-01 REQ-024: a package's rows are exactly the source rows' projection (§2.3 item 6), so
+/// a Timoshenko package, which states each load case's health from its standing record, refuses a
+/// request carrying a generic `numerical-health:<case>` line; so does an Euler-Bernoulli package,
+/// whose request carries none either (the desktop's package builder passes no numerical health).
+#[test]
+fn a_package_request_carrying_a_numerical_health_line_is_refused() {
+    for (kind, request) in [("Timoshenko", request(timoshenko, true)), ("Euler-Bernoulli", request_eb())] {
+        assemble(&request).unwrap_or_else(|error| panic!("{kind}: refused: {error}"));
+        let rows = request["report"]["result_rows"].as_array().unwrap();
+        assert!(rows.iter().all(|row| !row["row_id"].as_str().unwrap_or("").starts_with("numerical-health:")), "{kind}");
+        let mut appended = request.clone();
+        let case = request["source_results"][0]["numerical_quality"]["cases"][0]["basis_ref"]["ref_id"].as_str().unwrap().to_string();
+        appended["report"]["result_rows"].as_array_mut().unwrap().push(json!({
+            "row_id": format!("numerical-health:{case}"), "label": "Numerical health: checks passed",
+            "case_ref": format!("load_case:{case}"), "quantity_display": "", "source_ref": "numerical_quality"}));
+        refused(&appended, REPORT_ROWS_MISMATCH, kind);
+    }
 }

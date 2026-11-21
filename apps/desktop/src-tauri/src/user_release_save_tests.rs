@@ -1604,6 +1604,14 @@ fn both_saves_of_a_pressure_free_timoshenko_result_state_its_standing() {
         altered["report"]["numerical_standing"]["cases"][0]["health"] = json!("sensitive");
         let (path, message) = refused(pf_user_released_args(&v, &altered), &registry, crate::exact_source_binding::SECTIONS_MISMATCH);
         assert_eq!(path, "/request/report/numerical_standing", "{name}: {message}");
+        // REQ-019, Admission: a session that holds no attested solve of this model and result
+        // (solved elsewhere, or its attestation evicted) refuses the shareable save, as for
+        // preview-physics-2; and so does an attestation of the dense mode the manifest does not name.
+        let unattested = crate::command_ingress::test_support::registry(ScriptedHost::normal());
+        refused(pf_user_released_args(&v, &shared), &unattested, RESULT_NOT_ATTESTED);
+        let dense = crate::command_ingress::test_support::registry(ScriptedHost::normal());
+        dense.record_attested_solve_for_tests(1, PreviewSolverMode::DenseScrutiny, SolveAttestation::of(&v["model"], &v["source"]).unwrap());
+        refused(pf_user_released_args(&v, &shared), &dense, RESULT_NOT_ATTESTED);
     }
 }
 
