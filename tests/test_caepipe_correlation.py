@@ -3348,8 +3348,8 @@ def test_run_series_writes_a_private_record_and_rebuilds_declaring_cases(tmp_pat
     stored = json.loads((config.exchange_root / "series" / "shear-deformation.json").read_text(encoding="utf-8"))
     assert stored["status"] == "consistent" and stored["fitted_slope"] == pytest.approx(-2.0, abs=0.011)
     assert stored["document_kind"] == "openpipestress.caepipe_correlation.series_record"
-    assert lines[0] == "series shear-deformation: series record written: series/shear-deformation.json"
-    assert all("consistent" not in line and "slope" not in line for line in lines)  # operational status only
+    assert lines[0] == ("series shear-deformation: series record written: series/shear-deformation.json; status "
+                        "consistent")
     # A case without a stored record (cpc-03, cpc-04, cpc-05, cpc-06 here) is not rebuilt.
     assert "cpc-03-anchored-weight" not in rebuilt
 
