@@ -398,6 +398,27 @@ pub fn derive_document(
 /// Independent structural/value/hash accounting check. Strict whole schema is
 /// additionally exercised by the version-dispatched schema validation gate.
 pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
+    check_document(doc, source, &mut None)
+}
+
+/// [`validate_document`], whose refusal, when it is raised while one source
+/// row is checked, names that row: `CODE: source row {index} {id}` (the row's
+/// index in the source's `results` and its id, never its value). The code is
+/// [`validate_document`]'s.
+pub fn validate_document_naming_row(doc: &Value, source: &Value) -> Result<(), String> {
+    let mut at = None;
+    check_document(doc, source, &mut at).map_err(|code| match at {
+        Some(index) => match source["results"][index]["id"].as_str() {
+            Some(id) => format!("{code}: source row {index} {id}"),
+            None => format!("{code}: source row {index}"),
+        },
+        None => code,
+    })
+}
+
+/// The checks of [`validate_document`]; `at` holds the index of the source row
+/// being checked, and is `None` outside the row checks.
+fn check_document(doc: &Value, source: &Value, at: &mut Option<usize>) -> Result<(), String> {
     guard_json(doc)?;
     guard_json(source)?;
     let (table, version) = for_source(source)?;
@@ -523,6 +544,7 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
     let mut source_ids = HashSet::new();
     let mut expected_witnesses = Vec::new();
     for (i, (a, row)) in accounts.iter().zip(rows).enumerate() {
+        *at = Some(i);
         let id = row["id"].as_str().ok_or("SOURCE_ID_MISSING")?;
         if !source_ids.insert(id)
             || a["source_row_index"] != i
@@ -741,12 +763,14 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
             ));
         }
     }
+    *at = None;
     if witnesses.len() != expected_witnesses.len() {
         return Err("WITNESS_CARDINALITY".into());
     }
     for (w, (i, a, target, scope, row_hash, original, observed, math, dimension)) in
         witnesses.iter().zip(expected_witnesses)
     {
+        *at = Some(i);
         let row = &rows[i];
         if w["witness_id"] != format!("value-unit-witness:{i}")
             || w["source_row_index"] != i
@@ -778,6 +802,7 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
             return Err("WITNESS_MISMATCH".into());
         }
     }
+    *at = None;
     let mut payload = doc.clone();
     payload["result_envelope"]["reproducibility"]
         .as_object_mut()
