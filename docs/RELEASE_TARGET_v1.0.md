@@ -396,21 +396,20 @@ target remains adequate. A failure alone does not justify relaxing one.
 - The native-smoke `expected.json` values.
 - Amending `docs/PRD.md`.
 
-Where a native-smoke `expected.json` value, or another downstream expectation
-that only restates what the product says, must change as the direct
-consequence of a decision Agent 0 has made on the product's own grounds,
-Agent 0 makes the change and states it in the pull request, as an exception
-to the reservation of those values in `AGENTS.md`. The owner, on 2026-11-20:
-"You can have my delegated authority in matters consistent with this pattern
-I've just provided. (coherent and consistency in those four aspects in support
-of engineering judgment to keep the design implementation moving forward)";
-the four aspects are what the application is, what it can know, what it does
-and what it values. This exception leaves every other item above reserved:
-acceptance, issuance, release and publication, the verdict, licence, legal
-and professional sign-off, the benchmark record's review and the private
-evaluation, purchases, credentials, repository protections and settings,
-release authority, and amending `docs/PRD.md` unless the owner separately
-authorizes an amendment. An expected value still never changes to fit the
+For the native-smoke `expected.json` values only: where a value must change
+solely as the direct consequence of a decision Agent 0 has made on the
+product's own grounds, Agent 0 may make the change, with independent review,
+and states it in the pull request. The owner, on 2026-11-20: "You can have my
+delegated authority in matters consistent with this pattern I've just
+provided. (coherent and consistency in those four aspects in support of
+engineering judgment to keep the design implementation moving forward)"; the
+four aspects are what the application is, what it can know, what it does and
+what it values. Every other item listed above stays the owner's: acceptance,
+issuance, release and the verdict on the product; publication, including
+benchmark agreement; licence, legal and professional sign-off; the benchmark
+record's review and the private CAEPIPE evaluation record; purchases,
+credentials, and repository protections and settings; release authority; and
+amending `docs/PRD.md`. An expected value still never changes to fit the
 implementation.
 
 Agent 0 decides what else the target needs, under the grant in `AGENTS.md`

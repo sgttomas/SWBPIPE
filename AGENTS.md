@@ -364,9 +364,9 @@ act it describes.
 Under every delegation, and under the posture's grant, changed commitment text
 still gets an independent review, and a change of numerical meaning gets
 targeted regression checks and independent scrutiny. Release, acceptance and
-issuance, purchases, the native-smoke `expected.json` values and the
-reservations in `docs/RELEASE_TARGET_v1.0.md` ("Reserved to the owner") stay
-with the owner. The product and data boundaries (`docs/PRD.md` §4.3,
+issuance, purchases, the native-smoke `expected.json` values (but for the
+consequent change `docs/RELEASE_TARGET_v1.0.md`, "Reserved to the owner",
+provides) and the reservations in that section stay with the owner. The product and data boundaries (`docs/PRD.md` §4.3,
 `docs/IP_AND_DATA_BOUNDARY.md`) are unchanged.
 
 When an owner instruction overrides a standing rule, note the exception in the
