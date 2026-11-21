@@ -530,15 +530,18 @@ export function fullResultRefusalWords(refusal: FullResultRefused, feature: stri
   const known = refusal.resultBytes !== null && refusal.limitBytes !== null;
   const bytes = refusal.resultBytes === null ? "of unknown size" : `${refusal.resultBytes} bytes`;
   const limit = refusal.limitBytes === null ? "not known" : `${refusal.limitBytes} bytes`;
+  // A size that rounds to the limit's own figure reads "just over" it, so the line is not "64 MiB … 64 MiB".
+  const most = known ? size(refusal.limitBytes!) : "";
+  const shown = known ? (refusal.resultBytes! > refusal.limitBytes! && size(refusal.resultBytes!) === most ? `just over ${most}` : size(refusal.resultBytes!)) : "";
   return Object.freeze({
     fact: known
-      ? `This ${subject} is too large for ${feature}: ${size(refusal.resultBytes!)}, and the most it can take is ${size(refusal.limitBytes!)}.`
+      ? `This ${subject} is too large for ${feature}: ${shown}, and the most it can take is ${most}.`
       : `This ${subject} is too large for ${feature}.`,
     stillWorks: "The results can still be read: the summary, the tables and the model view.",
     advice: `To use ${feature} for this model, solve fewer load cases at a time: remove the cases and combinations this review does not need, or solve them in groups, each in its own copy of the model (File > Save Model Document…), or split the model into parts.`,
     details: `${refusal.code}: ${subject} ${bytes}; limit ${limit}.`,
     reading: known
-      ? `this ${subject} is too large for it (${size(refusal.resultBytes!)}; the most it can take is ${size(refusal.limitBytes!)})`
+      ? `this ${subject} is too large for it (${shown}; the most it can take is ${most})`
       : `this ${subject} is too large for it`
   });
 }

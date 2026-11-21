@@ -117,9 +117,15 @@ describe("C1 slice 4: a fresh solve's result is read natively and never taken", 
       details: "RESULT-DETAIL-WEBVIEW-LIMIT: run record 92274688 bytes; limit 67108864 bytes.",
       reading: "this run record is too large for it (88 MiB; the most it can take is 64 MiB)"
     });
-    // Sizes round as before (two places, trailing zeros dropped; GiB from 1024 MiB).
+    // Sizes round as before (two places, trailing zeros dropped; GiB from 1024 MiB). A size that
+    // rounds to the limit's own figure reads "just over" it; one that rounds to a larger figure does not.
     const result = fullResultRefusalWords(new FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", 64 * MIB + 1, 64 * MIB, ""), "rule checks");
-    expect(result.fact).toBe("This result is too large for rule checks: 64 MiB, and the most it can take is 64 MiB.");
+    expect(result.fact).toBe("This result is too large for rule checks: just over 64 MiB, and the most it can take is 64 MiB.");
+    expect(result.reading).toBe("this result is too large for it (just over 64 MiB; the most it can take is 64 MiB)");
+    expect(result.details).toBe("RESULT-DETAIL-WEBVIEW-LIMIT: result 67108865 bytes; limit 67108864 bytes.");
+    const next = fullResultRefusalWords(new FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", Math.ceil(64.006 * MIB), 64 * MIB, ""), "rule checks");
+    expect(next.fact).toBe("This result is too large for rule checks: 64.01 MiB, and the most it can take is 64 MiB.");
+    expect(next.reading).toBe("this result is too large for it (64.01 MiB; the most it can take is 64 MiB)");
     expect(fullResultRefusalWords(new FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", 1.5 * 1024 * MIB, 64 * MIB, ""), "comparisons").reading)
       .toBe("this result is too large for it (1.5 GiB; the most it can take is 64 MiB)");
     expect(fullResultRefusalWords(new FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", 70.125 * MIB, 64 * MIB, ""), "comparisons").fact)
