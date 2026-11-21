@@ -460,20 +460,19 @@ or installing browsers in the warmer.
 
 The retained registration drift check (DEL-04-08 REQ-004) is a named selection
 with its own workflow, `retained-drift-check.yml`, and is a plain red or green
-run. A green run shows that no committed pin or reviewed input has drifted from
-the registration at the checked revision: the pull request's head, or the
-dispatched ref. It does not show:
-- any pricing: it runs no four-point pricing of any revision
-  (`tools/retained_pricing/README.md`), and it is not the D3 audit that a
-  registration or a release candidate needs;
-- that each premise pin's reviewed text is still its source line: only the
-  pricing driver (`tools/retained_pricing/price.py`, its premise-pin step)
-  compares them, after its line map, so this is established at registration;
-- the running total's overflow behaviour outside a registered build: every build
-  checks only the spelling of its accumulation
-  (`b1_sp_seam_running_total_saturates_in_every_build`), and the behavioural
-  test, `b1_sp_seam_overflow_is_a_typed_g_b_refusal`, runs only in a
-  registered build.
+run. A green run shows that no committed digest pin or reviewed input has
+drifted from the registration at the checked revision (the pull request's head,
+or the dispatched ref); it does not compare a premise pin's expected text with
+its source, which only the pricing driver does, and it runs no four-point
+pricing of any revision. The driver's premise-pin step
+(`tools/retained_pricing/price.py`, after its line map) makes that comparison at
+registration, and the pricing (`tools/retained_pricing/README.md`) is the D3
+audit that a registration or a release candidate needs. Nor does a green run
+show the running total's overflow behaviour outside a registered build: every
+build checks only the spelling of its accumulation
+(`b1_sp_seam_running_total_saturates_in_every_build`), and the behavioural
+test, `b1_sp_seam_overflow_is_a_typed_g_b_refusal`, runs only in a registered
+build.
 
 It holds every test file under `tools/retained_pricing/tests` that runs the
 pricing tool's models on the checkout's own priced source, and the
@@ -501,8 +500,13 @@ check (below).
   - `.github/workflows/retained-registration-rust.yml`, which runs the
     registered build's tests.
 
-  A candidate whose complete diff is unavailable (the plan has no base and no
-  paths) or empty counts as touching one: the selection fails closed.
+  A directory entry matches every path under it, and a file entry only its
+  exact name, as the `retained-pricing-tool-tests` rule in
+  `software-workflow.json` does. A candidate whose complete diff is unavailable
+  (the plan has no base and no paths) counts as touching one: the selection
+  fails closed to both parts. An empty diff changes nothing and runs neither.
+  The planner's tests (`tools/software_workflow/test_hosted_ci.py`) hold that
+  the two parts are selected together or left out together.
   Such a change runs both parts of the drift check in its `harness`: every
   drift-check Python file in the Python shards, and the registered build's Rust
   tests (`retained-registration-rust.yml`, called by the product workflow when
@@ -535,12 +539,12 @@ check (below).
 - **Re-registration and re-pinning** are done when the solver core is frozen
   before a release candidate, and again on the candidate's exact revision when
   any priced source or reviewed input differs from the last revision actually
-  priced. A priced source is a file under a directory that the pricing tool's
-  own list names (`tools/retained_pricing/base/crate_dirs.txt`, which holds
-  every file its domain model binds), not only `core/solver/` and
-  `core/product_physics/`. Whether the drift issue, kept by hand for that
-  re-registration, is open never decides it, and a green drift check prices
-  nothing.
+  priced. A priced source is any file the pricing tool reads, pins or
+  inventories when it prices; its driver, domain model and rules name them, and
+  no single list in the repository is the whole of them. Where it cannot be
+  shown from the tool itself that no such file differs, the candidate's exact
+  revision is priced. Whether a drift check is green never decides it: a green
+  drift check prices nothing.
 - **Locally**, run `python3 tools/ci/python_ci.py --drift-check`
   (`--dry-run` lists the files; `--shard-index` and `--shard-count` take one
   shard), or the registered `retained-drift-check` check, within the host's

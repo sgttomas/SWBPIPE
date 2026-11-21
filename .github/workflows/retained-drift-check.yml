@@ -1,7 +1,8 @@
 name: retained-drift-check
 # The retained registration drift check (docs/CI_STRATEGY.md, "Retained registration drift check"; DEL-04-08
-# REQ-004), a plain red or green run. A green run shows that no committed pin or reviewed input has drifted from the
-# registration at the checked revision, the dispatched ref. It runs no four-point pricing of any revision. By
+# REQ-004), a plain red or green run. A green run shows that no committed digest pin or reviewed input has drifted
+# from the registration at the checked revision, the dispatched ref; it does not compare a premise pin's expected text
+# with its source, which only the pricing driver does, and it runs no four-point pricing of any revision. By
 # dispatch on any ref, and it adds no required check; a pull request that changes the pricing tool or the registration
 # runs both parts in its own harness. It has no schedule until the solver freeze's registration, when one is added.
 on:

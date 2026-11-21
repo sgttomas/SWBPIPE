@@ -127,7 +127,8 @@ PREFIX_TESTS = {
 # wherever that source differs from the source the tool's pins and the registered profile were reviewed against: they
 # report drift of the checked revision from the committed registration, not a fault of the change under test, and they
 # price no revision. They run by dispatch in their own workflow (retained-drift-check.yml), and in a pull request or
-# queue group only when it changes the tool or the registration, or when its complete diff is unavailable. Every other
+# queue group only when it changes the tool or the registration, or when its complete diff is unavailable; an empty
+# diff changes neither, so it runs neither the Python part nor the registered build's Rust tests. Every other
 # selection, the nightly full run's included, leaves them out. Every test file under the directory is part of the
 # drift check except the ones named here, which read no priced source.
 RETAINED_PRICING_TESTS = 'tools/retained_pricing/tests'
@@ -143,7 +144,9 @@ RETAINED_POINT_ATOMS_INPUT = 'core/product_physics/src/retained_memory_law_tests
 # the registered build's Rust tests (retained-registration-rust.yml): the tool, the history module it imports, the file
 # that holds the generated profile block and REGISTERED_PROFILES, the build script and module that compute the build
 # identity and the reviewed-input record a profile is matched against, the allocation challenge whose bounds are the
-# generated profile's values, and the called workflow that runs the registered build's tests.
+# generated profile's values, and the called workflow that runs the registered build's tests. An entry ending in `/` is
+# a directory and matches every path under it; any other entry is a file and matches only itself, as the
+# retained-pricing-tool-tests rule's paths in software-workflow.json do.
 RETAINED_PRICING_REGISTRATION = ('tools/retained_pricing/', 'tools/repository_history.py',
                                  'core/product_physics/src/retained_memory.rs', 'core/product_physics/build.rs',
                                  'core/product_physics/src/build_identity.rs',
@@ -160,14 +163,18 @@ def retained_drift_check(project):
                         and path.relative_to(project).as_posix() != RETAINED_POINT_ATOMS_TEST))
 
 
+def registration_path(local):
+    """Whether a project-relative path is a registration path: under a directory entry, or equal to a file entry."""
+    return any(local.startswith(entry) if entry.endswith('/') else local == entry for entry in RETAINED_PRICING_REGISTRATION)
+
+
 def changes_registration(plan):
     """Whether a plan's paths change the pricing tool or the registration. A plan without its complete diff fails
-    closed: the planner records no base and no paths when it cannot compute the diff, and an empty diff shows nothing
-    either, so both count as a change of the registration."""
-    paths = plan.get('paths', [])
-    if not paths or ('base' in plan and not plan['base']):
+    closed: the planner records no base (and no paths) when it cannot compute the diff, and that counts as a change of
+    the registration. An empty diff, with its base, changes nothing."""
+    if 'base' in plan and not plan['base']:
         return True
-    return any(path[len(PREFIX):].startswith(RETAINED_PRICING_REGISTRATION) for path in paths)
+    return any(registration_path(path[len(PREFIX):]) for path in plan.get('paths', []))
 
 
 def registration_output(plan):

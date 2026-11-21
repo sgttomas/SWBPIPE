@@ -513,7 +513,7 @@ EVERY_PULL_REQUEST = frozenset((
     'test_tests_that_build_offline_have_their_locked_dependencies_fetched_before_pytest',
 ))
 SELECTOR_ONLY = frozenset((
-    'test_an_unavailable_or_empty_candidate_diff_runs_both_halves_of_the_drift_check',
+    'test_an_unavailable_candidate_diff_runs_both_halves_of_the_drift_check_and_an_empty_one_neither',
     'test_the_registration_output_names_a_candidate_that_changes_the_tool_or_the_registration',
     'test_repeated_full_selection_does_not_mutate_the_cached_cohort',
     'test_known_helper_import_forms_are_selected_without_unrelated_tests',
@@ -895,17 +895,21 @@ def test_full_selections_and_the_queue_leave_the_drift_check_to_its_workflow():
     assert ci.drift_check_deferred(PROJECT, {'event': 'merge_group', 'paths': ['tools/retained_pricing/price.py']}) == frozenset()
 
 
-def test_an_unavailable_or_empty_candidate_diff_runs_both_halves_of_the_drift_check():
-    """A candidate whose complete diff the planner could not compute (no base, no paths) or that changes nothing fails
-    closed: its selection holds the whole Python drift check and the registered build's Rust tests run."""
+def test_an_unavailable_candidate_diff_runs_both_halves_of_the_drift_check_and_an_empty_one_neither():
+    """A candidate whose complete diff the planner could not compute (no base) fails closed: its selection holds the
+    whole Python drift check and the registered build's Rust tests run. An empty diff, with its base, changes nothing
+    and runs neither. tools/software_workflow/test_hosted_ci.py checks the same at the planner."""
     audit = set(ci.retained_drift_check(PROJECT))
     for event in ('pull_request', 'merge_group'):
-        for plan in ({'event': event, 'base': None, 'paths': []}, {'event': event, 'base': 'a' * 40, 'paths': []},
-                     {'event': event, 'paths': []}, {'event': event, 'base': None, 'paths': ['core/product_physics/src/lib.rs']}):
+        for plan in ({'event': event, 'base': None, 'paths': []},
+                     {'event': event, 'base': None, 'paths': ['core/product_physics/src/lib.rs']}):
             assert ci.changes_registration(plan), plan
             assert ci.drift_check_deferred(PROJECT, plan) == frozenset(), plan
             assert ci.registration_output(plan) == 'retained_registration=true', plan
         assert audit <= set(ci.select(PROJECT, {'event': event, 'base': None, 'paths': []})), event
+        empty = {'event': event, 'base': 'a' * 40, 'paths': []}
+        assert not ci.changes_registration(empty) and ci.drift_check_deferred(PROJECT, empty) == audit
+        assert ci.registration_output(empty) == 'retained_registration=false'
     # A complete diff of an unrelated change still leaves both out.
     plan = {'event': 'pull_request', 'base': 'a' * 40, 'paths': ['core/product_physics/src/lib.rs']}
     assert ci.registration_output(plan) == 'retained_registration=false'
@@ -932,11 +936,24 @@ def test_a_law_tests_change_selects_the_point_atoms_regeneration_check():
 
 def test_the_tool_test_rule_follows_every_registration_path():
     """software-workflow.json routes the retained-pricing-tool-tests check by the same registration paths as the
-    selection."""
+    selection, matched the same way: a file entry by its exact name, a directory entry by every path under it."""
+    common = importlib.util.spec_from_file_location('software_workflow_common',
+                                                    PROJECT / 'tools/software_workflow/software_workflow_common.py')
+    module = importlib.util.module_from_spec(common)
+    common.loader.exec_module(module)
+    matches = module.matches
     rules = json.loads((PROJECT / 'software-workflow.json').read_text())['path_rules']
     [paths] = [rule['paths'] for rule in rules if rule['checks'] == ['retained-pricing-tool-tests']]
     expected = {path + '**' if path.endswith('/') else path for path in ci.RETAINED_PRICING_REGISTRATION}
     assert set(paths) == expected | {'software-workflow.json'}
+    probes = set()
+    for entry in ci.RETAINED_PRICING_REGISTRATION:
+        stem = entry.rstrip('/')
+        probes |= {stem, stem + '.bak', stem + '/x.py', stem + '/a/b.rs', stem[:-1], 'x/' + stem, stem.rsplit('/', 1)[0]}
+    for probe in sorted(probes - {'software-workflow.json'}):
+        assert ci.registration_path(probe) == matches(probe, paths), probe
+    assert not ci.registration_path('core/product_physics/build.rs.bak')
+    assert ci.registration_path('tools/retained_pricing/base/sens.py')
 
 
 def test_the_registration_output_names_a_candidate_that_changes_the_tool_or_the_registration():

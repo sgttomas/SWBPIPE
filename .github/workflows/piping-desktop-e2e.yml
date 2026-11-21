@@ -574,8 +574,9 @@ jobs:
           retention-days: 7
 
   retained-registration:
-    # A pull request or queue group that changes the pricing tool or the registration: the registered build's Rust
-    # tests with the drift check's switch, as the scheduled drift check runs them.
+    # A pull request or queue group that changes the pricing tool or the registration, or whose complete diff is
+    # unavailable: the registered build's Rust tests with the drift check's switch, the same called job the
+    # dispatched drift check runs.
     needs: selection
     if: needs.selection.outputs.retained_registration == 'true'
     uses: ./.github/workflows/retained-registration-rust.yml
