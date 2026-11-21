@@ -12,6 +12,9 @@ use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 
 const CASES: &str = include_str!("fixtures/load_reference_mutations.json");
+/// DEL-04-07 REQ-011: the generated load source's shared cases, applied by the
+/// same harness (kept out of the base-reader corpus).
+const GENERATED_CASES: &str = include_str!("fixtures/load_reference_generated_mutations.json");
 const TABLE: &str =
     include_str!("../../../../fixtures/results/semantic_contract_v0_3_pressure_3.json");
 const PHYSICS_PREFIX: &str = "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE";
@@ -339,10 +342,11 @@ fn current_inputs_table_and_schema_are_pinned() {
 #[test]
 fn shared_adversarial_cases_match_in_rust() {
     let cases = cases();
+    let generated: Value = serde_json::from_str(GENERATED_CASES).unwrap();
     let mut log = Vec::new();
     // Every disagreement is collected and reported together.
     let mut misses = Vec::new();
-    for case in cases["cases"].as_array().unwrap() {
+    for case in cases["cases"].as_array().unwrap().iter().chain(generated["cases"].as_array().unwrap()) {
         let id = case["id"].as_str().unwrap();
         let (doc, nonfinite) = apply(&source(case["source"].as_str().unwrap()), &case["ops"]);
         let (dispatch, validator) = if let Some(literal) = &nonfinite {

@@ -38,6 +38,8 @@ from core.serialization.canonical_json.adapter import canonical_sha256_checked_v
 PROJECT = Path(__file__).resolve().parents[1]
 CASES_PATH = PROJECT / "core/reporting/result_export/tests/fixtures/load_reference_mutations.json"
 CASES = json.loads(CASES_PATH.read_text())
+# DEL-04-07 REQ-011: the generated load source's shared cases (kept out of the base-reader corpus), run as shared cases.
+GENERATED_CASES = json.loads((PROJECT / "core/reporting/result_export/tests/fixtures/load_reference_generated_mutations.json").read_text())
 FROZEN = {
     "fixtures/product_preview/pressure/load_reference/connected.request.json": "e93410954607b4232fc9fa471343b3b6c0219a3eeb45ef24ff9f8a82f9808db7",
     # T4-U6 (D-5): the regenerated producer envelopes (both section-basis families);
@@ -212,7 +214,7 @@ def test_frozen_inputs_and_table_identity():
         assert "load_reference_states" in actual(raw)["contract_evidence"]
 
 
-@pytest.mark.parametrize("case", CASES["cases"], ids=lambda case: case["id"])
+@pytest.mark.parametrize("case", CASES["cases"] + GENERATED_CASES["cases"], ids=lambda case: case["id"])
 def test_shared_adversarial_case(case):
     doc = apply(source(case["source"]), case["ops"])
     # The verifier's dispatch against the Python expectation; the product (Rust) admits exactly the same statements.

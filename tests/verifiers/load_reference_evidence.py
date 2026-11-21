@@ -495,10 +495,17 @@ def _validate_record(record: Mapping[str, Any], cases: list[tuple[str, Mapping[s
     _require(of_kind("pressure_region") == expected_regions, "PRESSURE_CONTRIBUTION_COVERAGE")
     # DEL-04-07 REQ-011: each generated source once, in the order and with the
     # identities of the exact case's generation record; none without one.
-    generated = [c["source_id"] for c in contributions if _eq(_get(c, "owner_kind"), "generated_equivalent_static") and isinstance(_get(c, "source_id"), str)]
-    generation_record = _get(case, "equivalent_static")
-    expected_generated = _get(generation_record, "generated_load_ids") if isinstance(generation_record, Mapping) else []
-    _require(isinstance(expected_generated, list) and generated == expected_generated, "GENERATED_CONTRIBUTION_COVERAGE")
+    # The key's presence decides, as in Rust (`load_reference.rs`): a present
+    # record that is null or not an object, or has no list of ids, is refused.
+    generated = [_get(c, "source_id") for c in contributions if _eq(_get(c, "owner_kind"), "generated_equivalent_static")]
+    _require(all(isinstance(source_id, str) for source_id in generated), "GENERATED_CONTRIBUTION_COVERAGE")
+    if isinstance(case, Mapping) and "equivalent_static" in case:
+        generation_record = case["equivalent_static"]
+        _require(isinstance(generation_record, Mapping) and isinstance(generation_record.get("generated_load_ids"), list), "GENERATED_CONTRIBUTION_COVERAGE")
+        expected_generated = generation_record["generated_load_ids"]
+    else:
+        expected_generated = []
+    _require(generated == expected_generated, "GENERATED_CONTRIBUTION_COVERAGE")
     for source_id in generated:
         contribution = find(source_id)
         _require(source_id.startswith(f"{case_id}:generated:{_get(contribution, 'generation_kind')}:"), "GENERATED_CONTRIBUTION_BINDING")
