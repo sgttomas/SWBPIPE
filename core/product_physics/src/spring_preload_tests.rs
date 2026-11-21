@@ -96,7 +96,6 @@ fn each_not_applied_reason_has_its_fixed_token() {
     use crate::FrameDof;
     let pinned = [
         (N::NonlinearRecord, "nonlinear_record"),
-        (N::SkewedRecord, "skewed_record"),
         (N::ColdLoadMissing, "cold_load_missing"),
         (N::ColdLoadNotPositive, "cold_load_not_positive"),
         (N::StiffnessDofUnreadable, "stiffness_dof_unreadable"),

@@ -2,16 +2,17 @@
 //! replace the retired `SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD`.
 //!
 //! `SPRING_HANGER_COLD_LOAD_NOT_APPLIED` names each spring whose cold load a
-//! case does not apply, with the reason. Of the seven reasons of
+//! case does not apply, with the reason. Of the six reasons of
 //! `spring_preload::NotApplied`, a document that passes validation reaches
 //! two: `nonlinear_record` (a nonlinear member on another DOF; on the
 //! stiffness DOF the record is refused, SUPPORT_LINEAR_NONLINEAR_DOF_CONFLICT)
-//! and `rotational_dof`. Validation refuses the other five first:
-//! `skewed_record` by SUPPORT_DIRECTION_RECORD_UNSUPPORTED (a direction is not
-//! an input of a hanger), `cold_load_missing` and `cold_load_not_positive` by
+//! and `rotational_dof`. Validation refuses the other four first:
+//! `cold_load_missing` and `cold_load_not_positive` by
 //! SPRING_HANGER_LOAD_MISSING, `stiffness_dof_unreadable` by
 //! SPRING_HANGER_STIFFNESS_MISSING (or SUPPORT_STIFFNESS_DOF_INVALID for an
-//! unknown token), and `unknown_node` by SUPPORT_NODE_UNKNOWN.
+//! unknown token), and `unknown_node` by SUPPORT_NODE_UNKNOWN. A direction is
+//! no reason: a directed hanger, skewed or not, is refused by
+//! SUPPORT_DIRECTION_RECORD_UNSUPPORTED (a direction is not an input of a hanger).
 //!
 //! `SPRING_HANGER_INSTALLED_LOAD_DIFFERS_FROM_COLD_LOAD` names an entered
 //! installed load that differs from the cold load after unit normalization;
@@ -148,11 +149,12 @@ fn a_rotational_stiffness_dof_is_named_on_both_routes() {
     }
 }
 
-/// The five reasons validation refuses before any solve, each by its rule.
+/// The four reasons validation refuses before any solve, each by its rule, and a
+/// directed hanger, which never reaches the decision.
 #[test]
 fn the_other_reasons_are_refused_by_validation_first() {
     let cases: [(&str, &str, fn(&mut Value)); 6] = [
-        ("skewed_record", "SUPPORT_DIRECTION_RECORD_UNSUPPORTED", |s| {
+        ("a skewed direction", "SUPPORT_DIRECTION_RECORD_UNSUPPORTED", |s| {
             s["family"] = json!("spring");
             s["restraints"] = json!(["UZ"]);
             s["direction"] = json!({"x": 0.0, "y": 0.6, "z": 0.8});

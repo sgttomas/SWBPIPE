@@ -27,7 +27,6 @@ def test_the_restated_decision_applies_and_refuses_as_the_producer_does() -> Non
     assert spring_preload.applying(_model({})) == [{"id": "sh", "node": "n", "dof": "UZ", "force": 500.0}]
     hanger = {"hanger_type": "variable_spring_hanger", "stiffness": {"dof": "UZ"}}
     for patch in ({"nonlinear": {"behavior": "one_way"}},
-                  {"direction": {"x": 1.0, "y": 0.0, "z": 1.0}},
                   {"hanger": hanger},
                   {"hanger": {**hanger, "cold_load": {"value": -1.0, "unit": "N"}}},
                   {"restraints": [], "hanger": {"hanger_type": "variable_spring_hanger", "cold_load": {"value": 5.0, "unit": "N"}}},
@@ -36,11 +35,6 @@ def test_the_restated_decision_applies_and_refuses_as_the_producer_does() -> Non
                   {"node": "elsewhere"},
                   {"family": "spring", "hanger": None}):
         assert spring_preload.applying(_model(patch)) == [], patch
-    assert spring_preload.applying(_model({"direction": {"x": 0.0, "y": 0.0, "z": 1.0}}))
-    # A negative single-axis direction declines the cold load; on another axis the lowering moves the DOF.
-    assert spring_preload.applying(_model({"direction": {"x": 0.0, "y": 0.0, "z": -1.0}})) == []
-    assert spring_preload.applying(_model({"direction": {"x": -0.0, "y": 2.0, "z": 0.0}}))[0]["dof"] == "UY"
-    assert spring_preload.applying(_model({"direction": {"x": 0.0, "y": -2.0, "z": 0.0}})) == []
 
 
 def test_the_gate_text_names_its_source_and_keeps_constant_effort_text() -> None:

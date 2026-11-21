@@ -32,12 +32,12 @@ impl Preload {
 /// Why a variable spring hanger does not apply its cold load in a case. No
 /// reason depends on the case yet; the case is the decision's input so that a
 /// case-dependent reason (a held spring) is decided here and nowhere else.
+/// A direction is not among them: every directed record that is a variable
+/// spring hanger is refused before any solve (`document_members::supports_findings`).
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum NotApplied {
     /// The record carries a `nonlinear` member: its nonlinear law governs.
     NonlinearRecord,
-    /// The record has a skewed `direction`: no global axis carries the force.
-    SkewedRecord,
     /// No entered `hanger.cold_load`.
     ColdLoadMissing,
     /// The entered cold load is not a finite positive force.
@@ -56,7 +56,6 @@ impl NotApplied {
     pub(crate) fn token(&self) -> &'static str {
         match self {
             Self::NonlinearRecord => "nonlinear_record",
-            Self::SkewedRecord => "skewed_record",
             Self::ColdLoadMissing => "cold_load_missing",
             Self::ColdLoadNotPositive => "cold_load_not_positive",
             Self::StiffnessDofUnreadable => "stiffness_dof_unreadable",
@@ -68,7 +67,6 @@ impl NotApplied {
     pub(crate) fn reason(&self) -> String {
         match self {
             Self::NonlinearRecord => "the record carries a nonlinear member, whose own law governs its DOF".into(),
-            Self::SkewedRecord => "the record acts along a skewed direction, and the cold load acts only along a global axis".into(),
             Self::ColdLoadMissing => "no hanger.cold_load is entered".into(),
             Self::ColdLoadNotPositive => "the entered hanger.cold_load is not a finite positive force".into(),
             Self::StiffnessDofUnreadable => "no stiffness DOF can be read from the record".into(),
@@ -88,9 +86,6 @@ fn stiffness_dof(support: &PreviewSupport) -> Option<FrameDof> {
 fn decide(model: &PreviewModel, support: &PreviewSupport) -> Result<Preload, NotApplied> {
     if support.nonlinear.is_some() {
         return Err(NotApplied::NonlinearRecord);
-    }
-    if document_members::is_skewed_record(support) {
-        return Err(NotApplied::SkewedRecord);
     }
     let cold = support
         .hanger
