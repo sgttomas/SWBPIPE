@@ -67,8 +67,9 @@ async function solve() {
   await waitFor(() => expect(screen.getByTestId("status-pill-mechanics")).toHaveAttribute("title", "MECHANICS_SOLVED"), { timeout: 30_000 });
   await settle();
 }
+/** Opens the Operation Apply page if it is not open (choosing an open page again closes it), then the tab. */
 function operations(tab: "details" | "agent") {
-  nativeMenuCommand("view.section.operations");
+  if (screen.getByTestId("workspace-section-operations").classList.contains("inactive")) nativeMenuCommand("view.section.operations");
   const section = screen.getByTestId("workspace-section-operations");
   fireEvent.click(within(section).getByTestId(`operation-tab-${tab}`));
   return section;
