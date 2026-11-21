@@ -817,13 +817,33 @@ fn row_bits(out: &Value) -> Vec<(String, u64)> {
     keyed
 }
 
+/// Every published row whole (its kind, entity, basis, metadata, unit and
+/// value, the value by its bits), sorted.
+fn whole_rows(out: &Value) -> Vec<String> {
+    let mut rows = rows(out).iter().map(|row| {
+        let mut row = row.clone();
+        let bits = row["value"].as_f64().unwrap_or_else(|| panic!("row value {row}")).to_bits();
+        row["value"] = json!(format!("{bits:016x}"));
+        serde_json::to_string(&row).unwrap()
+    }).collect::<Vec<_>>();
+    rows.sort();
+    rows
+}
+
+/// The standing of a solved envelope: its status and its numerical quality,
+/// with each case's.
+fn standing(out: &Value) -> Value {
+    json!({"status": out["status"], "numerical_quality": out["numerical_quality"]})
+}
+
 /// DEL-05-01 REQ-008 and AC-007; decisions 1 and 2 (iv) of issue 452: on a
 /// load/reference-state document a case's generation is admitted, formed on
 /// the effective case by the same generator, identities and mass basis as on
 /// the plain exact document, at factor 1. On the same resolved generation
 /// inputs (here: an explicit base material selection, no thermal state, the
 /// anchor active, an empty ledger) every published row equals the plain
-/// document's bit for bit, in both solver modes and for seismic, full-span
+/// document's whole (identity, unit and value, bit for bit), the envelope's
+/// standing is the same, in both solver modes and for seismic, full-span
 /// and partial-span wind, Euler-Bernoulli and Timoshenko, and the exact case
 /// names the same generated ids and mass method. A generation-only case whose
 /// ledger selects no stored primitive reaches assembly (decision 2 (i)).
@@ -839,7 +859,8 @@ fn load_state_documents_generate_as_the_plain_document_does() {
             let p = solved(&plain, route, mode, &format!("{what} plain"));
             let l = solved(&load_state, route, mode, &format!("{what} load state"));
             checks_passed(&l, &what);
-            assert_eq!(row_bits(&l), row_bits(&p), "{what}: every row equal bit for bit");
+            assert_eq!(whole_rows(&l), whole_rows(&p), "{what}: every row equal whole, bit for bit");
+            assert_eq!(standing(&l), standing(&p), "{what}: the same standing");
             assert_eq!(exact_case(&l, CASE)["equivalent_static"], exact_case(&p, CASE)["equivalent_static"], "{what}");
             assert!(!exact_case(&l, CASE)["equivalent_static"]["generated_load_ids"].as_array().unwrap().is_empty(), "{what}");
             // The reference rows hold on the load/reference-state document too.

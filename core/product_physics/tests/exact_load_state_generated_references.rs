@@ -845,32 +845,54 @@ fn generated_interactions_refusals() {
 /// Decision 2 (iv) of issue 452 on the packages' models: a plain exact
 /// document and the load/reference-state document over the same resolved
 /// generation inputs (the same material point, no thermal state, every
-/// support active, every stored primitive applied once at factor 1) publish
-/// every row bit for bit equal, in both modes, for the lift-off, the
-/// connector-replaced and the generation-only cases.
+/// support active, every stored primitive applied once at factor 1) are true
+/// twins. In both modes every published row is equal whole (kind, entity,
+/// basis, metadata, unit and value, the value bit for bit), the envelopes'
+/// standing (status and numerical quality, with each case's) is the same, and
+/// each case's generation record is the same. That holds for the lift-off,
+/// the connector-replaced and generation-only, and the constant-effort models
+/// (its terms and combinations included). STRAIGHT and FRAME have no plain
+/// twin. Each of their cases selects every member's material point at a
+/// stated operating temperature through the group (`exact_point`), and their
+/// thermal cases carry a free-length state under the secant expansion law.
+/// Neither is an input of a plain document, so no plain document has the
+/// same resolved inputs.
 #[test]
 fn plain_and_load_state_documents_agree_bit_for_bit() {
     let doc = gi();
-    for (name, ids) in [("LO", vec!["LO-SUS", "LO-EQZ-SEATED", "LO-EQZ-LIFTED"]), ("JR", vec!["JR-EQ", "JR-WIND", "JR-WIND-PART"])] {
-        let load_state = gi_document(&doc, name, &ids);
+    let twins = [
+        ("LO", gi_document(&doc, "LO", &["LO-SUS", "LO-EQZ-SEATED", "LO-EQZ-LIFTED"])),
+        ("JR", gi_document(&doc, "JR", &["JR-EQ", "JR-WIND", "JR-WIND-PART"])),
+        ("CEF", cef_document(&doc)),
+    ];
+    for (name, load_state) in twins {
         let mut plain = load_state.clone();
         plain["model"].as_object_mut().unwrap().remove("reference_configurations");
         for case in plain["model"]["load_cases"].as_array_mut().unwrap() {
             case.as_object_mut().unwrap().remove("analysis_state");
         }
         for mode in MODES {
-            let bits = |out: &Value| {
-                let mut rows = out["results"].as_array().unwrap().iter().map(|r| (format!("{}|{}|{}|{}", r["kind"], r["entity_ref"], r["basis_ref"], r["metadata"]),
-                    r["value"].as_f64().unwrap().to_bits())).collect::<Vec<_>>();
+            let whole = |out: &Value| {
+                let mut rows = out["results"].as_array().unwrap().iter().map(|r| {
+                    let mut r = r.clone();
+                    r["value"] = json!(format!("{:016x}", r["value"].as_f64().unwrap().to_bits()));
+                    serde_json::to_string(&r).unwrap()
+                }).collect::<Vec<_>>();
                 rows.sort();
                 rows
             };
+            let records = |out: &Value| out["contract_evidence"]["exact_cases"].as_array().unwrap().iter()
+                .map(|c| (c["load_case_id"].clone(), c["equivalent_static"].clone())).collect::<Vec<_>>();
+            let standing = |out: &Value| json!({"status": out["status"], "numerical_quality": out["numerical_quality"]});
             let (p, l) = (solved(&plain, mode, &format!("{name} plain")), solved(&load_state, mode, &format!("{name} load state")));
-            let (p, l) = (bits(&p), bits(&l));
-            assert!(!p.is_empty());
-            let differing = p.iter().zip(&l).filter(|(a, b)| a != b).take(5).collect::<Vec<_>>();
-            assert_eq!(p.len(), l.len(), "{name} {mode:?}: the same rows");
-            assert!(differing.is_empty(), "{name} {mode:?}: rows differ bit for bit: {differing:#?}");
+            let (pr, lr) = (whole(&p), whole(&l));
+            assert!(!pr.is_empty());
+            let differing = pr.iter().zip(&lr).filter(|(a, b)| a != b).take(3).collect::<Vec<_>>();
+            assert_eq!(pr.len(), lr.len(), "{name} {mode:?}: the same rows");
+            assert!(differing.is_empty(), "{name} {mode:?}: rows differ: {differing:#?}");
+            assert_eq!(standing(&l), standing(&p), "{name} {mode:?}: the same standing");
+            assert!(records(&p).iter().any(|(_, r)| r.is_object()), "{name} {mode:?}: some case generates");
+            assert_eq!(records(&l), records(&p), "{name} {mode:?}: the same generation records");
         }
     }
 }

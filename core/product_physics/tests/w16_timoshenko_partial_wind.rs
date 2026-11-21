@@ -737,7 +737,9 @@ fn n2_replaced_spans_stay_refused() {
 
 /// N3: on a load/reference-state document a Timoshenko partial span generates
 /// as on the plain document (DEL-05-01 REQ-008 and AC-007): the case solves,
-/// with every row equal to the plain document's bit for bit, in both modes.
+/// with every row equal to the plain document's whole (kind, entity, basis,
+/// metadata, unit and value, bit for bit), the same standing and the same
+/// generation record, in both modes.
 #[test]
 fn n3_load_state_documents_generate_the_partial_span() {
     let state = json!({"contract": "openpipestress.load_reference_state/1.0.0", "reference_configuration_ref": "reference:installed",
@@ -759,15 +761,21 @@ fn n3_load_state_documents_generate_the_partial_span() {
         let solve = |wire: &Value, what: &str| {
             let out = serde_json::to_value(run_linear_static_preview_value_with_mode(wire.clone(), mode).unwrap()).unwrap();
             assert_eq!(out["status"]["mechanics"], "MECHANICS_SOLVED", "{what} {mode:?}: {:#?}", out["diagnostics"]);
-            let mut rows = out["results"].as_array().unwrap().iter()
-                .map(|row| (format!("{}|{}|{}", row["kind"], row["entity_ref"], row["metadata"]), row["value"].as_f64().unwrap().to_bits()))
-                .collect::<Vec<_>>();
+            let mut rows = out["results"].as_array().unwrap().iter().map(|row| {
+                let mut row = row.clone();
+                row["value"] = json!(format!("{:016x}", row["value"].as_f64().unwrap().to_bits()));
+                serde_json::to_string(&row).unwrap()
+            }).collect::<Vec<_>>();
             rows.sort();
-            rows
+            let record = out["contract_evidence"]["exact_cases"].as_array().unwrap().iter().find(|c| c["load_case_id"] == CASE).unwrap()["equivalent_static"].clone();
+            (rows, json!({"status": out["status"], "numerical_quality": out["numerical_quality"]}), record)
         };
         let (p, l) = (solve(&plain, "plain"), solve(&wire, "load state"));
-        assert!(!p.is_empty());
-        assert_eq!(l, p, "{mode:?}: every row equal bit for bit");
+        assert!(!p.0.is_empty());
+        assert_eq!(l.0, p.0, "{mode:?}: every row equal whole, bit for bit");
+        assert_eq!(l.1, p.1, "{mode:?}: the same standing");
+        assert!(!p.2["generated_load_ids"].as_array().unwrap().is_empty(), "{mode:?}");
+        assert_eq!(l.2, p.2, "{mode:?}: the same generation record");
     }
 }
 
