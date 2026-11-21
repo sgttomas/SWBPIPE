@@ -118,8 +118,12 @@ describe("a native result's first paint in the app", () => {
     nativeMenuCommand("view.section.results");
     const resultsSection = screen.getByTestId("workspace-section-results");
     fireEvent.click(within(resultsSection).getByTestId("c2-result-load"));
-    await waitFor(() => expect(within(resultsSection).queryByTestId("c2-result-load")).toBeNull());
-    await settle();
+    // The comparison panel is shown on the full copy, with what this run gives within it: its
+    // packaged basis, and no combination with result rows to compare.
+    const comparison = await within(resultsSection).findByTestId("comparison-panel");
+    expect(await within(comparison).findByTestId("comparison-within-run")).toBeInTheDocument();
+    expect(within(comparison).getByTestId("comparison-package-basis-text")).toHaveTextContent("Packages include: load:L-100 vs combination:C-OPER-ALT.");
+    expect(within(comparison).getByTestId("comparison-unavailable")).toHaveTextContent("No combination in this run has result rows, so there is nothing to compare within this run.");
     expect(within(resultsSection).queryByTestId("c2-result-refused")).toBeNull();
     expect(within(resultsSection).queryByTestId("c2-result-failed")).toBeNull();
 

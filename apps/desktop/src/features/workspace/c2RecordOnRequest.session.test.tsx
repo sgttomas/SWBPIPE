@@ -1,8 +1,10 @@
 /** The session's C2 loader (`loadC2Full`) gives a native result's run record only to a consumer that
- * asks for it. A consumer that does not ask (the sample proposal, the user-released package, the
- * gates given no record) is neither refused for the record's stored length nor made to wait for
- * the record's build; one that asks gets today's record, checked against the native preview's
- * checksums. The result's own 64 MiB limit refuses every consumer. Unit transport replay of
+ * asks for it. A consumer that does not ask (the sample proposal, the gates given no record) is
+ * neither refused for the record's stored length nor made to wait for the record's build; one
+ * that asks (the gates given a record, both report-package saves, reference inspection's retained
+ * run, the comparison with a recorded run) gets today's record, checked against the native
+ * preview's checksums, and a record above the limit refuses it before the result is copied. The
+ * result's own 64 MiB limit refuses every consumer. Unit transport replay of
  * recorded producer bytes through mocked IPC; NOT a native UI qualification witness. */
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { isDeepStrictEqual } from "node:util";
@@ -61,11 +63,18 @@ async function solvedSession(options: { fullCopyLimitBytes?: number } = {}) {
   return { hook, load, copies };
 }
 
-/** The native preview of every record, with its stored length above the webview's limit. */
-function recordAboveLimit() {
+/** The native preview of every record, with its stored length `bytes` (by default one above the webview's limit). */
+function recordAboveLimit(bytes = RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1) {
   const preview = nativeResult.nativeRunPreview;
-  return vi.spyOn(nativeResult, "nativeRunPreview").mockImplementation((run) => ({ ...preview(run), record_bytes: RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1 }));
+  return vi.spyOn(nativeResult, "nativeRunPreview").mockImplementation((run) => ({ ...preview(run), record_bytes: bytes }));
 }
+/** The held result's length as the webview knows it from custody, without copying. */
+function resultLength(bytes: number) {
+  const custody = nativeResult.nativeCustody;
+  return vi.spyOn(nativeResult, "nativeCustody").mockImplementation((result) => ({ ...custody(result), resultBytes: bytes }));
+}
+/** The record-size refusal's own words, as a caller's status carries them. */
+const RECORD_REFUSAL = `RESULT-DETAIL-WEBVIEW-LIMIT (record_bytes=${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1}, limit_bytes=${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES})`;
 const failure = (promise: Promise<unknown>) => promise.then(() => null, (error: unknown) => error);
 
 describe("a consumer that does not ask for the run record (the change)", () => {
@@ -108,8 +117,7 @@ describe("a consumer that asks for the run record (kept)", () => {
     const { load } = await solvedSession({ fullCopyLimitBytes: length - 1 });
     recordAboveLimit();
     // The held result's length, as the webview knows it without copying, above the webview's limit.
-    const custody = nativeResult.nativeCustody;
-    vi.spyOn(nativeResult, "nativeCustody").mockImplementation((result) => ({ ...custody(result), resultBytes: RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1 }));
+    resultLength(RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1);
     for (const request of [undefined, { record: true }]) {
       const error = await failure(load(request));
       expect(error).toBeInstanceOf(FullResultRefused);
@@ -135,6 +143,65 @@ describe("a consumer that asks for the run record (kept)", () => {
       expect(claim(full.analysisRun!.analysis_run.hashes, scope)).toBeTruthy();
       expect(claim(full.analysisRun!.analysis_run.hashes, scope)).toBe(claim(preview.analysis_run.hashes, scope));
     }
+  }, 60_000);
+});
+
+describe("the limit's boundaries", () => {
+  it("a record of exactly the limit is built and handed over", async () => {
+    const { load, copies } = await solvedSession();
+    recordAboveLimit(RESULT_DETAIL_WEBVIEW_LIMIT_BYTES);
+    const full = await load({ record: true });
+    expect(full.analysisRun).not.toBeNull();
+    expect(copies()).toBe(1);
+  }, 60_000);
+
+  it("a result of exactly the limit with a record one byte above it is refused for the record, before the copy", async () => {
+    const { load, copies } = await solvedSession();
+    recordAboveLimit();
+    resultLength(RESULT_DETAIL_WEBVIEW_LIMIT_BYTES);
+    const error = await failure(load({ record: true }));
+    expect(error).toBeInstanceOf(FullResultRefused);
+    expect(error).toMatchObject({ code: "RESULT-DETAIL-WEBVIEW-LIMIT", payloadKind: "record", resultBytes: RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1 });
+    expect(copies()).toBe(0);
+  }, 60_000);
+});
+
+describe("the session's callers that use the record, with a fitting result and a record above the limit", () => {
+  it("the shareable (user-released) package save is refused for the record before the copy, and builds no record", async () => {
+    const { hook, copies } = await solvedSession();
+    await waitFor(() => expect(hook.result.current.results.currentSolvedResult).not.toBeNull());
+    const builds = vi.spyOn(previewService, "buildAnalysisRunPreview");
+    recordAboveLimit();
+    await act(async () => { await hook.result.current.results.requestSaveShareableReportPackage(); });
+    expect(hook.result.current.results.userReleaseRequest).not.toBeNull();
+    await act(async () => { hook.result.current.results.userReleaseRequest!.save({ userReleasedAt: "2026-11-21T00:00:00Z" }); });
+    await waitFor(() => expect(hook.result.current.results.reportPackageRoute).not.toBeNull());
+    const route = hook.result.current.results.reportPackageRoute as { route: string; diagnostic: string };
+    expect(route.route).toBe("redaction_blocked");
+    expect(route.diagnostic).toContain(RECORD_REFUSAL);
+    expect(copies()).toBe(0);
+    expect(builds).not.toHaveBeenCalled();
+    expect(invokeMock.mock.calls.some(([command]) => command === "save_report_package")).toBe(false);
+  }, 60_000);
+
+  it("the local-private package save is refused for the record before the copy", async () => {
+    const { hook, copies } = await solvedSession();
+    await waitFor(() => expect(hook.result.current.results.currentSolvedResult).not.toBeNull());
+    recordAboveLimit();
+    await act(async () => { await hook.result.current.results.handleSaveReportPackage(); });
+    await waitFor(() => expect(hook.result.current.results.reportPackageRoute).not.toBeNull());
+    const route = hook.result.current.results.reportPackageRoute as { route: string; diagnostic: string };
+    expect(route.route).toBe("redaction_blocked");
+    expect(route.diagnostic).toContain(RECORD_REFUSAL);
+    expect(copies()).toBe(0);
+  }, 60_000);
+
+  it("reference inspection retains no run and says the record refused it, before the copy", async () => {
+    const { hook, copies } = await solvedSession();
+    recordAboveLimit();
+    await act(async () => { await hook.result.current.results.handleInspectBundledReference(); });
+    expect(hook.result.current.project.projectMessage).toContain(`The current solve's result is not retained while the reference is inspected: ${RECORD_REFUSAL}`);
+    expect(copies()).toBe(0);
   }, 60_000);
 });
 

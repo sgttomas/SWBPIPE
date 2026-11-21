@@ -658,7 +658,8 @@ export function useWorkspaceSession() {
    * against the native preview's checksums (and its stored length against the same limit; a record
    * above it is refused before the result is copied, unless the result is itself above the limit,
    * whose own refusal is shown). A consumer that does not ask for the record gets none: its length
-   * is not read and nothing is built. A full result passes through. */
+   * is not read and nothing is built. The record is asked for unless `record: false` is given. A
+   * full result passes through. */
   async function loadC2Full(target: SessionResult, { record }: { record: boolean } = { record: true }): Promise<C2FullResult> {
     const run = record ? analysisRunRef.current : null;
     if (!isNativeResult(target)) return { result: target, analysisRun: isNativeAnalysisRun(run) ? null : run };
@@ -4359,8 +4360,10 @@ export function useWorkspaceSession() {
     // Whether the native save was asked for: before it, nothing can have been written.
     let sent = false;
     try {
-      // The package reads full rows (C2): a native result's bounded full copy.
-      const full = isNativeResult(basis.result) ? (await loadC2Full(basis.result, { record: false })).result : (basis.result as MechanicsResult);
+      // The package reads full rows (C2): a native result's bounded full copy. It builds and sends its
+      // own run record, so the record is asked for: one above the webview's limit refuses the save
+      // here, before the copy, rather than after the copy and the record's build.
+      const full = isNativeResult(basis.result) ? (await loadC2Full(basis.result, { record: true })).result : (basis.result as MechanicsResult);
       if (!isCurrent()) return;
       const { prepared, request } = await prepareShareableSaveForSession({
         model: basis.model,

@@ -16,8 +16,9 @@ import { useOptionalSessionResults } from "../workspace/WorkspaceSessionContext"
 import type { AnalysisRunEnvelope, MechanicsResult } from "../../types";
 
 export type C2FullResult = Readonly<{ result: MechanicsResult; analysisRun: AnalysisRunEnvelope | null }>;
-/** The session's loader of a native result's C2 full copy and, when `record` is asked for, its
- * full record (without it the record is neither read nor built, and `analysisRun` is null). */
+/** The session's loader of a native result's C2 full copy and its full record. The record is asked
+ * for unless `request` is `{ record: false }` (a call without `request` asks for it); with
+ * `{ record: false }` the record is neither read nor built, and `analysisRun` is null. */
 export type C2FullResultLoader = (result: SessionResult, request?: { record: boolean }) => Promise<C2FullResult>;
 
 type GateState =
