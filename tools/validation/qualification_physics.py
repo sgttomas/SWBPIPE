@@ -75,8 +75,10 @@ DEPENDENCIES = {
     # compared as re-formed text (was 528855d4...); then the one-view reader (Way H B2): the direct pass reads one
     # view built from the received document (direct_view) in place of two whole copies, and the combination pass reads
     # the received document, whose certificate member it never reads; the views' values, verdicts and refusals are
-    # unchanged (direct_view_tests.rs holds them against the former functions; was bc69008c...).
-    MODULE: '75980cb51800039753b48a97f90d8c89f16faf61d1c7de570ea3e60ef8f91cb3',
+    # unchanged (direct_view_tests.rs holds them against the former functions; was bc69008c...); then DEL-05-01: the
+    # equivalent_static record's optional component_forces, closed by shape, and the model-bound recomputation of its
+    # entries (was 75980cb5...).
+    MODULE: '23bdcae86ed63247f78cc9d28f4126a555d1d12ec6ce5cc9b392abe46825c597',
     TABLE: TABLE_SHA256,
     # The units authority: then DEL-04-09 I3a's mass_length_per_rotation family (kg*m/rad, lb*in/rad, lb*ft/rad),
     # an addition only; every existing unit, dimension and conversion is unchanged (was 5a412c57...); then the

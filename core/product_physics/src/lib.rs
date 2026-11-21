@@ -124,7 +124,7 @@ use open_pipe_stress_nonlinear_supports::{
     SupportStateRecord,
 };
 use open_pipe_stress_primitive_loads::{
-    generate_seismic_equivalent_static_loads, generate_wind_equivalent_static_loads, prepare_loads,
+    generate_seismic_equivalent_static_loads_beside_components, generate_wind_equivalent_static_loads, prepare_loads,
     ElementExposedDiameter, ElementMassPerLength, EquivalentStaticAxisFactor, LoadApplication,
     LoadDimension, LoadDirection, LoadExtent, LoadQuantity, PrimitiveLoad, PrimitiveLoadCategory,
     SeismicEquivalentStaticBasis, WindEquivalentStaticBasis,
@@ -150,7 +150,7 @@ mod topology;
 mod validation;
 mod imposed_motion; mod held_status; mod skew; // RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7) and R-6/R-7 S-K1 (DEL-04-03 `skew-restraints.md`), on this line so that no line moves.
 use validation::validate_model_inputs;
-mod rigid_component;
+mod rigid_component; mod seismic_component; // DEL-05-01 static-equivalent seismic component force (LIM-028), on this line so that no line moves.
 #[cfg(test)]
 mod w15_rigid_scaling_tests;
 #[cfg(test)]
@@ -7620,7 +7620,7 @@ fn solve_prepared_load_case(
         // W-16 slice c (§2): a generating case names its mass method and its
         // generated primitives; other cases omit the record.
         if load_case.equivalent_static.is_some() {
-            evidence["equivalent_static"] = exact_equivalent_static_record(load_case, &loads);
+            evidence["equivalent_static"] = exact_equivalent_static_record(model, load_case, &loads);
         }
         // T4-U3 (S21): no replaced span in any per-pipe evidence list.
         joint::exclude_replaced_spans(&mut evidence, &replaced_span_ids_of(built));
@@ -11246,6 +11246,7 @@ pub(crate) fn is_generated_equivalent_static_load(
 /// generator's order. The ordinary companion binding re-forms it from the
 /// captured model (`source_receipt::composite`).
 pub(crate) fn exact_equivalent_static_record(
+    model: &PreviewModel,
     load_case: &PreviewLoadCase,
     loads: &[PrimitiveLoad],
 ) -> serde_json::Value {
@@ -11254,7 +11255,10 @@ pub(crate) fn exact_equivalent_static_record(
         .filter(|load| is_generated_equivalent_static_load(load_case, &load.load_id, None))
         .map(|load| load.load_id.as_str())
         .collect::<Vec<_>>();
-    serde_json::json!({"mass_method": self_weight::EXACT_MASS_METHOD, "generated_load_ids": generated})
+    let mut record = serde_json::json!({"mass_method": self_weight::EXACT_MASS_METHOD, "generated_load_ids": generated});
+    // DEL-05-01 (issue 450 item 4): only a case that forms a component item carries the key.
+    if let Some(items) = seismic_component::record(model, load_case, &generated) { record["component_forces"] = items; }
+    record
 }
 
 fn equivalent_static_diag_id(load_case_id: &str, suffix: &str) -> String {
@@ -11336,13 +11340,22 @@ fn append_equivalent_static_generated_loads(
         if inputs_missing {
             return;
         }
+        // DEL-05-01 (LIM-028): the members a rigid-family component replaces
+        // and its force items, by REQ-015's dispositions, before any mass is
+        // read; a range refusal blocks the case by name.
+        let mut refusals = Vec::new();
+        let components = seismic_component::plan(model, case_id, &replaced, &seismic_component::entered_factors(load_case), &mut refusals);
+        if !refusals.is_empty() {
+            diagnostics.extend(refusals);
+            return;
+        }
         let mut masses = Vec::new();
         let mut mass_blocked = false;
         for (pipe_index, pipe) in model.pipe_segments.iter().enumerate() {
             // §3: a connector-replaced span carries no load; it is skipped
             // before its mass is evaluated, and the surviving pipes keep
-            // their original element index.
-            if replaced.contains(pipe.id.as_str()) {
+            // their original element index. So is a component-replaced member.
+            if replaced.contains(pipe.id.as_str()) || components.replaced.contains(pipe.id.as_str()) {
                 continue;
             }
             match generation_mass_per_length(pipe, case_id, exact, diagnostics) {
@@ -11361,7 +11374,7 @@ fn append_equivalent_static_generated_loads(
             gravity_acceleration: gravity,
             axis_factors,
         };
-        let (generated, findings) = generate_seismic_equivalent_static_loads(&basis, &masses);
+        let (generated, findings) = generate_seismic_equivalent_static_loads_beside_components(&basis, &masses, seismic_component::primitives(&components, case_id));
         for finding in &findings {
             diagnostics.push(diag(
                 &equivalent_static_diag_id(

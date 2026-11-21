@@ -538,7 +538,7 @@ pub(super) fn physical_source_built(
     if case.equivalent_static.is_some() {
         expected_keys.insert("equivalent_static");
         if crate::has_blocking(&scratch)
-            || evidence["equivalent_static"] != crate::exact_equivalent_static_record(case, &loads)
+            || evidence["equivalent_static"] != crate::exact_equivalent_static_record(model, case, &loads)
         {
             return Err(bad("physical equivalent-static generation binding"));
         }
