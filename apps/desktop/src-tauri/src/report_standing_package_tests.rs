@@ -40,7 +40,7 @@ use open_pipe_stress_operation_applier::{canonical_json, sha256_hex};
 use open_pipe_stress_product_physics::PreviewSolverMode;
 use open_pipe_stress_report_package::{read_report_package_container, ReadReportPackage};
 use open_pipe_stress_report_package::user_release::{derive_exact, SoftwareIdentity, UserReleaseBasis};
-use open_pipe_stress_report_renderer::standing::{standing_line, NumericalStanding};
+use open_pipe_stress_report_renderer::standing::{standing_line, support_states_frame_statement, NumericalStanding};
 use open_pipe_stress_report_renderer::{escape_html, UserReleaseRecord, USER_RELEASE_EXACT_RECORD_VERSION, USER_RELEASE_NOT_CARRIED};
 use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
@@ -223,6 +223,12 @@ impl Witness {
         assert!(html.contains(&line), "{}: the package's frame states the standing line", self.name);
         assert!(rendered.contains(&line), "{}: the rendered report states the same standing line", self.name);
         assert!(!html.contains("integrity checked"), "{}", self.name);
+        // The frame says the result is for inspection only because its support states are
+        // not confirmed, from the same record (each witness has nonlinear supports).
+        let statement = support_states_frame_statement(&record).expect("each witness has a nonlinear support");
+        let frame = format!("<div class=\"standing-support-states\">{}</div>", escape_html(&statement));
+        assert!(html.contains(&frame), "{}: the package's frame states the support states", self.name);
+        assert!(rendered.contains(&frame), "{}: the rendered report's frame states the same", self.name);
         let phrases: &[&str] = if self.name == "pressure_3_gap_unresolved" {
             &[
                 "Numerical health, as the solver reports it: 0 checks passed, 0 sensitive, 2 quality unresolved, 0 not assessed, of 2 load cases.",

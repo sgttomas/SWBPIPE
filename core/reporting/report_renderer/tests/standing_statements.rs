@@ -127,3 +127,52 @@ fn a_record_carrying_a_tag_outside_the_vocabulary_is_refused_by_name() {
         assert!(error.contains(&format!("NUMERICAL_TAG_UNSUPPORTED: {vocabulary}")), "{pointer}: {error}");
     }
 }
+
+/// DEL-08-01 REQ-024, "Package and user release": the frame's support-states statement.
+/// It is absent without a nonlinear support, and, where a load case has one, states that
+/// the result is for inspection only with each reason once, in load-case order: the gap
+/// family fact for a load case with a gap support, else that case's confirmation statement.
+#[test]
+fn the_frame_states_support_states_not_confirmed_where_a_load_case_has_a_nonlinear_support() {
+    use open_pipe_stress_report_renderer::standing::{
+        confirmation_statement, support_states_frame_statement, NumericalStanding, GAP_NOT_CONFIRMED, SUPPORT_STATES_INSPECTION_ONLY,
+        SUPPORT_STATES_NOT_CONFIRMED,
+    };
+    use open_pipe_stress_numerical_vocabulary::HistoricalConfirmation;
+    let case = |id: &str, outcome: &str, behaviors: &[&str]| {
+        serde_json::json!({
+            "case_id": id, "health": "sensitive", "integrity_code": null, "integrity_diagnostic_id": null, "causes": [],
+            "confirmation": {"outcome": outcome, "detail": null, "status": null, "premises": []},
+            "supports": behaviors.iter().enumerate().map(|(i, b)| serde_json::json!({
+                "support_id": format!("support:{i}"), "behavior": b, "friction_normal": null, "state": "active", "state_row_id": null
+            })).collect::<Vec<_>>(),
+        })
+    };
+    let record = |cases: Vec<Value>| -> NumericalStanding {
+        serde_json::from_value(serde_json::json!({
+            "record_version": "historical_1", "evidence_member": "absent",
+            "figures": {"status": "unavailable", "reason": "older_document"},
+            "standing_findings": [], "counts": [], "cases": cases,
+        }))
+        .unwrap()
+    };
+    assert_eq!(support_states_frame_statement(&record(vec![case("load:A", "not_applicable", &[])])), None);
+    let lead = format!("{SUPPORT_STATES_INSPECTION_ONLY} {SUPPORT_STATES_NOT_CONFIRMED}");
+    assert_eq!(
+        support_states_frame_statement(&record(vec![case("load:A", "no_confirmation_record", &["gap", "one_way"]), case("load:B", "no_confirmation_record", &["gap"])])),
+        Some(format!("{lead} {GAP_NOT_CONFIRMED}"))
+    );
+    assert_eq!(
+        support_states_frame_statement(&record(vec![
+            case("load:A", "solver_reported_established", &["friction"]),
+            case("load:B", "not_applicable", &[]),
+            case("load:C", "no_confirmation_record", &["one_way"]),
+            case("load:D", "solver_reported_established", &["one_way"]),
+        ])),
+        Some(format!(
+            "{lead} {} {}",
+            confirmation_statement(HistoricalConfirmation::SolverReportedEstablished),
+            confirmation_statement(HistoricalConfirmation::NoConfirmationRecord)
+        ))
+    );
+}

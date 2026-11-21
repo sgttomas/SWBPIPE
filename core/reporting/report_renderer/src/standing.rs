@@ -273,7 +273,7 @@ pub fn support_statement(support: &SupportRecord, outcome: HistoricalConfirmatio
     // No confirmation covers gap supports (DEL-04-01 REQ-016): a family fact, true
     // whatever this result records about its load case.
     let tail = match outcome {
-        _ if gap => "Not confirmed: no confirmation covers gap supports.",
+        _ if gap => GAP_NOT_CONFIRMED,
         HistoricalConfirmation::SolverReportedEstablished => {
             "Not confirmed: the solver's confirmation reports this state established, conditional on the solver's inverse-norm step. This result does not publish the deciding quantity or its interval."
         }
@@ -285,6 +285,52 @@ pub fn support_statement(support: &SupportRecord, outcome: HistoricalConfirmatio
         HistoricalConfirmation::NotApplicable => "Not confirmed.",
     };
     format!("Computed state: {state}. {tail}")
+}
+
+/// Whether a historical confirmation outcome lets the report call its load case's
+/// support states confirmed. A state is called confirmed only where its confirmation is
+/// established (DEL-08-01 REQ-024), and no historical outcome establishes one; the match
+/// has no wildcard arm, so a new outcome must decide this before it builds.
+pub fn outcome_confirms_states(outcome: HistoricalConfirmation) -> bool {
+    match outcome {
+        HistoricalConfirmation::SolverReportedEstablished
+        | HistoricalConfirmation::NotAttemptedReasonNotRecorded
+        | HistoricalConfirmation::NotEstablishedDetailQuoted
+        | HistoricalConfirmation::NoConfirmationRecord
+        | HistoricalConfirmation::NotApplicable => false,
+    }
+}
+
+/// SUPPORT-STATES-FRAME's lead (DEL-08-01 REQ-024, "Package and user release").
+pub const SUPPORT_STATES_INSPECTION_ONLY: &str = "For inspection only.";
+/// SUPPORT-STATES-FRAME's state words.
+pub const SUPPORT_STATES_NOT_CONFIRMED: &str = "Support states: not confirmed.";
+/// The family fact for a gap support (DEL-04-01 REQ-016), as the support rows state it.
+pub const GAP_NOT_CONFIRMED: &str = "Not confirmed: no confirmation covers gap supports.";
+
+/// SUPPORT-STATES-FRAME (DEL-08-01 REQ-024, "Package and user release"): the frame's
+/// statement that the result is for inspection only because its support states are not
+/// confirmed, where any load case has a nonlinear support whose state the record does not
+/// let the report call confirmed. Its reasons are the reviewed statements of the support
+/// rows, once each in load-case order: the gap family fact for a load case with a gap
+/// support, else the case's confirmation statement. `None` where no load case has such a
+/// support.
+pub fn support_states_frame_statement(standing: &NumericalStanding) -> Option<String> {
+    let mut reasons: Vec<&'static str> = Vec::new();
+    for case in &standing.cases {
+        if case.supports.is_empty() || outcome_confirms_states(case.confirmation.outcome.0) {
+            continue;
+        }
+        let gap = case.supports.iter().any(|support| support.behavior.0 == SupportBehavior::Gap);
+        let reason = if gap { GAP_NOT_CONFIRMED } else { confirmation_statement(case.confirmation.outcome.0) };
+        if !reasons.contains(&reason) {
+            reasons.push(reason);
+        }
+    }
+    if reasons.is_empty() {
+        return None;
+    }
+    Some(format!("{SUPPORT_STATES_INSPECTION_ONLY} {SUPPORT_STATES_NOT_CONFIRMED} {}", reasons.join(" ")))
 }
 
 /// L-ERROR-FIGURE-BASIS, its title and its text.

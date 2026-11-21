@@ -1579,6 +1579,14 @@ pub fn standing_banner_text(input: &RenderableReportInput) -> Option<String> {
     input.numerical_standing.as_ref().map(standing::standing_line)
 }
 
+/// The frame's support-states statement (DEL-08-01 REQ-024, "Package and user
+/// release"), after the standing line: the result is for inspection only because its
+/// support states are not confirmed. `None` without a record, or where no load case has
+/// a nonlinear support.
+pub fn support_states_banner_text(input: &RenderableReportInput) -> Option<String> {
+    input.numerical_standing.as_ref().and_then(standing::support_states_frame_statement)
+}
+
 /// Blocking reasons of the standing record: an exact-route input without one,
 /// or a record of a form this renderer does not read.
 pub fn standing_blocking_reasons(input: &RenderableReportInput) -> Vec<String> {
@@ -2483,6 +2491,9 @@ pub fn render_calculation_report(input: &RenderableReportInput) -> RenderOutcome
     ));
     if let Some(line) = standing_banner_text(input) {
         body.push_str(&format!("<div class=\"standing-line\">{}</div>\n", escape_html(&line)));
+    }
+    if let Some(statement) = support_states_banner_text(input) {
+        body.push_str(&format!("<div class=\"standing-support-states\">{}</div>\n", escape_html(&statement)));
     }
     if let Some(notice) = local_private_notice_text(input) {
         body.push_str(&format!(
