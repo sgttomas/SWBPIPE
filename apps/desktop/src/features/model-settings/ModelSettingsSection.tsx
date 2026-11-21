@@ -12,8 +12,8 @@
 // default) or Timoshenko with the energy-matched annular factor. Choosing either
 // writes `model_settings.shear_model` as an explicit user set; Reset to default
 // clears it, so a document whose user never chose keeps it absent. On a document
-// with a pressure contract the control is disabled: that document's beam theory is
-// `pressure_contract.shear_model`, set in the pressure panel.
+// with a pressure contract the control shows only that document's beam theory,
+// `pressure_contract.shear_model`, set with its pressure profile.
 //
 // On a document with a pressure contract it also holds Pressure elongation (Bourdon)
 // (DEL-04-07): one switch, "Include pressure
@@ -30,6 +30,7 @@ import type { UnitCatalogRoute } from "../../services/unitCatalogService";
 import { disabledBy, stableJson } from "../model-data/modelDataIntents";
 import { PROJECT_UNIT_PRESETS, loadedUnitCatalog, projectUnitChoices } from "../project-units/projectUnitSelection";
 import { storedProjectUnit } from "../project-units/projectUnitIntents";
+import { documentShearModel, SHEAR_MODEL_CHOICES as PROFILE_SHEAR_CHOICES } from "../pressure-authoring/pressureContract";
 import {
   DEFAULT_NODE_PROXIMITY_TOLERANCE,
   NODE_PROXIMITY_TOLERANCE_PATH,
@@ -280,7 +281,7 @@ export function ModelSettingsSection(props: ModelSettingsSectionProps) {
       </fieldset>
       <fieldset className="model-data-fieldset" data-testid="model-settings-shear-model">
         <legend>Straight-member shear deformation</legend>
-        {exactDocument ? <p className="model-data-note" data-testid="model-settings-shear-model-exact">{SHEAR_MODEL_EXACT_NOTE}</p> : null}
+        {exactDocument ? <p className="model-data-note" data-testid="model-settings-shear-model-exact">{SHEAR_MODEL_EXACT_NOTE} In effect: <strong>{PROFILE_SHEAR_CHOICES.find((choice) => choice.value === documentShearModel(model))?.label ?? "not stated by the profile"}</strong>.</p> : <>
         <p data-testid="model-settings-shear-model-effective">
           Effective: <strong>{effectiveShear}</strong>
         </p>
@@ -314,6 +315,7 @@ export function ModelSettingsSection(props: ModelSettingsSectionProps) {
             Reset to default
           </button>
         </div>
+        </>}
         {shearFeedback.error ? <p role="alert" data-testid="model-settings-shear-model-error">{shearFeedback.error}</p> : null}
         {shearFeedback.diagnostics.length ? (
           <ul aria-label="Operation engine diagnostics" data-testid="model-settings-shear-model-diagnostics">

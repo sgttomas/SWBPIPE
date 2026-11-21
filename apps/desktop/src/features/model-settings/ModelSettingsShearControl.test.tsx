@@ -106,18 +106,20 @@ describe("model settings: straight-member shear deformation", () => {
     expect(byId("model-settings-shear-model-reset")).not.toBeDisabled();
   });
 
-  it("is disabled on a document with a pressure contract and points to where its beam theory is set", () => {
-    const exact = { ...demo(), pressure_contract: { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "timoshenko_annulus_energy_v1" } } as PreviewModel;
-    const list: EditorOperationIntent[] = [];
-    render(<ModelSettingsSection model={exact} onQueueIntent={(intent) => list.push(intent)} />);
-    expect(byId("model-settings-shear-model-exact")).toHaveTextContent(SHEAR_MODEL_EXACT_NOTE);
-    expect(SHEAR_MODEL_EXACT_NOTE).toContain("Loads › Analysis settings");
-    for (const id of ["model-settings-shear-model-euler_bernoulli", "model-settings-shear-model-timoshenko_annulus_energy_v1", "model-settings-shear-model-reset"]) {
-      expect(byId(id)).toBeDisabled();
-      expect(byId(id)).toHaveAttribute("title", SHEAR_MODEL_EXACT_NOTE);
+  it("on a document with a pressure contract shows only the theory its profile sets, and where", () => {
+    for (const [shear, label] of [["timoshenko_annulus_energy_v1", "Timoshenko (energy-matched annular shear factor)"], ["euler_bernoulli", "Euler–Bernoulli"]] as const) {
+      const exact = { ...demo(), pressure_contract: { version: "3.0.0", mode: "exact_pressure_v3", shear_model: shear } } as PreviewModel;
+      const list: EditorOperationIntent[] = [];
+      const view = render(<ModelSettingsSection model={exact} onQueueIntent={(intent) => list.push(intent)} />);
+      expect(byId("model-settings-shear-model-exact")).toHaveTextContent(`${SHEAR_MODEL_EXACT_NOTE} In effect: ${label}.`);
+      expect(SHEAR_MODEL_EXACT_NOTE).toContain("Loads › Analysis settings");
+      // Nothing of the pressure-free setting: no choice to make, no effective value read from it, no moduli note.
+      for (const id of ["model-settings-shear-model-euler_bernoulli", "model-settings-shear-model-timoshenko_annulus_energy_v1", "model-settings-shear-model-reset", "model-settings-shear-model-effective", "model-settings-shear-model-note"]) {
+        expect(screen.queryByTestId(id)).toBeNull();
+      }
+      expect(list).toEqual([]);
+      view.unmount();
     }
-    fireEvent.click(byId("model-settings-shear-model-timoshenko_annulus_energy_v1"));
-    expect(list).toEqual([]);
   });
 
   it("refuses a second pending change for the setting, independently of the tolerance", async () => {
