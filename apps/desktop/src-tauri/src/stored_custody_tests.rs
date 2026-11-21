@@ -1473,7 +1473,12 @@ fn refused_stored_run_store(path: &Path) -> (String, String) {
     let host = ScriptedHost::normal();
     let (registry, gate) = gated(&host);
     let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
-    let saved = native_save(&registry, path, &case.save_args(&job, "create", Value::Null, Value::Null), &unlimited()).unwrap();
+    // No proposal and no pending editor intents: what a saved project with no pending review holds
+    // (the corpus's save form carries invented ones, not of the session's shape).
+    let mut args = case.save_args(&job, "create", Value::Null, Value::Null);
+    args["proposal"] = Value::Null;
+    args["editorIntents"] = json!([]);
+    let saved = native_save(&registry, path, &args, &unlimited()).unwrap();
     assert_eq!(saved["result"]["outcome"], "saved", "{saved}");
     registry.dispose_all_results();
     assert_eq!(registry.pool().reserved_total(), 0);
