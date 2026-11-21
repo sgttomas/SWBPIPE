@@ -29,7 +29,7 @@ It serves SOW-029 under OBJ-010 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
   | Path class | Holds | Boundary |
   |---|---|---|
   | `PUBLIC_REPO_ROOT` | Public source, schemas, documentation, invented examples and validation artifacts safe to redistribute | Never holds private data, credentials or protected standards content |
-  | `USER_CHOSEN_PROJECT_PATH` | The user's project: the local project store and its recovery records in the local data directory, and the model documents, report packages and backup copies in folders the user chooses | Private by default; local |
+  | `USER_CHOSEN_PROJECT_PATH` | The user's project: the local project store and its recovery records in the local data directory, and the model documents, project packages (not provided in v1.0, LIM-045) and backup copies in folders the user chooses | Private by default; local |
   | `USER_PRIVATE_LIBRARY_ROOT` | The user's private rule packs, material and component libraries, owner and company design-basis data | Outside every public repository path; never committed by default |
   | `PROJECT_PRIVATE_ASSET_ROOT` | Project-scoped private attachments, local manifests and supporting files referenced in place | Distinct from the fields a project document persists |
   | `REPORT_EXPORT_TARGET` | A local report or export destination the user selects | May hold private values; what may be written there is DEL-12-02's decision |
