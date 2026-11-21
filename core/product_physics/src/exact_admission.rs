@@ -402,10 +402,11 @@ pub(crate) fn admission(contract: ExactContract, family: ExactFamily) -> Admissi
         // term, chain topology and arc recovery (`bend_pressure`).
         (ExactContract::PressureV3, ExactFamily::RealizedBend) => Admission::Admitted,
         // W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md`): a
-        // case's DEC-068 seismic or wind generation on a plain v3 document,
-        // on the route's D-5 mass basis; load/reference-state documents and
-        // replaced spans keep named refusals; a Timoshenko partial span takes
-        // the exact Timoshenko vector (W-16t).
+        // case's DEC-068 seismic or wind generation on a v3 document, on the
+        // route's D-5 mass basis, plain or load/reference-state (there beside
+        // the declared ledger at factor 1, DEL-04-07 REQ-011); a wind marking
+        // of a replaced span keeps its named refusal; a Timoshenko partial
+        // span takes the exact Timoshenko vector (W-16t).
         (ExactContract::PressureV3, ExactFamily::EquivalentStatic) => Admission::Admitted,
         // W-16 slice b (DEL-05-02 Design `exact-combinations.md`): model-authored
         // combinations over the primitive cases, formed from their published
