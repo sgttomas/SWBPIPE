@@ -626,8 +626,14 @@ const ENTRY_RULES: [(&str, &str, Entry); 6] = [
 /// `activate_report_source`: `observe_report_source` (the previous digest
 /// `88f99c22…4ca92df` reproduced first; the macro's only change is that line;
 /// no `mod`, no `$parameter ::`, no scanned name).
+/// DEL-08-01 REQ-023's saved-package entries add three ordinary handler
+/// entries after `analysis_runs::admit_analysis_run_comparison`:
+/// `saved_package_entries::list_saved_package_entries`,
+/// `check_saved_package_entry` and `remove_saved_package_entry` (the previous
+/// digest `659a5501…a8939a8` reproduced first; the macro's only change is
+/// those three lines; no `mod`, no `$parameter ::`, no scanned name).
 const MACRO_DEFINITIONS: [(&str, &str, &str); 3] = [
-    ("src-tauri/src/lib.rs", "app_invoke_handler", "659a550154e0e1d1681efaa0a68b58223dd01c96539ac05555bf5a763a8939a8"),
+    ("src-tauri/src/lib.rs", "app_invoke_handler", "9d6fcb990683833ad238b9061087cbbd88f79f7b2af31abbcb55ffba8b77fe05"),
     ("headless/src/reader_binding.rs", "base", "d80e766036e0f651522ebfe11ebc6ba1fc32ec2b9c2b3702e0b978eb86558cb2"),
     ("headless/src/reader_binding.rs", "transport", "057aa56311a7531f094632a3fe9f2d781b9364ab4865add6c7d257403732169a"),
 ];

@@ -3513,3 +3513,10 @@ pub fn delete_analysis_run(
 #[allow(unsafe_code)]
 #[path = "analysis_runs_tests.rs"]
 mod tests;
+
+/// A store with a project, saved states and recorded runs, for other
+/// modules' store tests (the saved-package entries').
+#[cfg(test)]
+pub(crate) mod test_fixtures {
+    pub(crate) use super::tests::{model, record, request, save_state, store_with_project, PROJECT, T0};
+}

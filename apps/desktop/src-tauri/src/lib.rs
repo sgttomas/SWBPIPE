@@ -80,6 +80,7 @@ mod report_render_pf_timoshenko_tests;
 #[cfg(test)]
 mod object_form_tests;
 mod rule_solver_selection;
+mod saved_package_entries;
 mod result_text_digest;
 mod solve_attestation;
 #[allow(unsafe_code)]
@@ -217,9 +218,18 @@ async fn save_report_package_decoded(
         let custody = |job: &str| registry.custody_binding(job);
         let outcome = {
             let mut session = report_package_save::UserReleaseSession { registry: &registry, lease: &mut lease };
-            report_package_save::save_report_package_session(request, &software, &mut lookup, &custody, &mut session, |file_name| {
-                choose_report_package_save_path(&app, file_name)
-            })
+            // DEL-08-01 REQ-023: a published package's entry, kept in the
+            // project store from the save's own outcome.
+            let mut keep = |published: &saved_package_entries::PublishedPackage| saved_package_entries::keep_entry(|| app_store_path(&app), published);
+            report_package_save::save_report_package_session(
+                request,
+                &software,
+                &mut lookup,
+                &custody,
+                &mut session,
+                |file_name| choose_report_package_save_path(&app, file_name),
+                &mut keep,
+            )
         };
         let outcome = outcome.map_err(|refusal| match refusal {
             report_package_save::SaveRefusal::Command(error) => CommandError::Command(error),
@@ -668,7 +678,7 @@ fn carry_forward_legacy_project_store(new_dir: &Path) -> Result<bool, String> {
     Ok(true)
 }
 
-const STORE_SCHEMA_TARGET_VERSION: i64 = 14;
+const STORE_SCHEMA_TARGET_VERSION: i64 = 15;
 const STORE_MIGRATION_FRAMEWORK: &str = "versioned_sqlite_user_version_migration_ledger";
 
 struct StoreMigration {
@@ -875,6 +885,14 @@ fn store_migrations() -> Vec<StoreMigration> {
             migration_id: "store-v14-retire-project-fts-sidecar",
             deferrable: true,
             apply: migrate_v14_retire_project_fts,
+        },
+        // The project's saved-package entries (DEL-08-01 REQ-023, DEL-02-05
+        // REQ-039): the record that a report package was saved from it.
+        StoreMigration {
+            version: 15,
+            migration_id: "store-v15-saved-package-entries-table",
+            deferrable: false,
+            apply: saved_package_entries::migrate_v15_saved_package_entries,
         },
     ]
 }
@@ -6321,6 +6339,9 @@ macro_rules! app_invoke_handler {
             analysis_runs::edit_analysis_run_labels,
             analysis_runs::delete_analysis_run,
             analysis_runs::admit_analysis_run_comparison,
+            saved_package_entries::list_saved_package_entries,
+            saved_package_entries::check_saved_package_entry,
+            saved_package_entries::remove_saved_package_entry,
             autosave_commands::write_project_autosave,
             autosave_commands::list_project_autosaves,
             autosave_commands::read_project_autosave,
@@ -8398,14 +8419,15 @@ mod tests {
             .collect()
     }
 
-    /// A fresh store migrates to v14 with no FTS sidecar, and a save on it
-    /// writes no search row and creates no table.
+    /// A fresh store migrates to the current version (v14 retired the FTS
+    /// sidecar) with no FTS sidecar, and a save on it writes no search row and
+    /// creates no table.
     #[test]
     fn a_fresh_store_is_at_v14_with_no_fts_sidecar_and_a_save_creates_none() {
         let mut connection = Connection::open_in_memory().unwrap();
         let migration = apply_store_migrations(&connection).unwrap();
-        assert_eq!(migration.store_schema_version, 14);
-        assert_eq!(migration.migrations_applied_on_open.last().map(String::as_str), Some("store-v14-retire-project-fts-sidecar"));
+        assert_eq!(migration.store_schema_version, STORE_SCHEMA_TARGET_VERSION);
+        assert!(migration.migrations_applied_on_open.iter().any(|step| step == "store-v14-retire-project-fts-sidecar"));
         assert!(fts_sidecar_objects(&connection).is_empty());
         let model = json!({ "project": { "id": "project:fresh-v14", "name": "Fresh" } });
         upsert_project(&mut connection, "project:fresh-v14", "Fresh", &model, &json!(["editor"]), &json!({ "review": 1 }), &Value::Null, &Value::Null, &json!({ "run": 1 }), &Value::Null, &Value::Null).unwrap();
@@ -8471,11 +8493,12 @@ mod tests {
                 "store-v12-model-states-tables",
                 "store-v13-analysis-runs-tables",
                 "store-v14-retire-project-fts-sidecar",
+                "store-v15-saved-package-entries-table",
             ]
         );
         assert_eq!(
             first_open.migration_status,
-            "migrated_on_open_store_schema_v0_to_v14"
+            "migrated_on_open_store_schema_v0_to_v15"
         );
         assert!(fts_sidecar_objects(&connection).is_empty(), "v1 creates the sidecar and v14 drops it");
 
@@ -8493,7 +8516,7 @@ mod tests {
         assert_eq!(second_open.pending_migration_count, 0);
         assert_eq!(
             second_open.migration_status,
-            "current_store_schema_v14_no_pending_migrations"
+            "current_store_schema_v15_no_pending_migrations"
         );
     }
 
@@ -8530,10 +8553,10 @@ mod tests {
         let migration = apply_store_migrations(&connection).expect("legacy store migrations apply");
         assert_eq!(migration.store_schema_version_before_open, 0);
         assert_eq!(migration.store_schema_version, STORE_SCHEMA_TARGET_VERSION);
-        assert_eq!(migration.migrations_applied_on_open.len(), 14);
+        assert_eq!(migration.migrations_applied_on_open.len(), 15);
         assert_eq!(
             migration.migration_status,
-            "migrated_on_open_store_schema_v0_to_v14"
+            "migrated_on_open_store_schema_v0_to_v15"
         );
 
         let loaded = load_project(&connection, Some("project:legacy-local"))
@@ -8604,12 +8627,13 @@ mod tests {
                 "store-v11-local-libraries-table",
                 "store-v12-model-states-tables",
                 "store-v13-analysis-runs-tables",
-                "store-v14-retire-project-fts-sidecar"
+                "store-v14-retire-project-fts-sidecar",
+                "store-v15-saved-package-entries-table"
             ]
         );
         assert_eq!(
             migration.migration_status,
-            "migrated_on_open_store_schema_v7_to_v14"
+            "migrated_on_open_store_schema_v7_to_v15"
         );
         assert!(fts_sidecar_objects(&connection).is_empty(), "the v7 store's sidecar is dropped");
 
