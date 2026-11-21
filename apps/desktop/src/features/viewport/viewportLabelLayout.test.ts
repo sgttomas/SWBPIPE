@@ -30,6 +30,64 @@ describe("label placement order", () => {
   });
 });
 
+describe("which labels come first on a crowded model", () => {
+  it("places nodes that bound the system (a support, a line's end) before the other nodes", () => {
+    const order = labelPlacementOrder([
+      label("node:middle", "node", 0, 0),
+      label("pipe:p", "pipe", 0, 0),
+      label("node:anchor", "node", 0, 0, { boundary: true }),
+      label("support:s", "support", 0, 0),
+      label("node:free-end", "node", 0, 0, { boundary: true })
+    ]).map((candidate) => candidate.key);
+    expect(order).toEqual(["node:anchor", "node:free-end", "node:middle", "support:s", "pipe:p"]);
+  });
+
+  it("names a boundary node where an ordinary node beside it would take its place", () => {
+    const placements = layoutLabels([
+      label("node:middle", "node", 300, 200),
+      label("node:a", "node", 300, 200), label("node:b", "node", 300, 200), label("node:c", "node", 300, 200),
+      label("node:anchor", "node", 300, 200, { boundary: true })
+    ], CANVAS);
+    expect(placements.find((placement) => placement.key === "node:anchor")!.drawn).toBe(true);
+  });
+});
+
+describe("emphasised labels and a label's own entity", () => {
+  it("draws the primary's label and gives every other selected label a free place or none: no two targets meet", () => {
+    // Six selected entities at one projected point, around a crowd.
+    const selected = ["node:p", "node:s1", "node:s2", "node:s3", "node:s4", "node:s5"].map((key, index) =>
+      label(key, "node", 300, 200, { emphasised: true, emphasisRank: index === 0 ? 0 : 1 }));
+    const crowd = Array.from({ length: 12 }, (_, index) => label(`pipe:${index}`, "pipe", 290 + index * 2, 196 + index));
+    const candidates = [...crowd, ...selected];
+    const drawn = layoutLabels(candidates, CANVAS).filter((placement) => placement.drawn);
+    expect(drawn.map((placement) => placement.key)).toContain("node:p");
+    const targets = drawn.map((placement) => labelTargetBox(boxOf(placement, candidates.find((candidate) => candidate.key === placement.key)!)));
+    for (let i = 0; i < targets.length; i += 1) for (let j = i + 1; j < targets.length; j += 1) expect(overlap(targets[i], targets[j])).toBe(false);
+  });
+
+  it("keeps a selected label off the canvas furniture when it has any free place", () => {
+    const cluster: LabelBox = { left: 280, top: 150, right: 600, bottom: 196 };
+    const primary = label("node:p", "node", 300, 200, { emphasised: true, emphasisRank: 0 });
+    const [placement] = layoutLabels([primary], CANVAS, [cluster]);
+    expect(overlap(labelTargetBox(boxOf(placement, primary)), cluster)).toBe(false);
+  });
+
+  it("never covers its own anchor or its own entity's line, so a press beside the label reaches the entity", () => {
+    // A pipe rising to the right through its anchor: the above-right place would cover it.
+    const pipe = label("pipe:p", "pipe", 300, 200, { avoid: [{ x1: 260, y1: 240, x2: 340, y2: 160 }] });
+    const [placement] = layoutLabels([pipe], CANVAS);
+    expect(placement.drawn).toBe(true);
+    expect(placement.place).not.toBe(0);
+    const target = labelTargetBox(boxOf(placement, pipe));
+    expect(300 >= target.left && 300 <= target.right && 200 >= target.top && 200 <= target.bottom).toBe(false);
+    for (let step = 0; step <= 80; step += 1) {
+      const x = 260 + step;
+      const y = 240 - step;
+      expect(x >= target.left && x <= target.right && y >= target.top && y <= target.bottom).toBe(false);
+    }
+  });
+});
+
 describe("label layout", () => {
   it("sets a label off its anchor, never on it", () => {
     const candidate = label("node:a", "node", 300, 200);

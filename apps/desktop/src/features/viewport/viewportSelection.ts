@@ -14,6 +14,8 @@ export type LabelPriorityInput = Readonly<{
   hoverKey?: EntityKey | null;
   selectedKeys?: readonly EntityKey[];
   diagnosticKeys?: readonly EntityKey[];
+  /** Nodes that bound the system (a support, a line's end): admitted before the rest of the model. */
+  boundaryKeys?: readonly EntityKey[];
   hiddenKeys?: ReadonlySet<EntityKey>;
   cameraTarget?: Readonly<Vec3>;
   limit?: number;
@@ -632,6 +634,10 @@ export function prioritizedLabelKeys(index: ModelIndex, input: LabelPriorityInpu
     include(key);
   }
   for (const key of input.diagnosticKeys ?? []) {
+    if (output.length >= limit) break;
+    include(key);
+  }
+  for (const key of input.boundaryKeys ?? []) {
     if (output.length >= limit) break;
     include(key);
   }

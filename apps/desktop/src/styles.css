@@ -4881,6 +4881,8 @@ body { min-width: 760px; min-height: 540px; }
    the plate's 1 px border: each side covers the border and reaches out by half the plate's
    shortfall from 24. */
 .viewport-selection-layer .viewport-select-target::before {
-  content: ""; position: absolute; pointer-events: auto; background: transparent;
+  /* The press follows the label's own: none while Box Select is on, so a box drawn from beside a
+     label starts on the canvas. */
+  content: ""; position: absolute; pointer-events: inherit; background: transparent;
   inset: min(-1px, calc((100% - 24px) / 2)) min(-1px, calc((100% - 24px) / 2));
 }

@@ -684,26 +684,58 @@ export function PipeViewport({
     diagnosticsStateRef.current.selectionPublication = publication;
     setSelectionPublication(publication);
   }, [orderedSelectionKeys, orderedPrimarySelectionKey, selectionPublication]);
+  // The nodes that bound the system: a node that carries a support or ends a line (anchors,
+  // nozzles, free ends). Their labels come before other nodes' (viewportLabelLayout.ts).
+  const boundaryNodeKeys = useMemo(() => {
+    const boundary = new Set<EntityKey>();
+    for (const support of model.supports) boundary.add(entityKey({ type: "node", id: support.node }));
+    for (const node of model.nodes) {
+      const key = entityKey({ type: "node", id: node.id });
+      if ((activeModelIndex.pipeKeysByNode.get(key)?.length ?? 0) <= 1) boundary.add(key);
+    }
+    return boundary;
+  }, [activeModelIndex, model.nodes, model.supports]);
   const labelKeys = useMemo(
     () => prioritizedLabelKeys(activeModelIndex, {
       primaryKey: primarySelectionKey,
       hoverKey: hoveredEntityKey,
       selectedKeys: orderedSelectionKeys,
+      boundaryKeys: [...boundaryNodeKeys],
       hiddenKeys
     }),
-    [activeModelIndex, hiddenKeys, hoveredEntityKey, orderedSelectionKeys, primarySelectionKey]
+    [activeModelIndex, boundaryNodeKeys, hiddenKeys, hoveredEntityKey, orderedSelectionKeys, primarySelectionKey]
   );
+  // How many entities could carry a label (shown, with an anchor): the Labels toggle states how many
+  // of them are drawn when not all are.
+  const labelableCount = useMemo(() => {
+    let count = 0;
+    for (const key of activeModelIndex.visibilityEligibleKeys) {
+      if (!hiddenKeys.has(key) && activeModelIndex.entities.get(key)?.anchor && isLabelKind(activeModelIndex.entities.get(key)!.ref.type)) count += 1;
+    }
+    return count;
+  }, [activeModelIndex, hiddenKeys]);
   const selectionTargets = useMemo(
     () => viewportSelectionTargets(activeModelIndex, labelKeys),
     [activeModelIndex, labelKeys]
   );
+  // The labels the layout drew last (the count the diagnostics report), and the Labels toggle's count
+  // text, written by the layout outside React so that orbiting re-renders nothing.
+  const drawnLabelCountRef = useRef(0);
+  const labelsCountRef = useRef<HTMLSpanElement | null>(null);
+  const labelsCountTextRef = useRef("");
+  function writeLabelsCount(drawn: number | null) {
+    const text = drawn !== null && drawn < labelableCount ? ` ${drawn}/${labelableCount}` : "";
+    labelsCountTextRef.current = text;
+    const element = labelsCountRef.current;
+    if (element && element.textContent !== text) element.textContent = text;
+  }
   const diagnosticsStateRef = useRef({
     assignment,
     identityHash: modelIdentityHash,
     index: activeModelIndex,
     projectId: model.project.id,
     labelsEnabled: showLabels,
-    labelCount: labelKeys.length,
+    labelCount: drawnLabelCountRef.current,
     boxPublication,
     geometryMode,
     odGeneration,
@@ -720,7 +752,7 @@ export function PipeViewport({
     index: activeModelIndex,
     projectId: model.project.id,
     labelsEnabled: showLabels,
-    labelCount: labelKeys.length,
+    labelCount: drawnLabelCountRef.current,
     boxPublication,
     geometryMode,
     odGeneration,
@@ -1570,12 +1602,28 @@ export function PipeViewport({
     if (!resource) return;
     // Labels name without covering (viewportLabelLayout.ts): set off their anchors, never over one
     // another or the canvas's furniture, the selected and hovered ones first and always drawn.
-    const anchors: Array<{ key: EntityKey; kind: LabelKind; position: THREE.Vector3 }> = [];
+    const anchors: Array<{ key: EntityKey; kind: LabelKind; position: THREE.Vector3; boundary: boolean; lines: Array<[THREE.Vector3, THREE.Vector3]> }> = [];
+    const localPoint = (point: Readonly<{ x: number; y: number; z: number }>) => {
+      const local = authoredToLocal(point, renderTransform.origin);
+      return new THREE.Vector3(local.x, local.y, local.z);
+    };
+    // A pipe's centreline, from its end nodes' anchors.
+    const pipeLine = (pipeKey: EntityKey): [THREE.Vector3, THREE.Vector3] | null => {
+      const record = activeModelIndex.entities.get(pipeKey)?.record as { from?: string; to?: string } | undefined;
+      const from = record?.from ? activeModelIndex.entities.get(entityKey({ type: "node", id: record.from }))?.anchor : null;
+      const to = record?.to ? activeModelIndex.entities.get(entityKey({ type: "node", id: record.to }))?.anchor : null;
+      return from && to ? [localPoint(from), localPoint(to)] : null;
+    };
     for (const key of labelKeys) {
       const indexed = activeModelIndex.entities.get(key);
       if (!indexed?.anchor || !isLabelKind(indexed.ref.type)) continue;
-      const position = authoredToLocal(indexed.anchor, renderTransform.origin);
-      anchors.push({ key, kind: indexed.ref.type, position: new THREE.Vector3(position.x, position.y, position.z) });
+      // The label's own entity's lines, which its target keeps off: a pipe's centreline, a node's pipes.
+      const ownPipes = indexed.ref.type === "pipe" ? [key] : indexed.ref.type === "node" ? activeModelIndex.pipeKeysByNode.get(key) ?? [] : [];
+      const lines = ownPipes.flatMap((pipeKey) => {
+        const line = pipeLine(pipeKey);
+        return line ? [line] : [];
+      });
+      anchors.push({ key, kind: indexed.ref.type, position: localPoint(indexed.anchor), boundary: indexed.ref.type === "node" && boundaryNodeKeys.has(key), lines });
     }
     const labelled = new Set(anchors.map((anchor) => anchor.key));
     for (const key of [...labelPlaceRef.current.keys()]) if (!labelled.has(key)) labelPlaceRef.current.delete(key);
@@ -1608,6 +1656,8 @@ export function PipeViewport({
       const layer = selectionLayerRef.current;
       if (!layer) {
         diagnosticsStateRef.current.labelCount = 0;
+        drawnLabelCountRef.current = 0;
+        writeLabelsCount(null);
         return;
       }
       const width = Math.max(1, layer.clientWidth || resource.renderer.domElement.clientWidth);
@@ -1634,7 +1684,11 @@ export function PipeViewport({
         obstacles = { width, height, boxes };
       }
       const candidates: LabelCandidate<EntityKey>[] = [];
-      for (const { key, kind, position } of anchors) {
+      const toCanvas = (point: THREE.Vector3) => {
+        const projected = point.clone().project(resource.camera);
+        return { x: (projected.x * 0.5 + 0.5) * width, y: (-projected.y * 0.5 + 0.5) * height, behind: projected.z > 1 || projected.z < -1 };
+      };
+      for (const { key, kind, position, boundary, lines } of anchors) {
         const button = buttons.get(key);
         if (!button) continue;
         let size = sizes.get(key);
@@ -1657,7 +1711,12 @@ export function PipeViewport({
           height: size.height,
           emphasised: rank !== undefined,
           emphasisRank: rank,
-          preferredPlace: labelPlaceRef.current.get(key)
+          preferredPlace: labelPlaceRef.current.get(key),
+          boundary,
+          avoid: lines.flatMap(([a, b]) => {
+            const [p, q] = [toCanvas(a), toCanvas(b)];
+            return p.behind || q.behind ? [] : [{ x1: p.x, y1: p.y, x2: q.x, y2: q.y }];
+          })
         });
       }
       const placements = layoutLabels(candidates, { width, height }, obstacles.boxes);
@@ -1682,6 +1741,8 @@ export function PipeViewport({
         button.style.top = `${Math.round(placement.top)}px`;
       }
       diagnosticsStateRef.current.labelCount = visibleCount;
+      drawnLabelCountRef.current = visibleCount;
+      writeLabelsCount(visibleCount);
     };
     resource.setLabelUpdater(updateLabelAnchors);
     updateLabelAnchors();
@@ -1691,7 +1752,7 @@ export function PipeViewport({
       furnitureSizes?.disconnect();
       resource.setLabelUpdater(null);
     };
-  }, [activeModelIndex, hoveredEntityKey, labelKeys, orderedSelectionKeys, primarySelectionKey, renderTransform, showLabels]);
+  }, [activeModelIndex, boundaryNodeKeys, hoveredEntityKey, labelKeys, labelableCount, orderedSelectionKeys, presentationBottomInset, primarySelectionKey, renderTransform, showLabels]);
 
   useEffect(() => {
     const resource = viewportResourceRef.current;
@@ -2700,9 +2761,9 @@ export function PipeViewport({
                     aria-pressed={showLabels}
                     className={showLabels ? "active" : ""}
                     onClick={() => setShowLabels((value) => !value)}
-                    title="Show or hide entity labels"
+                    title="Show or hide entity labels. A hidden label appears when its entity is hovered or selected."
                   >
-                    Labels
+                    Labels<span data-testid="viewport-labels-count" ref={labelsCountRef}>{labelsCountTextRef.current}</span>
                   </button>
                   <button
                     type="button"
