@@ -1,4 +1,4 @@
-import { Download, ShieldCheck } from "lucide-react";
+import { Download } from "lucide-react";
 import { useState } from "react";
 import type { LocalStorageCapability, PreviewModel } from "../../types";
 import {
@@ -22,16 +22,16 @@ export function TelemetryBoundaryPanel({
     affirmativeRequestRecorded
   });
 
+  // DEL-12-03 AC-009: the state and the reason are the guard's, shown as it returns them.
   return (
-    <section
+    <details
       className="panel telemetry-boundary-panel"
       aria-label="Telemetry boundary review"
       data-testid="telemetry-boundary-panel"
     >
-      <div className="panel-title">
-        <ShieldCheck size={16} aria-hidden="true" />
-        Telemetry Boundary
-      </div>
+      <summary data-testid="telemetry-boundary-state">
+        Telemetry: {packet.summary.telemetry_enabled ? "on" : "off"}, {telemetryReasonText(packet.summary.config_resolution)}
+      </summary>
       <div className="report-actions">
         <button
           type="button"
@@ -91,12 +91,18 @@ export function TelemetryBoundaryPanel({
           testId="telemetry-boundary-runtime"
         />
       </div>
-      <small className="report-note">
-        Telemetry remains default-off and no-op. This review records policy and guard state only; it does not authorize
-        collection, transport, endpoint, vendor, or support-bundle upload.
-      </small>
-    </section>
+    </details>
   );
+}
+
+// The guard's reason codes in words; a code without words is shown as the code.
+const TELEMETRY_REASON_TEXT: Record<string, string> = {
+  telemetry_disabled_by_default: "disabled by default",
+  telemetry_requested_without_affirmative_opt_in_or_allowlist: "requested without an approved opt-in or allowlist"
+};
+
+function telemetryReasonText(reasonCode: string): string {
+  return TELEMETRY_REASON_TEXT[reasonCode] ?? reasonCode;
 }
 
 function TelemetryLine({ label, value, testId }: { label: string; value: string; testId: string }) {

@@ -131,7 +131,7 @@ needs:
   gating: true
 - from: DEL-07-11
   condition: >-
-    The workspace shell mounts the panels, routes the File menu's commands, gives each save dialog
+    The workspace shell mounts the panels of the mounted families, routes the File menu's commands, gives each save dialog
     its suggested file name, and guards every command that replaces the working model.
   gating: true
 - from: DEL-08-02
@@ -141,14 +141,17 @@ needs:
   when: Presenting a computed checksum with a packet
   gating: true
 code_paths:
-# The native JSON package panel. The package is DEL-17-03's.
+# The native JSON package panel (retained, not mounted in v1.0). The package is DEL-17-03's.
 - apps/desktop/src/features/native-package/**
 # Also listed by DEL-17-06, which owns the builder and validator functions the panel calls; the
 # panel and its presentation are this deliverable's.
 - apps/desktop/src/features/stress-neutral/**
+# The validation-evidence review panel (retained, not mounted in v1.0).
 - apps/desktop/src/features/validation-evidence/**
-# handoffPackageSave.ts and HandoffSaveDialog.tsx are DEL-15-03's save request.
+# handoffPackageSave.ts and HandoffSaveDialog.tsx are DEL-15-03's save request. HandoffPanel.tsx is
+# the handoff preview (retained, not mounted in v1.0).
 - apps/desktop/src/features/handoff/**
+# The headless-runner review panel (retained, not mounted in v1.0).
 - apps/desktop/src/features/headless-runner/**
 # LocalFeaHandoffPanel.tsx is also listed by DEL-10-03: the package builder and its unit rule in it
 # (buildLocalFeaHandoffPacket, referencedResultUnits, localFeaHandoffRefusal) are DEL-10-03's, and
@@ -160,7 +163,8 @@ code_paths:
 # Panels over records other deliverables own: DEL-17-05, DEL-17-07, DEL-17-08, DEL-15-04, DEL-10-02
 # and DEL-17-09. PcfExportPanel.tsx is also listed by DEL-17-07 and ReviewGeometryPanel.tsx by
 # DEL-17-08, each for what the writer contributes to it; the panel's presentation is this
-# deliverable's.
+# deliverable's. The external-run evidence, external-prover, adapter-framework and export-adapter
+# SDK panels are retained and not mounted in v1.0.
 - apps/desktop/src/features/caepipe-external/**
 - apps/desktop/src/features/pcf-export/**
 - apps/desktop/src/features/review-geometry/**
@@ -174,6 +178,8 @@ code_paths:
 # from. The hashing itself is hashService.ts, DEL-08-02's.
 - apps/desktop/src/services/usePackageHash.ts
 checks:
+# Renders each retained family's panel on its own and reads what it shows.
+- apps/desktop/src/App.test.tsx
 - apps/desktop/src/features/native-package/NativePackagePanel.test.ts
 - apps/desktop/src/services/usePackageHash.test.tsx
 - apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx
