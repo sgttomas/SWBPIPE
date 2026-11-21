@@ -730,7 +730,7 @@ export function RenderedReportPanel({
                 Print / PDF (derived view)
               </button>
               <p data-testid="rendered-report-list-notice">
-                The project does not keep or list saved reports. An HTML save, a printed report and a saved report package are each a file you keep.
+                The project does not keep or list saved or printed reports. An HTML save and a saved report package are each a file you keep.
               </p>
             </div>
           ) : (
