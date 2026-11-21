@@ -394,9 +394,12 @@ target remains adequate. A failure alone does not justify relaxing one.
     every verdict and file output a consumer reads. For v1.0 the product
     verifies the bound for no case (LIM-026): every case the solver's checks
     find nothing against is not verified, and no nonlinear state is confirmed.
-    A capability these criteria require that is refused on this ground is a
-    refusal under criterion 3; declaring that refusal acceptable does not make
-    an unmet criterion met.
+    A claim derived from a case's bound, such as a combination certificate's
+    verdict over its operand cases or a statement that a case is stress-free
+    within a stated bound, has that bound's standing and is stated the same
+    way. A capability these criteria require that is refused on this ground is
+    a refusal under criterion 3; declaring that refusal acceptable does not
+    make an unmet criterion met.
 
     *Owning deliverables:* DEL-04-01 (integrity bound and nonlinear enclosures); DEL-04-04 and DEL-04-07 (support-state confirmation and publication); DEL-05-02 (ordinary product reader); DEL-04-08 (retained-result reader, reader bindings and test verifier). The viewer, report, export, rule-binding and modal-state consumers apply their existing rules under their own deliverables (DEL-07-05, DEL-08-01, DEL-08-04, DEL-06-03, DEL-04-09).
 
