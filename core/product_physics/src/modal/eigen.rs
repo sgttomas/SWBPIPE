@@ -341,6 +341,10 @@ pub(crate) fn modal_basis<'a>(
 }
 
 pub(crate) fn quantity_refusal(mode: Option<usize>, error: ModalQuantityError) -> Vec<Diagnostic> {
+    // A storage refusal is a resource refusal by its own name, never a range one.
+    if let ModalQuantityError::Storage(storage) = error {
+        return super::resource::modal_shape_storage_refusal(&storage);
+    }
     let refs = mode.map_or_else(|| vec!["model".into()], |m| vec![format!("mode:{}", m + 1)]);
     vec![modal_range_refusal(
         "quantities",

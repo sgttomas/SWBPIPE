@@ -175,6 +175,18 @@ TRANCHE1_SPECIFICATION_WHY = ("the specification cleared its RS-R1 ledger row, w
                               "verbatim; it reads the specification as it was at 5dcdb4e21, and the existing "
                               "package's references.json as committed")
 
+# No product test reads the four preload packages (the entries named *_preload) yet: the preload law
+# (DEL-04-11/REQ-014) is not implemented, and its landing points the product tests at them and removes this note.
+# Until then each package's own check and this table's tests maintain them.
+#
+# The live repository files that two preload packages staged their inputs from: t4_i12_preload the preview fixture,
+# demo_friction_reversal_preload the demo fixture and the product test whose inline table it supplements. Their
+# default checks read only the staged copies; tests/test_reference_packages_live.py runs their separate live checks
+# (--check-live), which compare the copies with these files.
+PREVIEW_MODEL = "fixtures/product_preview/invented_preview_model.json"
+DEMO_MODEL = "fixtures/product_preview/invented_demo_model.json"
+FRICTION_REVERSAL_TEST = "core/product_physics/tests/friction_reversal_stop_release_runtime.rs"
+
 DYNAMICS_TEST = "tests/test_dynamics_references.py"
 REGENERATION_GAP = "no check command (regeneration gap)"
 F1_TRUST = "taken on trust until 268's test lands"
@@ -241,6 +253,10 @@ PACKAGES: dict[str, Package] = {
     "w16_exact_equivalent_static": _plain("w16c_reference.py", deliverables="DEL-05-01"),
     "w16_imposed_motion": _plain("w16_reference.py", deliverables="DEL-04-03, DEL-09-01"),
     "w16_nonlinear_motion": _plain("w16_nl_reference.py", deliverables="DEL-04-03"),
+    "w16_nonlinear_motion_preload": _plain(
+        "w16_nl_preload_reference.py", "--check", deliverables="DEL-04-03, DEL-04-11",
+        members=Membership("README file table: `SHA256SUMS` | the hashes of every other file of this package. The "
+                           "generator writes it")),
     "w16_timoshenko_partial_wind": _plain("w16t_reference.py", deliverables="DEL-05-01"),
     "t4_u4b": _plain("u4b_reference.py", deliverables="DEL-04-07"),
     "t4_u5a": _plain("u5a_reference.py", *PE_ALL, deliverables="DEL-03-06, DEL-04-07",
@@ -290,6 +306,14 @@ PACKAGES: dict[str, Package] = {
         no_sums=True,
         # No README; the module docstring gives the command: "Run it to verify the maintained oracles".
         checks=(Check(("reference.py",)),)),
+    "kd5_nonlinear_preload": Package(
+        "DEL-04-01, DEL-04-03, DEL-04-11",
+        Membership("README: 'Membership: the files in the table above. `SHA256SUMS` lists the five generated JSON "
+                   "files. `README.md` and `reference_preload.py` are outside it.'",
+                   unlisted={"README.md": "outside SHA256SUMS (README, Membership)",
+                             "reference_preload.py": "the generator, outside SHA256SUMS (README, Membership)"}),
+        sums=(Sums("SHA256SUMS"),),
+        checks=(Check(("reference_preload.py", "--check")),)),
     "t4_i7": Package(
         "DEL-04-07", Membership("README file table: four files, and `SHA256SUMS` holds these four digests",
                                 unlisted={"README.md": "outside the README's file table, which lists what SHA256SUMS holds"}),
@@ -341,6 +365,10 @@ PACKAGES: dict[str, Package] = {
         sums=(Sums("SHA256SUMS"),),
         regeneration_gap="u3_reference_cases.json: the README gives no check mode: both commands write to a given "
                          "output path"),
+    "t4_i12_preload": _plain(
+        "u3_preload_reference.py", "--check", deliverables="DEL-03-06, DEL-04-03, DEL-04-11",
+        members=Membership("README file table: `SHA256SUMS` | the hashes of every other file of this package. The "
+                           "generator writes it")),
     "t4_o13": Package(
         "DEL-04-01", Membership("README file table: o13_candidates.json, o13_fk_references.py and "
                                 "o13_fk_references.txt, which SHA256SUMS holds",
@@ -411,8 +439,12 @@ PACKAGES: dict[str, Package] = {
 
     # Exact-route references frozen after the first table; each also has its own maintained test.
     "exact_difference_basis": _plain("exact_difference_basis_reference.py", deliverables="DEL-05-02"),
+    "exact_difference_basis_completed": _plain("exact_difference_basis_completed_reference.py", deliverables="DEL-05-02"),
     "exact_load_state_equivalent_static": _plain("exact_load_state_reference.py", deliverables="DEL-05-01"),
+    "exact_load_state_generated_interactions": _plain("generated_interactions_reference.py",
+                                                      deliverables="DEL-05-01, DEL-05-02"),
     "friction_one_way_normal": _plain("friction_one_way_normal_reference.py", deliverables="DEL-04-04"),
+    "inverse_norm_certificate": _plain("inverse_norm_certificate_reference.py", deliverables="DEL-04-01"),
     "inverse_norm_witness": _plain("inverse_norm_witness_reference.py", deliverables="DEL-04-01"),
     "modal_timoshenko_mass": Package(
         "DEL-04-09",
@@ -429,7 +461,16 @@ PACKAGES: dict[str, Package] = {
                               (REFERENCE_SYSTEM_REFERENCES, REFERENCE_SYSTEM_REFERENCES)),
                       staged_why=TRANCHE1_SPECIFICATION_WHY),)),
     "seismic_component_weight": _plain("scw_reference.py", deliverables="DEL-05-01"),
+    # Per-load and warning references for RS-WIN and the three static seismic cases, supplementing
+    # reference_system_pending_cases (the reference for EQ-6). Its default check reads the model members it staged
+    # from REFERENCE_FIXTURE; tests/test_reference_packages_live.py runs its live check (--check-live).
+    "reference_system_generated_loads": _plain("rsgl_reference.py", deliverables="DEL-05-01, DEL-09-01"),
     "snubber_static": _plain("snubber_static_reference.py", deliverables="DEL-04-10"),
+    # Supplements the inline EXPECTED table of FRICTION_REVERSAL_TEST, not a package, so it has no sibling entry.
+    "demo_friction_reversal_preload": _plain(
+        "demo_friction_preload_reference.py", "--check", deliverables="DEL-04-03, DEL-04-11",
+        members=Membership("README file table: `SHA256SUMS` | the hashes of every other file of this package. The "
+                           "generator writes it")),
 }
 
 # Outputs not regenerated, regeneration gaps and stdout comparisons made only on named platforms, each a row

@@ -6,6 +6,8 @@ import type { PreviewModel, ModelHashEvidence, MechanicsResult, Diagnostic } fro
 import type { AgentBasis } from './embeddedAgentBridge';
 import type { SessionResult } from './nativeResult';
 import catalog from '../../src-tauri/resources/agent-capability-catalog.json';
+import referenceJson from '../../../../fixtures/reference_system/reference_system.json';
+import { canonicalJsonString } from './hashService';
 const mocks=vi.hoisted(()=>({validate:vi.fn()}));
 vi.mock('./operationBatchService',()=>({validateOperationBatch:mocks.validate}));
 // A native read, scripted only where a test turns it on: the native rows query's page and its ordinals.
@@ -106,9 +108,9 @@ describe('workspace-owned live embedded agent adapter',()=>{
  });
  it('cannot be reached past the member-count bound or the length bound through the agent: such arguments exceed the host argument bound first',()=>{
   // The smallest after value with more members than the walk reads, and any after text longer
-  // than the check reads, is far larger than the 16,384 argument bytes the host admits
+  // than the check reads, is far larger than the 28,672 argument bytes the host admits
   // (protocol.rs refuses larger arguments before the webview; the catalog caps an after at
-  // 16,384 characters), and the bridge refuses a claim over 64 KiB; these bounds are for intake
+  // 28,672 characters), and the bridge refuses a claim over 64 KiB; these bounds are for intake
   // and requeue (operationAuthorship.bounds.test.ts).
   const smallest=`[${'0,'.repeat(PERSON_ENTERED_CHECK.maxMembers)}0]`;
   expect(new TextEncoder().encode(smallest).byteLength).toBeGreaterThan(64*1024);
@@ -353,8 +355,8 @@ describe('workspace-owned live embedded agent adapter',()=>{
  it('bounds record pages in UTF-8 bytes and never cuts an oversized first entry',async()=>{
   vi.useFakeTimers();const {session,call,model}=setup();
   const records=model as unknown as Record<string,unknown>;
-  // 6000 three-byte characters: under 16384 UTF-16 units, over 16384 bytes.
-  records.supports=[{id:'support:wide',label:'€'.repeat(6000),node:'node-1',restraints:['UX'],provenance:'p'}];
+  // 10000 three-byte characters: under 28672 UTF-16 units, over 28672 bytes.
+  records.supports=[{id:'support:wide',label:'€'.repeat(10000),node:'node-1',restraints:['UX'],provenance:'p'}];
   call('swbpipe_read_records',{family:'supports',page:{cursor:null,limit:5}});await session.start('revision');await session.poll();await drain();
   let outcome=JSON.parse(session.actual('invented-session:1')!.outcome);expect(outcome.status).toBe('unavailable');expect(outcome.message).toContain('support:wide');
   // Two records of about 30 KB each: the page holds one and resumes at the next.
@@ -362,10 +364,82 @@ describe('workspace-owned live embedded agent adapter',()=>{
   call('swbpipe_read_records',{family:'supports',page:{cursor:null,limit:5}},'invented-session:2');await session.poll();await drain();
   outcome=JSON.parse(session.actual('invented-session:2')!.outcome);expect(outcome.data.records.map((r:{id:string})=>r.id)).toEqual(['support:0']);expect(outcome.data.nextCursor).toEqual(expect.any(String));
   expect(outcome.data.records[0].before.delete).toBe('€'.repeat(5000));
-  // Each text fits 16 KiB, but escaping makes the single entry larger than a page.
+  // Each text fits the record text bound, but escaping makes the single entry larger than a page.
   records.supports=[{id:'support:quoted',label:'"'.repeat(3900),node:'node-1',restraints:['UX'],provenance:'"'.repeat(3900)}];
   call('swbpipe_read_records',{family:'supports',page:{cursor:null,limit:5}},'invented-session:3');await session.poll();await drain();
   outcome=JSON.parse(session.actual('invented-session:3')!.outcome);expect(outcome.status).toBe('unavailable');expect(outcome.message).toContain('support:quoted');
+  await session.close();
+ });
+ it('reports the catalog limits and reads back a stored state up to the argument bound, one byte over by name',async()=>{
+  // One figure bounds a text the agent writes (the argument bytes, a change's before and after)
+  // and the same text read back: a state the agent could enter and not read could never be removed,
+  // since its removal names the stored state as its before.
+  vi.useFakeTimers();const {session,call,model}=setup();
+  const bound=catalog.limits.argumentBytes;expect(bound).toBe(28672);
+  await session.start('revision');await session.poll();await drain();
+  expect(JSON.parse(session.actual('invented-session:1')!.outcome).data.limits).toEqual(catalog.limits);
+  const records=model as unknown as Record<string,unknown>;
+  // {"provenance":"…"} is 17 bytes around its text.
+  const loadCase=(fill:number)=>[{id:'load:L1',label:'L1',kind:'sustained',status:'active',primitive_loads:[],analysis_state:{provenance:'x'.repeat(fill)}}];
+  records.load_cases=loadCase(bound-17);
+  call('swbpipe_read_records',{family:'load_cases',page:{cursor:null,limit:5}},'invented-session:2');await session.poll();await drain();
+  let outcome=JSON.parse(session.actual('invented-session:2')!.outcome);expect(outcome.status).toBe('ok');
+  expect(new TextEncoder().encode(outcome.data.records[0].before.analysis_state).byteLength).toBe(bound);
+  records.load_cases=loadCase(bound-16);
+  call('swbpipe_read_records',{family:'load_cases',page:{cursor:null,limit:5}},'invented-session:3');await session.poll();await drain();
+  outcome=JSON.parse(session.actual('invented-session:3')!.outcome);expect(outcome.status).toBe('unavailable');expect(outcome.message).toContain('load:L1');
+  await session.close();
+ });
+ it('reads the reference system\'s load cases back whole across pages, each state and its pressure regions as stored',async()=>{
+  // A read-back that succeeds: the committed reference system's own load cases, through the
+  // session's pager. Each entry carries the case's analysis state and pressure regions as before
+  // texts; a page holds what fits and the cursor resumes at the next case.
+  vi.useFakeTimers();const {session,call,model}=setup();
+  const settle=async()=>{for(let i=0;i<8;i++)await drain();};
+  const cases=structuredClone((referenceJson as unknown as {load_cases:Record<string,any>[]}).load_cases);
+  expect(cases.length).toBeGreaterThanOrEqual(3);
+  (model as unknown as Record<string,unknown>).load_cases=cases;await session.start('revision');await session.poll();await settle();
+  const seen:Record<string,any>[]=[];let cursor:string|null=null,pages=0;
+  for(;pages<cases.length;){
+   call('swbpipe_read_records',{family:'load_cases',page:{cursor,limit:5}},`invented-session:${pages+2}`);await session.poll();await settle();
+   const outcome=JSON.parse(session.actual(`invented-session:${pages+2}`)!.outcome);expect(outcome.status).toBe('ok');pages++;
+   seen.push(...outcome.data.records);cursor=outcome.data.nextCursor;if(cursor===null)break;
+  }
+  expect(cursor).toBeNull();expect(pages).toBeGreaterThan(1);
+  // Every case exactly once, in the document's order.
+  expect(seen.map(record=>record.id)).toEqual(cases.map(item=>item.id));
+  for(const [index,record] of seen.entries()){
+   expect(record.before.analysis_state).toBe(await canonicalJsonString(cases[index].analysis_state));
+   expect(record.before.pressure_regions).toBe(await canonicalJsonString(cases[index].pressure_regions));
+  }
+  await session.close();
+ });
+ it('characterises a known failure of paging (issue 401): a case whose two held texts each fit and together exceed a record page is not returned, and the page is lost with it',async()=>{
+  // Not a read-back that succeeds. The record is installed directly, as a person's edit in the
+  // desktop can leave it. Its two texts are also of a size the agent's own proposals carry: the
+  // reach test (agent_catalog_reach.rs) writes an analysis state and pressure regions of 25,000
+  // canonical bytes each in separate proposals within the argument bound. Each text is within the
+  // record text bound; the entry is over the 48 KiB record page and is never cut. The read names
+  // the case, discards the ordinary case already gathered for the response and issues no cursor.
+  // So what the agent can write is not always what it can read.
+  vi.useFakeTimers();const {session,call,model}=setup();
+  const settle=async()=>{for(let i=0;i<8;i++)await drain();};
+  const bytes=(text:string)=>new TextEncoder().encode(text).byteLength;
+  // {"provenance":"…"} is 17 bytes around its text; [{"id":"region:wide","provenance":"…"}] is 38.
+  const ordinary={id:'load:ordinary',label:'ordinary',kind:'primitive_user_load',status:'draft',provenance:'invented',primitive_loads:[],analysis_state:{provenance:'invented'},pressure_regions:[]};
+  const wide={id:'load:wide',label:'wide',kind:'primitive_user_load',status:'draft',provenance:'invented',primitive_loads:[],
+   analysis_state:{provenance:'s'.repeat(25000-17)},pressure_regions:[{id:'region:wide',provenance:'r'.repeat(25000-38)}]};
+  expect(bytes(await canonicalJsonString(wide.analysis_state))).toBe(25000);expect(bytes(await canonicalJsonString(wide.pressure_regions))).toBe(25000);
+  expect(25000).toBeLessThanOrEqual(catalog.definitions.record.properties.before.additionalProperties.maxLength);
+  (model as unknown as Record<string,unknown>).load_cases=[ordinary,wide];await session.start('revision');await session.poll();await settle();
+  call('swbpipe_read_records',{family:'load_cases',page:{cursor:null,limit:5}},'invented-session:2');await session.poll();await settle();
+  const refused=JSON.parse(session.actual('invented-session:2')!.outcome);
+  expect(refused.status).toBe('unavailable');expect(refused.message).toBe('Record load:wide exceeds this catalog page.');expect(refused.data).toBeNull();
+  // The ordinary case alone is read: it is the wide case that costs the page.
+  (model as unknown as Record<string,unknown>).load_cases=[ordinary];
+  call('swbpipe_read_records',{family:'load_cases',page:{cursor:null,limit:5}},'invented-session:3');await session.poll();await settle();
+  const alone=JSON.parse(session.actual('invented-session:3')!.outcome);
+  expect(alone.status).toBe('ok');expect(alone.data.records.map((record:{id:string})=>record.id)).toEqual(['load:ordinary']);
   await session.close();
  });
  it('filters result pages by kind and entity and binds the filter to the cursor',async()=>{

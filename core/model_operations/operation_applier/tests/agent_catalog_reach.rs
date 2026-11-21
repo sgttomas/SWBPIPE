@@ -190,7 +190,7 @@ fn newly_admitted_kinds_enter_the_reference_families_from_the_fixture_values() {
         agent("create", "Section", section["id"].as_str().unwrap(), "create_section", "sections", "not_present", &canonical_json(section), unit, "length")
     }).collect());
     let pipes: Vec<Value> = fixture["pipe_segments"].as_array().unwrap().clone();
-    // Sixteen bindings exceed the argument bound (each before is a whole pipe record); ten fit.
+    // Each binding's before is a whole pipe record; ten to a proposal stay well inside the argument bound.
     for chunk in pipes.chunks(10) {
         let ops = chunk.iter().map(|pipe| {
             let id = pipe["id"].as_str().unwrap();
@@ -229,21 +229,56 @@ fn newly_admitted_kinds_enter_the_reference_families_from_the_fixture_values() {
 }
 
 #[test]
-fn two_analysis_states_exceed_one_proposal_and_a_replacement_needs_two() {
-    // The argument bound is unchanged: a state travels alone, and replacing a
-    // stored state (its before text is the state) is a removal, then a write.
+fn replacing_the_largest_analysis_state_needs_a_removal_then_a_write() {
+    // An analysis state is one field. Replacing a stored state names it twice (its
+    // before text is the state), which for the reference system's largest state
+    // exceeds the argument bound: it is a removal, then a write.
     let fixture = reference();
-    let cases = fixture["load_cases"].as_array().unwrap();
-    let ops: Vec<Value> = cases.iter().take(2).map(|case| none("modify", "Load", case["id"].as_str().unwrap(), "update_load", "analysis_state", "not_present", &canonical_json(&case["analysis_state"]))).collect();
-    let arguments = json!({"operations": ops});
-    assert!(serde_json::to_vec(&arguments).unwrap().len() as u64 > catalog()["limits"]["argumentBytes"].as_u64().unwrap());
-    let state = canonical_json(&cases[1]["analysis_state"]);
-    let replace = json!({"operations":[none("modify", "Load", "load:RS-OPE", "update_load", "analysis_state", &state, &state)]});
+    let (id, state) = fixture["load_cases"].as_array().unwrap().iter()
+        .map(|case| (case["id"].as_str().unwrap().to_string(), canonical_json(&case["analysis_state"])))
+        .max_by_key(|(_, state)| state.len()).unwrap();
+    let replace = json!({"operations":[none("modify", "Load", &id, "update_load", "analysis_state", &state, &state)]});
     assert!(serde_json::to_vec(&replace).unwrap().len() as u64 > catalog()["limits"]["argumentBytes"].as_u64().unwrap());
-    let removal = none("modify", "Load", "load:RS-OPE", "update_load", "analysis_state", &state, "not_present");
+    let removal = none("modify", "Load", &id, "update_load", "analysis_state", &state, "not_present");
     assert!(catalog_admits(&removal));
     let applied = propose(&fixture, vec![removal]);
-    assert!(find(&applied, "load_cases", "load:RS-OPE").get("analysis_state").is_none());
+    assert!(find(&applied, "load_cases", &id).get("analysis_state").is_none());
+}
+
+#[test]
+fn two_held_texts_of_25000_bytes_are_each_written_by_a_proposal_within_the_argument_bound() {
+    // The write side of a known gap (issue 401, and the session test that characterises the
+    // read): a load case's analysis state and its pressure regions, each a canonical text of
+    // 25,000 bytes, are each carried by one proposal within the argument bound and applied.
+    // The case's read entry holds both texts and exceeds the 48 KiB record page, so what an
+    // agent can write is not always what it can read back.
+    const TEXT_BYTES: usize = 25_000;
+    let fixture = reference();
+    let id = "load:RS-OPE";
+    let padded = |value: &Value, pointer: &str| {
+        let mut value = value.clone();
+        *value.pointer_mut(pointer).unwrap() = json!("");
+        let fill = TEXT_BYTES - canonical_json(&value).len();
+        *value.pointer_mut(pointer).unwrap() = json!("p".repeat(fill));
+        let text = canonical_json(&value);
+        assert_eq!(text.len(), TEXT_BYTES);
+        text
+    };
+    let case = find(&fixture, "load_cases", id);
+    let state = padded(&case["analysis_state"], "/provenance");
+    let regions = padded(&case["pressure_regions"], "/0/provenance");
+    let mut model = fixture.clone();
+    let stored = model["load_cases"].as_array_mut().unwrap().iter_mut().find(|case| case["id"] == id).unwrap().as_object_mut().unwrap();
+    stored.remove("analysis_state");
+    stored.remove("pressure_regions");
+    model = propose(&model, vec![none("modify", "Load", id, "update_load", "pressure_regions", "not_present", &regions)]);
+    model = propose(&model, vec![none("modify", "Load", id, "update_load", "analysis_state", "not_present", &state)]);
+    let written = find(&model, "load_cases", id);
+    assert_eq!(canonical_json(&written["pressure_regions"]), regions);
+    assert_eq!(canonical_json(&written["analysis_state"]), state);
+    // Each text is within the bound of one record text; the two together are over the record page.
+    let text_bound = catalog()["definitions"]["record"]["properties"]["before"]["additionalProperties"]["maxLength"].as_u64().unwrap() as usize;
+    assert!(TEXT_BYTES <= text_bound && 2 * TEXT_BYTES > 48 * 1024);
 }
 
 fn refusal_codes(model: &Value, op: &Value) -> Vec<String> {
@@ -455,7 +490,7 @@ fn every_admitted_create_kind_refuses_or_drops_a_person_entered_member() {
 
 #[test]
 fn a_removal_applied_alone_leaves_a_case_the_solve_refuses_by_name() {
-    // Replacing a stored analysis state is two proposals: its removal, then the
+    // Replacing a stored analysis state too large to name twice is two proposals: its removal, then the
     // new state. If the person applies only the removal, the preview shows the
     // state going to not_present, and the solve refuses the case by name.
     let fixture = reference();

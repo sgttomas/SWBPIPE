@@ -51,3 +51,29 @@ def remove_caller_zero_edges(edge_zero, entries, pruned):
             edge_zero.remove(e)
         log.append(["edge_zero removed (caller)", caller, sorted(e["callee"] for e in hits), why])
     return log
+
+
+def o10_check_rules(D):
+    """The O-10 check's inputs from a route's decisions D, as sq2_rules.py writes them to SQ2_RULES.json for
+    o10_check.py: `o10_mult0_sites`, every O10_SITE_SIZE key then every O10_MULT0_SITES key (B7b-JR), whose own
+    multiplicity must stay 0; `o10_mult0_rows`, MODAL-CS-M0's exact TEXT row count of such a site (§8.63); and
+    `o10_unreached_fns`, MODAL-CS-UR's functions no retained root may reach (§8.63). A list that is empty is not
+    written. Only the checker reads these; no rule table or price depends on them."""
+    out = {}
+    sites = [key for key, _, _ in D.get("O10_SITE_SIZE", [])]
+    for key, why in D.get("O10_MULT0_SITES", []):
+        if not key:
+            raise SystemExit(f"O10_MULT0_SITES: unresolved site ({why[:60]})")
+        sites.append(key)
+    if sites:
+        out["o10_mult0_sites"] = sites
+    for key, n in D.get("O10_MULT0_ROWS", []):
+        if str(key) not in map(str, sites) or not isinstance(n, int) or n < 1:
+            raise SystemExit(f"O10_MULT0_ROWS: {key} is not a multiplicity-0 site with a positive row count")
+        out.setdefault("o10_mult0_rows", {})[str(key)] = n
+    for spec in D.get("O10_UNREACHED_FNS", []):
+        if set(spec) != {"file", "name", "state", "why"} or spec["state"] not in ("present", "reviewed-absent") \
+                or "/src/" not in spec["file"]:
+            raise SystemExit(f"O10_UNREACHED_FNS: malformed entry {spec!r}")
+        out.setdefault("o10_unreached_fns", []).append(dict(spec))
+    return out

@@ -31,8 +31,11 @@ BINARY_SHA256 = "112fae7a5a1223e673c8a1791d32338f37df8b527ff1159bb8adac6c4dbf1b4
 # sends the supplier at thread start (catalog.rs Catalog::declarations(): type, name, description and
 # expanded input schema), nor the supplier's serialization of it. tools/agent_catalog_resource.py
 # holds the fixture fixtures/embedded_agent/agent-witness-pin.json to this same value.
-CATALOG_SHA256 = "1d959016d5081cf44455f9bedddf12e14e8a185d8d4775d4765b6764d300c998"
+CATALOG_SHA256 = "51f776a918a3ebc960fe523d29d5612c30649f7ff4c5733a10ed24530da4c447"
 FRAME_BYTES = 1024 * 1024
+# The catalog's limits.argumentBytes, as the host enforces it. agent_host_witness_test.py holds this
+# to the catalog file, so the two cannot diverge unnoticed.
+ARGUMENT_BYTES = 28672
 FORBIDDEN_ITEMS = {"commandExecution", "fileChange", "webSearch", "imageView", "imageGeneration", "browserUse", "computerUse"}
 
 
@@ -103,7 +106,7 @@ def admit_call(frame, thread_id, turn_id, used, validator):
     if call_id in used or rpc_id in used.values():
         raise WitnessError("Duplicate supplier call")
     arguments = params.get("arguments")
-    if len(json.dumps(arguments, ensure_ascii=False).encode()) > 16384 or not validator.is_valid(arguments):
+    if len(json.dumps(arguments, ensure_ascii=False).encode()) > ARGUMENT_BYTES or not validator.is_valid(arguments):
         raise WitnessError("Invalid summary arguments")
     used[call_id] = rpc_id
     return rpc_id

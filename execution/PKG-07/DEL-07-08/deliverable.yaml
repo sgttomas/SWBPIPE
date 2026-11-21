@@ -181,3 +181,4 @@ checks:
 - apps/desktop/src/features/history/HistoryPanel.unreadable.test.tsx
 - apps/desktop/src/features/operations/queuedChangesBatch.test.tsx
 - apps/desktop/src/features/toolkit/BatchReviewPanel.test.tsx
+- apps/desktop/src/features/offline-proposal-intake/capabilityReferenceDownload.test.tsx

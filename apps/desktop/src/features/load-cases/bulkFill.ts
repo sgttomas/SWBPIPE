@@ -21,8 +21,7 @@ export function fillTargets(ordered: readonly string[], scope: FillScope): strin
   return from < 0 || to < from ? [] : ordered.slice(from, to + 1);
 }
 
-/** Members the editors keep "as authored" but do not show or edit: a reason or
- * reference that belongs to its own row, never copied to another (review N1). */
+/** Per-row members omitted by fill and copy. */
 export const ELEMENT_STATE_UNEDITED = ["analysis_basis_override", "mass_state_ref"] as const;
 export const SUPPORT_STATE_UNEDITED = ["base_motion", "device_reference"] as const;
 
@@ -59,9 +58,9 @@ export function addEverySource(list: readonly DraftRecord[], primitives: readonl
 
 /** A copy of another case's analysis state for this case. Load sources name the
  * other case's primitives, so those this case does not hold are left out and
- * reported, never redirected. Members the editor does not show are left out of
- * the element and support states, and a support state it cannot copy is left
- * out; both are reported (review N1). */
+ * reported, never redirected. The members above are left out of the element and
+ * support states, and a support state the editor cannot copy is left out; both
+ * are reported (review N1). */
 export function copyAnalysisState(source: unknown, primitives: readonly string[]): { draft: DraftRecord; dropped: string[]; omitted: string[]; supportsLeftOut: string[] } {
   const draft = clone(source && typeof source === "object" ? source as DraftRecord : {});
   const omitted = new Set<string>();

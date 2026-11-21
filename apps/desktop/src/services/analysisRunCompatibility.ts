@@ -9,7 +9,7 @@ import previewPhysicsTimoshenkoTable from "../../../../fixtures/results/semantic
 import previewPhysicsRetainedTable from "../../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json";
 import physicsRetainedTable from "../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json";
 import type { AnalysisRunEnvelope, CanonicalResultDimension, MechanicsResult, ObjectRef, PreviewModel } from "../types";
-import { canonicalSha256Hex, canonicalSha256HexCheckedV1, checkedJsonText } from "./hashService";
+import { canonicalSha256Hex, canonicalSha256HexCheckedV1, checkJsonProfile } from "./hashService";
 import { inputManifestRef, type CurrentSessionInputManifest } from "./inputManifestService";
 import { libraryRefSites } from "./libraryImportService";
 import { trimLikeRust } from "./rustTrim";
@@ -347,6 +347,58 @@ export function structurallyEqual(left: unknown, right: unknown): boolean {
   return Object.is(left, right) || (typeof left === "number" && left === right);
 }
 
+/** Equality of two values that passed `checkJsonProfile`, read from the values themselves:
+ * a string, boolean or null by identity, a number by `===` (so zero equals negative zero,
+ * which serialise alike), an array by length and element, an object by its member names in
+ * any order and their values; an array never equals an object. */
+function checkedJsonValuesEqual(left: unknown, right: unknown): boolean {
+  if (left === right) return true;
+  if (typeof left !== "object" || typeof right !== "object" || left === null || right === null) return false;
+  const leftArray = Array.isArray(left);
+  if (leftArray !== Array.isArray(right)) return false;
+  if (leftArray) {
+    const a = left as unknown[], b = right as unknown[];
+    if (a.length !== b.length) return false;
+    for (let index = 0; index < a.length; index += 1) if (!checkedJsonValuesEqual(a[index], b[index])) return false;
+    return true;
+  }
+  const a = left as Record<string, unknown>, b = right as Record<string, unknown>;
+  const keys = Object.keys(a);
+  if (keys.length !== Object.keys(b).length) return false;
+  for (const key of keys) if (!Object.hasOwn(b, key) || !checkedJsonValuesEqual(a[key], b[key])) return false;
+  return true;
+}
+
+/** The equality `validateAnalysisRunV03` compares its source bindings by, without making
+ * text or copies: either side undefined compares by identity; otherwise the left side passes
+ * the checked profile wholly (`checkJsonProfile`, the checks `checkedJsonText` runs, which
+ * throw its errors), then the right side, then the two are compared as they stand. It
+ * replaced a comparison of the checked texts, parsed, member-sorted and serialised again;
+ * sameCheckedJson.test.ts runs both over a generated corpus and requires the same result or
+ * error on every pair.
+ * Its domain is what the validator can accept: plain data, whose members read the same on
+ * a second read, nested within the wasm parser's bound (it refuses a container at level 128;
+ * analysisRunDepth.test.ts pins this), with the built-in prototypes unpatched. Outside that
+ * domain the two differ, and this is not repaired:
+ * - Nested deeper, the old comparison failed with the JavaScript engine's stack error at a
+ *   depth that depends on the machine (its member sort failed at 2,500 levels on one machine
+ *   where `JSON.stringify` alone still succeeded). This one returns its answer there, and it
+ *   too fails with the stack error when nested deeper still. In the validator a deep source
+ *   is refused first, at the reader's dispatch, and a deep record member is then unequal to
+ *   its shallow operand; analysisRunDepth.test.ts runs those cases.
+ * - A Proxy can answer differently each time it is read. The old comparison read each
+ *   operand once, through its property descriptors; this one reads the operands again after
+ *   checking them, so a Proxy whose traps disagree with its descriptors can compare
+ *   differently. JSON text cannot carry a Proxy.
+ * - A `toJSON` added to `Array.prototype` or `Object.prototype` was consulted by the old
+ *   comparison's `JSON.stringify` and is not read here; the product patches neither. */
+export function sameCheckedJson(a: unknown, b: unknown): boolean {
+  if (a === undefined || b === undefined) return a === b;
+  checkJsonProfile(a);
+  checkJsonProfile(b);
+  return checkedJsonValuesEqual(a, b);
+}
+
 /** The recorded form's load basis: the stored manifest's load cases, then its combinations. */
 export function manifestLoadBasisRefs(manifest: Pick<CurrentSessionInputManifest, "load_basis">): ObjectRef[] {
   return [
@@ -410,11 +462,7 @@ async function recordedRead(record: AnalysisRunEnvelope, source: MechanicsResult
  * binding a registry variant then reads as it did when recorded; without it (the record
  * builder, the exports) only the current tables are read. */
 export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source: MechanicsResult, expectedBasisRefs?: ObjectRef[], recordedState?: RecordedStateBinding, options?: { recordedRead?: boolean }): Promise<void> {
-  const same = (a: unknown, b: unknown): boolean => {
-    if (a === undefined || b === undefined) return a === b;
-    const order = (v: any): any => Array.isArray(v) ? v.map(order) : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).sort().map(k => [k, order(v[k])])) : v;
-    return JSON.stringify(order(JSON.parse(checkedJsonText(a)))) === JSON.stringify(order(JSON.parse(checkedJsonText(b))));
-  };
+  const same = sameCheckedJson;
   const recorded = options?.recordedRead ? await recordedRead(record, source) : null;
   // The route the record is read on: the recorded dispatch's under a variant (a successor's
   // header reads only under its variant), else the current dispatch's.
