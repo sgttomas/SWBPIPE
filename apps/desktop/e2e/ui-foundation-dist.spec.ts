@@ -1,4 +1,4 @@
-import { selectCompactOption, viewportControl } from "./workspace-driver";
+import { selectCompactOption, viewportControl, expectNotOfferedByView } from "./workspace-driver";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 const defaultPreviewModel = JSON.parse(readFileSync(fileURLToPath(
@@ -874,7 +874,7 @@ for (const theme of APPEARANCE_THEMES) {
         // With no result the view offers no Deformation control. The armed creation tool is stated
         // by its pressed insert control (its "… tool armed" text is a visually hidden status), so
         // the insert controls' composited contrast is measured.
-        await expect(page.getByTestId("viewport-deformation-status")).toHaveCount(0);
+        await expectNotOfferedByView(page, page.getByTestId("viewport-deformation-status"));
         // Each drawn entity label is a target of at least 24 by 24 CSS pixels that nothing covers.
         await expect.poll(() => page.locator(".viewport-selection-layer .viewport-select-target:visible").count()).toBeGreaterThan(0);
         const labelTargetWitness = await expectViewportLabelTargets(page);
@@ -957,7 +957,7 @@ test("production browser keeps bundled reference separate through solve refusal,
   await expectBrowserSolveRefusal(page, "BROWSER_SOLVE_BACKEND_REQUIRED_REFERENCE_ONLY");
   await inspectBundledReference(page);
   // No current result: the view offers no Deformation control, so it claims no deformed shape.
-  await expect(page.getByTestId("viewport-deformation-status")).toHaveCount(0);
+  await expectNotOfferedByView(page, page.getByTestId("viewport-deformation-status"));
   await openWorkspaceSection(page, "evidence");
   await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
   // Reference/history lights no Current stage chip and cannot change the model or undo.
@@ -987,7 +987,7 @@ test("production browser keeps bundled reference separate through solve refusal,
   await expect(page.getByTestId("results-panel").locator("tbody tr")).toHaveCount(0);
   await expect(page.getByTestId("comparison-summary")).toHaveCount(0);
   // No current result: the view offers no Deformation control, so it claims no deformed shape.
-  await expect(page.getByTestId("viewport-deformation-status")).toHaveCount(0);
+  await expectNotOfferedByView(page, page.getByTestId("viewport-deformation-status"));
   await openWorkspaceSection(page, "evidence");
   await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
   await openWorkspaceSection(page, "exports");

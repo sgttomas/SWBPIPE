@@ -3,7 +3,7 @@ import {
   activateWithKeyboard, clearTreeFilter, currentModelHashThroughVisibleExport, gotoModel,
   readFixture, selectTreeRow, setAppearance, showModelTree, typedTreeRow
 } from "./ui-foundation-workflows";
-import { confirmProjectUnits, openWorkspaceSection, projectCommand, showCanvas, startPropertyTaskFromTreeEntity, viewportControl } from "./workspace-driver";
+import { confirmProjectUnits, openWorkspaceSection, projectCommand, showCanvas, startPropertyTaskFromTreeEntity, viewportControl, expectNotOfferedByView } from "./workspace-driver";
 
 // Synthetic presentation fixture derived in memory from the maintained model envelope.
 // No performance lane, new diagnostics, or stored duplicate fixture.
@@ -301,7 +301,7 @@ test("C3 visibility never gives bundled references a current overlay or saved-mo
   await (await control(page, "Hide")).click();
   await (await control(page, "Show all")).click();
   // No current result: the view offers no Deformation control.
-  await expect(page.getByTestId("viewport-deformation-status")).toHaveCount(0);
+  await expectNotOfferedByView(page, page.getByTestId("viewport-deformation-status"));
   await openWorkspaceSection(page, "results");
   await expect(page.getByTestId("historical-run-context")).toBeVisible();
   // The separate bundled example is not persisted as this model's solved run.
@@ -315,7 +315,7 @@ test("C3 visibility never gives bundled references a current overlay or saved-mo
   await (await control(page, "Isolate")).click();
   await (await control(page, "Show all")).click();
   // No current result: the view offers no Deformation control.
-  await expect(page.getByTestId("viewport-deformation-status")).toHaveCount(0);
+  await expectNotOfferedByView(page, page.getByTestId("viewport-deformation-status"));
   await openWorkspaceSection(page, "evidence");
   await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
 });

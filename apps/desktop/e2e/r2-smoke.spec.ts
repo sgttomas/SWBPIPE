@@ -1,4 +1,4 @@
-import { selectCompactOption } from "./workspace-driver";
+import { selectCompactOption, expectNotOfferedByView } from "./workspace-driver";
 import { expect, test, type Page, type Locator } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { inflateSync } from "node:zlib";
@@ -436,7 +436,7 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   );
   await expect(editorIntentPanel.getByTestId("queue-editor-intent")).toBeEnabled();
   // No result: the view offers no Deformation control, so it claims no deformed shape.
-  await expect(page.getByTestId("viewport-deformation-status")).toHaveCount(0);
+  await expectNotOfferedByView(page, page.getByTestId("viewport-deformation-status"));
   await openWorkspaceSection(page, "loads");
   await expect(page.getByTestId("load-case-manager-summary")).toContainText(
     "2 load cases; 5 primitive loads; 1 combinations"
@@ -620,7 +620,7 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await showCanvas(page);
   // The preserved 5-node / 7.624972 mm and signed-vector source oracles above
   // do not grant a current-model overlay from reference inspection: no Deformation control.
-  await expect(page.getByTestId("viewport-deformation-status")).toHaveCount(0);
+  await expectNotOfferedByView(page, page.getByTestId("viewport-deformation-status"));
 
   // The run audit is on the Evidence page (the Audit and Boundaries drawer is not in v1.0).
   const evidence = await openWorkspaceSection(page, "evidence");

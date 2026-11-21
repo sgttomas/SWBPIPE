@@ -391,3 +391,23 @@ export async function viewportControl(page: Page, control: Locator): Promise<Loc
   await expect(control).toBeVisible();
   return control;
 }
+
+/**
+ * That the 3D view offers no such control, in its bar or in its More row: a closed More renders
+ * nothing, so More is opened for the check (programmatically, so that nothing over the view stops
+ * it and no focus moves) and closed again.
+ */
+export async function expectNotOfferedByView(page: Page, control: Locator): Promise<void> {
+  const more = page.getByTestId("viewport-more");
+  const menu = page.getByTestId("viewport-more-menu");
+  const opened = await more.count() > 0 && await menu.count() === 0;
+  if (opened) {
+    await more.evaluate((button) => (button as HTMLButtonElement).click());
+    await expect(menu).toHaveCount(1);
+  }
+  await expect(control).toHaveCount(0);
+  if (opened) {
+    await more.evaluate((button) => (button as HTMLButtonElement).click());
+    await expect(menu).toHaveCount(0);
+  }
+}

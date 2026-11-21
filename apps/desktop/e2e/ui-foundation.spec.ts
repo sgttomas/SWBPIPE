@@ -1,4 +1,4 @@
-import { selectCompactOption, viewportControl } from "./workspace-driver";
+import { selectCompactOption, viewportControl, expectNotOfferedByView } from "./workspace-driver";
 import { buildModelIndex } from "../src/features/workspace/modelIndex";
 import { displayedBoundsForEntityKeys, fittedViewportDistance } from "../src/features/viewport/viewportSelection";
 import { expect, test, type Locator, type Page } from "@playwright/test";
@@ -906,7 +906,7 @@ for (const theme of APPEARANCE_THEMES) {
         await closePage();
         await activateWithKeyboard(page, page.getByTestId("rail-stage-model"));
         // No result: the view offers no Deformation control, so it claims no deformed shape.
-        await expect(page.getByTestId("viewport-deformation-status")).toHaveCount(0);
+        await expectNotOfferedByView(page, page.getByTestId("viewport-deformation-status"));
         await closePage();
         await expect(page.getByTestId("viewport-create-pipe-label")).toHaveValue("Retained pipe draft");
         await expect(page.getByTestId("viewport-create-pipe-provenance")).toHaveValue("layout regression draft");
