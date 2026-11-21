@@ -15,7 +15,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { ResultsPanel } from "./ResultsPanel";
 import { numericalHealthView, readNumericalHealth } from "./numericalHealth";
 import { numericalResultStanding, reportStanding } from "./resultStanding";
-import { recoveredCaseIds, SOLVER_REPORT_NOTE, supportStatesByCase } from "./integrityStatus";
+import { recoveredCaseIds, SOLVER_REPORT_NOTE, SUPPORT_STATES_LEAD, supportStatesByCase } from "./integrityStatus";
 import { ELIGIBLE_RECOVERY_TEXT } from "./numericalHealthText";
 import { PhysicsSourceEvidencePanel } from "./PhysicsSourceEvidencePanel";
 import { KnownSemanticNotices } from "./KnownSemanticNotices";
@@ -52,8 +52,9 @@ const CLAIMS = [
 const ownText = (element: Element) => [...element.childNodes].filter((node) => node.nodeType === node.TEXT_NODE).map((node) => node.textContent).join("");
 /** A code shown as a code (a machine field, as the decided words keep it), not a sentence. */
 const isCode = (text: string) => /^[\sA-Z0-9_:.()=-]+$/.test(text.trim());
-/** The note, or the support-state statement's own denial ("reported by the solver; not verified by SWBPIPE"). */
-const governs = (text: string | null | undefined) => !!text && (text.includes(SOLVER_REPORT_NOTE) || /reported by the solver; not verified by SWBPIPE/i.test(text));
+/** The note, or a denial that is the statement itself: the support-state line, which begins "Support
+ * states: not confirmed" (its outcome statements deny each confirmation in the reviewed words). */
+const governs = (text: string | null | undefined) => !!text && (text.includes(SOLVER_REPORT_NOTE) || /reported by the solver; not verified by SWBPIPE/i.test(text) || text.startsWith(`${SUPPORT_STATES_LEAD}.`));
 /** Every element whose own text states a claim has the note in it or in its immediate sibling. Returns
  * the claims found, so a fixture shows it has some. */
 function expectEveryClaimNoted(container: HTMLElement, what: string): string[] {
@@ -117,7 +118,9 @@ describe.each([
     rerender(<DiagnosticsPanel model={bound} knowledge={null} result={source} selectedDiagnosticId={selected} onSelectDiagnostic={() => {}} />);
     expect(screen.getByTestId("selected-diagnostic-explanation").querySelector("dd")!.textContent).toContain(SOLVER_REPORT_NOTE);
     expectNoteWithExplanation();
-    expect(expectEveryClaimNoted(document.body, "issues").length).toBeGreaterThan(0);
+    const found = expectEveryClaimNoted(document.body, "issues");
+    // The linear case's messages state their claim by code only; the nonlinear one's also in words.
+    if (nonlinear) expect(found.length).toBeGreaterThan(0);
   });
 
   it("the run comparison: the standing in its decided words, and the solver's text noted", () => {
@@ -133,7 +136,9 @@ describe.each([
     render(<RunComparisonView result={shown} onClose={() => {}} />);
     expect(screen.getByTestId("run-comparison-side-left").textContent).toBe(`Left: left. Its result is numerically eligible (route ${standing.contract}); the ordinary solve's error bound is not verified.`);
     expect(screen.getByTestId("run-comparison-basis")).toHaveTextContent("It is computed only when both runs' results are numerically eligible, both carry the same result semantic identity, and the two units are equal; nothing is converted. Numerically eligible is an admission standing: it asserts no verified error bound.");
-    expect(expectEveryClaimNoted(document.body, "run comparison").length).toBeGreaterThan(0);
+    // The comparison shortens a long message, so the claim's words may be cut; the note follows the code.
+    expect(screen.getAllByTestId("run-comparison-diagnostic-solver-report-note").length).toBe(source.diagnostics.filter((d) => d.code === "NUMERICAL_INTEGRITY_CHECKS_PASSED").length);
+    expectEveryClaimNoted(document.body, "run comparison");
   });
 });
 
@@ -161,7 +166,8 @@ describe("the surfaces round 1 found", () => {
   });
 
   it("a combination certificate's diagnostic", () => {
-    const { result, model } = corpus("fixtures/results/combination_certificate_corpus.json", "pf_cantilever");
+    const { result, model: corpusModel } = corpus("fixtures/results/combination_certificate_corpus.json", "pf_cantilever");
+    const model = { ...corpusModel, diagnostics: corpusModel.diagnostics ?? [] } as PreviewModel;
     expect(result.diagnostics.some((d) => d.code === "COMBINATION_ROWS_WITHIN_STATED_BOUND")).toBe(true);
     render(<DiagnosticsPanel model={model} knowledge={null} result={result} selectedDiagnosticId={null} onSelectDiagnostic={() => {}} />);
     expect(screen.getAllByTestId("diagnostic-solver-report-note-COMBINATION_ROWS_WITHIN_STATED_BOUND").length).toBeGreaterThan(0);
@@ -211,7 +217,7 @@ describe("the surfaces round 1 found", () => {
   });
 
   it("the Design Knowledge panel copies the solver's warning with the note", () => {
-    const source = read<MechanicsResult>("fixtures/results/rt_a3_s6_c1_correction_unavailable.json");
+    const source = read<{ envelope: MechanicsResult }>("fixtures/results/rt_a3_s6_c1_correction_unavailable.json").envelope;
     expect(source.diagnostics.some((d) => d.severity === "warning" && d.message.includes("checks passed"))).toBe(true);
     render(<KnowledgePanel knowledge={null} result={source} />);
     expect(expectEveryClaimNoted(document.body, "design knowledge").some((t) => /checks passed/.test(t))).toBe(true);
