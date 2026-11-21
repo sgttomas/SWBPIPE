@@ -1250,11 +1250,14 @@ fn warnings_and_diagnostics(document: &Value, project_id: &str, store: &[Diagnos
     (warnings, diagnostics)
 }
 
-/// `<project id without "project:">.swbhandoff`, restricted as W-6a's file name.
-pub fn suggested_package_name(document: &Value) -> String {
-    let file = model_document_save::suggested_model_document_file_name(document);
-    let stem = file.strip_suffix(".json").unwrap_or(&file);
-    format!("{stem}.{}", publish::PACKAGE_EXTENSION)
+/// Fixed kind word for the suggested handoff package name (DEL-07-11 REQ-009).
+pub const SUGGESTED_PACKAGE_KIND: &str = "handoff-package";
+
+/// Suggested handoff package name (`handoff-package.swbhandoff`): the fixed kind
+/// word and package extension, carrying no project name, project identifier,
+/// model identifier, or path (DEL-07-11 REQ-009).
+pub fn suggested_package_name(_document: &Value) -> String {
+    format!("{SUGGESTED_PACKAGE_KIND}.{}", publish::PACKAGE_EXTENSION)
 }
 
 /// The admission and every store-derived manifest part (see the module docs),
@@ -2875,7 +2878,19 @@ mod tests {
             serde_json::to_value(HandoffSaveOutcome::refused_one(LABEL_INVALID, "m")).unwrap(),
             json!({"outcome": "refused", "diagnostics": [{"code": LABEL_INVALID, "path": "", "message": "m"}]})
         );
-        assert_eq!(suggested_package_name(&json!({"project": {"id": "project:invented-demo-loop-01"}})), "invented-demo-loop-01.swbhandoff");
+        for (id, name) in [
+            ("project:invented-demo-loop-01", "Invented Utility Loop Demo"),
+            ("project:wren-ferrule-9x2q", "Quokka Larch Bay 4417"),
+        ] {
+            let suggested = suggested_package_name(&json!({"project": {"id": id, "name": name}}));
+            assert_eq!(suggested, "handoff-package.swbhandoff");
+            let lower = suggested.to_lowercase();
+            assert!(!lower.contains(&name.to_lowercase()));
+            assert!(!lower.contains(&name.to_lowercase().replace(' ', "-")));
+            assert!(!lower.contains(&id.to_lowercase()));
+            assert!(!lower.contains(&id.strip_prefix("project:").unwrap_or(id).to_lowercase()));
+            assert!(!suggested.contains('/') && !suggested.contains('\\'));
+        }
         assert!(local_iso_now().len() >= "2026-10-24T00:00:00.000+00:00".len());
     }
 

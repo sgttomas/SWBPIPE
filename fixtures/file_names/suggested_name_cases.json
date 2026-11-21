@@ -148,6 +148,14 @@
       "extension": "csv",
       "qualifier": "",
       "expected_name": "stress-neutral-rows.csv"
+    },
+    {
+      "case_id": "native_handoff_package",
+      "note": "native handoff package: fixed kind word and package extension, no qualifier",
+      "kind": "handoff-package",
+      "extension": "swbhandoff",
+      "qualifier": null,
+      "expected_name": "handoff-package.swbhandoff"
     }
   ]
 }

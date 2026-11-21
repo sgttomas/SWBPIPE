@@ -185,3 +185,33 @@ describe("the names not yet observed", () => {
     expect(NOT_YET_OBSERVED.map((item) => item.starts).sort()).toEqual(FILE_NAME_EXCEPTIONS.map((item) => item.starts).sort());
   });
 });
+
+describe("the native handoff package name", () => {
+  it("uses the fixed kind word and package extension with no project identity or path", () => {
+    const tauriSrc = path.resolve(SRC, "..", "src-tauri", "src");
+    const handoffSource = readFileSync(path.join(tauriSrc, "handoff_package.rs"), "utf8");
+    const publishSource = readFileSync(path.join(tauriSrc, "handoff_package_publish.rs"), "utf8");
+
+    const kindMatch = /pub const SUGGESTED_PACKAGE_KIND:\s*&str\s*=\s*"([^"]+)";/.exec(handoffSource);
+    expect(kindMatch).not.toBeNull();
+    const kind = kindMatch![1];
+
+    const extensionMatch = /pub const PACKAGE_EXTENSION:\s*&str\s*=\s*"([^"]+)";/.exec(publishSource);
+    expect(extensionMatch).not.toBeNull();
+    const extension = extensionMatch![1];
+
+    const fnMatch = /pub fn suggested_package_name\([^)]*\)\s*->\s*String\s*\{([\s\S]*?)\n\}/.exec(handoffSource);
+    expect(fnMatch).not.toBeNull();
+    const fnBody = fnMatch![1];
+    expect(fnBody).not.toContain("suggested_model_document_file_name");
+    expect(fnBody).not.toContain("/project/id");
+    expect(fnBody).not.toContain("/project/name");
+    expect(fnBody).toContain('format!("{SUGGESTED_PACKAGE_KIND}.{}", publish::PACKAGE_EXTENSION)');
+
+    const name = `${kind}.${extension}`;
+    expect(name).toBe("handoff-package.swbhandoff");
+    expect(name).toMatch(new RegExp(`^${WORD}\\.${escape(extension)}$`));
+    for (const text of FORBIDDEN) expect(name.toLowerCase()).not.toContain(text);
+    expect(/[/\\]/.test(name)).toBe(false);
+  });
+});
