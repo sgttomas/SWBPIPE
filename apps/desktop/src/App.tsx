@@ -1202,6 +1202,7 @@ function AppSession() {
                 model={model}
                 result={result}
                 numericalHealth={numericalHealth}
+                diagnosticItems={itemsAt(issues, "diagnostics")}
                 running={running}
                 solveJob={solveJob}
                 solverMode={solverMode}

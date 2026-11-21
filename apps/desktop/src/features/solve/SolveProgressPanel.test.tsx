@@ -186,7 +186,9 @@ describe("solve progress panel", () => {
     const completed = completeSolveJob(running, result, run);
     view.rerender(panel(completed, false));
     expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Completed/);
-    expect(screen.getByTestId("solve-progress-completed")).toHaveTextContent("3 result rows; 1 diagnostic.");
+    expect(screen.getByTestId("solve-progress-completed")).toHaveTextContent("3 result rows.");
+    // The job's own count of findings is behind Details, not beside the Issues count.
+    expect(screen.getByTestId("solve-progress-completed-counts")).toHaveTextContent("The job reported 3 result rows and 1 diagnostic;");
     fireEvent.click(screen.getByRole("button", { name: "Dismiss" }));
     expect(screen.queryByTestId("solve-progress-panel")).toBeNull();
     // The next run opens it again.
@@ -288,12 +290,12 @@ describe("the status line's outcome and its one action", () => {
     const view = render(line(initialSolveJob(), false, { onOpenResults }));
     view.rerender(line(initialSolveJob(), true, { onOpenResults }));
     view.rerender(line(running, true, { onOpenResults }));
-    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent("Running Solving Invented Loop (4 load cases, 2 combinations).");
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent("Running Invented Loop (4 load cases, 2 combinations).");
     expect(screen.queryByTestId("solve-progress-open-results")).toBeNull();
     const result = { results: [{}, {}], diagnostics: [{}, {}] } as unknown as MechanicsResult;
     const run = { analysis_run: { run_id: "analysis-run:invented-solved", analysis_status: ["MECHANICS_SOLVED"] } } as unknown as AnalysisRunEnvelope;
     view.rerender(line(completeSolveJob(running, result, run), false, { onOpenResults }));
-    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent("Solved Invented Loop (4 load cases, 2 combinations): 2 result rows; 2 diagnostics.");
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent("Solved Invented Loop (4 load cases, 2 combinations): 2 result rows.");
     // Details stays closed until the person opens it.
     expect((screen.getByTestId("solve-progress-details") as HTMLDetailsElement).open).toBe(false);
     fireEvent.click(screen.getByRole("button", { name: /Open results/ }));

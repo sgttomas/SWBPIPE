@@ -185,13 +185,12 @@ export function SolveProgressPanel({
           <strong>{label}</strong>{" "}
           {state === null ? <span>Solving {subjectText(subject)}; the solve was requested and its job has not reported a state yet.</span> : null}
           {state === "queued" ? <span>{subjectText(subject)} waits for a solve worker.</span> : null}
-          {state === "running" ? <span>Solving {subjectText(subject)}.</span> : null}
+          {state === "running" ? <span>{subjectText(subject)}.</span> : null}
           {state === "cancelling" ? <span>Stop was requested; the line waits for the job&apos;s final state.</span> : null}
           {state === "cancelled" ? <span>The solve was stopped before it finished; no result was published.</span> : null}
           {completed ? (
             <span>
-              {subjectText(subject)}: <span data-testid="solve-progress-completed">{completed.result_row_count} result {completed.result_row_count === 1 ? "row" : "rows"}; {completed.diagnostic_count}{" "}
-              {completed.diagnostic_count === 1 ? "diagnostic" : "diagnostics"}.</span>
+              {subjectText(subject)}: <span data-testid="solve-progress-completed">{completed.result_row_count} result {completed.result_row_count === 1 ? "row" : "rows"}.</span>
             </span>
           ) : null}
           {queueReason && (state === "queued" || state === "cancelling") ? (
@@ -245,6 +244,12 @@ export function SolveProgressPanel({
           {job ? <p>Job: <code data-testid="solve-progress-job">{job.job_id}</code></p> : null}
           {latest ? <p>Stage: <span data-testid="solve-progress-stage">{latest.message}</span></p> : null}
           {state === null ? <p>Stage: <span data-testid="solve-progress-stage">The solve was requested; its job has not reported a state yet.</span></p> : null}
+          {completed ? (
+            <p data-testid="solve-progress-completed-counts">
+              The job reported {completed.result_row_count} result {completed.result_row_count === 1 ? "row" : "rows"} and {completed.diagnostic_count}{" "}
+              {completed.diagnostic_count === 1 ? "diagnostic" : "diagnostics"}; the Issues list gathers a diagnostic repeated on one object into one item.
+            </p>
+          ) : null}
           <p className="solve-progress-basis" data-testid="solve-progress-basis">
             {basis.percentages_synthesized || basis.backend_percent_stream_available
               ? `Progress basis: ${basis.progress_basis}.`

@@ -15,6 +15,7 @@ import { useId } from "react";
 import type { EntityRef } from "../../types";
 import type { SolveGateReading } from "../workspace/solveGates";
 import { SolveWithheldNotice } from "./SolveWithheldNotice";
+import { countItemsBySeverity, type IssueItem } from "../diagnostics/issueItems";
 
 export function SolvePanel({
   analysisRun,
@@ -25,6 +26,7 @@ export function SolvePanel({
   solveJob,
   solverMode,
   numericalHealth = null,
+  diagnosticItems = null,
   solveGate = null,
   onCancel,
   onRun,
@@ -39,6 +41,9 @@ export function SolvePanel({
   result: SessionResult | null;
   /** DEL-07-05 numerical health: the diagnostics tile's header badge, for the held result. */
   numericalHealth?: NumericalHealthView | null;
+  /** The items the Issues drawer lists under Diagnostics. Given, the diagnostics row counts
+   * these, so the page and the drawer state one number; absent, it counts each report. */
+  diagnosticItems?: readonly IssueItem[] | null;
   running: boolean;
   solveJob: SolveJobAuditState;
   solverMode: PreviewSolverMode;
@@ -57,7 +62,7 @@ export function SolvePanel({
   const withheld = solveGate?.kind === "withheld" ? solveGate : null;
   // An absent model `diagnostics` array means no model diagnostics; the key is never added.
   const diagnostics = [...(model.diagnostics ?? []), ...(result?.diagnostics ?? [])];
-  const readinessItems = readinessSummary({ model, result, diagnostics, solveJob });
+  const readinessItems = readinessSummary({ model, result, diagnostics, diagnosticItems, solveJob });
   const packet = buildSolveJobPacket({ model, result, analysisRun, solveJob, running, solverMode });
   const refusalPoint = solveRefusalPoint(solveJob);
   const resultTooLarge = isResultTooLargeSolveJob(solveJob);
@@ -196,18 +201,24 @@ function readinessSummary({
   model,
   result,
   diagnostics,
+  diagnosticItems = null,
   solveJob
 }: {
   model: PreviewModel;
   result: SessionResult | null;
   diagnostics: Diagnostic[];
+  diagnosticItems?: readonly IssueItem[] | null;
   solveJob: SolveJobAuditState;
 }): ReadinessItem[] {
   const mechanicsStatus = result?.status.mechanics ?? model.analysis_status.mechanics;
   const ruleStatus = result?.status.rule_check ?? model.analysis_status.rule_check;
   const professionalStatus = result?.status.professional_acceptance ?? model.analysis_status.professional_acceptance;
-  const warningCount = diagnostics.filter((item) => item.severity === "warning").length;
-  const blockingCount = diagnostics.filter((item) => item.severity === "blocking" || item.severity === "error").length;
+  const itemCounts = diagnosticItems ? countItemsBySeverity(diagnosticItems) : null;
+  const diagnosticCount = diagnosticItems ? diagnosticItems.length : diagnostics.length;
+  const warningCount = itemCounts ? itemCounts.warning : diagnostics.filter((item) => item.severity === "warning").length;
+  const blockingCount = itemCounts
+    ? itemCounts.blocking + itemCounts.error
+    : diagnostics.filter((item) => item.severity === "blocking" || item.severity === "error").length;
 
   return [
     {
@@ -231,10 +242,10 @@ function readinessSummary({
     },
     {
       id: "diagnostics",
-      // What it counts: the model's own diagnostics and the result's, each once. The
-      // Issues drawer lists the same diagnostics, a code repeated on one object as one item.
+      // What it counts: the items the Issues drawer lists under Diagnostics (a code repeated
+      // on one object is one item), so this row and the drawer state the same number.
       label: "Model and solve diagnostics",
-      value: `${diagnostics.length} ${plural("diagnostic", diagnostics.length)}; ${warningCount} ${plural(
+      value: `${diagnosticCount} ${plural("diagnostic", diagnosticCount)}; ${warningCount} ${plural(
         "warning",
         warningCount
       )}; ${blockingCount} blocking/error`,
