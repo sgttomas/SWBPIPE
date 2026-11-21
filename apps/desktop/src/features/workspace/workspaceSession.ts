@@ -288,7 +288,17 @@ import { EXPENSIVE_LIFECYCLE_SECTIONS } from "./workspaceSections";
 import { createSessionEventChannel } from "./sessionEvents";
 import type { WorkspaceSectionId } from "./workspaceSections";
 import { useReportSourceSequence, useSequencedState } from "./reportSourceSequence";
-import { useReportOutputOutcomes } from "../report/reportOutputOutcomes";
+import {
+  packageFailureSettlement,
+  packageNotSentSettlement,
+  packageReceiptSettlement,
+  packageRetiredSettlement,
+  reportOutputBasisOf,
+  useReportOutputOutcomes,
+  type ReportOutputBasis,
+  type ReportPackageKind,
+  type ReportPackageSettlement
+} from "../report/reportOutputOutcomes";
 
 /** W-13 §3.5 / W-17 §2.7: the model's library references checked against the
  * local store at open and load. Warnings only; the recorded versions stand. */
@@ -4182,11 +4192,43 @@ export function useWorkspaceSession() {
     return null;
   }
 
+  /** DEL-08-01 REQ-022 (issue 508): one package save's entry in the session's outcome list, on
+   * the basis taken when the save began. It is begun when the request is sent (`sending` wraps
+   * the guard that runs immediately before each send) and settled from the native reply or
+   * rejection whatever has happened to the workspace since; a save that ends before anything was
+   * sent is recorded as not sent (`notSent`, `failed`; `end` records a basis that retired). */
+  function reportPackageOutput(kind: ReportPackageKind, basis: ReportOutputBasis) {
+    const owner = reportOutputs.owner;
+    let entry: number | null = null;
+    let settled = false;
+    const settle = (settlement: ReportPackageSettlement) => {
+      if (settled) return;
+      settled = true;
+      if (entry === null) owner.record(kind, basis, settlement);
+      else owner.settle(entry, settlement);
+    };
+    return {
+      sending(current: boolean): boolean {
+        if (current && entry === null) entry = owner.begin(kind, basis);
+        return current;
+      },
+      settle,
+      notSent: (reason: unknown) => settle(packageNotSentSettlement(reason)),
+      failed(error: unknown) {
+        if (error instanceof IngressRequestRetiredError) settle(packageRetiredSettlement(entry !== null));
+        else settle(entry === null ? packageNotSentSettlement(error) : packageFailureSettlement(error));
+      },
+      end: () => settle(packageRetiredSettlement(entry !== null))
+    };
+  }
+
   async function handleSaveReportPackage() {
     const refusal = reportPackageRequestRefusal();
     if (refusal !== null) { setReportPackageRoute({ route: "not_requested", diagnostic: refusal }); return; }
     if (!model || !currentSolvedResult || !analysisRun || !inputManifest || running || reportPackageBusy) return;
     const generation = ++reportPackageRequestGenerationRef.current;
+    const output = reportPackageOutput("report_package",
+      reportOutputBasisOf(reportSource.owner.sequence, model.project, analysisRun.analysis_run.run_id));
     const basis = {
       projectSessionGeneration: projectSessionGenerationRef.current,
       modelRevision: uiModelRevisionRef.current,
@@ -4238,12 +4280,13 @@ export function useWorkspaceSession() {
       // The session's package state keeps the control result (`controlAndPrepareReportPackageSave`).
       const screened = await controlAndPrepareReportPackageSave(request, basis.privateIntent, basis.model, basis.inputManifest.manifest, {
         keep: setReportPackageRedaction,
-        blocked: (diagnostic) => setReportPackageRoute({ route: "redaction_blocked", diagnostic })
+        blocked: (diagnostic) => { output.notSent(diagnostic); setReportPackageRoute({ route: "redaction_blocked", diagnostic }); }
       });
       if (screened === null) return;
       const { prepared, exactSubmission } = screened;
       if (!isCurrent()) return;
       if (prepared.route !== "ready") {
+        output.notSent(prepared.diagnostic);
         setReportPackageRoute(prepared);
         return;
       }
@@ -4252,10 +4295,13 @@ export function useWorkspaceSession() {
         try { reportPackageExactSubmission(request); return true; } catch { return false; }
       };
       // The last guard runs inside the invocation, immediately before each send.
-      const saved = await invokeReportPackageSave(prepared, () => isCurrent() && exactStillCurrent());
+      const saved = await invokeReportPackageSave(prepared, () => output.sending(isCurrent() && exactStillCurrent()));
+      // The outcome is kept whatever has happened to the workspace since the save began.
+      if (saved.route === "tauri_report_package_save") output.settle(packageReceiptSettlement(saved.receipt));
       if (!isCurrent()) return;
       setReportPackageRoute(saved);
     } catch (error) {
+      output.failed(error);
       // A basis retired before a send: nothing was sent, and the newer basis owns the state.
       if (error instanceof IngressRequestRetiredError || !isCurrent()) return;
       setReportPackageRedaction(null);
@@ -4264,6 +4310,7 @@ export function useWorkspaceSession() {
         diagnostic: localPrivateSaveFailureText(error)
       });
     } finally {
+      output.end();
       if (isCurrent()) {
         reportPackageBusyGenerationRef.current = null;
         setReportPackageBusy(false);
@@ -4346,7 +4393,14 @@ export function useWorkspaceSession() {
   /** The one save the dialog's confirmation starts, on route `DREP-PACKAGE-USER-RELEASE-010`.
    * Its status and evidence use the package's status line; nothing outlives the save. */
   async function handleSaveShareableReportPackage(confirmation: UserReleaseConfirmation, basis: UserReleaseBasis) {
-    if (running || reportPackageBusyGenerationRef.current !== null || !userReleaseBasisCurrent(basis)) return;
+    const output = reportPackageOutput("shareable_report_package",
+      reportOutputBasisOf(reportSource.owner.sequence, basis.model.project, basis.analysisRun.analysis_run.run_id));
+    if (running || reportPackageBusyGenerationRef.current !== null || !userReleaseBasisCurrent(basis)) {
+      // The person confirmed this save: one that does not start says so.
+      if (!userReleaseBasisCurrent(basis)) output.end();
+      else output.notSent(running ? "a solve was running" : "a report package was already being saved");
+      return;
+    }
     const generation = ++reportPackageRequestGenerationRef.current;
     const isCurrent = () =>
       reportPackageRequestGenerationRef.current === generation &&
@@ -4375,6 +4429,7 @@ export function useWorkspaceSession() {
       // local to the preparation and the send; nothing of it is kept in session state.
       setReportPackageRedaction(null);
       if (prepared.route !== "ready") {
+        output.notSent(prepared.diagnostic);
         setReportPackageRoute({ route: "redaction_blocked", diagnostic: `${SHAREABLE_SAVE_NOT_WRITTEN} ${prepared.diagnostic}` });
         return;
       }
@@ -4385,17 +4440,21 @@ export function useWorkspaceSession() {
       // The guard runs after the arguments are encoded and immediately before each send
       // (`invokeWithIngress`), so `sent` marks the bytes leaving, not the call.
       const saved = await invokeUserReleasedReportPackageSave(prepared, () => {
-        const current = isCurrent() && exactStillCurrent();
+        const current = output.sending(isCurrent() && exactStillCurrent());
         if (current) sent = true;
         return current;
       });
+      // The outcome is kept whatever has happened to the workspace since the save began.
+      if (saved.route === "tauri_report_package_save") output.settle(packageReceiptSettlement(saved.receipt));
       if (!isCurrent()) return;
       setReportPackageRoute(saved);
     } catch (error) {
+      output.failed(error);
       if (error instanceof IngressRequestRetiredError || !isCurrent()) return;
       setReportPackageRedaction(null);
       setReportPackageRoute({ route: "redaction_blocked", diagnostic: `${shareableSaveFailureStatement(error, sent)} ${formatPackageSaveError(error)}` });
     } finally {
+      output.end();
       // Released whenever this save still holds the busy mark, even when its basis moved on (a
       // rule-check record landing mid-save retires it without invalidating the package state).
       if (reportPackageBusyGenerationRef.current === generation) {
@@ -4404,6 +4463,16 @@ export function useWorkspaceSession() {
       }
     }
   }
+  // Issue 508: a "not requested" status says why a request could not proceed in the workspace
+  // as it then stood (a solve running, a run record being revised, no current result). It is
+  // shown while the report source it was refused under is unchanged, so it never stands beside
+  // the result that then arrives. The panel's other package statuses are unchanged.
+  const [notRequestedUnder, setNotRequestedUnder] = useState<{ route: NonNullable<typeof reportPackageRoute>; sequence: number } | null>(null);
+  if (reportPackageRoute?.route === "not_requested" && notRequestedUnder?.route !== reportPackageRoute) {
+    setNotRequestedUnder({ route: reportPackageRoute, sequence: reportSource.sequence });
+  }
+  const shownReportPackageRoute = reportPackageRoute?.route === "not_requested" && notRequestedUnder?.route === reportPackageRoute
+    && notRequestedUnder.sequence !== reportSource.sequence ? null : reportPackageRoute;
 
   // B11 on-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`):
   // the session's last run, shown in the Issues drawer. The checks read the
@@ -5251,7 +5320,7 @@ export function useWorkspaceSession() {
       reportPackagePrivateIntent, setReportPackagePrivateIntent,
       reportPackageBusy,
       reportPackageRedaction,
-      reportPackageRoute,
+      reportPackageRoute: shownReportPackageRoute,
       handleRun,
       /** A Solve request with the gate's outcome and the solve's receipt (`SolveRequestOutcome`). */
       handleSolveRequest,

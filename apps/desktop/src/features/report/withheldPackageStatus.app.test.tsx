@@ -2,8 +2,9 @@
  * fitting result and a run record above the webview's limit, the rendered report's gate refuses
  * and its panel (which holds the package-save status) is not shown; a save started from the File
  * menu (the shareable save through its release dialog, or the local-private save) is refused for
- * the record, and its refusal is shown once, in the gate's place in the Report section. With the
- * panel shown, the status is the panel's alone. The whole App renders; the solve is the native job
+ * the record, and its refusal is shown once in the gate's place in the Report section, and kept as
+ * the session's outcome in the report output strip (issue 508). With the panel shown, the
+ * receipt is the panel's, and the strip keeps the outcome in its own words. The whole App renders; the solve is the native job
  * transport replay of committed producer bytes (unit transport replay; NOT a native UI
  * qualification witness). All data are invented. */
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
@@ -79,12 +80,18 @@ async function settle() {
   await act(async () => { await new Promise((resolve) => setTimeout(resolve, 50)); });
 }
 
-/** The save's refusal on screen: once in the page, in the Report section, announced by exactly one status. */
-async function expectWithheldRefusal(report: HTMLElement) {
+/** The save's refusal on screen: once in the Report section, announced by its status there, and
+ * once more as the session's kept outcome in the report output strip (DEL-08-01 REQ-022, issue
+ * 508), announced by that entry's status. `strip` is the strip's line for it. */
+async function expectWithheldRefusal(report: HTMLElement, strip: string) {
   const shown = await within(report).findByText((text) => text.includes(RECORD_REFUSAL));
-  expect(screen.getAllByText((text) => text.includes(RECORD_REFUSAL))).toHaveLength(1);
+  expect(within(report).getAllByText((text) => text.includes(RECORD_REFUSAL))).toEqual([shown]);
   expect(shown).toHaveAttribute("data-testid", "report-package-save-status");
-  expect(screen.getAllByRole("status").filter((status) => status.textContent?.includes(RECORD_REFUSAL))).toEqual([shown]);
+  const outcomes = screen.getByRole("region", { name: "Report output outcomes" });
+  const kept = within(outcomes).getByRole("status");
+  expect(kept.querySelector("p")?.textContent).toBe(strip);
+  expect(screen.getAllByText((text) => text.includes(RECORD_REFUSAL))).toHaveLength(2);
+  expect(screen.getAllByRole("status").filter((status) => status.textContent?.includes(RECORD_REFUSAL))).toEqual([kept, shown]);
   expect(within(report).getByTestId("c2-result-withheld")).toContainElement(shown);
   // It stands below the rendered report's own refusal, in the panel's place.
   expect(within(report).getAllByTestId("c2-result-refused").length).toBeGreaterThan(0);
@@ -101,7 +108,8 @@ describe("a report-package save started while the rendered report is withheld fo
     await screen.findByTestId("user-release-dialog");
     fireEvent.click(screen.getByTestId("user-release-statement"));
     fireEvent.click(screen.getByTestId("user-release-confirm"));
-    const shown = await expectWithheldRefusal(report);
+    const shown = await expectWithheldRefusal(report,
+      `Shareable report package not saved: ${RECORD_REFUSAL}: the run record is above the size the webview can hold whole. Nothing was sent.`);
     expect(shown.textContent).toBe(`Not saved: no shareable report package was written and no user release was made. ${RECORD_REFUSAL}: the run record is above the size the webview can hold whole.`);
     expect(copies()).toBe(0);
     expect(sent("save_report_package")).toBe(false);
@@ -111,7 +119,8 @@ describe("a report-package save started while the rendered report is withheld fo
     const { report, copies, sent } = await solvedApp({ recordAboveLimit: true });
     expect(await within(report).findAllByTestId("c2-result-refused")).not.toHaveLength(0);
     nativeMenuCommand("file.save-report-package");
-    const shown = await expectWithheldRefusal(report);
+    const shown = await expectWithheldRefusal(report,
+      `Report package not saved: ${RECORD_REFUSAL}: the run record is above the size the webview can hold whole. Nothing was sent.`);
     expect(shown.textContent).toBe(`${RECORD_REFUSAL}: the run record is above the size the webview can hold whole.`);
     expect(copies()).toBe(0);
     expect(sent("save_report_package")).toBe(false);
@@ -139,5 +148,8 @@ describe("with the rendered report shown", () => {
       "user_release_recorded=true"
     ]);
     expect(status).not.toHaveAttribute("role");
+    // The session keeps the outcome apart from the panel, in the strip's own words (issue 508).
+    const kept = within(screen.getByRole("region", { name: "Report output outcomes" })).getByRole("status");
+    expect(kept.querySelector("p")?.textContent).toBe("Shareable report package saved: invented-shared.opsproj");
   }, 90_000);
 });
