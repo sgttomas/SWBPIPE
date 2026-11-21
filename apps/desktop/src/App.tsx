@@ -49,7 +49,7 @@ import {
   viewForStage,
   viewSwitchItems
 } from "./features/workspace/shellLayout";
-import type { ShellStage, ShellView, TableDrawerState } from "./features/workspace/shellLayout";
+import type { ShellStage, ShellView } from "./features/workspace/shellLayout";
 import { DormantSection } from "./features/workspace/dormantSection";
 import { BOTH_SPLIT_PCT_BOUNDS, TABLE_DRAWER_PX_BOUNDS } from "./features/workspace/uiPreferences";
 import type { UiDensityPreference, UiThemePreference } from "./features/workspace/uiPreferences";
@@ -88,6 +88,7 @@ import {
   type WorkspaceSectionId
 } from "./features/workspace/workspaceSections";
 import {
+  VIEW_MENU_SECTIONS,
   type MenuCommandId,
   type MenuId,
   type MenuItemSpec
@@ -464,7 +465,6 @@ function AppSession() {
           stage={shell.stage}
           stageViewMemory={stageViewMemory}
           pageOpen={shell.page !== null}
-          tableDrawer={tableDrawer}
           run={runPresenceFromCells({ result, historicalRun, solveJob, hasQualifiedCurrentResult: currentSolvedResult !== null, numericalHealthHold })}
           theme={uiPreferences.theme}
           density={uiPreferences.density}
@@ -474,7 +474,7 @@ function AppSession() {
         />
       ) : null}
 
-      <ShellToolbar issueCount={issueCount}>
+      <ShellToolbar>
           <ToolkitPalette
             context={{ selection, selectionCardinality: orderedSelection.orderedKeys.length, canUndo: undoStack.length > 0, canRedo: redoStack.length > 0, busy: operationRequest.current.busy || operationBusy, windConfigured: Boolean(selection.type === "load" && model.load_cases.find((load) => load.id === selection.id)?.equivalent_static?.wind) }}
             onChoose={handleToolkitCommand}
@@ -1472,7 +1472,6 @@ function MenuBar({
   stage,
   stageViewMemory,
   pageOpen,
-  tableDrawer,
   run,
   theme,
   density,
@@ -1483,7 +1482,6 @@ function MenuBar({
   stage: ShellStage;
   stageViewMemory: Parameters<typeof viewSwitchItems>[1];
   pageOpen: boolean;
-  tableDrawer: TableDrawerState;
   run: Parameters<typeof railStageStates>[0];
   theme: UiThemePreference;
   density: UiDensityPreference;
@@ -1565,17 +1563,10 @@ function MenuBar({
           reason: state.reason
         })),
         { kind: "separator" },
-        {
-          kind: "command",
-          id: "view.tree",
-          label: "Table Drawer",
-          active: tableDrawer.expanded,
-          disabled: !tableDrawer.collapsible,
-          reason: tableDrawer.reason
-        },
         { kind: "command", id: "view.inspector", label: "Inspector", active: inspector.latched, disabled: !inspector.enabled, reason: inspector.reason },
         { kind: "separator" },
-        ...WORKSPACE_SECTIONS.map(
+        // The sections the rail and the stage tabs do not reach in every state (VIEW_MENU_SECTIONS).
+        ...WORKSPACE_SECTIONS.filter((section) => VIEW_MENU_SECTIONS.has(section.id)).map(
           (section): MenuItemSpec => ({
             kind: "command",
             id: `view.section.${section.id}`,
