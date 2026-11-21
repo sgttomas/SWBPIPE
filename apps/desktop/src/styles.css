@@ -2554,6 +2554,16 @@ fieldset.viewport-intent-controls {
   background: var(--ui-raised);
 }
 
+.readiness-tile {
+  display: grid;
+  justify-items: start;
+  gap: 4px;
+}
+
+.readiness-tile > .readiness-row {
+  justify-self: stretch;
+}
+
 .readiness-row span {
   color: inherit;
   font-size: 11px;
@@ -4669,6 +4679,26 @@ body { min-width: 760px; min-height: 540px; }
 .model-checks-list ul { display: grid; gap: var(--space-2); margin: var(--space-2) 0 0; padding: 0; list-style: none; }
 .model-checks-list button.diagnostic { width: 100%; text-align: start; }
 .model-checks-list button[aria-disabled="true"] { cursor: default; }
+
+/* The Issues drawer's items (issueItems.ts): one item per finding code on one object.
+   The count beside each list's heading and the breakdown under the drawer's heading
+   add up to the number on the Issues controls. */
+.issues-section-count {
+  display: inline-block; min-width: 18px; margin-inline-start: var(--space-3); padding: 0 6px; border-radius: 9px;
+  color: var(--ui-text); background: var(--ui-raised, rgb(127 127 127 / 18%)); font-size: var(--type-size-caption); font-weight: 700; text-align: center;
+}
+.issues-breakdown { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); margin: 0; padding: 0; list-style: none; font-size: var(--type-size-chip); color: var(--ui-muted); }
+.issues-breakdown strong { color: var(--ui-text); }
+.issue-group { display: grid; gap: var(--space-1); }
+.issue-group > .diagnostic small,
+.issue-group > .issue-row small { display: block; margin-top: var(--space-2); font-size: var(--type-size-caption); }
+.issue-group-also { color: var(--ui-text); font-weight: 600; }
+.issue-group-members { margin-inline-start: var(--space-5); font-size: var(--type-size-chip); }
+.issue-group-members > summary { cursor: pointer; padding: var(--space-1) 0; color: var(--ui-muted); }
+.issue-group-members ol { display: grid; gap: var(--space-2); margin: var(--space-2) 0 0; padding: 0; list-style: none; }
+.issue-member { font-size: var(--type-size-chip); }
+.issue-member strong { display: inline; }
+.issue-member[aria-disabled="true"] { cursor: default; }
 .app-menu-item .app-menu-shortcut { margin-inline-start: auto; padding-inline-start: var(--space-4); color: var(--ui-muted); font: inherit; }
 
 /* B9: the entity and cell context menu (ContextMenu.tsx). It is portalled to the shell, so it

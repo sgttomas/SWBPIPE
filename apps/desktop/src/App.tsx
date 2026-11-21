@@ -79,7 +79,9 @@ import { KnowledgePanel } from "./features/knowledge/KnowledgePanel";
 import { LibraryManagerPanel } from "./features/library/LibraryManagerPanel";
 import { LoadCaseManagerPanel } from "./features/load-cases/LoadCaseManagerPanel";
 import { LocalFeaHandoffPanel } from "./features/local-fea-handoff/LocalFeaHandoffPanel";
-import { MissingDataBlockingPanel, countMissingDataBlockers } from "./features/missing-data/MissingDataBlockingPanel";
+import { MissingDataBlockingPanel } from "./features/missing-data/MissingDataBlockingPanel";
+import { itemsAt, useIssueSummary, type IssueSummary } from "./features/diagnostics/issueItems";
+import { IssueItemView } from "./features/diagnostics/IssueItemView";
 import { professionalStatusToken, ruleCheckStatusToken, statusDisplay } from "./features/workspace/statusLabels";
 import { entityRefFromKey, setSelectionFocus } from "./features/workspace/selectionState";
 import { solveProofStatus, type SolveProofEvidence } from "./features/workspace/solveProof";
@@ -387,6 +389,8 @@ function AppSession() {
     openRuleChecks: () => runMenuCommand("analyze.rule-checks")
   });
   const keyResultsRuleCheckRun = currentSolvedResult !== null && result === currentSolvedResult ? ruleCheckReportRun : null;
+  // One count for every Issues control: the number of items the Issues drawer lists.
+  const issues = useIssueSummary({ model, knowledge, result, operationOutcomes, modelCheckRun });
 
   // In the packaged Tauri shell the OS-level menu bar is the single menu, so the
   // in-DOM menu bar is suppressed to avoid a redundant second row. In the
@@ -424,7 +428,7 @@ function AppSession() {
   const shell = shellLocation(activeSection, stageSurface);
   const stageView = viewForStage(stageViewMemory, shell.stage);
   const tableDrawer = tableDrawerState(stageView, narrowWindow, treeCollapsed);
-  const issueCount = issueCountFor(model, knowledge, result, operationOutcomes);
+  const issueCount = issues.total;
   const pendingOperationCount = editorIntents.length + queuedBatches.reduce((count, entry) => count + (Array.isArray(entry.batch?.operations) ? entry.batch.operations.length : 1), 0);
   // The solve proof left the status bar (specification §5.5: no hashes, no proofs there).
   // It is read on the Results stage's Evidence tab, in the same words as before.
@@ -1383,6 +1387,7 @@ function AppSession() {
 
       {issuesDrawerOpen ? (
         <IssuesHome
+          issues={issues}
           model={model}
           knowledge={knowledge}
           result={result}
@@ -1843,10 +1848,10 @@ function AuditBoundaryDrawer({
 }
 
 function IssuesHome({
+  issues,
   model,
   knowledge,
   result,
-  operationOutcomes,
   selectedDiagnosticId,
   diagnosticFilterRequest = null,
   onClose,
@@ -1856,10 +1861,12 @@ function IssuesHome({
   onRunModelChecks = () => {},
   onSelectEntity = () => {}
 }: {
+  /** The items this drawer lists; their number is the Issues controls' count. */
+  issues: IssueSummary;
   model: PreviewModel;
   knowledge: DesignKnowledge | null;
   result: SessionResult | null;
-  operationOutcomes: Record<string, OperationOutcome>;
+  operationOutcomes?: Record<string, OperationOutcome>;
   selectedDiagnosticId: string | null;
   diagnosticFilterRequest?: DiagnosticFilterRequest | null;
   onClose: () => void;
@@ -1870,27 +1877,49 @@ function IssuesHome({
   onRunModelChecks?: () => void;
   onSelectEntity?: (entity: EntityRef) => void;
 }) {
-  const operationDiagnostics = Object.values(operationOutcomes).flatMap((outcome) => outcome.diagnostics);
+  const checkItems = itemsAt(issues, "model-checks");
+  const operationItems = itemsAt(issues, "operation");
+  const diagnosticItems = itemsAt(issues, "diagnostics");
+  const parts: Array<[string, number, string]> = [
+    ["Model checks", checkItems.length, "model-checks"],
+    ...(operationItems.length > 0 ? [["Operation diagnostics", operationItems.length, "operations"] as [string, number, string]] : []),
+    ["Diagnostics", diagnosticItems.length, "diagnostics"],
+    ["Missing data blocking", issues.missingInputs, "missing-data"]
+  ];
   return (
     <aside className="workspace-drawer issues-drawer" aria-label="Issues home" data-testid="issues-home">
       <div className="drawer-header">
         <div>
           <span>Issues</span>
-          <h2>Diagnostics and required inputs</h2>
+          <h2 data-testid="issues-total">{issues.total} {issues.total === 1 ? "item" : "items"} to look at</h2>
         </div>
         <button type="button" onClick={onClose}>
           Close
         </button>
       </div>
-      <ModelChecksPanel model={model} run={modelCheckRun} busy={modelCheckBusy} onRun={onRunModelChecks} onSelectEntity={onSelectEntity} />
-      {operationDiagnostics.length > 0 ? (
+      <ul className="issues-breakdown" aria-label="Items by list" data-testid="issues-breakdown">
+        {parts.map(([label, count, id]) => (
+          <li key={id} data-testid={`issues-breakdown-${id}`}>{label} <strong>{count}</strong></li>
+        ))}
+      </ul>
+      <ModelChecksPanel model={model} run={modelCheckRun} busy={modelCheckBusy} onRun={onRunModelChecks} onSelectEntity={onSelectEntity} items={checkItems} />
+      {operationItems.length > 0 ? (
         <section className="panel issues-operation-list" aria-label="Operation diagnostics">
-          <div className="panel-title">Operation diagnostics</div>
-          {operationDiagnostics.map((diagnostic) => (
-            <article className={`issue-row ${diagnostic.severity}`} key={diagnostic.id}>
-              <strong>{diagnostic.code}</strong>
-              <p>{diagnostic.message}</p>
-            </article>
+          <div className="panel-title">
+            Operation diagnostics
+            <span className="issues-section-count" aria-label={`${operationItems.length} ${operationItems.length === 1 ? "item" : "items"}`}>{operationItems.length}</span>
+          </div>
+          {operationItems.map((item) => (
+            <IssueItemView
+              key={item.key}
+              item={item}
+              main={(body) => (
+                <article className={`issue-row ${item.severity}`}>
+                  <strong>{item.code}</strong>
+                  {body}
+                </article>
+              )}
+            />
           ))}
         </section>
       ) : null}
@@ -1898,6 +1927,7 @@ function IssuesHome({
         model={model}
         knowledge={knowledge}
         result={result}
+        items={diagnosticItems}
         selectedDiagnosticId={selectedDiagnosticId}
         filterRequest={diagnosticFilterRequest}
         onSelectDiagnostic={onSelectDiagnostic}
@@ -1918,25 +1948,6 @@ function StatusPill({ label, value, testId, summaryText }: {
       <summary><strong>{label}</strong> {summaryText ?? statusDisplay(value)}</summary>
       <div><strong>Recorded status</strong><code>{value}</code></div>
     </details>
-  );
-}
-
-function issueCountFor(
-  model: PreviewModel,
-  knowledge: DesignKnowledge | null,
-  result: SessionResult | null,
-  operationOutcomes: Record<string, OperationOutcome>
-): number {
-  const operationDiagnosticCount = Object.values(operationOutcomes).reduce(
-    (count, outcome) => count + outcome.diagnostics.length,
-    0
-  );
-  return (
-    model.diagnostics.length +
-    (knowledge?.diagnostics.length ?? 0) +
-    (result?.diagnostics.length ?? 0) +
-    operationDiagnosticCount +
-    countMissingDataBlockers({ model, result })
   );
 }
 

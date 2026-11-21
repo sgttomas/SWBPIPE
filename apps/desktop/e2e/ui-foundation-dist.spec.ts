@@ -793,7 +793,7 @@ for (const theme of APPEARANCE_THEMES) {
 
         await activateWithKeyboard(page, page.getByTestId("issues-drawer-toggle"));
         const issues = page.getByTestId("issues-home");
-        const issuesHeading = issues.getByRole("heading", { name: "Diagnostics and required inputs" });
+        const issuesHeading = issues.getByRole("heading", { name: /^\d+ items? to look at$/ });
         const issuesClose = issues.getByRole("button", { name: "Close", exact: true });
         await expect(issues).toBeVisible();
         await expect(issuesHeading).toBeVisible();

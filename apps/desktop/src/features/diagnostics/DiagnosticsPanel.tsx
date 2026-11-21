@@ -7,11 +7,11 @@ import { ResultQuantity } from "../toolkit/ResultQuantity";
 import { AlertTriangle, Search, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { DiagnosticFilterRequest } from "./diagnosticFilterRequest";
-import type { DesignKnowledge, Diagnostic, DiagnosticInterpretation, MechanicsResult, PreviewModel } from "../../types";
+import type { DesignKnowledge, DiagnosticInterpretation, MechanicsResult, PreviewModel } from "../../types";
 import { buildDiagnosticInterpretation } from "../results/resultInterpretation";
-import { presentedResultDiagnostics } from "../results/suppliedDiagnostics";
-import { modelDocumentDiagnostics } from "../model-data/documentDiagnostics";
-import { currentLibraryRefFindings, libraryRefDiagnostics, usePublishedLibraryRefFindings } from "../library/libraryRefFindings";
+import { usePublishedLibraryRefFindings } from "../library/libraryRefFindings";
+import { countItemsBySeverity, diagnosticsListOf, groupIssues, type IssueItem } from "./issueItems";
+import { IssueItemView } from "./IssueItemView";
 
 export function DiagnosticsPanel({
   model,
@@ -19,7 +19,8 @@ export function DiagnosticsPanel({
   result,
   selectedDiagnosticId,
   filterRequest = null,
-  onSelectDiagnostic
+  onSelectDiagnostic,
+  items: givenItems
 }: {
   model: PreviewModel;
   knowledge: DesignKnowledge | null;
@@ -29,6 +30,9 @@ export function DiagnosticsPanel({
    * cleared request clears the filter it set). */
   filterRequest?: DiagnosticFilterRequest | null;
   onSelectDiagnostic: (diagnosticId: string) => void;
+  /** The Issues drawer's items this list shows (`issueItems.ts`); without them the
+   * diagnostics below are grouped here. */
+  items?: readonly IssueItem[];
 }) {
   const [filterText, setFilterText] = useState(filterRequest?.diagnosticId ?? "");
   // The requested id, matched exactly while the filter text is that id.
@@ -46,26 +50,24 @@ export function DiagnosticsPanel({
       setPinnedId(null);
     }
   }, [requestSequence, requestId]);
-  // the document validator's findings join the model's own list.
-  const documentDiagnostics = useMemo(() => modelDocumentDiagnostics(model), [model]);
-  // the store's library-reference warnings, keyed to the entity.
+  // The list: the model's own diagnostics, the document validator's findings, the
+  // store's library-reference warnings keyed to the entity, design knowledge's, and
+  // the result's. On a result with combinations, a message outside the reader-checked
+  // roster is listed as supplied, unverified text (`suppliedDiagnostics`), as the
+  // report quotes it. A code repeated on one object is one item (`issueItems.ts`).
   const publishedLibraryRefs = usePublishedLibraryRefFindings();
-  const libraryRefs = useMemo(() => libraryRefDiagnostics(currentLibraryRefFindings(model, publishedLibraryRefs)), [model, publishedLibraryRefs]);
-  // on a result with combinations, a message outside the reader-checked roster is
-  // listed as supplied, unverified text (`suppliedDiagnostics`), as the report quotes it.
-  const resultDiagnostics = useMemo(() => presentedResultDiagnostics(result), [result]);
-  const diagnostics: Diagnostic[] = [
-    ...model.diagnostics,
-    ...documentDiagnostics,
-    ...libraryRefs,
-    ...(knowledge?.diagnostics ?? []),
-    ...resultDiagnostics
-  ];
-  const filteredDiagnostics = useMemo(
+  const ownItems = useMemo(() => {
+    if (givenItems) return null;
+    const { diagnostics, shownDiagnostics } = diagnosticsListOf(model, knowledge, result, publishedLibraryRefs);
+    return groupIssues({ model, diagnostics, shownDiagnostics });
+  }, [givenItems, model, knowledge, result, publishedLibraryRefs]);
+  const items = givenItems ?? ownItems ?? [];
+  const diagnosticCount = items.reduce((count, item) => count + item.members.length, 0);
+  const filteredItems = useMemo(
     () => pinnedId !== null && filterText === pinnedId
-      ? diagnostics.filter((item) => (item.id ?? item.code) === pinnedId)
-      : filterDiagnostics(diagnostics, filterText),
-    [diagnostics, filterText, pinnedId]
+      ? items.filter((item) => item.members.some((member) => (member.diagnostic.id ?? member.diagnostic.code) === pinnedId))
+      : filterItems(items, filterText),
+    [items, filterText, pinnedId]
   );
   const nativeLinked = useNativeLinkedResults(model, knowledge, result, selectedDiagnosticId);
   const axial = useKnowledgeAxialRow(result);
@@ -75,29 +77,42 @@ export function DiagnosticsPanel({
       <div className="panel-title">
         <AlertTriangle size={16} />
         Diagnostics
+        {givenItems ? <span className="issues-section-count" data-testid="diagnostics-item-count" aria-label={`${items.length} ${items.length === 1 ? "item" : "items"}`}>{items.length}</span> : null}
       </div>
       <DiagnosticControls
         filterText={filterText}
-        filteredDiagnostics={filteredDiagnostics}
-        totalCount={diagnostics.length}
+        filteredItems={filteredItems}
+        totalCount={items.length}
+        diagnosticCount={diagnosticCount}
         onFilterChange={setFilterText}
       />
       {nativeLinked.error ? <p role="status" data-testid="diagnostic-linked-results-refused">{nativeLinked.error}</p> : null}
       <DiagnosticDetail interpretation={interpretation} result={result} />
       <div className="diagnostic-list">
-        {filteredDiagnostics.length > 0 ? (
-          filteredDiagnostics.map((item, index) => (
-            <button
-              className={`diagnostic ${item.severity} ${item.id === selectedDiagnosticId ? "active" : ""}`}
-              data-testid={`diagnostic-${item.code}`}
-              key={`${item.id ?? item.code}-${index}`}
-              onClick={() => onSelectDiagnostic(item.id ?? item.code)}
-              type="button"
-            >
-              <strong>{item.code}</strong>
-              <p>{item.message}</p>
-            </button>
-          ))
+        {filteredItems.length > 0 ? (
+          filteredItems.map((item) => {
+            const first = item.members[0].diagnostic;
+            const active = item.members.some((member) => member.diagnostic.id !== undefined && member.diagnostic.id === selectedDiagnosticId);
+            return (
+              <IssueItemView
+                key={item.key}
+                item={item}
+                selectedDiagnosticId={selectedDiagnosticId}
+                onSelectDiagnostic={onSelectDiagnostic}
+                main={(body) => (
+                  <button
+                    className={`diagnostic ${item.severity} ${active ? "active" : ""}`}
+                    data-testid={`diagnostic-${item.code}`}
+                    onClick={() => onSelectDiagnostic(first.id ?? first.code)}
+                    type="button"
+                  >
+                    <strong>{item.code}</strong>
+                    {body}
+                  </button>
+                )}
+              />
+            );
+          })
         ) : (
           <p className="muted" data-testid="diagnostic-filter-empty">
             No diagnostics match this filter.
@@ -110,16 +125,18 @@ export function DiagnosticsPanel({
 
 function DiagnosticControls({
   filterText,
-  filteredDiagnostics,
+  filteredItems,
   totalCount,
+  diagnosticCount,
   onFilterChange
 }: {
   filterText: string;
-  filteredDiagnostics: Diagnostic[];
+  filteredItems: readonly IssueItem[];
   totalCount: number;
+  diagnosticCount: number;
   onFilterChange: (value: string) => void;
 }) {
-  const severityCounts = countBySeverity(filteredDiagnostics);
+  const severityCounts = countItemsBySeverity(filteredItems);
   return (
     <section className="diagnostic-controls" aria-label="Diagnostic filtering" data-testid="diagnostic-controls">
       <label>
@@ -135,7 +152,8 @@ function DiagnosticControls({
         />
       </label>
       <span data-testid="diagnostic-filter-summary">
-        {filteredDiagnostics.length} of {totalCount} diagnostics visible
+        {filteredItems.length} of {totalCount} {totalCount === 1 ? "item" : "items"} shown
+        {diagnosticCount !== totalCount ? ` (${diagnosticCount} diagnostics)` : ""}
       </span>
       <button
         aria-label="Clear diagnostic filter"
@@ -269,35 +287,25 @@ function DetailLine({ label, value, testId }: { label: string; value: ReactNode;
   );
 }
 
-function countBySeverity(diagnostics: Diagnostic[]): Record<Diagnostic["severity"], number> {
-  return diagnostics.reduce(
-    (counts, item) => {
-      counts[item.severity] += 1;
-      return counts;
-    },
-    { blocking: 0, error: 0, warning: 0, info: 0 }
-  );
-}
-
-function filterDiagnostics(diagnostics: Diagnostic[], filterText: string): Diagnostic[] {
+function filterItems(items: readonly IssueItem[], filterText: string): IssueItem[] {
   const query = filterText.trim().toLowerCase();
-  if (!query) return diagnostics;
-
-  return diagnostics.filter((item) => {
+  if (!query) return [...items];
+  return items.filter((item) => item.members.some(({ diagnostic, shown }) => {
     const searchable = [
-      item.id,
-      item.code,
-      item.severity,
-      item.diagnostic_class,
-      item.class,
-      item.source,
-      item.message,
-      item.remediation,
-      ...(item.affected_refs ?? [])
+      diagnostic.id,
+      diagnostic.code,
+      diagnostic.severity,
+      diagnostic.diagnostic_class,
+      diagnostic.class,
+      diagnostic.source,
+      diagnostic.message,
+      shown.message,
+      diagnostic.remediation,
+      ...(diagnostic.affected_refs ?? [])
     ]
       .filter((value): value is string => Boolean(value))
       .join(" ")
       .toLowerCase();
     return searchable.includes(query);
-  });
+  }));
 }

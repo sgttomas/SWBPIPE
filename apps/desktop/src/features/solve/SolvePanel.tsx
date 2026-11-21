@@ -231,7 +231,9 @@ function readinessSummary({
     },
     {
       id: "diagnostics",
-      label: "Diagnostics",
+      // What it counts: the model's own diagnostics and the result's, each once. The
+      // Issues drawer lists the same diagnostics, a code repeated on one object as one item.
+      label: "Model and solve diagnostics",
       value: `${diagnostics.length} ${plural("diagnostic", diagnostics.length)}; ${warningCount} ${plural(
         "warning",
         warningCount
@@ -249,14 +251,20 @@ function readinessSummary({
 
 function ReadinessRow({ item, healthBadge = null }: { item: ReadinessItem; healthBadge?: NumericalHealthView | null }) {
   const Icon = item.tone === "ok" ? ShieldCheck : AlertTriangle;
-  return (
-    <div className={`readiness-row ${item.tone}`} data-testid={`readiness-${item.id}`}>
+  const row = (testId?: string) => (
+    <div className={`readiness-row ${item.tone}`} data-testid={testId}>
       <Icon size={14} aria-hidden="true" />
       <span>{item.label}</span>
-      <strong>
-        {item.value}
-        {healthBadge ? <> <span className={`numerical-health-badge numerical-health-${healthBadge.badge}`} data-badge={healthBadge.badge} data-testid="solve-numerical-health-badge">{healthBadge.headline}</span></> : null}
-      </strong>
+      <strong>{item.value}</strong>
+    </div>
+  );
+  if (!healthBadge) return row(`readiness-${item.id}`);
+  // The result's numerical health is not one of the diagnostics' warnings: its badge
+  // sits beneath the row, outside the box whose colour is the diagnostics' tone.
+  return (
+    <div className={`readiness-tile ${item.tone}`} data-testid={`readiness-${item.id}`}>
+      {row()}
+      <span className={`numerical-health-badge numerical-health-${healthBadge.badge}`} data-badge={healthBadge.badge} data-testid="solve-numerical-health-badge">{healthBadge.headline}</span>
     </div>
   );
 }

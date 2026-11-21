@@ -10907,6 +10907,17 @@ describe("SWBPIPE desktop preview", () => {
     const { model, source } = await loadBundledMechanicsReference();
     const knowledge = await loadDesignKnowledge();
     const expectedDiagnostics = [...model.diagnostics, ...knowledge.diagnostics, ...source.diagnostics];
+    // The list shows items: one per code on one object (its first affected reference here),
+    // so the hanger's three load warnings are one item. Each item keeps its most severe report.
+    const itemOf = new Map<string, string>();
+    const rank = { blocking: 0, error: 1, warning: 2, info: 3 } as const;
+    for (const item of expectedDiagnostics) {
+      const key = `${item.code}|${item.affected_refs?.[0] ?? ""}`;
+      const held = itemOf.get(key) as keyof typeof rank | undefined;
+      if (held === undefined || rank[item.severity] < rank[held]) itemOf.set(key, item.severity);
+    }
+    const expectedItems = itemOf.size;
+    const itemsOfSeverity = (severity: string) => [...itemOf.values()].filter((value) => value === severity).length;
     // The demo's nonlinear cases are confirmed and published CHECKS_PASSED.
     expect(source.diagnostics.filter(item => item.code === "NUMERICAL_INTEGRITY_CHECKS_PASSED")).toHaveLength(model.load_cases.length);
     const selected = vi.fn();
@@ -10922,20 +10933,23 @@ describe("SWBPIPE desktop preview", () => {
     const diagnostics = await screen.findByLabelText("Diagnostics");
     expect(
       within(diagnostics).getByTestId("diagnostic-filter-summary").textContent,
-    ).toContain(`${expectedDiagnostics.length} of ${expectedDiagnostics.length} diagnostics visible`);
+    ).toContain(`${expectedItems} of ${expectedItems} items shown (${expectedDiagnostics.length} diagnostics)`);
     // C-120 fix: the demo drops the tee component:C-120, so BRANCH_TOPOLOGY_INVALID no longer warns.
     // §8.30 correction 3 (RT-S3): 6 -> 9, the hanger support:SH-140's three
     // SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD warnings (installed, cold, hot load).
     // DEL-03-03: 9 -> 10, the geometry-only bend component:C-110's BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD.
     expect(source.diagnostics.filter(item => item.code === "SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD")).toHaveLength(3);
     expect(source.diagnostics.filter(item => item.code === "BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD")).toHaveLength(1);
+    expect(expectedDiagnostics.filter(item => item.severity === "warning")).toHaveLength(10);
+    // The hanger's three warnings are one item: 8 warning items.
+    expect(itemsOfSeverity("warning")).toBe(8);
     expect(
       within(diagnostics).getByTestId("diagnostic-severity-warning")
         .textContent,
-    ).toContain("10 Warnings");
+    ).toContain("8 Warnings");
     expect(
       within(diagnostics).getByTestId("diagnostic-severity-info").textContent,
-    ).toContain(`${expectedDiagnostics.filter(item => item.severity === "info").length} Info`);
+    ).toContain(`${itemsOfSeverity("info")} Info`);
     expect(
       within(diagnostics).getByTestId("diagnostic-severity-error").textContent,
     ).toContain("0 Errors");
@@ -10952,7 +10966,7 @@ describe("SWBPIPE desktop preview", () => {
     );
     expect(
       within(diagnostics).getByTestId("diagnostic-filter-summary").textContent,
-    ).toContain(`1 of ${expectedDiagnostics.length} diagnostics visible`);
+    ).toContain(`1 of ${expectedItems} items shown`);
     expect(
       within(diagnostics).getByTestId("diagnostic-severity-warning")
         .textContent,
@@ -11021,7 +11035,7 @@ describe("SWBPIPE desktop preview", () => {
     fireEvent.click(within(diagnostics).getByTestId("clear-diagnostic-filter"));
     expect(
       within(diagnostics).getByTestId("diagnostic-filter-summary").textContent,
-    ).toContain(`${expectedDiagnostics.length} of ${expectedDiagnostics.length} diagnostics visible`);
+    ).toContain(`${expectedItems} of ${expectedItems} items shown (${expectedDiagnostics.length} diagnostics)`);
     expect(
       within(diagnostics).getByTestId("diagnostic-RULE_CHECK_NOT_PERFORMED"),
     ).toBeInTheDocument();

@@ -21,31 +21,31 @@ describe("DiagnosticsPanel filter request", () => {
   it("shows exactly the requested diagnostic (…:LC1 does not match …:LC10)", () => {
     render(panel({ diagnosticId: "diagnostic:numerical-integrity:LC1", sequence: 1 }));
     expect(screen.getByTestId("diagnostic-filter-input")).toHaveValue("diagnostic:numerical-integrity:LC1");
-    expect(screen.getByTestId("diagnostic-filter-summary")).toHaveTextContent("1 of 3 diagnostics visible");
+    expect(screen.getByTestId("diagnostic-filter-summary")).toHaveTextContent("1 of 3 items shown");
     expect(screen.getByTestId("diagnostic-NUMERICAL_INTEGRITY_SENSITIVE")).toBeInTheDocument();
     expect(screen.queryByTestId("diagnostic-NUMERICAL_INTEGRITY_CHECKS_PASSED")).toBeNull();
     // Typing returns to the ordinary substring filter.
     fireEvent.change(screen.getByTestId("diagnostic-filter-input"), { target: { value: "numerical-integrity" } });
-    expect(screen.getByTestId("diagnostic-filter-summary")).toHaveTextContent("2 of 3 diagnostics visible");
+    expect(screen.getByTestId("diagnostic-filter-summary")).toHaveTextContent("2 of 3 items shown");
   });
 
   it("applies a later request again and clears its filter when the request is cleared", () => {
     const view = render(panel({ diagnosticId: "diagnostic:numerical-integrity:LC1", sequence: 1 }));
     fireEvent.change(screen.getByTestId("diagnostic-filter-input"), { target: { value: "" } });
     view.rerender(panel({ diagnosticId: "diagnostic:numerical-integrity:LC1", sequence: 2 }));
-    expect(screen.getByTestId("diagnostic-filter-summary")).toHaveTextContent("1 of 3 diagnostics visible");
+    expect(screen.getByTestId("diagnostic-filter-summary")).toHaveTextContent("1 of 3 items shown");
     view.rerender(panel(null));
     expect(screen.getByTestId("diagnostic-filter-input")).toHaveValue("");
-    expect(screen.getByTestId("diagnostic-filter-summary")).toHaveTextContent("3 of 3 diagnostics visible");
+    expect(screen.getByTestId("diagnostic-filter-summary")).toHaveTextContent("3 of 3 items shown");
   });
 
   it("opens unfiltered when the drawer remounts after the request was consumed", () => {
     const first = render(panel({ diagnosticId: "diagnostic:numerical-integrity:LC1", sequence: 1 }));
-    expect(screen.getByTestId("diagnostic-filter-summary")).toHaveTextContent("1 of 3 diagnostics visible");
+    expect(screen.getByTestId("diagnostic-filter-summary")).toHaveTextContent("1 of 3 items shown");
     first.unmount();
     render(panel(null));
     expect(screen.getByTestId("diagnostic-filter-input")).toHaveValue("");
-    expect(screen.getByTestId("diagnostic-filter-summary")).toHaveTextContent("3 of 3 diagnostics visible");
+    expect(screen.getByTestId("diagnostic-filter-summary")).toHaveTextContent("3 of 3 items shown");
   });
 });
 

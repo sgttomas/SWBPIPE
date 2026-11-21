@@ -1,7 +1,9 @@
 import { ListChecks } from "lucide-react";
-import { useEffect, useId, useMemo, useRef, type KeyboardEvent } from "react";
+import { useEffect, useId, useMemo, useRef, type KeyboardEvent, type ReactNode } from "react";
 import type { EntityRef, PreviewModel } from "../../types";
 import { MODEL_CHECK_GROUP_LABELS, type ModelCheckFinding, type ModelCheckGroupId, type ModelCheckRun } from "./modelChecks";
+import { groupIssues, type IssueItem } from "./issueItems";
+import { IssueItemView } from "./IssueItemView";
 
 /** The command's keyboard equivalent, as the menus show it. */
 export const MODEL_CHECKS_SHORTCUT = "⇧⌘M";
@@ -19,13 +21,17 @@ const announcedRuns = new WeakSet<ModelCheckRun>();
  * lists their findings with each check's own code and text. Choosing a finding
  * selects the entity it names. The checks read the model and never change it;
  * a later edit marks the list as out of date until the checks run again.
+ * Findings that repeat one code on one object are listed as one item
+ * (`issueItems.ts`); in the Issues drawer an item also gathers the same
+ * finding where the solve or the model reported it.
  */
 export function ModelChecksPanel({
   model,
   run,
   busy = false,
   onRun,
-  onSelectEntity
+  onSelectEntity,
+  items: givenItems
 }: {
   model: PreviewModel;
   /** The last run of the checks in this session; null before the first. */
@@ -34,6 +40,8 @@ export function ModelChecksPanel({
   busy?: boolean;
   onRun: () => void;
   onSelectEntity: (entity: EntityRef) => void;
+  /** The drawer's items this list shows; without them the run's findings are grouped here. */
+  items?: readonly IssueItem[];
 }) {
   const summaryRef = useRef<HTMLParagraphElement>(null);
   const listRef = useRef<HTMLOListElement>(null);
@@ -46,7 +54,12 @@ export function ModelChecksPanel({
     summaryRef.current?.focus();
   }, [run]);
 
-  const grouped = useMemo(() => GROUP_ORDER.map((group) => [group, run?.findings.filter((item) => item.group === group) ?? []] as const), [run]);
+  const items = useMemo(() => givenItems ?? groupIssues({ modelChecks: run?.findings ?? [] }), [givenItems, run]);
+  const grouped = useMemo(() => GROUP_ORDER.map((group) => [
+    group,
+    items.filter((item) => item.group === group),
+    run?.findings.filter((finding) => finding.group === group).length ?? 0
+  ] as const), [items, run]);
   const stale = run !== null && run.model !== model;
 
   function moveFocus(event: KeyboardEvent<HTMLOListElement>) {
@@ -67,6 +80,7 @@ export function ModelChecksPanel({
       <div className="panel-title" id={titleId}>
         <ListChecks size={16} aria-hidden="true" />
         Model checks
+        {givenItems ? <span className="issues-section-count" data-testid="model-checks-item-count" aria-label={`${items.length} ${items.length === 1 ? "item" : "items"}`}>{items.length}</span> : null}
       </div>
       <div className="model-checks-actions">
         <button
@@ -82,7 +96,7 @@ export function ModelChecksPanel({
         <kbd>{MODEL_CHECKS_SHORTCUT}</kbd>
       </div>
       <p aria-live="polite" data-testid="model-checks-summary" ref={summaryRef} role="status" tabIndex={-1}>
-        {run ? summaryText(run) : "The checks have not been run on this model. They read the model and never change it."}
+        {run ? summaryText(run, items.length) : "The checks have not been run on this model. They read the model and never change it."}
       </p>
       {stale ? (
         <p className="memory-pool-message warning" data-testid="model-checks-stale">
@@ -113,19 +127,26 @@ export function ModelChecksPanel({
       ) : null}
       {run ? (
         <ol aria-label="Model check findings" className="model-checks-list" data-testid="model-checks-findings" onKeyDown={moveFocus} ref={listRef}>
-          {grouped.map(([group, findings]) => (
+          {grouped.map(([group, groupItems, findingCount]) => (
             <li className="model-checks-group" data-group={group} key={group}>
               <strong>{MODEL_CHECK_GROUP_LABELS[group]}</strong>{" "}
               <span className="muted">
-                {groupCount(run, group, findings.length)}
+                {groupCount(run, group, groupItems.length, findingCount)}
               </span>
-              {findings.length > 0 ? (
+              {groupItems.length > 0 ? (
                 <ul>
-                  {findings.map((finding) => (
-                    <li key={finding.key}>
-                      <FindingButton finding={finding} onSelectEntity={onSelectEntity} />
-                    </li>
-                  ))}
+                  {groupItems.map((item) => {
+                    const finding = item.members.find((member) => member.finding)?.finding;
+                    return finding ? (
+                      <li key={item.key}>
+                        <IssueItemView
+                          item={item}
+                          main={(body) => <FindingButton finding={finding} onSelectEntity={onSelectEntity} body={body} />}
+                          onSelectEntity={onSelectEntity}
+                        />
+                      </li>
+                    ) : null;
+                  })}
                 </ul>
               ) : null}
             </li>
@@ -138,7 +159,7 @@ export function ModelChecksPanel({
 
 /** One finding as the Model checks list shows it: choosing it selects the entity
  * it names. The Solve panel's withheld notice shows its findings with it too. */
-export function FindingButton({ finding, onSelectEntity }: { finding: ModelCheckFinding; onSelectEntity: (entity: EntityRef) => void }) {
+export function FindingButton({ finding, onSelectEntity, body }: { finding: ModelCheckFinding; onSelectEntity: (entity: EntityRef) => void; body?: ReactNode }) {
   const { diagnostic, entity } = finding;
   return (
     <button
@@ -152,7 +173,7 @@ export function FindingButton({ finding, onSelectEntity }: { finding: ModelCheck
       type="button"
     >
       <strong>{diagnostic.code}</strong> <span className="muted">{diagnostic.severity}</span>
-      <p>{diagnostic.message}</p>
+      {body ?? <p>{diagnostic.message}</p>}
       {entity ? <small>Selects {entity.id}</small> : null}
       {(diagnostic as { truncated?: boolean }).truncated ? <small data-testid="model-check-truncated"> Text shortened in the bounded report.</small> : null}
     </button>
@@ -180,15 +201,18 @@ function notShownTotal(run: ModelCheckRun): number {
   return run.notShown.solve + run.notShown.slots + run.notShown.library;
 }
 
-function groupCount(run: ModelCheckRun, group: ModelCheckGroupId, listed: number): string {
+function groupCount(run: ModelCheckRun, group: ModelCheckGroupId, listed: number, findings: number): string {
   if (run.solve.kind === "unavailable") return run.solve.started ? "not completed" : "not run";
   if (group === "solve" && run.solve.kind !== "checked") return "not run";
   if (group === "library" && run.libraryNotCompleted !== undefined) return "not completed";
   const counted = run.notShown[group];
-  return `${listed} ${listed === 1 ? "finding" : "findings"}${counted > 0 ? `; ${counted} more not listed` : ""}`;
+  const shown = listed === findings
+    ? `${listed} ${listed === 1 ? "finding" : "findings"}`
+    : `${listed} ${listed === 1 ? "item" : "items"} from ${findings} ${findings === 1 ? "finding" : "findings"}`;
+  return `${shown}${counted > 0 ? `; ${counted} more not listed` : ""}`;
 }
 
-function summaryText(run: ModelCheckRun): string {
+function summaryText(run: ModelCheckRun, items: number): string {
   const count = (severity: string) => run.findings.filter((item) => item.diagnostic.severity === severity).length;
   const blocking = count("blocking") + count("error");
   const total = run.findings.length;
@@ -199,5 +223,6 @@ function summaryText(run: ModelCheckRun): string {
   if (total === 0 && omitted === 0) return run.solve.kind === "checked" ? "The checks found nothing to report." : "The checks that ran found nothing to report.";
   if (total === 0) return `${omitted} ${omitted === 1 ? "finding" : "findings"}, none listed; ${omittedBlocking}.`;
   const listed = `${total} ${total === 1 ? "finding" : "findings"}: ${blocking} blocking or error, ${count("warning")} ${count("warning") === 1 ? "warning" : "warnings"}, ${count("info")} info.`;
-  return omitted > 0 ? `${listed} ${omitted} more not listed; ${omittedBlocking}.` : listed;
+  const asItems = items !== total ? ` Listed as ${items} ${items === 1 ? "item" : "items"}: a finding repeated on one object is one item.` : "";
+  return omitted > 0 ? `${listed} ${omitted} more not listed; ${omittedBlocking}.${asItems}` : `${listed}${asItems}`;
 }
