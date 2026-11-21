@@ -28,11 +28,11 @@
    ".json",
    ".jsonl"
   ],
-  "files": 538,
+  "files": 539,
   "claimed_by": {
    "group": 142,
    "in_code": 63,
-   "exemption": 333
+   "exemption": 334
   }
  },
  "counts": {
@@ -9778,6 +9778,15 @@
    "files": [
     "core/product_physics/tests/w16_exact_equivalent_static.rs",
     "core/product_physics/tests/w16_timoshenko_partial_wind.rs"
+   ]
+  },
+  {
+   "reason": "its exact-route documents carry only empty pressure-region lists (the seismic_component_weight package has no internal pressure), so no solved case carries pressure",
+   "paths": [
+    "core/product_physics/tests/seismic_component_weight.rs"
+   ],
+   "files": [
+    "core/product_physics/tests/seismic_component_weight.rs"
    ]
   },
   {
