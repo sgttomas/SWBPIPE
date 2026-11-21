@@ -81,7 +81,9 @@ UNSURE_PIN = 37
 # unsupported_block, unsupported_derived_quantity) are absent capabilities no entry names. No refusal changed.
 # 61 -> 60: MODAL_TIMOSHENKO_MASS_UNSUPPORTED is named wholly by LIM-020. No refusal changed.
 # 60 -> 59: SUPPORT_DIRECTION_SKEW_FORCE_SCALED_UNSUPPORTED is named wholly by LIM-030. No refusal changed.
-UNNAMED_ABSENT_CAPABILITY_PIN = 59
+# 59 -> 58: EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED is retired; generation is admitted on a load and
+# reference-state document. A refusal was removed.
+UNNAMED_ABSENT_CAPABILITY_PIN = 58
 # 47 -> 52 (review of d776be92e): the same four, and CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE, whose product
 # text describes its gate only partially (F7). 52 -> 57 (completeness review): the same five.
 # 57 -> 56: the same code, named wholly by LIM-020. 56 -> 55: the skew code above, named wholly by LIM-030.

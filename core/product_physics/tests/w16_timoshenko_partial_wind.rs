@@ -735,10 +735,11 @@ fn n2_replaced_spans_stay_refused() {
     assert!(found[0]["affected_refs"].as_array().unwrap().contains(&json!("pipe:b-c")));
 }
 
-/// N3: a load/reference-state document refuses the generation by name, a
-/// Timoshenko partial span included, and a case not listed in the group too.
+/// N3: on a load/reference-state document a Timoshenko partial span generates
+/// as on the plain document (DEL-05-01 REQ-008 and AC-007): the case solves,
+/// with every row equal to the plain document's bit for bit, in both modes.
 #[test]
-fn n3_load_state_documents_stay_refused() {
+fn n3_load_state_documents_generate_the_partial_span() {
     let state = json!({"contract": "openpipestress.load_reference_state/1.0.0", "reference_configuration_ref": "reference:installed",
         "element_states": [{"pipe_ref": "pipe:a-b", "material_selection": {"kind": "explicit_base_properties", "material_ref": "material:w16t",
             "applicability_reference": "invented analytical basis declared applicable to this member"},
@@ -750,11 +751,24 @@ fn n3_load_state_documents_stay_refused() {
     first["analysis_state"] = state;
     let reference = case_ref("W16T-CANT-INTERIOR");
     let (nodes, pipes, supports) = geometry(&reference["request"]);
-    let mut wire = document(TIMOSHENKO, nodes, pipes, supports, vec![first, case("case:unlisted", Some(partial))]);
+    let plain = document(TIMOSHENKO, nodes.clone(), pipes.clone(), supports.clone(), vec![case(CASE, Some(partial))]);
+    let mut wire = document(TIMOSHENKO, nodes, pipes, supports, vec![first]);
     wire["model"]["reference_configurations"] = json!([{"id": "reference:installed", "label": "Installed reference", "geometry_ref": {"kind": "authored_model_geometry"},
         "member_references": [{"pipe_ref": "pipe:a-b", "basis": {"kind": "direct_strain_reference"}, "fit": {"kind": "none"}, "provenance": PROV}], "provenance": PROV}]);
-    let found = refused(&wire, "EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED", "load-state Timoshenko partial span");
-    assert_eq!(found.len(), 2);
+    for mode in MODES {
+        let solve = |wire: &Value, what: &str| {
+            let out = serde_json::to_value(run_linear_static_preview_value_with_mode(wire.clone(), mode).unwrap()).unwrap();
+            assert_eq!(out["status"]["mechanics"], "MECHANICS_SOLVED", "{what} {mode:?}: {:#?}", out["diagnostics"]);
+            let mut rows = out["results"].as_array().unwrap().iter()
+                .map(|row| (format!("{}|{}|{}", row["kind"], row["entity_ref"], row["metadata"]), row["value"].as_f64().unwrap().to_bits()))
+                .collect::<Vec<_>>();
+            rows.sort();
+            rows
+        };
+        let (p, l) = (solve(&plain, "plain"), solve(&wire, "load state"));
+        assert!(!p.is_empty());
+        assert_eq!(l, p, "{mode:?}: every row equal bit for bit");
+    }
 }
 
 /// N4: invalid fractions, overlap and double marking keep

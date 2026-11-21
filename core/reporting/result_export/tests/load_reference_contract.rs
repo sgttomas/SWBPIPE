@@ -328,7 +328,7 @@ fn current_inputs_table_and_schema_are_pinned() {
     // B7b A5: load_reference_state.schema.json lost its v2 definitions.
     assert_eq!(
         lr::TRANSPORT_SCHEMA_SHA256,
-        "b95947ea4b62406ea050ba46e8b7d32d3fe8cc9d4f4892f53ab0c9f6df1189b9"
+        "736769f842d3ba3b3ded9069a83b7087ae3a21f6510897d8596e7ec190cc4ac9"
     );
     assert_eq!(
         sha(include_bytes!("../../../../schemas/load_reference_state.schema.json")),

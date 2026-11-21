@@ -243,14 +243,6 @@ pub(crate) fn carries_pressure(case: &PreviewLoadCase) -> bool {
     case.pressure_regions.as_ref().is_some_and(|regions| !regions.is_empty())
 }
 
-/// W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md` §3): a case's
-/// `equivalent_static` on a load/reference-state document. Generated loads
-/// have no ledger class there, so they are refused for every authored case,
-/// listed in the group or not, before the effective cases are selected.
-pub(crate) const EQUIVALENT_STATIC_LOAD_STATE: &str = "EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED";
-/// The static text of [`EQUIVALENT_STATIC_LOAD_STATE`].
-pub(crate) const EQUIVALENT_STATIC_LOAD_STATE_TEXT: &str = "equivalent_static generation is not provided on a load/reference-state document: a case's ordinary applied loads there are exactly its declared source ledger (a consumed constant-effort support's force is a device action of the active support), and generated seismic or wind loads have no ledger class; the exact route refuses the generation rather than apply loads outside the ledger";
-
 /// Every object family the exact route can meet besides its straight base.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ExactFamily {

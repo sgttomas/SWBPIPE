@@ -50,7 +50,7 @@ mod timoshenko_product_tests;
 #[cfg(test)]
 mod d5_mass_product_tests;
 #[cfg(test)]
-mod kd5_nonlinear_tests;
+mod kd5_nonlinear_tests; #[cfg(test)] mod generated_load_state_tests; // on this line so that no line moves.
 #[cfg(test)]
 mod u4a_tests;
 #[cfg(test)]
@@ -124,7 +124,7 @@ use open_pipe_stress_nonlinear_supports::{
     SupportStateRecord,
 };
 use open_pipe_stress_primitive_loads::{
-    generate_seismic_equivalent_static_loads, generate_wind_equivalent_static_loads, prepare_loads,
+    generate_seismic_equivalent_static_loads_beside_components, generate_wind_equivalent_static_loads, prepare_loads,
     ElementExposedDiameter, ElementMassPerLength, EquivalentStaticAxisFactor, LoadApplication,
     LoadDimension, LoadDirection, LoadExtent, LoadQuantity, PrimitiveLoad, PrimitiveLoadCategory,
     SeismicEquivalentStaticBasis, WindEquivalentStaticBasis,
@@ -150,7 +150,7 @@ mod topology;
 mod validation;
 mod imposed_motion; mod held_status; mod skew; // RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7) and R-6/R-7 S-K1 (DEL-04-03 `skew-restraints.md`), on this line so that no line moves.
 use validation::validate_model_inputs;
-mod rigid_component;
+mod rigid_component; mod seismic_component; // DEL-05-01 static-equivalent seismic component force (LIM-028), on this line so that no line moves.
 #[cfg(test)]
 mod w15_rigid_scaling_tests;
 #[cfg(test)]
@@ -4614,13 +4614,27 @@ fn load_state_pipe_materials(state: &case_state::resolve::ResolvedCase) -> serde
 
 /// The published `load_reference_states` record of one case. Only a selected
 /// retained-source response is joined; every other case states the ordinary
-/// route it actually published.
+/// route it actually published. `loads` are the case's formed primitive
+/// loads: each generated static-equivalent load among them enters the record
+/// of load sources once, after the resolved sources, in generation order,
+/// with its identity and factor 1 (DEL-04-07 REQ-011). A case without
+/// generation adds nothing, so its record keeps its bytes.
 fn load_state_case_record(
     state: &case_state::resolve::ResolvedCase,
     solver_mode: PreviewSolverMode,
     source_selected: bool,
+    loads: &[PrimitiveLoad],
 ) -> serde_json::Value {
     let mut evidence = state.evidence.clone();
+    let effective = &state.effective_case;
+    if effective.equivalent_static.is_some() {
+        let contributions = evidence["contributions"].as_array_mut().expect("resolved contributions");
+        for load in loads.iter().filter(|load| is_generated_equivalent_static_load(effective, &load.load_id, None)) {
+            let kind = if is_generated_equivalent_static_load(effective, &load.load_id, Some("seismic")) { "seismic" } else { "wind" };
+            contributions.push(serde_json::json!({"source_id": load.load_id, "owner_kind": "generated_equivalent_static",
+                "classification": "generated_applied", "factor": 1.0, "generation_kind": kind}));
+        }
+    }
     evidence["solve"] = serde_json::json!({
         "requested_mode": solver_mode.as_str(),
         "recovery_method": if source_selected { "retained_source_blocks_exact_v1" } else if solver_mode == PreviewSolverMode::DenseScrutiny { "ordinary_dense_structural_v1" } else { "ordinary_sparse_structural_v1" },
@@ -5469,6 +5483,9 @@ fn solve_prepared_load_case(
     mut role: held_status::CaseRole<'_, '_>,
 ) -> Result<LoadCaseSolve, FrameKernelError> {
     let loads = build_load_case_primitive_loads(model, load_case, diagnostics);
+    if let Some(state) = load_state {
+        refuse_load_state_generated_collisions(model, load_case, state, &loads, diagnostics);
+    }
     let load_application = prepare_loads(built.nodes.len(), built.pipes.len(), &loads);
     for finding in &load_application.findings {
         diagnostics.push(diag(
@@ -7603,7 +7620,7 @@ fn solve_prepared_load_case(
         // W-16 slice c (§2): a generating case names its mass method and its
         // generated primitives; other cases omit the record.
         if load_case.equivalent_static.is_some() {
-            evidence["equivalent_static"] = exact_equivalent_static_record(load_case, &loads);
+            evidence["equivalent_static"] = exact_equivalent_static_record(model, load_case, &loads);
         }
         // T4-U3 (S21): no replaced span in any per-pipe evidence list.
         joint::exclude_replaced_spans(&mut evidence, &replaced_span_ids_of(built));
@@ -7611,7 +7628,7 @@ fn solve_prepared_load_case(
     });
     let source_selected = selected_source.is_some();
     let load_state_evidence = load_state.map(|state| {
-        let mut record = load_state_case_record(state, solver_mode, source_selected);
+        let mut record = load_state_case_record(state, solver_mode, source_selected, &loads);
         // T4-U3 (S21, RV6 C-2): the replaced span's resolved member record and
         // eigenstrain contribution are not published (it is still resolved).
         joint::exclude_replaced_spans(&mut record, &replaced_span_ids_of(built));
@@ -11229,6 +11246,7 @@ pub(crate) fn is_generated_equivalent_static_load(
 /// generator's order. The ordinary companion binding re-forms it from the
 /// captured model (`source_receipt::composite`).
 pub(crate) fn exact_equivalent_static_record(
+    model: &PreviewModel,
     load_case: &PreviewLoadCase,
     loads: &[PrimitiveLoad],
 ) -> serde_json::Value {
@@ -11237,7 +11255,10 @@ pub(crate) fn exact_equivalent_static_record(
         .filter(|load| is_generated_equivalent_static_load(load_case, &load.load_id, None))
         .map(|load| load.load_id.as_str())
         .collect::<Vec<_>>();
-    serde_json::json!({"mass_method": self_weight::EXACT_MASS_METHOD, "generated_load_ids": generated})
+    let mut record = serde_json::json!({"mass_method": self_weight::EXACT_MASS_METHOD, "generated_load_ids": generated});
+    // DEL-05-01 (issue 450 item 4): only a case that forms a component item carries the key.
+    if let Some(items) = seismic_component::record(model, load_case, &generated) { record["component_forces"] = items; }
+    record
 }
 
 fn equivalent_static_diag_id(load_case_id: &str, suffix: &str) -> String {
@@ -11319,13 +11340,22 @@ fn append_equivalent_static_generated_loads(
         if inputs_missing {
             return;
         }
+        // DEL-05-01 (LIM-028): the members a rigid-family component replaces
+        // and its force items, by REQ-015's dispositions, before any mass is
+        // read; a range refusal blocks the case by name.
+        let mut refusals = Vec::new();
+        let components = seismic_component::plan(model, case_id, &replaced, &seismic_component::entered_factors(load_case), &mut refusals);
+        if !refusals.is_empty() {
+            diagnostics.extend(refusals);
+            return;
+        }
         let mut masses = Vec::new();
         let mut mass_blocked = false;
         for (pipe_index, pipe) in model.pipe_segments.iter().enumerate() {
             // §3: a connector-replaced span carries no load; it is skipped
             // before its mass is evaluated, and the surviving pipes keep
-            // their original element index.
-            if replaced.contains(pipe.id.as_str()) {
+            // their original element index. So is a component-replaced member.
+            if replaced.contains(pipe.id.as_str()) || components.replaced.contains(pipe.id.as_str()) {
                 continue;
             }
             match generation_mass_per_length(pipe, case_id, exact, diagnostics) {
@@ -11344,7 +11374,7 @@ fn append_equivalent_static_generated_loads(
             gravity_acceleration: gravity,
             axis_factors,
         };
-        let (generated, findings) = generate_seismic_equivalent_static_loads(&basis, &masses);
+        let (generated, findings) = generate_seismic_equivalent_static_loads_beside_components(&basis, &masses, seismic_component::primitives(&components, case_id));
         for finding in &findings {
             diagnostics.push(diag(
                 &equivalent_static_diag_id(
@@ -11644,6 +11674,95 @@ fn refuse_generated_id_collisions(
             ));
         }
     }
+}
+
+/// DEL-05-01 REQ-008 on a load/reference-state document: a generated load's
+/// identity must name one source only. Generation runs on the effective case,
+/// so a collision with a listed stored primitive is already refused by
+/// [`refuse_generated_id_collisions`]. This check, run after formation and
+/// before the case's loads are assembled, refuses the other two: a stored
+/// primitive of the authored case that the ledger does not list (excluded,
+/// yet sharing the generated identity), and an identity the case's resolved
+/// record already synthesizes (`member_state:`, `support_state:`,
+/// `pressure_region:`). Otherwise the ordinary and certified paths, and the
+/// published record of load sources, could attribute one identity to two
+/// sources.
+fn refuse_load_state_generated_collisions(
+    model: &PreviewModel,
+    effective: &PreviewLoadCase,
+    state: &case_state::resolve::ResolvedCase,
+    loads: &[PrimitiveLoad],
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    if effective.equivalent_static.is_none() {
+        return;
+    }
+    let authored = model.load_cases.iter().find(|case| case.id == effective.id);
+    let synthesized = state.evidence["contributions"]
+        .as_array()
+        .into_iter()
+        .flatten()
+        .filter(|contribution| contribution["owner_kind"] != "stored_primitive");
+    let synthesized = synthesized.collect::<Vec<_>>();
+    for load in loads
+        .iter()
+        .filter(|load| is_generated_equivalent_static_load(effective, &load.load_id, None))
+    {
+        let id = load.load_id.as_str();
+        let unlisted = authored
+            .into_iter()
+            .flat_map(|case| &case.primitive_loads)
+            .any(|stored| stored.id == id);
+        let message = if unlisted {
+            format!(
+                "stored primitive load {id} is not listed in analysis_state.load_sources (it is excluded) and has the id of a load the case's equivalent_static generation produces; one identity cannot name two sources, so rename or remove the stored primitive (generated ids are <case>:generated:<kind>:...)"
+            )
+        } else if let Some(other) = synthesized.iter().find(|contribution| contribution["source_id"] == id) {
+            format!(
+                "the synthesized identity {id} of the case's {} source has the id of a load the case's equivalent_static generation produces; one identity cannot name two sources in the record of load sources, so rename the load case or the {} (generated ids are <case>:generated:<kind>:...)",
+                other["owner_kind"].as_str().unwrap_or("resolved"),
+                other["owner_kind"].as_str().unwrap_or("resolved").replace('_', " ")
+            )
+        } else {
+            continue;
+        };
+        diagnostics.push(diag(
+            &equivalent_static_diag_id(&effective.id, &format!("collision:{}", stable_suffix(id))),
+            "EQUIVALENT_STATIC_GENERATED_ID_COLLISION",
+            "blocking",
+            message,
+            vec![effective.id.clone(), id.to_string()],
+        ));
+    }
+}
+
+/// DEL-05-01 (#433's origin test, applied to the effective case): whether
+/// `load_id` is a load the case's generation produced, judged against the
+/// case that is solved. On a load/reference-state document that is the
+/// effective case, whose stored primitives are exactly those the ledger lists
+/// (primitives a lowering added included, as they stand in the lowered
+/// model); on every other document it is the case itself. The certificate's
+/// producers find a case in the model's list of load cases, so they call this
+/// rather than [`is_generated_equivalent_static_load`] on that case.
+pub(crate) fn is_generated_in_effective_case(
+    model: &PreviewModel,
+    load_case: &PreviewLoadCase,
+    load_id: &str,
+    kind: Option<&str>,
+) -> bool {
+    let ledger = case_state::is_load_state(model)
+        .then(|| load_case.analysis_state.value())
+        .flatten();
+    let in_effective_case = |stored: &PreviewPrimitiveLoad| {
+        stored.id == load_id
+            && ledger.is_none_or(|state| state.load_sources.iter().any(|source| source.source_ref == stored.id))
+    };
+    load_case.equivalent_static.is_some()
+        && match kind {
+            Some(kind) => load_id.starts_with(&format!("{}:generated:{kind}:", load_case.id)),
+            None => load_id.starts_with(&format!("{}:generated:", load_case.id)),
+        }
+        && !load_case.primitive_loads.iter().any(in_effective_case)
 }
 
 /// W-16 slice c (§3): a wind marking of a connector-replaced span (which

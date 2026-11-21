@@ -79,7 +79,9 @@ MODULE = 'core/reporting/result_export/src/load_reference.rs'
 # Model 0.6.0 re-pin: the reader's comments name pressure-2 (comment text only; was c0c75a5d...); T4-U4b re-pin:
 # the case shape admits `intensified_measures` (was 110bb76f...).
 # S6: the reviewed support law/source/classification join and transport schema binding.
-MODULE_SHA256 = '66470124d4226a152560f240408fc232e4fb7485669b1134cd4b5293e7cfd5ea'
+# DEL-05-01 re-pin: the case shape admits a generating case's `equivalent_static` (was 66470124...).
+# DEL-04-07 REQ-011 re-pin: a generated load source's contribution and its coverage and binding checks (was 4a26e591...).
+MODULE_SHA256 = 'a1444d4ebc905edca47fc91afbefd3cbd405d1ea402d8eff01acdcb98f7cac23'
 UNITS = physics.UNITS
 DEPENDENCIES = {
     MODULE: MODULE_SHA256,

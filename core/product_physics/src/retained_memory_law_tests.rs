@@ -838,7 +838,7 @@ fn pressure_schema_is_the_only_nonresident_binding() {
     // geometry, per-basis records and limitations (reviewed input #10, re-bound at D3). RT-L2: the
     // cancellation-screen exception record (its renamed ratio member, basis token and description; then its
     // remainder_force_n member; then its description).
-    assert_eq!(schema_hash, "4e1e877b05b2fb3a11d934d2854a37de2de61b3dfb1d9613cec136aeca5da4d7");
+    assert_eq!(schema_hash, "fc5699e012f7877f5a6fc1b7d9086ebc7fbfcca0ecd7e84873d88f187de8b848");
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets all current inputs");
     let tokens: Vec<_> = compiled.split(';').collect();
     assert_eq!(tokens.len(), build_identity::REVIEWED_INPUT_COUNT + 1);
@@ -918,7 +918,7 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     // #105B, PF1b and I3a).
     const REVIEWED: [&str; build_identity::REVIEWED_INPUT_COUNT] = [
         "b7ebb02aafa8cfe214c18bc64941381b33ab3f9295e0fc774ee0819e1e4f5653",
-        "5866cdac7f6c537d325b70ea31542faa8f8633a8fb2e9efe043042b7e7a6bf45",
+        "285e544d046fdbb35313293dc3d5e684e8b57567b8ac765df0baa1384e896f7d",
         "73bebc5fb562b7f519c7d59be8e7830f98b21ce29fa0b7c017e43426f50cfcaa",
         "a056c395e27f964c842a1347db689eb24377d0b5a79a3b954435105a2c422d08",
         "ef59ef338d4e2cafca7017e13b7a450d1094ede8068c47cf5e44416c1adc177a",
@@ -927,7 +927,7 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "ce61278a855e9337af18fdc7a1fd517bbe881290be7a5fba049add2491511326",
         "094e41545efdc9815af124e91ede505213a70e4425bf32c8e2138cd74ce22893",
         "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9",
-        "4e1e877b05b2fb3a11d934d2854a37de2de61b3dfb1d9613cec136aeca5da4d7",
+        "fc5699e012f7877f5a6fc1b7d9086ebc7fbfcca0ecd7e84873d88f187de8b848",
         "757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9",
         "8a0abaeac93729b5d6ee6c922f2a60f0caf9332948622bb8b5896747ce41442d",
     ];

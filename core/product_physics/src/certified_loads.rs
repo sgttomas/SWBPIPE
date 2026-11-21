@@ -288,9 +288,10 @@ pub(super) fn intensity(
     if let Some(case) = model.load_cases.iter().find(|case| case.id == case_id) {
         // W-16 slice c (§2): dispatch to the generator's operands only for a
         // load the generation produced; an authored id resembling the
-        // generated prefix stays authored.
+        // generated prefix stays authored. The origin test is judged on the
+        // effective case a load/reference-state document solves (DEL-05-01).
         if let Some(generation) = &case.equivalent_static {
-            if is_generated_equivalent_static_load(case, &load.load_id, Some("seismic")) {
+            if is_generated_in_effective_case(model, case, &load.load_id, Some("seismic")) {
                 if let Some(seismic) = &generation.seismic {
                     let coefficient = [
                         &seismic.g_factor_x,
@@ -310,7 +311,7 @@ pub(super) fn intensity(
                     };
                 }
             }
-            if is_generated_equivalent_static_load(case, &load.load_id, Some("wind")) {
+            if is_generated_in_effective_case(model, case, &load.load_id, Some("wind")) {
                 if let Some(wind) = &generation.wind {
                     return IntensityPrimitive::Wind {
                         pressure: wind.pressure.as_ref().map_or(f64::NAN, |q| q.value),
@@ -476,6 +477,10 @@ pub(super) fn spring_base_motion(ledger: &mut LoadLedger, springs: &[SpringEntry
 
 /// Factored nodal values are formed products, while unscaled authored nodal
 /// loads remain exact input terms under the normalized-input contract.
+/// DEL-05-01 (issue 450 item 3): a generated seismic component force or
+/// moment is a formed product too, with its operands read from the model by
+/// the generator's own plan (`seismic_component::nodal_product`): W and k
+/// for the force, the rounded force and the signed coordinate for a moment.
 pub(super) fn nodal(
     ledger: &mut LoadLedger,
     model: &PreviewModel,
@@ -487,7 +492,9 @@ pub(super) fn nodal(
         if load.global_dof >= 6 * node_count {
             continue;
         }
-        if let Some((magnitude, factor)) = source_factor(model, case_id, &load.load_id) {
+        if let Some((magnitude, factor)) = source_factor(model, case_id, &load.load_id)
+            .or_else(|| crate::seismic_component::nodal_product(model, case_id, &load.load_id))
+        {
             ledger.push_formed(
                 &load.load_id,
                 load.global_dof,
