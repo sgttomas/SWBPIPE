@@ -141,8 +141,15 @@ pub(crate) fn plan<'a>(
                 ),
             ),
             Disposition::Eligible { weight, cog } => {
+                // The node is looked up before the member is marked replaced:
+                // a component whose node does not resolve (a typed model the
+                // document's validation has not checked) forms no item, and
+                // its member keeps its distributed load.
+                let Some(node_index) = model.nodes.iter().position(|node| node.id == mapped.component.node) else {
+                    continue;
+                };
                 plan.replaced.insert(mapped.pipe_ref);
-                eligible.push((mapped.component, weight, cog));
+                eligible.push((mapped.component, node_index, weight, cog));
             }
         }
     }
@@ -150,10 +157,7 @@ pub(crate) fn plan<'a>(
         if !factor.is_finite() {
             continue;
         }
-        for &(component, weight, cog) in &eligible {
-            let Some(node_index) = model.nodes.iter().position(|node| node.id == component.node) else {
-                continue;
-            };
+        for &(component, node_index, weight, cog) in &eligible {
             let force = factor * weight;
             let required = factor != 0.0;
             if required && (force == 0.0 || !force.is_finite()) {
@@ -407,6 +411,26 @@ mod tests {
                 true
             }
         }
+    }
+
+    /// An eligible component whose node does not resolve (a typed model; the
+    /// document's validation refuses it earlier) forms no item, and its member
+    /// is not marked replaced, so it keeps its distributed load.
+    #[test]
+    fn an_unresolved_node_does_not_replace_its_member() {
+        let mut wire = document(2350.0, [0.0, 0.0, 0.0], [Some(0.3), None, None], false);
+        wire["model"]["components"][0]["node"] = json!("Z");
+        wire["model"]["pipe_segments"][1]["to"] = json!("Z");
+        let model = typed(&wire);
+        let mut diagnostics = Vec::new();
+        let plan = plan(&model, "case:s", &HashSet::new(), &[(0, 0.3)], &mut diagnostics);
+        assert!(plan.replaced.is_empty(), "{:?}", plan.replaced);
+        assert!(plan.items.is_empty());
+        assert!(diagnostics.is_empty(), "{diagnostics:?}");
+        // Control: with the node present, the member is replaced.
+        let model = typed(&document(2350.0, [0.0, 0.0, 0.0], [Some(0.3), None, None], false));
+        let plan = super::plan(&model, "case:s", &HashSet::new(), &[(0, 0.3)], &mut diagnostics);
+        assert!(plan.replaced.contains("BC") && plan.items.len() == 1);
     }
 
     /// The law on the reference values: F = fl(k W) at C, M = r × F from the
