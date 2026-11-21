@@ -1,7 +1,7 @@
 import type { ReportComposition } from "../report/reportComposition";
 import { currentSemanticContract, readerDispatch } from "../results/resultReader";
 import { numericalResultStanding, reportStanding, type NumericalStanding } from "../results/resultStanding";
-import { supportStatesByCase } from "../results/integrityStatus";
+import { recoveredCaseIds, supportStatesByCase } from "../results/integrityStatus";
 import { numericalHealthHold, numericalHealthView, readNumericalHealth, type NumericalHealthHold } from "../results/numericalHealth";
 import { isFreshSemanticResult } from "../results/knownSemanticLimitations";
 import { isExactReportSource } from "../report/exactReportSections";
@@ -179,9 +179,12 @@ export function useResultsSessionState(advanceReportSource?: () => number) {
       return reading.readability.readable && reading.readability.solved ? supportStatesByCase(reading.numerical_standing) : undefined;
     } catch { return undefined; }
   }, [result, native, manifestModel, standingFindingsKey]);
+  // The pressure-source route's cases whose values come from the producer's recovery (the method the
+  // result records for each case); an ordinary companion's do not.
+  const recoveredCases = useMemo(() => recoveredCaseIds(result as MechanicsResult | null), [result]);
   const numericalHealthPresentation = useMemo(
-    () => numericalHealthView(numericalHealth, { eligible: numericallyEligible, verdictHold, supportStates }),
-    [numericalHealth, numericallyEligible, verdictHold, supportStates]
+    () => numericalHealthView(numericalHealth, { eligible: numericallyEligible, verdictHold, supportStates, recoveredCases }),
+    [numericalHealth, numericallyEligible, verdictHold, supportStates, recoveredCases]
   );
   const numericalHealthHoldView: NumericalHealthHold | null = verdictHold && numericalHealthPresentation
     ? { headline: numericalHealthPresentation.headline, shortHeadline: numericalHealthPresentation.shortHeadline, outputSentence: numericalHealthPresentation.outputSentence }

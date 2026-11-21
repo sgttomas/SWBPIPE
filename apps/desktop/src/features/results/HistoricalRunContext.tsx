@@ -21,6 +21,10 @@ import { restoredNativeResult, type NativeProjectEnvelope, type NativeRunRead, t
 export type HistoricalRunContext = {
   designation: "historical_saved_run" | "bundled_reference" | "recorded_run";
   referenceModel?: PreviewModel;
+  /** Release exit criterion 18: the model the run's result is read with (the bundled reference's,
+   * the saved project's, the recorded run's stored manifest's), for its indicator's support-state
+   * lines only (`ResultsPanel` `supportModel`); absent where none is held. */
+  readModel?: PreviewModel | null;
   referenceProvenance?: BundledMechanicsReference["provenance"];
   rawMechanicsResult: unknown;
   rawAnalysisRun: unknown;
@@ -237,7 +241,7 @@ export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): P
       found.fail(finding, true);
     }
   }
-  return { designation: "historical_saved_run", rawMechanicsResult, rawAnalysisRun, mechanicsResult, analysisRun, modelHash, envelopeHash: opened.project_envelope_hash ?? null, envelopePayloadHash, ...found.scoped(recordedBinding), runId: evidenceResult?.run_id ?? (typeof record?.run_id === "string" ? record.run_id : "unknown saved run") };
+  return { designation: "historical_saved_run", readModel: opened.model, rawMechanicsResult, rawAnalysisRun, mechanicsResult, analysisRun, modelHash, envelopeHash: opened.project_envelope_hash ?? null, envelopePayloadHash, ...found.scoped(recordedBinding), runId: evidenceResult?.run_id ?? (typeof record?.run_id === "string" ? record.run_id : "unknown saved run") };
 }
 
 /** A recorded run read from the store (W-12 S2), checked as a saved run is, with
@@ -313,7 +317,7 @@ export async function buildRecordedRunContext(read: AnalysisRunRead): Promise<Wh
     }
   }
   return {
-    designation: "recorded_run", rawMechanicsResult, rawAnalysisRun, mechanicsResult, analysisRun, modelHash,
+    designation: "recorded_run", readModel: model, rawMechanicsResult, rawAnalysisRun, mechanicsResult, analysisRun, modelHash,
     envelopeHash: null, envelopePayloadHash: null, ...found.scoped(recordedBinding),
     runId: evidenceResult?.run_id ?? (typeof record?.run_id === "string" ? record.run_id : "unknown recorded run")
   };
@@ -334,7 +338,7 @@ export function recordedRunBindingFindings(context: HistoricalRunContext): strin
 export async function buildNativeHistoricalRunContext(opened: NativeProjectEnvelope): Promise<HistoricalRunContext | null> {
   const run = opened.stored_run;
   if (run.state !== "restored") return null;
-  return contextOfRestored("historical_saved_run", run, opened.project_envelope_hash ?? null, run.findings.envelope_payload_hash, opened.model_hash ?? null);
+  return contextOfRestored("historical_saved_run", run, opened.project_envelope_hash ?? null, run.findings.envelope_payload_hash, opened.model_hash ?? null, opened.model);
 }
 
 /** C1 slice 6: a recorded run reopened into native custody after the store's verified read; the
@@ -355,11 +359,13 @@ async function contextOfRestored(
   restored: RestoredRun,
   envelopeHash: ProjectEnvelopeHashEvidence | null,
   envelopePayloadHash: string | null,
-  modelHash: ModelHashEvidence | null
+  modelHash: ModelHashEvidence | null,
+  readModel: PreviewModel | null
 ): Promise<HistoricalRunContext> {
   const found = restored.findings;
-  const mechanicsResult = found.renderable ? await restoredNativeResult(restored) : null;
+  const mechanicsResult = found.renderable ? await restoredNativeResult(restored, readModel) : null;
   return {
+    readModel,
     designation, rawMechanicsResult: null, rawAnalysisRun: null, mechanicsResult,
     analysisRun: null, restored, modelHash, envelopeHash, envelopePayloadHash,
     ...restoredScopes(found), runId: found.run_id
@@ -383,7 +389,7 @@ function restoredScopes(found: RestoredRun["findings"]): Pick<HistoricalRunConte
 /** A bundled example has its own model context and no current run evidence. */
 export function buildBundledReferenceContext(reference: BundledMechanicsReference): HistoricalRunContext {
   return {
-    designation: "bundled_reference", referenceModel: reference.model,
+    designation: "bundled_reference", referenceModel: reference.model, readModel: reference.model,
     referenceProvenance: reference.provenance,
     rawMechanicsResult: reference.source, mechanicsResult: reference.source,
     rawAnalysisRun: null, analysisRun: null, modelHash: null,
@@ -412,7 +418,7 @@ export function HistoricalRunPanel({ context, actions = null, stage = null }: { 
     <HistoricalReaderFindings context={context} testId="historical-run-recorded-reader" />
   </div>;
   return <section className="historical-run-context" aria-label={title} data-testid="historical-run-context">
-    <ResultsPanel result={context.mechanicsResult} knowledge={null} analysisRun={null} selectedResultId={selectedResultId} onSelectResult={setSelectedResultId} recordedTableRead={context.recordedTableRead}
+    <ResultsPanel result={context.mechanicsResult} knowledge={null} analysisRun={null} selectedResultId={selectedResultId} onSelectResult={setSelectedResultId} recordedTableRead={context.recordedTableRead} supportModel={context.readModel ?? null}
       stage={{ ...stage, identity: { kind: isReference ? "reference" : "reopened", runId: context.runId }, actions, methodPrefix }} />
   </section>;
 }

@@ -37,8 +37,10 @@ use serde_json::{json, Value};
 
 const ROUTE_NOT_ADMITTED: &str = "REPORT-PACKAGE-ROUTE-NOT-ADMITTED";
 
-/// The five witness shapes of §5.5.
-const WITNESSES: [(&str, &str); 5] = [
+/// The five witness shapes of §5.5, and an objective connector in a result-state
+/// subtraction and a sum (issue 441: the native check derives a combined
+/// connector row as the desktop's page does).
+const WITNESSES: [(&str, &str); 6] = [
     ("pressure_2_straight", include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_straight.json")),
     (
         "pressure_2_load_reference_states",
@@ -50,6 +52,10 @@ const WITNESSES: [(&str, &str); 5] = [
         include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_realized_bend.json"),
     ),
     ("pressure_source_1", include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_source_1.json")),
+    (
+        "pressure_2_connector_combinations",
+        include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_connector_combinations.json"),
+    ),
 ];
 /// The same-run substitute: leaf replacements over the straight witness's request.
 const SUBSTITUTE_OVERLAY: &str =
@@ -405,4 +411,41 @@ fn an_edited_integrity_diagnostic_refuses_at_item_9() {
             assert_eq!(error, format!("REPORT-PACKAGE-BINDING-MISMATCH: {detail}"), "{name} {label}");
         }
     }
+}
+
+/// Issue 441: a refusal of the native check of the result document names the
+/// source row it was raised on, by index and id (never its value). The request
+/// is the connector witness's with the metadata of its first combined connector
+/// row's quantity removed and the document's own hash recomputed, so that
+/// validation reaches the row checks. The row's witness checksum is then stale
+/// too; the row's physical semantics are checked first, and theirs is the
+/// refusal asserted.
+#[test]
+fn a_result_document_row_refusal_names_the_source_row() {
+    use open_pipe_stress_result_export::derivative::{checksum, reference};
+    let (name, text) = WITNESSES[5];
+    assert_eq!(name, "pressure_2_connector_combinations");
+    let mut request = request_of(text);
+    let (index, id) = request["source_results"][0]["results"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .enumerate()
+        .find(|(_, row)| row["kind"].as_str().unwrap().starts_with("connector_") && row["basis_ref"]["ref_type"] == "combination")
+        .map(|(index, row)| (index, row["id"].as_str().unwrap().to_string()))
+        .unwrap();
+    let document = &mut request["result_documents"][0];
+    let path = document["result_envelope"]["row_accounting"][index]["target_field_path"].as_str().unwrap().to_string();
+    document.pointer_mut(&path).unwrap().as_object_mut().unwrap().remove("metadata").expect("the row's metadata");
+    let envelope_id = document["result_envelope"]["envelope_id"].as_str().unwrap().to_string();
+    let mut payload = document.clone();
+    payload["result_envelope"]["reproducibility"].as_object_mut().unwrap().remove("derivative_hash");
+    document["result_envelope"]["reproducibility"]["derivative_hash"] =
+        checksum(&payload, "derivative_document_excludes_own_hash", reference("derivative_document", &envelope_id)).unwrap();
+    let solver = linked(&request);
+    let error = match assemble_wire_request(typed(&request), &identity(&solver)) {
+        Ok(_) => panic!("the edited request assembled"),
+        Err(error) => error,
+    };
+    assert_eq!(error, format!("REPORT-PACKAGE-SOURCE-INVALID: PHYSICAL_SEMANTICS_MISMATCH: source row {index} {id}"));
 }

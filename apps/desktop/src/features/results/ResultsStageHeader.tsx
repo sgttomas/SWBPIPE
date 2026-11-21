@@ -9,6 +9,7 @@ import { useLayoutEffect, useRef, type ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
 import { checksPassedText, ELIGIBLE_RECOVERY_TEXT, NUMERICAL_HEALTH_STATE_TEXT, type NumericalHealthState } from "./numericalHealthText";
 import { NUMERICAL_HEALTH_ORDER, rowHealthState, type NumericalHealthView } from "./numericalHealth";
+import { needsSolverReportNote, SOLVER_REPORT_NOTE, type SupportStatesLine } from "./integrityStatus";
 import type { ResultBasisRef } from "../../types";
 
 /** Which run the page shows, in one terminology across the stage. */
@@ -46,17 +47,21 @@ export function checksPassedSentences(health: NumericalHealthView | null, scope:
   return cases.filter((item) => item.state === "checks_passed").map((item) => checksPassedText(item.caseId));
 }
 
-/** The support-state statement of each case in scope with nonlinear supports, one entry per
- * distinct statement with the cases it is stated for. */
-export function supportStateLines(health: NumericalHealthView | null, scope: HeaderCase): Array<{ text: string; cases: string[] }> {
+/** The support-state line of each case in scope with nonlinear supports (`integrityStatus.ts`
+ * `supportStatesLine`: its statement, and the solver's quoted reason with its note where the
+ * statement says it is quoted below), one entry per distinct line with the cases it is stated for. */
+export function supportStateLines(health: NumericalHealthView | null, scope: HeaderCase): Array<{ line: SupportStatesLine; cases: string[] }> {
   if (!health) return [];
-  const lines = new Map<string, string[]>();
+  const lines = new Map<string, { line: SupportStatesLine; cases: string[] }>();
   for (const item of health.cases) {
     if (!item.supportStates) continue;
     if (scope?.basis && !(scope.basis.ref_type === "load_case" && scope.basis.ref_id === item.caseId)) continue;
-    lines.set(item.supportStates, [...(lines.get(item.supportStates) ?? []), item.caseId]);
+    const key = JSON.stringify([item.supportStates.text, item.supportStates.detail, item.supportStates.detailNote]);
+    const entry = lines.get(key) ?? { line: item.supportStates, cases: [] };
+    entry.cases.push(item.caseId);
+    lines.set(key, entry);
   }
-  return [...lines].map(([text, cases]) => ({ text, cases }));
+  return [...lines.values()];
 }
 
 /** On the pressure-source route, the sentence that says which values the standing is about, where
@@ -118,15 +123,28 @@ export function ResultsStageHeader({
         </p>
       ) : null}
       {recovery ? <p className="results-stage-note" data-testid="results-stage-recovery-note">{recovery}</p> : null}
-      {support.map((line) => (
-        <p key={line.text} className="results-stage-note" data-testid="results-stage-support-states">
-          {scope?.basis ? null : <span className="results-stage-note-cases">{line.cases.join(", ")}: </span>}{line.text}
-        </p>
+      {/* Each line's statement is an element of its own, and the solver's quoted reason with its note
+          stands directly beneath it, as in the indicator's detail. */}
+      {support.map(({ line, cases }) => (
+        <div key={`${line.text}|${line.detail ?? ""}`} className="results-stage-support" data-testid="results-stage-support-states">
+          <p className="results-stage-note" data-testid="results-stage-support-states-text">
+            {line.text}{scope?.basis ? null : <span className="results-stage-note-cases"> ({cases.join(", ")})</span>}
+          </p>
+          {line.detail ? (
+            <blockquote className="results-stage-support-detail" data-testid="results-stage-support-states-detail">
+              {line.detail}{line.detailNote ? <span data-testid="results-stage-support-states-detail-note"> {line.detailNote}</span> : null}
+            </blockquote>
+          ) : null}
+        </div>
       ))}
       <details className="results-method" data-testid="results-method">
         <summary><ChevronRight size={14} aria-hidden="true" className="results-method-chevron" />{METHOD_AND_LIMITS_LABEL}</summary>
         <div className="results-method-body">
-          {sentences.map((text) => <p key={text} data-testid="results-method-standing-sentence">{text}</p>)}
+          {sentences.map((text) => (
+            <p key={text} data-testid="results-method-standing-sentence">
+              {text}{needsSolverReportNote({ message: text }) ? <span data-testid="results-method-solver-report-note"> {SOLVER_REPORT_NOTE}</span> : null}
+            </p>
+          ))}
           {healthLine}
           {method}
         </div>

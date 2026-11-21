@@ -26,10 +26,10 @@ import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react"
 import type { AnalysisRunEnvelope, DesignKnowledge, MechanicsGap, MechanicsResult, PreviewModel, ResultInterpretation } from "../../types";
 import { buildResultInterpretation, mechanicsGaps } from "./resultInterpretation";
 import type { EntityRef } from "../../types";
-import { numericalResultStanding, recordedResultStanding } from "./resultStanding";
+import { numericalResultStanding, recordedResultStanding, reportStanding } from "./resultStanding";
 import { badgeOf, locationText, numericalHealthView, readNumericalHealth, rowHealthState, type NumericalHealthBadge, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
 import { BOUNDARY_SENTENCE, DETAIL_SECTION_LABEL, LOCATED_CAUSES_LABEL, NUMERICAL_HEALTH_STATE_TEXT, SHOW_SOLVER_DIAGNOSTIC, type NumericalHealthState } from "./numericalHealthText";
-import { limitationsNote, numericalHealthLead, ordinarySolveLead } from "./integrityStatus";
+import { limitationsWithNotes, numericalHealthLead, ordinarySolveLead, recoveredCaseIds, supportStatesByCase } from "./integrityStatus";
 import { SECTION_BASIS_HEADLINES, WITHHELD_SECTION_BASIS_HEADLINE } from "../report/exactReportSections";
 import { canSurfaceRevealNow } from "../workspace/surfaceReveal";
 import {
@@ -201,6 +201,7 @@ function FullResultsPanel({
   model = null,
   exportAnalysisRun = null,
   recordedTableRead = null,
+  supportModel = null,
   stage = null
 }: {
   result: MechanicsResult | null;
@@ -234,6 +235,10 @@ function FullResultsPanel({
   /** RT-R6: the result's own analysis-run record (the current solved run's), for the CSV
    * preamble's result hash; null for any other result. */
   exportAnalysisRun?: AnalysisRunEnvelope | null;
+  /** Release exit criterion 18: the model a reopened or bundled result is read with (the saved,
+   * recorded or bundled model), for its own indicator's support-state lines only. It is read for
+   * nothing else: no standing, admission or use of the result changes with it. */
+  supportModel?: PreviewModel | null;
 }) {
   const displayResolver = useDisplayQuantityResolver();
   const [filterText, setFilterText] = useState("");
@@ -316,7 +321,7 @@ function FullResultsPanel({
   const interpretation = result
     ? buildResultInterpretation({ result, resultId: selectedResultId, knowledge, analysisRun, recordedTableRead })
     : null;
-  const ownHealth = useMemo(() => (numericalHealth === undefined && result ? standaloneNumericalHealth(result, recordedTableRead) : null), [numericalHealth, result, recordedTableRead]);
+  const ownHealth = useMemo(() => (numericalHealth === undefined && result ? standaloneNumericalHealth(result, recordedTableRead, supportModel) : null), [numericalHealth, result, recordedTableRead, supportModel]);
   const route = result ? contractOf(result) : "unsupported";
   const health = routeHealth(route, numericalHealth === undefined ? ownHealth : numericalHealth);
   // RT-R6: what a CSV export of these tables states.
@@ -1278,11 +1283,20 @@ function hasResultSemanticToken(value: string, expected: string): boolean {
  * Numerical health
  * -------------------------------------------------------------------------- */
 /** A reopened run's indicator: read with the reader's findings for the result alone (no
- * model, so the verdict-only flag cannot hold) and no hold. */
-export function standaloneNumericalHealth(result: MechanicsResult, recordedTableRead: RecordedBinding | null): NumericalHealthView | null {
+ * model, so the verdict-only flag cannot hold) and no hold. Release exit criterion 18: with the model
+ * the result is read with (`supportModel`), each nonlinear case's support-state line, from the
+ * reader's standing record, as the live path shows it; without one, none. */
+export function standaloneNumericalHealth(result: MechanicsResult, recordedTableRead: RecordedBinding | null, supportModel: PreviewModel | null = null): NumericalHealthView | null {
   let findings: readonly string[] | null = null, eligible = false;
   try { const standing = recordedTableRead ? recordedResultStanding(result, recordedTableRead) : numericalResultStanding(result); findings = standing.findings; eligible = standing.eligible; } catch { return null; }
-  return numericalHealthView(readNumericalHealth(result, findings), { eligible, verdictHold: false });
+  let supportStates: ReturnType<typeof supportStatesByCase> | undefined;
+  if (supportModel) {
+    try {
+      const reading = reportStanding(result, supportModel);
+      if (reading.readability.readable && reading.readability.solved) supportStates = supportStatesByCase(reading.numerical_standing);
+    } catch { supportStates = undefined; }
+  }
+  return numericalHealthView(readNumericalHealth(result, findings), { eligible, verdictHold: false, supportStates, recoveredCases: recoveredCaseIds(result) });
 }
 /** The indicator only where its route agrees with the result's route; otherwise none
  * (today's text). */
@@ -1323,7 +1337,9 @@ export function NumericalHealthDetail({ health, resolveCauseLocation, onSelectCa
           <h4>{c.caseId} <NumericalHealthBadgeText badge={c.badge} text={c.headline} testId={`numerical-health-case-badge-${c.caseId}`} /></h4>
           <p data-testid={`numerical-health-case-text-${c.caseId}`}>{c.sentences.join(" ")}</p>
           {c.conditioning ? <p data-testid={`numerical-health-case-conditioning-${c.caseId}`}>{c.conditioning}</p> : null}
-          {c.supportStates ? <p data-testid={`numerical-health-case-support-states-${c.caseId}`}>{c.supportStates}</p> : null}
+          {c.supportStates ? <p data-testid={`numerical-health-case-support-states-${c.caseId}`}>{c.supportStates.text}</p> : null}
+          {/* The solver's quoted reason, directly beneath the statement that says it is quoted below. */}
+          {c.supportStates?.detail ? <blockquote data-testid={`numerical-health-case-support-states-detail-${c.caseId}`}>{c.supportStates.detail}{c.supportStates.detailNote ? <span data-testid={`numerical-health-case-support-states-detail-note-${c.caseId}`}> {c.supportStates.detailNote}</span> : null}</blockquote> : null}
           {c.locations.length > 0 ? (
             <div data-testid={`numerical-health-case-locations-${c.caseId}`}>
               <span>{LOCATED_CAUSES_LABEL}: </span>
@@ -1365,12 +1381,11 @@ function StandingStatement({ lead = null, limitations, close }: { lead?: string 
   return (
     <>
       {lead ? <><span className="result-standing-lead">{lead}</span>{" "}</> : null}
-      {limitations.length === 0 ? " " : limitations.map((text, index) => (
-        <span key={index} className="result-standing-limitation">{text}{" "}</span>
+      {/* Release exit criterion 18: each limitation is whole and in order; one that states a claim on
+          the ordinary solve's unverified bound has the note directly after it. */}
+      {limitations.length === 0 ? " " : limitationsWithNotes(limitations).map(({ text, note }, index) => (
+        <span key={index} className="result-standing-limitation">{text}{" "}{note ? <span className="result-standing-note" data-testid="result-standing-solver-report-note">{note}{" "}</span> : null}</span>
       ))}
-      {/* Release exit criterion 18: limitations that state the solver's checks-passed code keep their
-          text whole and in order; the note follows them. */}
-      {limitationsNote(limitations) ? <span className="result-standing-note" data-testid="result-standing-solver-report-note">{limitationsNote(limitations)}{" "}</span> : null}
       <span className="result-standing-close">{close}</span>
     </>
   );

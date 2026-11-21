@@ -88,7 +88,7 @@ describe("resolved-state block: ordinary pressure-2 with load/reference states",
       const standing = numericalResultStanding(result, model);
       expect(standing).toMatchObject({ contract: "pressure", status: "solver_checks_passed", eligible: true });
       expect(screen.getByTestId("load-reference-states-route")).toHaveTextContent("Route: ordinary pressure-3");
-      expect(screen.getByTestId("load-reference-states-standing")).toHaveTextContent("Result standing: solver checks passed, not verified");
+      expect(screen.getByTestId("load-reference-states-standing")).toHaveTextContent("Result standing: numerically eligible; the ordinary solve's error bound is not verified");
       for (const record of records(result)) {
         expect(screen.getByTestId(`load-reference-state-standing-${record.load_case_id}`)).toHaveTextContent(`Numerical standing: ${SOLVER_CHECKS_PASSED_LABEL} (published solve quality: not verified).`);
         expect(screen.getByTestId(`load-reference-state-${record.load_case_id}`)).toHaveTextContent(`mode ${mode}`);

@@ -7,7 +7,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { lineHealthState, ResultsPanel } from "./ResultsPanel";
-import { numericalHealthLead, ordinarySolveLead, withLimitationsNote } from "./integrityStatus";
+import { numericalHealthLead, ordinarySolveLead, recoveredCaseIds, withLimitationsNote } from "./integrityStatus";
 import { openMethodAndLimits, shownStandingSentence } from "./resultsStageTestSupport";
 import { METHOD_AND_LIMITS_LABEL, RESULTS_RUN_LABELS } from "./ResultsStageHeader";
 import { checksPassedText, ELIGIBLE_RECOVERY_TEXT, NUMERICAL_HEALTH_STATE_TEXT } from "./numericalHealthText";
@@ -18,7 +18,7 @@ import unicodeSparse from "../../../../../fixtures/results/preview_physics_unico
 
 afterEach(cleanup);
 
-function view(raw: unknown, options: { eligible: boolean; verdictHold: boolean }): NumericalHealthView {
+function view(raw: unknown, options: Parameters<typeof numericalHealthView>[1]): NumericalHealthView {
   const health = parseNumericalHealth(raw);
   expect(health).not.toBeNull();
   return numericalHealthView(health, options)!;
@@ -134,7 +134,7 @@ describe("ResultsPanel numerical health", () => {
   it("prefixes the pressure-source header, keeps the recovery text, adds the eligible wording and places no row badges", () => {
     const result = JSON.parse(readFileSync(resolve(__dirname, "../../../../../fixtures/product_preview/pressure_source/physics_source/n05-dense_scrutiny.raw.json"), "utf8")) as MechanicsResult;
     const health = view({ route: "pressure_source", verdict_only: false, cases: [{ ...SENSITIVE, case_id: "case", integrity_diagnostic_id: "diagnostic:numerical-integrity:case", causes: [] }], combinations: [] },
-      { eligible: true, verdictHold: false });
+      { eligible: true, verdictHold: false, recoveredCases: recoveredCaseIds(result) });
     render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={health} />);
     expect(screen.getByTestId("numerical-health-header").textContent).toBe("Ordinary solve — Numerical health: 1 sensitive");
     expect(shownStandingSentence()).toMatch(/^Ordinary solve: sensitive\. Producer recovery receipt: qualified\. /);
@@ -277,7 +277,9 @@ describe("the Results stage header", () => {
 
   it("keeps the pressure-source recovery sentence beside the ordinary solve's standing, outside Method and limits", () => {
     const result = JSON.parse(readFileSync(resolve(__dirname, "../../../../../fixtures/product_preview/pressure_source/physics_source/n05-dense_scrutiny.raw.json"), "utf8")) as MechanicsResult;
-    const health = view({ route: "pressure_source", verdict_only: false, cases: [{ ...SENSITIVE, case_id: "case", integrity_diagnostic_id: null, causes: [] }], combinations: [] }, { eligible: true, verdictHold: false });
+    // The recovery's sentence is stated for a case whose values come from the recovery.
+    const health = view({ route: "pressure_source", verdict_only: false, cases: [{ ...SENSITIVE, case_id: "case", integrity_diagnostic_id: null, causes: [] }], combinations: [] },
+      { eligible: true, verdictHold: false, recoveredCases: recoveredCaseIds(result) });
     render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={health} />);
     const note = screen.getByTestId("results-stage-recovery-note");
     expect(note.textContent).toBe(ELIGIBLE_RECOVERY_TEXT);

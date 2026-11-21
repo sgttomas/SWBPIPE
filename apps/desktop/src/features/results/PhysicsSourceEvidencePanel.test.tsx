@@ -68,7 +68,8 @@ it.each(["n05", "n06", "mixed", "fields"])('shows each %s stress maximum as labe
     const result = fixture(`${name}-${mode}`), before = JSON.stringify(result);
     const view = render(<PhysicsSourceEvidencePanel result={result} />);
     const panel = screen.getByRole("region", { name: "Recorded recovery evidence" });
-    expect(panel).toHaveTextContent(`Ordinary numerical attempt: ${result.numerical_quality!.status}`);
+    expect(panel).toHaveTextContent(`Ordinary numerical attempt: ${result.numerical_quality!.status === "checks_passed" ? "not verified" : result.numerical_quality!.status}`);
+    expect(panel.textContent).not.toContain("checks_passed");
     expect(panel).toHaveTextContent("exact_pressure_v3");
     expect(panel).toHaveTextContent("These recorded labels do not grant Current use");
     const physical = result.contract_evidence as any, receipt = result.source_block_recovery as any;

@@ -92,7 +92,9 @@ type Shape = { name: string; mode: "sparse_interactive" | "dense_scrutiny"; rawP
  * bytes its producer wrote): pressure-2 straight (X0, the straight corpus's input),
  * pressure-2 with load/reference states (Y0), pressure-2 with an objective connector
  * (T4-U5b AS-F, the connector corpus's pressurized tied joint) and with a realized bend
- * (U2-L-ANCH-PTW-K2 0.3.0, the arc corpus's input), whose re-authored requests and
+ * (U2-L-ANCH-PTW-K2 0.3.0, the arc corpus's input), and with an objective connector in a
+ * result-state subtraction and a sum (issue 441: the native check of the package derives
+ * a combined connector row as this page does), whose re-authored requests and
  * worker bytes `core/product_physics/tests/exact_route_limitations.rs` writes
  * (`exact_report_witness_inputs_are_current`), and pressure-source-1 (n05). */
 const SHAPES: readonly Shape[] = [
@@ -100,7 +102,8 @@ const SHAPES: readonly Shape[] = [
   { name: "pressure_2_load_reference_states", mode: "sparse_interactive", rawPath: "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json", requestPath: "fixtures/product_preview/pressure/load_reference/pressure.request.json" },
   { name: "pressure_2_connector", mode: "sparse_interactive", rawPath: "fixtures/reports/invented/exact_report_witness_inputs/pressure_2_connector-sparse_interactive.raw.json", requestPath: "fixtures/reports/invented/exact_report_witness_inputs/pressure_2_connector.request.json" },
   { name: "pressure_2_realized_bend", mode: "sparse_interactive", rawPath: "fixtures/reports/invented/exact_report_witness_inputs/pressure_2_realized_bend-sparse_interactive.raw.json", requestPath: "fixtures/reports/invented/exact_report_witness_inputs/pressure_2_realized_bend.request.json" },
-  { name: "pressure_source_1", mode: "sparse_interactive", rawPath: "fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json", requestPath: "fixtures/product_preview/pressure_source/physics_source/n05.request.json" }
+  { name: "pressure_source_1", mode: "sparse_interactive", rawPath: "fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json", requestPath: "fixtures/product_preview/pressure_source/physics_source/n05.request.json" },
+  { name: "pressure_2_connector_combinations", mode: "sparse_interactive", rawPath: "fixtures/reports/invented/exact_report_witness_inputs/pressure_2_connector_combinations-sparse_interactive.raw.json", requestPath: "fixtures/reports/invented/exact_report_witness_inputs/pressure_2_connector_combinations.request.json" }
 ];
 const shape = (name: string) => SHAPES.find((item) => item.name === name)!;
 

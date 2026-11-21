@@ -250,3 +250,58 @@ def test_the_registered_selection_covers_every_cited_file():
     assert set(CITED) <= paths
     assert {"tools/after_worker_family/**", "apps/desktop/src/test-support/after-worker/**",
             "tests/test_after_worker_family_table.py", "software-workflow.json"} <= paths
+
+
+def _top_level_parts(arguments: str) -> list[str]:
+    """`a, f(b, c), d ?? null` as ["a", "f(b, c)", "d ?? null"]."""
+    parts, depth, current = [], 0, ""
+    for char in arguments:
+        if char in "([{":
+            depth += 1
+        elif char in ")]}":
+            depth -= 1
+        if char == "," and depth == 0:
+            parts.append(current.strip())
+            current = ""
+        else:
+            current += char
+    return parts + [current.strip()]
+
+
+def _one(pattern: str, text: str, where: str) -> str:
+    import re
+
+    found = re.findall(pattern, text)
+    assert len(found) == 1, f"{where}: expected exactly one match of {pattern!r}, found {len(found)}"
+    return found[0]
+
+
+def test_the_judges_summary_key_is_the_webs_for_a_fresh_reading():
+    """The row "readNativeVerdict and readNativeSummary (their cache keys)" reads "equal". The web's summary
+    key has a fourth part, `modelUse ?? null`; the judge judges the fresh reading, which passes no modelUse,
+    and restates the key with `null` there. This compares the two keys part by part for that reading, and
+    the two `keyOf` bodies, so a change to either shows here and not only as a changed digest."""
+    web = (PROJECT / WEB / family.NATIVE_RESULT).read_text(encoding="utf-8")
+    judge = (PROJECT / JUDGE).read_text(encoding="utf-8")
+    preview = (PROJECT / WEB / family.PREVIEW).read_text(encoding="utf-8")
+
+    # The fresh reading (readNativeFreshResult, previewService.ts) passes job, model text and standing only.
+    calls = [_top_level_parts(call) for call in __import__("re").findall(r"readNativeSummary\(((?:[^()]|\([^()]*\))*)\)", preview)]
+    assert calls, "previewService.ts no longer reads the summary: the row's fresh reading is gone"
+    assert all(len(call) == 3 for call in calls), (
+        f"a fresh reading passes a modelUse to readNativeSummary ({calls}): the judge's key, whose fourth part is "
+        "null, no longer equals the web's there; re-read the row and the judge"
+    )
+
+    web_parts = _top_level_parts(_one(r'cached\(jobId, keyOf\("summary", (.*)\), async \(\) => \{', web, "nativeResult.ts"))
+    judge_parts = _top_level_parts(_one(r'const key = keyOf\("summary", (.*)\);', judge, "afterWorkerReplies.ts"))
+    # For a fresh reading: no modelUse, so `modelUse ?? null` is null; the web names the standing it sends
+    # `standingArg`, the judge `standing`, each built as {eligible, findings} of the verdict's standing.
+    fresh = [{"modelUse ?? null": "null"}.get(part, part).replace("standingArg", "standing") for part in web_parts]
+    assert fresh == judge_parts, (
+        f"the web's summary key for a fresh reading is keyOf(\"summary\", {', '.join(fresh)}) and the judge restates "
+        f"keyOf(\"summary\", {', '.join(judge_parts)}): bring the judge's restatement into line, or narrow the row"
+    )
+
+    body = r"const keyOf = (\(\.\.\.parts: readonly \(string \| null \| undefined\)\[\]\) => .*);"
+    assert _one(body, web, "nativeResult.ts") == _one(body, judge, "afterWorkerReplies.ts"), "the judge's restated keyOf is not the web's"

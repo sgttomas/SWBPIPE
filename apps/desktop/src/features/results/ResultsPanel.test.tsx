@@ -1,3 +1,4 @@
+import { withLimitationsNote } from './integrityStatus';
 import {cleanup,render,screen} from '@testing-library/react';
 import {it,expect} from 'vitest';
 import {readFileSync} from 'node:fs';
@@ -43,7 +44,9 @@ it.each([
  expect(limitations.length).toBeGreaterThan(0);
  render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={()=>{}}/>);
  const standing=shownStandingSentence();
- expect(standing.split(limitations.join(' ')).length-1).toBe(1);
+ // Each limitation whole, once and in order; release exit criterion 18: the note directly after each one the predicate marks.
+ expect(standing.split(withLimitationsNote(limitations)).length-1).toBe(1);
+ let at=-1;for(const text of limitations){expect(standing.split(text).length-1,text.slice(0,40)).toBe(1);const next=standing.indexOf(text);expect(next).toBeGreaterThan(at);at=next;}
  cleanup();
 });
 

@@ -39,6 +39,7 @@ import type { AnalysisRunEnvelope, LocalProjectEnvelope, MechanicsResult } from 
 import type { ReaderDispatch } from "../features/results/resultReader";
 import { isRetainedRoute } from "../features/results/numericalResultQuality";
 import { recordedPreRtA4Binding } from "./recordedPreRtA4";
+import { jsonTextKeepingNegativeZero } from "./jsonText";
 import type { AnalysisRunSummary } from "./analysisRunService";
 import type { ModelStateSummary } from "./modelStateService";
 
@@ -183,18 +184,34 @@ export function restoredHistoricalStanding(verdict: ReaderDispatch, recordedVerd
   return { eligible: standing.eligible, findings: [...standing.findings] };
 }
 
+/** Whether a model names a nonlinear support (`supports[].nonlinear`, as the reader's standing
+ * record reads it): only then does a load case have a support-state confirmation. */
+function hasNonlinearSupport(model: unknown): boolean {
+  const supports = (model as { supports?: unknown } | null | undefined)?.supports;
+  return Array.isArray(supports) && supports.some((support) => (support as { nonlinear?: unknown } | null)?.nonlinear != null);
+}
+
 /** The `NativeResult` of a restored, renderable run: the header dispatch, S with no model and the
  * standalone historical findings only (`restoredHistoricalStanding`; never eligible), and the
  * recovery facts where the route carries them. Its standing binding is empty, so
- * `numericalResultStanding` on it reads as not bound (fail closed), never as eligible. */
-export async function restoredNativeResult(restored: RestoredRun): Promise<NativeResult> {
+ * `numericalResultStanding` on it reads as not bound (fail closed), never as eligible.
+ * Release exit criterion 18: with the model the run is read with (`readModel`, the saved project's),
+ * S is read with that model for its support-state confirmations only (`modelUse: "confirmations"`):
+ * its tables are still read with no model. */
+export async function restoredNativeResult(restored: RestoredRun, readModel: unknown = null): Promise<NativeResult> {
   const jobId = restored.handle;
   const verdict = await readNativeVerdict(jobId, {});
   const recordedTable = restored.findings.recorded_table_read;
   const recordedVerdict = recordedTable ? restored.recorded_dispatch : null;
   const historicalStanding = restoredHistoricalStanding(verdict, recordedVerdict);
   // S's numerical health is read with the historical findings; S itself admits nothing (`eligible: false`).
-  const summary = await readNativeSummary(jobId, RESTORED_SUMMARY_MODEL_TEXT, historicalStanding ? { eligible: false, findings: historicalStanding.findings } : null);
+  const summaryStanding = historicalStanding ? { eligible: false, findings: historicalStanding.findings } : null;
+  // Only a model with a nonlinear support gives a case a support-state line; any other is read as before.
+  let confirmationModelText: string | null = null;
+  if (hasNonlinearSupport(readModel)) { try { confirmationModelText = jsonTextKeepingNegativeZero(readModel); } catch { confirmationModelText = null; } }
+  const summary = confirmationModelText === null
+    ? await readNativeSummary(jobId, RESTORED_SUMMARY_MODEL_TEXT, summaryStanding)
+    : await readNativeSummary(jobId, confirmationModelText, summaryStanding, "confirmations");
   const recovery = verdict.route === "pressure_source" || summary.header.omitted_members.includes("source_block_recovery") ? await queryNativeRecovery(jobId, 0, 1) : null;
   return createNativeResult({
     jobId,
