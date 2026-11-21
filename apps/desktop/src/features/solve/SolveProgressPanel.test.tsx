@@ -112,7 +112,7 @@ describe("solve progress panel", () => {
     const waiting = progressSolveJob(queued, status({ queue_reason: { kind: "pool_exhausted", requested_bytes: 12 * GiB, reserved_bytes: 40 * GiB, pool_bytes: 48 * GiB } }));
     view.rerender(panel(waiting, true));
     expect(screen.getByTestId("solve-progress-queue-reason")).toHaveTextContent(
-      "Waiting in the queue: The memory pool is fully reserved: this request needs 12 GiB, and 40 GiB of the 48 GiB pool is already reserved."
+      "Waiting in the queue: the memory pool is fully reserved: this request needs 12 GiB, and 40 GiB of the 48 GiB pool is already reserved."
     );
     expect(screen.getByTestId("solve-progress-details")).not.toContainElement(screen.getByTestId("solve-progress-queue-reason"));
     openSteps();

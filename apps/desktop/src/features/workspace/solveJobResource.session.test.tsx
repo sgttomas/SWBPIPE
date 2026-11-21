@@ -113,7 +113,7 @@ it("shows the native queue reason while the job waits, then records the grant in
   expect(waiting.state).toBe("queued");
   expect(waiting.resource).toMatchObject({ source: "native_job_receipt", invocation_budget_bytes: 12 * GiB, pool_bytes: 12 * GiB, route_pricing: "ordinary_worker_capped", worker_grant_bytes: null, worker_peak_grant_bytes: null });
   const view = renderSolvePanel(result.current);
-  expect(within(view.container).getByTestId("solve-job-queue-reason")).toHaveTextContent("Waiting in the queue: Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 12 GiB, 7 GiB available.");
+  expect(within(view.container).getByTestId("solve-job-queue-reason")).toHaveTextContent("Waiting in the queue: not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 12 GiB, 7 GiB available.");
   // A queue wait is not a refusal of the job: the queue's own retry is named, and no refusal is shown.
   expect(within(view.container).getByTestId("solve-job-queue-reason")).toHaveTextContent("The queue retries by itself and starts the solve once the pool admits it; Stop on the status line stops the wait.");
   expect(within(view.container).queryByTestId("solve-job-resource-refusal")).toBeNull();
