@@ -12,7 +12,8 @@
 //!   material pair;
 //! - the per-case load-state resolution;
 //! - the model build (element formation inputs);
-//! - constant-effort consumption, the W-8 topology checks
+//! - constant-effort consumption, the variable spring hanger's installed-load
+//!   warning (`spring_preload::append_model_diagnostics`), the W-8 topology checks
 //!   (`topology::append_topology_diagnostics`);
 //! - the restraint pre-checks: no support, fewer than six ground constraints,
 //!   and invalid support input.
@@ -140,6 +141,7 @@ fn pre_formation_checks(request: LinearStaticPreviewRequest) -> Vec<Diagnostic> 
         return diagnostics;
     };
     append_constant_effort_consumption_diagnostics(&model, &mut diagnostics);
+    spring_preload::append_model_diagnostics(&model, &mut diagnostics);
     topology::append_topology_diagnostics(&model, &built, &mut diagnostics);
 
     // The restraint pre-checks, as the solve states them before forming the stiffness.
