@@ -2,7 +2,8 @@
 // read a native result's full copy before they build the proposal. Each press ends in one line at
 // the button pressed: the copy's size refusal in the result gates' sentence (the size and the limit),
 // another failure, or what the press made, including the same proposal as the one shown. While a
-// press works, the button says so and neither button starts another. The solve is a unit transport
+// press works, the button says so and neither button starts another; a press that outlives its result
+// makes no proposal and says so. The solve is a unit transport
 // replay of captured producer bytes for the invented preview model; the refusal is the native
 // command's reply, as the gates' own app test reaches it. NOT a native UI qualification witness.
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
@@ -14,7 +15,7 @@ vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("./test/nat
 import { App } from "./App";
 import { getLocalStorageCapability } from "./services/projectService";
 import { describeFullResultRefused, FullResultRefused, RESULT_DETAIL_WEBVIEW_LIMIT, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES } from "./services/nativeResult";
-import { PROPOSAL_FEATURE } from "./features/agent-proposals/useProposalPress";
+import { PROPOSAL_FEATURE, PROPOSAL_SUPERSEDED } from "./features/agent-proposals/useProposalPress";
 import { loadDesignKnowledge } from "./services/previewService";
 import { createNativeMechanicsReplay, REPLAY_COMMANDS } from "./test/nativeMechanicsReplay";
 
@@ -181,4 +182,36 @@ describe("the sample proposal buttons", () => {
     expect(generateButton()).toHaveTextContent("Generate review proposal");
     expect(generateButton()).toBeEnabled();
   }, 90_000);
+
+  it("a press that outlives its result makes no proposal, and says so at the button", async () => {
+    await installPreviewReplay();
+    let release!: () => void;
+    const held = new Promise<void>((resolve) => { release = resolve; });
+    // The copy is read from the result pressed on, while that result is held; only its delivery waits.
+    answerFullCopy((forward) => { const copy = forward(); return held.then(() => copy); });
+    render(<App />);
+    await screen.findByTestId("workspace-toolbar");
+    await solve();
+    const disposals = () => invokeMock.mock.calls.filter(([command]) => command === "dispose_preview_mechanics_result").length;
+
+    operations("agent");
+    fireEvent.click(proposeButton());
+    await waitFor(() => expect(proposeButton()).toHaveTextContent("Proposing…"));
+
+    // A second solve replaces the result the press was made on: the session disposes the one it stops holding.
+    const disposed = disposals();
+    nativeMenuCommand("view.section.solve");
+    fireEvent.click(within(screen.getByTestId("workspace-section-solve")).getByTestId("run-mechanics-preview"));
+    await waitFor(() => expect(disposals()).toBeGreaterThan(disposed), { timeout: 30_000 });
+    // The new result is shown (and the solve has cleared the proposal) before the held copy is delivered.
+    await waitFor(() => expect(screen.getByTestId("status-pill-mechanics")).toHaveAttribute("title", "MECHANICS_SOLVED"), { timeout: 30_000 });
+    await waitFor(() => expect(within(screen.getByTestId("workspace-section-solve")).getByTestId("run-mechanics-preview")).toBeEnabled(), { timeout: 30_000 });
+    await settle();
+
+    await act(async () => { release(); });
+    operations("agent");
+    expect(await workbenchLine()).toHaveTextContent(PROPOSAL_SUPERSEDED);
+    expect(screen.getByTestId("agent-proposal-summary")).toHaveTextContent("No active proposal");
+    expect(proposeButton()).toBeEnabled();
+  }, 120_000);
 });

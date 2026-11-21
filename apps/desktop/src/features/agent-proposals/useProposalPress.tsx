@@ -15,7 +15,7 @@ export const PROPOSAL_FEATURE = "the review proposal";
 export const PROPOSAL_MADE = "Review proposal made from this result.";
 export const PROPOSAL_REPLACED = "Review proposal made from this result; it replaces the one shown before.";
 export const PROPOSAL_UNCHANGED = "Unchanged: the proposal made is the same as the one shown.";
-export const PROPOSAL_SUPERSEDED = "The result changed while the proposal was being made, so it was not made from this result. Press again to make one from this result.";
+export const PROPOSAL_SUPERSEDED = "The result changed while the proposal was being made, so none was made. Press again to make one from this result.";
 export const PROPOSAL_BUSY_TITLE = "A review proposal is being made.";
 
 export type ProposalPressSource = "panel" | "workbench";
@@ -25,7 +25,8 @@ type PressState =
   | { status: "working"; by: ProposalPressSource }
   /** `after` is the proposal shown when the outcome was first rendered; the line stays while it is. */
   | { status: "done"; by: ProposalPressSource; before: AgentProposal | null; after?: AgentProposal | null }
-  | { status: "superseded"; by: ProposalPressSource; of: unknown }
+  /** The result pressed on was replaced or cleared before the press ended; the session set no proposal. */
+  | { status: "superseded"; by: ProposalPressSource }
   | { status: "refused" | "failed"; by: ProposalPressSource; text: string; of: unknown };
 
 export type ProposalPressLine = { tone: "status" | "refused" | "failed"; text: string };
@@ -67,13 +68,14 @@ export function useProposalPress({
     void (async () => {
       try {
         await latest.current.generate();
-        setState(latest.current.result !== basis
-          ? { status: "superseded", by, of: latest.current.result }
-          : { status: "done", by, before });
+        setState(latest.current.result !== basis ? { status: "superseded", by } : { status: "done", by, before });
       } catch (error) {
-        setState(error instanceof FullResultRefused
-          ? { status: "refused", by, text: describeFullResultRefused(error, PROPOSAL_FEATURE), of: latest.current.result }
-          : { status: "failed", by, text: `The review proposal could not be made: ${failureWords(error)}`, of: latest.current.result });
+        // A refusal or failure of a result no longer shown is not this result's: the press was outlived.
+        setState(latest.current.result !== basis
+          ? { status: "superseded", by }
+          : error instanceof FullResultRefused
+            ? { status: "refused", by, text: describeFullResultRefused(error, PROPOSAL_FEATURE), of: latest.current.result }
+            : { status: "failed", by, text: `The review proposal could not be made: ${failureWords(error)}`, of: latest.current.result });
       } finally {
         inFlight.current = false;
       }
@@ -89,7 +91,8 @@ export function useProposalPress({
         return { tone: "status", text: sameProposal(state.before, after) ? PROPOSAL_UNCHANGED : PROPOSAL_REPLACED };
       }
       case "superseded":
-        return state.of === result ? { tone: "status", text: PROPOSAL_SUPERSEDED } : null;
+        // Shown while there is a result to press on again.
+        return result ? { tone: "status", text: PROPOSAL_SUPERSEDED } : null;
       case "refused":
       case "failed":
         return state.of === result ? { tone: state.status, text: state.text } : null;

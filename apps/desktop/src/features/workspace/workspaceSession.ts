@@ -1912,7 +1912,10 @@ export function useWorkspaceSession() {
 
   async function handleProposal() {
     // The sample proposal reads full rows (a C2 consumer): a native result's bounded full copy.
-    setProposal(await loadSampleProposal(result && isNativeResult(result) ? (await loadC2Full(result, { record: false })).result : result, selectedReviewTarget));
+    // A press that outlives its result sets nothing: a new solve clears the proposal, and one made from the result it replaced is not of the result shown.
+    const basis = result;
+    const made = await loadSampleProposal(basis && isNativeResult(basis) ? (await loadC2Full(basis, { record: false })).result : basis, selectedReviewTarget);
+    if (heldResultRef.current === basis) setProposal(made);
   }
 
   function handleQueueEditorIntent(intent: EditorOperationIntent) {

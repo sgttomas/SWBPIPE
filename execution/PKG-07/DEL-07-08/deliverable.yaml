@@ -165,6 +165,7 @@ code_paths:
 - core/gui/pkg02_boundary.py
 checks:
 - apps/desktop/src/App.test.tsx
+- apps/desktop/src/App.proposalButtons.test.tsx
 - apps/desktop/src/features/workspace/exactCurrentPanels.test.tsx
 - apps/desktop/src/features/workspace/currentResultUnitPolicy.test.tsx
 - apps/desktop/src/features/history/modelStateHistory.session.test.tsx
