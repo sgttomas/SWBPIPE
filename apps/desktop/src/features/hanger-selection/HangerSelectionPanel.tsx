@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { listLocalLibraries, openLocalLibrary, saveLocalLibrary, validateLibraryImport, type LocalLibraryIndexEntry } from "../../services/libraryImportService";
 import type { OperationBatch } from "../../services/operationBatchService";
-import { buildHangerSelectionBatch, type HangerDocument } from "./hangerSelection";
+import { buildHangerSelectionBatch, directionRemovals, selectionConfigurationChange, type HangerDocument } from "./hangerSelection";
 import { usePreparation, type WorkflowProps } from "../offline-proposal-intake/workflowSupport";
 import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 
@@ -131,7 +131,8 @@ export function HangerSelectionPanel(props: WorkflowProps) {
     {state.error && <p role="alert">{state.error}</p>}{notice && <p role="status">{notice}</p>}
     {current && review && <div><h4>Review configuration replacement</h4>
       <p>Previous top-level stiffness and nonlinear settings will be removed. Review the complete before and after configuration.</p>
-      <details open><summary>Before and after</summary><pre>{review.batch.operations[0].change.before}</pre><pre>{review.batch.operations[0].change.after}</pre></details>
+      {directionRemovals(review.batch).map(removal => <p key={removal.supportId} data-testid="hanger-selection-direction-removal">{removal.text}</p>)}
+      <details open><summary>Before and after</summary><pre>{selectionConfigurationChange(review.batch)?.change.before}</pre><pre>{selectionConfigurationChange(review.batch)?.change.after}</pre></details>
       <button type="button" disabled={state.pending} aria-describedby={disabledReason ? "hanger-selection-disabled-reason" : undefined} title={disabledReason} onClick={() => { props.onQueueBatch(review.batch); setReview(null); }}>Queue hanger selection for review</button>
     </div>}
     {review && !current && <p role="status">This selection draft is stale. Prepare it again.</p>}
