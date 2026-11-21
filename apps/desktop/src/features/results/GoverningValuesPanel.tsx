@@ -19,14 +19,25 @@ export type GoverningRequest = GoverningRequestInput & Readonly<{ serial: number
 
 export const GOVERNING_VALUES_LABEL = "Governing values";
 
+/** A case by its short reference (the key's id, e.g. "load:L-100"); its full name is the hover text. */
+export function governingCaseText(item: Pick<GoverningValue, "caseKey" | "caseLabel">): string {
+  const key = item.caseKey ?? "";
+  const at = key.indexOf(":");
+  return at > 0 ? key.slice(at + 1) : item.caseLabel;
+}
+/** The entity of a located value: its first part ("pipe:P-100 · station · method" reads "pipe:P-100"). */
+export function governingEntityText(label: string): string {
+  return label.split(" · ")[0];
+}
+
 function ValueButton({ item, testId, onOpen, prefix }: { item: GoverningValue; testId: string; onOpen: () => void; prefix?: string }) {
   return (
     <button type="button" className="governing-value" data-testid={testId} onClick={onOpen}
-      title={`Open the row of ${item.entityLabel}, ${item.caseLabel}, in its table`}>
+      title={`${item.entityLabel}, ${item.caseLabel}. Opens its row in its table.`}>
       <span className="governing-component">{prefix ?? item.component}</span>
       <EngineeringQuantity quantity={{ value: item.value, unit: item.unit, dimension_id: item.dimension }} />
-      <span className="governing-entity">{item.entityLabel}</span>
-      <span className="governing-case">{item.caseLabel}</span>
+      <span className="governing-entity">{governingEntityText(item.entityLabel)}</span>
+      <span className="governing-case">{governingCaseText(item)}</span>
     </button>
   );
 }
