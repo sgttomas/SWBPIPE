@@ -4,12 +4,33 @@
 // clear warnings BEFORE a private-value export is offered, (d) redact private
 // values for public/shared contexts, and (e) checksum the offered manifest.
 // All fixture data is invented.
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
-import type { PreviewModel } from "../../types";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import type { PackageHashEvidence, PreviewModel } from "../../types";
 import { RedactionExportControlsPanel } from "./RedactionExportControlsPanel";
 
+// The package hash is the real one unless a test resolves it by hand.
+const hashing = vi.hoisted(() => ({
+  byHand: false,
+  pending: [] as Array<{ packet: unknown; resolve: (hash: PackageHashEvidence) => void }>
+}));
+vi.mock("../../services/hashService", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../services/hashService")>();
+  return {
+    ...actual,
+    computePackageHash: vi.fn((...args: Parameters<typeof actual.computePackageHash>) =>
+      hashing.byHand
+        ? new Promise<PackageHashEvidence | null>((resolve) => hashing.pending.push({ packet: args[1], resolve }))
+        : actual.computePackageHash(...args)
+    )
+  };
+});
+
 afterEach(cleanup);
+afterEach(() => {
+  hashing.byHand = false;
+  hashing.pending.length = 0;
+});
 
 const PRIVATE_MATERIAL_LABEL = "User entered alloy placeholder";
 
@@ -133,6 +154,56 @@ describe("RedactionExportControlsPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("redaction-checksum").textContent).toContain("sha256:");
     });
+  });
+
+  it("offers a changed context's manifest with its checksum pending, never with the previous context's checksum (issue 497)", async () => {
+    hashing.byHand = true;
+    const handHash = (label: string): PackageHashEvidence => ({
+      algorithm: "sha256", canonicalization: "rfc8785_jcs", payload_scope: "package_review_payload",
+      payload_excludes: "manifest_and_validation_report_package_hash_carrier_fields", payload_ref: label,
+      value: `sha256:${label}`, hash_status: "computed_local_preview"
+    });
+    const resolveLatest = (context: string, label: string) => {
+      const computation = [...hashing.pending].reverse()
+        .find((item) => (item.packet as { export_run: { export_context: string } }).export_run.export_context === context);
+      expect(computation, `a checksum computation for ${context}`).toBeDefined();
+      return act(async () => computation!.resolve(handHash(label)));
+    };
+    const offered = (href: string | null) => {
+      expect(href?.startsWith("data:application/json")).toBe(true);
+      const manifest = JSON.parse(decodeURIComponent(href!.split(",", 2)[1])) as {
+        export_run: { export_context: string };
+        checksum: { hash_status: string; value?: string };
+      };
+      return { context: manifest.export_run.export_context, checksum: manifest.checksum };
+    };
+    render(<RedactionExportControlsPanel model={inventedModel()} />);
+
+    // Context A: the local private export with explicit intent, its checksum resolved.
+    fireEvent.click(screen.getByTestId("redaction-intent-toggle"));
+    await resolveLatest("local_private", "context-a");
+    const link = screen.getByTestId("redaction-export-link");
+    expect(offered(link.getAttribute("href"))).toEqual({ context: "local_private", checksum: handHash("context-a") });
+
+    // Switch to the public report context, recording the href of every commit: each
+    // mutation record holds the value before it, and the attribute holds the last one.
+    const observer = new MutationObserver(() => undefined);
+    observer.observe(link, { attributes: true, attributeFilter: ["href"], attributeOldValue: true });
+    fireEvent.change(screen.getByTestId("redaction-context-select"), { target: { value: "public_report" } });
+    const records = observer.takeRecords();
+    observer.disconnect();
+    expect(screen.getByTestId("redaction-export-link")).toBe(link);
+    expect(records.length).toBeGreaterThan(0);
+    expect(offered(records[0].oldValue).context).toBe("local_private");
+    const committed = [...records.slice(1).map((record) => record.oldValue), link.getAttribute("href")].map(offered);
+
+    // The first commit after the switch already offers B's manifest with its checksum pending.
+    expect(committed[0]).toEqual({ context: "public_report", checksum: { hash_status: "pending_local_preview_hash" } });
+    expect(committed.every((item) => item.context === "public_report")).toBe(true);
+    expect(committed.filter((item) => item.checksum.value === "sha256:context-a")).toEqual([]);
+
+    await resolveLatest("public_report", "context-b");
+    expect(offered(link.getAttribute("href"))).toEqual({ context: "public_report", checksum: handHash("context-b") });
   });
 
   it("keeps the informational boundary language on screen", () => {
