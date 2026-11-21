@@ -77,10 +77,12 @@ async function current(model: PreviewModel, bytes: string, jobIdPrefix: string) 
   return { model, result, inputManifest, analysisRun, numericalHealth, renders };
 }
 
-/** The render request the panel sends when the person presses Render. */
+/** The render request the panel sends when the person presses Render. The rendering is the
+ * local-private one: without that stated intent the route is blocked before any request. */
 async function renderedInput(session: Awaited<ReturnType<typeof current>>): Promise<Json> {
   const { model, result, analysisRun, inputManifest, numericalHealth, renders } = session;
   render(<RenderedReportPanel model={model} result={result} numericalHealth={numericalHealth} analysisRun={analysisRun} projectSummary={null} inputManifest={inputManifest} />);
+  fireEvent.click(screen.getByTestId("rendered-report-local-private-intent"));
   fireEvent.click(screen.getByTestId("rendered-report-render"));
   await waitFor(() => expect(renders).toHaveLength(1));
   return (renders[0] as Json).input;
