@@ -1338,6 +1338,59 @@ fn a_pool_refusal_keeps_the_model_editable_and_the_store_untouched() {
     assert_eq!(registry.pool().reserved_total(), 0, "every lease ended");
 }
 
+/// A saved run whose record binds its result rules at a revision this version does not read
+/// (the same identifier, another digest) is not restored under the installed table: the project
+/// opens with its model editable and the run refused by name, telling the person to solve the
+/// model again, with nothing held and no stored byte changed. The current binding restores
+/// (`a_native_save_reopens_into_native_custody_after_a_reset`), and so does a registry variant
+/// (`a_run_recorded_before_rt_a4_reopens_through_the_native_commands`).
+#[test]
+fn a_saved_run_bound_to_an_unread_table_revision_is_refused_and_the_store_untouched() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let dir = scratch("reopen-unread-table");
+    let path = dir.join("store.sqlite");
+    let case = persistence_cases().into_iter().next().unwrap();
+    let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
+    assert_eq!(native_save(&registry, &path, &case.save_args(&job, "create", Value::Null, Value::Null), &unlimited()).unwrap()["result"]["outcome"], "saved");
+    registry.dispose_all_results();
+    let project_id = case.project_id();
+    // The record bound to another well-formed digest of its own table, resealed as the reopen cases reseal it.
+    let mut record: Value = serde_json::from_str(&column_text(&path, "SELECT analysis_run_json FROM local_projects")).unwrap();
+    let binding = record["analysis_run"]["reproducibility"]["semantic_contract"].clone();
+    let installed = open_pipe_stress_result_export::reader_verdict::current_binding(binding["id"].as_str().unwrap());
+    assert_eq!(installed, binding["sha256"].as_str(), "a fresh save binds the installed table");
+    let other = "5".repeat(64);
+    record["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"] = json!(other);
+    for reference in record["analysis_run"]["result_refs"].as_array_mut().unwrap() {
+        reference["semantic_contract"]["sha256"] = json!(other);
+    }
+    reseal(&mut record);
+    Connection::open(&path).unwrap().execute("UPDATE local_projects SET analysis_run_json = ?1", params![serde_json::to_string(&record).unwrap()]).unwrap();
+    let digests = || -> Vec<(std::path::PathBuf, String)> {
+        let mut files: Vec<_> = std::fs::read_dir(&dir).unwrap().map(|entry| entry.unwrap().path()).collect();
+        files.sort();
+        files.into_iter().map(|file| { let digest = file_digest(&file); (file, digest) }).collect()
+    };
+    let before = digests();
+    let opened = native_open(&registry, &path, Some(project_id)).unwrap();
+    let run = &opened["stored_run"];
+    assert_eq!(run["state"], "refused", "{run}");
+    assert_eq!(run["code"], RESTORE_REFUSED);
+    let message = run["message"].as_str().unwrap();
+    let why = format!(
+        "was not opened: its record binds the result rules `{}` at a revision this version does not read (SOURCE_RECORDED_BINDING_UNKNOWN), so its rows are not shown; solve the model again.",
+        binding["id"].as_str().unwrap()
+    );
+    assert!(message.starts_with(&format!("{RESTORE_REFUSED}: project `{project_id}`'s stored run")) && message.contains(&why), "{message}");
+    assert_eq!(opened["model"]["project"]["id"], project_id, "the project and its model open for editing");
+    assert!(opened["model_document_version"].is_object());
+    assert_eq!(registry.pool_status().retained_results, 0, "nothing is held");
+    assert_eq!(digests(), before, "every stored file is unchanged: no migration, no reseal, nothing written");
+    std::fs::remove_dir_all(&dir).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0, "every lease ended");
+}
+
 /// A reset during the read refuses the registration and drops what was
 /// loaded; full retention refuses by name; a stored result that is not JSON
 /// fails the open with the legacy open's own message.
