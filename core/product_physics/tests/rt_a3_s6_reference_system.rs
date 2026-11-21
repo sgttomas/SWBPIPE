@@ -44,17 +44,18 @@
 //!
 //! **RS-CE1's support action.** RS-CE1 is consumed: its
 //! `constant_effort_support_applied_load` row states 9,000 N, and its published
-//! `support_reaction_component_v2` Fz is also 9,000 N in every case and mode;
-//! the test asserts the applied-load row and prints the published support action
-//! without asserting it. EQ-1 here uses the applied-load row. (An earlier header
+//! `support_reaction_component_v2` Fz is also 9,000 N in RS-SUS, RS-OPE and
+//! RS-SAM in each mode; the test asserts the applied-load row and prints the
+//! published support action without asserting it. EQ-1 here uses the applied-load row. (An earlier header
 //! reported the published support action as 0.0; that no longer holds.)
 //!
 //! **Remaining limits shown here.** The intended RS-FR1V `one_way` normal
 //! source for RS-FR1 solves (DEL-04-04 REQ-012) and is not confirmed: the
 //! confirmation admits only a base restraint as a derived normal's source, so
-//! without RS-G1 each case is published `NUMERICAL_INTEGRITY_SENSITIVE` with
-//! that named reason. RS-G1's cases carry R-3's unqualified recovery basis, a
-//! qualification limit, not a solve refusal; the test reports their standing.
+//! without RS-G1 RS-SUS, RS-OPE and RS-SAM are each published
+//! `NUMERICAL_INTEGRITY_SENSITIVE` with that named reason. With RS-G1 those three
+//! carry R-3's unqualified recovery basis, a qualification limit, not a solve
+//! refusal; the test reports their standing.
 use open_pipe_stress_canonical_json::canonical_json;
 use open_pipe_stress_product_physics::result_export::reader_verdict;
 use open_pipe_stress_product_physics::self_weight::{generate_self_weight_operations, SelfWeightGravity, SelfWeightRequest};
@@ -361,8 +362,8 @@ fn check_eq(model: &Value, envelope: &Value, label: &str, extra: f64) -> f64 {
 
 /// The released full system solves through the public entry in both modes with
 /// no blocking finding, the reader admits it, every overlaid support is
-/// published in every case under its own id, and EQ-1/EQ-2 and the subtraction
-/// relations hold. The states and standings are printed (KR-04 is not verified).
+/// published in RS-SUS, RS-OPE and RS-SAM under its own id, EQ-1/EQ-2 hold in
+/// those three, and the subtraction relations hold. The states and standings are printed (KR-04 is not verified).
 #[test]
 fn the_released_full_reference_system_solves_through_the_s6_connecting_path() {
     let model = overlay(false);
@@ -528,11 +529,12 @@ fn known_limitation_witness_the_no_gap_overlay_publishes_confirmed_sensitive_cas
 }
 
 /// RS-FR1V in its intended `one_way` form as RS-FR1's normal source (DEL-04-04
-/// REQ-012) now solves on the full model; it is not confirmed. With RS-G1 every
-/// case carries R-3's unqualified recovery basis, as the interim overlay's do.
-/// Without RS-G1 every case runs the confirmation, which admits only a base
-/// restraint as a derived normal's source, so each case is published
-/// `NUMERICAL_INTEGRITY_SENSITIVE` with that named reason. The published states
+/// REQ-012) now solves on the full model; it is not confirmed. With RS-G1,
+/// RS-SUS, RS-OPE and RS-SAM each carry R-3's unqualified recovery basis, as the
+/// interim overlay's do. Without RS-G1 each of those three runs the
+/// confirmation, which admits only a base restraint as a derived normal's
+/// source, so each is published `NUMERICAL_INTEGRITY_SENSITIVE` with that named
+/// reason. The published states
 /// are reported, not verified (no independent solution of this system exists).
 #[test]
 fn the_intended_one_way_normal_source_of_rs_fr1_solves_and_is_not_confirmed() {

@@ -107,8 +107,8 @@ fn verdicts(model: &Value, mode: PreviewSolverMode, label: &str) -> Vec<String> 
     }).collect()
 }
 
-/// The metre twin publishes checks passed in every case; the fixture as
-/// committed publishes the same verdicts.
+/// The metre twin publishes checks passed in RS-SUS, RS-OPE and RS-SAM; the
+/// fixture as committed publishes the same verdicts in those three.
 #[test]
 fn the_reference_systems_generated_weight_cases_publish_their_metre_twins_verdict() {
     let fixture: Value = serde_json::from_str(FIXTURE).unwrap();
