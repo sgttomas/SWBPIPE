@@ -1,5 +1,6 @@
 """D4 monitor: injected telemetry/clock only; no native process, sleep or network."""
 import json
+import os
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -141,8 +142,9 @@ def test_live_admission_requires_health_before_reading_the_single_key(tmp_path, 
     monkeypatch.setattr(journey, "RETAINED", root / "retained")
     monkeypatch.setattr(journey, "read_key", lambda *args: pytest.fail("key must not be consumed"))
     monkeypatch.setattr(journey.fcntl, "flock", lambda *args: None)
-    monkeypatch.setattr(journey.sys, "argv", ["fixture", "--mode", "live", "--app", "unused",
-        "--process-probe", "unused", "--boundary-probe", "unused", "--endpoint", "unused", "--key-stdin",
+    (root / "unused").write_bytes(b"")  # the locations are checked first: they must be real files
+    monkeypatch.setattr(journey.sys, "argv", ["fixture", "--mode", "live", "--app", str(root / "unused"),
+        "--process-probe", str(root / "unused"), "--boundary-probe", str(root / "unused"), "--endpoint", "unused", "--key-stdin",
         "--output", str(root / "run"), "--memory-heartbeat", str(root / "heartbeat.json"),
         "--cancel-file", str(root / "cancel"), "--release-grace", "0"])
     # Only private temporary file I/O; don't use the real host lock path.
@@ -214,12 +216,15 @@ def test_run_monitor_checks_at_admission_ready_exit_and_success_use_owned_cleanu
     root = private(tmp_path)
     bundle = root / "Copy.app" / "Contents"
     (bundle / "MacOS").mkdir(parents=True)
+    (bundle / "MacOS" / "app").write_text("# SWBPIPE_NATIVE_SMOKE_STRICT_CHOOSER\n")  # an invented executable, never run
+    (bundle / "Info.plist").write_bytes(__import__("plistlib").dumps({"CFBundleIdentifier": "com.invented.app",
+                                                                     "CFBundleExecutable": "app"}))
     (bundle / "Resources" / "agent-supplier").mkdir(parents=True)
     (bundle / "Resources" / "agent-supplier" / "codex").touch()
     run_root = root / "run"
     run_root.mkdir()
     args = SimpleNamespace(mode="live", app=bundle / "MacOS" / "app", model="invented",
-        context_window=32768, endpoint="unused", turn_timeout=1, deadline=10, release_grace=0,
+        context_window=32768, endpoint="http://127.0.0.1:9/v1", turn_timeout=1, deadline=10, release_grace=0,
         process_probe=root / "unused-probe", cancel_file=root / "cancel", memory_heartbeat=root / "heartbeat.json")
     app = FakeApp()
     app.stdin, app.stderr = io.BytesIO(), None
@@ -228,19 +233,33 @@ def test_run_monitor_checks_at_admission_ready_exit_and_success_use_owned_cleanu
     observer = SimpleNamespace(exited=False, status=0, invalid=None, sample=lambda: not app.alive, close=Mock())
     anchor = SimpleNamespace(pid=5432, kill=Mock(), wait=Mock(), stdin=io.BytesIO(), stdout=io.BytesIO())
     events, checks = [], []
-    launch = Mock(return_value=app)
+    def started(*a, **k):
+        (Path(k["cwd"]) / "report.json").write_text("{}")  # the run-owned report, inside the home
+        return app
+    launch = Mock(side_effect=started)
     monkeypatch.setattr(journey, "sha256", lambda p: json.loads(journey.PIN.read_text())["codex"]["binarySha256"])
     monkeypatch.setattr(journey, "preflight", lambda *a: {"passed": True})
     monkeypatch.setattr(journey.subprocess, "Popen", launch)
+    monkeypatch.setattr(journey.native_launch_guard, "_POPEN", launch)  # the helper's own start
+    monkeypatch.setattr(journey.native_launch_guard, "check_launch", lambda *a: {})
+    monkeypatch.setattr(journey.native_launch_guard, "temp_root", lambda: root)
+    monkeypatch.setattr(journey.native_launch_guard, "PLATFORM", "darwin")
+    monkeypatch.setattr(journey.native_launch_guard, "_process_table",
+                        lambda: {os.getpid(): (1, 1, os.getuid(), "/invented", "2026-01-01T00:00:00")})
+    monkeypatch.setattr(journey.native_launch_guard, "_open_under", lambda path: set())
     monkeypatch.setattr(journey, "Lines", lambda *a: lines)
     monkeypatch.setattr(journey, "Scope", lambda *a: observer)
-    monkeypatch.setattr(journey, "anchor_start", lambda *a: anchor)
+    monkeypatch.setattr(journey, "anchor_start", lambda *a, **k: anchor)
     monkeypatch.setattr(journey, "cleanup_anchor", lambda value: events.append(("rescue", value)))
     monkeypatch.setattr(journey, "answer_gate", lambda p, value: events.append(("gate", value)) or True)
     monkeypatch.setattr(journey, "residents", lambda *a: [])
     monkeypatch.setattr(journey, "pid_live", lambda *a: False)
     monkeypatch.setattr(journey, "judge", lambda *a: [])
-    (run_root / "report.json").write_text("{}")
+    for name in ("invented-library", "invented-cache", "invented-home"):
+        (root / name).mkdir(exist_ok=True)
+    monkeypatch.setattr(journey.LaunchGuard, "library", root / "invented-library")  # never the real Library in a test
+    monkeypatch.setattr(journey.LaunchGuard, "cache", root / "invented-cache")  # nor the system's per-user cache folder
+    monkeypatch.setattr(journey.LaunchGuard, "real", root / "invented-home")  # nor the account's home folders
     monkeypatch.setattr(journey, "RETAINED", root / "retained")
     monkeypatch.setattr(journey.time, "sleep", lambda *a: None)
     def health(*a):
