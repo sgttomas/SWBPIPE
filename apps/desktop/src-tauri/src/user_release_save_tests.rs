@@ -27,8 +27,8 @@ use open_pipe_stress_product_physics::PreviewSolverMode;
 use open_pipe_stress_report_package::read_report_package_container;
 use open_pipe_stress_report_package::user_release::{
     derive, derive_input_manifest, input_manifest_ref, SoftwareIdentity, UserReleaseBasis, ANALYSIS_RECORD_UNBOUND, CONTENT_NOT_DERIVED,
-    LIBRARY_REFERENCED, NOT_THIS_ROUTE, PRIVATE_CLASS, RECORD_INVALID, RESULT_NOT_ATTESTED, RULE_PACK_REFERENCED,
-    UNBOUND,
+    EXACT_ROUTE_NOT_ADMITTED, LIBRARY_REFERENCED, NOT_THIS_ROUTE, PRIVATE_CLASS, RECORD_INVALID, RECORD_VERSION_NOT_OF_ROUTE,
+    RECORD_VERSION_RETIRED, RESULT_NOT_ATTESTED, RULE_PACK_REFERENCED, UNBOUND,
 };
 use open_pipe_stress_report_renderer::UserReleaseRecord;
 use serde_json::{json, Value};
@@ -1081,6 +1081,59 @@ fn d6_exact_record_form_is_supported() {
     let mut former = standing_item.clone();
     former.record_version = "1.1.0".into();
     assert_eq!(former.form_defect(), Some("record_version"));
+}
+
+/// DEL-08-01 REQ-024: route 010 reads the record's version first, before the exact source
+/// binding and every check that speaks of the route. D-6's exact record 1.1.0 on the committed
+/// exact request is refused for its version end to end, with its custody and texts bound or
+/// not; the exact record version on a pressure-free request is refused as not of its route;
+/// the pressure-free record version on an exact-route request keeps its present refusal.
+#[test]
+fn route_010_refuses_a_record_version_by_name_before_the_route() {
+    let v: Value = serde_json::from_str(D6_VECTORS[0]).unwrap();
+    let registry = registry(ScriptedHost::normal());
+    registry.record_attested_solve_for_tests(1, PreviewSolverMode::SparseInteractive, SolveAttestation::of(&v["model"], &v["source"]).unwrap());
+    let job = v["request"]["report"]["exact_route"]["admission"]["native_job_id"].as_str().unwrap().to_string();
+    let custody = |id: &str| (id == job).then(|| d6_custody(&v));
+    let admit_exact = |request: &Value, lookup: &crate::report_package_save::CustodyLookup<'_>| {
+        let args = d6_args(&v, request);
+        let mut lease = registry.acquire_interactive_ingress(1024).unwrap();
+        lease.grow_to(1024 + ingress_lease_bytes(&args).unwrap()).unwrap();
+        let mut session = UserReleaseSession { registry: &registry, lease: &mut lease };
+        match admit_report_package_session(args, &software(), &mut no_store, lookup, Some(&mut session)) {
+            Err(SaveRefusal::Command(error)) => error,
+            Err(SaveRefusal::Resource(refusal)) => panic!("resource {refusal:?}"),
+            Ok(_) => panic!("admitted"),
+        }
+    };
+    let version = "/request/report/report_context/user_release/record_version";
+    let mut former = v["request"].clone();
+    let record = &mut former["report"]["report_context"]["user_release"];
+    record["record_version"] = json!("1.1.0");
+    record["scope"]["not_carried"].as_array_mut().unwrap().push(json!("ineligible_exact_route_results"));
+    let unbound: &crate::report_package_save::CustodyLookup<'_> = &crate::report_package_save::no_custody;
+    let bound: &crate::report_package_save::CustodyLookup<'_> = &custody;
+    for (name, lookup) in [("bound", bound), ("no custody", unbound)] {
+        let error = admit_exact(&former, lookup);
+        assert_eq!(error.code, RECORD_VERSION_RETIRED, "{name}: {}", error.message);
+        assert_eq!(error.diagnostics[0].path, version, "{name}");
+        assert!(!error.message.contains("route"), "{name}: refused for its version: {}", error.message);
+    }
+    let mut legacy = v["request"].clone();
+    legacy["report"]["report_context"]["user_release"]["record_version"] = json!("1.0.0");
+    let error = admit_exact(&legacy, &custody);
+    assert!(![RECORD_VERSION_RETIRED, RECORD_VERSION_NOT_OF_ROUTE].contains(&error.code.as_str()), "{} {}", error.code, error.message);
+    assert_eq!(error.code, EXACT_ROUTE_NOT_ADMITTED, "{}", error.message);
+
+    let basis = basis();
+    let (registry, _) = basis.session(PreviewSolverMode::SparseInteractive);
+    let mut crossed = basis.request();
+    crossed["report"]["report_context"]["user_release"]["record_version"] = json!("1.2.0");
+    let (path, message) = refused(basis.args_for(&crossed, &basis.model, &basis.manifest), &registry, RECORD_VERSION_NOT_OF_ROUTE);
+    assert_eq!(path, version, "{message}");
+    let mut former = basis.request();
+    former["report"]["report_context"]["user_release"]["record_version"] = json!("1.1.0");
+    refused(basis.args_for(&former, &basis.model, &basis.manifest), &registry, RECORD_VERSION_RETIRED);
 }
 
 /// D-6: exact texts receive the same additive priced parse on route 010.

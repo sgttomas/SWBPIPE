@@ -3,10 +3,11 @@
 //! native admission does not label or bound caller content: it derives the
 //! whole request from the bound basis and requires canonical equality.
 //!
-//! D-6 extends this derivation to exact results with record 1.1.0 (§11):
-//! native admission checks custody and delivered texts, then the derivation
-//! rebuilds exact sections, limitations and Diagnostics from the bound source.
-//! The older pressure-free record and its vectors remain unchanged.
+//! D-6 extends this derivation to exact results (§11): native admission checks
+//! custody and delivered texts, then the derivation rebuilds exact sections,
+//! limitations and Diagnostics from the bound source. An exact result's record
+//! is 1.2.0 (DEL-08-01 REQ-024; D-6's 1.1.0 is retired, [`check_record_version`]),
+//! a pressure-free result's 1.0.0, unchanged with its vectors.
 //!
 //! The bound basis is the model `M`, the source carrier `S` (attested for `M`
 //! with the solver mode `m`), the run record `R` (checked by native
@@ -100,6 +101,41 @@ pub const RECORD_INVALID: &str = "REPORT-USER-RELEASE-RECORD-INVALID";
 /// A bound record member differs from the value native admission computed or
 /// bound (§2.5 step 4).
 pub const UNBOUND: &str = "REPORT-USER-RELEASE-UNBOUND";
+/// The record is of a retired version (DEL-08-01 REQ-024): D-6's exact record
+/// 1.1.0, whose scope named results not carried on the ground of their numerical
+/// standing. It is not read and not migrated.
+pub const RECORD_VERSION_RETIRED: &str = "REPORT-USER-RELEASE-RECORD-VERSION-RETIRED";
+/// The record's version is not its result's route's (DEL-08-01 REQ-024): a
+/// pressure-free result carries record 1.0.0, an exact-route result 1.2.0.
+pub const RECORD_VERSION_NOT_OF_ROUTE: &str = "REPORT-USER-RELEASE-RECORD-VERSION-NOT-OF-ROUTE";
+/// The retired record versions ([`RECORD_VERSION_RETIRED`]).
+pub const RETIRED_RECORD_VERSIONS: [&str; 1] = ["1.1.0"];
+
+/// The record version's checks, first among a record's checks wherever one is
+/// read (native admission, the derivation, the producer and the reader), before
+/// any check that speaks of the route:
+/// - a retired version refuses by name ([`RECORD_VERSION_RETIRED`]);
+/// - with the result's route known (`exact_result`), the exact record version
+///   on a pressure-free result refuses by name ([`RECORD_VERSION_NOT_OF_ROUTE`]).
+///
+/// The pressure-free record version on an exact-route result keeps the route's
+/// own refusal ([`EXACT_ROUTE_NOT_ADMITTED`]), which each caller's route check
+/// gives next; any other version is the record's form defect (`record_version`).
+pub fn check_record_version(version: &str, exact_result: Option<bool>) -> Result<(), String> {
+    use open_pipe_stress_report_renderer::USER_RELEASE_EXACT_RECORD_VERSION;
+    if RETIRED_RECORD_VERSIONS.contains(&version) {
+        return Err(format!(
+            "{RECORD_VERSION_RETIRED}: user-release record version {version} is retired and is not read; save the shareable report package again from its project."
+        ));
+    }
+    if exact_result == Some(false) && version == USER_RELEASE_EXACT_RECORD_VERSION {
+        return Err(format!(
+            "{RECORD_VERSION_NOT_OF_ROUTE}: a pressure-free result's user-release record is version {}, not {version}.",
+            open_pipe_stress_report_renderer::USER_RELEASE_RECORD_VERSION
+        ));
+    }
+    Ok(())
+}
 /// A user-release record on the local-private route 009 (§2.5 step 3).
 pub const NOT_THIS_ROUTE: &str = "REPORT-USER-RELEASE-NOT-THIS-ROUTE";
 /// The model carries a detectable library reference (§2.7).
@@ -934,6 +970,7 @@ pub fn derive_exact(basis: &UserReleaseBasis<'_>, native_job_id: &str, received_
 fn derive_in(basis: &UserReleaseBasis<'_>, custody: Option<(&str, &str)>) -> Result<UserReleaseDerivation, String> {
     let UserReleaseBasis { model, source, solver_mode, run_record, software, record, composition } = *basis;
     let exact = source.pointer("/producer/semantic_contract_id").and_then(Value::as_str).is_some_and(crate::exact_sections::is_exact_identity);
+    check_record_version(&record.record_version, Some(exact))?;
     if exact {
         if record.record_version != open_pipe_stress_report_renderer::USER_RELEASE_EXACT_RECORD_VERSION {
             check_pressure_free(source)?;
@@ -1262,6 +1299,8 @@ pub fn assemble_derived(
     input_manifest: &Value,
 ) -> Result<crate::ReportPackageContainerOutcome, String> {
     for document in request.get("result_documents").and_then(Value::as_array).into_iter().flatten() {
+        let exact = crate::document_form::producer_contract_id(document).is_some_and(crate::exact_sections::is_exact_identity);
+        check_record_version(&inputs.record.record_version, Some(exact))?;
         crate::document_form::check_route_admitted(document)?;
         if inputs.record.record_version != open_pipe_stress_report_renderer::USER_RELEASE_EXACT_RECORD_VERSION {
             crate::exact_sections::check_user_released_profile(USER_RELEASED_DESKTOP_PROFILE, document)?;

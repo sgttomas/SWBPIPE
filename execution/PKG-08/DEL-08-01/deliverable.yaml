@@ -169,9 +169,12 @@ code_paths:
 - apps/desktop/src/features/report/reportPackageRequest.ts
 - apps/desktop/src/features/report/userReleasedReportPackageSave.ts
 # REQ-024 "Package and user release": the dialog's frame statements, the native host's
-# report_frame_statements operation of the verdict command (also DEL-04-07 and DEL-07-07 code).
+# report_frame_statements operation of the verdict command (also DEL-04-07 and DEL-07-07 code);
+# its reply decoder is in apps/desktop/src/services/nativeResult.ts, DEL-07-07's. The rendered
+# report's source, which the package and the user release also take on the exact route.
 - apps/desktop/src/features/report/reportFrameStatements.ts
 - apps/desktop/src-tauri/src/native_verdict.rs
+- apps/desktop/src/features/report/renderableReportSource.ts
 - apps/desktop/src/features/report/controlledRouteEvidence.ts
 - apps/desktop/src/services/reportRenderService.ts
 - apps/desktop/src/services/reportPackageSaveService.ts
@@ -271,10 +274,12 @@ checks:
 - apps/desktop/src/features/report/userReleaseExact.parity.test.ts
 - apps/desktop/src/features/report/UserReleaseDialog.test.tsx
 - apps/desktop/src/features/report/reportFrameStatements.test.ts
+- apps/desktop/src/features/report/renderableReportSource.test.ts
 - apps/desktop/src/features/report/userReleasedReportPackageCell.test.ts
 - apps/desktop/src/features/report/userReleasedReportPackageSave.test.ts
 - apps/desktop/src/features/workspace/reportPackageSave.session.test.tsx
 - apps/desktop/src/features/workspace/userReleaseSave.session.test.tsx
+- apps/desktop/src/features/workspace/reportPackageAdmission.session.test.tsx
 - apps/desktop/src/features/workspace/reportPackageRedactionRecords.session.test.tsx
 - apps/desktop/src/features/results/outputPolicy.test.ts
 - apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx

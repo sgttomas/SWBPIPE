@@ -394,11 +394,54 @@ fn the_native_host_gives_the_dialog_the_frame_statements_the_package_states() {
         }
     }
     // No statements without a standing record, and none for a result the host does not hold.
-    let unavailable = crate::native_verdict::frame_statements_reply("invented-job", r#"{"numerical_standing":null,"standing_refusal":null}"#).unwrap_err();
+    let unavailable = crate::native_verdict::frame_statements_reply("invented-job", &json!({"numerical_standing": null, "standing_refusal": null})).unwrap_err();
     assert!(unavailable.starts_with(&format!("{}: ", crate::native_verdict::FRAME_STATEMENTS_UNAVAILABLE)), "{unavailable}");
-    let refused = crate::native_verdict::frame_statements_reply("invented-job", r#"{"numerical_standing":null,"standing_refusal":"NUMERICAL_TAG_UNSUPPORTED: invented"}"#).unwrap_err();
+    let refused =
+        crate::native_verdict::frame_statements_reply("invented-job", &json!({"numerical_standing": null, "standing_refusal": "NUMERICAL_TAG_UNSUPPORTED: invented"})).unwrap_err();
     assert_eq!(refused, format!("{}: NUMERICAL_TAG_UNSUPPORTED: invented", crate::native_verdict::FRAME_STATEMENTS_UNAVAILABLE));
     let w = witness(NAMES[0]);
     let model_text = serde_json::to_string(&w.model).unwrap();
     assert!(frame_statements_reply_for(&w.registry, "invented-unknown-job", &model_text).is_err());
+}
+
+/// DEL-04-07's pool contract (its scope: a command's lease is priced before its request is
+/// parsed and released once, when the command returns; only the response is outside the
+/// pool) for the verdict command's two report standing operations, as the neighbouring
+/// operations hold it (`native_verdict_tests`): every lease the command took is released when
+/// it returns, and after the release the command allocates nothing input-sized. The frame
+/// statements are composed from the standing record before the reading is serialised, while
+/// the reading and its leases are held, so that after the release nothing is allocated beyond
+/// a fixed few bytes; composing them from the serialised reading after the release would
+/// parse the whole reading there. The reading grows with the model's load cases and
+/// supports (each witness's is above the bound; its parse allocates several times its
+/// length).
+#[test]
+fn the_report_standing_operations_allocate_nothing_input_sized_after_their_leases() {
+    use crate::native_verdict::tests::released;
+    const AFTER_RELEASE: i64 = 256;
+    for name in NAMES {
+        let w = witness(name);
+        let (registry, _gate, job) = held_natively(ScriptedHost::normal(), w.intake.as_bytes(), Some("sparse_interactive"), &w.raw);
+        let model_text = serde_json::to_string(&w.model).unwrap();
+        let reading = open_pipe_stress_operation_applier::reader_report_standing_json(&w.raw, &model_text, None).unwrap();
+        assert!(reading.len() as i64 > 4 * AFTER_RELEASE, "{name}: the reading ({} bytes) is above the bound", reading.len());
+        let held = registry.pool().reserved_total();
+        for operation in [crate::native_verdict::REPORT_FRAME_STATEMENTS, crate::native_verdict::REPORT_STANDING] {
+            let args = json!({"jobId": job, "operation": operation, "modelJson": model_text});
+            let body = InvokeBody::Raw(serde_json::to_vec(&args).unwrap());
+            let (raw, lease) = crate::native_verdict::reserve(&registry, &body, &headers(Some(INGRESS_ARGS_JSON_V1))).unwrap();
+            let handle = registry.clone();
+            let ((reply, since), _) = crate::ingress::counting::measure(|| {
+                let reply = crate::native_verdict::run(handle, raw, lease);
+                (reply, released::since())
+            });
+            let reply = reply.unwrap_or_else(|error| panic!("{name} {operation}: {error:?}"));
+            let (at, peak) = since.expect("the command marks its release");
+            assert!(peak - at <= AFTER_RELEASE, "{name} {operation}: {} bytes live after the leases were released (reply {} bytes)", peak - at, reply.len());
+            assert_eq!(registry.pool().reserved_total(), held, "{name} {operation}: the command's leases are released");
+            if operation == crate::native_verdict::REPORT_STANDING {
+                assert_eq!(reply, reading, "{name}");
+            }
+        }
+    }
 }

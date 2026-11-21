@@ -1043,6 +1043,16 @@ pub fn reader_report_standing_json(
     model_json: &str,
     invocation_json: Option<&str>,
 ) -> Result<String, String> {
+    reader_report_standing(source_json, model_json, invocation_json).map(|reading| reading.to_string())
+}
+/// [`reader_report_standing_json`]'s reading before it is serialised, for a
+/// caller that composes from the standing record while its inputs' leases are
+/// held (the native host's frame statements, DEL-08-01 REQ-024).
+pub fn reader_report_standing(
+    source_json: &str,
+    model_json: &str,
+    invocation_json: Option<&str>,
+) -> Result<Value, String> {
     use open_pipe_stress_product_physics::result_export::reader_verdict as rv;
     use open_pipe_stress_report_standing::{reader_readability, report_standing};
     let source = parse_reader_input("source", source_json)?;
@@ -1058,7 +1068,7 @@ pub fn reader_report_standing_json(
     } else {
         (Value::Null, Value::Null)
     };
-    Ok(serde_json::json!({"standing": standing, "readability": readability, "numerical_standing": record, "standing_refusal": refusal}).to_string())
+    Ok(serde_json::json!({"standing": standing, "readability": readability, "numerical_standing": record, "standing_refusal": refusal}))
 }
 /// One named reader's raw validation (`reader_verdict::READERS`).
 pub fn reader_validate_json(

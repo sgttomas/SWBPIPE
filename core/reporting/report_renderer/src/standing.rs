@@ -266,14 +266,22 @@ pub fn confirmation_statement(outcome: HistoricalConfirmation) -> &'static str {
     }
 }
 
-/// One support's statement in one load case.
+/// One support's statement in one load case: its computed state and its reason
+/// ([`support_reason`]).
 pub fn support_statement(support: &SupportRecord, outcome: HistoricalConfirmation) -> String {
-    let state = state_words(support.state.0);
-    let gap = support.behavior.0 == SupportBehavior::Gap;
+    format!("Computed state: {}. {}", state_words(support.state.0), support_reason(support, outcome))
+}
+
+/// One support's reviewed reason in one load case, as its support row states it: for a
+/// gap support the family fact, else the statement of the case's confirmation outcome,
+/// each outcome mapped, with no wildcard arm.
+pub fn support_reason(support: &SupportRecord, outcome: HistoricalConfirmation) -> &'static str {
     // No confirmation covers gap supports (DEL-04-01 REQ-016): a family fact, true
     // whatever this result records about its load case.
-    let tail = match outcome {
-        _ if gap => GAP_NOT_CONFIRMED,
+    if support.behavior.0 == SupportBehavior::Gap {
+        return GAP_NOT_CONFIRMED;
+    }
+    match outcome {
         HistoricalConfirmation::SolverReportedEstablished => {
             "Not confirmed: the solver's confirmation reports this state established, conditional on the solver's inverse-norm step. This result does not publish the deciding quantity or its interval."
         }
@@ -283,8 +291,7 @@ pub fn support_statement(support: &SupportRecord, outcome: HistoricalConfirmatio
         HistoricalConfirmation::NotEstablishedDetailQuoted => "Not confirmed: the solver's confirmation did not establish the support states of this load case.",
         HistoricalConfirmation::NoConfirmationRecord => "Not confirmed: the result records no support-state confirmation for this load case.",
         HistoricalConfirmation::NotApplicable => "Not confirmed.",
-    };
-    format!("Computed state: {state}. {tail}")
+    }
 }
 
 /// Whether a historical confirmation outcome lets the report call its load case's
@@ -309,24 +316,29 @@ pub const GAP_NOT_CONFIRMED: &str = "Not confirmed: no confirmation covers gap s
 /// (`numericalHealthText.ts`, `KEPT_FOR_INSPECTION_TEXT`, `RECOVERY_BASIS_UNQUALIFIED_TEXT`).
 pub const KEPT_FOR_INSPECTION: &str = "Kept for inspection.";
 
+/// Whether the record lets the report call `support`'s state confirmed in a load case
+/// whose confirmation outcome is `outcome`: never for a gap support (no confirmation covers
+/// gap supports), else as [`outcome_confirms_states`] decides.
+pub fn support_state_confirmed(support: &SupportRecord, outcome: HistoricalConfirmation) -> bool {
+    support.behavior.0 != SupportBehavior::Gap && outcome_confirms_states(outcome)
+}
+
 /// SUPPORT-STATES-FRAME (DEL-08-01 REQ-024, "Package and user release"): the frame's
 /// statement that the result's support states are not confirmed, where any load case has
 /// a nonlinear support whose state the record does not let the report call confirmed.
-/// Its reasons are the reviewed statements of the support rows, once each in load-case
-/// order: the gap family fact for a load case with a gap support, else the case's
-/// confirmation statement. `None` where no load case has such a support. It does not say
-/// that a load case is kept for inspection; that is
-/// [`kept_for_inspection_frame_statement`]'s.
+/// Its reasons are those supports' reviewed reasons ([`support_reason`], the support rows'
+/// own wording), each once, in the order first met: load cases in record order, supports
+/// in each case's order. `None` where no support is unconfirmed. It does not say that a
+/// load case is kept for inspection; that is [`kept_for_inspection_frame_statement`]'s.
 pub fn support_states_frame_statement(standing: &NumericalStanding) -> Option<String> {
     let mut reasons: Vec<&'static str> = Vec::new();
     for case in &standing.cases {
-        if case.supports.is_empty() || outcome_confirms_states(case.confirmation.outcome.0) {
-            continue;
-        }
-        let gap = case.supports.iter().any(|support| support.behavior.0 == SupportBehavior::Gap);
-        let reason = if gap { GAP_NOT_CONFIRMED } else { confirmation_statement(case.confirmation.outcome.0) };
-        if !reasons.contains(&reason) {
-            reasons.push(reason);
+        let outcome = case.confirmation.outcome.0;
+        for support in case.supports.iter().filter(|support| !support_state_confirmed(support, outcome)) {
+            let reason = support_reason(support, outcome);
+            if !reasons.contains(&reason) {
+                reasons.push(reason);
+            }
         }
     }
     if reasons.is_empty() {

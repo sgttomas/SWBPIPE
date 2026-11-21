@@ -135,8 +135,9 @@ export function useResultsSessionState(advanceReportSource?: () => number) {
   // exact-route result that meets every other Current requirement, whose mechanics are
   // solved and whose standing names only standing findings, whatever that standing is: a
   // candidate, which the build step and the native host each read in full before any
-  // render (`renderableReportSource`). Every other output, the report package included,
-  // keeps `currentSolvedResult`.
+  // render (`renderableReportSource`). The report package and the user release take this
+  // same source (DEL-08-01 REQ-024, "Package and user release"), which on the pressure-free
+  // routes is `currentSolvedResult` alone; every other output keeps `currentSolvedResult`.
   const renderableSolvedResult = renderableReportSource({
     current: currentSolvedResult,
     result,

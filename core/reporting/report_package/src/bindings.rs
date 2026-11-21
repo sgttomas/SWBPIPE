@@ -825,6 +825,8 @@ fn check_user_release_record(request: &ReportPackageRequest, audit_manifest: &au
     let value = request.report.pointer("/report_context/user_release").ok_or_else(|| unbound("presence"))?;
     let record: open_pipe_stress_report_renderer::UserReleaseRecord =
         serde::Deserialize::deserialize(value).map_err(|_| format!("{}: the user-release record is not of its form", user_release::PACKAGE_UNBOUND))?;
+    let exact = document_form::producer_contract_id(document).is_some_and(exact_sections::is_exact_identity);
+    user_release::check_record_version(&record.record_version, Some(exact))?;
     if let Some(member) = record.form_defect() {
         return Err(format!("{}: the user-release record's {member} is not of its form", user_release::PACKAGE_UNBOUND));
     }

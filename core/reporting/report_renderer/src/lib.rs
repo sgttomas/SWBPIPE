@@ -138,8 +138,9 @@ pub const USER_RELEASE_RECORD_VERSION: &str = "1.0.0";
 /// Version 1.2.0 widens 1.1.0's scope to every exact-route result the rendered
 /// report admits, whatever its numerical standing, which the report states
 /// (DEL-08-01 REQ-024, "Package and user release"): `scope.not_carried` no longer
-/// names `ineligible_exact_route_results`. A 1.1.0 record is of another version
-/// and is refused by name (`record_version`), with no migration.
+/// names `ineligible_exact_route_results`. A 1.1.0 record is retired: it is refused
+/// for its version wherever a record is read, before any check of the route
+/// (`report_package::user_release::check_record_version`), with no migration.
 pub const USER_RELEASE_EXACT_RECORD_VERSION: &str = "1.2.0";
 /// The statement the user ticks in the dialog, verbatim (§2.2, §2.3).
 pub const USER_RELEASE_STATEMENT: &str =

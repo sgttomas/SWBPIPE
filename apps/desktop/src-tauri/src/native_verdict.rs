@@ -30,6 +30,8 @@
 //!   invocationJson?}` reads the held result as `report_standing` does, with the
 //!   same texts and admission, and returns the frame statements the renderer
 //!   composes from that standing record (`report_renderer::standing::frame_statements`),
+//!   composed before the reading is serialised and while it and the leases below
+//!   are held, so that only the reply outlives them,
 //!   each a line, in the frame's order: `{document_kind:
 //!   "swbpipe.desktop.report_frame_statements", version: 1, job_id,
 //!   frame_statements}`. The user-release dialog shows them before the user's
@@ -284,8 +286,14 @@ pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Resu
     let reading = diagnostic_phase(call, "source_admit", source_bound.materialization_bytes, || registry.acquire_result_parse(source_bound.materialization_bytes))?;
     #[cfg(test)]
     tests::gate::pass(tests::gate::key(&registry, "read"));
+    // DEL-08-01 REQ-024 and DEL-04-07's pool contract: the frame statements are
+    // composed from the reading's standing record before it is serialised, while
+    // the reading and its leases are held; only the reply, a few lines, outlives them.
     #[cfg(feature = "native-smoke")]
-    let outcome = if report_standing {
+    let outcome = if frame_statements {
+        open_pipe_stress_operation_applier::reader_report_standing(held.text(), model_json.as_deref().unwrap_or("null"), invocation_json.as_deref())
+            .and_then(|reading| frame_statements_reply(&job_id, &reading))
+    } else if report_standing {
         open_pipe_stress_operation_applier::reader_report_standing_json(held.text(), model_json.as_deref().unwrap_or("null"), invocation_json.as_deref())
     } else if call != 0 {
         diagnostic_read(call, reader.as_deref(), held.text(), model_json.as_deref(), invocation_json.as_deref())
@@ -295,6 +303,10 @@ pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Resu
     }}.map_err(CommandError::Command);
     #[cfg(not(feature = "native-smoke"))]
     let outcome = match reader.as_deref() {
+        None if frame_statements => {
+            open_pipe_stress_operation_applier::reader_report_standing(held.text(), model_json.as_deref().unwrap_or("null"), invocation_json.as_deref())
+                .and_then(|reading| frame_statements_reply(&job_id, &reading))
+        }
         None if report_standing => {
             open_pipe_stress_operation_applier::reader_report_standing_json(held.text(), model_json.as_deref().unwrap_or("null"), invocation_json.as_deref())
         }
@@ -311,9 +323,8 @@ pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Resu
         held.note_validation(reader, text);
     }
     drop((reading, held, lease));
-    if frame_statements {
-        return outcome.and_then(|text| frame_statements_reply(&job_id, &text).map_err(CommandError::Command));
-    }
+    #[cfg(test)]
+    tests::released::mark();
     outcome
 }
 
@@ -326,11 +337,9 @@ pub(crate) const FRAME_STATEMENTS_UNAVAILABLE: &str = "REPORT-FRAME-STATEMENTS-U
 pub(crate) const FRAME_STATEMENTS_DOCUMENT_KIND: &str = "swbpipe.desktop.report_frame_statements";
 
 /// The frame statements of a report standing reading
-/// (`operation_applier::reader_report_standing_json`): those the renderer composes
-/// from its standing record, or a refusal where it gives none.
-pub(crate) fn frame_statements_reply(job_id: &str, reading: &str) -> Result<String, String> {
-    let reading: serde_json::Value =
-        serde_json::from_str(reading).map_err(|error| format!("{FRAME_STATEMENTS_UNAVAILABLE}: the report standing reading is not JSON: {error}"))?;
+/// (`operation_applier::reader_report_standing`), before it is serialised: those
+/// the renderer composes from its standing record, or a refusal where it gives none.
+pub(crate) fn frame_statements_reply(job_id: &str, reading: &serde_json::Value) -> Result<String, String> {
     let record = &reading["numerical_standing"];
     if record.is_null() {
         let why = match reading["standing_refusal"].as_str() {
@@ -339,8 +348,8 @@ pub(crate) fn frame_statements_reply(job_id: &str, reading: &str) -> Result<Stri
         };
         return Err(format!("{FRAME_STATEMENTS_UNAVAILABLE}: {why}"));
     }
-    let standing: open_pipe_stress_report_renderer::standing::NumericalStanding =
-        serde_json::from_value(record.clone()).map_err(|error| format!("{FRAME_STATEMENTS_UNAVAILABLE}: {error}"))?;
+    let standing = open_pipe_stress_report_renderer::standing::NumericalStanding::deserialize(record)
+        .map_err(|error| format!("{FRAME_STATEMENTS_UNAVAILABLE}: {error}"))?;
     Ok(serde_json::json!({
         "document_kind": FRAME_STATEMENTS_DOCUMENT_KIND,
         "version": 1,

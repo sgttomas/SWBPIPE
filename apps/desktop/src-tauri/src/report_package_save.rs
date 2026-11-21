@@ -1484,6 +1484,9 @@ fn admit_both_routes(
     let request_value = parse_canonical("request", &request_text)?;
     drop(request_text);
     check_request_object_form(&request_value)?;
+    if user_release_route {
+        check_user_release_record_version(&request_value)?;
+    }
     // D-6: both routes require W-11's exact source binding below. Route 010
     // additionally retains its solve attestation and whole-request derivation.
     // W-11 (§3.6): the native source binding of an exact-route request, before
@@ -1652,6 +1655,24 @@ fn refused_sized(code: &str, path: &str, detail: &str) -> ReportPackageSaveComma
 /// Step 4 (§2.5): the record is of its form (§2.3; no `content_binding`) and
 /// each bound member equals a value admission itself computed or already
 /// bound, never another caller field alone.
+/// DEL-08-01 REQ-024: the user-release record's version, first among route 010's
+/// checks of the request, before the exact source binding and every check that
+/// speaks of the route: a retired version is refused for its version, and the
+/// version follows the request's result natively, pressure-free with record
+/// 1.0.0 and exact with 1.2.0 (`user_release::check_record_version`). The
+/// record's other members are step 4's ([`check_user_release_record`]).
+fn check_user_release_record_version(request: &Value) -> Result<(), ReportPackageSaveCommandError> {
+    const VERSION: &str = "/request/report/report_context/user_release/record_version";
+    let Some(version) = text_at(request, "/report/report_context/user_release/record_version") else {
+        return Ok(());
+    };
+    user_release::check_record_version(version, Some(exact_request(request))).map_err(|message| {
+        // The library's refusal is "CODE: text", its code one of the two version codes.
+        let (code, text) = message.split_once(": ").unwrap_or((user_release::RECORD_VERSION_RETIRED, message.as_str()));
+        refuse(code, VERSION, text.to_string())
+    })
+}
+
 fn check_user_release_record(
     request: &Value,
     bound: &UserReleaseBound<'_>,
