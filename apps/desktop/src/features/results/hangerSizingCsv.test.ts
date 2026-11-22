@@ -21,10 +21,12 @@ import {
   hangerSizingSolvesCsv
 } from "./hangerSizingCsv";
 import { CONFIRMATION_STATEMENTS } from "./integrityStatus";
+import { BOUNDARY_SENTENCE } from "./numericalHealthText";
 import {
   HANGER_SIZING_CONFIRMATION_NOT_APPLICABLE,
   formatHangerSizingSolverStanding,
   hangerSizingView,
+  integrityDisclosureMessage,
   type HangerSizingSizedView
 } from "./hangerSizingView";
 
@@ -299,6 +301,10 @@ describe("hanger-sizing solves CSV", () => {
       ].join(","))
     ]));
     expect(document.result.solves.map((solve) => solve.label)).toEqual(["S_W", "S_C", "S_O1", "S_O2", "V_C", "V_O1", "V_O2"]);
+    // Every passing row carries the boundary sentence beside its standing.
+    const csv = readCsv(serializeCsvTable(solves.table));
+    expect(csv.rows).toHaveLength(7);
+    for (const row of csv.rows) expect(textField(csv, row, "Solver standing")).toContain(BOUNDARY_SENTENCE);
   });
 
   it("states a solve of a model with no nonlinear support (four_span)", async () => {
@@ -307,6 +313,7 @@ describe("hanger-sizing solves CSV", () => {
     for (const row of csv.rows) expect(row.slice(3, 5)).toEqual(["no nonlinear support", "no nonlinear support"]);
     for (const row of csv.rows) {
       expect(textField(csv, row, "Solver standing")).toBe(formatHangerSizingSolverStanding("solver_checks_passed"));
+      expect(textField(csv, row, "Solver standing")).toContain(BOUNDARY_SENTENCE);
       expect(textField(csv, row, "Support-state confirmation")).toBe(HANGER_SIZING_CONFIRMATION_NOT_APPLICABLE);
     }
     expect(csv.rows[2].slice(0, 3)).toEqual(["S_O1", "load:O1", "00e44382ceae8d90e5f4d3cd234489c8867e8279c1ee1acdaddac43386cfce5c"]);
@@ -352,6 +359,55 @@ describe("hanger-sizing CSV: failing closed on a tampered view", () => {
       const input = await context(bad);
       for (const build of builders) expect(() => build(input), fault).toThrow(fault);
     }
+  });
+
+  it("exports neither file from a view whose integrity disclosures are orphaned, multi-label, duplicated or forged", async () => {
+    const view = await sized(twoSpan());
+    const own = { code: "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", names: ["S_W"], message: integrityDisclosureMessage("sensitive") };
+    const solves = view.solves.map((solve, i) => (i === 0 ? { ...solve, solverStanding: "sensitive" as const } : solve));
+    const tampered: [string, HangerSizingSizedView["disclosures"], string][] = [
+      ["orphan label", [own, { ...own, names: ["S_O99"] }], "HANGER_SIZING_SOLVE_INTEGRITY_DISCLOSURE_MALFORMED: disclosures[1]"],
+      ["multi-label", [{ ...own, names: ["S_W", "S_C"] }], "HANGER_SIZING_SOLVE_INTEGRITY_DISCLOSURE_MALFORMED: disclosures[0]"],
+      ["duplicate", [own, own], "HANGER_SIZING_SOLVE_INTEGRITY_DISCLOSURE_DUPLICATE: S_W"],
+      ["forged message", [{ ...own, message: "sensitive: a verified error bound for this solve" }], "HANGER_SIZING_SOLVE_INTEGRITY_DISCLOSURE_MALFORMED: disclosures[0]"]
+    ];
+    for (const [name, disclosures, fault] of tampered) {
+      const input = await context({ ...view, solves, disclosures });
+      for (const build of builders) expect(() => build(input), name).toThrow(fault);
+    }
+    // The same document tampered the same way builds no view to export.
+    const document = twoSpan() as unknown as { result: { solves: Record<string, unknown>[]; disclosures: unknown[] } };
+    document.result.solves[0].solver_standing = "sensitive";
+    document.result.disclosures = [own, { ...own, names: ["S_O99"] }];
+    await expect(exports(document as unknown as HangerSizingSizedDocument)).rejects.toThrow("HANGER_SIZING_SOLVE_INTEGRITY_DISCLOSURE_MALFORMED: disclosures[1]");
+  });
+
+  it("exports neither file from a view whose quoted detail is blank by the shared rule", async () => {
+    const view = await sized(twoSpan());
+    for (const detail of ["", "  ", "\u0085", "\uFEFF", "\u0085\uFEFF"]) {
+      const solves = view.solves.map((solve, i) => (i === 2 ? { ...solve, supportStateConfirmation: { outcome: "not_established_detail_quoted" as const, detail } } : solve));
+      const input = await context({ ...view, solves });
+      for (const build of builders) expect(() => build(input), JSON.stringify(detail)).toThrow("HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: S_O1");
+    }
+    const solves = view.solves.map((solve, i) => (i === 2 ? { ...solve, supportStateConfirmation: { outcome: "not_established_detail_quoted" as const, detail: "support:α" } } : solve));
+    const csv = readCsv(serializeCsvTable(hangerSizingSolvesCsv(await context({ ...view, solves })).table));
+    expect(textField(csv, csv.rows[2], "Support-state confirmation")).toBe(`${CONFIRMATION_STATEMENTS.not_established_detail_quoted} Quoted reason: support:α`);
+  });
+
+  it("exports a sensitive weight solve carrying the engine's exact integrity message, disclosed and not refused", async () => {
+    const document = twoSpan() as unknown as { result: { solves: Record<string, unknown>[]; disclosures: unknown[] } };
+    document.result.solves[0].solver_standing = "sensitive";
+    document.result.disclosures = [{ code: "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", names: ["S_W"], message: integrityDisclosureMessage("sensitive") }];
+    const { candidates, solves } = await exports(document as unknown as HangerSizingSizedDocument);
+    const expected = `HANGER_SIZING_DERIVED_SOLVE_INTEGRITY (S_W): ${integrityDisclosureMessage("sensitive")}`;
+    for (const table of [candidates.table, solves.table]) {
+      const csv = readCsv(serializeCsvTable(table));
+      for (const row of csv.rows) expect(textField(csv, row, "Disclosures")).toBe(expected);
+    }
+    const csv = readCsv(serializeCsvTable(solves.table));
+    expect(textField(csv, csv.rows[0], "Solver standing")).toBe(formatHangerSizingSolverStanding("sensitive"));
+    expect(textField(csv, csv.rows[0], "Solver standing")).not.toContain(BOUNDARY_SENTENCE);
+    for (const row of csv.rows.slice(1)) expect(textField(csv, row, "Solver standing")).toContain(BOUNDARY_SENTENCE);
   });
 
   it("builds no view to export from a document tampered the same way", async () => {

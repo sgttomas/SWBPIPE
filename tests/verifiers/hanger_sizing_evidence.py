@@ -585,6 +585,19 @@ def _closure_sized(doc):
                              "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY disclosure")
 
 
+# The 30 code points a quoted detail may not consist of alone: the union of Rust char::is_whitespace, Python
+# str.isspace and ECMA-262 \s (String.prototype.trim). The engine's is_blank_detail, the desktop's isBlankDetail and
+# the schema's SupportStateConfirmation detail pattern use this same set.
+BLANK_DETAIL_CODEPOINTS = frozenset(
+    [*range(0x0009, 0x000E), *range(0x001C, 0x0021), 0x0085, 0x00A0, 0x1680, *range(0x2000, 0x200B),
+     0x2028, 0x2029, 0x202F, 0x205F, 0x3000, 0xFEFF])
+
+
+def _is_blank_detail(s: str) -> bool:
+    """True when every code point of ``s`` is a blank-detail code point, the empty string included."""
+    return all(ord(c) in BLANK_DETAIL_CODEPOINTS for c in s)
+
+
 def _closure_confirmation(value, path, stateless):
     confirmation = _obj(value, path, ("outcome", "detail"))
     outcome = _one_of(confirmation["outcome"], f"{path}.outcome", CONFIRMATION_OUTCOMES)
@@ -592,7 +605,7 @@ def _closure_confirmation(value, path, stateless):
         raise Difference(f"{path}.outcome: not {NOT_APPLICABLE!r} exactly when the solve publishes no "
                          "nonlinear-support state")
     if outcome == DETAIL_QUOTED:
-        if not _string(confirmation["detail"], f"{path}.detail").strip():
+        if _is_blank_detail(_string(confirmation["detail"], f"{path}.detail")):
             raise Difference(f"{path}.detail: blank")
     elif confirmation["detail"] is not None:
         raise Difference(f"{path}.detail: not null for the outcome {outcome!r}")

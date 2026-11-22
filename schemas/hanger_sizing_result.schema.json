@@ -1058,7 +1058,7 @@
     },
     "SupportStateConfirmation": {
       "type": "object",
-      "description": "What the solver's integrity record of this solve's case states of its support-state confirmation, read from the producer's fixed text as the report standing reads it. not_applicable exactly when the solve publishes no nonlinear-support state. solver_reported_established is the solver's report, not an independently verified confirmation bound. detail quotes the solver's reason exactly when the outcome is not_established_detail_quoted, and is null otherwise.",
+      "description": "What the solver's integrity record of this solve's case states of its support-state confirmation, read from the producer's fixed text as the report standing reads it, except that the producer's relative-displacement clause after the confirmed line is recognised and a blank reason is no_confirmation_record. not_applicable exactly when the solve publishes no nonlinear-support state. solver_reported_established is the solver's report, not an independently verified confirmation bound. detail quotes the solver's reason exactly when the outcome is not_established_detail_quoted, and is null otherwise; a quoted detail has at least one character outside the 30 blank code points (U+0009..U+000D, U+001C..U+0020, U+0085, U+00A0, U+1680, U+2000..U+200A, U+2028, U+2029, U+202F, U+205F, U+3000, U+FEFF).",
       "properties": {
         "outcome": {
           "enum": [
@@ -1092,7 +1092,7 @@
         "properties": {
           "detail": {
             "type": "string",
-            "pattern": "\\S"
+            "pattern": "[^\\u0009-\\u000D\\u001C-\\u0020\\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]"
           }
         }
       },

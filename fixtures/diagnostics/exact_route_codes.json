@@ -1941,13 +1941,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 780,
+    "line": 824,
     "via": "field code"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 780,
+     "line": 824,
      "via": "field code",
      "severity": null,
      "through": [
@@ -4034,13 +4034,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 1003,
+    "line": 1047,
     "via": "field code"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 1003,
+     "line": 1047,
      "via": "field code",
      "severity": null
     }
@@ -4109,19 +4109,19 @@
     },
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 762,
+     "line": 806,
      "via": "refusal()",
      "severity": null
     },
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 792,
+     "line": 836,
      "via": "refusal()",
      "severity": null
     },
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 852,
+     "line": 896,
      "via": "refusal()",
      "severity": null
     },
@@ -4163,13 +4163,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 768,
+    "line": 812,
     "via": "field code"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 768,
+     "line": 812,
      "via": "field code",
      "severity": null,
      "through": [
@@ -4263,13 +4263,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 906,
+    "line": 950,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 906,
+     "line": 950,
      "via": "refusal()",
      "severity": null
     }
@@ -4560,13 +4560,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 934,
+    "line": 978,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 934,
+     "line": 978,
      "via": "refusal()",
      "severity": null
     },
@@ -4741,13 +4741,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 998,
+    "line": 1042,
     "via": "field code"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 998,
+     "line": 1042,
      "via": "field code",
      "severity": null
     }
@@ -22095,15 +22095,15 @@
   {
    "literal": "S_C",
    "sites": [
-    "core/analysis/hanger_sizing/src/derived.rs:1001",
-    "core/analysis/hanger_sizing/src/derived.rs:940",
+    "core/analysis/hanger_sizing/src/derived.rs:1045",
+    "core/analysis/hanger_sizing/src/derived.rs:984",
     "core/analysis/hanger_sizing/src/publish.rs:427"
    ]
   },
   {
    "literal": "S_O1",
    "sites": [
-    "core/analysis/hanger_sizing/src/derived.rs:996"
+    "core/analysis/hanger_sizing/src/derived.rs:1040"
    ]
   },
   {
@@ -22115,11 +22115,11 @@
   {
    "literal": "S_W",
    "sites": [
-    "core/analysis/hanger_sizing/src/derived.rs:1001",
-    "core/analysis/hanger_sizing/src/derived.rs:923",
-    "core/analysis/hanger_sizing/src/derived.rs:924",
-    "core/analysis/hanger_sizing/src/derived.rs:928",
-    "core/analysis/hanger_sizing/src/derived.rs:996",
+    "core/analysis/hanger_sizing/src/derived.rs:1040",
+    "core/analysis/hanger_sizing/src/derived.rs:1045",
+    "core/analysis/hanger_sizing/src/derived.rs:967",
+    "core/analysis/hanger_sizing/src/derived.rs:968",
+    "core/analysis/hanger_sizing/src/derived.rs:972",
     "core/analysis/hanger_sizing/src/publish.rs:427"
    ]
   },
@@ -22330,7 +22330,7 @@
   {
    "literal": "V_C",
    "sites": [
-    "core/analysis/hanger_sizing/src/derived.rs:976",
+    "core/analysis/hanger_sizing/src/derived.rs:1020",
     "core/analysis/hanger_sizing/src/publish.rs:429"
    ]
   },

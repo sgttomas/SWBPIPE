@@ -243,10 +243,22 @@ Every derived solve states its standing positively as `solver_standing`, the sam
 token its integrity disclosure carries when it has one, and beside its nonlinear
 supports' states its `support_state_confirmation`: what the solver's integrity record
 of that solve's case says of the converged support state, read from the producer's
-fixed text by the rule the report standing uses. A solve with nonlinear supports
-reads `solver_reported_established`, `not_attempted_reason_not_recorded`,
-`not_established_detail_quoted` (with the solver's one reason quoted as `detail`) or
-`no_confirmation_record`; a solve without any reads `not_applicable`. An established
+fixed text at the record's end. A solve with nonlinear supports reads
+`solver_reported_established` when the record ends with the confirmed-state line,
+alone or followed by the clause on support relative-displacement rows, by the case's
+recovery-guard sentence, or by the clause and then that sentence;
+`not_attempted_reason_not_recorded` or `not_established_detail_quoted` (with the
+solver's one reason quoted as `detail`) when it ends with the not-established
+sentence; and `no_confirmation_record` for any other ending, such as the
+displacement-correction-unavailable sentence. A solve without any reads
+`not_applicable`. This is the rule the report standing uses, with two deliberate
+differences: the report standing does not recognise the relative-displacement
+clause, which sizing reads as established; and a blank reason, which the producer
+never forms, is `no_confirmation_record` here rather than quoted. A reason is blank
+when it consists only of the 30 code points that Rust, Python or JavaScript treats as
+whitespace (U+0009–U+000D, U+001C–U+0020, U+0085, U+00A0, U+1680, U+2000–U+200A,
+U+2028, U+2029, U+202F, U+205F, U+3000, U+FEFF); the engine, every reader, the schema
+and the desktop use that one set. An established
 state is the solver's report and rests on the same unverified bound; it is not an
 independently verified confirmation.
 

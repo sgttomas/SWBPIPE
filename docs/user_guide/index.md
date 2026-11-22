@@ -760,7 +760,9 @@ to CSV.
   (`DISPLACEMENT_CORRECTION_UNAVAILABLE`). Values taken from that solve carry its
   standing.
 - **Integrity bound.** `solver_checks_passed` means only that the solver's own
-  checks found nothing against a solve; it is not a verified error bound.
+  checks found nothing against a solve; it is not a verified error bound, and the
+  desktop shows and exports it with the sentence that the checks do not measure the
+  error.
   SWBPIPE does not verify that bound, so every sized result, the panel and each
   CSV row state `integrity_bound` as `not_verified`
   (`inverse_norm_bound_not_verified`, LIM-026).
@@ -771,8 +773,9 @@ to CSV.
   or not applicable for a solve without nonlinear supports. An established state is
   the solver's report, not an independently verified confirmation. The desktop shows
   and exports nothing of a result whose bound, standing or confirmation is outside
-  these values or disagrees with its disclosures; it says the result could not be
-  displayed.
+  these values or disagrees with its disclosures, whose solve labels repeat, or whose
+  integrity disclosures are not sizing's own message for exactly one of its solves
+  each; it says the result could not be displayed.
 - **Standings.** The desktop shows the product reader's standings for the document it
   shows: closure, binding, arithmetic consistent with the published positions and
   derivation. None of them states that the mechanics are verified.

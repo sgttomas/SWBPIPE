@@ -24,6 +24,7 @@ import {
   HANGER_SIZING_STANDING_NAMES,
   formatHangerSizingSolverStanding,
   hangerSizingView,
+  integrityDisclosureMessage,
   type HangerSizingReaderEvidence
 } from "./hangerSizingView";
 import {
@@ -268,6 +269,44 @@ describe("HangerSizingPanel: basis, solves, standing and disclosures", () => {
       expect(screen.queryByTestId("hanger-sizing-integrity-bound"), name).toBeNull();
       cleanup();
     }
+  });
+
+  it("renders no sized view of a document whose integrity disclosures are orphaned, multi-label, duplicated or forged", async () => {
+    type Disclosing = { result: { solves: Record<string, unknown>[]; disclosures: unknown[] } };
+    const own = { code: "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", names: ["S_W"], message: SENSITIVE_MESSAGE };
+    const tampered: [string, unknown[], string][] = [
+      ["orphan label", [own, { ...own, names: ["S_O99"] }], "HANGER_SIZING_SOLVE_INTEGRITY_DISCLOSURE_MALFORMED: disclosures[1]"],
+      ["multi-label", [{ ...own, names: ["S_W", "S_C"] }], "HANGER_SIZING_SOLVE_INTEGRITY_DISCLOSURE_MALFORMED: disclosures[0]"],
+      ["duplicate", [own, own], "HANGER_SIZING_SOLVE_INTEGRITY_DISCLOSURE_DUPLICATE: S_W"],
+      ["forged message", [{ ...own, message: "sensitive: a verified error bound for this solve" }], "HANGER_SIZING_SOLVE_INTEGRITY_DISCLOSURE_MALFORMED: disclosures[0]"]
+    ];
+    for (const [name, disclosures, fault] of tampered) {
+      const document = twoSpan() as unknown as Disclosing;
+      document.result.solves[0].solver_standing = "sensitive";
+      document.result.disclosures = disclosures;
+      render(<HangerSizingPanel document={document as unknown as HangerSizingDocument} />);
+      expect((await screen.findByTestId("hanger-sizing-error")).textContent, name).toBe(`The sizing result could not be displayed: ${fault}`);
+      expect(screen.queryByTestId("hanger-sizing-sized"), name).toBeNull();
+      cleanup();
+    }
+  });
+
+  it("shows a sensitive weight solve with the engine's exact integrity message, disclosed and not refused, and exports it", async () => {
+    expect(integrityDisclosureMessage("sensitive")).toBe(SENSITIVE_MESSAGE);
+    const document = twoSpan() as unknown as { result: { solves: Record<string, unknown>[]; disclosures: unknown[] } };
+    document.result.solves[0].solver_standing = "sensitive";
+    document.result.disclosures = [{ code: "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", names: ["S_W"], message: integrityDisclosureMessage("sensitive") }];
+    await renderSized({ document: document as unknown as HangerSizingDocument });
+    expect(byId("solve-S_W-standing").textContent).toBe(formatHangerSizingSolverStanding("sensitive"));
+    expect(byId("solve-S_C-standing").textContent).toBe(formatHangerSizingSolverStanding("solver_checks_passed"));
+    expect(byId("solve-S_C-standing").textContent).toContain(BOUNDARY_SENTENCE);
+    expect(byId("disclosure-0").textContent).toBe(`HANGER_SIZING_DERIVED_SOLVE_INTEGRITY (S_W): ${SENSITIVE_MESSAGE}`);
+    fireEvent.click(screen.getByRole("button", { name: "Export CSV: Hanger sizing candidates" }));
+    fireEvent.click(screen.getByRole("button", { name: "Export CSV: Hanger sizing derived solves" }));
+    await waitFor(() => expect(saved.length).toBe(2));
+    const solves = readCsv(saved.find((item) => item.fileName === "swbpipe-hanger-sizing-solves.csv")!.text);
+    expect(solves.rows[0][solves.header.indexOf("Solver standing")]).toBe(formatHangerSizingSolverStanding("sensitive"));
+    for (const item of saved) expect(item.text).toContain(`HANGER_SIZING_DERIVED_SOLVE_INTEGRITY (S_W): ${SENSITIVE_MESSAGE}`);
   });
 
   it("states a conditional standing prominently, with what it means and the candidates with no fit", async () => {

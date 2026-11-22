@@ -12,9 +12,12 @@ needs:
     severities, including a case's `DISPLACEMENT_CORRECTION_UNAVAILABLE` warning with the message
     that names the component and the failure kind, so that sizing can disclose them by solve. For a
     case with nonlinear supports, the case's integrity diagnostic (`diagnostic:numerical-integrity:<case>`)
-    ends with the producer's fixed confirmed-state line, alone or followed by the case's S11-G
-    recovery sentence, or with its not-established sentence and reason, the text `report_standing`
-    reads, so that sizing can state each solve's support-state confirmation.
+    ends with the producer's fixed confirmed-state line, alone or followed by its relative-displacement
+    clause, by the case's S11-G recovery sentence, or by the clause and then that sentence; or with
+    its not-established sentence and reason; any other ending, such as the
+    displacement-correction-unavailable sentence, states no confirmation. This is the text `report_standing` reads, except
+    that `report_standing` does not recognise the relative-displacement clause. Sizing relies on it to
+    state each solve's support-state confirmation.
   gating: true
 - from: DEL-04-07
   when: Before projecting the authored source into sizing cases

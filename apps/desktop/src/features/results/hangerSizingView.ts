@@ -17,14 +17,17 @@
  *   malformed or differently bound evidence shows every standing as `not_checked`.
  *
  * - Refuses to build a sized view (it throws) whose `integrity_bound`, or any solve's
- *   `solver_standing` or `support_state_confirmation`, is outside its closed vocabulary, or whose
- *   standings are not what its integrity disclosures state (`hangerSizingResultFault`).
+ *   `solver_standing` or `support_state_confirmation`, is outside its closed vocabulary, whose
+ *   integrity disclosures are not the engine's exact messages, one per non-passing solve, or whose
+ *   standings are not what those disclosures state (`hangerSizingResultFault`).
+ * - Reads its inputs once, synchronously, before its first await, and builds the view from those
+ *   copies; a change to an input while the view is being built does not reach it.
  *
  * What it does not do: validate the rest of the document, mint Current or acceptance, state that
  * typed results are trusted, compute anything per record, or fall back to a native or `evaluate`
  * path. It never mutates its inputs. */
 
-import { canonicalSha256HexCheckedV1 } from "../../services/hashService";
+import { canonicalSha256HexCheckedV1, checkedJsonText } from "../../services/hashService";
 import type {
   HangerSizingCandidate,
   HangerSizingConfirmationOutcome,
@@ -39,6 +42,7 @@ import type {
   HangerSizingSupportStateConfirmation
 } from "./hangerSizingResult";
 import { supportStatesLine, type SupportStatesLine } from "./integrityStatus";
+import { BOUNDARY_SENTENCE } from "./numericalHealthText";
 
 // ---------------------------------------------------------------------------------------------
 // Labels and fixed display text
@@ -82,32 +86,74 @@ export function wellFormedSolverStanding(value: unknown): value is HangerSizingS
   return typeof value === "string" && (HANGER_SIZING_SOLVER_STANDINGS as readonly string[]).includes(value);
 }
 
+/** The four standings other than `solver_checks_passed`, each disclosed by `HANGER_SIZING_DERIVED_SOLVE_INTEGRITY`. */
+export const HANGER_SIZING_NONPASSING_STANDINGS: readonly Exclude<HangerSizingSolverStanding, "solver_checks_passed">[] = Object.freeze([
+  "not_assessed", "sensitive", "unresolved", "failed"
+]);
+
+/** The fixed message of a `HANGER_SIZING_DERIVED_SOLVE_INTEGRITY` disclosure, exactly as the engine forms it
+ * (`core/analysis/hanger_sizing/src/derived.rs` `integrity_message`) and the schema enumerates it. */
+export function integrityDisclosureMessage(token: string): string {
+  return `${token}: the solver's numerical-integrity status for this derived solve is ${token}, not solver_checks_passed; every value sizing takes from it carries that standing (integrity_bound: not_verified, inverse_norm_bound_not_verified)`;
+}
+
+/** The 30 code points a quoted `detail` may not consist of alone: the union of Rust `char::is_whitespace`, Python
+ * `str.isspace` and ECMA-262 `\s` (`String.prototype.trim`). The same set is the engine's `is_blank_detail`, the
+ * Python verifier's `_is_blank_detail` and the schema's `SupportStateConfirmation` detail pattern. */
+const BLANK_DETAIL_CHAR = /^[\u0009-\u000D\u001C-\u0020\u0085\u00A0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\uFEFF]$/u;
+
+/** True when every code point of `s` is a blank-detail character (an empty string included). */
+export function isBlankDetail(s: string): boolean {
+  return [...s].every((c) => BLANK_DETAIL_CHAR.test(c));
+}
+
 /** Exactly `{outcome, detail}`: the outcome one of `HANGER_SIZING_CONFIRMATION_OUTCOMES`, and `detail` a non-blank
- * string for `not_established_detail_quoted` and null otherwise. With `stateless` given, the outcome is also
- * `not_applicable` exactly when the solve publishes no nonlinear-support state. */
+ * string (`isBlankDetail`) for `not_established_detail_quoted` and null otherwise. With `stateless` given, the outcome
+ * is also `not_applicable` exactly when the solve publishes no nonlinear-support state. */
 export function wellFormedSupportStateConfirmation(value: unknown, stateless?: boolean): value is HangerSizingSupportStateConfirmation {
   if (!isPlainObject(value) || Object.keys(value).length !== 2 || !Object.hasOwn(value, "outcome") || !Object.hasOwn(value, "detail")) return false;
   const { outcome, detail } = value;
   if (typeof outcome !== "string" || !(HANGER_SIZING_CONFIRMATION_OUTCOMES as readonly string[]).includes(outcome)) return false;
   if (stateless !== undefined && stateless !== (outcome === "not_applicable")) return false;
-  return outcome === "not_established_detail_quoted" ? typeof detail === "string" && detail.trim().length > 0 : detail === null;
+  return outcome === "not_established_detail_quoted" ? typeof detail === "string" && !isBlankDetail(detail) : detail === null;
 }
 
 type SolveFacts = Readonly<{ label: string; stateless: boolean; standing: unknown; confirmation: unknown }>;
 type FindingFacts = Readonly<{ code: unknown; names: unknown; message: unknown }>;
 
-/** The first fault of a result's solves, or null: a standing or confirmation that is not well formed, or a
- * standing that is not exactly what the integrity disclosures state of its solve (a non-passing standing has one
- * disclosure naming it with its token; `solver_checks_passed` has none). */
+/** The first fault of a result's solves, or null:
+ * - two solves with one label;
+ * - a `HANGER_SIZING_DERIVED_SOLVE_INTEGRITY` disclosure that does not name exactly one known solve, or whose message is
+ *   not `integrityDisclosureMessage` of a non-passing token, or a second one for the same solve;
+ * - a standing or confirmation that is not well formed;
+ * - a standing that is not exactly what the integrity disclosures state of its solve (a non-passing standing has one
+ *   disclosure naming it with its token; `solver_checks_passed` has none). */
 function solvesFault(solves: readonly SolveFacts[], disclosures: readonly FindingFacts[]): string | null {
+  const labels = new Set<string>();
+  for (const solve of solves) {
+    if (labels.has(solve.label)) return `HANGER_SIZING_SOLVE_LABEL_DUPLICATE: ${solve.label}`;
+    labels.add(solve.label);
+  }
+  const stated = new Map<string, string>();
+  for (const [index, d] of disclosures.entries()) {
+    if (d.code !== DERIVED_SOLVE_INTEGRITY) continue;
+    const malformed = `HANGER_SIZING_SOLVE_INTEGRITY_DISCLOSURE_MALFORMED: disclosures[${index}]`;
+    const names = d.names;
+    if (!Array.isArray(names) || names.length !== 1 || typeof names[0] !== "string" || !labels.has(names[0])) return malformed;
+    const label: string = names[0];
+    if (stated.has(label)) return `HANGER_SIZING_SOLVE_INTEGRITY_DISCLOSURE_DUPLICATE: ${label}`;
+    const message = d.message;
+    if (typeof message !== "string") return malformed;
+    const colon = message.indexOf(":");
+    const token = colon < 0 ? "" : message.slice(0, colon);
+    if (!(HANGER_SIZING_NONPASSING_STANDINGS as readonly string[]).includes(token) || message !== integrityDisclosureMessage(token)) return malformed;
+    stated.set(label, token);
+  }
   for (const solve of solves) {
     if (!wellFormedSolverStanding(solve.standing)) return `HANGER_SIZING_SOLVE_STANDING_MALFORMED: ${solve.label}`;
     if (!wellFormedSupportStateConfirmation(solve.confirmation, solve.stateless)) return `HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: ${solve.label}`;
-    const stated = disclosures
-      .filter((d) => d.code === DERIVED_SOLVE_INTEGRITY && Array.isArray(d.names) && d.names.length === 1 && d.names[0] === solve.label)
-      .map((d) => (typeof d.message === "string" ? d.message.split(":")[0] : null));
-    const expected = solve.standing === "solver_checks_passed" ? [] : [solve.standing];
-    if (stated.length !== expected.length || stated.some((token, index) => token !== expected[index])) {
+    const token = stated.get(solve.label);
+    if (solve.standing === "solver_checks_passed" ? token !== undefined : token !== solve.standing) {
       return `HANGER_SIZING_SOLVE_STANDING_UNDISCLOSED: ${solve.label}`;
     }
   }
@@ -153,12 +199,13 @@ export function formatHangerSizingStandingsBound(standings: Pick<StandingsView, 
   return standings.integrityBound === null ? null : `Integrity bound: ${formatHangerSizingIntegrityBound(standings.integrityBound)}.`;
 }
 
-/** A solve's standing in words: `solver_checks_passed` is the solver's report, not a verified bound; any other token
- * is disclosed. Throws for anything outside `HANGER_SIZING_SOLVER_STANDINGS`. */
+/** A solve's standing in words: `solver_checks_passed` is the solver's report, not a verified bound, and carries the
+ * desktop's boundary sentence beside it wherever it is shown or exported; any other token is disclosed. Throws for
+ * anything outside `HANGER_SIZING_SOLVER_STANDINGS`. */
 export function formatHangerSizingSolverStanding(standing: unknown): string {
   if (!wellFormedSolverStanding(standing)) throw new Error("HANGER_SIZING_SOLVE_STANDING_MALFORMED");
   return standing === "solver_checks_passed"
-    ? "solver_checks_passed: the solver's own checks found no problem; this is the solver's report, not a verified error bound"
+    ? `solver_checks_passed: the solver's own checks found no problem; this is the solver's report, not a verified error bound. ${BOUNDARY_SENTENCE}`
     : `${standing}: not solver_checks_passed, disclosed as ${DERIVED_SOLVE_INTEGRITY}; every value taken from this solve carries this standing`;
 }
 
@@ -305,9 +352,17 @@ async function checkedHash(value: unknown): Promise<string | null> {
   }
 }
 
-async function libraryGate(boundId: string, boundSha256: string, library: unknown): Promise<LibraryGate> {
-  if (library === undefined || library === null) return { state: "not_shown", reason: "library_not_supplied" };
-  // The exact full supplied value is hashed; a value the checked profile refuses is not hashable.
+async function libraryGate(boundId: string, boundSha256: string, supplied: unknown): Promise<LibraryGate> {
+  if (supplied === undefined || supplied === null) return { state: "not_shown", reason: "library_not_supplied" };
+  // The exact full supplied value is read once, synchronously, as its checked JSON text; a value the checked profile
+  // refuses is not hashable. The hash and every record detail shown come from that one private copy, so a change the
+  // caller makes to the value while this gate awaits reaches neither.
+  let library: unknown;
+  try {
+    library = JSON.parse(checkedJsonText(supplied));
+  } catch {
+    return { state: "not_shown", reason: "library_not_hashable" };
+  }
   const sha256 = await checkedHash(library);
   if (sha256 === null) return { state: "not_shown", reason: "library_not_hashable" };
   if (sha256 !== boundSha256) return { state: "not_shown", reason: "library_hash_mismatch" };
@@ -323,10 +378,7 @@ const stated = (value: unknown): StatedQuantity | null =>
     ? { magnitude: value.magnitude, unit: value.unit, text: `${String(value.magnitude)} ${value.unit}` }
     : null;
 
-async function recordDetail(
-  gate: LibraryGate,
-  selection: { family: "variable_spring" | "constant_effort"; hanger_id: string; record_sha256: string }
-): Promise<RecordDetailView> {
+async function recordDetail(gate: LibraryGate, selection: RecordSelection): Promise<RecordDetailView> {
   const hangerId = selection.hanger_id;
   if (gate.state === "not_shown") return { state: "not_shown", hangerId, reason: gate.reason };
   const matches = (gate.records ?? []).filter((record) => isPlainObject(record) && record.hanger_id === hangerId);
@@ -493,8 +545,13 @@ const assumptionView = (candidate: HangerSizingCandidate): VerificationAssumptio
     : { role: "force", force: si(assumption.force_n, "N") };
 };
 
-async function candidateRow(candidate: HangerSizingCandidate, gate: LibraryGate): Promise<CandidateRowView> {
-  return {
+type RecordSelection = { family: "variable_spring" | "constant_effort"; hanger_id: string; record_sha256: string };
+type PendingRow = Readonly<{ row: Omit<CandidateRowView, "record">; selection: RecordSelection | null }>;
+
+/** A candidate's row, read synchronously, and a copy of the selection its record detail is gated on. */
+function candidateRow(candidate: HangerSizingCandidate): PendingRow {
+  const selected = candidate.selected;
+  const row = {
     support: candidate.support,
     node: candidate.node,
     dof: candidate.dof,
@@ -511,8 +568,11 @@ async function candidateRow(candidate: HangerSizingCandidate, gate: LibraryGate)
       : { travelCase: candidate.governing.travel_case, variationCase: candidate.governing.variation_case },
     verificationAssumption: assumptionView(candidate),
     verification: verificationView(candidate),
-    failureCounts: { variable: countsView(candidate.failure_counts.variable), constant: countsView(candidate.failure_counts.constant) },
-    record: candidate.selected === null ? null : await recordDetail(gate, candidate.selected)
+    failureCounts: { variable: countsView(candidate.failure_counts.variable), constant: countsView(candidate.failure_counts.constant) }
+  };
+  return {
+    row,
+    selection: selected === null ? null : { family: selected.family, hanger_id: selected.hanger_id, record_sha256: selected.record_sha256 }
   };
 }
 
@@ -588,22 +648,25 @@ const unbound = (reason: StandingsUnboundReason): StandingsView => ({
   integrityBound: null
 });
 
+/** The readers' standings bound to `document`. Everything it returns is read synchronously, before its one await:
+ * the evidence is checked and copied, and the document's checked text is taken by `checkedHash` as it is called, so
+ * a change either value undergoes while the hash is computed reaches neither the binding nor what is shown. */
 async function standingsView(document: HangerSizingDocument, evidence: unknown): Promise<StandingsView> {
   if (evidence === undefined || evidence === null) return unbound("evidence_not_supplied");
   if (!wellFormedEvidence(evidence)) return unbound("evidence_malformed");
+  const boundSha256 = evidence.document_sha256;
+  const standings: StandingView[] = HANGER_SIZING_STANDING_NAMES.map((name) => {
+    const standing = evidence.verdict[name];
+    return name === "binding"
+      ? { name, status: standing.status, difference: standing.difference, notChecked: [...evidence.verdict.binding.not_checked] }
+      : { name, status: standing.status, difference: standing.difference };
+  });
+  const integrityBound = { status: evidence.verdict.integrity_bound.status, reason: evidence.verdict.integrity_bound.reason };
+  if (!wellFormedIntegrityBound(integrityBound) || !standings.every(wellFormedStanding)) return unbound("evidence_malformed");
   const documentSha256 = await checkedHash(document);
   if (documentSha256 === null) return unbound("document_not_hashable");
-  if (documentSha256 !== evidence.document_sha256) return unbound("evidence_bound_to_other_document");
-  return {
-    binding: { state: "bound", documentSha256 },
-    standings: HANGER_SIZING_STANDING_NAMES.map((name) => {
-      const standing = evidence.verdict[name];
-      return name === "binding"
-        ? { name, status: standing.status, difference: standing.difference, notChecked: [...evidence.verdict.binding.not_checked] }
-        : { name, status: standing.status, difference: standing.difference };
-    }),
-    integrityBound: { status: evidence.verdict.integrity_bound.status, reason: evidence.verdict.integrity_bound.reason }
-  };
+  if (documentSha256 !== boundSha256) return unbound("evidence_bound_to_other_document");
+  return { binding: { state: "bound", documentSha256 }, standings, integrityBound };
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -656,33 +719,51 @@ async function sizedView(document: HangerSizingSizedDocument, evidence: unknown,
   // not state, is never shown.
   const fault = hangerSizingResultFault(document.result);
   if (fault !== null) throw new Error(fault);
-  const gate = await libraryGate(document.inputs.library.library_id, document.inputs.library.sha256, library);
+  // Everything the view shows is read here, synchronously, before the first await: the validated members are copied,
+  // and the library gate and reader standings take their checked text as they are called. A change the caller makes
+  // to the document, the evidence or the library while the hashes are computed reaches none of it.
+  const result = document.result;
+  const basis = basisView(document);
+  const cases: CaseView[] = result.cases.map((entry) => ({
+    case: entry.case,
+    role: entry.role,
+    loadCategories: [...entry.load_categories],
+    usesConditionSet: entry.uses_condition_set
+  }));
+  const verificationStanding = result.verification_standing;
+  const integrityBound = { status: result.integrity_bound.status, reason: result.integrity_bound.reason };
+  const pending = result.candidates.map(candidateRow);
+  const solves: SolveView[] = result.solves.map((solve) => ({
+    label: solve.label,
+    case: solve.case,
+    derivedDocumentSha256: solve.derived_document_sha256,
+    states: Object.keys(solve.states).map((support) => ({ support, state: solve.states[support] })),
+    solverStanding: solve.solver_standing,
+    supportStateConfirmation: { ...solve.support_state_confirmation }
+  }));
+  const disclosures = result.disclosures.map(findingView);
+  const gatePromise = libraryGate(document.inputs.library.library_id, document.inputs.library.sha256, library);
+  const standingsPromise = standingsView(document, evidence);
+  const gate = await gatePromise;
   const rows: CandidateRowView[] = [];
-  for (const candidate of document.result.candidates) rows.push(await candidateRow(candidate, gate));
-  return {
+  for (const { row, selection } of pending) rows.push({ ...row, record: selection === null ? null : await recordDetail(gate, selection) });
+  const view: HangerSizingSizedView = {
     status: "sized",
-    basis: basisView(document),
-    cases: document.result.cases.map((entry) => ({
-      case: entry.case,
-      role: entry.role,
-      loadCategories: [...entry.load_categories],
-      usesConditionSet: entry.uses_condition_set
-    })),
-    verificationStanding: document.result.verification_standing,
-    integrityBound: { status: document.result.integrity_bound.status, reason: document.result.integrity_bound.reason },
+    basis,
+    cases,
+    verificationStanding,
+    integrityBound,
     library: gate.state === "bound" ? { state: "bound", libraryId: gate.libraryId, sha256: gate.sha256 } : gate,
     rows,
-    solves: document.result.solves.map((solve) => ({
-      label: solve.label,
-      case: solve.case,
-      derivedDocumentSha256: solve.derived_document_sha256,
-      states: Object.keys(solve.states).map((support) => ({ support, state: solve.states[support] })),
-      solverStanding: solve.solver_standing,
-      supportStateConfirmation: { ...solve.support_state_confirmation }
-    })),
-    disclosures: document.result.disclosures.map(findingView),
-    readerStandings: await standingsView(document, evidence)
+    solves,
+    disclosures,
+    readerStandings: await standingsPromise
   };
+  // The copies are checked again by the rule the CSV builders apply, so a value read differently the second time is
+  // never shown either.
+  const copied = hangerSizingViewFault(view);
+  if (copied !== null) throw new Error(copied);
+  return view;
 }
 
 async function refusedView(document: HangerSizingRefusedDocument, evidence: unknown): Promise<HangerSizingRefusedView> {

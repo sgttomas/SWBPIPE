@@ -48,7 +48,7 @@
     },
     {
       "path": "schemas/hanger_sizing_result.schema.json",
-      "sha256": "7bda69448392fbfbccdc86258a78817efe1f8bc707ba54b509ddb16e8830ec0c"
+      "sha256": "5ad2ad2bacb1424fd39c6b2f1412e6e7a5cbb20360ebc7fe3b88ae609f4d443e"
     },
     {
       "path": "schemas/load_reference_state.schema.json",

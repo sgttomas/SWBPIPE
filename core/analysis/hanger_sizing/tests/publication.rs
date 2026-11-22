@@ -807,6 +807,27 @@ fn the_schema_states_the_crates_fixed_members() {
     assert_eq!(enumeration(&defs["SupportStateConfirmation"]["properties"]["outcome"]), derived::CONFIRMATION_OUTCOMES);
     assert_eq!(defs["SupportStateConfirmation"]["required"], json!(["outcome", "detail"]));
     assert_eq!(defs["SupportStateConfirmation"]["additionalProperties"], json!(false));
+    // A quoted detail's pattern is "one character outside the shared blank set",
+    // read back here into its ranges and compared with the engine's own set.
+    let pattern = defs["SupportStateConfirmation"]["then"]["properties"]["detail"]["pattern"].as_str().unwrap();
+    assert_eq!(pattern, r"[^\u0009-\u000D\u001C-\u0020\u0085\u00A0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\uFEFF]");
+    let class = pattern.strip_prefix("[^").and_then(|p| p.strip_suffix(']')).unwrap();
+    let ranges: Vec<(u32, u32)> = class
+        .split(r"\u")
+        .filter(|item| !item.is_empty())
+        .fold(Vec::new(), |mut ranges: Vec<(u32, u32)>, item| {
+            let (hex, dash) = item.strip_suffix('-').map_or((item, false), |hex| (hex, true));
+            let point = u32::from_str_radix(hex, 16).unwrap();
+            match ranges.last_mut() {
+                Some(last) if last.1 == u32::MAX => last.1 = point,
+                _ => ranges.push((point, if dash { u32::MAX } else { point })),
+            }
+            ranges
+        });
+    for c in (0..=0x10FFFF_u32).filter_map(char::from_u32) {
+        let listed = ranges.iter().any(|&(lo, hi)| (lo..=hi).contains(&(c as u32)));
+        assert_eq!(listed, derived::is_blank_detail_char(c), "U+{:04X}", c as u32);
+    }
     let solve = &defs["Solve"];
     assert_eq!(solve["properties"]["solver_standing"], json!({"$ref": "#/$defs/SolverStanding"}));
     assert_eq!(solve["properties"]["support_state_confirmation"], json!({"$ref": "#/$defs/SupportStateConfirmation"}));
@@ -863,13 +884,19 @@ fn the_reader_refuses_a_tampered_solve_standing_or_confirmation() {
     refused(&|d| set(d, "support_state_confirmation", json!({"outcome": "not_applicable", "detail": null})), "exactly when the solve publishes no nonlinear-support state");
     refused(&|d| set(d, "support_state_confirmation", json!({"outcome": "solver_reported_established", "detail": "invented"})), "support_state_confirmation.detail: not null");
     refused(&|d| set(d, "support_state_confirmation", json!({"outcome": "not_established_detail_quoted", "detail": null})), "support_state_confirmation.detail: not a string");
-    refused(&|d| set(d, "support_state_confirmation", json!({"outcome": "not_established_detail_quoted", "detail": " "})), "support_state_confirmation.detail: blank");
+    for blank in ["", "  ", "\u{0085}", "\u{FEFF}", "\u{0085}\u{FEFF}"] {
+        refused(&|d| set(d, "support_state_confirmation", json!({"outcome": "not_established_detail_quoted", "detail": blank})), "support_state_confirmation.detail: blank");
+    }
     refused(&|d| set(d, "support_state_confirmation", json!({"outcome": "solver_reported_established"})), "support_state_confirmation.detail: missing");
     // A disclosure whose token is not its solve's standing.
     refused(&|d| {
         set(d, "solver_standing", json!("failed"));
         d["result"]["disclosures"] = json!([{"code": derived::DERIVED_SOLVE_INTEGRITY, "names": ["S_O1"], "message": derived::integrity_message("sensitive")}]);
     }, "the integrity disclosure of S_O1 states sensitive, not its solver_standing failed");
+    // A quoted detail of non-ASCII graphic text is closed.
+    let mut doc = honest.clone();
+    set(&mut doc, "support_state_confirmation", json!({"outcome": "not_established_detail_quoted", "detail": "support:α"}));
+    assert_eq!(reader::closure(&doc), Ok(()));
     // And the consistent pair is closed.
     let mut doc = honest.clone();
     set(&mut doc, "solver_standing", json!("sensitive"));

@@ -539,8 +539,8 @@ fn closure_sized(doc: &Value) -> R<()> {
 
 /// A solve's `support_state_confirmation`: a closed `{outcome, detail}`, the
 /// outcome `not_applicable` exactly when the solve publishes no nonlinear-support
-/// state, and `detail` a non-blank string exactly when the outcome is
-/// `not_established_detail_quoted`, null otherwise.
+/// state, and `detail` a non-blank string ([`derived::is_blank_detail`]) exactly
+/// when the outcome is `not_established_detail_quoted`, null otherwise.
 fn closure_confirmation(value: &Value, path: &str, stateless: bool) -> R<()> {
     let confirmation = obj(value, path, &["outcome", "detail"])?;
     let outcome = one_of(&confirmation["outcome"], &at(path, "outcome"), &derived::CONFIRMATION_OUTCOMES)?;
@@ -549,7 +549,7 @@ fn closure_confirmation(value: &Value, path: &str, stateless: bool) -> R<()> {
     }
     let detail = &confirmation["detail"];
     if outcome == derived::DETAIL_QUOTED {
-        if string(detail, &at(path, "detail"))?.trim().is_empty() {
+        if derived::is_blank_detail(string(detail, &at(path, "detail"))?) {
             return Err(format!("{path}.detail: blank"));
         }
     } else if !detail.is_null() {
@@ -1174,6 +1174,10 @@ mod disclosure_closure_tests {
         refused_doc(&quoted(json!(null)), &format!("{path}.detail: not a string"));
         refused_doc(&quoted(json!("")), &format!("{path}.detail: blank"));
         refused_doc(&quoted(json!(" \t")), &format!("{path}.detail: blank"));
+        for blank in ["  ", "\u{0085}", "\u{FEFF}", "\u{0085}\u{FEFF}"] {
+            refused_doc(&quoted(json!(blank)), &format!("{path}.detail: blank"));
+        }
+        assert_eq!(closure(&quoted(json!("support:α"))), Ok(()));
         for outcome in ["solver_reported_established", "not_attempted_reason_not_recorded", "no_confirmation_record"] {
             assert_eq!(closure(&changed(&|s| s["support_state_confirmation"]["outcome"] = json!(outcome))), Ok(()), "{outcome}");
         }

@@ -673,10 +673,14 @@ pub const NOT_APPLICABLE: &str = "not_applicable";
 
 /// The fixed producer text a case's integrity message ends with, copied from
 /// `product_physics` (`NONLINEAR_CONFIRMED_EVIDENCE_LINE`,
-/// `nonlinear_not_established_sentence`, the S11-G recovery-guard sentence and
-/// `integrity_diagnostic_id`) and read exactly as `report_standing` reads it. The
-/// copies are pinned to the producer's source by test.
+/// `NONLINEAR_RELATIVE_DISPLACEMENT_CLAUSE`, `nonlinear_not_established_sentence`,
+/// the S11-G recovery-guard sentence and `integrity_diagnostic_id`). The copies
+/// are pinned to the producer's source by test.
 pub const NONLINEAR_CONFIRMED_LINE: &str = "Converged support state: established at 128-bit precision by one formation-checked solve; each support's state has a sign margin larger than its bound, and a sliding friction force satisfies the friction law of that state within its bound; the published nodal displacements, and the support displacement rows that follow them, are the formation check's corrected displacements; the iteration's residual rows are its own.";
+/// The clause the producer appends, after [`NONLINEAR_CONFIRMED_LINE`] and
+/// separated from it by one space, to the integrity message of a confirmed case
+/// that publishes a support relative-displacement row.
+const NONLINEAR_RELATIVE_DISPLACEMENT_CLAUSE: &str = "Each support relative-displacement row is the published nodal displacement less the support's moved ground, formed in binary64: an observation, not an established state; a strictly separated support may show zero.";
 const NOT_ESTABLISHED_LEAD: &str = " the converged support state is not established at 128-bit precision (";
 const NOT_ESTABLISHED_TAIL: &str = "); member rows are binary64 recoveries";
 const NOT_RUN: &str = "confirmation attempt: not run";
@@ -684,21 +688,59 @@ const RECOVERY_LEAD: &str = " S11-G recovery guard (R-b'): load case ";
 const SENSITIVE_BECAUSE: &str = " is Sensitive because ";
 const INTEGRITY_DIAGNOSTIC_PREFIX: &str = "diagnostic:numerical-integrity:";
 
+/// A character a quoted `detail` may not consist of alone: the 30 code points
+/// that are the union of Rust [`char::is_whitespace`], Python `str.isspace` and
+/// ECMA-262 `\s` (`String.prototype.trim`). The Python verifier's
+/// `_is_blank_detail`, the desktop's `isBlankDetail` and the schema's
+/// `SupportStateConfirmation` detail pattern use this same set.
+pub fn is_blank_detail_char(c: char) -> bool {
+    matches!(
+        c,
+        '\u{0009}'..='\u{000D}'
+            | '\u{001C}'..='\u{0020}'
+            | '\u{0085}'
+            | '\u{00A0}'
+            | '\u{1680}'
+            | '\u{2000}'..='\u{200A}'
+            | '\u{2028}'
+            | '\u{2029}'
+            | '\u{202F}'
+            | '\u{205F}'
+            | '\u{3000}'
+            | '\u{FEFF}'
+    )
+}
+
+/// True when every character of `s` is [`is_blank_detail_char`], the empty
+/// string included: such a detail is blank, and is never quoted or admitted.
+pub fn is_blank_detail(s: &str) -> bool {
+    s.chars().all(is_blank_detail_char)
+}
+
 /// What the solver's integrity record of `case_id` states of the support-state
-/// confirmation in one derived solve, by `report_standing`'s own rule:
+/// confirmation in one derived solve:
 /// - a solve that publishes no nonlinear-support state is `not_applicable`;
 /// - otherwise the message of `diagnostic:numerical-integrity:<case_id>` (empty
 ///   when absent) is read at its end. The not-established sentence, its lead
 ///   occurring once, gives `not_attempted_reason_not_recorded` for the reason
 ///   "confirmation attempt: not run" and `not_established_detail_quoted` with the
 ///   reason quoted otherwise; the confirmed-state line, occurring once and
-///   followed by nothing or by the case's S11-G recovery sentence, gives
-///   `solver_reported_established`; anything else is `no_confirmation_record`.
+///   followed by nothing, by [`NONLINEAR_RELATIVE_DISPLACEMENT_CLAUSE`], by the
+///   case's S11-G recovery sentence, or by the clause and then the recovery
+///   sentence, gives `solver_reported_established`; anything else, such as the
+///   displacement-correction-unavailable ending, is `no_confirmation_record`.
 ///
-/// One difference from `report_standing`: an empty or whitespace-only reason, which
-/// the producer never forms, is `no_confirmation_record`, so a quoted detail is
-/// never blank. `solver_reported_established` is the solver's report, not an
-/// independently verified confirmation bound.
+/// It follows `report_standing`'s reading of the same text with two deliberate
+/// differences, and `core/reporting/report_standing` is not changed by them:
+/// - the relative-displacement clause is recognised between the confirmed line and
+///   any recovery sentence; `report_standing` reads such a message as
+///   `no_confirmation_record`, although the producer forms it for a confirmed case;
+/// - a blank reason ([`is_blank_detail`]), which the producer never forms, is
+///   `no_confirmation_record`, so a quoted detail is never blank; `report_standing`
+///   would quote it.
+///
+/// `solver_reported_established` is the solver's report, not an independently
+/// verified confirmation bound.
 pub fn support_state_confirmation(case_id: &str, states: &BTreeMap<String, String>, diagnostics: &[Diagnostic]) -> SupportStateConfirmation {
     if states.is_empty() {
         return SupportStateConfirmation::of(NOT_APPLICABLE, None);
@@ -712,7 +754,7 @@ pub fn support_state_confirmation(case_id: &str, states: &BTreeMap<String, Strin
             let reason = &head[found + NOT_ESTABLISHED_LEAD.len()..];
             return if reason == NOT_RUN {
                 SupportStateConfirmation::of("not_attempted_reason_not_recorded", None)
-            } else if reason.trim().is_empty() {
+            } else if is_blank_detail(reason) {
                 none()
             } else {
                 SupportStateConfirmation::of(DETAIL_QUOTED, Some(reason.to_string()))
@@ -724,6 +766,8 @@ pub fn support_state_confirmation(case_id: &str, states: &BTreeMap<String, Strin
     if message.matches(confirmed.as_str()).count() == 1 {
         if let Some(found) = message.find(confirmed.as_str()) {
             let rest = &message[found + confirmed.len()..];
+            let clause = format!(" {NONLINEAR_RELATIVE_DISPLACEMENT_CLAUSE}");
+            let rest = rest.strip_prefix(clause.as_str()).unwrap_or(rest);
             let recovery = [RECOVERY_LEAD, case_id, SENSITIVE_BECAUSE].concat();
             if rest.is_empty() || rest.starts_with(recovery.as_str()) {
                 return SupportStateConfirmation::of("solver_reported_established", None);
@@ -1232,10 +1276,62 @@ mod confirmation_tests {
         assert_eq!(outcome(&format!("{HEAD}{NOT_ESTABLISHED_LEAD}a{NOT_ESTABLISHED_LEAD}b{NOT_ESTABLISHED_TAIL}")), none);
         assert_eq!(outcome(&format!("{}{NOT_ESTABLISHED_TAIL}", HEAD)), none);
         // A blank reason, which the producer never forms, quotes nothing.
-        assert_eq!(outcome(&not_established("")), none);
-        assert_eq!(outcome(&not_established("  ")), none);
+        for blank in ["", "  ", "\u{0085}", "\u{FEFF}", "\u{0085}\u{FEFF}"] {
+            assert_eq!(outcome(&not_established(blank)), none, "{blank:?}");
+        }
+        assert_eq!(outcome(&not_established("support:α")), SupportStateConfirmation::of(DETAIL_QUOTED, Some("support:α".into())));
         for found in [established, none] {
             assert!(CONFIRMATION_OUTCOMES.contains(&found.outcome.as_str()));
+        }
+    }
+
+    /// The confirmed line followed by the producer's relative-displacement clause,
+    /// with or without the case's recovery sentence after it, is the solver's report
+    /// of an established state; any other text after the clause is not. The
+    /// displacement-correction-unavailable ending of the forced-failure fixture is
+    /// no confirmation record.
+    #[test]
+    fn the_relative_displacement_clause_after_the_confirmed_line_is_established() {
+        let established = SupportStateConfirmation::of("solver_reported_established", None);
+        let none = SupportStateConfirmation::of("no_confirmation_record", None);
+        let clause = format!("{HEAD} {NONLINEAR_CONFIRMED_LINE} {NONLINEAR_RELATIVE_DISPLACEMENT_CLAUSE}");
+        // (a) the clause alone after the confirmed line.
+        assert_eq!(outcome(&clause), established);
+        // (b) the clause, then this case's S11-G recovery sentence.
+        assert_eq!(outcome(&format!("{clause}{RECOVERY_LEAD}{CASE}{SENSITIVE_BECAUSE}2 member or support group(s) ...")), established);
+        // (c) other text after the clause, another case's recovery sentence, the
+        // clause without its separating space, twice, or before the confirmed line.
+        assert_eq!(outcome(&format!("{clause} trailing")), none);
+        assert_eq!(outcome(&format!("{clause}{RECOVERY_LEAD}load:O1{SENSITIVE_BECAUSE}2")), none);
+        assert_eq!(outcome(&format!("{HEAD} {NONLINEAR_CONFIRMED_LINE}{NONLINEAR_RELATIVE_DISPLACEMENT_CLAUSE}")), none);
+        assert_eq!(outcome(&format!("{clause} {NONLINEAR_RELATIVE_DISPLACEMENT_CLAUSE}")), none);
+        assert_eq!(outcome(&format!("{HEAD} {NONLINEAR_RELATIVE_DISPLACEMENT_CLAUSE} {NONLINEAR_CONFIRMED_LINE} trailing")), none);
+        // (d) the forced-failure fixture's own integrity message, which ends with the
+        // displacement-correction-unavailable sentence.
+        let fixture: Value = serde_json::from_str(include_str!("../../../../fixtures/results/rt_a3_s6_c1_correction_unavailable.json")).expect("fixture JSON");
+        let record = array(&fixture["envelope"], "diagnostics")
+            .iter()
+            .find(|d| d["id"] == "diagnostic:numerical-integrity:load:VACUUM")
+            .expect("the case's integrity record");
+        let message = record["message"].as_str().expect("message");
+        assert!(message.ends_with("are recovered in binary64 from the solve's own displacement"), "{message}");
+        let found = support_state_confirmation("load:VACUUM", &lifted(), &[integrity("load:VACUUM", message)]);
+        assert_eq!(found, none);
+    }
+
+    #[test]
+    fn a_blank_detail_is_one_of_the_thirty_shared_code_points_throughout() {
+        let set: Vec<char> = (0..=0x10FFFF_u32).filter_map(char::from_u32).filter(|&c| is_blank_detail_char(c)).collect();
+        assert_eq!(set.len(), 30);
+        // The union of Rust's own whitespace and the other readers' (U+001C..U+001F
+        // for Python, U+FEFF for ECMA-262).
+        assert!(set.iter().filter(|c| !c.is_whitespace()).copied().eq(['\u{001C}', '\u{001D}', '\u{001E}', '\u{001F}', '\u{FEFF}']));
+        assert!((0..=0x10FFFF_u32).filter_map(char::from_u32).filter(|c| c.is_whitespace()).all(is_blank_detail_char));
+        for blank in ["", "  ", "\u{0085}", "\u{FEFF}", "\u{0085}\u{FEFF}", " \t\r\n\u{3000}"] {
+            assert!(is_blank_detail(blank), "{blank:?}");
+        }
+        for text in ["support:α", "\u{FEFF}r", "\u{200B}"] {
+            assert!(!is_blank_detail(text), "{text:?}");
         }
     }
 
@@ -1253,6 +1349,8 @@ mod confirmation_tests {
             format!("\"{NOT_RUN}\""),
             format!("fn integrity_diagnostic_id(case_id: &str) -> String {{\n    format!(\"{INTEGRITY_DIAGNOSTIC_PREFIX}{{case_id}}\")"),
             "record.message = format!(\"{} {NONLINEAR_CONFIRMED_EVIDENCE_LINE}\", record.message);".to_string(),
+            format!("const NONLINEAR_RELATIVE_DISPLACEMENT_CLAUSE: &str = \"{NONLINEAR_RELATIVE_DISPLACEMENT_CLAUSE}\";"),
+            "record.message = format!(\"{} {NONLINEAR_RELATIVE_DISPLACEMENT_CLAUSE}\", record.message);".to_string(),
         ];
         for pin in &product {
             assert!(PRODUCT_LIB.contains(pin.as_str()), "product_physics/src/lib.rs: {pin}");

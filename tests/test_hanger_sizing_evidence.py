@@ -14,7 +14,9 @@ from copy import deepcopy
 import json
 import os
 from pathlib import Path
+import re
 import subprocess
+import unicodedata
 
 import pytest
 
@@ -430,3 +432,48 @@ def test_a_consistent_non_passing_solve_and_a_quoted_detail_are_closed_and_admit
     _solve(doc, "V_O1")["support_state_confirmation"] = {"outcome": "not_applicable", "detail": None}
     hs.closure(doc)
     validate_instance(SCHEMA, doc, schema_label="hanger_sizing_result", instance_label="consistent-solves")
+
+
+# --- one blank-detail rule in the schema, the verifier, the engine and the desktop --------------------------------
+BLANK_DETAILS = ["", "  ", "\u0085", "\ufeff", "\u0085\ufeff"]
+
+
+def _quoted(detail):
+    doc = load("hanger_sizing_result_two_span.json")
+    _solve(doc, "S_O1")["support_state_confirmation"] = {"outcome": "not_established_detail_quoted", "detail": detail}
+    return doc
+
+
+def test_the_blank_detail_set_is_the_union_of_the_three_languages_whitespace():
+    python = {c for c in range(0x110000) if chr(c).isspace()}
+    # ECMA-262 WhiteSpace and LineTerminator: Zs, TAB, VT, FF, ZWNBSP (U+FEFF), LF, CR, LS, PS.
+    ecma = {c for c in range(0x110000) if unicodedata.category(chr(c)) == "Zs"} | {
+        0x0009, 0x000B, 0x000C, 0xFEFF, 0x000A, 0x000D, 0x2028, 0x2029}
+    # Rust char::is_whitespace: the Unicode White_Space property.
+    rust = {*range(0x0009, 0x000E), 0x0020, 0x0085, 0x00A0, 0x1680, *range(0x2000, 0x200B), 0x2028, 0x2029, 0x202F,
+            0x205F, 0x3000}
+    assert hs.BLANK_DETAIL_CODEPOINTS == python | ecma | rust
+    assert len(hs.BLANK_DETAIL_CODEPOINTS) == 30
+
+
+def test_the_schema_detail_pattern_matches_exactly_a_character_outside_the_blank_set():
+    pattern = re.compile(SCHEMA["$defs"]["SupportStateConfirmation"]["then"]["properties"]["detail"]["pattern"])
+    for c in range(0x110000):
+        if 0xD800 <= c <= 0xDFFF:
+            continue
+        assert (pattern.search(chr(c)) is None) == (c in hs.BLANK_DETAIL_CODEPOINTS), hex(c)
+
+
+@pytest.mark.parametrize("detail", BLANK_DETAILS, ids=repr)
+def test_the_verifier_and_schema_refuse_a_blank_detail(detail):
+    assert hs._is_blank_detail(detail)
+    with pytest.raises(hs.Difference, match=r"support_state_confirmation.detail: blank"):
+        hs.closure(_quoted(detail))
+    with pytest.raises(AssertionError, match="failed JSON Schema validation"):
+        validate_instance(SCHEMA, _quoted(detail), schema_label="hanger_sizing_result", instance_label=repr(detail))
+
+
+def test_the_verifier_and_schema_admit_a_non_ascii_graphic_detail():
+    assert not hs._is_blank_detail("support:α")
+    hs.closure(_quoted("support:α"))
+    validate_instance(SCHEMA, _quoted("support:α"), schema_label="hanger_sizing_result", instance_label="non-ascii")

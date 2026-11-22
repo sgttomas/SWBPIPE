@@ -8,7 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import twoSpanInput from "../../../../fixtures/results/hanger_sizing_input_two_span.json";
 import twoSpanReply from "../../../../fixtures/results/hanger_sizing_reply_two_span.json";
 import twoSpanDocument from "../../../../fixtures/results/hanger_sizing_result_two_span.json";
-import { hangerSizingView } from "../features/results/hangerSizingView";
+import { hangerSizingView, integrityDisclosureMessage } from "../features/results/hangerSizingView";
 import type { HangerSizingInput } from "./hangerSizingService";
 
 const invokeMock = vi.hoisted(() => vi.fn());
@@ -160,6 +160,7 @@ describe("sizeHangers", () => {
 
   it("reads no reply whose sized document's integrity bound, solve standing or confirmation is tampered", async () => {
     type Tamperable = { document: { result: { integrity_bound: unknown; solves: Record<string, unknown>[]; disclosures: unknown[] } } };
+    const integrity = (names: string[], message = integrityDisclosureMessage("sensitive")) => ({ code: "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", names, message });
     const tampered: Array<[string, (reply: Tamperable) => void, string]> = [
       ["bound verified", (r) => { r.document.result.integrity_bound = { status: "verified", reason: "inverse_norm_bound_not_verified" }; }, "HANGER_SIZING_INTEGRITY_BOUND_MALFORMED"],
       ["bound extra", (r) => { r.document.result.integrity_bound = { status: "not_verified", reason: "inverse_norm_bound_not_verified", bound: 1 }; }, "HANGER_SIZING_INTEGRITY_BOUND_MALFORMED"],
@@ -168,7 +169,16 @@ describe("sizeHangers", () => {
       ["standing undisclosed", (r) => { r.document.result.solves[2].solver_standing = "sensitive"; }, "HANGER_SIZING_SOLVE_STANDING_UNDISCLOSED: S_O1"],
       ["confirmation outcome", (r) => { r.document.result.solves[2].support_state_confirmation = { outcome: "verified", detail: null }; }, "HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: S_O1"],
       ["confirmation not applicable with states", (r) => { r.document.result.solves[2].support_state_confirmation = { outcome: "not_applicable", detail: null }; }, "HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: S_O1"],
-      ["confirmation blank detail", (r) => { r.document.result.solves[2].support_state_confirmation = { outcome: "not_established_detail_quoted", detail: "" }; }, "HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: S_O1"]
+      ["confirmation blank detail", (r) => { r.document.result.solves[2].support_state_confirmation = { outcome: "not_established_detail_quoted", detail: "" }; }, "HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: S_O1"],
+      ...["  ", "\u0085", "\uFEFF", "\u0085\uFEFF"].map((detail): [string, (reply: Tamperable) => void, string] => [
+        `confirmation blank detail ${JSON.stringify(detail)}`,
+        (r) => { r.document.result.solves[2].support_state_confirmation = { outcome: "not_established_detail_quoted", detail }; },
+        "HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: S_O1"
+      ]),
+      ["integrity disclosure of an orphan label", (r) => { r.document.result.disclosures = [integrity(["S_O99"])]; }, "HANGER_SIZING_SOLVE_INTEGRITY_DISCLOSURE_MALFORMED: disclosures[0]"],
+      ["integrity disclosure naming two solves", (r) => { r.document.result.solves[0].solver_standing = "sensitive"; r.document.result.disclosures = [integrity(["S_W", "S_C"])]; }, "HANGER_SIZING_SOLVE_INTEGRITY_DISCLOSURE_MALFORMED: disclosures[0]"],
+      ["integrity disclosure duplicated", (r) => { r.document.result.solves[0].solver_standing = "sensitive"; r.document.result.disclosures = [integrity(["S_W"]), integrity(["S_W"])]; }, "HANGER_SIZING_SOLVE_INTEGRITY_DISCLOSURE_DUPLICATE: S_W"],
+      ["integrity disclosure with a forged message", (r) => { r.document.result.solves[0].solver_standing = "sensitive"; r.document.result.disclosures = [integrity(["S_W"], "sensitive: a verified error bound for this solve")]; }, "HANGER_SIZING_SOLVE_INTEGRITY_DISCLOSURE_MALFORMED: disclosures[0]"]
     ];
     for (const [name, change, fault] of tampered) {
       const reply = structuredClone(twoSpanReply) as unknown as Tamperable;
@@ -180,8 +190,13 @@ describe("sizeHangers", () => {
       expect(completion.code, name).toBe(service.HANGER_SIZING_REPLY_UNREADABLE);
       expect(completion.message, name).toBe(`the native reply's sized document is not readable here (${fault}).`);
     }
-    // The committed reply itself is read.
+    // The committed reply itself is read, and so is a sensitive weight solve carrying the engine's exact message.
     host(() => Promise.resolve(structuredClone(twoSpanReply)));
+    expect((await service.sizeHangers(input())).kind).toBe("replied");
+    const sensitive = structuredClone(twoSpanReply) as unknown as Tamperable;
+    sensitive.document.result.solves[0].solver_standing = "sensitive";
+    sensitive.document.result.disclosures = [integrity(["S_W"])];
+    host(() => Promise.resolve(sensitive));
     expect((await service.sizeHangers(input())).kind).toBe("replied");
   });
 
