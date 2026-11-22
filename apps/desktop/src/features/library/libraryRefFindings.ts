@@ -68,6 +68,17 @@ export function beginLibraryRefCheck(projectId: string): number {
   return latestSequence;
 }
 
+/** A check of `projectId`'s references starts only while `projectId` is the
+ * active project (or none is active yet): a check for a project the session has
+ * left begins nothing, changes neither the active project nor the latest check,
+ * and returns null. Otherwise it supersedes every check in flight and its number is returned. */
+export function beginLibraryRefCheckIfActive(projectId: string): number | null {
+  if (activeProjectId !== "" && projectId !== activeProjectId) return null;
+  activeProjectId = projectId;
+  latestSequence += 1;
+  return latestSequence;
+}
+
 /** Publishes a check's answer only while `projectId` is the active project and `sequence` the latest check; returns whether it did. */
 export function publishLibraryRefFindingsIfCurrent(projectId: string, sequence: number, findings: LibraryRefFinding[]): boolean {
   if (projectId !== activeProjectId || sequence !== latestSequence) return false;

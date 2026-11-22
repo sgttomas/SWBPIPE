@@ -29,7 +29,7 @@ import {
 import type { OperationBatch } from "../../services/operationBatchService";
 import type { EntityRef } from "../../types";
 import { LibraryApplySection, type LibraryApplyTarget } from "./LibraryApplySection";
-import { beginLibraryRefCheck, currentLibraryRefFindings, publishLibraryRefFindingsIfCurrent, usePublishedLibraryRefFindings } from "./libraryRefFindings";
+import { beginLibraryRefCheckIfActive, currentLibraryRefFindings, publishLibraryRefFindingsIfCurrent, usePublishedLibraryRefFindings } from "./libraryRefFindings";
 
 // Private Library Manager (PRD §13 / §14.6 / §14.1 "Library manager"). Phase C3
 // GUI slice (TP-C3-LIBGUI-001), replicating the C2 Rule-Pack Manager pattern:
@@ -251,12 +251,16 @@ export function LibraryManagerPanel({
   const [inFlight, setInFlight] = useState(false);
 
   const projectId = model?.project.id ?? null;
-  // A list refresh belongs to the project it started in and is overtaken by a later
-  // refresh: one that answers after the project changed, after a later refresh began
-  // or after the panel closed changes nothing here, and its reference check publishes
-  // only while it is the store's latest check of the open project.
-  const refreshProject = useRef<{ projectId: string | null; open: boolean }>({ projectId, open: true });
-  const latestRefresh = useRef(0);
+  // Every action belongs to the panel session (the open project) it started in and
+  // is overtaken by a later action. Each project change and the panel's closing begin
+  // a new session; each action takes the next operation number. An action that answers
+  // after its session ended or after a later action began changes nothing here: not
+  // the list, the draft, the status, the validation or the busy state. Its reference
+  // check begins only while the session is still current and its project is still
+  // the store's active project, and publishes only while it is the store's latest
+  // check of that project.
+  const panelSessionRef = useRef(0);
+  const activeOpRef = useRef(0);
   const draftReason = !draft ? NO_DRAFT_REASON : inFlight ? BUSY_REASON : undefined;
   const componentSpec = COMPONENT_FIELD_SPECS[componentFieldDraft.fieldKind];
   const componentUnitBasis = describeUnitBasis(
@@ -284,12 +288,18 @@ export function LibraryManagerPanel({
   // draft is intentionally preserved (it is authored, not bound to a project
   // until saved).
   useEffect(() => {
-    refreshProject.current = { projectId, open: true };
+    panelSessionRef.current += 1;
+    activeOpRef.current += 1;
+    // Work the previous project left in flight no longer holds this project's controls.
+    setInFlight(false);
     setEntries([]);
     setOpened(null);
     setRefFindings([]);
     setListStatus("Local library list not refreshed for this project yet.");
-    return () => { refreshProject.current = { projectId, open: false }; };
+    return () => {
+      panelSessionRef.current += 1;
+      activeOpRef.current += 1;
+    };
   }, [projectId]);
 
   useEffect(() => {
@@ -473,14 +483,35 @@ export function LibraryManagerPanel({
     );
   }
 
-  async function handleRefreshList() {
-    const targetProjectId = projectId;
-    const targetModel = model;
-    const refresh = ++latestRefresh.current;
-    const sequence = targetModel ? beginLibraryRefCheck(targetModel.project.id) : null;
-    const stillCurrent = () => refresh === latestRefresh.current
-      && refreshProject.current.open && refreshProject.current.projectId === targetProjectId;
+  /** The action numbered `op` of panel session `session` is still the panel's latest. */
+  function isCurrent(session: number, op: number): boolean {
+    return session === panelSessionRef.current && op === activeOpRef.current;
+  }
+
+  /** Starts an action: its session, its operation number and the busy state. */
+  function beginAction(): { session: number; op: number } {
+    const session = panelSessionRef.current;
+    const op = ++activeOpRef.current;
     setInFlight(true);
+    return { session, op };
+  }
+
+  /** Ends an action: an overtaken one leaves the busy state to the action that overtook it. */
+  function endAction(session: number, op: number): void {
+    if (isCurrent(session, op)) setInFlight(false);
+  }
+
+  /** Lists the store for `targetProjectId` and checks `targetModel`'s references, as action `op` of `session`. */
+  async function refreshListForSession(
+    session: number,
+    targetProjectId: string | null,
+    targetModel: PreviewModel | null,
+    op: number
+  ): Promise<void> {
+    const stillCurrent = () => isCurrent(session, op);
+    // A session the panel has left begins no check: it never takes the store's active project.
+    if (!stillCurrent()) return;
+    const sequence = targetModel ? beginLibraryRefCheckIfActive(targetModel.project.id) : null;
     try {
       const route = await listLocalLibraries(targetProjectId);
       if (!stillCurrent()) return;
@@ -505,9 +536,15 @@ export function LibraryManagerPanel({
       if (!stillCurrent()) return;
       setEntries([]);
       setListStatus(`LIBRARY-IMPORT-BACKEND-ERROR (list): ${String(error)}`);
+    }
+  }
+
+  async function handleRefreshList() {
+    const { session, op } = beginAction();
+    try {
+      await refreshListForSession(session, projectId, model, op);
     } finally {
-      // An overtaken refresh leaves the busy state to the refresh that overtook it.
-      if (refresh === latestRefresh.current) setInFlight(false);
+      endAction(session, op);
     }
   }
 
@@ -515,9 +552,10 @@ export function LibraryManagerPanel({
     const document = parseDraft();
     if (!document) return;
     onR3JourneyEvent?.("library_validate_requested");
-    setInFlight(true);
+    const { session, op } = beginAction();
     try {
       const route = await validateLibraryImport(document, libraryKind, intendedVisibility);
+      if (!isCurrent(session, op)) return;
       if (route.route === "unavailable_browser_preview") {
         setActionStatus(route.diagnostic);
         return;
@@ -530,9 +568,10 @@ export function LibraryManagerPanel({
           `blocking_findings=${blocking.length}; advisory_findings=${advisory.length}.`
       );
     } catch (error) {
+      if (!isCurrent(session, op)) return;
       reportBackendError("validate", error);
     } finally {
-      setInFlight(false);
+      endAction(session, op);
     }
   }
 
@@ -544,9 +583,12 @@ export function LibraryManagerPanel({
     const document = parseDraft();
     if (!document) return;
     onR3JourneyEvent?.("library_save_requested");
-    setInFlight(true);
+    const targetProjectId = projectId;
+    const targetModel = model;
+    const { session, op } = beginAction();
     try {
-      const route = await saveLocalLibrary(projectId, libraryKind, document);
+      const route = await saveLocalLibrary(targetProjectId, libraryKind, document);
+      if (!isCurrent(session, op)) return;
       if (route.route === "unavailable_browser_preview") {
         setActionStatus(route.diagnostic);
         return;
@@ -559,18 +601,20 @@ export function LibraryManagerPanel({
         `${route.result.message} (library_id=${route.result.library_id}, ` +
           `stored=${String(route.result.stored)}, storage=${route.result.storage_mode}).${refusedNote}`
       );
-      await handleRefreshList();
+      await refreshListForSession(session, targetProjectId, targetModel, op);
     } catch (error) {
+      if (!isCurrent(session, op)) return;
       reportBackendError("save", error);
     } finally {
-      setInFlight(false);
+      endAction(session, op);
     }
   }
 
   async function handleOpen(entry: LocalLibraryIndexEntry) {
-    setInFlight(true);
+    const { session, op } = beginAction();
     try {
       const route = await openLocalLibrary(entry.project_id, entry.library_kind, entry.library_id);
+      if (!isCurrent(session, op)) return;
       if (route.route === "unavailable_browser_preview") {
         setActionStatus(route.diagnostic);
         return;
@@ -591,26 +635,31 @@ export function LibraryManagerPanel({
       const storable = route.envelope.validation.accepted && !route.envelope.validation.has_blocking_findings;
       setOpened(storable ? { entry, document: route.envelope.document as Record<string, unknown> } : null);
     } catch (error) {
+      if (!isCurrent(session, op)) return;
       reportBackendError("open", error);
     } finally {
-      setInFlight(false);
+      endAction(session, op);
     }
   }
 
   async function handleDelete(entry: LocalLibraryIndexEntry) {
-    setInFlight(true);
+    const targetProjectId = projectId;
+    const targetModel = model;
+    const { session, op } = beginAction();
     try {
       const route = await deleteLocalLibrary(entry.project_id, entry.library_kind, entry.library_id);
+      if (!isCurrent(session, op)) return;
       if (route.route === "unavailable_browser_preview") {
         setActionStatus(route.diagnostic);
         return;
       }
       setActionStatus(route.receipt.message);
-      await handleRefreshList();
+      await refreshListForSession(session, targetProjectId, targetModel, op);
     } catch (error) {
+      if (!isCurrent(session, op)) return;
       reportBackendError("delete", error);
     } finally {
-      setInFlight(false);
+      endAction(session, op);
     }
   }
 
