@@ -34,7 +34,8 @@ def load(name):
 
 
 def mutate(doc, operations):
-    """The corpus mutations: replace (an existing member or element) and add (a new object member)."""
+    """The corpus mutations: replace (an existing member or element), add (a new object member) and remove (an
+    existing object member)."""
     for operation in operations:
         parts = [part.replace("~1", "/").replace("~0", "~") for part in operation["path"].split("/")[1:]]
         parent = doc
@@ -50,6 +51,9 @@ def mutate(doc, operations):
         elif operation["op"] == "add":
             assert last not in parent, operation
             parent[last] = operation["value"]
+        elif operation["op"] == "remove":
+            assert isinstance(parent, dict) and last in parent, operation
+            del parent[last]
         else:
             raise AssertionError(operation)
     return doc
@@ -253,8 +257,21 @@ def test_the_product_warning_is_the_fixtures_and_names_its_component_and_failure
     assert "node:A:UX" in PRODUCT_WARNING and "could not be certified" in PRODUCT_WARNING
 
 
+def _solve(doc, label):
+    return next(solve for solve in doc["result"]["solves"] if solve["label"] == label)
+
+
+def _with_standings(disclosures):
+    """_with_disclosures, each integrity disclosure's solve standing set to its token."""
+    doc = _with_disclosures(disclosures)
+    for disclosure in disclosures:
+        if disclosure["code"] == "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY":
+            _solve(doc, disclosure["names"][0])["solver_standing"] = disclosure["message"].split(":", 1)[0]
+    return doc
+
+
 def test_both_per_solve_codes_on_different_valid_labels_are_closed_and_admitted_by_the_schema():
-    doc = _with_disclosures(deepcopy(ACCEPTED_DISCLOSURES))
+    doc = _with_standings(deepcopy(ACCEPTED_DISCLOSURES))
     hs.closure(doc)
     validate_instance(SCHEMA, doc, schema_label="hanger_sizing_result", instance_label="per-solve-accepted")
 
@@ -289,3 +306,127 @@ def test_the_schemas_disclosure_vocabulary_is_the_verifiers():
         "required": ["status", "reason"], "additionalProperties": False}
     assert defs["Result"]["properties"]["integrity_bound"] == {"$ref": "#/$defs/IntegrityBound"}
     assert "integrity_bound" in defs["Result"]["required"]
+    assert defs["SolverStanding"]["enum"] == list(hs.SOLVER_STANDINGS)
+    assert defs["SolverStanding"]["enum"][0] == hs.SOLVER_CHECKS_PASSED
+    confirmation = defs["SupportStateConfirmation"]
+    assert confirmation["properties"]["outcome"]["enum"] == list(hs.CONFIRMATION_OUTCOMES)
+    assert confirmation["required"] == ["outcome", "detail"] and confirmation["additionalProperties"] is False
+    assert confirmation["if"] == {"properties": {"outcome": {"const": hs.DETAIL_QUOTED}}}
+    solve = defs["Solve"]
+    assert solve["properties"]["solver_standing"] == {"$ref": "#/$defs/SolverStanding"}
+    assert solve["properties"]["support_state_confirmation"] == {"$ref": "#/$defs/SupportStateConfirmation"}
+    assert tuple(solve["required"]) == hs.SOLVE_KEYS
+
+
+# --- integrity_bound (REQ-003): missing, extra, other values and non-objects are refused by both -------------------
+MALFORMED_BOUNDS = [
+    ("missing", None, "$.result.integrity_bound: missing"),
+    ("extra-member", {**hs.INTEGRITY_BOUND, "bound": 1.0}, "$.result.integrity_bound.bound: not a member"),
+    ("status-verified", {**hs.INTEGRITY_BOUND, "status": "verified"}, "$.result.integrity_bound.status: not"),
+    ("status-missing", {"reason": hs.INTEGRITY_BOUND_REASON}, "$.result.integrity_bound.status: missing"),
+    ("reason-invented", {**hs.INTEGRITY_BOUND, "reason": "invented_reason"}, "$.result.integrity_bound.reason: not"),
+    ("reason-not-string", {**hs.INTEGRITY_BOUND, "reason": 1}, "$.result.integrity_bound.reason: not"),
+    ("string", "not_verified", "$.result.integrity_bound: not an object"),
+    ("null", "null", "$.result.integrity_bound: not an object"),
+    ("array", [hs.INTEGRITY_BOUND], "$.result.integrity_bound: not an object"),
+]
+
+
+@pytest.mark.parametrize("case", MALFORMED_BOUNDS, ids=[case[0] for case in MALFORMED_BOUNDS])
+def test_the_verifier_and_schema_refuse_malformed_integrity_bound(case):
+    name, bound, reason = case
+    doc = load("hanger_sizing_result_two_span.json")
+    assert doc["result"]["integrity_bound"] == hs.INTEGRITY_BOUND
+    if name == "missing":
+        del doc["result"]["integrity_bound"]
+    else:
+        doc["result"]["integrity_bound"] = None if bound == "null" else deepcopy(bound)
+    with pytest.raises(hs.Difference, match=reason.replace("[", r"\[").replace("$", r"\$")):
+        hs.closure(doc)
+    assert hs.verify(json.dumps(doc))["closure"]["status"] == "failed"
+    with pytest.raises(AssertionError, match="failed JSON Schema validation"):
+        validate_instance(SCHEMA, doc, schema_label="hanger_sizing_result", instance_label=name)
+
+
+# --- each derived solve's solver_standing and support_state_confirmation (REQ-003) --------------------------------
+def _sensitive_s_o1(doc):
+    doc["result"]["disclosures"] = [_integrity("S_O1", "sensitive")]
+
+
+# (id, change on the two-span document (S_O1 is solves[2]), the verifier's difference, whether the schema can state it)
+REFUSED_SOLVES = [
+    ("standing-solver-wire-token", lambda d: _solve(d, "S_O1").update(solver_standing="checks_passed"),
+     r"solves\[2\].solver_standing: not one of", True),
+    ("standing-verified", lambda d: _solve(d, "S_O1").update(solver_standing="verified"),
+     r"solves\[2\].solver_standing: not one of", True),
+    ("standing-missing", lambda d: _solve(d, "S_O1").pop("solver_standing"), r"solves\[2\].solver_standing: missing", True),
+    ("standing-without-disclosure", lambda d: _solve(d, "S_O1").update(solver_standing="sensitive"),
+     "solver_standing: sensitive without its HANGER_SIZING_DERIVED_SOLVE_INTEGRITY disclosure", False),
+    ("disclosure-beside-passing", _sensitive_s_o1,
+     "the integrity disclosure of S_O1 states sensitive, not its solver_standing solver_checks_passed", False),
+    ("disclosure-other-token", lambda d: (_sensitive_s_o1(d), _solve(d, "S_O1").update(solver_standing="failed")),
+     "the integrity disclosure of S_O1 states sensitive, not its solver_standing failed", False),
+    ("confirmation-missing", lambda d: _solve(d, "S_O1").pop("support_state_confirmation"),
+     "support_state_confirmation: missing", True),
+    ("confirmation-not-object", lambda d: _solve(d, "S_O1").update(support_state_confirmation="solver_reported_established"),
+     "support_state_confirmation: not an object", True),
+    ("confirmation-outcome-invented", lambda d: _solve(d, "S_O1")["support_state_confirmation"].update(outcome="verified"),
+     "support_state_confirmation.outcome: not one of", True),
+    ("confirmation-extra-member", lambda d: _solve(d, "S_O1")["support_state_confirmation"].update(bound=1),
+     "support_state_confirmation.bound: not a member", True),
+    ("not-applicable-with-states", lambda d: _solve(d, "S_O1")["support_state_confirmation"].update(outcome="not_applicable"),
+     "not 'not_applicable' exactly when the solve publishes no nonlinear-support state", True),
+    ("established-without-states", lambda d: _solve(d, "S_O1").update(states={}),
+     "not 'not_applicable' exactly when the solve publishes no nonlinear-support state", True),
+    ("detail-missing", lambda d: _solve(d, "S_O1")["support_state_confirmation"].pop("detail"),
+     "support_state_confirmation.detail: missing", True),
+    ("detail-spurious", lambda d: _solve(d, "S_O1")["support_state_confirmation"].update(detail="invented"),
+     "support_state_confirmation.detail: not null", True),
+    ("detail-quoted-null", lambda d: _solve(d, "S_O1").update(
+        support_state_confirmation={"outcome": "not_established_detail_quoted", "detail": None}),
+     "support_state_confirmation.detail: not a string", True),
+    ("detail-quoted-blank", lambda d: _solve(d, "S_O1").update(
+        support_state_confirmation={"outcome": "not_established_detail_quoted", "detail": " \t"}),
+     "support_state_confirmation.detail: blank", True),
+]
+
+
+def test_every_committed_solve_states_its_standing_and_confirmation():
+    for name, outcome in (("two_span", "solver_reported_established"), ("four_span", "not_applicable"),
+                          ("four_span_constant", "not_applicable")):
+        for solve in load(f"hanger_sizing_result_{name}.json")["result"]["solves"]:
+            assert solve["solver_standing"] == hs.SOLVER_CHECKS_PASSED, (name, solve)
+            assert solve["support_state_confirmation"] == {"outcome": outcome, "detail": None}, (name, solve)
+
+
+@pytest.mark.parametrize("case", REFUSED_SOLVES, ids=[case[0] for case in REFUSED_SOLVES])
+def test_the_verifier_refuses_a_tampered_solve_standing_or_confirmation(case):
+    _, change, reason, _ = case
+    doc = load("hanger_sizing_result_two_span.json")
+    hs.closure(doc)
+    change(doc)
+    with pytest.raises(hs.Difference, match=reason):
+        hs.closure(doc)
+
+
+@pytest.mark.parametrize("case", [c for c in REFUSED_SOLVES if c[3]], ids=lambda c: c[0])
+def test_the_schema_refuses_what_it_can_state_of_a_tampered_solve(case):
+    """The pairing of a solve's standing with its integrity disclosure compares sibling members, which JSON Schema
+    cannot state; that is the readers' closure (the cases marked False above)."""
+    _, change, _, _ = case
+    doc = load("hanger_sizing_result_two_span.json")
+    change(doc)
+    with pytest.raises(AssertionError, match="failed JSON Schema validation"):
+        validate_instance(SCHEMA, doc, schema_label="hanger_sizing_result", instance_label=case[0])
+
+
+def test_a_consistent_non_passing_solve_and_a_quoted_detail_are_closed_and_admitted():
+    doc = load("hanger_sizing_result_two_span.json")
+    _sensitive_s_o1(doc)
+    _solve(doc, "S_O1")["solver_standing"] = "sensitive"
+    _solve(doc, "V_C")["support_state_confirmation"] = {"outcome": "not_established_detail_quoted",
+                                                        "detail": "support support:C-lift: margin below its bound"}
+    _solve(doc, "V_O1")["states"] = {}
+    _solve(doc, "V_O1")["support_state_confirmation"] = {"outcome": "not_applicable", "detail": None}
+    hs.closure(doc)
+    validate_instance(SCHEMA, doc, schema_label="hanger_sizing_result", instance_label="consistent-solves")

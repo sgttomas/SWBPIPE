@@ -179,56 +179,91 @@
         "case": "load:W",
         "derived_document_sha256": "4d67c22620b95ee5ee5443596fc0c1fea22bf11747b5a8569f79489e38176bf1",
         "label": "S_W",
+        "solver_standing": "solver_checks_passed",
         "states": {
           "support:C-lift": "active"
+        },
+        "support_state_confirmation": {
+          "detail": null,
+          "outcome": "solver_reported_established"
         }
       },
       {
         "case": "load:W",
         "derived_document_sha256": "515996e4f40bfe1e1ffd4735d60e6bcf497b86867b15d7de4ff4754c7061cb7c",
         "label": "S_C",
+        "solver_standing": "solver_checks_passed",
         "states": {
           "support:C-lift": "active"
+        },
+        "support_state_confirmation": {
+          "detail": null,
+          "outcome": "solver_reported_established"
         }
       },
       {
         "case": "load:O1",
         "derived_document_sha256": "5ee42b4c0d22e5096655f1417bffb92cc236d2cbdc2a061c849a657abd9bef44",
         "label": "S_O1",
+        "solver_standing": "solver_checks_passed",
         "states": {
           "support:C-lift": "active"
+        },
+        "support_state_confirmation": {
+          "detail": null,
+          "outcome": "solver_reported_established"
         }
       },
       {
         "case": "load:O2",
         "derived_document_sha256": "590df0f06c498e3e017fcf697b75b6e2be034bf4ad931367b3b37731f7e4a615",
         "label": "S_O2",
+        "solver_standing": "solver_checks_passed",
         "states": {
           "support:C-lift": "active"
+        },
+        "support_state_confirmation": {
+          "detail": null,
+          "outcome": "solver_reported_established"
         }
       },
       {
         "case": "load:W",
         "derived_document_sha256": "d830b64d501dd6255691a0e77b76563747903061de3e2af0c2f0e06328ccfbb7",
         "label": "V_C",
+        "solver_standing": "solver_checks_passed",
         "states": {
           "support:C-lift": "active"
+        },
+        "support_state_confirmation": {
+          "detail": null,
+          "outcome": "solver_reported_established"
         }
       },
       {
         "case": "load:O1",
         "derived_document_sha256": "65256fd6a36909b2a0562479c0cfd3aefd2aa83e0037255d21d8c40b942b6f85",
         "label": "V_O1",
+        "solver_standing": "solver_checks_passed",
         "states": {
           "support:C-lift": "active"
+        },
+        "support_state_confirmation": {
+          "detail": null,
+          "outcome": "solver_reported_established"
         }
       },
       {
         "case": "load:O2",
         "derived_document_sha256": "50240857f7c0b49d3e2c5ce1006f8b407ad6014d7ba79644ebc9b919ff6bae14",
         "label": "V_O2",
+        "solver_standing": "solver_checks_passed",
         "states": {
           "support:C-lift": "active"
+        },
+        "support_state_confirmation": {
+          "detail": null,
+          "outcome": "solver_reported_established"
         }
       }
     ],

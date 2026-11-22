@@ -803,6 +803,78 @@ fn the_schema_states_the_crates_fixed_members() {
     assert!(defs["Result"]["required"].as_array().unwrap().contains(&json!("integrity_bound")));
     let messages: Vec<String> = derived::NONPASSING_STANDINGS.iter().map(|token| derived::integrity_message(token)).collect();
     assert_eq!(enumeration(&defs["SolveIntegrityDisclosure"]["properties"]["message"]), messages);
+    assert_eq!(enumeration(&defs["SolverStanding"]), derived::SOLVER_STANDINGS);
+    assert_eq!(enumeration(&defs["SupportStateConfirmation"]["properties"]["outcome"]), derived::CONFIRMATION_OUTCOMES);
+    assert_eq!(defs["SupportStateConfirmation"]["required"], json!(["outcome", "detail"]));
+    assert_eq!(defs["SupportStateConfirmation"]["additionalProperties"], json!(false));
+    let solve = &defs["Solve"];
+    assert_eq!(solve["properties"]["solver_standing"], json!({"$ref": "#/$defs/SolverStanding"}));
+    assert_eq!(solve["properties"]["support_state_confirmation"], json!({"$ref": "#/$defs/SupportStateConfirmation"}));
+    for member in ["solver_standing", "support_state_confirmation"] {
+        assert!(solve["required"].as_array().unwrap().contains(&json!(member)), "{member}");
+    }
+}
+
+/// Every derived solve states its own standing and confirmation: the two-span
+/// model's lift-off support was confirmed in every solve by the solver's report,
+/// and the linear four-span model has none to confirm.
+#[test]
+fn every_published_solve_states_its_standing_and_its_support_state_confirmation() {
+    for (name, outcome) in [
+        ("hanger_sizing_result_two_span.json", "solver_reported_established"),
+        ("hanger_sizing_result_four_span.json", "not_applicable"),
+        ("hanger_sizing_result_four_span_constant.json", "not_applicable"),
+    ] {
+        let doc = read_json(name);
+        for solve in doc["result"]["solves"].as_array().unwrap() {
+            assert_eq!(solve["solver_standing"], derived::SOLVER_CHECKS_PASSED, "{name}: {solve}");
+            assert_eq!(solve["support_state_confirmation"], json!({"outcome": outcome, "detail": null}), "{name}: {solve}");
+            assert_eq!(solve["states"].as_object().unwrap().is_empty(), outcome == "not_applicable", "{name}: {solve}");
+        }
+        assert!(doc["result"]["disclosures"].as_array().unwrap().iter().all(|d| d["code"] != derived::DERIVED_SOLVE_INTEGRITY), "{name}");
+    }
+    for name in ["hanger_sizing_result_ex_pressurised.json", "hanger_sizing_result_ex_riser.json", "hanger_sizing_result_forgery.json"] {
+        let doc = read_json(name);
+        for solve in doc["result"]["solves"].as_array().unwrap() {
+            assert!(derived::SOLVER_STANDINGS.contains(&solve["solver_standing"].as_str().unwrap()), "{name}: {solve}");
+            let outcome = solve["support_state_confirmation"]["outcome"].as_str().unwrap();
+            assert!(derived::CONFIRMATION_OUTCOMES.contains(&outcome), "{name}: {solve}");
+        }
+    }
+}
+
+/// The reader refuses a tampered standing or confirmation on the committed
+/// two-span document (S_O1 is `$.result.solves[2]`).
+#[test]
+fn the_reader_refuses_a_tampered_solve_standing_or_confirmation() {
+    let honest = read_json("hanger_sizing_result_two_span.json");
+    assert_eq!(reader::closure(&honest), Ok(()));
+    let refused = |change: &dyn Fn(&mut Value), reason: &str| {
+        let mut doc = honest.clone();
+        change(&mut doc);
+        let error = reader::closure(&doc).expect_err("closure refuses");
+        assert!(error.contains(reason), "{reason}: {error}");
+    };
+    let set = |doc: &mut Value, member: &str, value: Value| *doc.pointer_mut(&format!("/result/solves/2/{member}")).unwrap() = value;
+    refused(&|d| set(d, "solver_standing", json!("checks_passed")), "$.result.solves[2].solver_standing: not one of");
+    refused(&|d| set(d, "solver_standing", json!("verified")), "$.result.solves[2].solver_standing: not one of");
+    refused(&|d| set(d, "solver_standing", json!("sensitive")), "solver_standing: sensitive without its HANGER_SIZING_DERIVED_SOLVE_INTEGRITY disclosure");
+    refused(&|d| set(d, "support_state_confirmation", json!({"outcome": "verified", "detail": null})), "support_state_confirmation.outcome: not one of");
+    refused(&|d| set(d, "support_state_confirmation", json!({"outcome": "not_applicable", "detail": null})), "exactly when the solve publishes no nonlinear-support state");
+    refused(&|d| set(d, "support_state_confirmation", json!({"outcome": "solver_reported_established", "detail": "invented"})), "support_state_confirmation.detail: not null");
+    refused(&|d| set(d, "support_state_confirmation", json!({"outcome": "not_established_detail_quoted", "detail": null})), "support_state_confirmation.detail: not a string");
+    refused(&|d| set(d, "support_state_confirmation", json!({"outcome": "not_established_detail_quoted", "detail": " "})), "support_state_confirmation.detail: blank");
+    refused(&|d| set(d, "support_state_confirmation", json!({"outcome": "solver_reported_established"})), "support_state_confirmation.detail: missing");
+    // A disclosure whose token is not its solve's standing.
+    refused(&|d| {
+        set(d, "solver_standing", json!("failed"));
+        d["result"]["disclosures"] = json!([{"code": derived::DERIVED_SOLVE_INTEGRITY, "names": ["S_O1"], "message": derived::integrity_message("sensitive")}]);
+    }, "the integrity disclosure of S_O1 states sensitive, not its solver_standing failed");
+    // And the consistent pair is closed.
+    let mut doc = honest.clone();
+    set(&mut doc, "solver_standing", json!("sensitive"));
+    doc["result"]["disclosures"] = json!([{"code": derived::DERIVED_SOLVE_INTEGRITY, "names": ["S_O1"], "message": derived::integrity_message("sensitive")}]);
+    assert_eq!(reader::closure(&doc), Ok(()));
 }
 
 /// Sizing states a passing solve and the unverified bound in the reader

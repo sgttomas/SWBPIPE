@@ -177,43 +177,78 @@
         "case": "W",
         "derived_document_sha256": "52c88d94d7115f8d244a680ca0a7526d22c173d5ab87777b81ab5e514b8f59b3",
         "label": "S_W",
-        "states": {}
+        "solver_standing": "solver_checks_passed",
+        "states": {},
+        "support_state_confirmation": {
+          "detail": null,
+          "outcome": "not_applicable"
+        }
       },
       {
         "case": "W",
         "derived_document_sha256": "6b6fd603f2ab119e0ded062e72220954d85f7c6dc55cbe8fe8156a682e82514c",
         "label": "S_C",
-        "states": {}
+        "solver_standing": "solver_checks_passed",
+        "states": {},
+        "support_state_confirmation": {
+          "detail": null,
+          "outcome": "not_applicable"
+        }
       },
       {
         "case": "O1",
         "derived_document_sha256": "1ef0ba825c144dba20dc18b93f0f7f809352da92828a2d4cf7bc479f3031e1b9",
         "label": "S_O1",
-        "states": {}
+        "solver_standing": "solver_checks_passed",
+        "states": {},
+        "support_state_confirmation": {
+          "detail": null,
+          "outcome": "not_applicable"
+        }
       },
       {
         "case": "O2",
         "derived_document_sha256": "e61ee2e054ae81049562d4aaf4d1589ebc0b105808fd8952d0a58043ac363d98",
         "label": "S_O2",
-        "states": {}
+        "solver_standing": "solver_checks_passed",
+        "states": {},
+        "support_state_confirmation": {
+          "detail": null,
+          "outcome": "not_applicable"
+        }
       },
       {
         "case": "W",
         "derived_document_sha256": "c8b70a7c617d419e68a4b7ff842170ef5d543c262fb35d933cd890bc4d71234c",
         "label": "V_C",
-        "states": {}
+        "solver_standing": "solver_checks_passed",
+        "states": {},
+        "support_state_confirmation": {
+          "detail": null,
+          "outcome": "not_applicable"
+        }
       },
       {
         "case": "O1",
         "derived_document_sha256": "93120a8c5429dead5059649cd205d4dbfc4b9279eaeaa73b9c3914cc0bfc51b9",
         "label": "V_O1",
-        "states": {}
+        "solver_standing": "solver_checks_passed",
+        "states": {},
+        "support_state_confirmation": {
+          "detail": null,
+          "outcome": "not_applicable"
+        }
       },
       {
         "case": "O2",
         "derived_document_sha256": "1aee35ba1fa047ecbf124284ab54cf61ca385e1209ff4f85595fe200812aafa2",
         "label": "V_O2",
-        "states": {}
+        "solver_standing": "solver_checks_passed",
+        "states": {},
+        "support_state_confirmation": {
+          "detail": null,
+          "outcome": "not_applicable"
+        }
       }
     ],
     "verification_standing": "unconditional"

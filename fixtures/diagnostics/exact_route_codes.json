@@ -1941,17 +1941,17 @@
    "severity": "warning",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 668,
+    "line": 780,
     "via": "field code"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 668,
+     "line": 780,
      "via": "field code",
      "severity": null,
      "through": [
-      "const DISPLACEMENT_CORRECTION_UNAVAILABLE (core/analysis/hanger_sizing/src/derived.rs:582)"
+      "const DISPLACEMENT_CORRECTION_UNAVAILABLE (core/analysis/hanger_sizing/src/derived.rs:610)"
      ]
     },
     {
@@ -3661,13 +3661,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 313,
+    "line": 341,
     "via": "flag()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 313,
+     "line": 341,
      "via": "flag()",
      "severity": null
     },
@@ -3679,7 +3679,7 @@
     },
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 786,
+     "line": 793,
      "via": "code-message pair",
      "severity": null
     }
@@ -3703,13 +3703,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 348,
+    "line": 376,
     "via": "flag()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 348,
+     "line": 376,
      "via": "flag()",
      "severity": null
     }
@@ -3731,13 +3731,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 338,
+    "line": 366,
     "via": "flag()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 338,
+     "line": 366,
      "via": "flag()",
      "severity": null
     }
@@ -3759,13 +3759,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 319,
+    "line": 347,
     "via": "flag()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 319,
+     "line": 347,
      "via": "flag()",
      "severity": null
     },
@@ -3795,13 +3795,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 332,
+    "line": 360,
     "via": "flag()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 332,
+     "line": 360,
      "via": "flag()",
      "severity": null
     }
@@ -3823,13 +3823,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 353,
+    "line": 381,
     "via": "flag()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 353,
+     "line": 381,
      "via": "flag()",
      "severity": null
     }
@@ -3857,13 +3857,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 335,
+    "line": 363,
     "via": "flag()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 335,
+     "line": 363,
      "via": "flag()",
      "severity": null
     }
@@ -3888,13 +3888,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 328,
+    "line": 356,
     "via": "flag()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 328,
+     "line": 356,
      "via": "flag()",
      "severity": null
     }
@@ -3916,13 +3916,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 323,
+    "line": 351,
     "via": "flag()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 323,
+     "line": 351,
      "via": "flag()",
      "severity": null
     }
@@ -3944,13 +3944,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 159,
+    "line": 187,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 159,
+     "line": 187,
      "via": "refusal()",
      "severity": null
     }
@@ -3974,13 +3974,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 145,
+    "line": 173,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 145,
+     "line": 173,
      "via": "refusal()",
      "severity": null
     }
@@ -4004,13 +4004,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 784,
+    "line": 791,
     "via": "code-message pair"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 784,
+     "line": 791,
      "via": "code-message pair",
      "severity": null
     }
@@ -4034,13 +4034,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 883,
+    "line": 1003,
     "via": "field code"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 883,
+     "line": 1003,
      "via": "field code",
      "severity": null
     }
@@ -4097,31 +4097,31 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 573,
+    "line": 601,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 573,
+     "line": 601,
      "via": "refusal()",
      "severity": null
     },
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 650,
+     "line": 762,
      "via": "refusal()",
      "severity": null
     },
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 680,
+     "line": 792,
      "via": "refusal()",
      "severity": null
     },
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 732,
+     "line": 852,
      "via": "refusal()",
      "severity": null
     },
@@ -4163,17 +4163,17 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 656,
+    "line": 768,
     "via": "field code"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 656,
+     "line": 768,
      "via": "field code",
      "severity": null,
      "through": [
-      "const DERIVED_SOLVE_INTEGRITY (core/analysis/hanger_sizing/src/derived.rs:578)"
+      "const DERIVED_SOLVE_INTEGRITY (core/analysis/hanger_sizing/src/derived.rs:606)"
      ]
     }
    ],
@@ -4208,7 +4208,7 @@
     },
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 783,
+     "line": 790,
      "via": "code-message pair",
      "severity": null
     }
@@ -4233,13 +4233,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 826,
+    "line": 833,
     "via": "add()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 826,
+     "line": 833,
      "via": "add()",
      "severity": null
     }
@@ -4263,13 +4263,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 786,
+    "line": 906,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 786,
+     "line": 906,
      "via": "refusal()",
      "severity": null
     }
@@ -4293,13 +4293,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 768,
+    "line": 775,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 768,
+     "line": 775,
      "via": "refusal()",
      "severity": null,
      "through": [
@@ -4357,13 +4357,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 869,
+    "line": 876,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 869,
+     "line": 876,
      "via": "refusal()",
      "severity": null,
      "through": [
@@ -4424,13 +4424,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 884,
+    "line": 891,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 884,
+     "line": 891,
      "via": "refusal()",
      "severity": null,
      "through": [
@@ -4439,7 +4439,7 @@
     },
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 887,
+     "line": 894,
      "via": "refusal()",
      "severity": null,
      "through": [
@@ -4497,13 +4497,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 774,
+    "line": 781,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 774,
+     "line": 781,
      "via": "refusal()",
      "severity": null,
      "through": [
@@ -4530,13 +4530,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 790,
+    "line": 797,
     "via": "code-message pair"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 790,
+     "line": 797,
      "via": "code-message pair",
      "severity": null
     }
@@ -4560,13 +4560,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 814,
+    "line": 934,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 814,
+     "line": 934,
      "via": "refusal()",
      "severity": null
     },
@@ -4596,13 +4596,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 903,
+    "line": 910,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 903,
+     "line": 910,
      "via": "refusal()",
      "severity": null,
      "through": [
@@ -4681,13 +4681,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 794,
+    "line": 801,
     "via": "code-message pair"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 794,
+     "line": 801,
      "via": "code-message pair",
      "severity": null
     }
@@ -4711,13 +4711,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 787,
+    "line": 794,
     "via": "code-message pair"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 787,
+     "line": 794,
      "via": "code-message pair",
      "severity": null
     }
@@ -4741,13 +4741,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 878,
+    "line": 998,
     "via": "field code"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 878,
+     "line": 998,
      "via": "field code",
      "severity": null
     }
@@ -4771,13 +4771,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 153,
+    "line": 181,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 153,
+     "line": 181,
      "via": "refusal()",
      "severity": null
     }
@@ -4831,13 +4831,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 793,
+    "line": 800,
     "via": "code-message pair"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 793,
+     "line": 800,
      "via": "code-message pair",
      "severity": null
     }
@@ -4891,13 +4891,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 792,
+    "line": 799,
     "via": "code-message pair"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 792,
+     "line": 799,
      "via": "code-message pair",
      "severity": null
     }
@@ -4921,13 +4921,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 791,
+    "line": 798,
     "via": "code-message pair"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 791,
+     "line": 798,
      "via": "code-message pair",
      "severity": null
     }
@@ -4951,13 +4951,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 780,
+    "line": 787,
     "via": "code-message pair"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 780,
+     "line": 787,
      "via": "code-message pair",
      "severity": null
     }
@@ -4981,13 +4981,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 781,
+    "line": 788,
     "via": "code-message pair"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 781,
+     "line": 788,
      "via": "code-message pair",
      "severity": null,
      "through": [
@@ -5014,13 +5014,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 816,
+    "line": 823,
     "via": "add()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 816,
+     "line": 823,
      "via": "add()",
      "severity": null,
      "through": [
@@ -21499,7 +21499,7 @@
  "unresolved_sites": [
   {
    "file": "core/analysis/hanger_sizing/src/derived.rs",
-   "line": 360,
+   "line": 388,
    "at": "candidate_message()",
    "why": "parameter request_doc of check_candidates(), of type &Value, turned into text",
    "expression": "code",
@@ -21507,7 +21507,7 @@
   },
   {
    "file": "core/analysis/hanger_sizing/src/derived.rs",
-   "line": 360,
+   "line": 388,
    "at": "refusal()",
    "why": "parameter request_doc of check_candidates(), of type &Value, turned into text",
    "expression": "code",
@@ -21515,7 +21515,7 @@
   },
   {
    "file": "core/analysis/hanger_sizing/src/publish.rs",
-   "line": 723,
+   "line": 730,
    "at": "json code",
    "why": "the code field of d, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "d.code",
@@ -21523,7 +21523,7 @@
   },
   {
    "file": "core/analysis/hanger_sizing/src/publish.rs",
-   "line": 815,
+   "line": 822,
    "at": "add()",
    "why": "a tuple source REQUIRED_MEMBERS the scanner cannot follow",
    "expression": "code",
@@ -21531,7 +21531,7 @@
   },
   {
    "file": "core/analysis/hanger_sizing/src/publish.rs",
-   "line": 818,
+   "line": 825,
    "at": "add()",
    "why": "a tuple source REQUIRED_MEMBERS the scanner cannot follow",
    "expression": "code",
@@ -21539,7 +21539,7 @@
   },
   {
    "file": "core/analysis/hanger_sizing/src/publish.rs",
-   "line": 834,
+   "line": 841,
    "at": "add()",
    "why": "a tuple source REQUIRED_METHOD_MEMBERS the scanner cannot follow",
    "expression": "code",
@@ -21547,7 +21547,7 @@
   },
   {
    "file": "core/analysis/hanger_sizing/src/publish.rs",
-   "line": 840,
+   "line": 847,
    "at": "add()",
    "why": "a tuple source REQUIRED_METHOD_MEMBERS the scanner cannot follow",
    "expression": "code",
@@ -21555,7 +21555,7 @@
   },
   {
    "file": "core/analysis/hanger_sizing/src/publish.rs",
-   "line": 846,
+   "line": 853,
    "at": "refusal()",
    "why": "parameter sizing of required_findings(), of type &Value, turned into text",
    "expression": "code",
@@ -22095,15 +22095,15 @@
   {
    "literal": "S_C",
    "sites": [
-    "core/analysis/hanger_sizing/src/derived.rs:820",
-    "core/analysis/hanger_sizing/src/derived.rs:881",
+    "core/analysis/hanger_sizing/src/derived.rs:1001",
+    "core/analysis/hanger_sizing/src/derived.rs:940",
     "core/analysis/hanger_sizing/src/publish.rs:427"
    ]
   },
   {
    "literal": "S_O1",
    "sites": [
-    "core/analysis/hanger_sizing/src/derived.rs:876"
+    "core/analysis/hanger_sizing/src/derived.rs:996"
    ]
   },
   {
@@ -22115,11 +22115,11 @@
   {
    "literal": "S_W",
    "sites": [
-    "core/analysis/hanger_sizing/src/derived.rs:803",
-    "core/analysis/hanger_sizing/src/derived.rs:804",
-    "core/analysis/hanger_sizing/src/derived.rs:808",
-    "core/analysis/hanger_sizing/src/derived.rs:876",
-    "core/analysis/hanger_sizing/src/derived.rs:881",
+    "core/analysis/hanger_sizing/src/derived.rs:1001",
+    "core/analysis/hanger_sizing/src/derived.rs:923",
+    "core/analysis/hanger_sizing/src/derived.rs:924",
+    "core/analysis/hanger_sizing/src/derived.rs:928",
+    "core/analysis/hanger_sizing/src/derived.rs:996",
     "core/analysis/hanger_sizing/src/publish.rs:427"
    ]
   },
@@ -22330,7 +22330,7 @@
   {
    "literal": "V_C",
    "sites": [
-    "core/analysis/hanger_sizing/src/derived.rs:856",
+    "core/analysis/hanger_sizing/src/derived.rs:976",
     "core/analysis/hanger_sizing/src/publish.rs:429"
    ]
   },

@@ -714,7 +714,14 @@ pub fn sized_document(
             }
             map.insert(support.clone(), json!(state));
         }
-        solves.push(json!({"label": label, "case": case, "derived_document_sha256": hash, "states": map}));
+        solves.push(json!({
+            "label": label,
+            "case": case,
+            "derived_document_sha256": hash,
+            "states": map,
+            "solver_standing": states.solver_standing,
+            "support_state_confirmation": states.support_state_confirmation.to_json(),
+        }));
     }
 
     let disclosures: Vec<Value> = run

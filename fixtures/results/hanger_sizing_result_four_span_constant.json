@@ -195,31 +195,56 @@
         "case": "load:W",
         "derived_document_sha256": "1f111a68a7445fc943f442a6d28967dbea2435133c84ea8d73931e9dcd3ec23f",
         "label": "S_W",
-        "states": {}
+        "solver_standing": "solver_checks_passed",
+        "states": {},
+        "support_state_confirmation": {
+          "detail": null,
+          "outcome": "not_applicable"
+        }
       },
       {
         "case": "load:W",
         "derived_document_sha256": "8c0039a5c1d7eb90cf7758c5f0fa72d939b3784acdca9260e381dbc20cd5d2de",
         "label": "S_C",
-        "states": {}
+        "solver_standing": "solver_checks_passed",
+        "states": {},
+        "support_state_confirmation": {
+          "detail": null,
+          "outcome": "not_applicable"
+        }
       },
       {
         "case": "load:O1",
         "derived_document_sha256": "099d2347d9b0fae48e04bc70a8b59bafbacfbf1bfc364e60b90a672e34402773",
         "label": "S_O1",
-        "states": {}
+        "solver_standing": "solver_checks_passed",
+        "states": {},
+        "support_state_confirmation": {
+          "detail": null,
+          "outcome": "not_applicable"
+        }
       },
       {
         "case": "load:W",
         "derived_document_sha256": "8c0039a5c1d7eb90cf7758c5f0fa72d939b3784acdca9260e381dbc20cd5d2de",
         "label": "V_C",
-        "states": {}
+        "solver_standing": "solver_checks_passed",
+        "states": {},
+        "support_state_confirmation": {
+          "detail": null,
+          "outcome": "not_applicable"
+        }
       },
       {
         "case": "load:O1",
         "derived_document_sha256": "099d2347d9b0fae48e04bc70a8b59bafbacfbf1bfc364e60b90a672e34402773",
         "label": "V_O1",
-        "states": {}
+        "solver_standing": "solver_checks_passed",
+        "states": {},
+        "support_state_confirmation": {
+          "detail": null,
+          "outcome": "not_applicable"
+        }
       }
     ],
     "verification_standing": "unconditional"

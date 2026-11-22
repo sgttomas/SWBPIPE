@@ -150,7 +150,7 @@ fn the_crate_hash_of_the_committed_two_span_document_is_the_desktops() {
     let committed = read_json("hanger_sizing_result_two_span.json");
     assert_eq!(
         checked_sha256(&committed).as_deref(),
-        Some("9d16a68b7dc4a2906bb0b3c3c6eac22445c5f9a5038fb265e02546bdf584590c")
+        Some("0264fd8e5d22c82815486fd143ae6c4cc6fcd5da6da12c3a156e7b39acc4133a")
     );
 }
 
@@ -226,7 +226,7 @@ fn an_input_outside_the_profile_is_the_headless_refusal_read_with_nothing_suppli
     assert!(out.verdict.binding_not_checked.is_empty());
 }
 
-/// The corpus mutations (`replace` and `add`), as `tests/publication.rs` applies them.
+/// The corpus mutations (`replace`, `add` and `remove`), as `tests/publication.rs` applies them.
 fn mutate(doc: &mut Value, ops: &[Value]) {
     for op in ops {
         let path = op["path"].as_str().unwrap();
@@ -235,6 +235,10 @@ fn mutate(doc: &mut Value, ops: &[Value]) {
             "add" => {
                 let (parent, key) = path.rsplit_once('/').unwrap();
                 doc.pointer_mut(parent).unwrap()[key] = op["value"].clone();
+            }
+            "remove" => {
+                let (parent, key) = path.rsplit_once('/').unwrap();
+                doc.pointer_mut(parent).unwrap().as_object_mut().unwrap().remove(key).unwrap();
             }
             other => panic!("unknown op {other}"),
         }

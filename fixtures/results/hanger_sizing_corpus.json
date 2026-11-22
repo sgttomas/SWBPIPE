@@ -1,5 +1,5 @@
 {
-  "description": "DEL-04-11 slice 1d-α: hanger-sizing result documents, mutations and the expected standings. The Rust reader (core/analysis/hanger_sizing/tests/publication.rs) checks all five; the Python verifier (tests/test_hanger_sizing_evidence.py) checks closure, binding and arithmetic against the same expectations, which is their verdict parity. Mutations are applied in order: replace (an existing member or element), add (a new object member). supply names the inputs taken from the input file. All values are invented. Reproduction is claimed only for the same engine build on the same platform (§8.3.7): a genuine sized entry's reproduction is \"same_build\", which the Rust test checks on a document it publishes afresh from the committed input in-process, never on the committed bytes, which were formed on one platform. The Python verifier has no reproduction standing.",
+  "description": "DEL-04-11 slice 1d-α: hanger-sizing result documents, mutations and the expected standings. The Rust reader (core/analysis/hanger_sizing/tests/publication.rs) checks all five; the Python verifier (tests/test_hanger_sizing_evidence.py) checks closure, binding and arithmetic against the same expectations, which is their verdict parity. Mutations are applied in order: replace (an existing member or element), add (a new object member), remove (an existing object member). supply names the inputs taken from the input file. All values are invented. Reproduction is claimed only for the same engine build on the same platform (§8.3.7): a genuine sized entry's reproduction is \"same_build\", which the Rust test checks on a document it publishes afresh from the committed input in-process, never on the committed bytes, which were formed on one platform. The Python verifier has no reproduction standing.",
   "entries": [
     {
       "id": "sized-variable-unconditional",
@@ -426,6 +426,55 @@
           "op": "replace",
           "path": "/result/integrity_bound/status",
           "value": "verified"
+        }
+      ],
+      "expected": {
+        "closure": "failed",
+        "binding": "not_checked",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "not_checked",
+        "derivation": "not_checked",
+        "reproduction": "not_checked"
+      }
+    },
+    {
+      "id": "mutation-integrity-bound-missing",
+      "note": "",
+      "document": "hanger_sizing_result_two_span.json",
+      "input": "hanger_sizing_input_two_span.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [
+        {
+          "op": "remove",
+          "path": "/result/integrity_bound"
+        }
+      ],
+      "expected": {
+        "closure": "failed",
+        "binding": "not_checked",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "not_checked",
+        "derivation": "not_checked",
+        "reproduction": "not_checked"
+      }
+    },
+    {
+      "id": "mutation-integrity-bound-extra",
+      "note": "",
+      "document": "hanger_sizing_result_two_span.json",
+      "input": "hanger_sizing_input_two_span.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [
+        {
+          "op": "add",
+          "path": "/result/integrity_bound/bound",
+          "value": 1.0
         }
       ],
       "expected": {

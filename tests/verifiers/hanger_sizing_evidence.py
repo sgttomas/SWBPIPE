@@ -15,7 +15,9 @@ not_checked, and states nothing about mechanics:
 
 Beside the standings, every verdict carries `integrity_bound` (`not_verified`,
 `inverse_norm_bound_not_verified`): SWBPIPE verifies no error bound for the ordinary
-solve's values (LIM-026), and a sized document must state the same.
+solve's values (LIM-026), and a sized document must state the same. Each of its
+derived solves states its `solver_standing` and `support_state_confirmation`, which
+closure checks against the solve's states and its integrity disclosure.
 
 When closure fails nothing else is checked. A document is admitted by the checked
 profile's rules first: duplicate keys are refused by an `object_pairs_hook`, and
@@ -80,6 +82,16 @@ INTEGRITY_BOUND_REASON = "inverse_norm_bound_not_verified"
 INTEGRITY_BOUND = {"status": INTEGRITY_BOUND_STATUS, "reason": INTEGRITY_BOUND_REASON}
 # The standings other than solver_checks_passed, and the integrity disclosure's fixed message.
 NONPASSING_STANDINGS = ("not_assessed", "sensitive", "unresolved", "failed")
+# Every derived solve's positive solver_standing: solver_checks_passed or a non-passing token, which its integrity
+# disclosure states too.
+SOLVER_STANDINGS = (SOLVER_CHECKS_PASSED, *NONPASSING_STANDINGS)
+# A derived solve's support_state_confirmation.outcome; detail is quoted exactly for not_established_detail_quoted,
+# and not_applicable stands exactly when the solve publishes no nonlinear-support state.
+CONFIRMATION_OUTCOMES = ("solver_reported_established", "not_attempted_reason_not_recorded",
+                         "not_established_detail_quoted", "no_confirmation_record", "not_applicable")
+DETAIL_QUOTED = "not_established_detail_quoted"
+NOT_APPLICABLE = "not_applicable"
+SOLVE_KEYS = ("label", "case", "derived_document_sha256", "states", "solver_standing", "support_state_confirmation")
 
 
 def integrity_message(token):
@@ -503,9 +515,10 @@ def _closure_sized(doc):
     solves = _array(result["solves"], "$.result.solves")
     if len(solves) != len(plan):
         raise Difference(f"$.result.solves: {len(solves)} entries, expected {len(plan)}")
+    standings = []
     for i, (solve, (label, case)) in enumerate(zip(solves, plan)):
         path = f"$.result.solves[{i}]"
-        _obj(solve, path, ("label", "case", "derived_document_sha256", "states"))
+        _obj(solve, path, SOLVE_KEYS)
         if _string(solve["label"], f"{path}.label") != label:
             raise Difference(f"{path}.label: not {label!r}")
         if _string(solve["case"], f"{path}.case") != case:
@@ -517,10 +530,13 @@ def _closure_sized(doc):
             if not support:
                 raise Difference(f"{path}.states: an empty support id")
             _one_of(state, f"{path}.states.{support}", STATE_CODES)
+        standings.append(_one_of(solve["solver_standing"], f"{path}.solver_standing", SOLVER_STANDINGS))
+        _closure_confirmation(solve["support_state_confirmation"], f"{path}.support_state_confirmation",
+                              not solve["states"])
 
     disclosures = _array(result["disclosures"], "$.result.disclosures")
     labels = [label for label, _ in plan]
-    codes, solve_pairs = [], []
+    codes, solve_pairs, integrity = [], [], {}
     for i, disclosure in enumerate(disclosures):
         path = f"$.result.disclosures[{i}]"
         _obj(disclosure, path, ("code", "names", "message"))
@@ -540,6 +556,7 @@ def _closure_sized(doc):
                 token = message.split(":", 1)[0]
                 if token not in NONPASSING_STANDINGS or message != integrity_message(token):
                     raise Difference(f"{path}.message: not the integrity message of a standing other than solver_checks_passed")
+                integrity[label] = (token, i)
             elif not message:
                 raise Difference(f"{path}.message: empty")
             continue
@@ -556,6 +573,29 @@ def _closure_sized(doc):
                 raise Difference(f"{path}.names: not unique and sorted bytewise")
             previous = name
         _string(disclosure["message"], f"{path}.message")
+    # The integrity disclosures and the solves' standings are one statement.
+    for i, (label, standing) in enumerate(zip(labels, standings)):
+        if label in integrity:
+            token, j = integrity[label]
+            if token != standing:
+                raise Difference(f"$.result.disclosures[{j}]: the integrity disclosure of {label} states {token}, "
+                                 f"not its solver_standing {standing}")
+        elif standing != SOLVER_CHECKS_PASSED:
+            raise Difference(f"$.result.solves[{i}].solver_standing: {standing} without its "
+                             "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY disclosure")
+
+
+def _closure_confirmation(value, path, stateless):
+    confirmation = _obj(value, path, ("outcome", "detail"))
+    outcome = _one_of(confirmation["outcome"], f"{path}.outcome", CONFIRMATION_OUTCOMES)
+    if stateless != (outcome == NOT_APPLICABLE):
+        raise Difference(f"{path}.outcome: not {NOT_APPLICABLE!r} exactly when the solve publishes no "
+                         "nonlinear-support state")
+    if outcome == DETAIL_QUOTED:
+        if not _string(confirmation["detail"], f"{path}.detail").strip():
+            raise Difference(f"{path}.detail: blank")
+    elif confirmation["detail"] is not None:
+        raise Difference(f"{path}.detail: not null for the outcome {outcome!r}")
 
 
 def closure(doc) -> None:

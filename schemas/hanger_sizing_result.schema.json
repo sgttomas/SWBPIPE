@@ -997,15 +997,112 @@
             "$ref": "#/$defs/StateCode"
           },
           "description": "Each nonlinear support's state in this solve; empty when the model has none."
+        },
+        "solver_standing": {
+          "$ref": "#/$defs/SolverStanding"
+        },
+        "support_state_confirmation": {
+          "$ref": "#/$defs/SupportStateConfirmation"
         }
       },
       "required": [
         "label",
         "case",
         "derived_document_sha256",
-        "states"
+        "states",
+        "solver_standing",
+        "support_state_confirmation"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "if": {
+        "properties": {
+          "states": {
+            "maxProperties": 0
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "support_state_confirmation": {
+            "properties": {
+              "outcome": {
+                "const": "not_applicable"
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "support_state_confirmation": {
+            "properties": {
+              "outcome": {
+                "not": {
+                  "const": "not_applicable"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "SolverStanding": {
+      "description": "The solver's numerical-integrity standing of this derived solve, stated positively for every solve. solver_checks_passed is the solver's report that its own checks found nothing; it asserts no verified error bound (integrity_bound). Each other token is also disclosed by HANGER_SIZING_DERIVED_SOLVE_INTEGRITY naming this solve, and solver_checks_passed is not; that pairing compares sibling members and is the readers' closure.",
+      "enum": [
+        "solver_checks_passed",
+        "not_assessed",
+        "sensitive",
+        "unresolved",
+        "failed"
+      ]
+    },
+    "SupportStateConfirmation": {
+      "type": "object",
+      "description": "What the solver's integrity record of this solve's case states of its support-state confirmation, read from the producer's fixed text as the report standing reads it. not_applicable exactly when the solve publishes no nonlinear-support state. solver_reported_established is the solver's report, not an independently verified confirmation bound. detail quotes the solver's reason exactly when the outcome is not_established_detail_quoted, and is null otherwise.",
+      "properties": {
+        "outcome": {
+          "enum": [
+            "solver_reported_established",
+            "not_attempted_reason_not_recorded",
+            "not_established_detail_quoted",
+            "no_confirmation_record",
+            "not_applicable"
+          ]
+        },
+        "detail": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "outcome",
+        "detail"
+      ],
+      "additionalProperties": false,
+      "if": {
+        "properties": {
+          "outcome": {
+            "const": "not_established_detail_quoted"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "detail": {
+            "type": "string",
+            "pattern": "\\S"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "detail": {
+            "type": "null"
+          }
+        }
+      }
     },
     "Disclosure": {
       "description": "A state disclosure (each code at most once per document) or a per-solve disclosure (each code at most once per solve label of the document, naming that one label). Neither refuses.",

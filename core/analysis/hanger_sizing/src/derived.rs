@@ -68,11 +68,39 @@ pub struct Disclosure {
     pub message: String,
 }
 
-/// Each nonlinear support's converged state in one derived solve.
+/// What the solver's integrity record of one derived solve's case states of its
+/// support-state confirmation ([`support_state_confirmation`]).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SupportStateConfirmation {
+    /// One of [`CONFIRMATION_OUTCOMES`].
+    pub outcome: String,
+    /// The solver's quoted reason, present exactly when `outcome` is
+    /// `not_established_detail_quoted`; published as `null` otherwise.
+    pub detail: Option<String>,
+}
+
+impl SupportStateConfirmation {
+    fn of(outcome: &str, detail: Option<String>) -> Self {
+        SupportStateConfirmation { outcome: outcome.to_string(), detail }
+    }
+
+    /// The published `support_state_confirmation` member: `{outcome, detail}`,
+    /// `detail` null when there is none.
+    pub fn to_json(&self) -> Value {
+        json!({"outcome": self.outcome, "detail": self.detail})
+    }
+}
+
+/// One derived solve's own record: each nonlinear support's converged state, the
+/// solver's numerical-integrity standing ([`standing_token`]) and what its
+/// integrity record states of the support-state confirmation.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SolveStates {
     pub solve: String,
     pub states: BTreeMap<String, String>,
+    /// One of [`SOLVER_STANDINGS`].
+    pub solver_standing: &'static str,
+    pub support_state_confirmation: SupportStateConfirmation,
 }
 
 /// A completed sizing run: the hanger table's values, before publication.
@@ -621,6 +649,90 @@ pub fn standing_token(status: NumericalQualityStatus) -> &'static str {
 /// [`DERIVED_SOLVE_INTEGRITY`] with [`integrity_message`].
 pub const NONPASSING_STANDINGS: [&str; 4] = ["not_assessed", "sensitive", "unresolved", "failed"];
 
+/// The closed vocabulary of every derived solve's `solver_standing`, the
+/// positive per-solve statement of [`standing_token`]: [`SOLVER_CHECKS_PASSED`]
+/// first, then [`NONPASSING_STANDINGS`]. A solve stands as exactly one; a
+/// non-passing one is also disclosed by [`DERIVED_SOLVE_INTEGRITY`] with the same
+/// token, and a passing one is not.
+pub const SOLVER_STANDINGS: [&str; 5] = [SOLVER_CHECKS_PASSED, "not_assessed", "sensitive", "unresolved", "failed"];
+
+/// The closed vocabulary of a derived solve's `support_state_confirmation.outcome`,
+/// the tokens of `numerical_vocabulary::HistoricalConfirmation` that
+/// `report_standing` derives from the same fixed producer text.
+pub const CONFIRMATION_OUTCOMES: [&str; 5] = [
+    "solver_reported_established",
+    "not_attempted_reason_not_recorded",
+    "not_established_detail_quoted",
+    "no_confirmation_record",
+    "not_applicable",
+];
+/// The confirmation outcome that alone carries a quoted `detail`.
+pub const DETAIL_QUOTED: &str = "not_established_detail_quoted";
+/// The confirmation outcome of a solve that publishes no nonlinear-support state.
+pub const NOT_APPLICABLE: &str = "not_applicable";
+
+/// The fixed producer text a case's integrity message ends with, copied from
+/// `product_physics` (`NONLINEAR_CONFIRMED_EVIDENCE_LINE`,
+/// `nonlinear_not_established_sentence`, the S11-G recovery-guard sentence and
+/// `integrity_diagnostic_id`) and read exactly as `report_standing` reads it. The
+/// copies are pinned to the producer's source by test.
+pub const NONLINEAR_CONFIRMED_LINE: &str = "Converged support state: established at 128-bit precision by one formation-checked solve; each support's state has a sign margin larger than its bound, and a sliding friction force satisfies the friction law of that state within its bound; the published nodal displacements, and the support displacement rows that follow them, are the formation check's corrected displacements; the iteration's residual rows are its own.";
+const NOT_ESTABLISHED_LEAD: &str = " the converged support state is not established at 128-bit precision (";
+const NOT_ESTABLISHED_TAIL: &str = "); member rows are binary64 recoveries";
+const NOT_RUN: &str = "confirmation attempt: not run";
+const RECOVERY_LEAD: &str = " S11-G recovery guard (R-b'): load case ";
+const SENSITIVE_BECAUSE: &str = " is Sensitive because ";
+const INTEGRITY_DIAGNOSTIC_PREFIX: &str = "diagnostic:numerical-integrity:";
+
+/// What the solver's integrity record of `case_id` states of the support-state
+/// confirmation in one derived solve, by `report_standing`'s own rule:
+/// - a solve that publishes no nonlinear-support state is `not_applicable`;
+/// - otherwise the message of `diagnostic:numerical-integrity:<case_id>` (empty
+///   when absent) is read at its end. The not-established sentence, its lead
+///   occurring once, gives `not_attempted_reason_not_recorded` for the reason
+///   "confirmation attempt: not run" and `not_established_detail_quoted` with the
+///   reason quoted otherwise; the confirmed-state line, occurring once and
+///   followed by nothing or by the case's S11-G recovery sentence, gives
+///   `solver_reported_established`; anything else is `no_confirmation_record`.
+///
+/// One difference from `report_standing`: an empty or whitespace-only reason, which
+/// the producer never forms, is `no_confirmation_record`, so a quoted detail is
+/// never blank. `solver_reported_established` is the solver's report, not an
+/// independently verified confirmation bound.
+pub fn support_state_confirmation(case_id: &str, states: &BTreeMap<String, String>, diagnostics: &[Diagnostic]) -> SupportStateConfirmation {
+    if states.is_empty() {
+        return SupportStateConfirmation::of(NOT_APPLICABLE, None);
+    }
+    let id = format!("{INTEGRITY_DIAGNOSTIC_PREFIX}{case_id}");
+    let message = diagnostics.iter().find(|d| d.id == id).map(|d| d.message.as_str()).unwrap_or("");
+    let none = || SupportStateConfirmation::of("no_confirmation_record", None);
+    if let Some(head) = message.strip_suffix(NOT_ESTABLISHED_TAIL) {
+        if message.matches(NOT_ESTABLISHED_LEAD).count() == 1 {
+            let Some(found) = head.rfind(NOT_ESTABLISHED_LEAD) else { return none() };
+            let reason = &head[found + NOT_ESTABLISHED_LEAD.len()..];
+            return if reason == NOT_RUN {
+                SupportStateConfirmation::of("not_attempted_reason_not_recorded", None)
+            } else if reason.trim().is_empty() {
+                none()
+            } else {
+                SupportStateConfirmation::of(DETAIL_QUOTED, Some(reason.to_string()))
+            };
+        }
+        return none();
+    }
+    let confirmed = format!(" {NONLINEAR_CONFIRMED_LINE}");
+    if message.matches(confirmed.as_str()).count() == 1 {
+        if let Some(found) = message.find(confirmed.as_str()) {
+            let rest = &message[found + confirmed.len()..];
+            let recovery = [RECOVERY_LEAD, case_id, SENSITIVE_BECAUSE].concat();
+            if rest.is_empty() || rest.starts_with(recovery.as_str()) {
+                return SupportStateConfirmation::of("solver_reported_established", None);
+            }
+        }
+    }
+    none()
+}
+
 /// The fixed message of a [`DERIVED_SOLVE_INTEGRITY`] disclosure: the standing's
 /// closed token first, then its meaning and the unverified bound.
 pub fn integrity_message(token: &str) -> String {
@@ -709,8 +821,10 @@ fn displacement(envelope: &MechanicsEnvelope, site: &Site) -> Option<f64> {
         .and_then(|row| si(row.value, &row.unit, Dimension::Length))
 }
 
-fn states(envelope: &MechanicsEnvelope, solve: &str) -> SolveStates {
-    let states = envelope
+/// One derived solve's record ([`SolveStates`]) from its envelope; `case` is the
+/// one case its derived document keeps.
+fn states(envelope: &MechanicsEnvelope, solve: &str, case: &str) -> SolveStates {
+    let states: BTreeMap<String, String> = envelope
         .results
         .iter()
         .filter(|row| row.kind == "nonlinear_support_active_set_state_code")
@@ -725,7 +839,13 @@ fn states(envelope: &MechanicsEnvelope, solve: &str) -> SolveStates {
             (row.entity_ref.clone(), name.to_string())
         })
         .collect();
-    SolveStates { solve: solve.to_string(), states }
+    let support_state_confirmation = support_state_confirmation(case, &states, &envelope.diagnostics);
+    SolveStates {
+        solve: solve.to_string(),
+        states,
+        solver_standing: standing_token(envelope.numerical_quality.status),
+        support_state_confirmation,
+    }
 }
 
 fn missing(label: &str, what: &str, sites: &[&Site]) -> Refusal {
@@ -743,7 +863,7 @@ fn positions_of(request_doc: &Value, case: &str, sites: &[Site], roles: &[Role],
     if !absent.is_empty() {
         return Err(missing(label, "displacement", &absent));
     }
-    Ok((values.into_iter().map(Option::unwrap).collect(), states(&envelope, label)))
+    Ok((values.into_iter().map(Option::unwrap).collect(), states(&envelope, label, case)))
 }
 
 fn categories(request_doc: &Value, case: &str) -> Vec<String> {
@@ -801,7 +921,7 @@ pub fn run(request_doc: &Value, records: &[Record], request: &SizingRequest) -> 
     // solve starts.
     let (w, weight_states) = {
         let envelope = solve(derived_document(request_doc, weight, &sites, &rigid), mode, "S_W", &mut per_solve).map_err(|r| vec![r])?;
-        (sites.iter().map(|s| reaction(&envelope, s)).collect::<Vec<Option<f64>>>(), states(&envelope, "S_W"))
+        (sites.iter().map(|s| reaction(&envelope, s)).collect::<Vec<Option<f64>>>(), states(&envelope, "S_W", weight))
     };
     let absent: Vec<&Site> = sites.iter().zip(&w).filter(|(_, v)| v.is_none()).map(|(s, _)| s).collect();
     if !absent.is_empty() {
@@ -1023,5 +1143,142 @@ mod disclosure_tests {
         assert_eq!(refused.code, "HANGER_SIZING_DERIVED_SOLVE_FAILED");
         assert_eq!(refused.names, vec!["S_O2".to_string()]);
         assert_eq!(refused.message, "INVENTED_BLOCKING: an invented blocking finding");
+    }
+
+    #[test]
+    fn the_solver_standings_are_the_standing_tokens() {
+        let all = [
+            NumericalQualityStatus::ChecksPassed,
+            NumericalQualityStatus::NotAssessed,
+            NumericalQualityStatus::Sensitive,
+            NumericalQualityStatus::Unresolved,
+            NumericalQualityStatus::Failed,
+        ];
+        assert_eq!(all.map(standing_token), SOLVER_STANDINGS);
+        assert_eq!(SOLVER_STANDINGS[0], SOLVER_CHECKS_PASSED);
+        assert_eq!(SOLVER_STANDINGS[1..], NONPASSING_STANDINGS);
+        // A passing solve's positive standing adds no disclosure (AC-003).
+        assert!(solve_disclosures("S_W", NumericalQualityStatus::ChecksPassed, &[]).expect("not refused").is_empty());
+    }
+}
+
+/// [`support_state_confirmation`] on each of its five outcomes, and its copies of
+/// the producer's fixed text pinned to `product_physics` and to `report_standing`
+/// (compile reads of their sources; no dependency is added).
+#[cfg(test)]
+mod confirmation_tests {
+    use super::*;
+
+    const CASE: &str = "load:W";
+    const PRODUCT_LIB: &str = include_str!("../../../product_physics/src/lib.rs");
+    const PRODUCT_GUARD: &str = include_str!("../../../product_physics/src/formation_guard.rs");
+    const REPORT_STANDING: &str = include_str!("../../../reporting/report_standing/src/report_standing.rs");
+    const HISTORICAL_HEALTH: &str = include_str!("../../../reporting/report_standing/src/historical_health.rs");
+    const VOCABULARY: &str = include_str!("../../../reporting/numerical_vocabulary/src/lib.rs");
+    /// An invented integrity message head, as the product's report forms one.
+    const HEAD: &str = "Load case load:W: numerical integrity checks passed.";
+
+    fn integrity(case: &str, message: &str) -> Diagnostic {
+        Diagnostic {
+            id: format!("diagnostic:numerical-integrity:{case}"),
+            code: "NUMERICAL_INTEGRITY_PASSED".into(),
+            severity: "info".into(),
+            message: message.into(),
+            source: None,
+            affected_refs: vec![case.into()],
+        }
+    }
+
+    fn lifted() -> BTreeMap<String, String> {
+        BTreeMap::from([("support:C-lift".to_string(), "active".to_string())])
+    }
+
+    fn outcome(message: &str) -> SupportStateConfirmation {
+        support_state_confirmation(CASE, &lifted(), &[integrity(CASE, message)])
+    }
+
+    fn not_established(reason: &str) -> String {
+        format!("{HEAD}{NOT_ESTABLISHED_LEAD}{reason}{NOT_ESTABLISHED_TAIL}")
+    }
+
+    #[test]
+    fn each_of_the_five_outcomes() {
+        let established = SupportStateConfirmation::of("solver_reported_established", None);
+        let none = SupportStateConfirmation::of("no_confirmation_record", None);
+        // not_applicable: no nonlinear-support state, whatever the message says.
+        let confirmed = format!("{HEAD} {NONLINEAR_CONFIRMED_LINE}");
+        assert_eq!(
+            support_state_confirmation(CASE, &BTreeMap::new(), &[integrity(CASE, &confirmed)]),
+            SupportStateConfirmation::of("not_applicable", None)
+        );
+        assert_eq!(support_state_confirmation(CASE, &BTreeMap::new(), &[]).outcome, "not_applicable");
+        // solver_reported_established: the confirmed line alone, or followed by this
+        // case's recovery sentence.
+        assert_eq!(outcome(&confirmed), established);
+        let recovered = format!("{confirmed}{RECOVERY_LEAD}{CASE}{SENSITIVE_BECAUSE}2 member or support group(s) ...");
+        assert_eq!(outcome(&recovered), established);
+        // not_attempted_reason_not_recorded: the not-established sentence, not run.
+        assert_eq!(outcome(&not_established(NOT_RUN)), SupportStateConfirmation::of("not_attempted_reason_not_recorded", None));
+        // not_established_detail_quoted: any other reason, quoted.
+        let reason = "support support:C-lift: sign margin 1e-12 not above its bound 3e-12";
+        assert_eq!(outcome(&not_established(reason)), SupportStateConfirmation::of("not_established_detail_quoted", Some(reason.into())));
+        // no_confirmation_record: neither sentence, or one that does not end the message.
+        assert_eq!(outcome(HEAD), none);
+        assert_eq!(support_state_confirmation(CASE, &lifted(), &[]), none);
+        assert_eq!(support_state_confirmation(CASE, &lifted(), &[integrity("load:O1", &confirmed)]), none);
+        assert_eq!(outcome(&format!("{confirmed} trailing")), none);
+        assert_eq!(outcome(&format!("{confirmed}{RECOVERY_LEAD}load:O1{SENSITIVE_BECAUSE}2")), none);
+        assert_eq!(outcome(&format!("{confirmed}{confirmed}")), none);
+        assert_eq!(outcome(&format!("{HEAD}{NOT_ESTABLISHED_LEAD}a{NOT_ESTABLISHED_LEAD}b{NOT_ESTABLISHED_TAIL}")), none);
+        assert_eq!(outcome(&format!("{}{NOT_ESTABLISHED_TAIL}", HEAD)), none);
+        // A blank reason, which the producer never forms, quotes nothing.
+        assert_eq!(outcome(&not_established("")), none);
+        assert_eq!(outcome(&not_established("  ")), none);
+        for found in [established, none] {
+            assert!(CONFIRMATION_OUTCOMES.contains(&found.outcome.as_str()));
+        }
+    }
+
+    #[test]
+    fn the_published_member_carries_a_null_detail_unless_one_is_quoted() {
+        assert_eq!(outcome(HEAD).to_json(), json!({"outcome": "no_confirmation_record", "detail": null}));
+        assert_eq!(outcome(&not_established("r")).to_json(), json!({"outcome": "not_established_detail_quoted", "detail": "r"}));
+    }
+
+    #[test]
+    fn the_copied_text_is_the_producers_and_report_standings() {
+        let product = [
+            format!("const NONLINEAR_CONFIRMED_EVIDENCE_LINE: &str = \"{NONLINEAR_CONFIRMED_LINE}\";"),
+            format!("format!(\"{}{{reason}}{NOT_ESTABLISHED_TAIL}\")", NOT_ESTABLISHED_LEAD.trim_start()),
+            format!("\"{NOT_RUN}\""),
+            format!("fn integrity_diagnostic_id(case_id: &str) -> String {{\n    format!(\"{INTEGRITY_DIAGNOSTIC_PREFIX}{{case_id}}\")"),
+            "record.message = format!(\"{} {NONLINEAR_CONFIRMED_EVIDENCE_LINE}\", record.message);".to_string(),
+        ];
+        for pin in &product {
+            assert!(PRODUCT_LIB.contains(pin.as_str()), "product_physics/src/lib.rs: {pin}");
+        }
+        let guard = [
+            format!("\"{}{{case_id}}{SENSITIVE_BECAUSE}{{}}", RECOVERY_LEAD.trim_start()),
+            "diagnostic.message = format!(\"{} {}\", diagnostic.message, finding.sentence);".to_string(),
+        ];
+        for pin in &guard {
+            assert!(PRODUCT_GUARD.contains(pin.as_str()), "product_physics/src/formation_guard.rs: {pin}");
+        }
+        let standing = [
+            format!("const NOT_ESTABLISHED_LEAD: &str = \"{NOT_ESTABLISHED_LEAD}\";"),
+            format!("const NOT_ESTABLISHED_TAIL: &str = \"{NOT_ESTABLISHED_TAIL}\";"),
+            format!("const NOT_RUN: &str = \"{NOT_RUN}\";"),
+            format!("const RECOVERY_LEAD: &str = \"{RECOVERY_LEAD}\";"),
+            format!("const SENSITIVE_BECAUSE: &str = \"{SENSITIVE_BECAUSE}\";"),
+        ];
+        for pin in &standing {
+            assert!(REPORT_STANDING.contains(pin.as_str()), "report_standing/src/report_standing.rs: {pin}");
+        }
+        let line = format!("pub(crate) const NONLINEAR_CONFIRMED_LINE: &str = \"{NONLINEAR_CONFIRMED_LINE}\";");
+        assert!(HISTORICAL_HEALTH.contains(line.as_str()), "report_standing/src/historical_health.rs: {line}");
+        for token in CONFIRMATION_OUTCOMES {
+            let pin = format!("=> \"{token}\",");
+            assert!(VOCABULARY.contains(pin.as_str()), "numerical_vocabulary/src/lib.rs: {pin}");
+        }
     }
 }
