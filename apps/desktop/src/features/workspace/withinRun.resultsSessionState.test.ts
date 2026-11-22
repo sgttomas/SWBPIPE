@@ -13,11 +13,11 @@ vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { createSolveJobTransport, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
-import { buildAnalysisRunPreview, buildPreviewComparison, runPreviewMechanics } from "../../services/previewService";
+import { buildAnalysisRunPreview, runPreviewMechanics } from "../../services/previewService";
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
 import type { PreviewModel } from "../../types";
 import { useResultsSessionState } from "./resultsSessionState";
-import { droppedNotice } from "../comparison/withinRunComparison";
+import { droppedNotice, packageNotice } from "../comparison/withinRunComparison";
 
 afterEach(() => { invokeMock.mockReset(); delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__; });
 const root = resolve(__dirname, "../../../../../");
@@ -63,10 +63,12 @@ it("drops a choice the next Current run does not offer, names it, and applies th
   expect(result.current.currentSolvedResult).toBe(connected.source);
   expect(result.current.droppedWithinRunBases).toEqual(["load:L-200", RANGE]);
   expect(result.current.withinRun.status).toBe("unavailable"); // it has no combination rows
-  // The packages carry the fixed-pair comparison exactly as without a choice.
-  const today = buildPreviewComparison({ result: connected.source, analysisRun: connected.analysis });
-  expect(JSON.stringify(result.current.comparison)).toBe(JSON.stringify(today));
+  // Without a choice, the fixed pair: neither of its bases is in this run's model, has rows or
+  // was withheld, so the packages carry no record and there is no package notice (Agent 0).
+  expect(result.current.packagedWithinRun).toBeNull();
+  expect(result.current.comparison).toBeNull();
   expect(result.current.comparisonUnavailable).toBeNull();
+  expect(packageNotice(result.current.packagedWithinRun)).toBeNull();
 
   // The dropped choice is not carried back to a run that offers its bases again, and
   // the retained notice speaks of the earlier run, not this one.
