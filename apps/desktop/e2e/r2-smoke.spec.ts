@@ -1035,6 +1035,15 @@ test("reference result detail retains linked diagnostics and mm units without cu
   await expect(page.getByTestId("diagnostic-HIGH_DISPLACEMENT_REVIEW")).toHaveCount(0);
 });
 
+// The Rules page shows an open pack's parts as closed lines; a person opens
+// the part they work in. Opens one (once) by its own summary.
+async function openRulePackPart(page: Page, testId: string) {
+  const part = page.getByTestId(testId).first();
+  if (!(await part.evaluate((element) => (element as HTMLDetailsElement).open))) {
+    await part.locator(":scope > summary").click();
+  }
+}
+
 // Phase C2 slice 1 (TP-C2-EDITOR-001): the rule-pack manager authors a
 // private draft in memory and reports the honest desktop-only seam for
 // validation, checksum, persistence, and listing in browser mode — the
@@ -1045,10 +1054,11 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   await ensureEngineReady(page);
 
   await openWorkspaceSection(page, "rule-packs");
-  await expect(page.getByTestId("rule-pack-scope-status")).toContainText("local SQLite only");
+  await expect(page.getByTestId("rule-pack-scope-status")).toContainText("Kept on this computer");
   await expect(page.getByTestId("rule-pack-boundary-note")).toContainText("DEC-037");
 
   await page.getByTestId("rule-pack-new-draft").click();
+  await openRulePackPart(page, "rule-pack-document");
   const draftText = await page.getByTestId("rule-pack-draft-json").inputValue();
   const draft = JSON.parse(draftText);
   expect(draft.rule_pack_kind).toBe("open_pipe_stress_rule_pack");
@@ -1056,20 +1066,22 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   // Rule-pack format 0.5.0: one category, required load case and mapping to fill.
   expect(draft.schema_version).toBe("0.5.0");
   expect(draft.stress_categories).toHaveLength(1);
+  await openRulePackPart(page, "rule-pack-part-loadCases");
   await expect(page.getByTestId("rule-pack-load-case-categories-editor")).toBeVisible();
   expect(draft.classification.privacy_class).toBe("private_user_data");
   expect(draft.classification.redistribution_status).toBe("private_only");
-  await expect(page.getByTestId("rule-pack-action-status")).toContainText("private_user_data");
+  await expect(page.getByTestId("rule-pack-action-status")).toContainText("private to you");
 
   // Slice 2 (TP-C2-COMPOSER-001) + DEC-037 follow-up: the structured AST
   // composer rewrites the selected formula's expression through visible
   // controls. It may render display-only text, but ships no writable text
   // syntax and no parser. Switching the root node type rewrites the canonical
   // document JSON the validate/save flow reads.
+  await openRulePackPart(page, "rule-pack-part-formula");
   await expect(page.getByTestId("rule-pack-expression-composer")).toBeVisible();
   await expect(page.getByTestId("rule-pack-variable-browser")).toContainText("user_required_input_1");
 	  await expect(page.getByTestId("rule-pack-expression-text-preview")).toContainText(
-	    "Read-only AST-to-text preview"
+	    "Reads as"
 	  );
 	  await expect(page.getByTestId("rule-pack-expression-text-preview")).toContainText(
 	    "user_required_input_1"
@@ -1081,6 +1093,7 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   // required input from blank; the canonical document JSON grows and the
   // composer's variable picker reflects the new id — no raw JSON. Still
   // structured-only (D-02b).
+  await openRulePackPart(page, "rule-pack-part-inputs");
   await expect(page.getByTestId("rule-pack-declarations-editor")).toBeVisible();
   await page.getByTestId("rule-pack-input-add").click();
   // TP-UNITS-B2-RULEPACKUNITS-001: browser preview cannot call the desktop
@@ -1165,6 +1178,7 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   // controls — no text syntax (D-02b). The template check's formula ref is
   // bound to the declared formula; add a check and the canonical document JSON
   // grows; toggling a result status rewrites it.
+  await openRulePackPart(page, "rule-pack-part-checks");
   await expect(page.getByTestId("rule-pack-check-definitions-editor")).toBeVisible();
   await expect(page.getByTestId("rule-pack-check-formula-ref").first()).toHaveValue(
     "user_formula_1"
@@ -1172,6 +1186,7 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   await page.getByTestId("rule-pack-check-add").click();
   const checkText = await page.getByTestId("rule-pack-draft-json").inputValue();
   expect(JSON.parse(checkText).check_definitions).toHaveLength(2);
+  await openRulePackPart(page, "rule-pack-check-more");
   await page.getByTestId("rule-pack-check-status-MODEL_INCOMPLETE").first().check();
   const statusText = await page.getByTestId("rule-pack-draft-json").inputValue();
   expect(JSON.parse(statusText).check_definitions[0].result_statuses).toContain("MODEL_INCOMPLETE");
@@ -1203,7 +1218,11 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   await page.getByTestId("rule-pack-input-source-kind").last().selectOption("private_library_value");
   await expect(page.getByTestId("rule-pack-input-library-ref")).toBeVisible();
   await expect(page.getByTestId("rule-pack-input-library-ref-note")).toContainText(
-    "never embedded in the rule pack"
+    "the pack keeps only where to find it"
+  );
+  await expect(page.getByTestId("rule-pack-input-library-ref-note")).toHaveAttribute(
+    "title",
+    /never embedded in the rule pack/
   );
   await page.getByTestId("rule-pack-input-library-kind").selectOption("material");
   await page.getByTestId("rule-pack-input-library-id").fill("my_private_lib");
@@ -1233,7 +1252,11 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   await page.getByTestId("rule-pack-input-source-kind").last().selectOption("solver_result");
   await expect(page.getByTestId("rule-pack-input-solver-ref")).toBeVisible();
   await expect(page.getByTestId("rule-pack-input-solver-ref-note")).toContainText(
-    "On each required load case of a check"
+    "Picks one solved row on each load case"
+  );
+  await expect(page.getByTestId("rule-pack-input-solver-ref-note")).toHaveAttribute(
+    "title",
+    /On each required load case of a check/
   );
   await page.getByTestId("rule-pack-input-solver-result-kind").fill("element_local_axial_normal_stress");
   await page.getByTestId("rule-pack-input-solver-entity-ref").fill("pipe:P-100");
@@ -1252,15 +1275,16 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   // asserting them here too would be vacuous — all three write the same
   // action-status text.)
   await page.getByTestId("rule-pack-validate").click();
-  await expect(page.getByTestId("rule-pack-action-status")).toContainText(
-    "RULE-PACK-BACKEND-DESKTOP-ONLY"
+  await expect(page.getByTestId("rule-pack-action-status")).toHaveAttribute(
+    "title",
+    /RULE-PACK-BACKEND-DESKTOP-ONLY/
   );
 
-  // Refresh reports on a distinct surface (list-status), so this assertion
-  // is independent of the validate result above.
-  await page.getByTestId("rule-pack-refresh-list").click();
-  await expect(page.getByTestId("rule-pack-list-status")).toContainText(
-    "RULE-PACK-BACKEND-DESKTOP-ONLY"
+  // The list is read when the page opens and reports on a distinct surface
+  // (list-status), so this assertion is independent of the validate result above.
+  await expect(page.getByTestId("rule-pack-list-status")).toHaveAttribute(
+    "title",
+    /RULE-PACK-BACKEND-DESKTOP-ONLY/
   );
 
   await page.getByTestId("rule-pack-discard-draft").click();
@@ -1591,13 +1615,18 @@ test("R3 guided flow routes private library, rule-pack, solve, binding, and bloc
   await openWorkspaceSection(page, "rule-packs");
   await expect(page.getByTestId("workspace-section-rule-packs")).toBeVisible();
   await page.getByTestId("rule-pack-new-draft").click();
+  // The status line says it in words; the code it stands for is its title.
   await page.getByTestId("rule-pack-validate").click();
-  await expect(page.getByTestId("rule-pack-action-status")).toContainText(
-    "RULE-PACK-BACKEND-DESKTOP-ONLY"
+  await expect(page.getByTestId("rule-pack-action-status")).toContainText("run in the desktop app");
+  await expect(page.getByTestId("rule-pack-action-status")).toHaveAttribute(
+    "title",
+    /RULE-PACK-BACKEND-DESKTOP-ONLY/
   );
   await page.getByTestId("rule-pack-compute-checksum").click();
-  await expect(page.getByTestId("rule-pack-action-status")).toContainText(
-    "RULE-PACK-BACKEND-DESKTOP-ONLY"
+  await expect(page.getByTestId("rule-pack-action-status")).toContainText("run in the desktop app");
+  await expect(page.getByTestId("rule-pack-action-status")).toHaveAttribute(
+    "title",
+    /RULE-PACK-BACKEND-DESKTOP-ONLY/
   );
   await page.getByTestId("rule-pack-save").click();
 
