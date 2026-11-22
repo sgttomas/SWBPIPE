@@ -198,6 +198,16 @@ def compiled_crate_inputs(root: Path, roots: tuple[str, ...], root_dev: bool,
     for manifest in closure:
         crate = project / manifest.parent
         sources = sorted((crate / "src").rglob("*.rs")) + [p for p in [crate / "build.rs"] if p.is_file()]
+        # The library and build script's whole compile graph (`numerical_ci.compile_graph`): ordinary,
+        # inline and #[path] modules and include! of Rust from a `[lib] path` or `[package] build`
+        # override, wherever those files lie. An unresolved edge fails toward running and rebuilding.
+        compiled, _, data_reads, certain = module.compile_graph(project, manifest)
+        if not certain:
+            raise ValueError(f"Unresolved {label} compile graph: " + manifest.as_posix())
+        sources += sorted(compiled)
+        reads.update(path.relative_to(project).as_posix() for path in data_reads)
+        # A compiled file outside the crate directory is an input the crate's directory does not name.
+        reads.update(path.relative_to(project).as_posix() for path in compiled if not path.is_relative_to(crate.resolve()))
         seen = set()
         while sources:
             source = sources.pop()
@@ -217,8 +227,8 @@ def compiled_crate_inputs(root: Path, roots: tuple[str, ...], root_dev: bool,
                 if not target.is_relative_to(project) or not target.is_file():
                     raise ValueError(f"Unresolved {label} compile read: " + str(target))
                 reads.add(target.relative_to(project).as_posix())
-                if not match.group().startswith("include"):
-                    sources.append(target)
+                if not match.group().startswith(("include_str", "include_bytes")):
+                    sources.append(target)  # `#[path]` and `include!` compile Rust
     return frozenset(m.parent.as_posix() for m in closure), frozenset(reads)
 
 
@@ -345,26 +355,37 @@ def desktop_rust_references(root: Path) -> frozenset[str]:
     return frozenset(references)
 
 
-def desktop_rust_dependency_reads(root: Path, crates: frozenset[str], profile: dict) -> frozenset[str]:
-    """Declared runtime reads of the path dependencies' `src/` and `build.rs`.
+def desktop_rust_dependency_reads(root: Path, crates: frozenset[str], profile: dict) -> tuple[frozenset[str], tuple[str, ...]]:
+    """Declared runtime reads of sources the path dependencies compile into a
+    library or build script, and those declarations whose derived fingerprints
+    are stale.
 
     The numerical selector's own check validates the declarations first; a
-    stale or missing declaration fails selection.
+    missing or malformed declaration fails selection.
     """
     return declared_compiled_reads(root, crates, json.dumps(profile.get("piping_runtime_reads", {}), sort_keys=True))
 
 
 @functools.lru_cache(maxsize=None)
-def declared_compiled_reads(root: Path, crates: frozenset[str], declarations_json: str) -> frozenset[str]:
+def declared_compiled_reads(root: Path, crates: frozenset[str], declarations_json: str) -> tuple[frozenset[str], tuple[str, ...]]:
+    """The files read by declared sources that `crates` compile into a library or
+    build script (a scan's files as the tree has them), and which of those
+    declarations have a stale per-file attestation: such a source may read a file
+    it does not list. A source counts when one of the crates' compile graphs
+    reaches it, wherever it lies (a `#[path]` build helper and its modules, a
+    `[lib] path` override's module tree), or when that cannot be shown."""
     module = numerical_module(root)
     project = (root / PIPING).resolve()
     declarations = json.loads(declarations_json)
-    module.source_read_dependencies(project, module.readiness.discover_cargo_manifests(project), declarations)
-    reads = set()
-    for source, declaration in declarations["reads"].items():
-        if any(source == crate + "/build.rs" or source.startswith(crate + "/src/") for crate in crates):
-            reads.update(name for entry in declaration["inputs"] for name in entry["files"])
-    return frozenset(reads)
+    _, stale, derived = module.runtime_read_index(project, module.readiness.discover_cargo_manifests(project), declarations)
+    reads, stale_sources = set(), set()
+    for source in declarations["reads"]:
+        current = derived["reads"][source]
+        if current["library"] and any(PurePosixPath(m).parent.as_posix() in crates for m in current["compiled_by"]):
+            reads.update(name for entry in current["inputs"] for name in entry["resolved"])
+            if source in stale:
+                stale_sources.add(source)
+    return frozenset(reads), tuple(sorted(stale_sources))
 
 
 def desktop_rust_cargo_control(relative: str) -> bool:
@@ -394,11 +415,13 @@ def desktop_rust_plan(root: Path, paths: list[str], selection: dict, profile: di
     try:
         crates, compile_reads = compiled_crate_inputs(root, (DESKTOP_RUST_CRATE + "/Cargo.toml",), True, "desktop Rust")
         references = desktop_rust_references(root)
-        runtime_reads = desktop_rust_dependency_reads(root, crates, profile)
+        runtime_reads, stale_reads = desktop_rust_dependency_reads(root, crates, profile)
     except (ValueError, OSError, KeyError, TypeError, AttributeError, ImportError, tomllib.TOMLDecodeError) as exc:
         return {"classification": "full-fallback", "reasons": [], "fallback_reasons": [str(exc)]}
     dependencies = crates - {DESKTOP_RUST_CRATE}
-    reasons = []
+    # A stale declaration in a path dependency may read a file it does not list:
+    # these tests run in every selection until the refresh lands.
+    reasons = [{"source": source, "kind": "stale-path-dependency-runtime-read"} for source in stale_reads]
     for path in candidates:
         relative = path[len(PIPING):]
         if shared_input(path):
@@ -517,13 +540,18 @@ def select_paths(paths: list[str], profile: dict, root: Path = ROOT,
         numerical = numerical_plan(root, paths, profile)
         selected = numerical["classification"] == "full-fallback" or bool(numerical["manifests"])
         selection["modes"]["piping-numerical"] = "full" if selected else "not-applicable"
+        # Crates a stale runtime-read declaration adds (`stale-runtime-read`) are selected
+        # for no changed path, so they alone do not start the Python job.
+        by_path = numerical["classification"] == "full-fallback" or any(
+            "path" in reason and "manifest" in reason for reason in numerical["reasons"])
         if selected:
             checks.add("piping-numerical")
+        else:
+            checks.discard("piping-numerical")
+        if by_path:
             # A source consumed by Rust may occur in a records/desktop path rule.
             checks.add("piping-python")
             selection["modes"]["piping-python"] = "full"
-        else:
-            checks.discard("piping-numerical")
         selection["piping_numerical_selection"] = numerical
         selection["checks"] = sorted(checks)
     if selection["modes"]["piping-python"] != "full":
