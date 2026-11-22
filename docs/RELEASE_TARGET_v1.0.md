@@ -93,10 +93,11 @@ results with".
   the Bourdon effect, and pressure-dependent flexibility and SIF corrections
   are out of scope: users enter their own k and SIF.
 - **Numerical claims.** For v1.0 the product makes no verified-bound claim it
-  cannot support. A result states its integrity check as not verified rather
-  than as passed, and a converged nonlinear support state as not confirmed
-  (exit criterion 18). Such a result is still read, checked against the
-  user's rules, exported and reported, with that standing stated. The full proof, the verified inverse-norm bound
+  cannot support. A result says what the solver's checks found, and that
+  those checks do not measure the error, rather than that it passed an
+  integrity check; a converged nonlinear support state is stated as the
+  solver's report, not as confirmed (exit criterion 18). Such a result is
+  still read, checked against the user's rules, exported and reported. The full proof, the verified inverse-norm bound
   (DEL-04-01/REQ-015), follows after v1.0. Agent 0 decided this on 2026-11-20 under the grant in
   `AGENTS.md`; LIM-026 states the present defect.
 - **Exact-route results under user release.** Route 010 admits exact-route results with exact source binding, exact sections and limitations, Diagnostics binding and producer item 9 (DEL-08-01, REQ-019).
@@ -377,24 +378,41 @@ target remains adequate. A failure alone does not justify relaxing one.
 
     *Owning deliverables:* DEL-16-06.
 18. **Numerical claims.** A case governed by DEL-04-01/REQ-015 that is
-    presented as having passed its integrity check, or as established, has
-    the bound and standing that requirement states. Only the modal
-    eigenproblem's integrity checks governed by DEL-04-09/REQ-003 and REQ-004
-    are outside this criterion. A static state-case solve used by a modal
-    analysis, including its nonlinear support-state confirmation, remains
-    within this criterion. The error-bound argument is justified under its stated
+    presented as having passed its integrity check, or as established, has the
+    bound and standing that requirement states. Only the modal eigenproblem's
+    integrity checks governed by DEL-04-09/REQ-003 and REQ-004 are outside
+    this criterion. A static state-case solve used by a modal analysis,
+    including its nonlinear support-state confirmation, remains within this
+    criterion. The error-bound argument is justified under its stated
     arithmetic model, and the product establishes its case-dependent
     conditions; an unproved multiple of a condition estimate does not
-    establish an upper bound. Where the integrity bound's conditions cannot be
-    met, the check is unavailable and the solve is reported as numerically
-    sensitive with its named reason. A converged nonlinear state is presented
-    as confirmed only when DEL-04-01/REQ-016's enclosures establish every
-    nonlinear support's state, as DEL-04-04/REQ-013 and DEL-04-07/CLM-002
-    require; otherwise it remains unconfirmed with its named reason. Readers
-    and consumers preserve these outcomes and apply their existing standing
-    and admission rules. A capability these criteria require that is refused
-    on this ground is a refusal under criterion 3; declaring that refusal
-    acceptable does not make an unmet criterion met.
+    establish an upper bound. Where the integrity check finds sensitivity, or
+    is unavailable for a reason DEL-04-01/REQ-015 names, the solve is reported
+    as numerically sensitive with its named reason. Where the solver's checks
+    find nothing against a case and the bound they rest on is not verified for
+    that case, a person is told what was done and found: that the solver's
+    checks found no problem, and that these checks look for numerical trouble
+    and do not measure the error. The case is not reported as numerically
+    sensitive on that ground, and it is not presented as having passed an
+    integrity check, as verified or as established. A converged nonlinear
+    state is presented as confirmed only when DEL-04-01/REQ-016's enclosures
+    establish every nonlinear support's state, as DEL-04-04/REQ-013 and
+    DEL-04-07/CLM-002 require. Where the solver's confirmation reports a state
+    established while the bound its enclosures rest on is not verified, a
+    person is told that the solver reports it established and that the
+    confirmation rests on the solver's own error estimate; where the
+    confirmation did not run or did not establish a state, that is said with
+    its named reason. Readers and consumers preserve these outcomes and apply
+    their existing standing and admission rules; admission asserts no bound.
+    That the bound is not verified is carried as a field in every verdict and
+    file output a consumer reads. For v1.0 the product verifies the bound for
+    no case (LIM-026). A claim derived from a case's bound, such as a
+    combination certificate's verdict over its operand cases or a statement
+    that a case is stress-free within a stated bound, is the solver's own
+    message and is shown as one, under the statement that SWBPIPE has not
+    independently checked the error bound it rests on. A capability these criteria require that is refused on this ground is
+    a refusal under criterion 3; declaring that refusal acceptable does not
+    make an unmet criterion met.
 
     *Owning deliverables:* DEL-04-01 (integrity bound and nonlinear enclosures); DEL-04-04 and DEL-04-07 (support-state confirmation and publication); DEL-05-02 (ordinary product reader); DEL-04-08 (retained-result reader, reader bindings and test verifier). The viewer, report, export, rule-binding and modal-state consumers apply their existing rules under their own deliverables (DEL-07-05, DEL-08-01, DEL-08-04, DEL-06-03, DEL-04-09).
 

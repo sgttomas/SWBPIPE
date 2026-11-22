@@ -1101,7 +1101,10 @@ fn u6_product_text_drops_only_test_gated_items() {
 
 /// RV88 U6a N-3: semantic seams have no ungoverned product callers. Unit R2
 /// moves desktop standing and class counts to Rust: its operation binding may
-/// call those two helpers over a fingerprint-bound accepted Validation. Other
+/// call those two helpers over a fingerprint-bound accepted Validation. The
+/// streamed producer of the same derivative calls the one classifier,
+/// `class_disclosure`, so that there is no second one, and is held to
+/// derive_document's bytes and hash. Other
 /// product files remain excluded. Scan whole identifiers outside cfg(test),
 /// retaining the defining-module counts (definition plus internal calls).
 #[test]
@@ -1159,6 +1162,8 @@ fn u6_semantic_seams_have_only_governed_product_callers() {
             let expected = if relative == home { uses }
                 else if relative == "core/model_operations/operation_applier/src/retained_semantics_binding.rs"
                     && matches!(seam, "retained_standing_from" | "classification_summary_from") { 1 }
+                else if relative == "core/reporting/result_document_stream/src/rows.rs"
+                    && seam == "class_disclosure" { 3 }
                 else { 0 };
             assert_eq!(bare_count(&product, seam), expected, "{seam} in {relative}");
         }

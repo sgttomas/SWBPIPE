@@ -19,6 +19,7 @@ import {
   REPORT_PACKAGE_ROUTE_NOT_ADMITTED,
   REPORT_USER_RELEASE_LIBRARY_REFERENCED,
   REPORT_USER_RELEASE_RULE_PACK_REFERENCED,
+  reportPackageSourceUnavailableReason,
   reportPackageUnavailableReason,
   USER_RELEASED_ADMITTED_CONTRACT_IDS,
   userReleaseModelRefusal,
@@ -80,7 +81,7 @@ describe("the route-010 cell (§2.2, §11)", () => {
     timoshenko.producer!.semantic_contract_id = PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID;
     expect(reportPackageUnavailableReason(timoshenko)).toBeNull();
     expect(userReleasedReportPackageUnavailableReason(timoshenko)).toBe(
-      `${REPORT_PACKAGE_ROUTE_NOT_ADMITTED}: a shareable report package carries pressure-free (preview-physics-2) results and eligible exact pressure route (pressure-3, pressure-source-1) results; this result is ${PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID}. It can be saved in a local private package.`
+      `${REPORT_PACKAGE_ROUTE_NOT_ADMITTED}: a shareable report package carries pressure-free (preview-physics-2) results and exact pressure route (pressure-3, pressure-source-1) results; this result is ${PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID}. A local private package can carry it when its numerical health allows.`
     );
   });
 
@@ -91,6 +92,28 @@ describe("the route-010 cell (§2.2, §11)", () => {
     expect(userReleasedReportPackageUnavailableReason(retained)).toContain(
       `${REPORT_PACKAGE_ROUTE_NOT_ADMITTED}: a shareable report package carries`
     );
+  });
+});
+
+describe("the package controls' refusal for the rendered report's source (LIM-016)", () => {
+  it("offers a package of the Current result, refuses a pressure-free source that is not Current in words, and leaves an exact-route source to the builder", async () => {
+    const { result } = await pressureFreeSession();
+    const timoshenko = structuredClone(result);
+    timoshenko.producer!.semantic_contract_id = PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID;
+    // Current (eligible): nothing beyond the route gate.
+    expect(reportPackageSourceUnavailableReason(timoshenko, timoshenko)).toBeNull();
+    expect(reportPackageSourceUnavailableReason(result, result)).toBeNull();
+    expect(reportPackageSourceUnavailableReason(null, null)).toBeNull();
+    // A pressure-free Timoshenko source the rendered report takes that is not Current, on the
+    // health ground (its case marked sensitive; the words of each ground are held in
+    // `reportPackageStandingRefusal.test.ts`).
+    const sensitive = structuredClone(timoshenko);
+    sensitive.numerical_quality!.status = "sensitive";
+    sensitive.numerical_quality!.cases[0].solve_quality = "sensitive";
+    expect(reportPackageSourceUnavailableReason(sensitive, null)).toBe("No report package for this result: its numerical health does not allow one. The report states it and can be printed or saved as HTML.");
+    // An exact-route source that is not Current: its package states its standing (REQ-024).
+    const exact = raw("fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json");
+    expect(reportPackageSourceUnavailableReason(exact, null)).toBeNull();
   });
 });
 
@@ -147,7 +170,7 @@ describe("the record (§2.3, §11)", () => {
   const inputManifest = { manifest_ref: { object_type: "InputManifest", ref: "input-manifest:invented" }, manifest_sha256: "e".repeat(64) } as never;
   const model = { project: { id: "project:invented" } } as never;
 
-  it("is record 1.0.0 for a pressure-free result and 1.1.0 for an exact result", async () => {
+  it("is record 1.0.0 for a pressure-free result and 1.2.0 for an exact result, with the same items not carried", async () => {
     const pressureFree = await userReleaseRecord({ model, result: { run_id: "run:a b", producer: { semantic_contract_id: USER_RELEASED_ADMITTED_CONTRACT_IDS[0] } } as never, inputManifest, document, userReleasedAt: "2026-10-27T00:00:00Z" }) as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
     expect(pressureFree.record_version).toBe("1.0.0");
     expect(pressureFree.scope.not_carried).toEqual(["rule_pack_references", "user_rule_outcomes", "run_comparisons", "handoff_records", "library_records", "audit_assets"]);
@@ -155,8 +178,9 @@ describe("the record (§2.3, §11)", () => {
     expect(pressureFree.bound_to.result_document_derivative_sha256).toBe("d".repeat(64));
     for (const id of USER_RELEASED_ADMITTED_CONTRACT_IDS.slice(1)) {
       const exact = await userReleaseRecord({ model, result: { run_id: "run:x", producer: { semantic_contract_id: id } } as never, inputManifest, document, userReleasedAt: "2026-10-27T00:00:00Z" }) as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
-      expect(exact.record_version).toBe("1.1.0");
-      expect(exact.scope.not_carried.at(-1)).toBe("ineligible_exact_route_results");
+      expect(exact.record_version).toBe("1.2.0");
+      // DEL-08-01 REQ-024: no result is named as not carried on the ground of its standing.
+      expect(exact.scope.not_carried).toEqual(["rule_pack_references", "user_rule_outcomes", "run_comparisons", "handoff_records", "library_records", "audit_assets"]);
     }
   });
 

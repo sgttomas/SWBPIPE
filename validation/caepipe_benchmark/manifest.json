@@ -11675,7 +11675,7 @@
           "run_id": "cpb-n-01--stop-axial-closed",
           "saved_file_read": "nothing of SWBPIPE's reads the saved file",
           "screened": false,
-          "screening_waits_for": "a comparison route for a print returned from the program's window: the benchmark command compares only prints its own batch round trip collects",
+          "screening_waits_for": "AC-002 and VER-002 met for runs made at the program's window: code that writes a run record with the operator's check and the saved model. Until then, the window print route (tools/caepipe_correlation/window_capture.py) compares the print offline, states what a window capture cannot prove, and does not count the run among the screened runs of exit criterion 11",
           "series": "hand-entry",
           "swbpipe_model_hash": "6b5146aa0f9360fb3102fbdfaa13ae69424614ff5d1e71edf3084717562397e7",
           "window_instruction": {
@@ -11781,7 +11781,7 @@
           "run_id": "cpb-n-02--rest-lift-off",
           "saved_file_read": "nothing of SWBPIPE's reads the saved file",
           "screened": false,
-          "screening_waits_for": "a comparison route for a print returned from the program's window: the benchmark command compares only prints its own batch round trip collects",
+          "screening_waits_for": "AC-002 and VER-002 met for runs made at the program's window: code that writes a run record with the operator's check and the saved model. Until then, the window print route (tools/caepipe_correlation/window_capture.py) compares the print offline, states what a window capture cannot prove, and does not count the run among the screened runs of exit criterion 11",
           "series": "hand-entry",
           "swbpipe_model_hash": "2ad321e3b84ec1fd5b751c72a46c02b89fa25eb937059099f9bf6a26ce32fd47",
           "window_instruction": {
@@ -11886,7 +11886,7 @@
           "run_id": "cpb-n-03--rest-closed",
           "saved_file_read": "nothing of SWBPIPE's reads the saved file",
           "screened": false,
-          "screening_waits_for": "a comparison route for a print returned from the program's window: the benchmark command compares only prints its own batch round trip collects",
+          "screening_waits_for": "AC-002 and VER-002 met for runs made at the program's window: code that writes a run record with the operator's check and the saved model. Until then, the window print route (tools/caepipe_correlation/window_capture.py) compares the print offline, states what a window capture cannot prove, and does not count the run among the screened runs of exit criterion 11",
           "series": "hand-entry",
           "swbpipe_model_hash": "f11f93ca0d7cd0f3666c3406d3101e8a1d0e786090520c59e992125fe8b1a66a",
           "window_instruction": {
@@ -12023,7 +12023,7 @@
           "run_id": "cpb-n-04--stop-axial-open",
           "saved_file_read": "nothing of SWBPIPE's reads the saved file",
           "screened": false,
-          "screening_waits_for": "a comparison route for a print returned from the program's window: the benchmark command compares only prints its own batch round trip collects",
+          "screening_waits_for": "AC-002 and VER-002 met for runs made at the program's window: code that writes a run record with the operator's check and the saved model. Until then, the window print route (tools/caepipe_correlation/window_capture.py) compares the print offline, states what a window capture cannot prove, and does not count the run among the screened runs of exit criterion 11",
           "series": "hand-entry",
           "swbpipe_model_hash": "b04278f9320deef1c66d71cc56479e1fcc6c590f3f621e7f92cf3bd13584ea7f",
           "window_instruction": {
@@ -12119,7 +12119,7 @@
           "run_id": "cpb-h-01--constant-support",
           "saved_file_read": "nothing of SWBPIPE's reads the saved file",
           "screened": false,
-          "screening_waits_for": "a comparison route for a print returned from the program's window: the benchmark command compares only prints its own batch round trip collects; its comparison then names constant_support_load until an independently justified one-parameter series supplying the evidence REQ-019 requires for the input constant_support_load, which no series does yet",
+          "screening_waits_for": "AC-002 and VER-002 met for runs made at the program's window: code that writes a run record with the operator's check and the saved model. Until then, the window print route (tools/caepipe_correlation/window_capture.py) compares the print offline, states what a window capture cannot prove, and does not count the run among the screened runs of exit criterion 11; its comparison then names constant_support_load until an independently justified one-parameter series supplying the evidence REQ-019 requires for the input constant_support_load, which no series does yet",
           "series": "hand-entry",
           "swbpipe_model_hash": "4757473b78884bb2d4bd07ccc1e5c401b13de1b57d38279a055cd55f45088a7d",
           "window_instruction": {
@@ -12186,8 +12186,8 @@
       "peak pressure factor",
       "from version 13.00: Bourdon included in the expansion load cases (0) or the sustained load cases (1)"
     ],
-    "refuted_by": "on the closed straights P1 and P2, the target program's change between the pressure-default and pressure-elongation-on runs differs, beyond the screening profile, from the closed forms' change: each anchor's axial reaction changing by (1 - 2 nu) p A_i (P1), or the free end's axial displacement changing by (1 - 2 nu) p A_i L/(E A_s) (P2); or its axial results there do not change at all",
-    "statement": "HYPOTHESIS, which the pressure-elongation-on series tests and does not assume: the target program's Bourdon effect switch, with Bourdon in the sustained load cases, corresponds on straight pipe to SWBPIPE's pressure elongation, the closed-end free pressure strain (1 - 2 nu) p A_i/(E A_s), applied in case:sustained. Nothing about the target program is stated beyond the format facts of its OPPRES record."
+    "refuted_by": "each hypothesis is judged separately across P1 and P2, on the change between the pressure-default and pressure-elongation-on runs. For the thick-wall hypothesis eps = (1 - 2 nu) p A_i/(E A_s); for the thin-wall hypothesis eps = (1 - 2 nu) p D_m/(4 t E). Each predicts changes of +E A_s eps and -E A_s eps in the P1 start and end anchor reactions, and an outward free-end movement eps L in P2. A required change outside the screening profile, including no measurable change where one is predicted beyond that profile, refutes that hypothesis. Each hypothesis's outcome is recorded. The comparison code records, per run, each basis's application and its row comparisons, in that run's `stated_bases.json`. The judgment across runs, over P1 and P2 for each of the two hypotheses, is recorded in the full record of screening and triage, formed from those per-run outputs.",
+    "statement": "HYPOTHESIS, which the pressure-elongation-on series tests and does not assume: with Bourdon selected in the sustained case, the change on closed straight pipe follows SWBPIPE's free pressure strain (1 - 2 nu) p A_i/(E A_s). A second hypothesis uses the classical thin-wall strain (1 - 2 nu) p D_m/(4 t E). SWBPIPE applies its pressure strain to the members of the selected region, including realized arcs. The straight-only and thin-wall alternatives are comparison hypotheses. The OPPRES fields are documented in the cited Import MBF source."
   },
   "provenance": {
     "note": "invented inputs only; no result of either program is recorded here",

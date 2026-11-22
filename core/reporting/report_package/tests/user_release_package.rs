@@ -702,3 +702,143 @@ fn a_coherently_rewritten_package_is_accepted_as_a_documented_limit() {
     assert!(read_report_package_container(&rewritten.container_bytes).is_ok());
     let _ = (USER_RELEASED_CONTEXT, digest(&json!(1)));
 }
+
+// --- The record's version (DEL-08-01 REQ-024) -----------------------------
+
+use open_pipe_stress_report_package::user_release::{
+    check_record_version, derive_exact, RECORD_VERSION_NOT_OF_ROUTE, RECORD_VERSION_RETIRED,
+};
+use open_pipe_stress_report_renderer::{USER_RELEASE_EXACT_RECORD_VERSION, USER_RELEASE_RECORD_VERSION};
+
+/// The committed D-6 exact vector, whose record is the exact-route record 1.2.0.
+const D6_EXACT_VECTOR: &str = include_str!("../../../../fixtures/reports/invented/user_release_exact/pressure_2_straight.json");
+/// The item D-6's retired exact record 1.1.0 named last in `scope.not_carried`.
+const RETIRED_STANDING_ITEM: &str = "ineligible_exact_route_results";
+
+struct ExactVector {
+    v: Value,
+    software: SoftwareIdentity,
+    record: UserReleaseRecord,
+}
+
+fn exact_vector() -> ExactVector {
+    let v: Value = serde_json::from_str(D6_EXACT_VECTOR).unwrap();
+    let record: UserReleaseRecord = serde_json::from_value(v["user_release"].clone()).unwrap();
+    assert_eq!(record.record_version, USER_RELEASE_EXACT_RECORD_VERSION);
+    let software = SoftwareIdentity { name: v["software"]["name"].as_str().unwrap().into(), version: v["software"]["version"].as_str().unwrap().into() };
+    ExactVector { v, software, record }
+}
+
+impl ExactVector {
+    /// The derivation of the vector's basis with `record`.
+    fn derived(&self, record: &UserReleaseRecord) -> Result<Value, String> {
+        let basis = UserReleaseBasis {
+            model: &self.v["model"],
+            source: &self.v["source"],
+            solver_mode: "sparse_interactive",
+            run_record: &self.v["run_record"],
+            software: &self.software,
+            record,
+            composition: self.v.get("report_composition"),
+        };
+        let admission = &self.v["request"]["report"]["exact_route"]["admission"];
+        derive_exact(&basis, admission["native_job_id"].as_str().unwrap(), admission["received_bytes_sha256"].as_str().unwrap()).map(|derived| derived.request)
+    }
+
+    /// The admitting entry with `record` as its input.
+    fn assemble(&self, request: Value, record: &UserReleaseRecord) -> Result<ReportPackageContainerOutcome, String> {
+        let inputs = UserReleaseInputs { model: &self.v["model"], solver_mode: "sparse_interactive", run_record: &self.v["run_record"], software: &self.software, record };
+        assemble_derived(request, &linked(), &inputs, &self.v["input_manifest"])
+    }
+}
+
+/// D-6's exact record as it was written: version 1.1.0, whose scope named
+/// results not carried for their numerical standing.
+fn retired(record: &UserReleaseRecord) -> UserReleaseRecord {
+    let mut retired = record.clone();
+    retired.record_version = "1.1.0".into();
+    retired.scope.not_carried.push(RETIRED_STANDING_ITEM.into());
+    retired
+}
+
+/// A complete exact package of record 1.1.0, as D-6 wrote it, made from the
+/// committed 1.2.0 package by the smallest change: the record's version and
+/// `scope.not_carried`. No member depends on either (the notice, the content
+/// binding and the member rows are unchanged), so the manifest is rewritten
+/// canonically with its member rows restamped and the archive rebuilt; the
+/// package read before this change.
+#[test]
+fn the_reader_refuses_a_retired_1_1_0_exact_package_for_its_version() {
+    let x = exact_vector();
+    let outcome = x.assemble(x.derived(&x.record).unwrap(), &x.record).unwrap();
+    assert!(read_report_package_container(&outcome.container_bytes).is_ok(), "the committed 1.2.0 package reads");
+    assert_eq!(repacked(&outcome, |_, _| {}), outcome.container_bytes);
+    let former = repacked(
+        &outcome,
+        record_edit(|record| {
+            record["record_version"] = json!("1.1.0");
+            record["scope"]["not_carried"].as_array_mut().unwrap().push(json!(RETIRED_STANDING_ITEM));
+        }),
+    );
+    let error = unbound(&former, "record 1.1.0");
+    assert!(error.contains(RECORD_VERSION_RETIRED), "{error}");
+    assert!(!error.contains(EXACT_ROUTE_NOT_ADMITTED) && !error.contains("route"), "refused for its version, not its route: {error}");
+    // The pressure-free record version on an exact-route result keeps its refusal.
+    let legacy = unbound(&repacked(&outcome, record_edit(|record| record["record_version"] = json!(USER_RELEASE_RECORD_VERSION))), "record 1.0.0");
+    assert!(legacy.contains(EXACT_ROUTE_NOT_ADMITTED), "{legacy}");
+    assert!(legacy.contains("requires a user-release record of version 1.2.0") && !legacy.contains("local private"), "{legacy}");
+}
+
+/// The record version follows the result's route at read-back: the exact
+/// record version in a pressure-free package is refused by name, as is the
+/// retired version.
+#[test]
+fn the_reader_refuses_a_record_version_not_of_its_results_route() {
+    let (_, outcome) = admitted_package();
+    let crossed = unbound(&repacked(&outcome, record_edit(|record| record["record_version"] = json!(USER_RELEASE_EXACT_RECORD_VERSION))), "record 1.2.0");
+    assert!(crossed.contains(RECORD_VERSION_NOT_OF_ROUTE), "{crossed}");
+    let former = unbound(&repacked(&outcome, record_edit(|record| record["record_version"] = json!("1.1.0"))), "record 1.1.0");
+    assert!(former.contains(RECORD_VERSION_RETIRED), "{former}");
+}
+
+/// The derivation and the admitting entry refuse the retired version by name,
+/// and a version not of the result's route; the pressure-free record version
+/// on an exact-route result keeps its refusal.
+#[test]
+fn the_derivation_and_the_producer_refuse_a_record_version_by_name() {
+    let x = exact_vector();
+    let request = x.derived(&x.record).unwrap();
+    let former = retired(&x.record);
+    let error = x.derived(&former).unwrap_err();
+    assert!(error.starts_with(&format!("{RECORD_VERSION_RETIRED}:")), "{error}");
+    refused_with(x.assemble(request.clone(), &former), RECORD_VERSION_RETIRED);
+    let mut legacy = x.record.clone();
+    legacy.record_version = USER_RELEASE_RECORD_VERSION.into();
+    let error = x.derived(&legacy).unwrap_err();
+    let id = x.v["source"]["producer"]["semantic_contract_id"].as_str().unwrap();
+    assert_eq!(
+        error,
+        format!("{EXACT_ROUTE_NOT_ADMITTED}: a shareable report package of an exact-route result ({id}) requires a user-release record of version 1.2.0."),
+    );
+    // The producer states the same rule and promises no other save: it has not
+    // established that the result could be saved at all.
+    let producer = refused_with(x.assemble(request, &legacy), EXACT_ROUTE_NOT_ADMITTED);
+    assert!(producer.contains("requires a user-release record of version 1.2.0") && !producer.contains("local private"), "{producer}");
+
+    let case = case();
+    let mut crossed = case.record.clone();
+    crossed.record_version = USER_RELEASE_EXACT_RECORD_VERSION.into();
+    let error = derive(&UserReleaseBasis { record: &crossed, ..case.basis() }).unwrap_err();
+    assert!(error.starts_with(&format!("{RECORD_VERSION_NOT_OF_ROUTE}:")), "{error}");
+    refused_with(assemble_derived(case.request(), &linked(), &UserReleaseInputs { record: &crossed, ..case.inputs() }, case.input_manifest()), RECORD_VERSION_NOT_OF_ROUTE);
+
+    // The rule itself, over every pair.
+    assert_eq!(check_record_version(USER_RELEASE_RECORD_VERSION, Some(false)), Ok(()));
+    assert_eq!(check_record_version(USER_RELEASE_EXACT_RECORD_VERSION, Some(true)), Ok(()));
+    assert_eq!(check_record_version(USER_RELEASE_RECORD_VERSION, Some(true)), Ok(()), "left to the route's own refusal");
+    assert!(check_record_version(USER_RELEASE_EXACT_RECORD_VERSION, Some(false)).unwrap_err().starts_with(RECORD_VERSION_NOT_OF_ROUTE));
+    for exact in [None, Some(false), Some(true)] {
+        assert!(check_record_version("1.1.0", exact).unwrap_err().starts_with(RECORD_VERSION_RETIRED));
+    }
+    assert_eq!(check_record_version(USER_RELEASE_EXACT_RECORD_VERSION, None), Ok(()));
+}

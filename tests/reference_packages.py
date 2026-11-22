@@ -226,6 +226,10 @@ PACKAGES: dict[str, Package] = {
         members=_generated("generators/rs_r1_ce_reference.py",
                            "its file table: SHA256SUMS hashes every other file of the package, the tranche-1 basis "
                            "of the two frozen reference-system packages included")),
+    "reference_system_ope_ref": _plain(
+        "rs_ope_ref_reference.py", deliverables="DEL-09-01",
+        members=_generated("generators/rs_ope_ref_reference.py",
+                           "its file table: SHA256SUMS hashes every other file of the package")),
     "rt_a3_s6": _plain("rt_a3_s6_reference.py", *PE_ALL, deliverables="DEL-04-07"),
     "rt_a3_constant_effort": _plain("rt_a3_constant_effort_reference.py", "--check", deliverables="DEL-04-07"),
     "rt_a3_nonlinear": _plain("rt_a3_nonlinear_reference.py", "--check", deliverables="DEL-04-07"),

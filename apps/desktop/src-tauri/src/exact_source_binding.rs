@@ -12,9 +12,12 @@
 //!    `REPORT-EXACT-SOURCE-NOT-DELIVERED: <result|model>`;
 //! 3. (after the command has grown its lease by the priced parse) both texts
 //!    are parsed and guarded;
-//! 4. the native reader's standing for the delivered result, with the solved
-//!    model and the invocation built from the recorded mode, is numerically
-//!    eligible, else `REPORT-EXACT-STANDING-NOT-ELIGIBLE`;
+//! 4. the native reader, with the solved model and the invocation built from
+//!    the recorded mode, reads the delivered result, else
+//!    `REPORT-RESULT-NOT-READABLE`, and its mechanics are solved, else
+//!    `REPORT-MECHANICS-NOT-SOLVED`. Its numerical standing is not a ground for
+//!    refusal: the render, the package save and the user release state it
+//!    (DEL-08-01 REQ-017, REQ-024, AX-003);
 //! 5. the admission's `received_result_sha256` is `digest(source)` and its
 //!    `model_sha256` is `digest(model)`, else `REPORT-EXACT-SOURCE-NOT-DELIVERED`.
 //!
@@ -34,11 +37,6 @@ use serde_json::{json, Value};
 
 pub(crate) const CUSTODY_RELEASED: &str = "REPORT-EXACT-CUSTODY-RELEASED";
 pub(crate) const SOURCE_NOT_DELIVERED: &str = "REPORT-EXACT-SOURCE-NOT-DELIVERED";
-/// The package save's and user release's refusal of a result that is not
-/// numerically eligible. DEL-08-01 REQ-024's present account: until those
-/// emissions state numerical standing, they keep this refusal (LIM-016); the
-/// rendered report and its print view do not.
-pub(crate) const STANDING_NOT_ELIGIBLE: &str = "REPORT-EXACT-STANDING-NOT-ELIGIBLE";
 /// A result the product reader cannot read with its model (DEL-05-02 Standing).
 pub(crate) const RESULT_NOT_READABLE: &str = "REPORT-RESULT-NOT-READABLE";
 /// A result whose mechanics are not solved.
@@ -144,31 +142,20 @@ pub(crate) struct BoundSource {
     pub standing: Value,
 }
 
-/// What a binding admits the delivered result for (DEL-08-01 REQ-017 and
-/// REQ-024's present account).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum SourceAdmission {
-    /// The rendered report and its print view: any solved result the reader reads.
-    Render,
-    /// The package save and the user release: still a numerically eligible result,
-    /// refused at step 4 as before (LIM-016).
-    Eligible,
-}
-
 /// Steps 3-5, after the command's lease covers the priced parse of
 /// both texts and its working memory: parse and guard both texts, read the
 /// result with the invocation built from the recorded mode
 /// (`{request: {model, materials: []}, solver_mode}`, the form of the
 /// desktop's `NativeMechanicsInvocation`), require that the native reader
-/// reads it and that its mechanics are solved (DEL-08-01 REQ-017), require
-/// eligible native standing where `kind` is [`SourceAdmission::Eligible`],
-/// then bind the admission's result and model digests to them.
+/// reads it and that its mechanics are solved (DEL-08-01 REQ-017), whatever
+/// its numerical standing, then bind the admission's result and model digests
+/// to them. The render, the package save and the user release admit the same
+/// set (DEL-08-01 REQ-024, "Package and user release").
 pub(crate) fn read_delivered_source(
     admission: &Value,
     digests: &CustodyDigests,
     result_text: &str,
     intake_text: &str,
-    kind: SourceAdmission,
 ) -> Result<BoundSource, ExactRefusal> {
     let source: Value = serde_json::from_str(result_text).map_err(|_| not_delivered("result"))?;
     guard_json(&source).map_err(|_| not_delivered("result"))?;
@@ -177,13 +164,6 @@ pub(crate) fn read_delivered_source(
     let invocation = json!({"request": {"model": model.clone(), "materials": []}, "solver_mode": digests.solver_mode.as_str()});
     let standing = reader_verdict::standing(&source, Some(&model), Some(&invocation));
     drop(invocation);
-    // The package save and the user release keep today's refusal set: a result that
-    // is not numerically eligible (every unreadable or unsolved result is not) is
-    // refused here as before, by the same code (LIM-016).
-    let eligible = standing["eligible"] == Value::Bool(true);
-    if kind == SourceAdmission::Eligible && !eligible {
-        return Err(not_eligible());
-    }
     // DEL-08-01 REQ-017: the result is admitted when the reader reads it with its
     // model and its mechanics are solved, whatever its numerical standing, which
     // the report states (REQ-024). The reader's findings are quoted, never read
@@ -211,14 +191,4 @@ pub(crate) fn read_delivered_source(
         return Err(not_delivered("model"));
     }
     Ok(BoundSource { source, model, model_sha256, standing })
-}
-
-/// DEL-08-01 REQ-024's present account (LIM-016): the package save and the
-/// user release still refuse a result that is not numerically eligible, with
-/// today's refusal at today's step; the rendered report does not.
-fn not_eligible() -> ExactRefusal {
-    ExactRefusal {
-        code: STANDING_NOT_ELIGIBLE,
-        message: format!("{STANDING_NOT_ELIGIBLE}: the native reading of the delivered result is not numerically eligible."),
-    }
 }
