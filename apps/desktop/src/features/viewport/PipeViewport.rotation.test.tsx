@@ -9,13 +9,14 @@ import { buildRotationOverlay } from "./deformationOverlay";
 // (DEL-07-05:1). All data are invented or the bundled invented reference.
 
 describe("PipeViewport rotation readout", () => {
-  it("reports a not-started rotation overlay without a result", async () => {
+  it("offers no Deformation control, and so no rotation readout, without a result", async () => {
+    // The overlay's own "not started" state is deformationOverlay.test.ts's; with no result the
+    // view shows no Deformation control at all, so it states no deformed shape or rotation.
     const model = await loadPreviewModel();
     render(<DisplayUnitsProvider><PipeViewport model={model} selection={{ type: "project", id: model.project.id }} onSelect={vi.fn()} /></DisplayUnitsProvider>);
-    expect(screen.getByTestId("viewport-rotation-summary")).toHaveTextContent("rotation: not started; result rows=0");
-    expect(screen.getByTestId("viewport-rotation-boundary")).toHaveTextContent("scale=not_generated; professional_claim=false");
-    // The translational readout is unchanged.
-    expect(screen.getByTestId("viewport-deformation-summary")).toHaveTextContent("not started; result rows=0");
+    expect(screen.queryByTestId("viewport-deformation-status")).toBeNull();
+    expect(screen.queryByTestId("viewport-rotation-summary")).toBeNull();
+    expect(screen.queryByTestId("viewport-deformation-summary")).toBeNull();
   });
 
   it("shows the emitted rotation maximum and converts only its display unit", async () => {

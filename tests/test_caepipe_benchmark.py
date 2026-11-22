@@ -718,7 +718,9 @@ def test_the_exact_class_and_the_floor_and_the_stated_formula():
     # near-zero term; this expected value was the near-zero relaxation's True before the profile was applied as stated).
     check = screen(0.0, 5.0, 1.0, "named_inexact")
     assert check["within"] is False and check["allowed"] == 1.0 + 5e-3 * 5.0
-    assert SCREENING_PROFILE["relative"] == {"exact": 1e-4, "named_inexact": 5e-3}
+    # The classes of the Screening profile definition (DEL-17-05 ScopeOfWork.md): nonlinear is 2e-2, with support
+    # status matching exactly; the batch route never derives it, a window comparison takes it from the declaration.
+    assert SCREENING_PROFILE["relative"] == {"exact": 1e-4, "named_inexact": 5e-3, "nonlinear": 2e-2}
 
 
 def test_a_closed_form_that_disagrees_with_swbpipe_makes_a_finding():
@@ -945,9 +947,66 @@ def test_an_unwitnessed_or_shorter_section_leaves_its_unit_unmatched():
     rows = rows_of(shorter, "case:expansion", "displacement", DISPLACEMENT_NODES)
     assert len(rows) == 9 and all(row["resolution_cause"] == "shorter_than_format" for row in rows)
     assert "print shows at most 1 places, format expects 3" in rows[0]["reason"]
-    # The expansion case prints no nonzero rotation: every rotation is unmatched for want of a witness.
+    # The expansion case prints no nonzero rotation: no witness. Each printed zero is screened by the zero-against-zero
+    # rule (ZERO_AGAINST_ZERO) instead, marked with its cause; SWBPIPE's rotations are zero, so each is an agreement.
     rotations = rows_of(shorter, "case:expansion", "rotation", DISPLACEMENT_NODES)
-    assert len(rotations) == 9 and all(row["resolution_cause"] == "no_witness" for row in rotations)
+    assert len(rotations) == 9 and all(row["zero_against_zero"]["resolution_cause"] == "no_witness"
+                                       and row["classification"] == WITHIN for row in rotations)
+
+
+ROTATION_UNIT = math.radians(1.0e-4)  # one printed unit at the candidate places of SI deg (4), in rad
+
+
+@pytest.mark.parametrize("swbpipe_rad, expected", [
+    (0.0, WITHIN), (ROTATION_UNIT, WITHIN), (-ROTATION_UNIT * 0.999, WITHIN),
+    (ROTATION_UNIT * 1.01, FINDING), (-2.0 * ROTATION_UNIT, FINDING), (1.0e-3, FINDING)])
+def test_zero_against_zero_screens_a_printed_zero_without_a_witness_with_the_candidate_floor(swbpipe_rad, expected):
+    """Item A: CAEPIPE prints zero and its section shows no nonzero token of the unit. The row is screened with one
+    printed unit at the candidate places: an agreement when SWBPIPE's value is zero within the allowed difference
+    a + r |S|, and a finding beyond it (a nonzero SWBPIPE value stays a finding, never unmatched)."""
+    payload = payload_with(set_value("global_nodal_rotation_z", "node:M", "case:expansion", swbpipe_rad))
+    row = find(record_of(invented_print(), payload), "case:expansion", "rotation", "node:M", "z")
+    assert row["values"] == {"swbpipe": swbpipe_rad, "caepipe": 0.0}
+    assert row["screen"]["floor"] == pytest.approx(ROTATION_UNIT, rel=1e-15)
+    assert row["screen"]["allowed"] == pytest.approx(ROTATION_UNIT + 1.0e-4 * abs(swbpipe_rad), rel=1e-12)
+    assert row["classification"] == expected and "unmatched_cause" not in row
+    assert row["zero_against_zero"] == {"resolution_cause": "no_witness", "floor_basis": "candidate places"}
+
+
+def test_zero_against_zero_does_not_reach_a_blank_a_shorter_section_or_a_label_without_candidate_places():
+    """Item A's condition: a blank token is no printed zero; a section whose nonzero tokens are shorter keeps its cause;
+    an English or radian label has no candidate places. Each stays unmatched with its cause."""
+    blank = record_of(invented_print(override={"Expansion (T1)": {"displacements": {"20": ["0", "0", "0", "0", "0",
+                                                                                             ""]}}}))
+    row = find(blank, "case:expansion", "rotation", "node:M", "z")
+    assert row["classification"] == UNMATCHED and row["resolution_cause"] == "no_witness"
+    assert "zero_against_zero" not in row
+    shorter = record_of(invented_print(override={"Expansion (T1)": {"displacements": {"30": ["4.8", "0", "0", "0", "0",
+                                                                                              "0"]}}}))
+    row = find(shorter, "case:expansion", "displacement", "node:M", "y")
+    assert row["classification"] == UNMATCHED and row["resolution_cause"] == "shorter_than_format"
+    english = record_of(relabel(invented_print(), ENGLISH))
+    assert not any("zero_against_zero" in row for row in english["results"])
+    counts = record_of(invented_print())["summary"]["zero_against_zero"]
+    assert counts[WITHIN] > 0 and counts[FINDING] == 0
+    # The command's printed counts state the zero-against-zero rows apart.
+    assert f"of which zero against zero: {FINDING} 0, {WITHIN} {counts[WITHIN]}" in run_pilot._counts(
+        record_of(invented_print())["summary"])
+    assert "zero against zero" not in run_pilot._counts({"by_classification": {WITHIN: 1},
+                                                         "zero_against_zero": {WITHIN: 0, FINDING: 0}})
+    assert "except a printed zero under zero_against_zero" in SCREENING_PROFILE["floor_basis"]
+
+
+def test_a_swbpipe_row_in_a_unit_of_another_dimension_is_unmatched_by_name_never_an_agreement():
+    """A rotation published in a length unit is not converted: the row is unmatched as swbpipe_unit_dimension, never
+    screened zero against zero beside a printed zero (0.001 mm would otherwise read as 1e-6 rad, within the floor)."""
+    def in_mm(row: dict) -> dict:
+        hit = (row["kind"], row["entity_ref"], row["basis_ref"]["ref_id"]) == ("global_nodal_rotation_z", "node:M",
+                                                                               "case:expansion")
+        return {**row, "value": 0.001, "unit": "mm"} if hit else row
+    row = find(record_of(invented_print(), payload_with(in_mm)), "case:expansion", "rotation", "node:M", "z")
+    assert row["classification"] == UNMATCHED and row["unmatched_cause"] == "swbpipe_unit_dimension"
+    assert "zero_against_zero" not in row and "screen" not in row and row["values"]["swbpipe"] is None
 
 
 @pytest.mark.parametrize("section, node, column, kind, entities, printed, cause, words", [
@@ -988,6 +1047,21 @@ def test_a_malformed_token_is_its_own_cause_and_does_not_unseat_the_witness():
     assert find(record, "case:expansion", "displacement", "node:B", "x")["classification"] == WITHIN
 
 
+# One printed unit at the candidate places of each SI label (print_csv.PRINTED_DECIMALS), in SI: the candidate floor a
+# zero-against-zero row is screened with.
+CANDIDATE_FLOOR = {"displacement": 1.0e-6, "rotation": math.radians(1.0e-4), "element_force": 1.0,
+                   "element_moment": 1.0, "support_force": 1.0, "support_moment": 1.0}
+
+
+def no_witness_locally(row: dict) -> bool:
+    """The section's own no-witness cause: unmatched with it, or, for a printed zero, screened zero against zero with
+    that cause and the candidate floor of its own unit (nothing borrowed from another section)."""
+    if "zero_against_zero" in row:
+        return (row["zero_against_zero"] == {"resolution_cause": "no_witness", "floor_basis": "candidate places"}
+                and row["screen"]["floor"] == pytest.approx(CANDIDATE_FLOOR[row["kind"]], rel=1e-15))
+    return row["classification"] == UNMATCHED and row["resolution_cause"] == "no_witness"
+
+
 def test_a_row_that_does_not_bind_supplies_no_resolution():
     """Policy boundary (evidence stays local): an element row pair that binds to no member and a displacement row at
     a label no node maps to carry witnesses, but bound values of the section stay unwitnessed."""
@@ -999,9 +1073,9 @@ def test_a_row_that_does_not_bind_supplies_no_resolution():
             "case:expansion"} == {"element_forces_global", "displacements"}
     for kind in ("element_force", "element_moment"):
         rows = [row for row in record["results"] if row["case"] == "case:expansion" and row["kind"] == kind]
-        assert rows and all(row["resolution_cause"] == "no_witness" for row in rows), kind
+        assert rows and all(no_witness_locally(row) for row in rows), kind
     rotations = rows_of(record, "case:expansion", "rotation", DISPLACEMENT_NODES)
-    assert all(row["resolution_cause"] == "no_witness" for row in rotations)
+    assert rotations and all(no_witness_locally(row) for row in rotations)
 
 
 def test_no_resolution_is_borrowed_across_section_case_or_quantity():
@@ -1010,11 +1084,11 @@ def test_no_resolution_is_borrowed_across_section_case_or_quantity():
     not reach the expansion case's unwitnessed sections."""
     record = record_of(invented_print())
     assert find(record, "case:sustained", "support_force", "node:10", "y")["classification"] == WITHIN
-    assert find(record, "case:sustained", "support_force", "node:20", "y")["resolution_cause"] == "no_witness"
+    assert no_witness_locally(find(record, "case:sustained", "support_force", "node:20", "y"))
     assert find(record, "case:expansion", "displacement", "node:B", "x")["classification"] == WITHIN
-    assert find(record, "case:expansion", "rotation", "node:B", "z")["resolution_cause"] == "no_witness"
+    assert no_witness_locally(find(record, "case:expansion", "rotation", "node:B", "z"))
     assert find(record, "case:sustained", "element_force", "pipe:P1", "y", "end_i")["classification"] == WITHIN
-    assert find(record, "case:expansion", "element_force", "pipe:P1", "y", "end_i")["resolution_cause"] == "no_witness"
+    assert no_witness_locally(find(record, "case:expansion", "element_force", "pipe:P1", "y", "end_i"))
 
 
 # The SI labels of the invented print replaced by the English ones, and the degree labels by radians.
@@ -1163,8 +1237,11 @@ def test_the_integer_digit_count_witness_counts_and_changes_no_verdict():
 def test_the_profile_states_the_formula_and_the_record_version_moves():
     """Policy boundary: the profile's metadata, its rule as computed, and the record version."""
     assert set(SCREENING_PROFILE) == {"basis", "relative", "floor", "floor_basis", "printed_decimals",
-                                      "resolution_judgment", "resolution_causes", "limit", "rule"}
-    assert SCREENING_PROFILE["relative"] == {"exact": 1e-4, "named_inexact": 5e-3}
+                                      "resolution_judgment", "resolution_causes", "limit", "rule", "zero_against_zero",
+                                      "nonlinear"}
+    # The classes of the Screening profile definition (DEL-17-05 ScopeOfWork.md): nonlinear is 2e-2, with support
+    # status matching exactly; the batch route never derives it, a window comparison takes it from the declaration.
+    assert SCREENING_PROFILE["relative"] == {"exact": 1e-4, "named_inexact": 5e-3, "nonlinear": 2e-2}
     # Candidates exist for the SI labels only: none for an English label or for rad.
     assert SCREENING_PROFILE["printed_decimals"] == {"SI N": 0, "SI Nm": 0, "SI deg": 4, "SI mm": 3}
     assert SCREENING_PROFILE["resolution_causes"] == CAUSES
@@ -1179,7 +1256,7 @@ def test_the_profile_states_the_formula_and_the_record_version_moves():
         assert check["allowed"] == floor + rel * max(abs(swb), abs(cae))
         assert check["within"] == (abs(cae - swb) <= floor + rel * max(abs(swb), abs(cae)))
     record = compare(invented_print())
-    assert BENCHMARK_RECORD_VERSION == "3" and record["record_version"] == "3"
+    assert BENCHMARK_RECORD_VERSION == "4" and record["record_version"] == "4"
     assert record["screening_profile"] == SCREENING_PROFILE
 
 
@@ -1394,7 +1471,9 @@ def test_a_case_holding_earlier_files_is_solved_again_and_leaves_them_as_they_ar
     if manifest is not None:
         (folder.parent / "case_manifest.json").write_text(manifest, encoding="utf-8")
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 0
-    assert len(solves) == 1 and [call[0] for call in state["calls"]] == ["cpb-g1-01"]
+    # One solve of the model; the stated bases' solves follow it (stated_bases.compare_bases).
+    assert len([case for case in solves if not case.get("stated_bases")]) == 1
+    assert [call[0] for call in state["calls"]] == ["cpb-g1-01"]
     assert all((folder / name).read_text(encoding="utf-8") == "INVENTED STORED FILE\n"
                for name in ("request.json", "result.json"))
     recorded = json.loads((folder.parent / "case_manifest.json").read_text())
@@ -1630,7 +1709,7 @@ def test_the_runner_hashed_is_the_runner_run(fake_benchmark, monkeypatch, tmp_pa
     run_pilot._run_benchmark_model(_bench_entry(state), state["config"], runner="invented-runner", offline=False,
                                    emit=lambda line: None, round_trip=_collecting_round_trip, gui_fallback=False,
                                    attempt=1)
-    assert given == [str(real.resolve())]
+    assert set(given) == {str(real.resolve())}  # the plain solve and each stated basis's solve
     manifest = json.loads((state["config"].exchange_root / "cases" / "cpb-g1-01" / "case_manifest.json").read_text())
     assert manifest["swbpipe_solve"]["runner_sha256"] == hashlib.sha256(real.read_bytes()).hexdigest()
 
@@ -1663,7 +1742,8 @@ def test_collect_only_offline_and_a_later_comparison_through_the_model_callable(
 def test_the_retry_reuses_its_own_solve_and_replaces_nothing(fake_benchmark, monkeypatch):
     state = fake_benchmark
     solves = []
-    monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case: solves.append(case["case_id"]) or (
+    monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case: (
+        None if case.get("stated_bases") else solves.append(case["case_id"])) or (
         {"invented": case["case_id"]}, {"payload": invented_payload()}, ""))
     failure = RuntimeError("invented transport failure")
     failure.settings_guard = {"status": "unchanged"}  # a clean settings check, so the model is retried
@@ -1676,7 +1756,12 @@ def test_the_retry_reuses_its_own_solve_and_replaces_nothing(fake_benchmark, mon
     assert (manifest["attempt"], manifest["outcome"]) == (2, "recorded")
     assert manifest["swbpipe_solve"]["request_sha256"] == hashlib.sha256(
         (solve_folder(root, "cpb-g1-01", manifest) / "request.json").read_bytes()).hexdigest()
-    assert len(list((root / "cases" / "cpb-g1-01" / "swbpipe").iterdir())) == 1
+    # One plain solve, reused by the retry; every other solve folder is a stated basis's, named in its record.
+    [record] = comparisons(root, "cpb-g1-01")
+    bases = json.loads((record.parent / run_pilot.STATED_BASES_RECORD).read_text())
+    basis_solves = {block["swbpipe_solve"]["solve_id"] for block in bases["bases"] if block.get("swbpipe_solve")}
+    assert {path.name for path in (root / "cases" / "cpb-g1-01" / "swbpipe").iterdir()} == {
+        manifest["swbpipe_solve"]["solve_id"], *basis_solves}
 
 
 def test_collect_only_collects_and_binds_and_offline_then_compares(fake_benchmark, monkeypatch, capsys):
@@ -1706,7 +1791,9 @@ def test_collect_only_collects_and_binds_and_offline_then_compares(fake_benchmar
                         "--collect-only"], environ={})
     assert run_pilot.main(["--benchmark", str(state["manifest"]), "--runner", state["runner"], "--offline", "--case",
                            "cpb-g1-01"], environ={}) == 0
-    assert calls == ["solve_swbpipe", "parse_caepipe_print_bytes", "build_benchmark_record"]
+    # Solve, parse, compare; then each stated basis's own solve (stated_bases.compare_bases).
+    assert calls[:3] == ["solve_swbpipe", "parse_caepipe_print_bytes", "build_benchmark_record"]
+    assert set(calls[3:]) <= {"solve_swbpipe"}
     assert len(comparisons(config.exchange_root, "cpb-g1-01")) == 1
 
 
@@ -1778,7 +1865,8 @@ def test_two_states_of_one_model_leave_two_distinct_records(fake_benchmark, monk
     solved = {}
 
     def solve(runner, case):
-        solved[case["case_id"]] = case["model"]
+        if not case.get("stated_bases"):  # a stated basis's own solve follows the plain one
+            solved[case["case_id"]] = case["model"]
         return {"invented": case["source_location"]}, {"payload": invented_payload()}, ""
     monkeypatch.setattr(run_pilot, "solve_swbpipe", solve)
     argv = ["--benchmark", str(path)] + state["argv"][2:]
@@ -1815,7 +1903,8 @@ def test_a_capture_run_is_collected_bound_and_parsed_and_never_compared(fake_ben
     config = state["config"]
     root = config.exchange_root
     solves = []
-    monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case: solves.append(case["case_id"]) or (
+    monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case: (
+        None if case.get("stated_bases") else solves.append(case["case_id"])) or (
         {"invented": True}, {"payload": invented_payload()}, ""))
     lines: list[str] = []
     assert run_pilot.run_benchmark([plain, capture], config, runner=state["runner"], offline=False, emit=lines.append,
