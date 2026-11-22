@@ -410,7 +410,11 @@ describe("the native panel's view identity", () => {
     expect(summary()).toMatch(/page 2 of \d+$/u);
     expect(position("entity")).toBe(`${entities[0]} (1 of ${entities.length})`);
     rerender(<View result={b} />);
-    await waitFor(() => expect(summary()).toMatch(/page 1 of \d+$/u));
+    // Run B's own first page, read and populated (not the empty "page 1 of 1" of a pending read).
+    const total = full.results.length;
+    expect(total).toBeGreaterThan(50);
+    await waitFor(() => expect(summary()).toBe(`Showing 1 to 50 of ${total} matching results; page 1 of ${Math.ceil(total / 50)}`));
+    expect(document.querySelectorAll("tr[data-testid^='result-row-']").length).toBe(50);
     await waitFor(() => expect(position("entity")).toBe(`None chosen; ${entities.length} in this table`));
     await act(async () => { await disposeDeliveredMechanicsResult(a); await disposeDeliveredMechanicsResult(b); });
   }, 120_000);
@@ -433,7 +437,7 @@ describe("the native panel's view identity", () => {
     const { a, b, full } = await twoRuns();
     const forA = { serial: 1, runId: a.run_id, viewKey: resultViewIdentity(a)!, kind: full.results[0].kind, withheld: {} };
     render(<View result={b} request={forA} />);
-    await waitFor(() => expect(summary()).toMatch(/page 1 of \d+$/u));
+    await waitFor(() => expect(summary()).toBe(`Showing 1 to 50 of ${full.results.length} matching results; page 1 of ${Math.ceil(full.results.length / 50)}`));
     expect(screen.queryByTestId("results-kind-filter")).toBeNull();
     await act(async () => { await disposeDeliveredMechanicsResult(a); await disposeDeliveredMechanicsResult(b); });
   }, 120_000);

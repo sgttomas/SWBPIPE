@@ -183,8 +183,8 @@ export function NativeResultsPanel({
   const [appliedRequest, setAppliedRequest] = useState<number | null>(null);
   const [requestedKind, setKindFilter] = useState<{ viewKey: string; kind: string; withheld: Readonly<Record<string, string>> } | null>(null);
   const kindFilter = requestedKind && requestedKind.viewKey === viewKey ? requestedKind : null;
-  // A request is admitted for the result it names by its own identity, never by the shared run id.
-  if (viewRequest && viewRequest.serial !== appliedRequest && viewRequest.viewKey === resultViewIdentity(result)) {
+  // A request is admitted for the view it names, never by the shared run id.
+  if (viewRequest && viewRequest.serial !== appliedRequest && viewRequest.viewKey === viewKey) {
     setAppliedRequest(viewRequest.serial);
     setKindFilter({ viewKey, kind: viewRequest.kind, withheld: viewRequest.withheld });
     setFilterText("");

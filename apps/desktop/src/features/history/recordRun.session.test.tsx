@@ -324,6 +324,8 @@ describe("Record Run in the session (W-12 S2)", () => {
     await solve(state);
     fireEvent.click(await screen.findByTestId("next-result-page"));
     await waitFor(() => expect(screen.getByTestId("result-page-summary")).toHaveTextContent(/page 2 of/));
+    const pages = Number(/page 2 of (\d+)$/u.exec(screen.getByTestId("result-page-summary").textContent ?? "")?.[1]);
+    expect(pages).toBeGreaterThan(1);
     const runId = state().results.result!.run_id;
     await act(async () => { await history(state).recordRun({ labels: LABELS, snapshotName: "After solve" }); });
     expect(history(state).historyOperation).toBe("record_run_with_snapshot");
@@ -338,7 +340,9 @@ describe("Record Run in the session (W-12 S2)", () => {
     expect(state().results.result !== before).toBe(true);
     expect(state().results.result!.run_id).toBe(runId);
     expect(nativeCustody(state().results.result as NativeResult).jobId).not.toBe(nativeCustody(before as NativeResult).jobId);
-    await waitFor(() => expect(screen.getByTestId("result-page-summary")).toHaveTextContent(/page 1 of/));
+    // The new run's own first page, read and populated (not the empty "page 1 of 1" of a pending read).
+    await waitFor(() => expect(screen.getByTestId("result-page-summary").textContent).toMatch(new RegExp(`^Showing 1 to [1-9]\\d* of \\d+ matching results; page 1 of ${pages}$`, "u")));
+    expect(document.querySelectorAll("tr[data-testid^='result-row-']").length).toBeGreaterThan(0);
   });
 });
 

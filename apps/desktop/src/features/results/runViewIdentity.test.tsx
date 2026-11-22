@@ -51,16 +51,37 @@ describe("a historical run's view identity", () => {
     const again = (await buildHistoricalRunContext(await savedEnvelope(0)))!;
     const b = (await buildHistoricalRunContext(await savedEnvelope(1)))!;
     expect(a.runId).toBe(b.runId);
-    expect(a.viewKey).toMatch(/^saved-result-sha256:[^:]+:[0-9a-f]{64}$/u);
+    expect(a.viewKey).toMatch(/^saved-result-view-sha256:[^:]+:[0-9a-f]{64}$/u);
     expect(again.viewKey).toBe(a.viewKey);
     expect(b.viewKey).not.toBe(a.viewKey);
   });
 
-  it("is distinct for two projects storing byte-identical results", async () => {
-    const a = (await buildHistoricalRunContext(await savedEnvelope(0)))!;
-    const copied = (await buildHistoricalRunContext(await savedEnvelope(0, "project:copied")))!;
-    expect(copied.viewKey).toMatch(/^saved-result-sha256:/u);
+  it("is distinct for two projects storing byte-identical results: the project alone tells them apart", async () => {
+    const savedA = await savedEnvelope(0);
+    const savedB = await savedEnvelope(0, "project:copied");
+    // Project A's result, verbatim (its model_ref included), stored in project B.
+    savedB.mechanics_result = structuredClone(savedA.mechanics_result);
+    const a = (await buildHistoricalRunContext(savedA))!;
+    const copied = (await buildHistoricalRunContext(savedB))!;
+    expect(JSON.stringify(copied.mechanicsResult)).toBe(JSON.stringify(a.mechanicsResult));
+    expect(copied.mechanicsResult).toEqual(a.mechanicsResult);
+    const hashOf = (key: string) => key.split(":").at(-1);
+    expect(a.viewKey).toMatch(/^saved-result-view-sha256:/u);
+    expect(copied.viewKey).toMatch(/^saved-result-view-sha256:project%3Acopied:/u);
+    expect(hashOf(copied.viewKey)).toBe(hashOf(a.viewKey));
     expect(copied.viewKey).not.toBe(a.viewKey);
+  });
+
+  it("keeps a signed zero apart in a saved run's key, and not its members' order", async () => {
+    const withZero = async (zero: number, reorder = false) => {
+      const saved = await savedEnvelope(0);
+      const result = saved.mechanics_result as MechanicsResult;
+      result.results[0].value = zero;
+      if (reorder) saved.mechanics_result = Object.fromEntries(Object.entries(result).reverse()) as unknown as MechanicsResult;
+      return (await buildHistoricalRunContext(saved))!.viewKey;
+    };
+    expect(await withZero(-0)).not.toBe(await withZero(0));
+    expect(await withZero(-0)).toBe(await withZero(-0, true));
   });
 
   it("never keys a malformed saved result by its hash: two projects storing {} stay distinct", async () => {
@@ -196,6 +217,34 @@ describe("ResultsPanel's view identity", () => {
     expect(resultViewIdentity(structuredClone(a))).toBe(resultViewIdentity(a));
     expect(resultViewIdentity(a, "recording:R-1")).toBe(resultViewIdentity(b, "recording:R-1"));
     expect(resultViewIdentity(null)).toBeNull();
+  });
+
+  it("tells a signed zero apart, and not an exact clone or a members' order", () => {
+    const [a] = runs();
+    const negative = { ...a, results: a.results.map((item, i) => (i === 0 ? { ...item, value: -0 } : item)) };
+    const positive = { ...a, results: a.results.map((item, i) => (i === 0 ? { ...item, value: 0 } : item)) };
+    expect(resultViewIdentity(negative)).not.toBe(resultViewIdentity(positive));
+    const clone = structuredClone(negative);
+    expect(Object.is(clone.results[0].value, -0)).toBe(true);
+    expect(resultViewIdentity(clone)).toBe(resultViewIdentity(negative));
+    const reordered = Object.fromEntries(Object.entries(negative).reverse()) as unknown as MechanicsResult;
+    expect(resultViewIdentity(reordered)).toBe(resultViewIdentity(negative));
+  });
+
+  it("admits a request only for the view it names: byte-identical results under two stored identities are two views", () => {
+    const [a] = runs();
+    const same = structuredClone(a);
+    const kind = "displacement_magnitude";
+    const forR1: ResultsViewRequest = { serial: 1, runId: a.run_id, viewKey: resultViewIdentity(a, "recording:R-1")!, kind, withheld: { "d:A": "withheld for R-1" } };
+    expect(resultViewIdentity(same, "recording:R-2")).not.toBe(forR1.viewKey);
+    render(view(same, forR1, "recording:R-2"));
+    expect(screen.queryByTestId("results-kind-filter")).toBeNull();
+    expect(screen.queryByTestId("result-row-withheld-d:A")).toBeNull();
+    cleanup();
+    const forR2: ResultsViewRequest = { ...forR1, viewKey: resultViewIdentity(same, "recording:R-2")!, withheld: { "d:A": "withheld for R-2" } };
+    render(view(same, forR2, "recording:R-2"));
+    expect(screen.getByTestId("results-kind-filter")).toBeInTheDocument();
+    expect(screen.getByTestId("result-row-withheld-d:A")).toHaveTextContent("withheld for R-2");
   });
 
   it("resets the page index when swapped directly from run A to run B, and keeps it across a re-render of run A", () => {

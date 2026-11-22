@@ -11,6 +11,7 @@ import type { CurrentSessionInputManifest } from "../../services/inputManifestSe
 import { verifyAnalysisRunRecord, validateAnalysisRunV03, ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH, ANALYSIS_RUN_SCHEMA_VERSION_RETIRED, ANALYSIS_RUN_V03 } from "../../services/analysisRunCompatibility";
 import type { BundledMechanicsReference } from "../../services/previewService";
 import { ResultsPanel } from "./ResultsPanel";
+import { viewSha256Hex } from "./viewIdentity";
 import type { NativeResult } from "../../services/nativeResult";
 import { restoredNativeResult, type NativeProjectEnvelope, type NativeRunRead, type RestoredRun } from "../../services/nativeReopen";
 
@@ -56,7 +57,8 @@ export type HistoricalRunContext = {
    * kind filter, navigator entity, selected row) is held under. The engine publishes one fixed
    * run id for distinct runs, so `runId` cannot be it. Deterministic for the same stored run, and
    * distinct for distinct ones: a recorded run's recording id (else its record's hash); a saved
-   * run's renderable received result's SHA-256 within its project (a re-save in place keeps it),
+   * run's renderable result within its project (a re-save in place keeps it): the stored bytes'
+   * SHA-256 held natively, else the SHA-256 of its view text (`viewSha256Hex`, signed zero kept),
    * else the saved envelope's hashes, else its native handle; a bundled reference's fixture; else
    * a session-unique serial. */
   viewKey: string;
@@ -73,10 +75,7 @@ function runViewKey(...candidates: [kind: string, ...parts: (string | null | und
   return `unidentified:${unidentifiedRuns}`;
 }
 
-async function receivedResultSha256(value: unknown): Promise<string | null> {
-  if (value === null || value === undefined) return null;
-  try { return await canonicalSha256HexCheckedV1(value); } catch { return null; }
-}
+
 
 /** A reopen's findings in their scopes. */
 function reopenFindings(initial: string[] = []) {
@@ -264,7 +263,7 @@ export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): P
   // A result hash identifies the run only for a renderable result, within its project: malformed
   // results (`{}`, a string) and a result copied into another project fall back or stay distinct.
   const viewKey = runViewKey(
-    ["saved-result-sha256", opened.model?.project?.id, mechanicsResult ? await receivedResultSha256(mechanicsResult) : null],
+    ["saved-result-view-sha256", opened.model?.project?.id, mechanicsResult ? await viewSha256Hex(mechanicsResult) : null],
     ["saved-envelope-payload-sha256", envelopePayloadHash],
     ["saved-envelope-sha256", opened.project_envelope_hash?.value]
   );
@@ -347,7 +346,7 @@ export async function buildRecordedRunContext(read: AnalysisRunRead): Promise<Wh
     designation: "recorded_run", rawMechanicsResult, rawAnalysisRun, mechanicsResult, analysisRun, modelHash,
     envelopeHash: null, envelopePayloadHash: null, ...found.scoped(recordedBinding),
     runId: evidenceResult?.run_id ?? (typeof record?.run_id === "string" ? record.run_id : "unknown recorded run"),
-    viewKey: runViewKey(["recording", read.run.recording_id], ["recorded-run-record-sha256", read.run.run_record_hash], ["recorded-result-sha256", read.state.project_id, mechanicsResult ? await receivedResultSha256(mechanicsResult) : null])
+    viewKey: runViewKey(["recording", read.run.recording_id], ["recorded-run-record-sha256", read.run.run_record_hash], ["recorded-result-view-sha256", read.state.project_id, mechanicsResult ? await viewSha256Hex(mechanicsResult) : null])
   };
 }
 
