@@ -216,9 +216,13 @@ describe("a native result's first paint in the app", () => {
     expect(strip.open).toBe(false);
     expect(within(strip).getByTestId("local-project-message-details")).toHaveTextContent(words.details);
 
-    const exportIntent = await screen.findByTestId("project-storage-export-link-local-private-intent");
+    const storageRecord = await screen.findByTestId("project-storage-record") as HTMLDetailsElement;
+    expect(storageRecord.open).toBe(false);
+    fireEvent.click(within(storageRecord).getByText("Storage record", { selector: "summary" }));
+    expect(storageRecord.open).toBe(true);
+    const exportIntent = within(storageRecord).getByTestId("project-storage-export-link-local-private-intent");
     fireEvent.click(exportIntent);
-    const auditHref = screen.getByTestId("project-storage-export-link").getAttribute("href") ?? "";
+    const auditHref = within(storageRecord).getByTestId("project-storage-export-link").getAttribute("href") ?? "";
     const audit = JSON.parse(decodeURIComponent(auditHref.split(",", 2)[1])) as { project_message: string };
     expect(audit.project_message).toBe(`${expectedLine} ${words.details}`);
   }, 90_000);
