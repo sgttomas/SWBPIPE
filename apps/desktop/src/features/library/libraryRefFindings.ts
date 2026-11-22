@@ -54,11 +54,20 @@ function publish(projectId: string, findings: LibraryRefFinding[]): void {
 // its project is still the active one and its number is still the latest.
 let activeProjectId = "";
 let latestSequence = 0;
+// Advances with each change of the session's project only, so work begun under
+// one project can tell that the session has since moved, even to the same id.
+let activeProjectGeneration = 0;
 
 /** The session's project changed (an open, a create, a state adopted): every check in flight is superseded. */
 export function setActiveLibraryRefProject(projectId: string): void {
   activeProjectId = projectId;
   latestSequence += 1;
+  activeProjectGeneration += 1;
+}
+
+/** The number of times the session's project has been set; checks and publications leave it unchanged. */
+export function activeLibraryRefProjectGeneration(): number {
+  return activeProjectGeneration;
 }
 
 /** A check of `projectId`'s references starts: it supersedes every check in flight. Its number is returned. */

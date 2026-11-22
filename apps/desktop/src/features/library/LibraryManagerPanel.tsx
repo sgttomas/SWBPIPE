@@ -29,7 +29,7 @@ import {
 import type { OperationBatch } from "../../services/operationBatchService";
 import type { EntityRef } from "../../types";
 import { LibraryApplySection, type LibraryApplyTarget } from "./LibraryApplySection";
-import { beginLibraryRefCheckIfActive, currentLibraryRefFindings, publishLibraryRefFindingsIfCurrent, usePublishedLibraryRefFindings } from "./libraryRefFindings";
+import { activeLibraryRefProjectGeneration, beginLibraryRefCheckIfActive, currentLibraryRefFindings, publishLibraryRefFindingsIfCurrent, usePublishedLibraryRefFindings } from "./libraryRefFindings";
 
 // Private Library Manager (PRD §13 / §14.6 / §14.1 "Library manager"). Phase C3
 // GUI slice (TP-C3-LIBGUI-001), replicating the C2 Rule-Pack Manager pattern:
@@ -483,22 +483,29 @@ export function LibraryManagerPanel({
     );
   }
 
-  /** The action numbered `op` of panel session `session` is still the panel's latest. */
-  function isCurrent(session: number, op: number): boolean {
-    return session === panelSessionRef.current && op === activeOpRef.current;
+  /** The action numbered `op` of panel session `session`, begun under the session's
+   * project generation `projectGen`, is still the panel's latest, and the session has
+   * not changed project since (which a dormant page does not see as a new panel session). */
+  function isCurrent(session: number, op: number, projectGen: number): boolean {
+    return session === panelSessionRef.current && op === activeOpRef.current
+      && projectGen === activeLibraryRefProjectGeneration();
   }
 
-  /** Starts an action: its session, its operation number and the busy state. */
-  function beginAction(): { session: number; op: number } {
+  /** Starts an action: its session, its operation number, the session's project generation and the busy state. */
+  function beginAction(): { session: number; op: number; projectGen: number } {
     const session = panelSessionRef.current;
     const op = ++activeOpRef.current;
+    const projectGen = activeLibraryRefProjectGeneration();
     setInFlight(true);
-    return { session, op };
+    return { session, op, projectGen };
   }
 
-  /** Ends an action: an overtaken one leaves the busy state to the action that overtook it. */
+  /** Ends an action: an overtaken one leaves the busy state to the action that overtook it.
+   * The project generation is not consulted: an action that is still the panel's latest
+   * in its panel session holds the busy state even after the session's project changed
+   * under the same id (no new panel session begins then), so it alone can release it. */
   function endAction(session: number, op: number): void {
-    if (isCurrent(session, op)) setInFlight(false);
+    if (session === panelSessionRef.current && op === activeOpRef.current) setInFlight(false);
   }
 
   /** Lists the store for `targetProjectId` and checks `targetModel`'s references, as action `op` of `session`. */
@@ -506,9 +513,10 @@ export function LibraryManagerPanel({
     session: number,
     targetProjectId: string | null,
     targetModel: PreviewModel | null,
-    op: number
+    op: number,
+    projectGen: number
   ): Promise<void> {
-    const stillCurrent = () => isCurrent(session, op);
+    const stillCurrent = () => isCurrent(session, op, projectGen);
     // A session the panel has left begins no check: it never takes the store's active project.
     if (!stillCurrent()) return;
     const sequence = targetModel ? beginLibraryRefCheckIfActive(targetModel.project.id) : null;
@@ -540,9 +548,9 @@ export function LibraryManagerPanel({
   }
 
   async function handleRefreshList() {
-    const { session, op } = beginAction();
+    const { session, op, projectGen } = beginAction();
     try {
-      await refreshListForSession(session, projectId, model, op);
+      await refreshListForSession(session, projectId, model, op, projectGen);
     } finally {
       endAction(session, op);
     }
@@ -552,10 +560,10 @@ export function LibraryManagerPanel({
     const document = parseDraft();
     if (!document) return;
     onR3JourneyEvent?.("library_validate_requested");
-    const { session, op } = beginAction();
+    const { session, op, projectGen } = beginAction();
     try {
       const route = await validateLibraryImport(document, libraryKind, intendedVisibility);
-      if (!isCurrent(session, op)) return;
+      if (!isCurrent(session, op, projectGen)) return;
       if (route.route === "unavailable_browser_preview") {
         setActionStatus(route.diagnostic);
         return;
@@ -568,7 +576,7 @@ export function LibraryManagerPanel({
           `blocking_findings=${blocking.length}; advisory_findings=${advisory.length}.`
       );
     } catch (error) {
-      if (!isCurrent(session, op)) return;
+      if (!isCurrent(session, op, projectGen)) return;
       reportBackendError("validate", error);
     } finally {
       endAction(session, op);
@@ -585,10 +593,10 @@ export function LibraryManagerPanel({
     onR3JourneyEvent?.("library_save_requested");
     const targetProjectId = projectId;
     const targetModel = model;
-    const { session, op } = beginAction();
+    const { session, op, projectGen } = beginAction();
     try {
       const route = await saveLocalLibrary(targetProjectId, libraryKind, document);
-      if (!isCurrent(session, op)) return;
+      if (!isCurrent(session, op, projectGen)) return;
       if (route.route === "unavailable_browser_preview") {
         setActionStatus(route.diagnostic);
         return;
@@ -601,9 +609,9 @@ export function LibraryManagerPanel({
         `${route.result.message} (library_id=${route.result.library_id}, ` +
           `stored=${String(route.result.stored)}, storage=${route.result.storage_mode}).${refusedNote}`
       );
-      await refreshListForSession(session, targetProjectId, targetModel, op);
+      await refreshListForSession(session, targetProjectId, targetModel, op, projectGen);
     } catch (error) {
-      if (!isCurrent(session, op)) return;
+      if (!isCurrent(session, op, projectGen)) return;
       reportBackendError("save", error);
     } finally {
       endAction(session, op);
@@ -611,10 +619,10 @@ export function LibraryManagerPanel({
   }
 
   async function handleOpen(entry: LocalLibraryIndexEntry) {
-    const { session, op } = beginAction();
+    const { session, op, projectGen } = beginAction();
     try {
       const route = await openLocalLibrary(entry.project_id, entry.library_kind, entry.library_id);
-      if (!isCurrent(session, op)) return;
+      if (!isCurrent(session, op, projectGen)) return;
       if (route.route === "unavailable_browser_preview") {
         setActionStatus(route.diagnostic);
         return;
@@ -635,7 +643,7 @@ export function LibraryManagerPanel({
       const storable = route.envelope.validation.accepted && !route.envelope.validation.has_blocking_findings;
       setOpened(storable ? { entry, document: route.envelope.document as Record<string, unknown> } : null);
     } catch (error) {
-      if (!isCurrent(session, op)) return;
+      if (!isCurrent(session, op, projectGen)) return;
       reportBackendError("open", error);
     } finally {
       endAction(session, op);
@@ -645,18 +653,18 @@ export function LibraryManagerPanel({
   async function handleDelete(entry: LocalLibraryIndexEntry) {
     const targetProjectId = projectId;
     const targetModel = model;
-    const { session, op } = beginAction();
+    const { session, op, projectGen } = beginAction();
     try {
       const route = await deleteLocalLibrary(entry.project_id, entry.library_kind, entry.library_id);
-      if (!isCurrent(session, op)) return;
+      if (!isCurrent(session, op, projectGen)) return;
       if (route.route === "unavailable_browser_preview") {
         setActionStatus(route.diagnostic);
         return;
       }
       setActionStatus(route.receipt.message);
-      await refreshListForSession(session, targetProjectId, targetModel, op);
+      await refreshListForSession(session, targetProjectId, targetModel, op, projectGen);
     } catch (error) {
-      if (!isCurrent(session, op)) return;
+      if (!isCurrent(session, op, projectGen)) return;
       reportBackendError("delete", error);
     } finally {
       endAction(session, op);

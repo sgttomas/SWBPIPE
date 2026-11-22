@@ -20,9 +20,12 @@ import type {
 } from "../../services/libraryImportService";
 import type { ModelDocumentSource } from "../../services/modelDocumentFile";
 import type { PreviewModel } from "../../types";
+import { App } from "../../App";
+import * as workspaceSessions from "../workspace/workspaceSession";
 import { useWorkspaceSession, type WorkspaceSession } from "../workspace/workspaceSession";
 import { LibraryManagerPanel } from "./LibraryManagerPanel";
 import {
+  activeLibraryRefProjectGeneration,
   beginLibraryRefCheck,
   beginLibraryRefCheckIfActive,
   publishedLibraryRefFindings,
@@ -366,4 +369,85 @@ it("after Save as a new project, a Library Manager refresh checks the copy and p
   await waitFor(() => expect(checks.mock.calls.map(([projectId]) => projectId)).toContain(copyId));
   await waitFor(() => expect(refreshButton().disabled).toBe(false));
   await expectWarningStands(session, copyId);
+});
+
+it("a Library Manager save of project A that settles while the page is dormant and the session moved to a copy changes nothing on the page", async () => {
+  const a = await referencedModel(PROJECT_A);
+  vi.spyOn(previewService, "loadPreviewModel").mockResolvedValue(a);
+  vi.spyOn(previewService, "startPreviewMechanicsJob").mockRejectedValue(new Error("INVENTED-START-OBSERVED"));
+  const real = workspaceSessions.useWorkspaceSession;
+  let active!: WorkspaceSession;
+  vi.spyOn(workspaceSessions, "useWorkspaceSession").mockImplementation(() => (active = real()));
+  const held = deferred<LibrarySaveRoute>();
+  const save = vi.spyOn(libraryImportService, "saveLocalLibrary").mockImplementation(() => held.promise);
+  vi.spyOn(libraryImportService, "listLocalLibraries").mockResolvedValue({ route: "tauri_backend", entries: [] });
+  vi.spyOn(libraryImportService, "checkModelLibraryRefs").mockResolvedValue({ route: "tauri_backend", findings: [] });
+  render(<App />);
+  await waitFor(() => expect(active.model.model?.project.id).toBe(PROJECT_A));
+  await act(async () => { await active.project.handleCreateProject(); });
+
+  // A's library save starts on the Libraries page and holds.
+  await act(async () => { active.chrome.setActiveSection("libraries"); });
+  await act(async () => { screen.getByTestId("library-load-template").click(); });
+  await act(async () => { screen.getByTestId("library-save").click(); });
+  expect(save).toHaveBeenCalledTimes(1);
+  const before = screen.getByTestId("library-action-status").textContent;
+  expect(screen.queryByTestId("library-validation")).toBeNull();
+
+  // The page goes dormant; Save as a new project moves the session to a copy.
+  await act(async () => { active.chrome.setActiveSection("project"); });
+  let creating: Promise<unknown> = Promise.resolve();
+  act(() => { creating = active.project.handleCreateProject(); });
+  await waitFor(() => expect(active.project.replaceProjectPrompt).not.toBeNull());
+  await act(async () => { active.project.replaceProjectPrompt!.choose("save-as-new"); await creating; });
+  expect(active.model.model!.project.id).toContain(`${PROJECT_A}:copy-`);
+
+  // A's save settles while the page is dormant.
+  await act(async () => {
+    held.resolve({ route: "tauri_backend", result: { project_id: PROJECT_A, library_kind: "material", library_id: "matlib.invented.saved", stored: true,
+      storage_mode: "local_sqlite", created_at_unix: 1, updated_at_unix: 1, document: {}, validation: ACCEPTED, message: "Stored for the source project." } });
+    await held.promise;
+  });
+
+  await act(async () => { active.chrome.setActiveSection("libraries"); });
+  expect(screen.getByTestId("library-action-status").textContent).toBe(before);
+  expect(screen.getByTestId("library-action-status").textContent).not.toContain("stored=true");
+  expect(screen.queryByTestId("library-validation")).toBeNull();
+  expect((screen.getByTestId("library-save") as HTMLButtonElement).disabled).toBe(false);
+  expect(refreshButton().disabled).toBe(false);
+});
+
+it("the active project's generation advances only when the active project is set", () => {
+  const start = activeLibraryRefProjectGeneration();
+  setActiveLibraryRefProject(PROJECT_A);
+  expect(activeLibraryRefProjectGeneration()).toBe(start + 1);
+  const sequence = beginLibraryRefCheck(PROJECT_A);
+  const ifActive = beginLibraryRefCheckIfActive(PROJECT_A);
+  expect(ifActive).not.toBeNull();
+  expect(beginLibraryRefCheckIfActive(PROJECT_B)).toBeNull();
+  expect(publishLibraryRefFindingsIfCurrent(PROJECT_A, sequence, [])).toBe(false);
+  expect(publishLibraryRefFindingsIfCurrent(PROJECT_A, ifActive!, [])).toBe(true);
+  expect(activeLibraryRefProjectGeneration()).toBe(start + 1);
+  setActiveLibraryRefProject(PROJECT_B);
+  expect(activeLibraryRefProjectGeneration()).toBe(start + 2);
+});
+
+it("a refresh that answers after the same project reopened changes no list and leaves the controls free", async () => {
+  const a = await referencedModel(PROJECT_A);
+  const firstA = deferred<LibraryListRoute>();
+  let holding = true;
+  vi.spyOn(libraryImportService, "checkModelLibraryRefs").mockResolvedValue({ route: "tauri_backend", findings: [] });
+  vi.spyOn(libraryImportService, "listLocalLibraries").mockImplementation(async () => {
+    if (holding) { holding = false; return firstA.promise; }
+    return { route: "tauri_backend", entries: [] };
+  });
+  const session = await workspace(a);
+
+  await act(async () => { refreshButton().click(); });
+  expect(refreshButton().disabled).toBe(true);
+  await openCompletely(session, a);
+
+  await act(async () => { firstA.resolve({ route: "tauri_backend", entries: [ENTRY] }); await firstA.promise; });
+  expect(screen.queryByTestId(`library-entry-${ENTRY.library_id}`)).toBeNull();
+  await waitFor(() => expect(refreshButton().disabled).toBe(false));
 });
