@@ -269,6 +269,7 @@ checks:
 - apps/desktop/src-tauri/src/user_release_reach_scan_tests.rs
 - apps/desktop/src/features/report/renderedReport.test.tsx
 - apps/desktop/src/features/report/renderedReportNativeRoutes.test.tsx
+- apps/desktop/src/features/report/pfTimoshenkoRenderRows.test.tsx
 - apps/desktop/src/features/report/renderedReportGate.app.test.tsx
 - apps/desktop/src/features/report/restoredRunReportWords.app.test.tsx
 - apps/desktop/src/features/report/withheldPackageStatus.app.test.tsx
