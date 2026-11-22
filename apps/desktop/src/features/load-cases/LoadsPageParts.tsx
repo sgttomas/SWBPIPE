@@ -2,7 +2,7 @@
 // shown only after its command is chosen, a closed "More" disclosure for the fields a person
 // does not choose for ordinary work, and the selected case's list of sections. Display only:
 // nothing here builds or changes an operation.
-import { forwardRef, type ReactNode } from "react";
+import { forwardRef, useEffect, useRef, type ReactNode } from "react";
 import { X } from "lucide-react";
 
 /** A creation form at the top of the editor column. It is a disclosure whose summary is not
@@ -62,12 +62,30 @@ export type CaseSection = {
   summary?: string;
   /** For a disclosure: open when the case has content. */
   hasContent?: boolean;
-  /** For a disclosure: a count that, when it changes, opens the disclosure again (a request to show it). */
+  /** For a disclosure: a count that, when it changes, opens the disclosure again (a request to show it), keeping
+   * what it holds mounted. */
   openRequest?: number;
   /** Commands shown beside the section's heading (not for a disclosure). */
   actions?: ReactNode;
   render: () => ReactNode;
 };
+
+/** A disclosure section. A new `openRequest` opens it in place, though the person closed it, so a draft in its
+ * body is kept. */
+function CaseDisclosure({ section }: { section: CaseSection }) {
+  const details = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    if (section.openRequest && details.current) details.current.open = true;
+  }, [section.openRequest]);
+  return (
+    <details ref={details} className="loads-case-section loads-disclosure" data-testid={`load-case-section-${section.id}`} open={section.hasContent}>
+      <summary>
+        <span className="loads-disclosure-title">{section.title}:</span> <span className="loads-disclosure-summary">{section.summary}</span>
+      </summary>
+      <div className="loads-disclosure-body">{section.render()}</div>
+    </details>
+  );
+}
 
 export function CaseSectionList({ caseId, sections }: { caseId: string; sections: readonly CaseSection[] }) {
   return (
@@ -83,17 +101,7 @@ export function CaseSectionList({ caseId, sections }: { caseId: string; sections
           </section>
         ) : (
           // Keyed by case: choosing another case opens or closes each section by that case's content.
-          <details
-            key={`${section.id}:${caseId}:${section.openRequest ?? 0}`}
-            className="loads-case-section loads-disclosure"
-            data-testid={`load-case-section-${section.id}`}
-            open={section.hasContent}
-          >
-            <summary>
-              <span className="loads-disclosure-title">{section.title}:</span> <span className="loads-disclosure-summary">{section.summary}</span>
-            </summary>
-            <div className="loads-disclosure-body">{section.render()}</div>
-          </details>
+          <CaseDisclosure key={`${section.id}:${caseId}`} section={section} />
         )
       )}
     </>

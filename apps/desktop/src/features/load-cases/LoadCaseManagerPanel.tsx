@@ -211,7 +211,7 @@ export function LoadCaseManagerPanel({
   const [templatesMenuOpen, setTemplatesMenuOpen] = useState(false);
   const [addLoadOpen, setAddLoadOpen] = useState(false);
   // The case a press in the pressure panel's open items selected: its Pressure section opens with it, and
-  // each press opens it again (`request`), though the person closed it since.
+  // each press opens it again (`request`), though the person closed it since, keeping its draft.
   const [pressureOpen, setPressureOpen] = useState<{ id: string; request: number } | null>(null);
   const [addTermOpen, setAddTermOpen] = useState(false);
   // The load row or term row whose edit is open in place.

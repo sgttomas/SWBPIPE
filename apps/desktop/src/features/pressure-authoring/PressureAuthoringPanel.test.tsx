@@ -530,5 +530,12 @@ describe("the shear change and activation batch", () => {
     press();
     expect(notice()).toBeNull();
     await waitFor(() => expect(queue).toHaveBeenCalledOnce());
+    expect(await screen.findByText("Pressure profile queued for validation and review.")).toBeInTheDocument();
+    // And a batch clears the single change's notice: one notice at a time.
+    change("Shear deformation in straight members", "timoshenko_annulus_energy_v1");
+    press();
+    expect(screen.queryByText("Pressure profile queued for validation and review.")).toBeNull();
+    await waitFor(() => expect(registered).toHaveBeenCalledTimes(2));
+    expect(await screen.findByTestId("pressure-shear-batch-notice")).toBeInTheDocument();
   });
 });

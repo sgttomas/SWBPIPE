@@ -217,6 +217,7 @@ export function PressureAuthoringPanel(props: RichFormProps & { loadCaseId?: str
     batchPending.current = true;
     setBatchBusy(true);
     state.setError("");
+    state.setNotice("");
     try {
       if (props.queuedIntents?.some(i => i.change.field_path === "pressure_profile" || i.change.field_path === "model_settings.shear_model"))
         throw new Error("Review or remove the pending pressure profile or shear deformation change before queuing another.");

@@ -102,20 +102,24 @@ describe("routes to the review queue", () => {
     // person's own builders stamp `user` (workflowSupport.ts draftIntent, formSupport.tsx and the
     // feature builders), so it needs no gate. HangerSizingApply reaches draftIntent through
     // prepareSizedApplication -> prepareRunApplication -> buildHangerSelectionBatch;
-    // its host-made precondition travels with the batch to the person's final Apply.
+    // its host-made precondition travels with the batch to the person's final Apply. The pressure panel's shear
+    // change and activation batch (PressureAuthoringPanel.tsx, through LoadCaseManagerPanel.tsx) is the person's:
+    // setShearModelIntent and makeRichIntent stamp `user` from the GUI editor and write no user-entered modifier.
     expect(count(/\bregisterOperationBatch\b/g)).toEqual({ "App.tsx": 2, "features/workspace/workspaceSession.ts": 6 });
-    expect(count(/\bhandleQueueOperationBatch\b/g)).toEqual({ "App.tsx": 10, "features/workspace/workspaceSession.ts": 3 });
+    expect(count(/\bhandleQueueOperationBatch\b/g)).toEqual({ "App.tsx": 11, "features/workspace/workspaceSession.ts": 3 });
     expect(count(/\bregisterBatch\b/g)).toEqual({ "App.tsx": 1, "features/model-tree/runSheet/RunSheet.tsx": 2 });
     // The queue's own state is set only inside the workspace session folder.
     expect(Object.keys(count(/\bsetQueuedBatches\b/g)).filter((file) => !file.startsWith("features/workspace/"))).toEqual([]);
     // Main's precondition outcome sets/clears a refusal in two additional calls.
     expect(count(/\bsetQueuedBatches\b/g)["features/workspace/workspaceSession.ts"]).toBe(13);
     expect(count(/\bonQueueBatch\b/g)).toEqual({
-      "App.tsx": 9, "features/bulk-change/BulkChangePanel.tsx": 3, "features/geometry-tools/SplitIntoPartsPanel.tsx": 3,
+      "App.tsx": 10, "features/bulk-change/BulkChangePanel.tsx": 3, "features/geometry-tools/SplitIntoPartsPanel.tsx": 3,
       "features/geometry-tools/batchFormSupport.tsx": 2, "features/hanger-selection/HangerSelectionPanel.tsx": 1,
       "features/hanger-sizing/HangerSizingApply.tsx": 4, "features/hanger-sizing/HangerSizingForm.tsx": 5,
       "features/library/LibraryApplySection.tsx": 2, "features/library/LibraryManagerPanel.tsx": 5,
+      "features/load-cases/LoadCaseManagerPanel.tsx": 4,
       "features/offline-proposal-intake/OfflineProposalIntakePanel.tsx": 1, "features/offline-proposal-intake/workflowSupport.ts": 1,
+      "features/pressure-authoring/PressureAuthoringPanel.tsx": 4,
       "features/self-weight-authoring/SelfWeightPlanPanel.tsx": 1,
     });
   });
