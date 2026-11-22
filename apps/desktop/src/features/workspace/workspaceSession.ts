@@ -5489,17 +5489,35 @@ export const PRECONDITION_TIMEOUT_MS = 10000;
 /** The refusal when a precondition throws, answers with anything but null or a text, or does not answer in time. */
 export const PRECONDITION_UNCHECKED_REASON = "Its precondition could not be checked.";
 
-/** The precondition's answer within the bound: null, its refusal text, or the unchecked reason. What is measured is
- * the elapsed time on a monotonic clock (`now`, performance.now by default) from when this helper starts, which is
- * when the precondition is asked, to when its answer arrives. An answer that arrives at or after `timeoutMs` is not
- * accepted, whatever it says, and is the unchecked reason, whether or not the bound's timer has run yet; a late refusal
- * text is reported as the unchecked reason too, so that no answer after the bound is taken as the precondition's. The
- * timer refuses a precondition that never settles at the bound, so it cannot hold the caller. Every outcome goes
- * through `decide`, which takes the first and drops every later one. */
-export function checkBatchPrecondition(
+/** The precondition's answer within the session's bound (`PRECONDITION_TIMEOUT_MS`): null, its refusal text, or the
+ * unchecked reason. The bound runs on a monotonic clock (performance.now) from when this helper is entered to when the
+ * helper observes the precondition's answer. Work queued on the thread ahead of the precondition's invocation, or ahead
+ * of the delivery of its answer, therefore counts against the bound, and an answer the precondition gives in time can
+ * still be refused when the thread is then busy until the bound has passed. That is the conservative direction: the
+ * bound can refuse an Apply that would have been admissible, never admit one that is not. An answer observed at or
+ * after the bound is not accepted, whatever it says, and is the unchecked reason, whether or not the bound's timer has
+ * run yet; a late refusal text is reported as the unchecked reason too, so that no answer after the bound is taken as
+ * the precondition's. The timer refuses a precondition that never settles at the bound, so it cannot hold the caller.
+ * Every outcome goes through `decide`, which takes the first and drops every later one.
+ *
+ * The bound and the clock are fixed here: the session cannot pass a longer bound or another clock. Tests reach the
+ * same function with an injected bound and clock only through `checkBatchPreconditionWithinForTestsOnly`. */
+export function checkBatchPrecondition(precondition: BatchPrecondition): Promise<string | null> {
+  return checkBatchPreconditionWithin(precondition, PRECONDITION_TIMEOUT_MS, () => performance.now());
+}
+
+/** `checkBatchPrecondition` with its bound and clock given: for tests only, which must exercise the bound in
+ * milliseconds and on a clock they move by hand. Production code calls `checkBatchPrecondition`. */
+export const checkBatchPreconditionWithinForTestsOnly = (
   precondition: BatchPrecondition,
-  timeoutMs: number = PRECONDITION_TIMEOUT_MS,
+  timeoutMs: number,
   now: () => number = () => performance.now()
+): Promise<string | null> => checkBatchPreconditionWithin(precondition, timeoutMs, now);
+
+function checkBatchPreconditionWithin(
+  precondition: BatchPrecondition,
+  timeoutMs: number,
+  now: () => number
 ): Promise<string | null> {
   const deadline = now() + timeoutMs;
   return new Promise<string | null>((resolve) => {

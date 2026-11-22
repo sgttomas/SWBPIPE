@@ -31,7 +31,7 @@
 // retires natively when a start has been made since the last such retirement. The ticket authorizes nothing.
 import { invoke } from "@tauri-apps/api/core";
 import type { HangerSizingDocument, HangerSizingRequest } from "../features/results/hangerSizingResult";
-import type { HangerSizingReaderEvidence } from "../features/results/hangerSizingView";
+import { hangerSizingResultFault, type HangerSizingReaderEvidence } from "../features/results/hangerSizingView";
 import { IngressRequestRetiredError, invokeWithIngress, nativeFailureText } from "./nativeIngress";
 import { ResourceUnavailableError } from "./memoryPool";
 
@@ -163,8 +163,11 @@ export function hangerSizingFailure(error: unknown): { code: string; message: st
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
 
-/** The reply's shape: a document of a known status and an evidence object. Its standings are bound to the document by
- * the display adapter (`hangerSizingView`), which checks the evidence's hash against the document's own. */
+/** The reply's shape: a document of a known status and an evidence object. A sized document's `integrity_bound`, and
+ * each of its solves' `solver_standing` and `support_state_confirmation`, are checked here against their closed
+ * vocabularies and its integrity disclosures (`hangerSizingResultFault`): a reply outside them is unreadable, never
+ * passed on. Its standings are bound to the document by the display adapter (`hangerSizingView`), which checks the
+ * evidence's hash against the document's own. */
 function readReply(reply: unknown): { document: HangerSizingDocument; evidence: HangerSizingReaderEvidence } {
   if (!isRecord(reply) || !isRecord(reply.document) || !isRecord(reply.evidence)) {
     throw new HangerSizingError(HANGER_SIZING_REPLY_UNREADABLE, "the native reply is not a document with its evidence.");
@@ -172,6 +175,10 @@ function readReply(reply: unknown): { document: HangerSizingDocument; evidence: 
   const status = reply.document.status;
   if (status !== "sized" && status !== "refused") {
     throw new HangerSizingError(HANGER_SIZING_REPLY_UNREADABLE, "the native reply's document has no known status.");
+  }
+  if (status === "sized") {
+    const fault = hangerSizingResultFault(reply.document.result);
+    if (fault !== null) throw new HangerSizingError(HANGER_SIZING_REPLY_UNREADABLE, `the native reply's sized document is not readable here (${fault}).`);
   }
   return { document: reply.document as unknown as HangerSizingDocument, evidence: reply.evidence as unknown as HangerSizingReaderEvidence };
 }
