@@ -191,7 +191,7 @@ describe("a sized selection through the connected desktop path", () => {
       // Queued and validated: no application was asked of the host, and the model is as it was.
       expect(commands()).not.toContain("apply_model_operation_batch");
       expect(await canonicalJsonString(shownModel())).toBe(original);
-      expect(screen.getByTestId("undo-session-model-edit")).toBeDisabled();
+      expect(screen.getByTestId("workspace-undo")).toBeDisabled();
 
       fireEvent.click(within(article).getByRole("button", { name: "Apply entire batch" }));
       await waitFor(() => expect(screen.getByTestId("batch-review-summary")).toHaveTextContent("0 queued batches; 1 batches applied this session."));
@@ -210,9 +210,9 @@ describe("a sized selection through the connected desktop path", () => {
       expect(await within(form).findByTestId("hanger-sizing-apply-model-changed")).toBeInTheDocument();
 
       fireEvent.click(screen.getByTestId("operation-tab-review"));
-      fireEvent.click(screen.getByTestId("undo-session-model-edit"));
+      fireEvent.click(screen.getByTestId("workspace-undo"));
       await waitFor(() => expect(canonicalJsonString(shownModel())).resolves.toBe(original));
-      expect(screen.getByTestId("undo-session-model-edit")).toBeDisabled();
+      expect(screen.getByTestId("workspace-undo")).toBeDisabled();
       // Restored: the run binds the model again (the form's page is hidden behind the review tab).
       expect(await within(form).findByRole("button", { name: prepare, hidden: true })).toBeInTheDocument();
       expect(within(form).queryByTestId("hanger-sizing-apply-model-changed")).toBeNull();
@@ -243,7 +243,7 @@ describe("a sized selection through the connected desktop path", () => {
     expect(screen.getByTestId("batch-review-summary")).toHaveTextContent("1 queued batches; 0 batches applied this session.");
     expect(screen.getByTestId("batch-review-message")).toHaveTextContent(/was not applied\. The hanger library has changed since this sizing run/);
     expect(await canonicalJsonString(shownModel())).toBe(original);
-    expect(screen.getByTestId("undo-session-model-edit")).toBeDisabled();
+    expect(screen.getByTestId("workspace-undo")).toBeDisabled();
 
     storedLibrary.current = library;
     fireEvent.click(within(article).getByRole("button", { name: "Apply entire batch" }));

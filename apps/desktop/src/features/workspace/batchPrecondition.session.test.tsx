@@ -73,9 +73,9 @@ function history(result: Session) {
 
 function renderReview(result: Session) {
   const operations = result.current.operations;
-  return render(<BatchReviewPanel batches={operations.queuedBatches} outcomes={operations.batchOutcomes} receipts={operations.batchReceipts}
-    revision={result.current.model.modelRevision.current} busy={operations.operationBusy} message={operations.batchMessage}
-    onClear={vi.fn()} onValidate={vi.fn()} onApply={vi.fn()} />);
+  return render(<BatchReviewPanel batches={operations.queuedBatches} outcomes={operations.batchOutcomes}
+    revision={result.current.model.modelRevision.current} busy={operations.operationBusy}
+    onValidate={vi.fn()} onApply={vi.fn()} />);
 }
 
 afterEach(() => {

@@ -77,11 +77,11 @@ it("creates an absent G from the person's value and unit through the inspector a
   expect(add()).toBeDisabled();
 
   // Undo removes it again, and redo restores it.
-  fireEvent.click(review().getByTestId("undo-session-model-edit"));
+  fireEvent.click(screen.getByTestId("workspace-undo"));
   await waitFor(() => expect(review().getByTestId("session-history-chip")).toHaveTextContent("0 undo / 1 redo"));
   startShearModulusTask();
   expect(value()).toHaveValue("TBD");
-  fireEvent.click(review().getByTestId("redo-session-model-edit"));
+  fireEvent.click(screen.getByTestId("workspace-redo"));
   await waitFor(() => expect(review().getByTestId("session-history-chip")).toHaveTextContent("1 undo / 0 redo"));
   startShearModulusTask();
   expect(value()).toHaveValue("79.3");

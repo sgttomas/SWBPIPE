@@ -70,11 +70,8 @@ export type BatchReceipt = { batch: OperationBatch; outcome: OperationBatchOutco
 type Props = {
   batches: QueuedBatch[];
   outcomes: Record<string, OperationBatchOutcome>;
-  receipts: BatchReceipt[];
   revision: number;
   busy: boolean;
-  message: string | null;
-  onClear: () => void;
   onValidate: (entry: QueuedBatch) => void;
   onApply: (entry: QueuedBatch) => void;
   /** Dismiss a retired notice. */
@@ -83,23 +80,13 @@ type Props = {
   onSelectRef?: (ref: string) => void;
 };
 
-export function BatchReviewPanel({ batches, outcomes, receipts, revision, busy, message, onClear, onValidate, onApply, onDismiss, onSelectRef }: Props) {
-  const retiredCount = batches.filter((entry) => entry.retired).length;
+/** The queued batches, shown only while one exists: each with Validate and Apply entire batch. */
+export function BatchReviewPanel({ batches, outcomes, revision, busy, onValidate, onApply, onDismiss, onSelectRef }: Props) {
+  if (batches.length === 0) return null;
   return (
     <section className="panel" id="batch-review" tabIndex={-1} aria-label="Batch review">
-      <h3>Batch review</h3>
-      <p data-testid="batch-review-summary">{batches.length - retiredCount} queued batches; {receipts.length} batches applied this session.{retiredCount ? ` ${retiredCount} withdrawn on a model change.` : ""}</p>
-      <p>Validate to preview all steps on temporary state. Apply commits the entire batch once or leaves the model unchanged. Batch drafts and receipts shown here belong to this session.</p>
-      <button
-        type="button"
-        data-testid="clear-pending-batches"
-        onClick={onClear}
-        disabled={batches.length === 0 && !busy}
-        title={batches.length === 0 && !busy ? "No pending batches or requests to clear." : undefined}
-      >
-        Clear pending changes and batches
-      </button>
-      {message ? <p role="status" data-testid="batch-review-message">{message}</p> : null}
+      <h3>Batches</h3>
+      <p>Validate previews a batch on a copy of the model; Apply entire batch applies all of it or none.</p>
       {batches.map((entry) => {
         if (entry.retired) {
           return (
@@ -131,6 +118,16 @@ export function BatchReviewPanel({ batches, outcomes, receipts, revision, busy, 
           </article>
         );
       })}
+    </section>
+  );
+}
+
+/** This session's batch record, unchanged in content and test id: the counts and each applied batch's receipt. */
+export function BatchReviewRecord({ batches, receipts, onSelectRef }: { batches: QueuedBatch[]; receipts: BatchReceipt[]; onSelectRef?: (ref: string) => void }) {
+  const retiredCount = batches.filter((entry) => entry.retired).length;
+  return (
+    <>
+      <p data-testid="batch-review-summary">{batches.length - retiredCount} queued batches; {receipts.length} batches applied this session.{retiredCount ? ` ${retiredCount} withdrawn on a model change.` : ""}</p>
       {receipts.map((receipt, index) => (
         <details key={`${index}:${receipt.batch.batch_id}`} data-testid="batch-receipt">
           <summary>Applied batch: {receipt.batch.batch_id}</summary>
@@ -140,7 +137,7 @@ export function BatchReviewPanel({ batches, outcomes, receipts, revision, busy, 
           <pre>{JSON.stringify({ submitted: receipt.batch, outcome: receipt.outcome }, null, 2)}</pre>
         </details>
       ))}
-    </section>
+    </>
   );
 }
 

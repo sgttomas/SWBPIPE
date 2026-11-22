@@ -71,7 +71,7 @@ it("after Undo restores another unit, an untouched task entry shows the restored
   await modulusRestoredInMegapascals();
 
   // Undo restores 200000000000 Pa under the open task.
-  fireEvent.click(review().getByTestId("undo-session-model-edit"));
+  fireEvent.click(screen.getByTestId("workspace-undo"));
   await waitFor(() => expect(review().getByTestId("session-history-chip")).toHaveTextContent("0 undo / 1 redo"));
   expect(shownUnit()).toContain("(Pa)");
   // Not 200000 beside Pa, a millionth of what is stored, offered as the person's own:
@@ -81,7 +81,7 @@ it("after Undo restores another unit, an untouched task entry shows the restored
   expect(applyNow()).toBeDisabled();
 
   // Redo re-stores 200000 MPa, and the untouched entry follows again.
-  fireEvent.click(review().getByTestId("redo-session-model-edit"));
+  fireEvent.click(screen.getByTestId("workspace-redo"));
   await waitFor(() => expect(review().getByTestId("session-history-chip")).toHaveTextContent("1 undo / 0 redo"));
   expect(shownUnit()).toContain("(MPa)");
   expect(value()).toHaveValue("200000");
@@ -94,7 +94,7 @@ it("a unit chosen without typing makes the entry the person's: Undo does not put
   expect(shownUnit()).toContain("(psi)");
   expect(value()).toHaveValue("200000");
 
-  fireEvent.click(review().getByTestId("undo-session-model-edit"));
+  fireEvent.click(screen.getByTestId("workspace-undo"));
   await waitFor(() => expect(review().getByTestId("session-history-chip")).toHaveTextContent("0 undo / 1 redo"));
   // Not 200000000000 beside psi: digits the person never saw beside the unit they chose.
   expect(shownUnit()).toContain("(psi)");

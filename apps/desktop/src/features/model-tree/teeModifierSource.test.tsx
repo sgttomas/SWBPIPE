@@ -14,7 +14,7 @@ import type { EditorOperationIntent, PreviewModel } from "../../types";
 import { DisplayUnitsProvider } from "../display-units";
 import { useWorkspaceSession } from "../workspace/workspaceSession";
 import { PropertyInspector } from "./PropertyInspector";
-import { OperationApplyPanel } from "../operations/OperationApplyPanel";
+import { ReviewChangesTab } from "../toolkit/ReviewChangesTab";
 
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 const REF = "component:RS-T1";
@@ -47,14 +47,15 @@ describe("tee Modifier source (G11)", () => {
         model={session.model.model} selection={{ type: "component", id: REF }}
         onQueueIntent={session.operations.handleQueueEditorIntent}
         onApplyIntent={session.operations.handleApplyIntent}
-      /><OperationApplyPanel
+      /><ReviewChangesTab
+        batches={[]} batchOutcomes={{}} batchReceipts={[]} revision={0} batchMessage={null}
+        onClear={() => {}} onValidateBatch={() => {}} onApplyBatch={() => {}} model={session.model.model} hasResults={false}
         queuedIntents={session.operations.editorIntents} outcomes={session.operations.operationOutcomes}
         appliedOperations={session.operations.appliedOperations}
         undoCount={session.operations.undoStack.length} redoCount={session.operations.redoStack.length}
         busy={session.operations.operationBusy} message={session.operations.operationMessage}
         engineStatus={{ state: "ready" } as never}
         onValidate={session.operations.handleValidateIntent} onApply={session.operations.handleApplyIntent}
-        onUndo={session.operations.handleUndoSessionModelEdit} onRedo={session.operations.handleRedoSessionModelEdit}
       /></DisplayUnitsProvider> : null;
     }
     render(<Harness />);

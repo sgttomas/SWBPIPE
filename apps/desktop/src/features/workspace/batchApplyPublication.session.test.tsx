@@ -66,9 +66,9 @@ function failIdentityHashFor(applied: (model: PreviewModel) => boolean) {
 /** The batch review panel as App renders it from the session. */
 function renderBatchReview(result: Session) {
   const operations = result.current.operations;
-  return render(<BatchReviewPanel batches={operations.queuedBatches} outcomes={operations.batchOutcomes} receipts={operations.batchReceipts}
-    revision={result.current.model.modelRevision.current} busy={operations.operationBusy} message={operations.batchMessage}
-    onClear={vi.fn()} onValidate={vi.fn()} onApply={vi.fn()} />);
+  return render(<BatchReviewPanel batches={operations.queuedBatches} outcomes={operations.batchOutcomes}
+    revision={result.current.model.modelRevision.current} busy={operations.operationBusy}
+    onValidate={vi.fn()} onApply={vi.fn()} />);
 }
 
 /** Applies one batch, then undoes it, so a redo entry exists for the next apply to clear. */

@@ -78,6 +78,9 @@ async function openReviewTab(page: Page, tab: "review" | "agent" | "details"): P
 
 async function ensureEngineReady(page: Page): Promise<void> {
   await openReviewTab(page, "review");
+  // The engine's readiness is in the tab's closed Record; the tab names the engine only while it is not ready.
+  const record = page.getByTestId("review-record");
+  if (await record.getAttribute("open") === null) await record.locator("summary").click();
   await expect(page.getByTestId("operation-engine-chip")).toBeVisible();
   await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
   await closeWorkspacePanels(page);

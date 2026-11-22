@@ -3248,6 +3248,25 @@ tbody tr:hover { background-image: linear-gradient(var(--hover-wash), var(--hove
   border-top: 1px dashed #d9dfdb;
 }
 
+/* The Review changes tab: one line at rest; the pending list under Apply all and
+   Discard all; the session's record in a closed disclosure at the foot. */
+.review-changes { display: grid; gap: 8px; align-content: start; }
+.review-changes > p { margin: 0; }
+.review-changes-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.review-changes-actions button { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 5px 10px; }
+.app-shell .review-changes-actions .review-apply-all:not(:disabled) {
+  color: var(--text-inverse); background-color: var(--accent-fill); border-color: var(--accent-fill); font-weight: var(--type-weight-semibold);
+}
+.review-changes-note { flex-basis: 100%; margin: 0; color: var(--text-secondary, #5b6763); font-size: 12px; }
+.app-shell .operation-record.pending-change p.pending-change-line { margin: 0; color: var(--text-primary); font-size: 13px; }
+.app-shell .operation-record.pending-change p.pending-change-state { margin: 4px 0 0; }
+.app-shell .operation-record.pending-change p.pending-change-state.refused { color: var(--status-failedInk); }
+.pending-change-details { margin-top: 6px; }
+.pending-change-details > summary,
+.review-changes-record > summary { cursor: pointer; color: var(--text-secondary, #5b6763); font-size: 12px; }
+.review-changes-record { margin-top: 4px; }
+.review-changes-record[open] { display: grid; gap: 6px; }
+
 .review-apply-drawer {
   display: grid;
   gap: 0;

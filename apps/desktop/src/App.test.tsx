@@ -188,8 +188,14 @@ function operationApplyPanel() {
   return within(openWorkspaceSection("operations")).getByTestId("operation-apply-panel");
 }
 
-function reviewControl(testId: "operation-apply-summary" | "undo-session-model-edit" | "redo-session-model-edit" | "session-history-chip") {
+function reviewControl(testId: "operation-apply-summary" | "session-history-chip") {
   return within(openWorkspaceSection("operations")).getByTestId(testId);
+}
+
+/** The session's Undo or Redo, on the toolbar, reached as the tab's pair was: with the operations section opened. */
+function historyControl(action: "undo" | "redo") {
+  openWorkspaceSection("operations");
+  return screen.getByTestId(`workspace-${action}`);
 }
 
 function operationDiffPreview() {
@@ -10088,13 +10094,13 @@ describe("SWBPIPE desktop preview", () => {
       within(applyPanel).getByTestId("session-history-chip").textContent,
     ).toContain("1 undo / 0 redo");
     expect(
-      within(applyPanel).getByTestId("undo-session-model-edit"),
+      screen.getByTestId("workspace-undo"),
     ).not.toBeDisabled();
     expect(
-      within(applyPanel).getByTestId("redo-session-model-edit"),
+      screen.getByTestId("workspace-redo"),
     ).toBeDisabled();
 
-    fireEvent.click(within(applyPanel).getByTestId("undo-session-model-edit"));
+    fireEvent.click(screen.getByTestId("workspace-undo"));
     await waitFor(() =>
       expect(
         within(applyPanel).getByTestId("operation-apply-message").textContent,
@@ -10108,7 +10114,7 @@ describe("SWBPIPE desktop preview", () => {
       "state=not_started",
     );
 
-    fireEvent.click(within(applyPanel).getByTestId("redo-session-model-edit"));
+    fireEvent.click(screen.getByTestId("workspace-redo"));
     await waitFor(() =>
       expect(
         within(applyPanel).getByTestId("operation-apply-message").textContent,
@@ -11001,7 +11007,7 @@ describe("existing toolkit v2", () => {
     await waitFor(() => expect(screen.getByTestId("command-selection-readout")).toHaveTextContent(replacement.model.project.id));
     await act(async () => { pending.resolve({ validation: { application_status: "applied_to_session_model" }, applied_model: basis }); await pending.promise; });
     expect(screen.getByTestId("command-selection-readout")).toHaveTextContent(replacement.model.project.id);
-    expect(reviewControl("undo-session-model-edit")).toBeDisabled();
+    expect(historyControl("undo")).toBeDisabled();
     expect(reviewControl("operation-apply-summary")).toHaveTextContent("0 applied");
   });
   it("surfaces a native memory-pool refusal of an apply instead of a silent no-op", async () => {
@@ -11021,7 +11027,7 @@ describe("existing toolkit v2", () => {
     ), { timeout: HEADROOM_RESEND_WINDOW_MS + 3000 });
     expect(invokeMock.mock.calls.filter(([command]) => command === "apply_model_operation").length).toBeGreaterThan(1);
     expect(reviewControl("operation-apply-summary")).toHaveTextContent("0 applied");
-    expect(reviewControl("undo-session-model-edit")).toBeDisabled();
+    expect(historyControl("undo")).toBeDisabled();
     // The intent stays queued for a later attempt.
     expect(screen.getByTestId("apply-intent-editor-intent-1")).toBeInTheDocument();
   });
@@ -11128,7 +11134,7 @@ describe("existing toolkit v4 review repairs", () => {
     fireEvent.click(screen.getByTestId("clear-operation-review-queue"));
     expect(screen.getByTestId("operation-apply-message")).toHaveTextContent("Requests already running will not change this session");
     expect(reviewControl("operation-apply-summary")).toHaveTextContent("0 queued; 0 applied");
-    expect(reviewControl("undo-session-model-edit")).toBeDisabled();
+    expect(historyControl("undo")).toBeDisabled();
     fireEvent.change(reviewEditor("node:N-100-y"), { target: { value: "0.5" } });
     fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
     fireEvent.click(screen.getByTestId("validate-intent-editor-intent-2"));
@@ -11148,7 +11154,7 @@ describe("existing toolkit v4 review repairs", () => {
       newer.reject(new Error("New request deliberately ended by test"));
     });
     expect(screen.getByTestId("validate-intent-editor-intent-2")).toBeEnabled();
-    expect(reviewControl("undo-session-model-edit")).toBeDisabled();
+    expect(historyControl("undo")).toBeDisabled();
   });
   it("explains why pristine pipe cancellation is disabled", async () => {
     render(<App />);
@@ -11190,10 +11196,10 @@ describe("native straight-route Add and Apply", () => {
     expect(within(panel).getByRole("radio", { name: "Free" })).toBeChecked();
     expect(reviewControl("operation-apply-summary")).toHaveTextContent("1 applied");
     expect(reviewControl("session-history-chip")).toHaveTextContent("1 undo / 0 redo");
-    fireEvent.click(reviewControl("undo-session-model-edit"));
+    fireEvent.click(historyControl("undo"));
     expect(within(panel).getByTestId("continue-pipe-after-queue")).not.toBeChecked();
     expectVirtualTargetEmpty(panel, "viewport-create-pipe-from");
-    fireEvent.click(reviewControl("redo-session-model-edit"));
+    fireEvent.click(historyControl("redo"));
     expect(within(panel).getByTestId("continue-pipe-after-queue")).not.toBeChecked();
     expectVirtualTargetEmpty(panel, "viewport-create-pipe-from");
   });
@@ -11257,7 +11263,7 @@ describe("native straight-route Add and Apply", () => {
     fireEvent.click(screen.getByTestId("workspace-review"));
     expect(screen.queryByTestId(typedTreeRowTestId("pipe", "pipe:UI-delayed-apply"))).not.toBeInTheDocument();
     expect(reviewControl("operation-apply-summary")).toHaveTextContent("0 applied");
-    expect(reviewControl("undo-session-model-edit")).toBeDisabled();
+    expect(historyControl("undo")).toBeDisabled();
     expect(within(panel).queryByTestId("viewport-draft-review-preview")).not.toBeInTheDocument();
   });
 
@@ -11297,7 +11303,7 @@ describe("native straight-route Add and Apply", () => {
     expect(screen.queryByTestId(typedTreeRowTestId("pipe", "pipe:UI-adversarial-single"))).not.toBeInTheDocument();
     expect(reviewControl("operation-apply-summary")).toHaveTextContent("0 applied");
     expect(screen.getByTestId("retained-context-summary")).toHaveTextContent("0 retained operation records");
-    expect(reviewControl("undo-session-model-edit")).toBeDisabled();
+    expect(historyControl("undo")).toBeDisabled();
     expect(within(panel).getByTestId("apply-reviewed-draft")).toBeDisabled();
   });
 
@@ -11344,7 +11350,7 @@ describe("native straight-route Add and Apply", () => {
     expect(screen.queryByTestId(typedTreeRowTestId("pipe", "pipe:UI-adversarial-batch"))).not.toBeInTheDocument();
     expect(reviewControl("operation-apply-summary")).toHaveTextContent("0 applied");
     expect(screen.getByTestId("retained-context-summary")).toHaveTextContent("0 retained operation records");
-    expect(reviewControl("undo-session-model-edit")).toBeDisabled();
+    expect(historyControl("undo")).toBeDisabled();
     expect(screen.queryByTestId("batch-receipt")).not.toBeInTheDocument();
     expect(within(panel).getByTestId("apply-reviewed-draft")).toBeDisabled();
   });
@@ -11383,7 +11389,7 @@ describe("native straight-route Add and Apply", () => {
     expectVirtualTargetEmpty(panel, "viewport-create-pipe-from");
     await act(async () => { pending.resolve(complete); await pending.promise; });
     expect(reviewControl("operation-apply-summary")).toHaveTextContent("0 applied");
-    expect(reviewControl("undo-session-model-edit")).toBeDisabled();
+    expect(historyControl("undo")).toBeDisabled();
     expect(within(panel).queryByTestId("viewport-draft-review-preview")).not.toBeInTheDocument();
   });
 
@@ -11445,10 +11451,10 @@ describe("native straight-route Add and Apply", () => {
     expect(screen.getByTestId(typedTreeRowTestId("pipe", "pipe:UI-A-100"))).toBeInTheDocument();
     expect(reviewControl("session-history-chip")).toHaveTextContent("1 undo / 0 redo");
     expect(reviewControl("operation-apply-summary")).toHaveTextContent("1 applied");
-    fireEvent.click(reviewControl("undo-session-model-edit"));
+    fireEvent.click(historyControl("undo"));
     expect(screen.queryByTestId(typedTreeRowTestId("node", "node:UI-A-110"))).not.toBeInTheDocument();
     expect(screen.queryByTestId(typedTreeRowTestId("pipe", "pipe:UI-A-100"))).not.toBeInTheDocument();
-    fireEvent.click(reviewControl("redo-session-model-edit"));
+    fireEvent.click(historyControl("redo"));
     expect(await screen.findByTestId(typedTreeRowTestId("node", "node:UI-A-110"))).toBeInTheDocument();
     expect(screen.getByTestId(typedTreeRowTestId("pipe", "pipe:UI-A-100"))).toBeInTheDocument();
   });
@@ -11506,7 +11512,7 @@ describe("native straight-route Add and Apply", () => {
     expect(within(panel).queryByTestId("viewport-draft-review-preview")).not.toBeInTheDocument();
     expect(screen.queryByTestId(typedTreeRowTestId("node", "node:UI-A-cancel"))).not.toBeInTheDocument();
     expect(screen.queryByTestId(typedTreeRowTestId("pipe", "pipe:UI-A-cancel"))).not.toBeInTheDocument();
-    expect(reviewControl("undo-session-model-edit")).toBeDisabled();
+    expect(historyControl("undo")).toBeDisabled();
   });
 
   it("publishes neither batch member and creates no checkpoint when Apply is blocked", async () => {
@@ -11540,7 +11546,7 @@ describe("native straight-route Add and Apply", () => {
     await waitFor(() => expect(within(panel).getByTestId("viewport-draft-review-message")).toHaveTextContent("did not publish"));
     expect(screen.queryByTestId(typedTreeRowTestId("node", "node:UI-A-blocked"))).not.toBeInTheDocument();
     expect(screen.queryByTestId(typedTreeRowTestId("pipe", "pipe:UI-A-blocked"))).not.toBeInTheDocument();
-    expect(reviewControl("undo-session-model-edit")).toBeDisabled();
+    expect(historyControl("undo")).toBeDisabled();
   });
 
   it("invalidates a frozen hash-bound route review after another model revision", async () => {
@@ -11602,11 +11608,11 @@ describe("native straight-route Add and Apply", () => {
     intentPanel = startPropertyTask("load", model.load_cases[0].id);
     changeFormControl(within(intentPanel).getByTestId("editor-intent-field"), { target: { value: "primitive_loads.0.magnitude.value" } });
     expect(within(intentPanel).getByTestId("editor-intent-value")).toHaveValue("500");
-    fireEvent.click(reviewControl("undo-session-model-edit"));
+    fireEvent.click(historyControl("undo"));
     intentPanel = startPropertyTask("load", model.load_cases[0].id);
     changeFormControl(within(intentPanel).getByTestId("editor-intent-field"), { target: { value: "primitive_loads.0.magnitude.value" } });
     expect(within(intentPanel).getByTestId("editor-intent-value")).toHaveValue(originalValue);
-    fireEvent.click(reviewControl("redo-session-model-edit"));
+    fireEvent.click(historyControl("redo"));
     intentPanel = startPropertyTask("load", model.load_cases[0].id);
     changeFormControl(within(intentPanel).getByTestId("editor-intent-field"), { target: { value: "primitive_loads.0.magnitude.value" } });
     expect(within(intentPanel).getByTestId("editor-intent-value")).toHaveValue("500");
@@ -11679,7 +11685,7 @@ describe("Tier3 shared batch and proposed context", () => {
     await requeueFirstContext();
     fireEvent.click(screen.getByTestId("validate-batch-operation-batch-1"));
     await waitFor(() => expect(screen.getByText(/Preview only. Temporary state was discarded/)).toBeInTheDocument());
-    expect(reviewControl("undo-session-model-edit")).toBeDisabled();
+    expect(historyControl("undo")).toBeDisabled();
     expect(screen.queryByTestId("batch-receipt")).not.toBeInTheDocument();
     fireEvent.click(screen.getByTestId("apply-batch-operation-batch-1"));
     await waitFor(() => expect(screen.getByTestId("batch-review-summary")).toHaveTextContent("1 batches applied"));
@@ -11702,9 +11708,9 @@ describe("Tier3 shared batch and proposed context", () => {
     const actualHash = await computeProjectEnvelopeHash({ model, editor_intents, proposal, selected_review_target, mechanics_result, analysis_run, model_hash } as never);
     expect((savedRequest!.project_envelope_hash as { value: string }).value).toBe(actualHash?.value);
     expect(reviewControl("operation-apply-summary")).toHaveTextContent("0 queued; 1 applied");
-    fireEvent.click(reviewControl("undo-session-model-edit"));
-    expect(reviewControl("undo-session-model-edit")).toBeDisabled();
-    expect(reviewControl("redo-session-model-edit")).toBeEnabled();
+    fireEvent.click(historyControl("undo"));
+    expect(historyControl("undo")).toBeDisabled();
+    expect(historyControl("redo")).toBeEnabled();
   });
 
   it.each(["validate", "apply"] as const)("withdraws delayed batch %s and protects newer single-request ownership", async (mode) => {
@@ -11727,7 +11733,7 @@ describe("Tier3 shared batch and proposed context", () => {
     expect(screen.getByTestId("validate-intent-editor-intent-1")).toBeDisabled();
     expect(screen.getByTestId("batch-review-summary")).toHaveTextContent("0 queued batches; 0 batches applied");
     expect(screen.getByTestId("retained-context-summary")).toHaveTextContent("1 retained operation records");
-    expect(reviewControl("undo-session-model-edit")).toBeDisabled();
+    expect(historyControl("undo")).toBeDisabled();
     await act(async () => { newer.reject(new Error("Deliberately stopped")); });
     expect(screen.getByTestId("validate-intent-editor-intent-1")).toBeEnabled();
   });
@@ -11739,7 +11745,7 @@ describe("Tier3 shared batch and proposed context", () => {
     fireEvent.click(screen.getByTestId("requeue-context-0"));
     expect(await screen.findByTestId("requeue-refusal-0")).toHaveTextContent("This stored record is not an operation and cannot be requeued.");
     expect(screen.getByTestId("batch-review-summary")).toHaveTextContent("0 queued batches");
-    expect(reviewControl("undo-session-model-edit")).toBeDisabled();
+    expect(historyControl("undo")).toBeDisabled();
     expect(screen.queryByTestId("batch-receipt")).not.toBeInTheDocument();
     expect(screen.getByTestId("retained-context-summary")).toHaveTextContent("1 retained operation records");
   });
@@ -11766,12 +11772,12 @@ describe("Tier3 adversarial batch publication", () => {
     await importOfflineForTest({ batch_id: "batch:rollback", operations: [intent, invalid] }, 1);
     fireEvent.click(screen.getByTestId("apply-batch-operation-batch-1"));
     await waitFor(() => expect(screen.getByText(/Blocked. Temporary changes were rolled back/)).toBeInTheDocument());
-    expect(reviewControl("undo-session-model-edit")).toBeDisabled();
+    expect(historyControl("undo")).toBeDisabled();
     expect(screen.getByTestId("retained-context-summary")).toHaveTextContent("1 retained operation records");
     await importOfflineForTest({ batch_id: "batch:mixed-source", operations: [intent, second] }, 2);
     fireEvent.click(screen.getByTestId("validate-batch-operation-batch-2"));
     await waitFor(() => expect(screen.getByText(/Preview only. Temporary state was discarded/)).toBeInTheDocument());
-    expect(reviewControl("undo-session-model-edit")).toBeDisabled();
+    expect(historyControl("undo")).toBeDisabled();
     fireEvent.click(screen.getByTestId("apply-batch-operation-batch-2"));
     await waitFor(() => expect(screen.getByTestId("batch-review-summary")).toHaveTextContent("1 batches applied"));
     const receipt = screen.getByTestId("batch-receipt");
@@ -11782,10 +11788,10 @@ describe("Tier3 adversarial batch publication", () => {
     openNodeGridReview();
     expect(reviewValue("node:N-100-x")).toBe("1.75");
     expect(reviewValue("node:N-100-y")).toBe("0.5");
-    fireEvent.click(reviewControl("undo-session-model-edit"));
+    fireEvent.click(historyControl("undo"));
     expect(reviewValue("node:N-100-x")).toBe(String(envelope.model.nodes[0].position.x));
     expect(reviewValue("node:N-100-y")).toBe(String(envelope.model.nodes[0].position.y));
-    expect(reviewControl("undo-session-model-edit")).toBeDisabled();
+    expect(historyControl("undo")).toBeDisabled();
   });
 
   it("handles offline null through queue, validation, apply, save, reopen and explicit requeue as untrusted context", async () => {
@@ -11813,7 +11819,7 @@ describe("Tier3 adversarial batch publication", () => {
     act(() => nativeMenuCommand("file.open-local"));
     await waitFor(() => expect(screen.getByTestId("retained-context-summary")).toHaveTextContent("2 retained operation records"));
     expect(screen.getByTestId("batch-review-summary")).toHaveTextContent("0 queued batches; 0 batches applied");
-    expect(reviewControl("undo-session-model-edit")).toBeDisabled();
+    expect(historyControl("undo")).toBeDisabled();
     expect(screen.queryByTestId("batch-receipt")).not.toBeInTheDocument();
     // The saved null member names no author: requeue refuses it beside the record (DEL-16-03).
     fireEvent.click(screen.getByTestId("requeue-context-1"));
@@ -11872,7 +11878,7 @@ describe("Tier3 adversarial batch publication", () => {
     expect(screen.getByTestId("command-selection-readout")).toHaveTextContent("project:second-replacement");
     expect(screen.getByTestId("retained-context-summary")).toHaveTextContent("0 retained operation records");
     expect(screen.queryByTestId("batch-receipt")).not.toBeInTheDocument();
-    expect(reviewControl("undo-session-model-edit")).toBeDisabled();
+    expect(historyControl("undo")).toBeDisabled();
     expect(screen.getByTestId("local-project-message")).not.toHaveTextContent("failed");
   });
 });
@@ -12709,7 +12715,7 @@ describe("synchronous busy history boundary", () => {
     fireEvent.click(screen.getByTestId("apply-batch-operation-batch-1"));
     await waitFor(() => expect(screen.getByTestId("batch-review-summary")).toHaveTextContent("1 batches applied"));
     fireEvent.click(screen.getByTestId("clear-pending-batches"));
-    if (action === "redo") fireEvent.click(reviewControl("undo-session-model-edit"));
+    if (action === "redo") fireEvent.click(historyControl("undo"));
     const historyBefore = reviewControl("session-history-chip").textContent;
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
     openNodeGridReview();
@@ -12737,8 +12743,8 @@ describe("synchronous busy history boundary", () => {
     expect(reviewControl("session-history-chip").textContent).toBe(historyBefore);
     expect(screen.getByTestId("workspace-undo")).toBeDisabled();
     expect(screen.getByTestId("workspace-redo")).toBeDisabled();
-    expect(reviewControl("undo-session-model-edit")).toBeDisabled();
-    expect(reviewControl("redo-session-model-edit")).toBeDisabled();
+    expect(historyControl("undo")).toBeDisabled();
+    expect(historyControl("redo")).toBeDisabled();
     act(() => nativeMenuCommand(`edit.${action}`));
     act(() => nativeMenuCommand("file.save-local"));
     await waitFor(() => expect(saved).toBeDefined());
@@ -12747,7 +12753,7 @@ describe("synchronous busy history boundary", () => {
     expect(saved!.model).toEqual(pendingModel);
     expect(reviewControl("session-history-chip").textContent).toBe(historyBefore);
     await act(async () => { pending.reject(new Error("Synthetic stopped pending validation")); });
-    expect(screen.getByTestId(`${action}-session-model-edit`)).toBeEnabled();
+    expect(screen.getByTestId(`workspace-${action}`)).toBeEnabled();
   });
 });
 
@@ -13123,10 +13129,10 @@ describe("historical lifecycle history transitions", () => {
     expect(screen.queryByTestId("historical-run-context")).not.toBeInTheDocument();
     const editedHash = await snapshotHash();
     expect(editedHash).not.toBe(baselineHash);
-    fireEvent.click(reviewControl("undo-session-model-edit"));
+    fireEvent.click(historyControl("undo"));
     expect(await snapshotHash()).toBe(baselineHash);
     expect(screen.queryByTestId("historical-run-context")).not.toBeInTheDocument();
-    fireEvent.click(reviewControl("redo-session-model-edit"));
+    fireEvent.click(historyControl("redo"));
     expect(await snapshotHash()).toBe(editedHash);
     expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("result rows=0");
     expect(screen.queryByTestId("comparison-summary")).not.toBeInTheDocument();

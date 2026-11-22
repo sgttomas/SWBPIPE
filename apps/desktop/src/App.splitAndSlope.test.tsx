@@ -62,10 +62,10 @@ describe("Split into N… in the shell", () => {
     fireEvent.click(within(batch).getByRole("button", { name: "Apply entire batch" }));
     await waitFor(() => expect(screen.getByTestId("batch-review-summary")).toHaveTextContent("0 queued batches; 1 batches applied this session."));
     for (const id of ["node:H1", "node:H2", "node:H3"]) expect(treeRow("node", id)).toBeInTheDocument();
-    fireEvent.click(screen.getByTestId("undo-session-model-edit"));
+    fireEvent.click(screen.getByTestId("workspace-undo"));
     await waitFor(() => expect(treeRow("node", "node:H1")).not.toBeInTheDocument());
     expect(treeRow("node", "node:H3")).not.toBeInTheDocument();
-    expect(screen.getByTestId("undo-session-model-edit")).toBeDisabled();
+    expect(screen.getByTestId("workspace-undo")).toBeDisabled();
   });
 
   function activate(invoker: HTMLElement, key: { key: string; shiftKey?: boolean }) {

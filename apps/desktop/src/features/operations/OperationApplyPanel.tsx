@@ -1,43 +1,125 @@
-import { CheckCheck, Layers, PlayCircle, Redo2, SearchCheck, Undo2 } from "lucide-react";
+import { PlayCircle, SearchCheck, X } from "lucide-react";
 import type { OperationEngineStatus } from "../../services/operationService";
-import type { AppliedOperationReceipt, EditorOperationIntent, OperationOutcome } from "../../types";
+import type { AppliedOperationReceipt, EditorOperationIntent, OperationOutcome, PreviewModel } from "../../types";
 
-export function OperationApplyPanel({
+/**
+ * The queued single changes of the Review changes tab: one row per change, read
+ * in words (what changes, on which entity, from what to what, in its unit), with
+ * Apply and Remove on the row, and the operation as recorded, Validate and the
+ * engine's outcome in the row's closed details. The tab (`ReviewChangesTab`)
+ * lays these out; `OperationApplyRecord` is the tab's record of what was applied.
+ */
+export function PendingChangeRows({
+  queuedIntents,
+  outcomes,
+  model,
+  busy,
+  onValidate,
+  onApply,
+  onRemove
+}: {
+  queuedIntents: EditorOperationIntent[];
+  outcomes: Record<string, OperationOutcome>;
+  model: PreviewModel | null;
+  busy: boolean;
+  onValidate: (intent: EditorOperationIntent) => void;
+  onApply: (intent: EditorOperationIntent) => unknown;
+  /** Removes one queued change; the row offers Remove only when given. */
+  onRemove?: (key: string) => void;
+}) {
+  return (
+    <div className="operation-record-list" data-testid="operation-apply-queue">
+      {queuedIntents.map((intent) => {
+        const key = intentKey(intent);
+        const outcome = outcomes[key] ?? null;
+        const state = outcome ? outcomeLine(outcome) : null;
+        return (
+          <article className="operation-record pending-change" data-testid={`operation-apply-row-${key}`} key={key}>
+            <p className="pending-change-line" data-testid={`operation-apply-line-${key}`}>{queuedChangeLine(intent, model)}</p>
+            {state ? (
+              <p className={state.refused ? "pending-change-state refused" : "pending-change-state"} data-testid={`operation-apply-state-${key}`} role={state.refused ? "alert" : undefined}>
+                {state.text}
+              </p>
+            ) : null}
+            <div className="operation-apply-actions">
+              <button
+                data-testid={`apply-intent-${key}`}
+                disabled={busy}
+                onClick={() => onApply(intent)}
+                title="Check this change and apply it"
+                type="button"
+              >
+                <PlayCircle size={14} aria-hidden="true" />
+                Apply
+              </button>
+              {onRemove ? (
+                <button
+                  data-testid={`remove-intent-${key}`}
+                  disabled={busy}
+                  onClick={() => onRemove(key)}
+                  title="Take this change off the list without applying it"
+                  type="button"
+                >
+                  <X size={14} aria-hidden="true" />
+                  Remove
+                </button>
+              ) : null}
+            </div>
+            <details className="pending-change-details" data-testid={`operation-apply-details-${key}`}>
+              <summary>Details</summary>
+              <strong>{intent.operation_id}</strong>
+              <small>
+                {intent.target.object_type} {intent.target.ref}; {intent.change.field_path}:{" "}
+                {intent.change.before} to {intent.change.after}
+              </small>
+              <small data-testid={`operation-apply-author-${key}`}>
+                {intent.author_type === "agent" ? "Proposed by the agent" : "Entered by you"}; stage{" "}
+                {outcome?.mode === "validate_only" && !outcome.diagnostics.some(isBlocking) ? "validated" : "proposed"}.
+              </small>
+              <div className="operation-apply-actions">
+                <button
+                  data-testid={`validate-intent-${key}`}
+                  disabled={busy}
+                  onClick={() => onValidate(intent)}
+                  title="Validate without applying"
+                  type="button"
+                >
+                  <SearchCheck size={14} aria-hidden="true" />
+                  Validate
+                </button>
+              </div>
+              {outcome ? <OutcomeSummary outcome={outcome} testKey={key} /> : null}
+            </details>
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
+/**
+ * The record of this session's single changes, unchanged in content and test id:
+ * the counts, the engine's route and readiness, the unit validations, the undo
+ * and redo depths, the applied receipts and the acceptance boundary. The tab
+ * keeps it in its closed "Record" disclosure.
+ */
+export function OperationApplyRecord({
   queuedIntents,
   outcomes,
   appliedOperations,
   undoCount,
   redoCount,
-  busy,
-  message,
-  engineStatus,
-  onValidate,
-  onApply,
-  onReviewAllAsBatch,
-  onUndo,
-  onRedo
+  engineStatus
 }: {
   queuedIntents: EditorOperationIntent[];
   outcomes: Record<string, OperationOutcome>;
   appliedOperations: AppliedOperationReceipt[];
   undoCount: number;
   redoCount: number;
-  busy: boolean;
-  message: string | null;
   engineStatus: OperationEngineStatus;
-  onValidate: (intent: EditorOperationIntent) => void;
-  onApply: (intent: EditorOperationIntent) => void;
-  /** G9: moves the person's queued changes into batch review as one batch. */
-  onReviewAllAsBatch?: () => void;
-  onUndo: () => void;
-  onRedo: () => void;
 }) {
   return (
-    <section className="panel operation-apply-panel" aria-label="Apply structured operations" data-testid="operation-apply-panel">
-      <div className="panel-title">
-        <CheckCheck size={16} aria-hidden="true" />
-        Apply Operations
-      </div>
+    <>
       <p className="muted" data-testid="operation-apply-summary">
         {queuedIntents.length} queued; {appliedOperations.length} applied this session. Applying validates through the
         structured-operation seam and replaces the session model document; saving the project stores it locally.
@@ -47,102 +129,10 @@ export function OperationApplyPanel({
         <span data-testid="operation-unit-policy-chip">
           {operationApplyUnitPolicySummary(queuedIntents, outcomes, appliedOperations)}
         </span>
-      </div>
-      <div className="operation-history-actions" aria-label="Session edit history">
-        <button
-          data-testid="undo-session-model-edit"
-          disabled={busy || undoCount === 0}
-          onClick={onUndo}
-          title="Undo last local session model edit"
-          type="button"
-        >
-          <Undo2 size={14} aria-hidden="true" />
-          Undo
-        </button>
-        <button
-          data-testid="redo-session-model-edit"
-          disabled={busy || redoCount === 0}
-          onClick={onRedo}
-          title="Redo last undone local session model edit"
-          type="button"
-        >
-          <Redo2 size={14} aria-hidden="true" />
-          Redo
-        </button>
         <span className="operation-history-chip" data-testid="session-history-chip">
           {undoCount} undo / {redoCount} redo
         </span>
       </div>
-      {message ? (
-        <p className="muted" data-testid="operation-apply-message">
-          {message}
-        </p>
-      ) : null}
-      {queuedIntents.length === 0 ? (
-        <p className="muted" data-testid="operation-apply-empty">
-          Queue a review intent from the property inspector or viewport to validate and apply it here.
-        </p>
-      ) : (
-        <>
-        {onReviewAllAsBatch && batchableCount(queuedIntents) >= 2 ? (
-          <div className="operation-batch-all" data-testid="operation-review-all-as-batch">
-            <button
-              aria-describedby="operation-review-all-as-batch-help"
-              data-testid="review-all-as-batch"
-              disabled={busy}
-              onClick={onReviewAllAsBatch}
-              type="button"
-            >
-              <Layers size={14} aria-hidden="true" />
-              Review all {batchableCount(queuedIntents)} queued changes as one batch
-            </button>
-            <small className="muted" id="operation-review-all-as-batch-help">
-              The changes move to batch review in the order they were queued. Apply entire batch validates and
-              applies them all or none, as one undo step; Validate batch checks them first without applying. A
-              change whose before-value depends on another queued change is refused by name, never adjusted.
-            </small>
-          </div>
-        ) : null}
-        <div className="operation-record-list" data-testid="operation-apply-queue">
-          {queuedIntents.map((intent) => {
-            const key = intentKey(intent);
-            const outcome = outcomes[key] ?? null;
-            return (
-              <article className="operation-record" data-testid={`operation-apply-row-${key}`} key={key}>
-                <strong>{intent.operation_id}</strong>
-                <small>
-                  {intent.target.object_type} {intent.target.ref}; {intent.change.field_path}:{" "}
-                  {intent.change.before} to {intent.change.after}
-                </small>
-                <div className="operation-apply-actions">
-                  <button
-                    data-testid={`validate-intent-${key}`}
-                    disabled={busy}
-                    onClick={() => onValidate(intent)}
-                    title="Validate without applying"
-                    type="button"
-                  >
-                    <SearchCheck size={14} aria-hidden="true" />
-                    Validate
-                  </button>
-                  <button
-                    data-testid={`apply-intent-${key}`}
-                    disabled={busy}
-                    onClick={() => onApply(intent)}
-                    title="Validate and apply to the session model"
-                    type="button"
-                  >
-                    <PlayCircle size={14} aria-hidden="true" />
-                    Apply
-                  </button>
-                </div>
-                {outcome ? <OutcomeSummary outcome={outcome} testKey={key} /> : null}
-              </article>
-            );
-          })}
-        </div>
-        </>
-      )}
       {appliedOperations.length > 0 ? (
         <div className="operation-record-list" data-testid="operation-applied-ledger">
           <div className="panel-subtitle">Applied this session</div>
@@ -167,7 +157,7 @@ export function OperationApplyPanel({
         Applying a structured operation records a user-initiated local-session acceptance only. Results of earlier
         solves are cleared because they no longer describe the edited model.
       </small>
-    </section>
+    </>
   );
 }
 
@@ -191,6 +181,127 @@ function OutcomeSummary({ outcome, testKey }: { outcome: OperationOutcome; testK
       ))}
     </div>
   );
+}
+
+const isBlocking = (diagnostic: OperationOutcome["diagnostics"][number]) => diagnostic.severity === "blocking";
+
+/**
+ * A queued change's state in words, only when it is not simply waiting: the
+ * engine's own reason when it cannot be applied (its code stays in the row's
+ * details), or that a check passed, with any warning in the engine's words.
+ */
+export function outcomeLine(outcome: OperationOutcome): { text: string; refused: boolean } | null {
+  const blocking = outcome.diagnostics.filter(isBlocking);
+  if (blocking.length > 0) return { text: `Cannot be applied: ${blocking.map((item) => item.message).join(" ")}`, refused: true };
+  if (outcome.mode === "apply" && outcome.validation.application_status !== "applied_to_session_model") {
+    return { text: "Not applied. The engine's outcome is in Details.", refused: true };
+  }
+  const warnings = outcome.diagnostics.filter((item) => item.severity === "warning");
+  if (outcome.mode === "validate_only") {
+    return { text: `Checked; it can be applied.${warnings.length ? ` Warning: ${warnings.map((item) => item.message).join(" ")}` : ""}`, refused: false };
+  }
+  return null;
+}
+
+/** The record family each operation target lives in, and what an engineer calls one. */
+const TARGETS: Record<string, { collection: string; noun: string }> = {
+  Node: { collection: "nodes", noun: "node" },
+  Element: { collection: "pipe_segments", noun: "pipe" },
+  Component: { collection: "components", noun: "component" },
+  Support: { collection: "supports", noun: "support" },
+  Load: { collection: "load_cases", noun: "load case" },
+  Combination: { collection: "combinations", noun: "combination" },
+  Material: { collection: "materials", noun: "material" },
+  Section: { collection: "sections", noun: "section" },
+  Line: { collection: "lines", noun: "line" },
+  Assumption: { collection: "assumptions", noun: "assumption" },
+  Constraint: { collection: "constraints", noun: "constraint" },
+  EquipmentInterface: { collection: "equipment_interfaces", noun: "equipment interface" },
+  ConditionSet: { collection: "condition_sets", noun: "condition set" },
+  RulePackRef: { collection: "rule_pack_refs", noun: "rule pack" }
+};
+/** Change kinds whose target is the entity they delete. */
+const DELETES_TARGET: ReadonlySet<string> = new Set([
+  "delete_node", "delete_pipe_run", "delete_support", "delete_material", "delete_section", "delete_component",
+  "delete_load_case", "delete_combination", "delete_line", "delete_assumption", "delete_constraint",
+  "delete_equipment_interface", "delete_condition_set"
+]);
+const ABSENT = "not_present";
+
+type Named = { id?: unknown; label?: unknown; name?: unknown };
+function findRecord(model: PreviewModel | null, collection: string, ref: string): Named | undefined {
+  const records = model ? (model as unknown as Record<string, unknown>)[collection] : undefined;
+  return Array.isArray(records) ? (records as Named[]).find((record) => record?.id === ref) : undefined;
+}
+function displayName(record: Named | undefined, fallback: string): string {
+  for (const value of [record?.label, record?.name]) if (typeof value === "string" && value.trim()) return value;
+  return fallback;
+}
+function parsedRecord(value: string): Record<string, unknown> | null {
+  if (!/^\s*[[{]/.test(value)) return null;
+  try {
+    const parsed: unknown = JSON.parse(value);
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? (parsed as Record<string, unknown>) : {};
+  } catch {
+    return null;
+  }
+}
+const unitText = (unit: unknown) => (typeof unit === "string" && unit && unit !== "none" && unit !== "1" && unit !== "TBD" ? ` ${unit}` : "");
+/**
+ * One side of a change as an engineer reads it: a number or text with its unit,
+ * a quantity record (`{"value": 0.5, "unit": "m"}`) as its value and unit, a
+ * condition-set reference by the set's name, or null for any other record, whose
+ * members are shown in the row's details.
+ */
+function sideText(text: string, unit: string, model: PreviewModel | null): string | null {
+  if (text === "") return "not stated";
+  if (text === ABSENT) return "none";
+  const record = parsedRecord(text);
+  if (record === null) return /^\s*[[{]/.test(text) ? null : `${text}${unitText(unit)}`;
+  const keys = Object.keys(record);
+  if ("value" in record && keys.every((key) => key === "value" || key === "unit") && (typeof record.value === "number" || typeof record.value === "string")) {
+    return `${record.value}${unitText(record.unit ?? unit)}`;
+  }
+  if (keys.length === 1 && typeof record.condition_set_ref === "string") {
+    return displayName(findRecord(model, "condition_sets", record.condition_set_ref), record.condition_set_ref);
+  }
+  return null;
+}
+
+/**
+ * One line for a queued change, in an engineer's words: what changes, on which
+ * entity by the name the tree shows, from what to what in its unit. Identifiers
+ * of the operation stay in the row's details.
+ */
+export function queuedChangeLine(intent: EditorOperationIntent, model: PreviewModel | null): string {
+  const { change, target } = intent;
+  const known = TARGETS[target.object_type];
+  const projectTarget = target.object_type === "Model" || target.object_type === "Project";
+  const noun = projectTarget ? "project" : known?.noun ?? target.object_type.toLowerCase();
+  const existing = known ? findRecord(model, known.collection, target.ref) : undefined;
+  const payload = parsedRecord(change.after);
+  const name = projectTarget
+    ? model?.project.name || target.ref
+    : displayName(existing ?? (payload as Named | null) ?? undefined, target.ref);
+  const nameOf = (collection: string, ref: unknown) => (typeof ref === "string" ? displayName(findRecord(model, collection, ref), ref) : null);
+  const author = intent.author_type === "agent" ? " (proposed by the agent)" : "";
+  const kind = String(change.change_kind);
+
+  if (!existing && !projectTarget && change.before === ABSENT && (kind.startsWith("create_") || kind === "connect_pipe_run" || kind === "insert_component_symbol")) {
+    const position = (payload?.position ?? payload) as Record<string, unknown> | null;
+    const at = position && [position.x, position.y, position.z].every((value) => typeof value === "number")
+      ? ` at (${position.x}, ${position.y}, ${position.z})${unitText(change.unit)}`
+      : "";
+    const from = nameOf("nodes", payload?.from);
+    const to = nameOf("nodes", payload?.to);
+    return `Add ${noun} ${name}${at}${from && to ? ` from ${from} to ${to}` : ""}${author}`;
+  }
+  if (DELETES_TARGET.has(kind) && change.after === ABSENT) return `Delete ${noun} ${name}${author}`;
+  const subject = `${change.field_label || change.field_path} of ${noun} ${name}`;
+  const before = sideText(change.before, change.unit, model);
+  const after = sideText(change.after, change.unit, model);
+  if (before === null || after === null) return `${subject}: changed (values in Details)${author}`;
+  return `${subject}: ${before} → ${after}${author}`;
 }
 
 function operationApplyUnitPolicySummary(
@@ -221,6 +332,6 @@ function shortHash(value: string): string {
 }
 
 /** The queued changes the person authored; another author's stay single (G9). */
-function batchableCount(intents: EditorOperationIntent[]): number {
+export function batchableCount(intents: EditorOperationIntent[]): number {
   return intents.filter((intent) => intent.author_type === "user").length;
 }

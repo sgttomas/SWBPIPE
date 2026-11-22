@@ -282,8 +282,6 @@ function AppSession() {
     handleValidateIntent,
     handleApplyIntent,
     handleReviewQueuedIntentsAsBatch,
-    handleUndoSessionModelEdit,
-    handleRedoSessionModelEdit,
     invalidateDirectDraftContext
   } = session.operations;
   // Run sheet S2 (DEL-07-02 Design `run-sheet-entry.md` §3.6): the sheet's
@@ -678,6 +676,7 @@ function AppSession() {
                 onApplyBatch={(entry) => void handleRunOperationBatch(entry, true)}
                 onDismissBatch={(entry) => handleDismissRetiredBatch(entry.key)}
                 onSelectRef={(ref) => { const target = resolveEntitySelection(model, ref); if (target) handleSelectEntity(target); }}
+                model={model} hasResults={Boolean(result)}
                 queuedIntents={editorIntents}
                 outcomes={operationOutcomes}
                 appliedOperations={appliedOperations}
@@ -688,8 +687,6 @@ function AppSession() {
                 onValidate={handleValidateIntent}
                 onApply={handleApplyIntent}
                 onReviewAllAsBatch={() => void handleReviewQueuedIntentsAsBatch()}
-                onUndo={handleUndoSessionModelEdit}
-                onRedo={handleRedoSessionModelEdit}
               />
               </div>
               <div className="operation-tool-page" hidden={operationTab !== "details"}>

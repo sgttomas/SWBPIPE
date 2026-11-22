@@ -66,13 +66,13 @@ describe("Bulk change in the shell", () => {
     // Applied: both pipes now carry the tag.
     expect(screen.getByTestId("bulk-change-count")).toHaveTextContent("0 entities affected; 2 unchanged; 0 not matched; 0 refused.");
     fireEvent.click(screen.getByTestId("operation-tab-review"));
-    fireEvent.click(screen.getByTestId("undo-session-model-edit"));
+    fireEvent.click(screen.getByTestId("workspace-undo"));
     fireEvent.click(screen.getByTestId("operation-tab-bulk"));
     // One Undo reverts the whole batch. The checkpoint restores the primary selection, the
     // second pipe, which no longer carries the tag.
     await waitFor(() => expect(screen.getByTestId("bulk-change-scope")).toHaveTextContent("1 selected entity"));
     expect(screen.getByTestId("bulk-change-count")).toHaveTextContent("1 entity affected; 0 unchanged; 0 not matched; 0 refused.");
-    expect(screen.getByTestId("undo-session-model-edit")).toBeDisabled();
+    expect(screen.getByTestId("workspace-undo")).toBeDisabled();
   });
 
   // Keyboard alone: Shift+F10 or the ContextMenu key opens the menu, End then ArrowUp reaches

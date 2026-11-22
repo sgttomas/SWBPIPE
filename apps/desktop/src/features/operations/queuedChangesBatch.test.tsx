@@ -13,9 +13,11 @@ import type { EditorOperationIntent, PreviewModel } from "../../types";
 import { buildGridOperationIntent, type GridColumn } from "../workspace/table/modelTableAdapter";
 import { inspectorAuthoringPaths } from "../model-tree/PropertyInspector";
 import { useWorkspaceSession } from "../workspace/workspaceSession";
-import { OperationApplyPanel } from "./OperationApplyPanel";
+import { ReviewChangesTab } from "../toolkit/ReviewChangesTab";
 
 const fixture = fixtureJson as unknown as { basis_model: PreviewModel };
+/** The Review changes tab's props this file does not exercise: no batches, no results. */
+const tabProps = { batches: [], batchOutcomes: {}, batchReceipts: [], revision: 0, batchMessage: null, onClear: () => {}, onValidateBatch: () => {}, onApplyBatch: () => {}, model: null, hasResults: false };
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
@@ -110,14 +112,15 @@ describe("review all queued changes as one batch (G9)", () => {
     queue(session, [edits[1]]);
     const queuedBefore = structuredClone(session.current.operations.editorIntents);
     expect(new Set(queuedBefore.map((intent) => intent.queue_id)).size).toBe(2);
-    const panel = () => <OperationApplyPanel
+    const panel = () => <ReviewChangesTab
+      {...tabProps}
       queuedIntents={session.current.operations.editorIntents}
       outcomes={session.current.operations.operationOutcomes}
       appliedOperations={session.current.operations.appliedOperations}
       undoCount={session.current.operations.undoStack.length}
       redoCount={session.current.operations.redoStack.length}
       busy={false} message={session.current.operations.operationMessage} engineStatus={{ state: "ready" } as never}
-      onValidate={() => {}} onApply={() => {}} onUndo={() => {}} onRedo={() => {}}
+      onValidate={() => {}} onApply={() => {}}
       onReviewAllAsBatch={session.current.operations.handleReviewQueuedIntentsAsBatch}
     />;
     const view = render(panel());
@@ -136,19 +139,19 @@ describe("review all queued changes as one batch (G9)", () => {
 });
 
 describe("the apply panel's batch control (G9)", () => {
-  const props = { outcomes: {}, appliedOperations: [], undoCount: 0, redoCount: 0, busy: false, message: null, engineStatus: { state: "ready" } as never, onValidate: () => {}, onApply: () => {}, onUndo: () => {}, onRedo: () => {} };
+  const props = { ...tabProps, outcomes: {}, appliedOperations: [], undoCount: 0, redoCount: 0, busy: false, message: null, engineStatus: { state: "ready" } as never, onValidate: () => {}, onApply: () => {} };
   const intent = (n: number, author = "user") => ({ ...coordinateIntent(fixture.basis_model, "node:A", "y", String(n), n), queue_id: `editor-intent-${n}`, author_type: author }) as EditorOperationIntent;
 
   it("offers the person's queued changes as one batch, counts only theirs, and waits while busy", () => {
     const onReviewAllAsBatch = vi.fn();
-    const { rerender } = render(<OperationApplyPanel {...props} queuedIntents={[intent(1)]} onReviewAllAsBatch={onReviewAllAsBatch} />);
+    const { rerender } = render(<ReviewChangesTab {...props} queuedIntents={[intent(1)]} onReviewAllAsBatch={onReviewAllAsBatch} />);
     expect(screen.queryByTestId("review-all-as-batch")).toBeNull();
-    rerender(<OperationApplyPanel {...props} queuedIntents={[intent(1), intent(2), intent(3, "agent")]} onReviewAllAsBatch={onReviewAllAsBatch} />);
+    rerender(<ReviewChangesTab {...props} queuedIntents={[intent(1), intent(2), intent(3, "agent")]} onReviewAllAsBatch={onReviewAllAsBatch} />);
     const button = screen.getByRole("button", { name: "Review all 2 queued changes as one batch" });
     expect(button).toHaveAccessibleDescription(/refused by name, never adjusted/);
     fireEvent.click(button);
     expect(onReviewAllAsBatch).toHaveBeenCalledOnce();
-    rerender(<OperationApplyPanel {...props} busy queuedIntents={[intent(1), intent(2)]} onReviewAllAsBatch={onReviewAllAsBatch} />);
+    rerender(<ReviewChangesTab {...props} busy queuedIntents={[intent(1), intent(2)]} onReviewAllAsBatch={onReviewAllAsBatch} />);
     expect(screen.getByRole("button", { name: "Review all 2 queued changes as one batch" })).toBeDisabled();
   });
 });

@@ -203,12 +203,12 @@ test("blank load/reference model: author support motion, a thermal state and a m
   await expect(inputs.getByTestId("load-state-analysis-state")).toContainText("analysis_state is applied for this case.");
 
   await openWorkspaceSection(page, "operations");
-  await page.getByTestId("undo-session-model-edit").click();
+  await page.getByTestId("workspace-undo").click();
   await expect.poll(() => modelHash(page)).toBe(beforeHash);
   await openWorkspaceSection(page, "loads");
   await expect(inputs.getByTestId("load-state-analysis-state")).toContainText("analysis_state is absent for this case.");
   await openWorkspaceSection(page, "operations");
-  await page.getByTestId("redo-session-model-edit").click();
+  await page.getByTestId("workspace-redo").click();
   await expect.poll(() => modelHash(page)).toBe(afterHash);
   await openWorkspaceSection(page, "loads");
   await expect(inputs.getByTestId("load-state-analysis-state")).toContainText("analysis_state is applied for this case.");

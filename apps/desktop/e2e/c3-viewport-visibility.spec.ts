@@ -56,6 +56,8 @@ async function expectMainCanvasPoint(page: Page, p: { x: number; y: number }) {
 }
 async function history(page: Page) {
   await openWorkspaceSection(page, "operations");
+  const record = page.getByTestId("review-record");
+  if (await record.getAttribute("open") === null) await record.locator("summary").click();
   const value = await page.getByTestId("session-history-chip").innerText();
   await showCanvas(page);
   return value;

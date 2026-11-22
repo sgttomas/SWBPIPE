@@ -36,8 +36,7 @@ import { BEND_LABELS } from "../model-tree/runSheet/runSheetBatch";
 import { useRunSheetStore } from "../model-tree/runSheet/runSheetStore";
 import { LoadCaseManagerPanel } from "../load-cases/LoadCaseManagerPanel";
 import { SelfWeightPlanPanel } from "../self-weight-authoring/SelfWeightPlanPanel";
-import { BatchReviewPanel } from "../toolkit/BatchReviewPanel";
-import { OperationApplyPanel } from "../operations/OperationApplyPanel";
+import { ReviewChangesTab } from "../toolkit/ReviewChangesTab";
 import { useWorkspaceSession } from "./workspaceSession";
 import { unitCatalogFixture } from "../../test-support/unitCatalogFixture";
 
@@ -256,14 +255,13 @@ describe("the reference system entered from blank through the desktop's authorin
           <div data-testid="journey-self-weight">
             <SelfWeightPlanPanel model={model} selection={selection} selectedPipeRefs={session.selection.selectedPipeRefs} onQueueBatch={ops.handleQueueOperationBatch} busy={ops.operationBusy} requestEpoch={ops.requestEpoch} />
           </div>
-          <BatchReviewPanel onClear={ops.handleClearReviewQueue} batches={ops.queuedBatches} outcomes={ops.batchOutcomes} receipts={ops.batchReceipts}
-            revision={session.model.modelRevision.current} busy={ops.operationBusy} message={ops.batchMessage}
-            onValidate={(entry) => void ops.handleRunOperationBatch(entry, false)} onApply={(entry) => void ops.handleRunOperationBatch(entry, true)}
-            onDismiss={(entry) => ops.handleDismissRetiredBatch(entry.key)} />
-          <OperationApplyPanel queuedIntents={ops.editorIntents} outcomes={ops.operationOutcomes} appliedOperations={ops.appliedOperations} undoCount={ops.undoStack.length}
-            redoCount={ops.redoStack.length} busy={ops.operationBusy} message={ops.operationMessage} engineStatus={ops.operationEngineStatus}
-            onValidate={ops.handleValidateIntent} onApply={ops.handleApplyIntent} onReviewAllAsBatch={() => void ops.handleReviewQueuedIntentsAsBatch()}
-            onUndo={ops.handleUndoSessionModelEdit} onRedo={ops.handleRedoSessionModelEdit} />
+          <ReviewChangesTab onClear={ops.handleClearReviewQueue} batches={ops.queuedBatches} batchOutcomes={ops.batchOutcomes} batchReceipts={ops.batchReceipts}
+            revision={session.model.modelRevision.current} busy={ops.operationBusy} batchMessage={ops.batchMessage}
+            onValidateBatch={(entry) => void ops.handleRunOperationBatch(entry, false)} onApplyBatch={(entry) => void ops.handleRunOperationBatch(entry, true)}
+            onDismissBatch={(entry) => ops.handleDismissRetiredBatch(entry.key)} model={model} hasResults={false}
+            queuedIntents={ops.editorIntents} outcomes={ops.operationOutcomes} appliedOperations={ops.appliedOperations} undoCount={ops.undoStack.length}
+            redoCount={ops.redoStack.length} message={ops.operationMessage} engineStatus={ops.operationEngineStatus}
+            onValidate={ops.handleValidateIntent} onApply={ops.handleApplyIntent} onReviewAllAsBatch={() => void ops.handleReviewQueuedIntentsAsBatch()} />
           {current.sheet ? <RunSheet model={model} host={{ store, queuedBatches: ops.queuedBatches, editorIntents: ops.editorIntents, registerBatch: ops.registerOperationBatch }} /> : null}
         </> : null}
       </>;
@@ -302,7 +300,7 @@ describe("the reference system entered from blank through the desktop's authorin
       if (!option) throw new Error(`no option ${text}: ${Array.from(list.querySelectorAll('[role="option"]')).map((o) => o.textContent).join(", ")}`);
       fireEvent.click(option);
     }
-    /** Review/Apply: the one queued intent's Apply button (`OperationApplyPanel`). One Undo step. */
+    /** Review/Apply: the one queued intent's Apply button (`ReviewChangesTab`). One Undo step. */
     async function applyQueuedIntent(what: string) {
       await waitFor(() => expect(ops().editorIntents, `${what}: queued (${alerts()})`).toHaveLength(1), { timeout: 20_000 });
       // The session keeps 25 Undo checkpoints (`workspaceSession.ts`), so an apply is a new head checkpoint.
@@ -314,7 +312,7 @@ describe("the reference system entered from blank through the desktop's authorin
       await waitFor(() => expect(ops().editorIntents, what).toHaveLength(0));
       cycles.push(what);
     }
-    /** Batch review: Validate batch, then Apply entire batch (`BatchReviewPanel`). One Undo step. */
+    /** Batch review: Validate batch, then Apply entire batch (`ReviewChangesTab`'s batches). One Undo step. */
     async function applyQueuedBatch(what: string) {
       await waitFor(() => expect(ops().queuedBatches, `${what}: queued (${alerts()})`).toHaveLength(1), { timeout: 20_000 });
       const panel = document.getElementById("batch-review")!;
@@ -329,13 +327,12 @@ describe("the reference system entered from blank through the desktop's authorin
       await waitFor(() => expect(ops().queuedBatches, what).toHaveLength(0));
       cycles.push(what);
     }
-    /** Undo then Redo of the last step (`OperationApplyPanel`'s buttons): the prior document, then the applied one again. */
+    /** Undo then Redo of the last step (the session's Undo and Redo, which the toolbar's buttons run): the prior document, then the applied one again. */
     async function undoRedo(what: string, prior: PreviewModel) {
       const applied = model();
-      const panel = within(screen.getByTestId("operation-apply-panel"));
-      act(() => { fireEvent.click(panel.getByTestId("undo-session-model-edit")); });
+      act(() => { ops().handleUndoSessionModelEdit(); });
       await waitFor(() => expect(model(), `${what}: undone`).toEqual(prior));
-      act(() => { fireEvent.click(panel.getByTestId("redo-session-model-edit")); });
+      act(() => { ops().handleRedoSessionModelEdit(); });
       await waitFor(() => expect(model(), `${what}: redone`).toEqual(applied));
       undoRedone.push(what);
     }

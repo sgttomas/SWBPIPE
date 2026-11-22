@@ -25,8 +25,8 @@ function outcome(batchId: string, over: { mode?: "validate_only" | "apply"; bloc
   } as unknown as OperationBatchOutcome;
 }
 function renderPanel(batches: QueuedBatch[], outcomes: Record<string, OperationBatchOutcome>, revision = 1, onSelectRef = vi.fn(), onApply = vi.fn()) {
-  render(<BatchReviewPanel batches={batches} outcomes={outcomes} receipts={[]} revision={revision} busy={false} message={null}
-    onClear={vi.fn()} onValidate={vi.fn()} onApply={onApply} onSelectRef={onSelectRef} />);
+  render(<BatchReviewPanel batches={batches} outcomes={outcomes} revision={revision} busy={false}
+    onValidate={vi.fn()} onApply={onApply} onSelectRef={onSelectRef} />);
   return { onSelectRef, onApply };
 }
 const apply = (key: string) => screen.getByTestId(`apply-batch-${key}`);

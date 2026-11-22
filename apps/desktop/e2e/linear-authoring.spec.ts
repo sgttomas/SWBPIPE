@@ -186,11 +186,11 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await assertPersistentCompactCanvas(page);
 
   await openWorkspaceSection(page, "operations");
-  await page.getByTestId("undo-session-model-edit").click();
+  await page.getByTestId("workspace-undo").click();
   await expectTreeEntityMissing(page, "node", "node:UI-A-110");
   await expectTreeEntityMissing(page, "pipe", "pipe:UI-A-100");
   await openWorkspaceSection(page, "operations");
-  await page.getByTestId("redo-session-model-edit").click();
+  await page.getByTestId("workspace-redo").click();
   await expectTreeEntity(page, "node", "node:UI-A-110");
 
   await selectTreeEntity(page, "pipe", "pipe:UI-A-100");
@@ -279,13 +279,13 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await expect.poll(() => currentModelHash(page)).not.toBe(baseline350Hash);
   const edited500Hash = await currentModelHash(page);
   await openWorkspaceSection(page, "operations");
-  await page.getByTestId("undo-session-model-edit").click();
+  await page.getByTestId("workspace-undo").click();
   await startPropertyTaskFromCurrentSelection(page, "load", "load:UI-A");
   await selectCompactOption(inspector.getByTestId("editor-intent-field"), "primitive_loads.0.magnitude.value");
   await expect(inspector.getByTestId("editor-intent-value")).toHaveValue("350");
   await expect.poll(() => currentModelHash(page)).toBe(baseline350Hash);
   await openWorkspaceSection(page, "operations");
-  await page.getByTestId("redo-session-model-edit").click();
+  await page.getByTestId("workspace-redo").click();
   await startPropertyTaskFromCurrentSelection(page, "load", "load:UI-A");
   await selectCompactOption(inspector.getByTestId("editor-intent-field"), "primitive_loads.0.magnitude.value");
   await expect(inspector.getByTestId("editor-intent-value")).toHaveValue("500");
