@@ -51,6 +51,10 @@
       "statement": "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly."
     },
     {
+      "producer_sha256": "ab9612e14aef96ddde4726fd3e6067bf4c1e422ef40caeaf715779e3286e5094",
+      "statement": "A load case that declares a hydrostatic test condition is solved as a test on the exact route only: its pressure is its own authored pressure; the contents density of the condition it selects replaces the section's own contents in its generated self-weight, once, and implies no hydrostatic pressure head; with springs_and_constant_effort held, each spring, variable spring and constant-effort support is replaced on the degree of freedom it acts on by a rigid restraint at zero displacement from the authored geometry, with neither its stiffness nor its force acting, and its reaction is published under its own identity; with none held the supports act as in any case. The case's result document states the test and the held choice. A combination with a test case among its operands is withheld (COMBINATION_HYDROSTATIC_TEST_WITHHELD)."
+    },
+    {
       "producer_sha256": "bacb470a7438fc92346171a3f3c16e7db73c988f4e632e97291f94107064bd37",
       "statement": "Signed support actions are attributed only for admitted linear restraints, springs and nonlinear supports and, as its constant force, for a consumed constant-effort support; ambiguous coincident rigid attribution is refused."
     },

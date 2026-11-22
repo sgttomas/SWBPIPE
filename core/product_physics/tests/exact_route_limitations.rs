@@ -6,6 +6,9 @@
 //! each published list exactly once; and the guard that the producer emits no
 //! `pressure-source-1` list for a model with an objective connector or a
 //! realized bend (source recovery refuses both, `src/source_recovery.rs`).
+//! DEL-05-01 REQ-014: a document with a hydrostatic test case adds the test's
+//! statement to its shape's list, so the four-span test documents give lists of
+//! their own (`hydrostatic_test`).
 //! The report's statement table
 //! (`apps/desktop/src/features/report/exactReportLimitations.ts`) is checked
 //! against this fixture. With `OPENPIPESTRESS_WRITE_EXACT_ROUTE_LIMITATIONS=<path>`
@@ -69,6 +72,10 @@ const MIXED_SOURCE_REQUEST: &str =
     include_str!("../../../fixtures/product_preview/pressure_source/physics_source/mixed.request.json");
 const LOAD_STATE_MIXED_SOURCE_REQUEST: &str =
     include_str!("../../../fixtures/product_preview/pressure_source/load_reference_source/mixed.request.json");
+/// DEL-05-01 REQ-014: the four-span model with a held hydrostatic test case,
+/// taken through its journey, and its load and reference-state twin (written by
+/// the applier's journey test).
+const HYDROSTATIC_TEST_MODELS: &str = include_str!("../../../fixtures/hydrostatic_test/four_span_reader_models.json");
 /// A pressure-free (`preview-physics-2`) model.
 const PRESSURE_FREE_MODEL: &str = include_str!("fixtures/preview_physics_invented_model.json");
 
@@ -112,6 +119,10 @@ struct CoverageList {
     /// (no setting), `included` (a named case carries pressure) or `no_effect` (the
     /// setting names only cases without a pressure region).
     pressure_elongation: &'static str,
+    /// DEL-05-01 REQ-014: the document has a hydrostatic test case, so the list
+    /// states the test; written only when true.
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    hydrostatic_test: bool,
     limitations: Vec<String>,
 }
 
@@ -300,6 +311,8 @@ fn elongation_variants(request: Value) -> Vec<(&'static str, Value)> {
     variants
 }
 
+/// The start of the hydrostatic test statement (`hydrostatic::HYDROSTATIC_TEST_LIMITATION`).
+const HYDROSTATIC_TEST_STATEMENT_START: &str = "A load case that declares a hydrostatic test condition is solved as a test";
 const NOT_INCLUDED_KEY: &str = "not_included";
 const INCLUDED_KEY: &str = "included";
 const NO_EFFECT_KEY: &str = "no_effect";
@@ -341,20 +354,34 @@ fn producer_inputs() -> Vec<(Shape, Value)> {
     ]
 }
 
+/// DEL-05-01 REQ-014: the two hydrostatic test documents, each as the
+/// `pressure-3` shape it is, without and with the load/reference-state group.
+fn hydrostatic_test_inputs() -> Vec<(Shape, Value)> {
+    let models = parse(HYDROSTATIC_TEST_MODELS);
+    [("journey", false), ("load_state_twin", true)]
+        .into_iter()
+        .map(|(name, load_state)| ((PRESSURE_3, load_state, false, false), json!({"model": models["models"][name].clone(), "materials": []})))
+        .collect()
+}
+
 /// The producer's list for each emitted shape, checked against the shape the
-/// envelope itself states.
+/// envelope itself states; then the lists of the hydrostatic test documents.
 fn produced_lists() -> &'static [CoverageList] {
     static LISTS: OnceLock<Vec<CoverageList>> = OnceLock::new();
     LISTS.get_or_init(|| {
-        producer_inputs()
+        let tagged = |inputs: Vec<(Shape, Value)>, test: bool| {
+            inputs.into_iter().map(move |(shape, request)| (shape, test, request)).collect::<Vec<_>>()
+        };
+        tagged(producer_inputs(), false)
             .into_iter()
-            .flat_map(|(shape, request)| elongation_variants(request).into_iter().map(move |(elongation, request)| (shape, elongation, request)))
-            // One list per (shape, statement): a later request supplies only what the earlier lacked.
-            .scan(BTreeSet::new(), |seen, (shape, elongation, request)| {
-                Some(seen.insert((shape, elongation)).then_some((shape, elongation, request)))
+            .chain(tagged(hydrostatic_test_inputs(), true))
+            .flat_map(|(shape, test, request)| elongation_variants(request).into_iter().map(move |(elongation, request)| (shape, test, elongation, request)))
+            // One list per (shape, test, statement): a later request supplies only what the earlier lacked.
+            .scan(BTreeSet::new(), |seen, (shape, test, elongation, request)| {
+                Some(seen.insert((shape, test, elongation)).then_some((shape, test, elongation, request)))
             })
             .flatten()
-            .map(|((id, load_state, connectors, bends), elongation, request)| {
+            .map(|((id, load_state, connectors, bends), test, elongation, request)| {
                 // RT-L2: the statement true of the request, read from the request itself:
                 // no setting; a named case with a pressure region; or named cases without one.
                 let named = request["model"]["model_settings"]["pressure_elongation"]["operating_load_cases"].as_array().cloned();
@@ -389,12 +416,15 @@ fn produced_lists() -> &'static [CoverageList] {
                 let at = limitations.iter().position(|text| text.starts_with("Not modelled: ")).expect("the D-3 statement");
                 assert_eq!(limitations.get(at + 1).map(String::as_str), Some(stated), "{id} elongation {elongation}");
                 assert_eq!(limitations.iter().filter(|text| ELONGATION_STATEMENTS.contains(&text.as_str())).count(), 1);
+                // DEL-05-01 REQ-014: the test's statement is on a test document's list only.
+                assert_eq!(limitations.iter().any(|text| text.starts_with(HYDROSTATIC_TEST_STATEMENT_START)), test, "{id} test {test}");
                 CoverageList {
                     semantic_contract_id: id.to_string(),
                     load_reference_states: load_state,
                     objective_connectors: connectors,
                     realized_bends: bends,
                     pressure_elongation: elongation,
+                    hydrostatic_test: test,
                     limitations,
                 }
             })
@@ -451,11 +481,15 @@ fn exact_route_limitations_fixture_is_current() {
         .map(|(shape, _)| *shape)
         .collect();
     assert_eq!(shapes.len(), 10);
-    assert_eq!(fixture.lists.len(), 2 * shapes.len() + with_pressure.len());
+    // DEL-05-01 REQ-014: each hydrostatic test document, with every elongation
+    // statement it can carry (both carry pressure).
+    let tests = fixture.lists.iter().filter(|list| list.hydrostatic_test).count();
+    assert_eq!(tests, 3 * hydrostatic_test_inputs().len());
+    assert_eq!(fixture.lists.len(), 2 * shapes.len() + with_pressure.len() + tests);
     for key in [NOT_INCLUDED_KEY, INCLUDED_KEY, NO_EFFECT_KEY] {
         assert!(fixture.lists.iter().any(|list| list.pressure_elongation == key), "a {key} list");
     }
-    assert_eq!(fixture.strings.len(), 22, "§1.3: 2 + 6 + 2 + 5 + 1 + 1 + 2 distinct strings, plus the three elongation statements");
+    assert_eq!(fixture.strings.len(), 23, "§1.3: 2 + 6 + 2 + 5 + 1 + 1 + 2 distinct strings, plus the three elongation statements and the hydrostatic test's");
     for statement in ELONGATION_STATEMENTS {
         assert!(fixture.strings.iter().any(|text| text == statement), "the producer emits {statement:.40}");
     }
@@ -613,6 +647,7 @@ fn pressure_source_1_is_never_emitted_with_a_connector_or_a_realized_bend() {
                 .iter()
                 .find(|list| {
                     list.semantic_contract_id == PRESSURE_3
+                        && !list.hydrostatic_test
                         && list.pressure_elongation == NOT_INCLUDED_KEY
                         && (list.load_reference_states, list.objective_connectors, list.realized_bends) == (load_state, connectors, bends)
                 })

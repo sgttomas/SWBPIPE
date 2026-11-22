@@ -102,12 +102,14 @@ describe("exact-route statement table (W-11 slice (a))", () => {
     // can carry (RT-L2): not included and no effect on all ten, included on the
     // seven with a pressurised input. The six pressure-source-1 shapes with a
     // connector or a realized bend are never emitted, because source recovery refuses both.
-    expect(coverage.lists).toHaveLength(27);
-    expect(coverage.strings).toHaveLength(22);
+    // DEL-05-01 REQ-014: the two hydrostatic test documents add their own lists, with
+    // each elongation statement, and only they state the test.
+    expect(coverage.lists).toHaveLength(33);
+    expect(coverage.strings).toHaveLength(23);
     const fixtureDigests = await Promise.all(coverage.strings.map(producerStringSha256));
     const tableDigests = EXACT_REPORT_STATEMENTS.map((item) => item.producer_sha256);
-    expect(EXACT_REPORT_STATEMENTS).toHaveLength(22);
-    expect(new Set(tableDigests).size).toBe(22);
+    expect(EXACT_REPORT_STATEMENTS).toHaveLength(23);
+    expect(new Set(tableDigests).size).toBe(23);
     expect([...tableDigests].sort()).toEqual([...fixtureDigests].sort());
     for (const digest of tableDigests) expect(digest).toMatch(/^[0-9a-f]{64}$/);
     // The fixture's strings are its lists' strings, and nothing else.

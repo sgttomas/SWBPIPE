@@ -33,8 +33,9 @@ function entry(producer_sha256: string, statement: string): ExactReportStatement
   return Object.freeze({ producer_sha256, statement });
 }
 
-/** The 22 entries, in the producer's composition order; RT-L2 adds S4a, S4b and S4c,
- * of which each exact-route list carries exactly one. */
+/** The 23 entries, in the producer's composition order; RT-L2 adds S4a, S4b and S4c,
+ * of which each exact-route list carries exactly one; DEL-05-01 REQ-014 adds S20, on a
+ * document with a hydrostatic test case only. */
 export const EXACT_REPORT_STATEMENTS: readonly ExactReportStatement[] = Object.freeze([
   // S1 identity, pressure-3
   entry("2df7af7f618e67ef1723d77e9a3015b88a22679aab13aee6bf1c06371d37dfb3",
@@ -101,6 +102,9 @@ export const EXACT_REPORT_STATEMENTS: readonly ExactReportStatement[] = Object.f
   // S18 certified recovery 1
   entry("47a8910e8e8dcb0f60c3d3fe9ca400c91822859293c8331b221d2e913c586f84",
     "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets)."),
+  // S20 hydrostatic test case (DEL-05-01 REQ-014), before the certified recovery pair
+  entry("ab9612e14aef96ddde4726fd3e6067bf4c1e422ef40caeaf715779e3286e5094",
+    "A load case that declares a hydrostatic test condition is solved as a test on the exact route only: its pressure is its own authored pressure; the contents density of the condition it selects replaces the section's own contents in its generated self-weight, once, and implies no hydrostatic pressure head; with springs_and_constant_effort held, each spring, variable spring and constant-effort support is replaced on the degree of freedom it acts on by a rigid restraint at zero displacement from the authored geometry, with neither its stiffness nor its force acting, and its reaction is published under its own identity; with none held the supports act as in any case. The case's result document states the test and the held choice. A combination with a test case among its operands is withheld (COMBINATION_HYDROSTATIC_TEST_WITHHELD)."),
   // S19 certified recovery 2
   entry("eb043ebf9b3c8186a16574237e69ec69b977bb17c4546ef434c9dfe0b55ccfce",
     "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."),
