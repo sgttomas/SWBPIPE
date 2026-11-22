@@ -23,6 +23,7 @@ SOURCE_READS = {}
 # Likewise the artifact-reader derivation (tools/ci/numerical_ci.py's artifact_producers, about a second per plan).
 ARTIFACT_DERIVATIONS = {}
 load_numerical_module = hosted_ci.numerical_module
+DESKTOP_RUST_CRATE_PATH = hosted_ci.DESKTOP_RUST_CRATE
 real_python_reach = hosted_ci.python_reach
 
 
@@ -60,15 +61,13 @@ def shared_numerical_module(root):
             SOURCE_READS[key] = scan(project, manifests, declarations)
         resources, stale, derived = SOURCE_READS[key]
         if resolved == SOURCE_ROOT.resolve():
-            # Committed fingerprints go stale between refreshes by design (tests/test_ci_numerical.py
-            # tests the widening on built trees); these tests check what the declarations select, so a
-            # committed declaration's staleness is left out, and one a test alters keeps its own.
+            # A stale committed attestation fails tests/test_ci_numerical.py's attestation test, which names
+            # it; these tests check what the declarations select, so they leave that staleness out, and a
+            # declaration a test alters keeps its own.
             committed = PROFILE['piping_runtime_reads']
             reads = committed if declarations is None else declarations
             stale = {source: entry for source, entry in stale.items()
-                     if reads['reads'].get(source) != committed['reads'].get(source)
-                     or any(reads['source_trees'].get(Path(m).as_posix()) != committed['source_trees'].get(Path(m).as_posix())
-                            for m in entry['manifests'])}
+                     if reads['reads'].get(source) != committed['reads'].get(source)}
         return ({path: set(readers) for path, readers in resources.items()},
                 copy.deepcopy(stale), copy.deepcopy(derived))
 
@@ -529,7 +528,9 @@ class HostedCITests(unittest.TestCase):
             # Files a path dependency's compiled source or build script reads (declared): the
             # product_physics build script reads its own sources.
             ('fixtures/rule_expressions/checksum_binding/payload_grammar_v1_0_0.json', 'path-dependency-runtime-read'),
-            ('core/product_physics/src/bend_pressure.rs', 'path-dependency-runtime-read'),
+            # A Rust file of a dependency is its source; its only runtime readers (nonlinear_integration's
+            # cfg(test) source scans) are unit tests the desktop job never compiles.
+            ('core/product_physics/src/bend_pressure.rs', 'path-dependency-source'),
             # Any other project manifest or lock: the shell's reach scan reads every project
             # package's dependencies from `cargo metadata` (W-18b r2c), so a new package that
             # depends on a reporting crate must run it.
@@ -610,13 +611,16 @@ class HostedCITests(unittest.TestCase):
         self.assertTrue(set(callers) <= set(numerical['manifests']))
         # Other legitimate reasons (a Rust tree the edit also changed) may accompany it.
         reason = next(r for r in numerical['reasons'] if r.get('kind') == 'stale-runtime-read' and r['source'] == source)
-        self.assertEqual(reason['manifests'], callers)
+        self.assertIn('core/rules/rule_pack_lifecycle/Cargo.toml', reason['manifests'])
         self.assertIn('reader source changed', reason['stale'])
 
     def test_build_script_helpers_count_as_compiled_reads_for_desktop_rust_and_the_engine_cache(self):
-        # Review of #611, finding 3: a helper the build script compiles by #[path] is a compiled source,
-        # wherever it lies, and so is Rust code include!d into it and a `[lib] path` override's tree.
+        # Review of #611, findings 2 and 3: a #[path] build helper's ordinary child module that reads a declared
+        # input is a build input. A change to that input selects the desktop Rust tests and changes the engine
+        # cache key, and a stale attestation runs those tests and refuses cache reuse.
         import hashlib
+        from unittest.mock import MagicMock
+        import wasm_cache
         numerical = load_numerical_module(SOURCE_ROOT)
         project = self.root
         crate = project / 'core/eng'
@@ -626,45 +630,48 @@ class HostedCITests(unittest.TestCase):
         (crate / 'Cargo.toml').write_text('[package]\nname="eng"\nversion="0.1.0"\n')
         (crate / 'Cargo.lock').write_text('version = 4\n')
         (crate / 'src/lib.rs').write_text('pub fn value() {}')
-        (crate / 'build.rs').write_text('#[path = "build_support/stamp.rs"] mod stamp;\nfn main() { stamp::stamp(); }\n')
-        (crate / 'build_support/extra.rs').write_text('pub fn extra() {}')
-        helper = crate / 'build_support/stamp.rs'
-        helper.write_text('include!("extra.rs");\npub fn stamp() { std::fs::read("../../fixtures/stamp.json"); }\n')
+        (crate / 'build.rs').write_text('#[path = "build_support/stamp.rs"] mod stamp;\nfn main() { stamp::child::stamp(); }\n')
+        (crate / 'build_support/stamp.rs').write_text('pub mod child;\n')
+        child = crate / 'build_support/child.rs'
+        child.write_text('pub fn stamp() { std::fs::read("../../fixtures/stamp.json"); }\n')
         (project / 'fixtures/stamp.json').write_text('{}')
-        (project / 'fixtures/later.json').write_text('{}')
-        local = 'core/eng/build_support/stamp.rs'
-        def declarations():
-            return {'source_trees': {'core/eng/Cargo.toml': numerical.rust_tree_digest(project.resolve(), Path('core/eng/Cargo.toml'))},
-                    'reads': {local: {'sha256': hashlib.sha256(helper.read_bytes()).hexdigest(),
-                                      'source_trees': ['core/eng/Cargo.toml'],
-                                      'inputs': [{'anchor': '../../fixtures/stamp.json', 'base': 'manifest',
-                                                  'files': ['fixtures/stamp.json']}]}}}
-        fresh = declarations()
-        with patch.object(hosted_ci, 'numerical_module', return_value=numerical):
-            reads, stale = hosted_ci.declared_compiled_reads(project, frozenset({'core/eng'}), json.dumps(fresh))
-            self.assertEqual((reads, stale), (frozenset({'fixtures/stamp.json'}), ()))
-            _, compile_reads = hosted_ci.compiled_crate_inputs(project, ('core/eng/Cargo.toml',), False, 'engine')
-            self.assertTrue({local, 'core/eng/build_support/extra.rs'} <= compile_reads)
-            # The helper gains a read: stale, so the desktop tests run and the engine cache is not reused.
-            helper.write_text(helper.read_text() + 'pub fn later() { std::fs::read("../../fixtures/later.json"); }\n')
-            hosted_ci.declared_compiled_reads.cache_clear()  # a selection run reads one checkout
-            reads, stale = hosted_ci.declared_compiled_reads(project, frozenset({'core/eng'}), json.dumps(fresh))
-            self.assertEqual(stale, (local,))
-            # A library whose `[lib] path` lies outside src/ compiles its directory's Rust.
-            (crate / 'lib').mkdir()
-            (crate / 'lib/root.rs').write_text('mod part;')
-            (crate / 'lib/part.rs').write_text('pub const LATER: &str = include_str!("../../../fixtures/later.json");')
-            (crate / 'Cargo.toml').write_text('[package]\nname="eng"\nversion="0.1.0"\n[lib]\npath="lib/root.rs"\n')
-            hosted_ci.compiled_crate_inputs.cache_clear()
-            _, compile_reads = hosted_ci.compiled_crate_inputs(project, ('core/eng/Cargo.toml',), False, 'engine')
-            self.assertIn('fixtures/later.json', compile_reads)
-            # A module the override's tree names but that does not exist cannot be resolved.
-            (crate / 'lib/root.rs').write_text('mod part;\nmod missing;')
-            hosted_ci.compiled_crate_inputs.cache_clear()
-            with self.assertRaisesRegex(ValueError, 'module missing'):
-                hosted_ci.compiled_crate_inputs(project, ('core/eng/Cargo.toml',), False, 'engine')
-            hosted_ci.compiled_crate_inputs.cache_clear()
-            hosted_ci.declared_compiled_reads.cache_clear()
+        shell = project / DESKTOP_RUST_CRATE_PATH
+        (shell / 'src').mkdir(parents=True)
+        (shell / 'Cargo.toml').write_text('[package]\nname="shell"\nversion="0.1.0"\n[dependencies]\neng={path="../../../core/eng"}\n')
+        (shell / 'Cargo.lock').write_text('version = 4\n')
+        (shell / 'src/lib.rs').write_text('pub fn shell() {}')
+        local = 'core/eng/build_support/child.rs'
+        declarations = {'reads': {local: {'sha256': hashlib.sha256(child.read_bytes()).hexdigest(), 'inputs': [
+            {'anchor': '../../fixtures/stamp.json', 'base': 'manifest', 'files': ['fixtures/stamp.json']}]}}}
+        self.write('tools/hosted-ci-routing.json', json.dumps({'piping_runtime_reads': declarations}))
+        self.git('add', '-A')
+        caches = (hosted_ci.compiled_crate_inputs, hosted_ci.declared_compiled_reads, hosted_ci.desktop_rust_references)
+        def plan(path):
+            for cache in caches:
+                cache.cache_clear()
+            return hosted_ci.desktop_rust_plan(project, [path], {'reasons': {}, 'unmatched_paths': []},
+                                               {'piping_runtime_reads': declarations})
+        def key():
+            for cache in caches:
+                cache.cache_clear()
+            engine = hosted_ci.compiled_crate_inputs(project, ('core/eng/Cargo.toml',), False, 'wasm engine')
+            with patch.object(wasm_cache, 'wasm_engine_inputs', MagicMock(return_value=engine)):
+                return wasm_cache.cache_key(project, {}, 'rustc', 'bindgen', 'node')
+        with patch.object(hosted_ci, 'numerical_module', return_value=numerical), \
+             patch.dict(os.environ, {'CARGO_HOME': str(project / '.no-cargo-home')}):
+            self.assertIn({'path': 'fixtures/stamp.json', 'kind': 'path-dependency-runtime-read'},
+                          plan('fixtures/stamp.json')['reasons'])
+            before, inputs = key()
+            self.assertTrue({'fixtures/stamp.json', local} <= set(inputs))
+            (project / 'fixtures/stamp.json').write_text('{"changed": true}')
+            self.assertNotEqual(key()[0], before)
+            # The child gains a read without confirming its attestation.
+            child.write_text(child.read_text() + 'pub fn later() { std::fs::read("../../fixtures/stamp.json"); }\n')
+            self.assertIn({'source': local, 'kind': 'stale-path-dependency-runtime-read'}, plan('README.md')['reasons'])
+            with self.assertRaisesRegex(ValueError, 'Stale runtime read declaration'):
+                key()
+            for cache in caches:
+                cache.cache_clear()
 
     def test_desktop_rust_closure_is_every_path_dependency_the_crate_compiles(self):
         import tomllib

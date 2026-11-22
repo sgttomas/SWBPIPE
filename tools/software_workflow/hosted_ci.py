@@ -159,10 +159,6 @@ def wasm_engine_inputs(root: Path) -> tuple[frozenset[str], frozenset[str]]:
     return compiled_crate_inputs(root, WASM_ENGINE_CRATES, False, "wasm engine")
 
 
-# An out-of-line module declaration, with any `#[path]` attribute just before it.
-MOD_DECLARATION = re.compile(r"((?:#\s*\[[^\]]*\]\s*)*)(?:pub(?:\s*\([^)]*\))?\s+)?\bmod\s+(\w+)\s*;")
-
-
 @functools.lru_cache(maxsize=None)
 def compiled_crate_inputs(root: Path, roots: tuple[str, ...], root_dev: bool,
                           label: str) -> tuple[frozenset[str], frozenset[str]]:
@@ -202,34 +198,16 @@ def compiled_crate_inputs(root: Path, roots: tuple[str, ...], root_dev: bool,
     for manifest in closure:
         crate = project / manifest.parent
         sources = sorted((crate / "src").rglob("*.rs")) + [p for p in [crate / "build.rs"] if p.is_file()]
-        # A `[lib] path` or `[package] build` override compiles from elsewhere: its file and the
-        # module tree its `mod` declarations reach (src/ is read whole above).
-        data = tomllib.loads((project / manifest).read_text())
-        roots = []
-        for declared in (data.get("lib", {}).get("path"), data.get("package", {}).get("build")):
-            if isinstance(declared, str):
-                target = (crate / declared).resolve()
-                if not target.is_relative_to(project) or not target.is_file():
-                    raise ValueError(f"Unresolved {label} target: " + str(target))
-                if not target.is_relative_to((crate / "src").resolve()):
-                    roots.append(target)
-        modules = set()
-        while roots:
-            module_file = roots.pop()
-            if module_file in modules:
-                continue
-            modules.add(module_file)
-            sources.append(module_file)
-            code = module.RUST_STRING.sub(lambda m: " " * len(m.group()), module.rust_source(module_file.read_text()))
-            for match in MOD_DECLARATION.finditer(code):
-                if re.search(r"#\s*\[\s*path\s*=", match.group(1)):
-                    continue  # a `#[path]` module is a compile read, followed below
-                name = match.group(2)
-                directories = {module_file.parent, module_file.parent / module_file.stem}
-                found = [c for d in directories for c in (d / f"{name}.rs", d / name / "mod.rs") if c.is_file()]
-                if not found:
-                    raise ValueError(f"Unresolved {label} module {name} in " + module_file.relative_to(project).as_posix())
-                roots.extend(found)
+        # The library and build script's whole compile graph (`numerical_ci.compile_graph`): ordinary,
+        # inline and #[path] modules and include! of Rust from a `[lib] path` or `[package] build`
+        # override, wherever those files lie. An unresolved edge fails toward running and rebuilding.
+        compiled, _, data_reads, certain = module.compile_graph(project, manifest)
+        if not certain:
+            raise ValueError(f"Unresolved {label} compile graph: " + manifest.as_posix())
+        sources += sorted(compiled)
+        reads.update(path.relative_to(project).as_posix() for path in data_reads)
+        # A compiled file outside the crate directory is an input the crate's directory does not name.
+        reads.update(path.relative_to(project).as_posix() for path in compiled if not path.is_relative_to(crate.resolve()))
         seen = set()
         while sources:
             source = sources.pop()
@@ -392,10 +370,10 @@ def desktop_rust_dependency_reads(root: Path, crates: frozenset[str], profile: d
 def declared_compiled_reads(root: Path, crates: frozenset[str], declarations_json: str) -> tuple[frozenset[str], tuple[str, ...]]:
     """The files read by declared sources that `crates` compile into a library or
     build script (a scan's files as the tree has them), and which of those
-    declarations are stale: a stale declaration may read a file it does not list.
-    A source counts when one of the crates compiles it, wherever it lies (a
-    `#[path]` or `include!` helper of a build script, a `[lib] path` override),
-    unless it is shown to be only that crate's own test, bench or example."""
+    declarations have a stale per-file attestation: such a source may read a file
+    it does not list. A source counts when one of the crates' compile graphs
+    reaches it, wherever it lies (a `#[path]` build helper and its modules, a
+    `[lib] path` override's module tree), or when that cannot be shown."""
     module = numerical_module(root)
     project = (root / PIPING).resolve()
     declarations = json.loads(declarations_json)
@@ -403,7 +381,7 @@ def declared_compiled_reads(root: Path, crates: frozenset[str], declarations_jso
     reads, stale_sources = set(), set()
     for source in declarations["reads"]:
         current = derived["reads"][source]
-        if current["compiled"] and any(PurePosixPath(reader).parent.as_posix() in crates for reader in current["readers"]):
+        if current["library"] and any(PurePosixPath(m).parent.as_posix() in crates for m in current["compiled_by"]):
             reads.update(name for entry in current["inputs"] for name in entry["resolved"])
             if source in stale:
                 stale_sources.add(source)

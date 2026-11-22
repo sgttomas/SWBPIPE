@@ -191,9 +191,9 @@ tests cover; it builds no frontend. It restores the main-scoped
   slot), which is how its tests read fixtures at run time.
 
 Other Python, Rust, desktop TypeScript and docs changes do not select it. An
-unreadable crate or compile read selects it, and so does a stale runtime-read
-declaration of a source a crate it compiles builds into a library or build
-script, in every selection until the refresh below lands.
+unreadable crate or compile read selects it, and so does a stale per-file
+attestation of a source one of those crates compiles into a library or build
+script (below).
 Dispatch runs it. The selection's reasons are in the plan artifact.
 The literal scan finds fixture paths written as one path-like string or format
 template. A test that assembled a fixture path from fragments (`join` of
@@ -206,51 +206,45 @@ An exact changed fixture or included source selects its actual readers and their
 Cargo consumers; a fixture read does not create a supplier-crate dependency.
 Literal compile reads are resolved from the source file. Dynamic runtime reads
 have explicit exact-file declarations in `piping_runtime_reads` of
-`tools/hosted-ci-routing.json`, bound to source anchors, source scans and Rust
-caller trees. Their authored fields (each declaration, its inputs, anchors,
-bases, exact files, scan rules, audits, external-read audits and `unread_paths`
-audits) are written by the change that adds or alters a read. Their shape is
-checked strictly, and a semantic error in them selects every crate and stops a
-refresh: an unknown or misspelt key, a malformed scan rule, a scan that finds no
-files, an unresolved filesystem API, an escaping path, a missing exact input
-file, a runtime read with no declaration, an unused or unknown declaration or an
-anchor absent from compiled source. Their derived fingerprints (the reader's and
-anchor sources' `sha256`/`source_sha256`, each declaration's caller crates and
-their `source_trees` Rust tree digests, and each scan's `files` inventory) are
-not refreshed by ordinary changes. A declaration whose fingerprints differ from
-the tree is stale: it may now read a file it does not list, so its reader crate
-and Rust callers are added to every selection, with a `stale-runtime-read`
-reason, until a refresh lands. Their Cargo consumers are added too, unless the
-reader is shown to be only a crate's own test, bench or example: under `tests/`,
-`benches/` or `examples/`, with no `[lib] path` or `[package] build` there and no
-`include!` or `#[path]` from elsewhere compiling it. A library source's callers
-are the crates that depend on it, wherever it lies. Crates added only this way
-do not start the Python job. While a declaration of a source that the desktop
-shell's path dependencies or the engine crates compile into a library or build
-script is stale (a `#[path]` or `include!` helper of a build script included),
-the desktop Rust tests run and the desktop engine output cache
-(`tools/software_workflow/wasm_cache.py`) rebuilds rather than reuse. A scan's
-files are also read from the tree, so a file it has gained is a resource at once
-and a declared file it has lost still selects its reader. Staleness alone never
-selects every crate and fails no check.
+`tools/hosted-ci-routing.json`, bound to source anchors and source scans. Their
+authored fields (each declaration, its inputs, anchors, bases, exact files, scan
+rules, audits and external-read audits) are written by the change that adds or
+alters a read. Their shape is checked strictly, and a semantic error selects
+every crate: an unknown or misspelt key, a malformed scan rule, a scan that
+finds no files, an unresolved filesystem API, an escaping path, a missing exact
+input file, a runtime read with no declaration, an unused or unknown declaration
+or an anchor absent from compiled source. A scan's file inventory is computed
+from the tree, and a reader's callers from the Cargo graph, so neither is kept
+in the record: the record's `source_trees` digests, each declaration's
+`source_trees` list and a scan's `files` are retained but unchecked and need no
+edit.
 
-The refresh is one command, run as its own pull request on a schedule and at the
-solver freeze and the release candidate:
+Each declaration attests its reader's `sha256` and each anchor source's
+`source_sha256`, one file each. A change to a declared reader or anchor source
+updates that hash in the same pull request, after its author confirms the
+declaration's inputs; until then `tests/test_ci_numerical.py` fails. On that
+pull request a stale attestation adds the crates that compile the source to the
+selection, with their Cargo consumers when a library or build script compiles
+it, never every crate. Which crates compile a source comes from each crate's
+compile graph: from the library root (a `[lib] path` or `src/lib.rs`) and the
+build script (a `[package] build` path or `build.rs`) through ordinary, inline
+and `#[path]` modules and `include!` of Rust. A file reached only through a
+`#[cfg(test)]` module, or lying under the crate's `tests/`, `benches/` or
+`examples/` and reached by neither root, is compiled only into that crate's own
+tests. A module that resolves to no file makes every source of its crate count
+as a library or build input. The desktop Rust tests and the desktop engine
+output cache (`tools/software_workflow/wasm_cache.py`) count the declared reads
+of every source the shell's path dependencies or the engine crates compile into
+a library or build script, wherever it lies. A stale attestation there runs
+those tests and refuses cache reuse.
 
-```sh
-python3 tools/ci/numerical_ci.py --refresh-runtime-reads   # rewrites the fingerprints
-python3 tools/ci/numerical_ci.py --check-runtime-reads     # lists stale declarations; exit 1 if any
-```
-
-It refuses to rewrite anything while a semantic error exists, and it prints each
-scan whose inventory size changes. A refresh does not clear a declaration whose
-reader or anchor source changed while that source names an existing path
-(resolved from the project, the crate or the source directory) that a change
-would not select its reader crate for and that is no declared input, scan or
-`unread_paths` entry. It keeps that declaration's source fingerprints, so it stays
-stale and widened, reports it as needing an authored input and exits 1. The
-author declares the input, or records in `unread_paths` with a reason that the
-source names the path without reading it.
+The literal-coverage test in `tests/test_ci_numerical.py` checks that every file
+a Rust string literal names selects the crate whose source names it, and the
+crate of each declared library reader in a crate it depends on whose explicit
+list covers that path by pattern or directory. So a caller that names a new
+fixture for a reader fails on its own pull request. It has the limit of the
+literal scan above: a path assembled from non-literal parts (`format!` too) is
+not seen.
 
 Missing inputs, unresolved dependencies, unknown paths and shared execution
 controls select all discovered crates. Existing numerical oracles remain
@@ -296,8 +290,7 @@ python3 tools/ci/repository_checks.py --event pull_request --base origin/main --
 It runs the steps in order, names each, stops at the first failure and writes
 `repository-ci-plan.json` and `deliverable-check.json` at the root. It validates
 inventories and digests and never refreshes them: where a check finds one stale,
-the run fails, and its owning tool refreshes it deliberately. The runtime-read
-fingerprints above are the exception: stale ones widen selection instead. A base that names no commit is
+the run fails, and its owning tool refreshes it deliberately. A base that names no commit is
 replaced by `HEAD^1` for the documents and conflict checks, except in a merge
 queue, which fails closed. `.gitignore` names both output files, so a local run
 leaves the checkout clean.
