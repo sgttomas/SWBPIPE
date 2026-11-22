@@ -1534,9 +1534,10 @@ fn store_content(path: &Path) -> Vec<(String, String)> {
 
 /// The store at `path` as SQL text, written by SQLite from what the product's writers stored: its
 /// version and journal mode, each table's own `CREATE` statement, each row as an `INSERT` of its
-/// values as SQLite's `quote()` writes them (in table and rowid order), then the indexes and the
-/// triggers (after the rows, so the store's own triggers do not see them as new writes), in one
-/// transaction. Deterministic for a deterministic store.
+/// values as SQLite's `quote()` writes them (in table and rowid order, or primary-key order for a
+/// WITHOUT ROWID table), then the indexes and the triggers (after the rows, so the store's own
+/// triggers do not see them as new writes), in one transaction. Deterministic for a deterministic
+/// store.
 fn store_sql(path: &Path) -> String {
     let connection = Connection::open(path).unwrap();
     let identifier = |name: &str| {
@@ -1560,7 +1561,8 @@ fn store_sql(path: &Path) -> String {
         let mut columns = connection.prepare("SELECT name FROM pragma_table_info(?1) ORDER BY cid").unwrap();
         let columns: Vec<String> = columns.query_map([&table], |row| row.get::<_, String>(0)).unwrap().map(Result::unwrap).collect();
         let values = columns.iter().map(|column| format!("quote({})", identifier(column))).collect::<Vec<_>>().join(" || ',' || ");
-        let select = format!("SELECT 'INSERT INTO {} VALUES(' || {values} || ');' FROM {} ORDER BY rowid", identifier(&table), identifier(&table));
+        let order = crate::native_persistence::tests::deterministic_table_order(&connection, &table);
+        let select = format!("SELECT 'INSERT INTO {} VALUES(' || {values} || ');' FROM {} ORDER BY {order}", identifier(&table), identifier(&table));
         let mut rows = connection.prepare(&select).unwrap();
         for row in rows.query_map([], |row| row.get::<_, String>(0)).unwrap() {
             text.push_str(&row.unwrap());
@@ -1628,6 +1630,49 @@ fn the_walkthrough_store_opens_to_the_unread_revision_refusal() {
     assert_eq!(registry.pool_status().retained_results, 0, "nothing is held");
     assert_eq!(registry.pool().reserved_total(), 0, "every lease ended");
     assert!(run_texts() == before, "the stored run is unchanged by the open");
+    std::fs::remove_dir_all(&dir).unwrap();
+}
+
+/// `store_sql` and `native_persistence::tests::dump` order `WITHOUT ROWID` tables by declared
+/// `PRIMARY KEY` columns so export and rebuild stay deterministic without a `rowid` column.
+#[test]
+fn store_sql_and_dump_order_without_rowid_tables_by_primary_key() {
+    let dir = scratch("without-rowid-order");
+    let fresh = dir.join("fresh.sqlite3");
+    let connection = Connection::open(&fresh).unwrap();
+    connection
+        .execute_batch(
+            "PRAGMA journal_mode = WAL;
+             CREATE TABLE items(a TEXT NOT NULL, b INTEGER NOT NULL, v TEXT NOT NULL, PRIMARY KEY(a, b)) WITHOUT ROWID;
+             INSERT INTO items VALUES('b', 1, 'x'), ('a', 2, 'y'), ('a', 1, 'z');",
+        )
+        .unwrap();
+    drop(connection);
+
+    let sql = store_sql(&fresh);
+    let inserts: Vec<&str> = sql.lines().filter(|line| line.starts_with("INSERT INTO \"items\"")).collect();
+    assert_eq!(
+        inserts,
+        [
+            "INSERT INTO \"items\" VALUES('a',1,'z');",
+            "INSERT INTO \"items\" VALUES('a',2,'y');",
+            "INSERT INTO \"items\" VALUES('b',1,'x');",
+        ]
+    );
+
+    let rebuilt = dir.join("rebuilt.sqlite3");
+    Connection::open(&rebuilt).unwrap().execute_batch(&sql).unwrap();
+    assert_eq!(store_content(&rebuilt), store_content(&fresh));
+
+    let dumped = crate::native_persistence::tests::dump(&fresh, "items", &[]);
+    assert_eq!(
+        dumped,
+        vec![
+            vec![("a".to_string(), rusqlite::types::Value::Text("a".to_string())), ("b".to_string(), rusqlite::types::Value::Integer(1)), ("v".to_string(), rusqlite::types::Value::Text("z".to_string()))],
+            vec![("a".to_string(), rusqlite::types::Value::Text("a".to_string())), ("b".to_string(), rusqlite::types::Value::Integer(2)), ("v".to_string(), rusqlite::types::Value::Text("y".to_string()))],
+            vec![("a".to_string(), rusqlite::types::Value::Text("b".to_string())), ("b".to_string(), rusqlite::types::Value::Integer(1)), ("v".to_string(), rusqlite::types::Value::Text("x".to_string()))],
+        ]
+    );
     std::fs::remove_dir_all(&dir).unwrap();
 }
 

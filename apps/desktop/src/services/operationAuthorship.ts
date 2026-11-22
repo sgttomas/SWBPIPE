@@ -5,8 +5,19 @@
  * modifiers) by reading `author_type`, which the operation boundary cannot
  * verify. So every route that carries agent or imported content stamps
  * `agent` here, host-side, and never passes a claimed author through. */
-import type { EditorOperationIntent } from "../types";
+import type { EditorOperationIntent, PreviewModel } from "../types";
 import type { OperationBatch } from "./operationBatchService";
+import { nativeFailureText } from "./nativeIngress";
+
+/** Q3: a thrown value in words that cannot itself throw: the native failure text, or, when even that cannot be made
+ * (a thrown object with no prototype, or one whose conversion throws), a fixed sentence. */
+export function editorFailureText(error: unknown): string {
+  try {
+    return nativeFailureText(error);
+  } catch {
+    return "a failure that could not be put into words";
+  }
+}
 
 /** Display-only record of what an imported file claimed; never part of an intent. */
 export type ImportContext = Readonly<{
@@ -249,12 +260,253 @@ export function requeueRetainedRecord(intent: unknown, index: number): RequeueRe
     return { refused: `This stored record carries ${entered.label}, a value only you enter, which the operation engine would not write for it. ${KEPT} Enter the value yourself in the component inspector, or prepare the change again without it.` };
   }
   if (agentOrImported) {
+    // Who proposed it is what an audit reads: an agent's or an import's stored reference and channel are kept as
+    // stored. Only an empty one, the desktop's own channel or the commit binding's reference is replaced by the
+    // retained mark, so a requeued proposal never reads as a live desktop editor's.
+    const storedRef = typeof source?.source_ref === "string" ? source.source_ref : "";
+    // Whitespace only counts as empty.
+    const kept = storedRef.trim() !== "" && channel.trim() !== "" && channel !== "local_desktop_preview" && !storedRef.startsWith("desktop-editor:");
     return { batch: { batch_id, operations: [{ ...structuredClone(intent), author_type: "agent",
-      source: { source_ref: typeof source?.source_ref === "string" && source.source_ref ? source.source_ref : `retained:${index}`, source_channel: channel || "retained_requeue", source_role: "agent" } } as unknown as EditorOperationIntent] } };
+      source: kept ? { source_ref: storedRef, source_channel: channel, source_role: "agent" } : { source_ref: `retained:${index}`, source_channel: "retained_requeue", source_role: "agent" } } as unknown as EditorOperationIntent] } };
   }
   if (intent.author_type === "user") {
     if (entered) return { refused: "This stored record writes a value only you enter (a flexibility factor k, a SIF or another component modifier), and its author cannot be verified after reopening. Enter the value again in the component inspector." };
-    return { batch: { batch_id, operations: [structuredClone(intent) as unknown as EditorOperationIntent] } };
+    return { batch: { batch_id, operations: [{ ...structuredClone(intent), source: retainedSource(index, "retained_user") } as unknown as EditorOperationIntent] } };
   }
   return { refused: "This stored record does not say who proposed it, so it cannot be requeued. Prepare the change again." };
+}
+/** The source a requeued record of the person's carries, whatever source it was stored with: it says the operation
+ * is a stored record requeued, so once applied from review it never reads as a live desktop editor's commit. The
+ * stored record keeps its original source at the same index of the retained context. */
+function retainedSource(index: number, role: "retained_user") {
+  return { source_ref: `retained:${index}`, source_channel: "retained_requeue", source_role: role };
+}
+
+/** The role a desktop editor's binding stamps on what it commits (DEL-16-03, Commit). */
+export type EditorCommitRole = "gui_editor" | "viewport_editor";
+/** What a desktop editor's own builder returns from the person's typed values: one operation, or one ordered batch
+ * applied whole. Built inside the session on the live model; never an argument of any commit entry. */
+export type EditorEdit = Readonly<{ intent: EditorOperationIntent }> | Readonly<{ batch: OperationBatch }>;
+/** The input guard every bound builder declares: the members its typed input may have, and a check of their types
+ * that returns the reason for a refusal, or null. */
+export type EditorInputGuard = Readonly<{ members: readonly string[]; check: (input: Readonly<Record<string, unknown>>) => string | null }>;
+/** A desktop editor's own builder, bound once at the application root (`editorBinding`): its name, the role its
+ * edits are stamped with, its input guard, and the pure function that turns its typed input into its edit on the
+ * live model. `id` is minted by the session for the edit's identifiers.
+ * The input the guard's check and the builder receive is the session's owned copy: deep-frozen, and every object in
+ * it has a null prototype (arrays stay arrays). Neither may call an Object.prototype method on it or on a nested
+ * object (hasOwnProperty, toString, valueOf, isPrototypeOf), turn one into a string (String(), a template string,
+ * concatenation), or rely on a library that recognises a plain object by its prototype. Read members directly; use
+ * Object.hasOwn(value, key) for a presence check. structuredClone and JSON.stringify accept the copy. */
+export type EditorBuilder<I> = Readonly<{
+  name: string;
+  role: EditorCommitRole;
+  input: EditorInputGuard;
+  build: (model: PreviewModel, input: I, id: Readonly<{ sequence: number; batchId: string }>) => EditorEdit | Promise<EditorEdit>;
+}>;
+/** One of the engine's findings, as a detached frozen copy. */
+export type EditorFinding = Readonly<{ code: string; severity: string; message: string; affected_refs: readonly string[] }>;
+/** Nothing was applied: the reason to show at the control, and the engine's findings when the engine refused. */
+export type EditorRefusal = Readonly<{ status: "refused"; reason: string; findings: readonly EditorFinding[] }>;
+/** One commit applied: its checkpoint (one Undo reverts it), the name the history shows, whether a held result was
+ * cleared, and a notice of a failure after publication (the commit stands). */
+export type EditorCommitResult = Readonly<{ status: "committed"; checkpointId: string; historyName: string; resultsCleared: boolean; notice: string | null }> | EditorRefusal;
+/** A dialog's single-use handle: opaque, recognised by the session by identity, consumed by its commit. */
+export type EditorPreviewHandle = Readonly<{ handle: "editor-preview" }>;
+/** What the engine's validate-only preview reports of the batch's extent, as a detached frozen copy. */
+export type EditorExtent = Readonly<{
+  historyName: string;
+  steps: readonly Readonly<{ operationId: string; changeKind: string; targetType: string; targetRef: string; diff: readonly Readonly<Record<string, unknown>>[] }>[];
+  findings: readonly EditorFinding[];
+}>;
+export type EditorPreviewResult = Readonly<{ status: "previewed"; handle: EditorPreviewHandle; extent: EditorExtent }> | EditorRefusal;
+
+/** Members no editor's typed input may carry: the members of an operation, a batch, a stamp or a queue's context at
+ * any depth, and the generic `target`, `source` and `change` at the top level only (a typed domain value may rightly
+ * hold a member called target). */
+const NOT_TYPED_ANYWHERE = ["operations", "intent", "batch", "batch_id", "operation_id", "author_type", "queue_id", "source_ref", "source_channel",
+  "source_role", "source_model_hash", "change_kind", "field_path", "precondition", "agentContext", "importContext"];
+const NOT_TYPED_AT_TOP = ["target", "source", "change"];
+const NOT_TYPED_INPUT = [...NOT_TYPED_ANYWHERE, ...NOT_TYPED_AT_TOP];
+/** The bounds of an editor's typed input: its depth, and its total entries (each value counted once). */
+export const EDITOR_INPUT_BOUNDS = Object.freeze({ maxDepth: 32, maxEntries: 65_536 });
+
+/** Refuses, at bind time and by name, a builder with no declared input guard, or a guard that names a member of an
+ * operation, a batch or a stamp. Returns the reason, or null. */
+export function editorBuilderRefusal(builder: unknown): string | null {
+  if (!plain(builder)) return "An editor's builder must be declared with a name, a role, an input guard and a build function.";
+  const name = typeof builder.name === "string" && builder.name.trim() ? builder.name : null;
+  if (!name) return "An editor's builder must have a name.";
+  if (builder.role !== "gui_editor" && builder.role !== "viewport_editor") return `The builder ${name} has no editor role.`;
+  if (typeof builder.build !== "function") return `The builder ${name} has no build function.`;
+  const input = builder.input;
+  if (!plain(input) || !Array.isArray(input.members) || input.members.length === 0 || !input.members.every((member) => typeof member === "string") || typeof input.check !== "function") {
+    return `The builder ${name} has no declared input guard (its members and a check of their types).`;
+  }
+  const forbidden = (input.members as string[]).filter((member) => NOT_TYPED_INPUT.includes(member));
+  if (forbidden.length) return `The builder ${name} declares ${forbidden.join(", ")} as input; an editor's input is typed values, never an operation, a batch or a stamp.`;
+  return null;
+}
+
+/** P4: the input a bound callback owns. The caller's value is materialised once, synchronously, into a fresh
+ * deep-frozen copy of data only, each object in it with a null prototype (see `EditorBuilder`), and the guard's check and the builder get that copy, never the caller's object.
+ * Accepted: null, booleans, finite numbers, strings, arrays of accepted values with no other members, and strictly
+ * plain objects (prototype Object.prototype or null) whose own keys are all enumerable string data properties.
+ * Refused by name: an accessor, a symbol key, a non-enumerable key, a function, any other prototype (a Map, a Set, a
+ * class instance, a Proxy failing these checks), a cycle, an input deeper or larger than `EDITOR_INPUT_BOUNDS`, a
+ * forbidden member (`NOT_TYPED_ANYWHERE` at any depth, `NOT_TYPED_AT_TOP` at the top), and a top-level member the
+ * guard does not name; then the guard's own check runs on the copy. A throw anywhere is a refusal. */
+export function ownEditorInput(guard: EditorInputGuard, input: unknown): { input: Readonly<Record<string, unknown>> } | { refused: string } {
+  try {
+    // Q4: each copied object's subtree size (its entries, itself included) and height (its levels of objects), so a
+    // shared subtree met again counts what is there: its size is added to the entries and its height to the depth.
+    const copies = new Map<object, { copy: unknown; size: number; height: number }>();
+    const inProgress = new Set<object>();
+    let entries = 0;
+    let lastHeight = 0;
+    const tooLarge = () => new InputRefusal(`is larger than ${EDITOR_INPUT_BOUNDS.maxEntries} entries`);
+    const tooDeep = () => new InputRefusal(`is nested deeper than ${EDITOR_INPUT_BOUNDS.maxDepth} levels`);
+    const own = (value: unknown, depth: number, top: boolean): unknown => {
+      lastHeight = 0;
+      if (++entries > EDITOR_INPUT_BOUNDS.maxEntries) throw tooLarge();
+      if (value === null || typeof value === "boolean" || typeof value === "string") return value;
+      if (typeof value === "number") { if (!Number.isFinite(value)) throw new InputRefusal("carries a number that is not finite"); return value; }
+      if (typeof value === "function") throw new InputRefusal("carries a function, which is not a typed value");
+      if (typeof value !== "object") throw new InputRefusal(`carries a ${typeof value}, which is not a typed value`);
+      if (depth > EDITOR_INPUT_BOUNDS.maxDepth) throw tooDeep();
+      if (inProgress.has(value)) throw new InputRefusal("contains a cycle");
+      const memo = copies.get(value);
+      if (memo) {
+        entries += memo.size - 1;
+        if (entries > EDITOR_INPUT_BOUNDS.maxEntries) throw tooLarge();
+        if (depth + memo.height - 1 > EDITOR_INPUT_BOUNDS.maxDepth) throw tooDeep();
+        lastHeight = memo.height;
+        return memo.copy;
+      }
+      const entriesBefore = entries - 1;
+      let childHeight = 0;
+      const child = (member: unknown) => {
+        const copied = own(member, depth + 1, false);
+        childHeight = Math.max(childHeight, lastHeight);
+        return copied;
+      };
+      const prototype = Object.getPrototypeOf(value);
+      const isArray = Array.isArray(value);
+      if (isArray ? prototype !== Array.prototype : prototype !== Object.prototype && prototype !== null) throw new InputRefusal("carries an object that is not plain data (a Map, a Set, a class instance or another prototype)");
+      const keys = Reflect.ownKeys(value);
+      inProgress.add(value);
+      let copy: unknown;
+      // Q1: every member of a copy is defined, never assigned, so no inherited setter can fire for any key; an own
+      // "__proto__" is refused as not plain data.
+      const define = (target: object, key: string, member: unknown) =>
+        Object.defineProperty(target, key, { value: member, enumerable: true, writable: true, configurable: true });
+      if (keys.includes("__proto__")) throw new InputRefusal("carries a member named __proto__, which is not plain data");
+      if (isArray) {
+        const lengthDescriptor = Reflect.getOwnPropertyDescriptor(value, "length");
+        const length = lengthDescriptor && "value" in lengthDescriptor && typeof lengthDescriptor.value === "number" ? lengthDescriptor.value : -1;
+        if (length < 0) throw new InputRefusal("carries an array with no length of its own");
+        const out: unknown[] = [];
+        for (const key of keys) {
+          if (typeof key === "symbol") throw new InputRefusal("carries a symbol key");
+          if (key === "length") continue;
+          if (!/^(0|[1-9]\d*)$/.test(key) || Number(key) >= length) throw new InputRefusal(`carries an array with the member ${key}`);
+        }
+        if (keys.length !== length + 1) throw new InputRefusal("carries an array with holes");
+        for (let index = 0; index < length; index++) {
+          const descriptor = Reflect.getOwnPropertyDescriptor(value, String(index))!;
+          if (!("value" in descriptor)) throw new InputRefusal("carries an accessor");
+          if (!descriptor.enumerable) throw new InputRefusal("carries a non-enumerable member");
+          define(out, String(index), child(descriptor.value));
+        }
+        copy = Object.freeze(out);
+      } else {
+        // Q1: no prototype, so inheritance is impossible by construction.
+        const out: Record<string, unknown> = Object.create(null);
+        for (const key of keys) {
+          if (typeof key === "symbol") throw new InputRefusal("carries a symbol key");
+          if (NOT_TYPED_ANYWHERE.includes(key) || (top && NOT_TYPED_AT_TOP.includes(key))) throw new InputRefusal(`carries ${key}, a member of an operation, a batch or a stamp`);
+          const descriptor = Reflect.getOwnPropertyDescriptor(value, key)!;
+          if (!("value" in descriptor)) throw new InputRefusal(`carries an accessor at ${key}`);
+          if (!descriptor.enumerable) throw new InputRefusal(`carries a non-enumerable member ${key}`);
+          define(out, key, child(descriptor.value));
+        }
+        copy = Object.freeze(out);
+      }
+      inProgress.delete(value);
+      const height = childHeight + 1;
+      copies.set(value, { copy, size: entries - entriesBefore, height });
+      lastHeight = height;
+      return copy;
+    };
+    if (input === null || typeof input !== "object" || Array.isArray(input)) return { refused: "This edit's input is not the editor's typed values, so nothing was built." };
+    const owned = own(input, 0, true) as Readonly<Record<string, unknown>>;
+    // Q1: the declaration is checked against the caller's object's own keys, not the copy's.
+    const unnamed = Reflect.ownKeys(input).filter((key): key is string => typeof key === "string" && !guard.members.includes(key));
+    if (unnamed.length) return { refused: `This edit's input carries ${unnamed.join(", ")}, which the editor does not take, so nothing was built.` };
+    const checked = guard.check(owned);
+    if (checked !== null) return { refused: typeof checked === "string" ? checked : "The editor's check refused this input, so nothing was built." };
+    return { input: owned };
+  } catch (error) {
+    if (error instanceof InputRefusal) return { refused: `This edit's input ${error.message}, so nothing was built.` };
+    return { refused: `This edit's input could not be read as typed values (${editorFailureText(error)}), so nothing was built.` };
+  }
+}
+class InputRefusal extends Error {}
+
+/** The prefix of the source reference the binding stamps; a built operation already carrying it is refused. */
+const EDITOR_COMMIT_SOURCE_PREFIX = "desktop-editor:";
+const EDITOR_SOURCE_MEMBERS = ["source_ref", "source_channel", "source_role"];
+const NOT_AN_EDITORS = "so nothing was applied.";
+
+/** The binding's stamp (DEL-16-03, Commit), applied to what an editor's own builder returned. Every operation is
+ * stamped as the person's by the binding: `author_type` is `user` and the source is the binding's own
+ * (`local_desktop_preview`, its role, a reference derived from the batch), never read from what was built as a
+ * grant. What was built is read only against an allowlist: each operation names the person as its author and carries
+ * either no source or the desktop editor's own (`local_desktop_preview` with `gui_editor` or `viewport_editor`); a
+ * queue id, a retained or already-stamped reference, a requeue batch, a context or a precondition is refused, and
+ * nothing is overwritten into acceptance. */
+export function stampEditorCommit(edit: unknown, role: EditorCommitRole): { batch: OperationBatch } | { refused: string } {
+  if (!plain(edit)) return { refused: `The editor built no change or batch, ${NOT_AN_EDITORS}` };
+  const keys = Object.keys(edit);
+  if (keys.some((key) => /context|precondition/i.test(key))) return { refused: `The change carries an agent's or an import's context or a precondition, ${NOT_AN_EDITORS}` };
+  if (keys.length !== 1 || !(keys[0] === "intent" || keys[0] === "batch")) return { refused: `The editor built something other than one change or one batch, ${NOT_AN_EDITORS}` };
+  let batchId: unknown, operations: unknown, sourceModelHash: { source_model_hash: unknown } | null = null;
+  if (keys[0] === "intent") {
+    operations = [edit.intent];
+    batchId = plain(edit.intent) ? edit.intent.operation_id : undefined;
+  } else {
+    const batch = edit.batch;
+    if (!plain(batch)) return { refused: `The editor built something other than one change or one batch, ${NOT_AN_EDITORS}` };
+    if (Object.keys(batch).some((key) => /context|precondition/i.test(key))) return { refused: `The change carries an agent's or an import's context or a precondition, ${NOT_AN_EDITORS}` };
+    const extra = Object.keys(batch).filter((key) => !["batch_id", "operations", "source_model_hash"].includes(key));
+    if (extra.length) return { refused: `The batch carries ${extra.join(", ")}, which no desktop editor writes, ${NOT_AN_EDITORS}` };
+    batchId = batch.batch_id;
+    operations = batch.operations;
+    if (Object.hasOwn(batch, "source_model_hash")) sourceModelHash = { source_model_hash: batch.source_model_hash };
+  }
+  if (typeof batchId !== "string" || !batchId.trim()) return { refused: `The change has no identifier, ${NOT_AN_EDITORS}` };
+  if (batchId.startsWith("requeue-")) return { refused: `The change is a stored record requeued, ${NOT_AN_EDITORS}` };
+  if (!Array.isArray(operations) || operations.length === 0 || !operations.every(plain)) return { refused: `The batch holds no operation a desktop editor builds, ${NOT_AN_EDITORS}` };
+  for (const operation of operations as Record<string, unknown>[]) {
+    if (Object.hasOwn(operation, "queue_id")) return { refused: `The change carries a queue id: it was queued for review, ${NOT_AN_EDITORS}` };
+    if (!Object.hasOwn(operation, "author_type")) return { refused: `The change names no author; a desktop editor's change names the person, ${NOT_AN_EDITORS}` };
+    if (operation.author_type !== "user") return { refused: `The change carries another author than the person, ${NOT_AN_EDITORS}` };
+    if (!Object.hasOwn(operation, "source")) continue;
+    const source = operation.source;
+    const ref = plain(source) && typeof source.source_ref === "string" ? source.source_ref : "";
+    if (ref.startsWith("retained:") || (plain(source) && source.source_channel === "retained_requeue")) return { refused: `The change is a stored record requeued, ${NOT_AN_EDITORS}` };
+    if (ref.startsWith(EDITOR_COMMIT_SOURCE_PREFIX)) return { refused: `The change is a record already committed once, ${NOT_AN_EDITORS}` };
+    if (!plain(source) || Object.keys(source).some((key) => !EDITOR_SOURCE_MEMBERS.includes(key)) ||
+      source.source_channel !== "local_desktop_preview" || (source.source_role !== "gui_editor" && source.source_role !== "viewport_editor") ||
+      (Object.hasOwn(source, "source_ref") && typeof source.source_ref !== "string")) {
+      return { refused: `The change carries a source that is not a desktop editor's own, ${NOT_AN_EDITORS}` };
+    }
+  }
+  const stamped = (operations as Record<string, unknown>[]).map((operation, index) => ({
+    ...structuredClone(operation),
+    author_type: "user" as const,
+    source: { source_ref: `${EDITOR_COMMIT_SOURCE_PREFIX}${role}:${batchId}:${index + 1}`, source_channel: "local_desktop_preview", source_role: role }
+  })) as unknown as EditorOperationIntent[];
+  // The engine reads and checks a batch's own model hash claim; it is passed as the editor wrote it.
+  return { batch: { batch_id: batchId, operations: stamped, ...(sourceModelHash as { source_model_hash?: string } | null) } };
 }

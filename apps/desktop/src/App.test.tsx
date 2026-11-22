@@ -3953,8 +3953,8 @@ describe("SWBPIPE desktop preview", () => {
     expectVirtualTargetValue(manager, "load-manager-create-primitive-load-case", "load:L-100");
     expectVirtualTargetValue(manager, "load-manager-create-primitive-pipe", "pipe:P-100");
     expect(
-      within(manager).getByTestId("load-manager-create-primitive-direction"),
-    ).toHaveValue("global_z");
+      within(manager).queryByTestId("load-manager-create-primitive-direction"),
+    ).toBeNull();
     expect(
       within(manager).getByTestId("load-manager-create-primitive-unit"),
     ).toHaveValue("degC");
@@ -3998,7 +3998,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(manager).getByTestId("load-manager-primitive-load:L-100-T300").closest("tr")!
         .textContent,
-    ).toContain("ThermalP-100Global Z12.5degC");
+    ).toContain("ThermalP-100—12.5degC");
     expect(
       within(manager).getByTestId("load-manager-primitive-load:L-100-T300"),
     ).toHaveAttribute("title", "load:L-100-T300");
@@ -9373,6 +9373,9 @@ describe("SWBPIPE desktop preview", () => {
 
     const tree = await screen.findByLabelText("Model tree");
     selectTreeRow("node", "node:N-100");
+    // The New support form opens from Insert > Support.
+    fireEvent.click(screen.getByTestId("menu-insert"));
+    fireEvent.click(screen.getByTestId("menu-item-insert.support"));
     const inspector = screen.getByLabelText("Property inspector");
     const createSupportPanel = within(inspector).getByLabelText(
       "Create support intent",
@@ -10474,6 +10477,12 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("1 pending operation");
   });
 
+  /** Opens the inspector's New component form as a person does: the command box's Components command. */
+  function openComponentForm() {
+    fireEvent.click(screen.getByTestId("toolkit-entry"));
+    fireEvent.click(screen.getByTestId("toolkit-build.component"));
+  }
+
   function setComponentField(panel: HTMLElement, testId: string, value: string) {
     setControlValue(panel, testId, value);
   }
@@ -10555,6 +10564,7 @@ describe("SWBPIPE desktop preview", () => {
       render(<App />);
 
       const inspector = await screen.findByLabelText("Property inspector");
+      openComponentForm();
       const panel = within(inspector).getByLabelText("Create component intent");
       const queueButton = within(panel).getByTestId("queue-create-component-intent");
       setComponentField(panel, "create-component-kind", "expansion_joint");
@@ -10630,6 +10640,7 @@ describe("SWBPIPE desktop preview", () => {
       render(<App />);
 
       const inspector = await screen.findByLabelText("Property inspector");
+      openComponentForm();
       const panel = within(inspector).getByLabelText("Create component intent");
       const queueButton = within(panel).getByTestId("queue-create-component-intent");
       setComponentField(panel, "create-component-kind", kind);
@@ -10696,6 +10707,7 @@ describe("SWBPIPE desktop preview", () => {
       render(<App />);
 
       const inspector = await screen.findByLabelText("Property inspector");
+      openComponentForm();
       const panel = within(inspector).getByLabelText("Create component intent");
       fillComponentForm(panel, "create", kind);
       const queueButton = within(panel).getByTestId("queue-create-component-intent");
@@ -10764,6 +10776,7 @@ describe("SWBPIPE desktop preview", () => {
     render(<App />);
 
     const inspector = await screen.findByLabelText("Property inspector");
+    openComponentForm();
     const panel = within(inspector).getByLabelText("Create component intent");
     fillComponentForm(panel, "create", kind);
 
@@ -10838,6 +10851,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(within(viewportPanel).getByTestId("queue-explicit-component-intent")).toBeDisabled();
 
     const inspector = screen.getByLabelText("Property inspector");
+    openComponentForm();
     const panel = within(inspector).getByLabelText("Create component intent");
     setComponentField(panel, "create-component-kind", "expansion_joint");
     expect(within(panel).getByTestId("create-component-connector-unavailable")).toBeInTheDocument();
@@ -10875,6 +10889,7 @@ describe("SWBPIPE desktop preview", () => {
     );
 
     const inspector = screen.getByLabelText("Property inspector");
+    openComponentForm();
     const componentPanel = within(inspector).getByLabelText("Create component intent");
     setComponentField(componentPanel, "create-component-kind", "tee");
     setComponentField(componentPanel, "create-component-node", "node:N-110");
@@ -12134,8 +12149,10 @@ describe("persistent modeling workspace", () => {
     }
     if (selectedId !== "project") fireEvent.click(screen.getByTestId(`viewport-select-${selectedId}`));
     const target = screen.getByTestId("create-support-id");
-    const disclosure = target.closest("details");
-    expect(disclosure).not.toHaveAttribute("open");
+    // The New support form is not shown until a command asks for it.
+    const form = target.closest<HTMLElement>('[data-testid="inspector-creation-support"]');
+    expect(form).not.toBeNull();
+    expect(form).toHaveAttribute("hidden");
     const viewport = screen.getByTestId("viewport-canvas");
     const selectionBefore = screen.getByTestId("command-selection-readout").textContent;
     if (route === "toolbar") fireEvent.click(screen.getByTestId("command-support"));
@@ -12145,7 +12162,7 @@ describe("persistent modeling workspace", () => {
     }
     expect(screen.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "true");
     expect(within(screen.getByTestId("property-inspector")).getByRole("tab", { name: /^Properties$/ })).toHaveAttribute("aria-selected", "true");
-    expect(disclosure).toHaveAttribute("open");
+    expect(form).not.toHaveAttribute("hidden");
     expect(target).toHaveFocus();
     expect(screen.getByTestId("armed-creation-tool")).toHaveTextContent("Support tool armed");
     expect(screen.getByTestId("command-selection-readout").textContent).toBe(selectionBefore);

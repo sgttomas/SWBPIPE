@@ -1,7 +1,7 @@
 import type { ReportComposition } from "../report/reportComposition";
 import { EmbeddedAgentSession, type AgentContext, type AgentRunReceipt, type AgentSolveFailure, type AgentSolveOutcome, type AgentSolverMode } from "../../services/embeddedAgentSession";
 import { presentedResultDiagnostics } from "../results/suppliedDiagnostics";
-import { requeueRetainedRecord, type ImportContext } from "../../services/operationAuthorship";
+import { requeueRetainedRecord, stampEditorCommit, editorBuilderRefusal, ownEditorInput, editorFailureText, type ImportContext } from "../../services/operationAuthorship";
 import { hasCurrentSourceContract } from "../results/resultReader";
 import type React from "react";
 import {
@@ -222,7 +222,7 @@ import { useModelStateHistory, type LandedProjectSave, type ProjectBinding } fro
 import { unsavedChangesRefusal, useUnsavedChangesGuard } from "../project-storage/unsavedChangesGuard";
 import { openAutosaveSource, useAutosave } from "../autosave";
 import { createModalHolds, type ModalHolds } from "../project-storage/modalHolds";
-import { withinRunBusyReason, type WithinRunPair } from "../comparison/withinRunComparison";
+import { packagedComparisonForRun, withinRunBusyReason, type WithinRunPair } from "../comparison/withinRunComparison";
 import { listModelStates, modelStateDescription, saveModelState, type ModelStateRead } from "../../services/modelStateService";
 import { useProjectSessionState } from "./projectSessionState";
 import { useResultsSessionState } from "./resultsSessionState";
@@ -232,6 +232,7 @@ import {
   applyDisplayedRange,
   applySelection,
   emptySelection,
+  entityKey,
   primarySelection,
   pruneSelection,
   sameSelection,
@@ -617,9 +618,9 @@ export function useWorkspaceSession() {
     selectedPipeRefs
   } = useSelectionSessionState();
   const {
-    result, setResult,
+    result, setResult: setResultCell,
     fullResultCopy, setFullResultCopy,
-    historicalRun, setHistoricalRun,
+    historicalRun, setHistoricalRun: setHistoricalRunCell,
     currentSolvedResult,
     renderableSolvedResult,
     numericallyEligible,
@@ -627,11 +628,11 @@ export function useWorkspaceSession() {
     numericalHealth,
     numericalHealthHold,
     packageStandingGround,
-    analysisRun, setAnalysisRun,
+    analysisRun, setAnalysisRun: setAnalysisRunCell,
     resultBasisRef,
     analysisBasisRef,
-    inputManifest, setInputManifest,
-    ruleCheckAggregate, setRuleCheckAggregate,
+    inputManifest, setInputManifest: setInputManifestCell,
+    ruleCheckAggregate, setRuleCheckAggregate: setRuleCheckAggregateCell,
     ruleCheckReportRun, heldRuleCheckRun, setRuleCheckReportRun,
     ruleCheckAggregateRef, ruleCheckReportRunRef,
     proposal, setProposal,
@@ -658,9 +659,26 @@ export function useWorkspaceSession() {
     packagedWithinRun,
     withinRun,
     droppedWithinRunBases,
+    heldWithinRunSelection,
+    heldWithinRunSelectionRef,
     setHeldWithinRunSelection,
     setDroppedWithinRunBases
   } = useResultsSessionState(reportSource.owner.advance);
+  // DEL-16-03, Commit (P6): the held values an editor commit reads at publication, written synchronously at each of
+  // their setters (not at the last render), so a value published in the same batch as the commit is seen. The cells
+  // are written only through these setters; a functional update resolves against the same latest value the cell does.
+  type EditorHeld = { result: typeof result; historicalRun: typeof historicalRun; analysisRun: typeof analysisRun; inputManifest: typeof inputManifest; ruleCheckAggregate: typeof ruleCheckAggregate };
+  const editorHeld = useRef<EditorHeld>({ result, historicalRun, analysisRun, inputManifest, ruleCheckAggregate });
+  const [{ setResult, setHistoricalRun, setAnalysisRun, setInputManifest, setRuleCheckAggregate }] = useState(() => {
+    const held = <K extends keyof EditorHeld>(key: K, write: React.Dispatch<React.SetStateAction<EditorHeld[K]>>): React.Dispatch<React.SetStateAction<EditorHeld[K]>> =>
+      (action) => {
+        const next = typeof action === "function" ? (action as (previous: EditorHeld[K]) => EditorHeld[K])(editorHeld.current[key]) : action;
+        editorHeld.current[key] = next;
+        write(next);
+      };
+    return { setResult: held("result", setResultCell), setHistoricalRun: held("historicalRun", setHistoricalRunCell), setAnalysisRun: held("analysisRun", setAnalysisRunCell),
+      setInputManifest: held("inputManifest", setInputManifestCell), setRuleCheckAggregate: held("ruleCheckAggregate", setRuleCheckAggregateCell) };
+  });
   // C2 interim (DEL-04-05 `c1-native-custody-plan.md` slice 4): the inputs each native record was
   // built with, so a C2 consumer's full record is the same record, built on the full copy.
   const nativeRunInputs = useRef(new WeakMap<object, { inputManifest: CurrentSessionInputManifestEvidence; ruleCheckAggregate: RuleCheckStatus | null; rulePackExclusions: readonly ExcludedRulePackRef[] }>());
@@ -2643,6 +2661,439 @@ export function useWorkspaceSession() {
     }
   }
 
+  // DEL-16-03, Commit: a person's own edit in a live desktop editor, applied where it is made. Nothing here takes an
+  // intent or a batch from anyone. The application root binds each editor's own pure builder (its typed input, a
+  // declared input guard and its role) through `editorBinding`, which the session returns outside `operations` and
+  // outside everything the context provider is given; the bound callback takes the editor's typed values only, and
+  // the batch is built inside, on the live model, by the bound builder, then stamped as the person's by the binding.
+  // Form 1, `commit(input)`, is one step for an immediate edit. Form 2, `preview(input)` then `commit(handle)`, is for
+  // an action whose dialog shows the engine's preview first; its single-use handle is invalidated by any change of
+  // model or project and consumed by its commit. The engine validates and previews the stamped batch, and applies
+  // that same batch on the same basis: one checkpoint, one batch receipt and one applied-operation record, as for an
+  // applied queued batch. A refusal changes nothing; every result is a detached frozen copy.
+  type EditorRefusal = import("../../services/operationAuthorship").EditorRefusal;
+  type EditorCommitResult = import("../../services/operationAuthorship").EditorCommitResult;
+  type EditorPreviewResult = import("../../services/operationAuthorship").EditorPreviewResult;
+  type EditorPreviewHandle = import("../../services/operationAuthorship").EditorPreviewHandle;
+  type EditorBuilder<I> = import("../../services/operationAuthorship").EditorBuilder<I>;
+  type EngineFinding = OperationBatchOutcome["diagnostics"][number];
+  type EditorBindingRecord = Readonly<{ builder: EditorBuilder<never>; form: "commit" | "dialog" }>;
+  type EditorPreviewRecord = {
+    readonly binding: EditorBindingRecord; readonly batch: OperationBatch; readonly fingerprint: string; readonly basisHash: ModelHashEvidence;
+    readonly revision: number; readonly generation: number; readonly outcome: OperationBatchOutcome; consumed: boolean;
+  };
+  type EditorCheckedBatch = Readonly<{ batch: OperationBatch; fingerprint: string; basisModel: PreviewModel; basisHash: ModelHashEvidence; validation: OperationBatchOutcome }>;
+  const editorPreviews = useRef(new WeakMap<object, EditorPreviewRecord>());
+  const editorBuildSequence = useRef(0);
+  const editorCommitSequence = useRef(0);
+  // P8: a value of this mount in each minted commit id, so a checkpoint id is not reused by a later mount whose
+  // counter restarted.
+  const [editorMount] = useState(() => globalThis.crypto.randomUUID());
+  const EDITOR_SUPERSEDED = "The model or the project changed while this edit was checked, so nothing was applied. Enter it again.";
+  const editorFindings = (findings: readonly EngineFinding[]) =>
+    findings.map((item) => ({ code: String(item.code), severity: String(item.severity), message: String(item.message), affected_refs: [...(item.affected_refs ?? [])].map(String) }));
+  const editorRefusal = (reason: string, outcome: OperationBatchOutcome | null = null): EditorRefusal => deepFreeze({ status: "refused" as const, reason,
+    findings: outcome ? editorFindings([...(outcome.diagnostics ?? []), ...(outcome.operation_outcomes ?? []).flatMap((step) => step.diagnostics ?? [])]) : [] });
+  const blockingFindings = (outcome: OperationBatchOutcome) =>
+    [...(outcome.diagnostics ?? []), ...(outcome.operation_outcomes ?? []).flatMap((step) => step.diagnostics ?? [])].filter((item) => item.severity === "blocking");
+  /** The engine's own reason for a refusal: its blocking findings' messages, in order, without repeats. */
+  function engineRefusalReason(outcome: OperationBatchOutcome): string {
+    const blocking = blockingFindings(outcome);
+    const findings = blocking.length ? blocking : [...(outcome.diagnostics ?? []), ...(outcome.operation_outcomes ?? []).flatMap((step) => step.diagnostics ?? [])];
+    const messages = [...new Set(findings.map((item) => item.message).filter(Boolean))];
+    return messages.length ? `${messages.join(" ")} Nothing was applied.` : `The engine did not apply this change (${outcome.validation.application_status}). Nothing was applied.`;
+  }
+
+  /** P2: what the person previewed is what is applied. The reply holds one step per submitted operation, in order,
+   * each naming that operation (index, id, change, target, kind) with a successful disposition and no blocking
+   * finding, as the viewport route checks (routeDraft.ts `validationMatchesSubmission`). The reason, or null. */
+  function editorStepsMismatch(outcome: OperationBatchOutcome, batch: OperationBatch): string | null {
+    const steps = Array.isArray(outcome.operation_outcomes) ? outcome.operation_outcomes : [];
+    if (steps.length !== batch.operations.length) return `The engine's reply holds ${steps.length} operation steps for the ${batch.operations.length} submitted, so nothing was applied.`;
+    for (const [index, operation] of batch.operations.entries()) {
+      const step = steps[index];
+      if (!step || step.index !== index || step.operation_id !== operation.operation_id || step.change_id !== operation.change.change_id ||
+        step.target_object_type !== operation.target.object_type || step.target_ref !== operation.target.ref || step.change_kind !== operation.change.change_kind) {
+        return `The engine's reply does not match submitted operation ${index + 1} at its place, so nothing was applied.`;
+      }
+      if (step.simulation_status !== "validated_on_temporary_state") return `The engine did not validate submitted operation ${index + 1}, so nothing was applied.`;
+      if ((step.diagnostics ?? []).some((item) => item.severity === "blocking")) return `The engine reported a blocking finding on submitted operation ${index + 1}, so nothing was applied.`;
+      // Q2: the step's own validation passed and its preview, which the person is shown, is generated, not empty,
+      // and is a change of the submitted operation.
+      // A check that does not apply to a change is reported "not_run" by the applier (lib.rs, the checker's initial
+      // state); any other value but "passed" (blocked, blocked_stale) is a failed check.
+      const checks = step.validation;
+      const passedOrNotRun = (value: unknown) => value === "passed" || value === "not_run";
+      if (!checks || checks.schema_validation !== "passed" || !passedOrNotRun(checks.reference_validation) || !passedOrNotRun(checks.unit_validation)
+        || !passedOrNotRun(checks.before_state_validation) || checks.diff_preview_status !== "generated") {
+        return `The engine's reply does not show submitted operation ${index + 1} as validated with its preview, so nothing was applied.`;
+      }
+      const rows = Array.isArray(step.diff_preview) ? step.diff_preview : [];
+      if (rows.length === 0) return `The engine's reply shows no change for submitted operation ${index + 1}, so nothing was applied.`;
+      if (!editorDiffShowsOperation(rows, operation)) return `The change the engine shows for submitted operation ${index + 1} is not the change that would be applied, so nothing was applied.`;
+    }
+    return null;
+  }
+  const EDITOR_DIFF_FIELDS = ["entity_ref", "object_type", "field_path", "before", "after", "unit", "dimension", "change_kind"] as const;
+  type EditorDiffRow = Record<(typeof EDITOR_DIFF_FIELDS)[number], string>;
+  /** Q2: what the person is shown for one step is the submitted operation, decided by the operation's change kind,
+   * never by how many rows the reply holds (a reply for a one-row edit that adds a row is refused).
+   * - The engine-expanded kinds, whose rows the engine derives (operation_applier: bend_authoring.rs
+   *   `insert_at_corner`, geometry_operations.rs split and transform, pipe_reconnect.rs, library_apply.rs): every row
+   *   complete with non-empty text, and the rows each kind must show (below).
+   * - Every other kind: its first row equal, field for field, to the operation, as the viewport route compares its
+   *   own (routeDraft.ts `diffPreviewMatchesIntent`). The applier adds derived rows after it in three cases only, and
+   *   only those rows are admitted after it: a Section's field edit, the Element section rows of the pipes bound to
+   *   it (lib.rs, section_bindings.rs `propagate`); an assign or detach of a section, its own Element section row
+   *   (lib.rs `section_bindings::assign`); a pipe's deletion, the Line rows of the lines that named it
+   *   (model_data_authoring.rs `remove_pipe_from_lines`). */
+  function editorDiffShowsOperation(rows: readonly unknown[], operation: OperationBatch["operations"][number]): boolean {
+    const record = (row: unknown): row is EditorDiffRow => row !== null && typeof row === "object" && !Array.isArray(row)
+      && EDITOR_DIFF_FIELDS.every((field) => typeof (row as Record<string, unknown>)[field] === "string");
+    if (rows.length === 0 || !rows.every(record)) return false;
+    const typed = rows as readonly EditorDiffRow[];
+    const { change_kind: kind } = operation.change;
+    const ownRow = (row: EditorDiffRow) => row.entity_ref === operation.target.ref && row.object_type === operation.target.object_type && row.change_kind === kind;
+    const filled = typed.every((row) => EDITOR_DIFF_FIELDS.every((field) => row[field] !== ""));
+    switch (kind) {
+      case "insert_bend_at_corner":
+      case "split_pipe_run":
+        return filled && typed.some(ownRow);
+      case "reconnect_pipe_run":
+        return filled && typed.length === 1 && ownRow(typed[0]) && typed[0].field_path === "pipe_segments" && typed[0].before === operation.change.before;
+      case "apply_library_record":
+        return filled && typed.every(ownRow);
+      case "transform_pipe_run":
+        // A translate moves only nodes and a copy creates new ids, so the target need not name a row.
+        return filled && typed.every((row) => row.change_kind === "transform_pipe_run" && (row.object_type === "Node" || row.object_type === "Element"));
+    }
+    const [first, ...derived] = typed;
+    const exact = first.entity_ref === operation.target.ref && first.object_type === operation.target.object_type && first.field_path === operation.change.field_path
+      && first.before === operation.change.before && first.after === operation.change.after && first.unit === operation.change.unit
+      && first.dimension === operation.change.dimension && first.change_kind === kind;
+    if (!exact) return false;
+    return derived.every((row) => {
+      const sectionRow = row.object_type === "Element" && row.field_path === "section" && row.change_kind === "set_field";
+      if (operation.target.object_type === "Section" && kind === "set_field") return sectionRow;
+      if (kind === "assign_section" || kind === "detach_section") return sectionRow && row.entity_ref === operation.target.ref;
+      if (kind === "delete_pipe_run") return row.object_type === "Line" && row.field_path === "lines" && row.change_kind === "update_line";
+      return false;
+    });
+  }
+  /** Equal JSON values, whatever their keys' order, compared directly (as routeDraft.ts `jsonValuesEqual`). */
+  function editorSameJson(left: unknown, right: unknown): boolean {
+    if (left === right) return true;
+    if (Array.isArray(left) || Array.isArray(right)) {
+      return Array.isArray(left) && Array.isArray(right) && left.length === right.length && left.every((value, index) => editorSameJson(value, right[index]));
+    }
+    const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
+    if (!isRecord(left) || !isRecord(right)) return false;
+    const leftKeys = Object.keys(left).sort(), rightKeys = Object.keys(right).sort();
+    return leftKeys.length === rightKeys.length && leftKeys.every((key, index) => key === rightKeys[index] && editorSameJson(left[key], right[key]));
+  }
+
+  /** The session's own operation request for an editor's edit: refused at once, with nothing toggled, counted or
+   * cloned, while another request runs or no model is held (A10). The basis is captured here, at entry. */
+  function beginEditorRequest(): EditorRefusal | Readonly<{ basisModel: PreviewModel; revision: number; generation: number; stillCurrent: () => boolean; release: () => void }> {
+    if (!sessionMounted.current) return editorRefusal("This workspace is closed, so nothing was applied.");
+    if (!currentModel.current) return editorRefusal("No model is open, so nothing was applied.");
+    if (operationRequest.current.busy) return editorRefusal("Another change is still being checked or applied, so nothing was applied. Commit again when it finishes.");
+    const revision = modelRevision.current;
+    const generation = projectSessionGenerationRef.current;
+    const basisModel = clonePreviewModel(currentModel.current);
+    const request = ++operationRequest.current.sequence;
+    operationRequest.current.busy = true;
+    setOperationBusy(true);
+    // P3: the session's mounted state is part of currentness, so a callback outliving its workspace lands nowhere.
+    const stillCurrent = () => sessionMounted.current && operationRequest.current.sequence === request && modelRevision.current === revision && projectSessionGenerationRef.current === generation;
+    const release = () => {
+      if (operationRequest.current.sequence === request) {
+        operationRequest.current.busy = false;
+        setOperationBusy(false);
+      }
+    };
+    return { basisModel, revision, generation, stillCurrent, release };
+  }
+
+  /** Builds the editor's edit on the captured model, stamps it, and has the engine validate and preview it on that
+   * basis. The reply must be this batch's validate-only preview: its id, its basis hash, its batch hash (the
+   * session's own fingerprint), a generated preview and the validate-only disposition (A5). Currentness is checked
+   * after every await. */
+  async function buildAndValidateEditorEdit(binding: EditorBindingRecord, input: unknown, basisModel: PreviewModel, stillCurrent: () => boolean): Promise<EditorRefusal | EditorCheckedBatch> {
+    const sequence = ++editorBuildSequence.current;
+    let built: unknown;
+    try {
+      built = await binding.builder.build(clonePreviewModel(basisModel), input as never, Object.freeze({ sequence, batchId: `${binding.builder.name}-${sequence}` }));
+    } catch (error) {
+      return stillCurrent() ? editorRefusal(`The editor could not build this change: ${editorFailureText(error)}. Nothing was applied.`) : editorRefusal(EDITOR_SUPERSEDED);
+    }
+    if (!stillCurrent()) return editorRefusal(EDITOR_SUPERSEDED);
+    const stamped = stampEditorCommit(built, binding.builder.role);
+    if ("refused" in stamped) return editorRefusal(`${binding.builder.name}: ${stamped.refused}`);
+    const batch = deepFreeze(structuredClone(stamped.batch));
+    if (binding.form === "commit" && batchRequiresPreview(batch)) return editorRefusal(`Nothing was applied. ${PREVIEW_REQUIRED_REASON(batch)}`);
+    const [basisHash, fingerprint] = await Promise.all([computeModelHash(basisModel), canonicalSha256Hex(batch)]);
+    if (!stillCurrent()) return editorRefusal(EDITOR_SUPERSEDED);
+    if (!basisHash) return editorRefusal("The current model hash is unavailable, so nothing was applied.");
+    const validation = await validateOperationBatch(basisModel, batch, basisHash);
+    if (!stillCurrent()) return editorRefusal(EDITOR_SUPERSEDED);
+    if (validation.mode !== "validate_only") return editorRefusal("The engine's check came back in another mode than validate-only, so nothing was applied.");
+    if (validation.batch_id !== batch.batch_id) return editorRefusal("The engine's check names another batch, so nothing was applied.");
+    if (validation.initial_model_hash?.value !== basisHash.value) return editorRefusal("The engine's check was made on another model, so nothing was applied.");
+    if (validation.batch_hash !== `sha256:${fingerprint}`) return editorRefusal("The engine's check is of other content than this change, so nothing was applied.");
+    if (validation.applied_model || validation.acceptance || validation.validation.application_status === "applied_to_session_model") {
+      return editorRefusal("The engine's check returned an application result, so it was discarded and nothing was applied.");
+    }
+    // Q2: a check applies nothing and its schema validation passed.
+    if (validation.validation.application_status !== "not_applied") return editorRefusal("The engine's check does not report the change as not applied, so nothing was applied.", validation);
+    if (validation.validation.schema_validation !== "passed") return editorRefusal("The engine's check did not pass schema validation, so nothing was applied.", validation);
+    if (validation.validation.batch_validation_status !== "passed" || blockingFindings(validation).length > 0) return editorRefusal(engineRefusalReason(validation), validation);
+    if (validation.validation.diff_preview_status !== "generated") return editorRefusal("The engine generated no preview of this change, so nothing was applied.", validation);
+    if (validation.simulation_disposition !== "validation_only_discarded") return editorRefusal("The engine's check did not end as a discarded validation, so nothing was applied.", validation);
+    const steps = editorStepsMismatch(validation, batch);
+    if (steps) return editorRefusal(steps, validation);
+    return { batch, fingerprint, basisModel, basisHash, validation };
+  }
+
+  /** Applies a checked batch on its basis and publishes it as one checkpoint. Refusals before publication change
+   * nothing; once the model and history are published, the session's own clears complete and a listener's failure
+   * comes back as the notice on a committed result (A9). */
+  async function applyAndPublishEditorBatch(checked: EditorCheckedBatch, stillCurrent: () => boolean, onPublished: () => void): Promise<EditorCommitResult> {
+    const { batch, fingerprint, basisModel, basisHash } = checked;
+    // P3: currentness immediately before the engine is asked to apply.
+    if (!stillCurrent()) return editorRefusal(EDITOR_SUPERSEDED);
+    const outcome = await applyOperationBatch(basisModel, batch, basisHash);
+    if (!stillCurrent() || !currentModel.current) return editorRefusal(EDITOR_SUPERSEDED);
+    const currentHash = await computeModelHash(currentModel.current);
+    if (!stillCurrent()) return editorRefusal(EDITOR_SUPERSEDED);
+    if (currentHash?.value !== basisHash.value) return editorRefusal(EDITOR_SUPERSEDED);
+    if (outcome.mode !== "apply") return editorRefusal("The engine's application came back in another mode, so nothing was applied.");
+    if (outcome.batch_id !== batch.batch_id) return editorRefusal("The engine's application names another batch, so nothing was applied.");
+    if (outcome.initial_model_hash?.value !== basisHash.value) return editorRefusal("The engine's application was made on another model, so nothing was applied.");
+    if (outcome.batch_hash !== `sha256:${fingerprint}`) return editorRefusal("The engine applied other content than this change, so it was discarded and nothing was applied.");
+    if (outcome.validation.application_status !== "applied_to_session_model") return editorRefusal(engineRefusalReason(outcome), outcome);
+    if (outcome.validation.batch_validation_status !== "passed" || blockingFindings(outcome).length > 0) return editorRefusal(engineRefusalReason(outcome), outcome);
+    if (!outcome.applied_model || !outcome.acceptance || outcome.simulation_disposition !== "committed_as_one_batch") {
+      return editorRefusal("The engine did not return a complete application receipt, so nothing was applied.", outcome);
+    }
+    // Q2: the receipt is the one for this change: schema validation passed, its preview generated, the operations it
+    // names are the submitted ones, and its acceptance is complete (as the viewport route's `completeAcceptance`).
+    if (outcome.validation.schema_validation !== "passed" || outcome.validation.diff_preview_status !== "generated") {
+      return editorRefusal("The engine's application did not pass schema validation with its preview, so nothing was applied.", outcome);
+    }
+    if (!editorSameJson(outcome.submitted_operations, batch.operations)) return editorRefusal("The engine's application names other operations than this change, so nothing was applied.", outcome);
+    const acceptance = outcome.acceptance as Record<string, unknown>;
+    if (acceptance.acceptance_basis !== "user_initiated_apply_in_local_session" || acceptance.acceptance_is_professional_approval !== false
+      || acceptance.persistence_status !== "session_state_only_not_yet_saved") {
+      return editorRefusal("The engine did not return a complete application receipt, so nothing was applied.", outcome);
+    }
+    const appliedSteps = editorStepsMismatch(outcome, batch);
+    if (appliedSteps) return editorRefusal(appliedSteps, outcome);
+    if (typeof outcome.applied_model_backend_hash !== "string" || !outcome.applied_model_backend_hash) return editorRefusal("The engine reported no hash of the applied model, so nothing was applied.", outcome);
+    const appliedHash = await computeModelHash(outcome.applied_model);
+    if (!stillCurrent()) return editorRefusal(EDITOR_SUPERSEDED);
+    if (!appliedHash?.value) return editorRefusal("The applied model's hash could not be computed, so nothing was applied.", outcome);
+    if (appliedHash.value !== outcome.applied_model_backend_hash) return editorRefusal("The applied model does not match the hash the engine reported, so nothing was applied.", outcome);
+
+    // Prepare: every value the publication needs, as for an applied queued batch (`handleRunOperationBatch`),
+    // computed before any state changes; the session keeps its own copies, none of them handed out.
+    const key = `editor-commit-${editorMount}-${++editorCommitSequence.current}`;
+    const kept = structuredClone(outcome);
+    const appliedModel = kept.applied_model!;
+    const publication = prepareModelPublication(appliedModel);
+    const liveSelection = orderedSelectionRef.current;
+    const checkpoint: SessionModelCheckpoint = {
+      checkpoint_id: `undo-${key}`,
+      operation_id: key,
+      submitted_id: batch.batch_id,
+      model: clonePreviewModel(basisModel),
+      selection: primarySelection(liveSelection, defaultSelection(basisModel))
+    };
+    const keptBatch = structuredClone(batch) as OperationBatch;
+    const batchReceipt = { batch: keptBatch, outcome: kept };
+    const reviewContext = structuredClone(keptBatch.operations);
+    const appliedFields: Omit<AppliedOperationReceipt, "receipt_id" | "sequence"> = {
+      operation_id: batch.batch_id,
+      change_id: batch.batch_id,
+      target_object_type: "Model",
+      target_ref: basisModel.project.id,
+      field_path: "batch",
+      before: basisHash.value,
+      after: kept.applied_model_backend_hash ?? "not_reported",
+      application_route: kept.application_route === "local_wasm_engine" ? "local_wasm_engine" : "tauri_backend_apply",
+      applied_model_hash: kept.applied_model_backend_hash ?? "not_reported",
+      acceptance: kept.acceptance!,
+      diagnostics: kept.diagnostics,
+      professional_boundary: kept.professional_boundary
+    };
+    // A12: a commit that creates, inserts or connects focuses what it created (the last such step), as the single
+    // change Apply does; any other commit keeps the selection, pruned to the applied model. P7: only an entity the
+    // applied model holds is focused (a bend inserted at a corner removes the corner node it names; a later step of
+    // the batch may delete what an earlier one created); otherwise the selection is pruned.
+    const created = [...kept.operation_outcomes].reverse().find((step) => /^(create_|insert_|connect_)/.test(step.change_kind));
+    const createdRef = created ? selectionForOperationOutcome(created as unknown as OperationOutcome) : null;
+    const appliedIndex = modelIndexFor(appliedModel, projectSessionGenerationRef.current, uiModelRevisionRef.current + 1);
+    const appliedSelection = createdRef && appliedIndex.entities.has(entityKey(createdRef))
+      ? singletonSelection(createdRef, liveSelection) : prunedSelectionForPublication(appliedModel);
+    const appliedSolveJob = sessionHistoryChangedSolveJob("batch", batch.batch_id);
+    let notice: string | null = null;
+    let publishEvents: () => void;
+    try {
+      // P5: the event's payload is detached; no listener receives an object the session keeps.
+      publishEvents = sessionEvents.stage({ type: "checkpoint", operationId: key, submittedId: batch.batch_id, appliedModel: clonePreviewModel(appliedModel),
+        operationOutcomes: structuredClone(kept.operation_outcomes) });
+    } catch (error) {
+      return editorRefusal(`A view of the session could not take this change, so nothing was applied: ${editorFailureText(error)}`);
+    }
+    // P6: read from the held values' own refs, written where each is set.
+    const held = editorHeld.current;
+    const resultsCleared = [held.result, held.analysisRun, held.inputManifest, held.ruleCheckAggregate, held.historicalRun].some((value) => value !== null);
+
+    // Publish: one synchronous block of state setters and session-owned ref writes. P5: once the history is
+    // written the change is committed; a throw from a step after it (a subscriber during the model write, the
+    // selection, a view of the session) becomes a notice, and every later step, each clear included, still runs.
+    // The report-source sequence contains its own subscribers, so a subscriber's throw does not reach the model
+    // write; these guards keep the commit whole whatever else a later step throws.
+    const notices: string[] = [];
+    const contained = (what: string, step: () => void) => {
+      try { step(); } catch (error) { notices.push(`${what}: ${editorFailureText(error)}`); }
+    };
+    setUndoStack((current) => [checkpoint, ...current].slice(0, 25));
+    setRedoStack([]);
+    setBatchReceipts((current) => [...current, batchReceipt]);
+    setRetainedReviewContext((current) => [...current, ...reviewContext]);
+    setAppliedOperations((current) => [...current, { receipt_id: `applied-${key}`, sequence: current.length + 1, ...appliedFields }]);
+    contained("The workspace did not finish showing this change", () => publishModel(publication));
+    onPublished();
+    contained("The selection did not follow this change", () => commitSelectionState(appliedSelection, appliedModel));
+    contained("A view of the session did not take this change", publishEvents);
+    // The clears of `clearComputedModelState`, each contained, so one failing clear leaves none of the others undone.
+    const clears: Array<() => void> = [invalidateReportPackageComputedState, () => ruleRevisionGate.current.invalidate(), () => setHistoricalRun(null),
+      () => setResult(null), () => setAnalysisRun(null), () => setInputManifest(null), () => setRuleCheckAggregate(null), () => setProposal(null),
+      () => setSelectedReviewTarget(null), () => setSolveJob(appliedSolveJob)];
+    for (const clear of clears) contained("A held result was not cleared", clear);
+    if (notices.length) notice = notices.join(" ");
+
+    // Notify: the viewport's failure comes back beside the commit; the published change is not rolled back.
+    let viewportFailure: string | null;
+    try {
+      viewportFailure = retireViewportBoxGestureAfterPublication();
+    } catch (error) {
+      // Q3: the shared helper's own wording can throw; the commit stands and says so.
+      viewportFailure = `The viewport did not retire its box gesture: ${editorFailureText(error)}`;
+    }
+    if (viewportFailure) notice = `${notice ? `${notice} ` : ""}${viewportFailure}`;
+    return deepFreeze({ status: "committed" as const, checkpointId: checkpoint.checkpoint_id, historyName: batch.batch_id, resultsCleared, notice });
+  }
+
+  /** Form 1: the one-step commit of an immediate edit. */
+  async function commitEditorInput(binding: EditorBindingRecord, input: unknown): Promise<EditorCommitResult> {
+    // Q5 (v): a retired workspace refuses before the input is read.
+    if (!sessionMounted.current) return editorRefusal("This workspace is closed, so nothing was applied.");
+    const owned = ownEditorInput(binding.builder.input, input);
+    if ("refused" in owned) return editorRefusal(`${binding.builder.name}: ${owned.refused}`);
+    const request = beginEditorRequest();
+    if ("status" in request) return request;
+    try {
+      const checked = await buildAndValidateEditorEdit(binding, owned.input, request.basisModel, request.stillCurrent);
+      if ("status" in checked) return checked;
+      if (!request.stillCurrent()) return editorRefusal(EDITOR_SUPERSEDED);
+      return await applyAndPublishEditorBatch(checked, request.stillCurrent, () => {});
+    } catch (error) {
+      return editorRefusal(request.stillCurrent() ? `The change could not be checked: ${editorFailureText(error)}. Nothing was applied.` : EDITOR_SUPERSEDED);
+    } finally {
+      request.release();
+    }
+  }
+
+  /** Form 2, first step: the engine's validate-only preview for a dialog to show, and the single-use handle its
+   * confirm presents. Nothing is applied. */
+  async function previewEditorInput(binding: EditorBindingRecord, input: unknown): Promise<EditorPreviewResult> {
+    // Q5 (v): a retired workspace refuses before the input is read.
+    if (!sessionMounted.current) return editorRefusal("This workspace is closed, so nothing was applied.");
+    const owned = ownEditorInput(binding.builder.input, input);
+    if ("refused" in owned) return editorRefusal(`${binding.builder.name}: ${owned.refused}`);
+    const request = beginEditorRequest();
+    if ("status" in request) return request;
+    try {
+      const checked = await buildAndValidateEditorEdit(binding, owned.input, request.basisModel, request.stillCurrent);
+      if ("status" in checked) return checked;
+      if (!request.stillCurrent()) return editorRefusal(EDITOR_SUPERSEDED);
+      const handle: EditorPreviewHandle = Object.freeze({ handle: "editor-preview" as const });
+      editorPreviews.current.set(handle, { binding, batch: checked.batch, fingerprint: checked.fingerprint, basisHash: checked.basisHash,
+        revision: request.revision, generation: request.generation, outcome: deepFreeze(structuredClone(checked.validation)), consumed: false });
+      const extent = deepFreeze({
+        historyName: checked.batch.batch_id,
+        steps: checked.validation.operation_outcomes.map((step) => ({ operationId: step.operation_id, changeKind: step.change_kind, targetType: step.target_object_type,
+          targetRef: step.target_ref, diff: structuredClone(step.diff_preview) as unknown as Record<string, unknown>[] })),
+        findings: editorFindings([...(checked.validation.diagnostics ?? []), ...checked.validation.operation_outcomes.flatMap((step) => step.diagnostics ?? [])])
+      });
+      return deepFreeze({ status: "previewed" as const, handle, extent });
+    } catch (error) {
+      return editorRefusal(request.stillCurrent() ? `The change could not be checked: ${editorFailureText(error)}. Nothing was applied.` : EDITOR_SUPERSEDED);
+    } finally {
+      request.release();
+    }
+  }
+
+  /** Form 2, second step: the dialog's confirm. Only a handle this binding's preview minted, not yet committed, on
+   * the current project and model revision, is applied; every other is refused by name before the request (A10). */
+  async function commitEditorPreview(binding: EditorBindingRecord, handle: unknown): Promise<EditorCommitResult> {
+    if (!sessionMounted.current) return editorRefusal("This workspace is closed, so nothing was applied.");
+    const record = handle !== null && typeof handle === "object" ? editorPreviews.current.get(handle) : undefined;
+    if (!record) return editorRefusal("This is not a preview this session showed, so nothing was applied. Show the preview again.");
+    if (record.binding !== binding) return editorRefusal("This preview was shown by another editor, so nothing was applied.");
+    if (record.consumed) return editorRefusal("This preview was already committed, so nothing was applied.");
+    if (record.generation !== projectSessionGenerationRef.current) return editorRefusal("This preview is of another project, so nothing was applied.");
+    if (record.revision !== modelRevision.current) return editorRefusal("This preview is of an earlier model, so nothing was applied. Show the preview again.");
+    const request = beginEditorRequest();
+    if ("status" in request) return request;
+    try {
+      const basisHash = await computeModelHash(request.basisModel);
+      if (!request.stillCurrent()) return editorRefusal(EDITOR_SUPERSEDED);
+      if (basisHash?.value !== record.basisHash.value) return editorRefusal("This preview is of an earlier model, so nothing was applied. Show the preview again.");
+      const entry: QueuedBatch = { key: "editor-preview", batch: record.batch, basisModel: request.basisModel, basisHash: record.basisHash, basisRevision: record.revision, requiresPreview: true };
+      if (!previewSatisfied(entry, record.outcome, modelRevision.current)) return editorRefusal(`Nothing was applied. ${PREVIEW_REQUIRED_REASON(record.batch)}`);
+      return await applyAndPublishEditorBatch({ batch: record.batch, fingerprint: record.fingerprint, basisModel: request.basisModel, basisHash: record.basisHash, validation: record.outcome },
+        request.stillCurrent, () => { record.consumed = true; });
+    } catch (error) {
+      return editorRefusal(request.stillCurrent() ? `The change could not be applied: ${editorFailureText(error)}. Nothing was applied.` : EDITOR_SUPERSEDED);
+    } finally {
+      request.release();
+    }
+  }
+
+  // The binder, stable for the session's life; its callbacks reach this render's entries through a ref.
+  // No editor is bound to this until the first wiring slice's independent readers have cleared the round 3 repairs
+  // to the binding and the Undo and Redo repair (issue 575) is on main.
+  const editorEntries = useRef({ commitEditorInput, previewEditorInput, commitEditorPreview });
+  editorEntries.current = { commitEditorInput, previewEditorInput, commitEditorPreview };
+  const editorBinding = useRef<null | Readonly<{
+    bindCommit: <I>(builder: EditorBuilder<I>) => (input: I) => Promise<EditorCommitResult>;
+    bindDialog: <I>(builder: EditorBuilder<I>) => Readonly<{ preview: (input: I) => Promise<EditorPreviewResult>; commit: (handle: EditorPreviewHandle) => Promise<EditorCommitResult> }>;
+  }>>(null);
+  if (!editorBinding.current) {
+    const bind = (builder: unknown, form: "commit" | "dialog"): EditorBindingRecord => {
+      const refused = editorBuilderRefusal(builder);
+      if (refused) throw new Error(`EDITOR-BIND-REFUSED: ${refused}`);
+      const declared = builder as EditorBuilder<never>;
+      return Object.freeze({ builder: Object.freeze({ name: declared.name, role: declared.role, input: Object.freeze({ members: Object.freeze([...declared.input.members]), check: declared.input.check }), build: declared.build }), form });
+    };
+    editorBinding.current = Object.freeze({
+      bindCommit: <I,>(builder: EditorBuilder<I>) => {
+        const binding = bind(builder, "commit");
+        return (input: I) => editorEntries.current.commitEditorInput(binding, input);
+      },
+      bindDialog: <I,>(builder: EditorBuilder<I>) => {
+        const binding = bind(builder, "dialog");
+        return Object.freeze({
+          preview: (input: I) => editorEntries.current.previewEditorInput(binding, input),
+          commit: (handle: EditorPreviewHandle) => editorEntries.current.commitEditorPreview(binding, handle)
+        });
+      }
+    });
+  }
+
   function handleApplyNextQueuedIntent() {
     if (operationBusy) return;
     const [nextIntent] = editorIntents;
@@ -2677,6 +3128,8 @@ export function useWorkspaceSession() {
     const source = action === "undo" ? undoStack : redoStack;
     if (operationRequest.current.busy || !model || !selection || source.length === 0) return;
     const [checkpoint, ...remaining] = source;
+    // The name a person reads: a commit's checkpoint is identified by the session's own id, and named by what was submitted.
+    const checkpointName = checkpoint.submitted_id ?? checkpoint.operation_id;
 
     // Prepare: every value the publication needs, computed before any state
     // changes. A failure leaves the model and both stacks as they were, so the
@@ -2697,11 +3150,12 @@ export function useWorkspaceSession() {
         reverse: {
           checkpoint_id: `${action === "undo" ? "redo" : "undo"}-${checkpoint.checkpoint_id}`,
           operation_id: checkpoint.operation_id,
+          ...(checkpoint.submitted_id === undefined ? {} : { submitted_id: checkpoint.submitted_id }),
           model: clonePreviewModel(model),
           selection
         },
         restoredSelection: singletonSelection(checkpoint.selection, orderedSelectionRef.current),
-        solveJob: sessionHistoryChangedSolveJob(action, checkpoint.operation_id),
+        solveJob: sessionHistoryChangedSolveJob(action, checkpointName),
         publishEvents: sessionEvents.stage({ type: action === "undo" ? "undone" : "redone", operationId: checkpoint.operation_id })
       };
     } catch (error) {
@@ -2732,7 +3186,7 @@ export function useWorkspaceSession() {
     publishModel(prepared.publication);
     commitSelectionState(prepared.restoredSelection, prepared.restoredModel);
     clearComputedModelState(prepared.solveJob);
-    const stepped = `${action === "undo" ? "Undid" : "Redid"} ${checkpoint.operation_id}`;
+    const stepped = `${action === "undo" ? "Undid" : "Redid"} ${checkpointName}`;
     const steppedMessage =
       `${stepped} in the local session; previous solve results were cleared. Save is still required to persist the current session model.`
       + (listenerFailure ? ` ${listenerFailure}` : "");
@@ -4313,18 +4767,29 @@ export function useWorkspaceSession() {
       modelRevision: uiModelRevisionRef.current,
       model,
       result: renderableSolvedResult,
+      isCurrentResult: renderableSolvedResult === currentSolvedResult,
       inputManifest,
       analysisRun,
       comparison,
       comparisonUnavailable,
+      heldWithinRunSelection,
       projectSummary,
       ruleCheckAggregate,
       ruleCheckRun: ruleCheckReportRun,
       reportComposition,
       privateIntent: reportPackagePrivateIntent
     } as const;
-    // Refs, because the awaited build and preparation outlive this render's closure.
-    const isCurrent = () =>
+    // Whether the held choice was dropped for the report run (set once that run is read):
+    // the session then drops it too, by the same rule, which leaves the save current.
+    let heldDroppedForRun = false;
+    // Whether the report run was read and its comparison resolved. Before that, a concurrent
+    // comparison read of this same result may already have dropped the held choice (to null),
+    // so a refusal of the read itself is still this save's to state.
+    let resolvedReportRun = false;
+    // Refs, because the awaited build and preparation outlive this render's closure. Every
+    // send guard is strict on the held choice (null only when this save found it dropped for
+    // its run); `forError` also accepts null while the report run is unread.
+    const isCurrent = (forError = false) =>
       reportPackageRequestGenerationRef.current === generation &&
       reportPackageBusyGenerationRef.current === generation &&
       projectSessionGenerationRef.current === basis.projectSessionGeneration &&
@@ -4335,13 +4800,35 @@ export function useWorkspaceSession() {
       analysisBasisRef.current.value === basis.analysisRun &&
       ruleCheckAggregateRef.current === basis.ruleCheckAggregate &&
       ruleCheckReportRunRef.current === basis.ruleCheckRun &&
-      reportCompositionRef.current === basis.reportComposition;
+      reportCompositionRef.current === basis.reportComposition &&
+      (heldWithinRunSelectionRef.current === basis.heldWithinRunSelection ||
+        ((heldDroppedForRun || (forError && !resolvedReportRun)) && heldWithinRunSelectionRef.current === null));
     reportPackageBusyGenerationRef.current = generation;
     setReportPackageBusy(true);
     setReportPackageRoute(null);
     try {
       // The report package reads full rows (C2): a native result's bounded full copy and record.
       const reportRun = basis.result && isNativeResult(basis.result) ? await loadC2Full(basis.result, { record: true }) : { result: basis.result as MechanicsResult, analysisRun: basis.analysisRun as AnalysisRunEnvelope };
+      // The within-run comparison the package carries (for Current results only, matching
+      // `resultsSessionState.ts`). The session's is null on both members until a native result's
+      // full copy is loaded (for its comparisons, or above by this save); then it is resolved
+      // here, by the session's rules, from the report run this save already holds. No other full
+      // copy is read and no full-copy gate is added: the request takes (comparison,
+      // comparisonUnavailable) as plain inputs, so a package built from custody above the
+      // webview's limit can supply them from custody (or omit them without a choice) without
+      // passing through this seam.
+      let packagedComparison = { comparison: basis.comparison, comparisonUnavailable: basis.comparisonUnavailable };
+      if (basis.isCurrentResult && basis.comparison === null && basis.comparisonUnavailable === null) {
+        const resolved = packagedComparisonForRun({
+          result: reportRun.result,
+          analysisRun: reportRun.analysisRun!,
+          model: basis.inputManifest.manifest.model_basis.model_payload ?? null,
+          held: basis.heldWithinRunSelection
+        });
+        heldDroppedForRun = resolved.heldDropped;
+        packagedComparison = { comparison: resolved.packaged?.comparison ?? null, comparisonUnavailable: resolved.packaged?.unavailable ?? null };
+      }
+      resolvedReportRun = true;
       if (!isCurrent()) return;
       const request = await buildReportPackageRequest({
         model: basis.model,
@@ -4349,8 +4836,8 @@ export function useWorkspaceSession() {
         analysisRun: reportRun.analysisRun!,
         inputManifest: basis.inputManifest,
         projectSummary: basis.projectSummary,
-        comparison: basis.comparison,
-        comparisonUnavailable: basis.comparisonUnavailable,
+        comparison: packagedComparison.comparison,
+        comparisonUnavailable: packagedComparison.comparisonUnavailable,
         ruleCheckAggregate: basis.ruleCheckAggregate,
         ruleCheckRun: basis.ruleCheckRun,
         reportComposition: basis.reportComposition
@@ -4382,7 +4869,7 @@ export function useWorkspaceSession() {
     } catch (error) {
       output.failed(error);
       // A basis retired before a send: nothing was sent, and the newer basis owns the state.
-      if (error instanceof IngressRequestRetiredError || !isCurrent()) return;
+      if (error instanceof IngressRequestRetiredError || !isCurrent(true)) return;
       setReportPackageRedaction(null);
       setReportPackageRoute({
         route: "redaction_blocked",
@@ -4390,7 +4877,9 @@ export function useWorkspaceSession() {
       });
     } finally {
       output.end();
-      if (isCurrent()) {
+      // Released whenever this save still holds the busy mark, even when its basis moved on
+      // mid-save (as the shareable save does).
+      if (reportPackageBusyGenerationRef.current === generation) {
         reportPackageBusyGenerationRef.current = null;
         setReportPackageBusy(false);
       }
@@ -5360,6 +5849,11 @@ export function useWorkspaceSession() {
 
   return {
     agent: agentSessionRef.current,
+    // DEL-16-03, Commit: the binder of the desktop's editors. Only the application root takes it, and it is stripped
+    // from what the context provider is given; this slice binds no editor to it. No editor is bound to this until the
+    // first wiring slice's independent readers have cleared the round 3 repairs to the binding and the Undo and Redo
+    // repair (issue 575) is on main.
+    editorBinding: editorBinding.current!,
     model: {
       model,
       knowledge,
@@ -5415,6 +5909,7 @@ export function useWorkspaceSession() {
       packagedWithinRun,
       withinRun,
       droppedWithinRunBases,
+      heldWithinRunSelection,
       withinRunDisabledReason,
       handleSelectWithinRunBases,
       proposal,
@@ -5562,7 +6057,8 @@ export function useWorkspaceSession() {
 }
 
 /** What the view receives: the six slices `useWorkspaceSession` returns. */
-export type WorkspaceSession = ReturnType<typeof useWorkspaceSession>;
+export type WorkspaceSession = Omit<ReturnType<typeof useWorkspaceSession>, "editorBinding">;
+export type EditorBinding = ReturnType<typeof useWorkspaceSession>["editorBinding"];
 
 /** What one Solve request through `results.handleSolveRequest` reports: the gate's outcome
  * (`SolveGateOutcome`; null where a solve already held the run, so the request did

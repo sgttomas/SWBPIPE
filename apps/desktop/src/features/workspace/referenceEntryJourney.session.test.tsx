@@ -37,6 +37,7 @@ import { useRunSheetStore } from "../model-tree/runSheet/runSheetStore";
 import { LoadCaseManagerPanel } from "../load-cases/LoadCaseManagerPanel";
 import { SelfWeightPlanPanel } from "../self-weight-authoring/SelfWeightPlanPanel";
 import { BatchReviewPanel } from "../toolkit/BatchReviewPanel";
+import { toolkitCapabilities } from "../toolkit/capabilityCatalog";
 import { OperationApplyPanel } from "../operations/OperationApplyPanel";
 import { useWorkspaceSession } from "./workspaceSession";
 import { unitCatalogFixture } from "../../test-support/unitCatalogFixture";
@@ -271,6 +272,15 @@ describe("the reference system entered from blank through the desktop's authorin
     const change = (scope: ReturnType<typeof within>, label: string, value: string) => fireEvent.change(scope.getByLabelText(label), { target: { value } });
     const click = (scope: ReturnType<typeof within>, name: string | RegExp) => fireEvent.click(scope.getByRole("button", { name }));
     const select = (entity: EntityRef) => act(() => { current.session.selection.handleSelectEntity(entity); });
+    /** Runs a command of the command box (toolkit catalogue), as a person chooses it there. */
+    /** The node's support form stands behind its closed line ("Add a support here"): open it before entering anything. */
+    const openSupportLine = () => {
+      const line = screen.getByTestId("inspector-support-form-details");
+      if (!line.hasAttribute("open")) fireEvent.click(line.querySelector(":scope > summary")!);
+      expect(line).toHaveAttribute("open");
+      expect(within(line).getByRole("region", { name: "Support configuration" })).toBeVisible();
+    };
+    const openCommand = (id: string) => act(() => { current.session.chrome.handleToolkitCommand(toolkitCapabilities.find((capability) => capability.id === id)!); });
     // Every step that reaches a Loads page control is `loadsPage`'s (test-support/referenceRunSheetEntry.ts).
     const page = loadsPage(() => screen.getByTestId("journey-loads"), select);
     const cycles: string[] = [];
@@ -379,6 +389,11 @@ describe("the reference system entered from blank through the desktop's authorin
     await applyQueuedIntent("step material");
     // Step material, item 2: Temperature points (typed UI, after selecting the material: UI function `handleSelectEntity`, the Model tree's selection).
     select({ type: "material", id: "material:RS-M1" });
+    // Its temperature-dependent properties stand behind a closed line: open it first.
+    const temperatureLine = screen.getByTestId("inspector-temperature-details");
+    fireEvent.click(within(temperatureLine).getByText("Temperature-dependent properties", { selector: "summary" }));
+    expect(temperatureLine).toHaveAttribute("open");
+    expect(within(temperatureLine).getByRole("button", { name: "Add temperature point" })).toBeVisible();
     const points = [["point:RS-M1-T020", "20", "200"], ["point:RS-M1-T100", "100", "195"], ["point:RS-M1-T200", "200", "189"], ["point:RS-M1-T300", "300", "182"]];
     for (const [index, [id, temperature, modulus]] of points.entries()) {
       click(inspector(), "Add temperature point");
@@ -404,9 +419,11 @@ describe("the reference system entered from blank through the desktop's authorin
     await applyQueuedIntent("step material: expansion laws");
     expect(model().materials).toEqual(reference.materials);
 
-    // Step sections (typed UI): Inspector, New section.
+    // Step sections (typed UI): Inspector, New section, opened as the command box's Create section opens it.
+    // An applied section is selected, which puts the form away; each section opens it again.
     select({ type: "project", id: model().project.id });
     for (const [id, od, wall] of [["section:RS-S270", "270", "9.0"], ["section:RS-S220", "220", "8.0"], ["section:RS-S170", "170", "7.0"]]) {
+      openCommand("properties.section");
       change(inspector(), "New section ID", id);
       change(inspector(), "New section name", token(id));
       chooseCompactOption(screen.getByTestId("create-section-type"), "pipe");
@@ -453,6 +470,7 @@ describe("the reference system entered from blank through the desktop's authorin
     const component = (label: string, value: string) => change(inspector(), `New component ${label.toLowerCase()}`, value);
     const componentField = (label: string, value: string) => change(inspector(), `New component ${label}`, value);
     // Kind, node and pipe first: choosing them re-proposes the draft's label (`componentDraftForKind`, `componentDraftForNode`).
+    openCommand("build.component");
     chooseCompactOption(screen.getByTestId("create-component-kind"), "expansion_joint");
     chooseVirtualTarget("create-component-node", "node:RS-190");
     chooseVirtualTarget("create-component-pipe", "pipe:RS-P180");
@@ -494,6 +512,7 @@ describe("the reference system entered from blank through the desktop's authorin
 
     // Step tee: Tee RS-T1 (typed UI): New component, kind tee; then the two SIFs and the modifier source by Task edits.
     const beforeTee = model();
+    openCommand("build.component");
     chooseCompactOption(screen.getByTestId("create-component-kind"), "tee");
     chooseVirtualTarget("create-component-node", "node:RS-130");
     chooseVirtualTarget("create-component-pipe", "pipe:RS-P120");
@@ -520,6 +539,7 @@ describe("the reference system entered from blank through the desktop's authorin
     // which the creation form does not take.
     const fixtureR1 = reference.components.find((item) => item.id === "component:RS-R1")!;
     select({ type: "project", id: model().project.id });
+    openCommand("build.component");
     chooseCompactOption(screen.getByTestId("create-component-kind"), "reducer");
     chooseVirtualTarget("create-component-node", "node:RS-160");
     chooseVirtualTarget("create-component-pipe", "pipe:RS-P150");
@@ -549,6 +569,7 @@ describe("the reference system entered from blank through the desktop's authorin
     // Step spring: Variable spring RS-VS1 (typed UI): select RS-080, New support configuration, with hanger data.
     select({ type: "node", id: "node:RS-080" });
     const beforeSpring = model();
+    openSupportLine();
     const form = within(screen.getByRole("region", { name: "Support configuration" }));
     change(form, "Support ID", "support:RS-VS1");
     change(form, "Support label", "Variable spring VS1 (user stiffness)");
@@ -582,6 +603,7 @@ describe("the reference system entered from blank through the desktop's authorin
 
     // Step ce: Constant-effort support RS-CE1 (typed UI): select RS-100, New support configuration, UZ, with hanger data.
     select({ type: "node", id: "node:RS-100" });
+    openSupportLine();
     const ce = within(screen.getByRole("region", { name: "Support configuration" }));
     change(ce, "Support ID", "support:RS-CE1");
     change(ce, "Support label", "Constant-effort support CE1");

@@ -4887,6 +4887,11 @@ body { min-width: 760px; min-height: 540px; }
   inset: min(-1px, calc((100% - 24px) / 2)) min(-1px, calc((100% - 24px) / 2));
 }
 
+/* Human controls: the table drawer's chevron, where the drawer collapses, carries its name
+   ("Show tree and tables"), so the tree is not behind an unlabelled glyph. */
+.app-shell .shell-tab-strip .shell-drawer-chevron { display: inline-flex; align-items: center; gap: var(--space-2); }
+.app-shell .shell-tab-strip .shell-drawer-chevron-label { font-size: var(--type-size-caption); white-space: nowrap; }
+
 /* A page or pane that could not be shown (`PartErrorBoundary.tsx`): its message stands in the part's
    place, no larger than the part, and the rest of the window keeps working. The window's own
    message (`WindowErrorBoundary`) stands alone in the document, outside `.app-shell`. */

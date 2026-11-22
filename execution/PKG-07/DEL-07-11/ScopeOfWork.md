@@ -79,7 +79,7 @@ It serves SOW-078 under OBJ-006, OBJ-010 and OBJ-015 (`execution/_Decomposition/
 
 ## Production and Verification Method — Praxeology
 
-**Method choices.** The session is one store that panels read and act on through the shell, so no panel holds a private copy of the model or the selection. Each native command is a thin entry that names its owning service. The work-loss guard is one function every replacing command passes through. The suggested-name rule is one function every save dialog calls. A queued batch's precondition is given 10 seconds, measured from when it is asked.
+**Method choices.** The session is one store that panels read and act on through the shell, so no panel holds a private copy of the model or the selection. Each native command is a thin entry that names its owning service. The work-loss guard is one function every replacing command passes through. The desktop web helper `fileNames.ts` is tested against all qualifier and file-name cases in `fixtures/file_names/suggested_name_cases.json`, and the native handoff package save is tested against that fixture's `native_handoff_package` case. A queued batch's precondition is given 10 seconds, measured from when it is asked.
 
 **How each criterion is examined.**
 

@@ -50,6 +50,7 @@ import {
   ResultsNavigator,
   resultFrame,
   RowHealthBadge,
+  resultViewIdentity,
   routeHealth,
   SectionBasisHeadlines,
   type NavigatorStep,
@@ -135,6 +136,7 @@ export function NativeResultsPanel({
   viewRequest = null,
   model = null,
   exportAnalysisRun = null,
+  runIdentityKey = null,
   recordedTableRead = null
 }: {
   result: NativeResult;
@@ -155,6 +157,8 @@ export function NativeResultsPanel({
   viewRequest?: ResultsViewRequest | null;
   model?: PreviewModel | null;
   exportAnalysisRun?: SessionAnalysisRun | null;
+  /** Issue 588: the run's stored identity, under which the view state is held (`resultViewIdentity`). */
+  runIdentityKey?: string | null;
 }) {
   const displayResolver = useDisplayQuantityResolver();
   const custody = nativeCustody(result);
@@ -164,31 +168,34 @@ export function NativeResultsPanel({
   const semanticsOf = (ordinals: readonly number[]): Promise<readonly RowSemanticsOutcome[]> =>
     tableAgrees ? readNativeRowSemantics(result, ordinals) : Promise.resolve(ordinals.map(() => RECORDED_TABLE_REFUSED));
   const tables = custody.summary.header.tables.results_panel as Json;
-  const runId = result.run_id;
+  // Issue 588: the page, kind filter and navigator entity are held with this view's identity (the
+  // run's stored identity, else this handle's job id), never the run id distinct runs share.
+  const viewKey = resultViewIdentity(result, runIdentityKey)!;
   const [filterText, setFilterText] = useState("");
   const [selectionOnly, setSelectionOnly] = useState(false);
   const [frameFilter, setFrameFilter] = useState<string>(ALL_FRAMES);
   const [familyFilter, setFamilyFilter] = useState<string>("all");
   const [caseFilter, setCaseFilter] = useState<string>(ALL_CASES);
   const [pageSize, setPageSize] = useState<number>(DEFAULT_RESULT_PAGE_SIZE);
-  const [pagePosition, setPagePosition] = useState<{ runId: string; index: number }>({ runId, index: 0 });
-  const pageIndex = pagePosition.runId === runId ? pagePosition.index : 0;
+  const [pagePosition, setPagePosition] = useState<{ viewKey: string; index: number }>({ viewKey, index: 0 });
+  const pageIndex = pagePosition.viewKey === viewKey ? pagePosition.index : 0;
   const setPageIndex = (next: number | ((current: number) => number)) => setPagePosition((current) => {
-    const index = current.runId === runId ? current.index : 0;
-    return { runId, index: typeof next === "function" ? next(index) : next };
+    const index = current.viewKey === viewKey ? current.index : 0;
+    return { viewKey, index: typeof next === "function" ? next(index) : next };
   });
   const [appliedRequest, setAppliedRequest] = useState<number | null>(null);
-  const [requestedKind, setKindFilter] = useState<{ runId: string; kind: string; withheld: Readonly<Record<string, string>> } | null>(null);
-  const kindFilter = requestedKind && requestedKind.runId === runId ? requestedKind : null;
-  if (viewRequest && viewRequest.serial !== appliedRequest && viewRequest.runId === runId) {
+  const [requestedKind, setKindFilter] = useState<{ viewKey: string; kind: string; withheld: Readonly<Record<string, string>> } | null>(null);
+  const kindFilter = requestedKind && requestedKind.viewKey === viewKey ? requestedKind : null;
+  // A request is admitted for the view it names, never by the shared run id.
+  if (viewRequest && viewRequest.serial !== appliedRequest && viewRequest.viewKey === viewKey) {
     setAppliedRequest(viewRequest.serial);
-    setKindFilter({ runId: viewRequest.runId, kind: viewRequest.kind, withheld: viewRequest.withheld });
+    setKindFilter({ viewKey, kind: viewRequest.kind, withheld: viewRequest.withheld });
     setFilterText("");
     setFamilyFilter("all");
     setCaseFilter(ALL_CASES);
     setFrameFilter(ALL_FRAMES);
     setSelectionOnly(false);
-    setPagePosition({ runId, index: 0 });
+    setPagePosition({ viewKey, index: 0 });
   }
   const selectionEntityId = selectedEntity && selectedEntity.type !== "project" ? selectedEntity.id : null;
   const selectionOnlyWithoutEntity = selectionOnly && selectionEntityId === null;
@@ -352,14 +359,14 @@ export function NativeResultsPanel({
   const selectedRow = selected?.row ?? null;
   // The navigator's support or element: the one a step chose, else the session's. A newly selected
   // result row, or a new selection, made anywhere moves it (once its row is read); a new run clears it.
-  const [tracked, setTracked] = useState(() => ({ entity: selectionEntityId, selection: selectionEntityId, resultId: null as string | null, runId }));
+  const [tracked, setTracked] = useState(() => ({ entity: selectionEntityId, selection: selectionEntityId, resultId: null as string | null, viewKey }));
   let navEntity = tracked.entity;
-  if ((tracked.selection !== selectionEntityId || tracked.resultId !== selectedResultId || tracked.runId !== runId) && !(tracked.resultId !== selectedResultId && selectedPending)) {
-    let entity = tracked.runId !== runId ? null : tracked.entity;
+  if ((tracked.selection !== selectionEntityId || tracked.resultId !== selectedResultId || tracked.viewKey !== viewKey) && !(tracked.resultId !== selectedResultId && selectedPending)) {
+    let entity = tracked.viewKey !== viewKey ? null : tracked.entity;
     if (tracked.resultId !== selectedResultId && selectedRow) entity = selectedRow.entity_ref;
     else if (tracked.selection !== selectionEntityId) entity = selectionEntityId;
     navEntity = entity;
-    setTracked({ entity, selection: selectionEntityId, resultId: selectedResultId, runId });
+    setTracked({ entity, selection: selectionEntityId, resultId: selectedResultId, viewKey });
   }
   const entityAt = navEntity === null || !navigatorRead ? -1 : navigatorRead.entities.indexOf(navEntity);
   // The current row: the selected row when it is the entity's and the filters admit it, else the

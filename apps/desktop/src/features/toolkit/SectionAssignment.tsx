@@ -80,8 +80,8 @@ export function SectionAssignment({ model, selection, onQueueIntent, operationBu
           : "Local dimensions. Choose a shared section to use its diameter and wall."}
         {" "}Per-pipe supplements remain local.
       </p>
-      <label>
-        Shared section
+      <label className="form-field">
+        <span>Shared section</span>
         <CompactSelect
           aria-label="Shared section"
           value={sectionId}
@@ -108,7 +108,7 @@ export function SectionAssignment({ model, selection, onQueueIntent, operationBu
       </button>
       {error ? <p role="alert">{error}</p> : !ready ? <p role="status">Preparing the current pipe snapshot…</p> : null}
       {queued ? <p role="status">{queued}</p> : null}
-      <p>Review the affected pipes and exact dimensions in Pending changes before applying.</p>
+      <p>Review the affected pipes and exact dimensions in Review changes before applying.</p>
     </section>
   );
 }

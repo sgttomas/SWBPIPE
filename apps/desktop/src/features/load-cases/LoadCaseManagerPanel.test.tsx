@@ -286,7 +286,7 @@ describe("LoadCaseManagerPanel primitive-load creation", () => {
     type("load-manager-create-primitive-category", "thermal");
     expect(byId("load-manager-create-primitive-pipe")).toBeInTheDocument();
     expect(byId("load-manager-create-primitive-id")).toHaveValue("load:dead-T300");
-    expect(byId("load-manager-create-primitive-direction")).toHaveValue("global_z");
+    expect(screen.queryByTestId("load-manager-create-primitive-direction")).toBeNull();
     expect(byId("load-manager-create-primitive-unit")).toHaveValue("degC");
     expect(pickerValue("load-manager-create-primitive-pipe")).toHaveTextContent("Pipe AB (pipe:AB)");
 
@@ -299,6 +299,21 @@ describe("LoadCaseManagerPanel primitive-load creation", () => {
     type("load-manager-create-primitive-category", "distributed_force");
     expect(byId("load-manager-create-primitive-id")).toHaveValue("load:dead-D300");
     expect(byId("load-manager-create-primitive-unit")).toHaveValue("kN/mm");
+  });
+
+  it("offers no direction for a thermal load and still queues the schema-required global_z", async () => {
+    const { queue } = mount();
+    open("load-manager-add-load");
+    type("load-manager-create-primitive-direction", "global_x");
+    type("load-manager-create-primitive-category", "thermal");
+    expect(screen.queryByTestId("load-manager-create-primitive-direction")).toBeNull();
+    expect(screen.queryByLabelText("Primitive load direction")).toBeNull();
+    type("load-manager-create-primitive-magnitude", "12.5");
+    await waitFor(() => expect(byId("queue-create-primitive-intent")).toBeEnabled());
+    fireEvent.click(byId("queue-create-primitive-intent"));
+    const intent = lastIntent(queue);
+    expect(intent.change).toMatchObject({ field_label: "Thermal primitive load", dimension: "temperature_interval" });
+    expect(JSON.parse(intent.change.after)).toMatchObject({ category: "thermal", direction: "global_z", dimension: "temperature_interval" });
   });
 
   it("re-derives the id when the case changes and skips ids already in use", async () => {
@@ -423,6 +438,17 @@ describe("LoadCaseManagerPanel existing primitive editing", () => {
       operation_kind: "delete",
       change: { change_kind: "delete_primitive_load", field_path: "primitive_loads.0", before: "load:existing; concentrated_force; node:node:A; global_y; 12 kN; force", after: "not_present", unit: "kN", dimension: "force" }
     });
+  });
+
+  it("shows a dash, not a direction, for a temperature load, and the direction for a force", () => {
+    const model = inventedModel();
+    model.load_cases[0].primitive_loads!.push({
+      id: "load:warm", category: "thermal", target: { type: "element", pipe: "pipe:AB" },
+      direction: "global_z", magnitude: { value: 12.5, unit: "degC" }, dimension: "temperature_interval", provenance: "invented load"
+    });
+    mount(model);
+    expect([...row("load-manager-primitive-load:warm").cells].map((cell) => cell.textContent)).toEqual(["Thermal", "AB", "—", "12.5", "degC"]);
+    expect([...row("load-manager-primitive-load:existing").cells].map((cell) => cell.textContent)).toEqual(["Force", "A", "Global Y", "12", "kN"]);
   });
 
   it("shows TBD for a primitive without magnitude, target or dimension", () => {
