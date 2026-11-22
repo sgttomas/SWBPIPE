@@ -85,7 +85,7 @@ export function nativeReplayReply(command: string, args: Record<string, unknown>
   if (!reply.ok) throw reply.error;
   if (reply.body === "json") {
     const value = structuredClone(reply.value) as Record<string, unknown>;
-    if (value?.document_kind === "swbpipe.desktop.result_route_header") {
+    if (value?.document_kind === "swbpipe.desktop.result_route_header" || value?.document_kind === "swbpipe.desktop.report_frame_statements") {
       if (value.job_id !== NATIVE_REPLAY_JOB) throw new Error("NATIVE_REPLAY_ROUTE_HANDLE_INVALID");
       value.job_id = jobId;
     }

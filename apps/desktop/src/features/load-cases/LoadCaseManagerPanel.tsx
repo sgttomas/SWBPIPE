@@ -1,4 +1,5 @@
-import { PressureAuthoringPanel, PressureRegionsEditor } from "../pressure-authoring/PressureAuthoringPanel";
+import type { OperationBatch } from "../../services/operationBatchService";
+import { PressureAuthoringPanel, PressureRegionsEditor, type QueueBatchResult } from "../pressure-authoring/PressureAuthoringPanel";
 import { LoadReferenceStateInputs } from "./LoadReferenceStateInputs";
 import { ConditionUseControl, describeUse } from "../condition-sets/ConditionUseControl";
 import { isPressureFree } from "../condition-sets/conditionSetIntents";
@@ -164,10 +165,12 @@ export function LoadCaseManagerPanel({
   onQueueIntent,
   onSelect,
   selection,
-  queuedIntents, operationBusy, preparationEpoch, getPreparationEpoch
+  queuedIntents, operationBusy, preparationEpoch, getPreparationEpoch, onQueueBatch
 }: {
   model: PreviewModel;
   onQueueIntent: (intent: EditorOperationIntent) => void;
+  /** Queues one batch for review (the pressure panel's shear change with its activation). */
+  onQueueBatch?: (batch: OperationBatch) => QueueBatchResult;
   onSelect: (selection: EntityRef) => void;
   selection: EntityRef;
   queuedIntents?: EditorOperationIntent[];
@@ -208,6 +211,9 @@ export function LoadCaseManagerPanel({
   const [templateOpen, setTemplateOpen] = useState(false);
   const [templatesMenuOpen, setTemplatesMenuOpen] = useState(false);
   const [addLoadOpen, setAddLoadOpen] = useState(false);
+  // The case a press in the pressure panel's open items selected: its Pressure section opens with it, and
+  // each press opens it again (`request`), though the person closed it since, keeping its draft.
+  const [pressureOpen, setPressureOpen] = useState<{ id: string; request: number } | null>(null);
   const [addTermOpen, setAddTermOpen] = useState(false);
   // The load row or term row whose edit is open in place.
   const [editingPrimitiveKey, setEditingPrimitiveKey] = useState<string | null>(null);
@@ -1123,7 +1129,8 @@ export function LoadCaseManagerPanel({
       id: "pressure",
       title: "Pressure",
       summary: pressureSummary(selectedLoadCase),
-      hasContent: (selectedLoadCase.pressure_regions?.length ?? 0) > 0,
+      hasContent: (selectedLoadCase.pressure_regions?.length ?? 0) > 0 || pressureOpen?.id === selectedLoadCase.id,
+      openRequest: pressureOpen?.id === selectedLoadCase.id ? pressureOpen.request : undefined,
       render: () => (
         <PressureRegionsEditor model={model} selection={selection} queuedIntents={queuedIntents} operationBusy={operationBusy} preparationEpoch={preparationEpoch} getPreparationEpoch={getPreparationEpoch} onQueueIntent={onQueueIntent} loadCase={selectedLoadCase} />
       )
@@ -1875,7 +1882,8 @@ export function LoadCaseManagerPanel({
 
       <details className="loads-settings" data-testid="load-manager-analysis-settings">
         <summary>Analysis settings</summary>
-        <PressureAuthoringPanel model={model} selection={selection} queuedIntents={queuedIntents} operationBusy={operationBusy} preparationEpoch={preparationEpoch} getPreparationEpoch={getPreparationEpoch} onQueueIntent={onQueueIntent} />
+        <PressureAuthoringPanel model={model} selection={selection} queuedIntents={queuedIntents} operationBusy={operationBusy} preparationEpoch={preparationEpoch} getPreparationEpoch={getPreparationEpoch} onQueueIntent={onQueueIntent} onQueueBatch={onQueueBatch}
+          onSelect={(next) => { if (next.type === "load") setPressureOpen((current) => ({ id: next.id, request: (current?.request ?? 0) + 1 })); onSelect(next); }} />
       </details>
     </section>
   );

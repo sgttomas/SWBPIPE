@@ -481,7 +481,7 @@ pub fn check_method(method: &Method) -> Vec<Refusal> {
 }
 
 /// Checks the method and the request's candidates and records. Every refusal
-/// refuses the whole request, with every finding listed (Design §3).
+/// refuses the whole request, with every finding listed (REQ-002).
 pub fn check_request(candidates: &[Candidate], records: &[Record], method: &Method) -> Vec<Refusal> {
     let mut refusals = check_method(method);
     if candidates.is_empty() {

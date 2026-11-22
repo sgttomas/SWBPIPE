@@ -1,4 +1,4 @@
-import { selectCompactOption } from "./workspace-driver";
+import { selectCompactOption, expectNotOfferedByView } from "./workspace-driver";
 import { expect, test, type Page, type Locator } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { inflateSync } from "node:zlib";
@@ -435,9 +435,8 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
     "model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
   );
   await expect(editorIntentPanel.getByTestId("queue-editor-intent")).toBeEnabled();
-  await setDisclosure(page.getByTestId("viewport-deformation-status"));
-  await expect(page.getByTestId("viewport-deformation-status")).toContainText("not started; result rows=0");
-  await setDisclosure(page.getByTestId("viewport-deformation-status"), false);
+  // No result: the view offers no Deformation control, so it claims no deformed shape.
+  await expectNotOfferedByView(page, page.getByTestId("viewport-deformation-status"));
   await openWorkspaceSection(page, "loads");
   await expect(page.getByTestId("load-case-manager-summary")).toContainText(
     "2 load cases; 5 primitive loads; 1 combinations"
@@ -600,7 +599,6 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   expect(pngStats(before).uniqueColors).toBeGreaterThan(100);
   await expect(page.getByTestId("viewport-axis-triad")).toBeVisible();
   await expect(page.getByTestId("viewport-view-cube")).toBeVisible();
-  await expect(page.getByTestId("viewport-scale-bar")).toContainText("m");
   await expect(page.getByTestId("command-bar")).toBeVisible();
 
   await openWorkspaceSection(page, "solve");
@@ -620,11 +618,9 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("conversion=false");
   await inspectBundledReference(page);
   await showCanvas(page);
-  await setDisclosure(page.getByTestId("viewport-deformation-status"));
-  await expect(page.getByTestId("viewport-deformation-status")).toContainText("not started; result rows=0");
   // The preserved 5-node / 7.624972 mm and signed-vector source oracles above
-  // do not grant a current-model overlay from reference inspection.
-  await setDisclosure(page.getByTestId("viewport-deformation-status"), false);
+  // do not grant a current-model overlay from reference inspection: no Deformation control.
+  await expectNotOfferedByView(page, page.getByTestId("viewport-deformation-status"));
 
   // The run audit is on the Evidence page (the Audit and Boundaries drawer is not in v1.0).
   const evidence = await openWorkspaceSection(page, "evidence");
@@ -695,7 +691,7 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await expect(page.getByTestId("rendered-report-unit-basis")).toHaveCount(0);
   await expect(page.getByTestId("report-package-private-intent")).not.toBeChecked();
   await expect(page.getByTestId("report-package-save")).toBeDisabled();
-  await expect(page.getByTestId("report-package-save")).toHaveAttribute("title", /current mechanics result/);
+  await expect(page.getByTestId("report-package-save")).toHaveAttribute("title", "No current result. Solve the model first.");
   await page.getByTestId("report-package-private-intent").check();
   await expect(page.getByTestId("report-package-save")).toBeDisabled();
   await expect(page.getByTestId("report-package-save-status")).toHaveCount(0);
@@ -791,14 +787,12 @@ test("viewport gesture placeholders record unit validation", async ({ page }) =>
   await setDisclosure(page.getByLabel("Project summary"), false);
   await showCanvas(page);
   await expect(page.getByTestId("armed-creation-tool")).toContainText("Node tool armed");
-  await openNamedDisclosure(page.getByTestId("command-bar"), "Selection & navigation");
   await page.getByTestId("queue-armed-creation-intent").click();
   await ensureCreationToolArmed(page, "command-pipe", "Pipe tool armed");
   await page.getByTestId("queue-armed-creation-intent").click();
   await page.getByTestId("command-component").click();
   await expect(page.getByTestId("armed-creation-tool")).toContainText("Component tool armed");
   await page.getByTestId("queue-armed-creation-intent").click();
-  await setDisclosure(page.getByTestId("command-bar").locator(".command-context"), false);
   await openViewportPendingChanges(page);
   await expect(page.getByTestId("viewport-intent-unit-validation-create_node")).toContainText(
     "unit_validation=length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"

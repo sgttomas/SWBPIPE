@@ -22,9 +22,10 @@ import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react"
 import type { AnalysisRunEnvelope, DesignKnowledge, MechanicsGap, MechanicsResult, PreviewModel, ResultInterpretation } from "../../types";
 import { buildResultInterpretation, mechanicsGaps } from "./resultInterpretation";
 import type { EntityRef } from "../../types";
-import { numericalResultStanding, recordedResultStanding } from "./resultStanding";
-import { badgeOf, locationText, numericalHealthView, readNumericalHealth, rowHealthState, type NumericalHealthBadge, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
+import { numericalResultStanding, recordedResultStanding, reportStanding } from "./resultStanding";
+import { badgeOf, gatedState, locationText, numericalHealthView, readNumericalHealth, rowHealthState, type NumericalHealthBadge, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
 import { BOUNDARY_SENTENCE, DETAIL_SECTION_LABEL, LOCATED_CAUSES_LABEL, NUMERICAL_HEALTH_STATE_TEXT, SHOW_SOLVER_DIAGNOSTIC } from "./numericalHealthText";
+import { numericalHealthLead, ordinarySolveLead, recoveredCaseIds, supportStatesFor } from "./integrityStatus";
 import { SECTION_BASIS_HEADLINES, WITHHELD_SECTION_BASIS_HEADLINE } from "../report/exactReportSections";
 import { canSurfaceRevealNow } from "../workspace/surfaceReveal";
 import {
@@ -40,6 +41,7 @@ import {
   type NavigatorAxis,
   type NavigatorCase
 } from "./resultsNavigator";
+import { RotationGroupNote } from "./sectionRotationNote";
 
 export const RESULT_PAGE_SIZE_OPTIONS = [50, 100, 200] as const;
 export const DEFAULT_RESULT_PAGE_SIZE = RESULT_PAGE_SIZE_OPTIONS[0];
@@ -95,7 +97,8 @@ function FullResultsPanel({
   viewRequest = null,
   model = null,
   exportAnalysisRun = null,
-  recordedTableRead = null
+  recordedTableRead = null,
+  supportModel = null
 }: {
   result: MechanicsResult | null;
   /** a reopened run recorded before RT-A4 names the registry table it was
@@ -125,6 +128,10 @@ function FullResultsPanel({
   /** RT-R6: the result's own analysis-run record (the current solved run's), for the CSV
    * preamble's result hash; null for any other result. */
   exportAnalysisRun?: AnalysisRunEnvelope | null;
+  /** Release exit criterion 18: the model a reopened or bundled result is read with (the saved,
+   * recorded or bundled model), for its own indicator's support-state lines only. It is read for
+   * nothing else: no standing, admission or use of the result changes with it. */
+  supportModel?: PreviewModel | null;
 }) {
   const displayResolver = useDisplayQuantityResolver();
   const [filterText, setFilterText] = useState("");
@@ -203,7 +210,7 @@ function FullResultsPanel({
   const interpretation = result
     ? buildResultInterpretation({ result, resultId: selectedResultId, knowledge, analysisRun, recordedTableRead })
     : null;
-  const ownHealth = useMemo(() => (numericalHealth === undefined && result ? standaloneNumericalHealth(result, recordedTableRead) : null), [numericalHealth, result, recordedTableRead]);
+  const ownHealth = useMemo(() => (numericalHealth === undefined && result ? standaloneNumericalHealth(result, recordedTableRead, supportModel) : null), [numericalHealth, result, recordedTableRead, supportModel]);
   const route = result ? contractOf(result) : "unsupported";
   const health = routeHealth(route, numericalHealth === undefined ? ownHealth : numericalHealth);
   // RT-R6: what a CSV export of these tables states.
@@ -377,10 +384,12 @@ function FullResultsPanel({
             <p className="numerical-health-header-line" data-testid="numerical-health-header-line"><NumericalHealthBadgeText badge={health.badge} text={health.headline} testId="numerical-health-header" />{health.outputSentence ? <>. <span data-testid="numerical-health-output-sentence">{health.outputSentence}</span></> : null}</p>
           ) : null}
           {health ? <NumericalHealthDetail health={health} resolveCauseLocation={resolveCauseLocation} onSelectCauseLocation={onSelectCauseLocation} onShowDiagnostic={onShowDiagnostic} /> : null}
-          <p className="result-standing" data-testid="numerical-result-standing">{recordedTableRead ? `${recordedTableLabel(recordedTableRead)}. ` : null}{route === "unsupported" ? "Unsupported numerical contract; historical values only. Needs recompute." : isRetainedRoute(route) ? retainedPrecisionStandingText(result) : route === "pressure_source" ? <StandingStatement lead={`Ordinary solve: ${result.numerical_quality!.status}. Producer recovery receipt: ${(result.source_block_recovery as {body:{status:string}}).body.status}.`} limitations={result.formulation_basis!.limitations} close="Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness." /> : <StandingStatement lead={`Numerical integrity: ${result.numerical_quality!.status}.`} limitations={result.formulation_basis!.limitations} close="Numerical checks do not establish engineering correctness." />}{hangerPreloadStanding(result) ? ` ${hangerPreloadStanding(result)}` : null}</p>
+          <p className="result-standing" data-testid="numerical-result-standing">{recordedTableRead ? `${recordedTableLabel(recordedTableRead)}. ` : null}{route === "unsupported" ? "Unsupported numerical contract; historical values only. Needs recompute." : isRetainedRoute(route) ? retainedPrecisionStandingText(result) : route === "pressure_source" ? <StandingStatement lead={`${ordinarySolveLead(result, gatedState(health))} Producer recovery receipt: ${(result.source_block_recovery as {body:{status:string}}).body.status}.`} limitations={result.formulation_basis!.limitations} close="Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness." /> : <StandingStatement lead={numericalHealthLead(result, gatedState(health))} limitations={result.formulation_basis!.limitations} close="Numerical checks do not establish engineering correctness." />}{hangerPreloadStanding(result) ? ` ${hangerPreloadStanding(result)}` : null}</p>
+          {/* REQ-023: where no indicator is shown, the line standing in its place carries the boundary sentence once. */}
+          {!health && route !== "unsupported" && !isRetainedRoute(route) ? <p data-testid="numerical-health-boundary">{BOUNDARY_SENTENCE}</p> : null}
           <KnownSemanticNotices result={result} testIdPrefix="results" recordedTableRead={recordedTableRead} />
           <SectionBasisHeadlines result={result} />
-          <PhysicsSourceEvidencePanel result={result} />
+          <PhysicsSourceEvidencePanel result={result} health={health} />
           <ResultControls
             familyCounts={familyCounts}
             familyFilter={familyFilter}
@@ -449,6 +458,7 @@ function FullResultsPanel({
                   data-testid={`result-group-${group.title.toLowerCase()}`}
                 >
                   <h3>{group.title}</h3>
+                  <RotationGroupNote group={group.title} result={result} />
                   <CsvExportControl tableLabel={`${group.title} results`} testId={`result-group-${group.title.toLowerCase()}-export-csv`} build={() => exportGroup(group.title)} />
                   <table data-csv-export={resultGroupCsvKind(group.title)}>
                     <thead>
@@ -1165,11 +1175,22 @@ function hasResultSemanticToken(value: string, expected: string): boolean {
  * Numerical health
  * -------------------------------------------------------------------------- */
 /** A reopened run's indicator: read with the reader's findings for the result alone (no
- * model, so the verdict-only flag cannot hold) and no hold. */
-export function standaloneNumericalHealth(result: MechanicsResult, recordedTableRead: RecordedBinding | null): NumericalHealthView | null {
+ * model, so the verdict-only flag cannot hold) and no hold. Release exit criterion 18: with the model
+ * the result is read with (`supportModel`), each nonlinear case's support-state line, from the
+ * reader's standing record, as the live path shows it; without one, none. */
+export function standaloneNumericalHealth(result: MechanicsResult, recordedTableRead: RecordedBinding | null, supportModel: PreviewModel | null = null): NumericalHealthView | null {
   let findings: readonly string[] | null = null, eligible = false;
   try { const standing = recordedTableRead ? recordedResultStanding(result, recordedTableRead) : numericalResultStanding(result); findings = standing.findings; eligible = standing.eligible; } catch { return null; }
-  return numericalHealthView(readNumericalHealth(result, findings), { eligible, verdictHold: false });
+  // Release exit criterion 18, fail closed: no line only where the model is known to have no nonlinear
+  // support or the reader's record gives the case an outcome that takes none. Confirmations are read
+  // with today's reader, which refuses a run recorded under an older formulation; such a run, and one
+  // read with no model, shows the could-not-be-read line.
+  const supportStates = supportStatesFor(supportModel, () => {
+    if (!supportModel) return null;
+    const reading = reportStanding(result, supportModel);
+    return reading.readability.readable && reading.readability.solved ? reading.numerical_standing : null;
+  });
+  return numericalHealthView(readNumericalHealth(result, findings), { eligible, verdictHold: false, supportStates, recoveredCases: recoveredCaseIds(result), documentStatus: result.numerical_quality?.status });
 }
 /** The indicator only where its route agrees with the result's route; otherwise none
  * (today's text). */
@@ -1185,8 +1206,10 @@ export function NumericalHealthBadgeText({ badge, text, testId }: { badge: Numer
 
 export function RowHealthBadge({ health, item }: { health: NumericalHealthView | null; item: MechanicsResult["results"][number] }) {
   // No row badge on the pressure-source route: those rows' values are the producer's recovery.
+  // No mark on a row whose case the solver's checks found no problem with; a row whose case is
+  // sensitive, unresolved, failed or not assessed keeps its mark.
   const state = rowHealthState(health, item);
-  if (!state) return null;
+  if (!state || state === "checks_passed") return null;
   return <small> <NumericalHealthBadgeText badge={badgeOf(state)} text={NUMERICAL_HEALTH_STATE_TEXT[state]} testId={`result-row-health-${item.id}`} /></small>;
 }
 
@@ -1197,7 +1220,7 @@ export function NumericalHealthDetail({ health, resolveCauseLocation, onSelectCa
   onShowDiagnostic?: (diagnosticId: string) => void;
 }) {
   return (
-    // Collapsed when every load case passed its checks; open otherwise.
+    // Collapsed when the solver reports checks passed for every load case; open otherwise.
     <details className="result-detail-panel numerical-health-detail" aria-label={DETAIL_SECTION_LABEL} data-testid="numerical-health-detail" open={health.cases.some((c) => c.state !== "checks_passed") || health.cases.length === 0}>
       <summary>{DETAIL_SECTION_LABEL}</summary>
       {/* REQ-023: every use carries the boundary sentence, once, whatever the cases' states. */}
@@ -1207,6 +1230,9 @@ export function NumericalHealthDetail({ health, resolveCauseLocation, onSelectCa
           <h4>{c.caseId} <NumericalHealthBadgeText badge={c.badge} text={c.headline} testId={`numerical-health-case-badge-${c.caseId}`} /></h4>
           <p data-testid={`numerical-health-case-text-${c.caseId}`}>{c.sentences.join(" ")}</p>
           {c.conditioning ? <p data-testid={`numerical-health-case-conditioning-${c.caseId}`}>{c.conditioning}</p> : null}
+          {c.supportStates ? <p data-testid={`numerical-health-case-support-states-${c.caseId}`}>{c.supportStates.text}</p> : null}
+          {/* The solver's quoted reason, directly beneath the statement that says it is quoted below. */}
+          {c.supportStates?.detail ? <blockquote data-testid={`numerical-health-case-support-states-detail-${c.caseId}`}>{c.supportStates.detail}</blockquote> : null}
           {c.locations.length > 0 ? (
             <div data-testid={`numerical-health-case-locations-${c.caseId}`}>
               <span>{LOCATED_CAUSES_LABEL}: </span>

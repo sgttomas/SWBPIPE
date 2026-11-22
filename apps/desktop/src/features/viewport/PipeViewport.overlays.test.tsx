@@ -56,7 +56,7 @@ describe("PipeViewport result overlays", () => {
     expect(screen.getByTestId("viewport-result-colour-tick-0")).toHaveTextContent(/^0\s?mm$/u);
     expect(screen.getByTestId("viewport-result-colour-range")).toHaveTextContent(/min .* mm · max .* mm/u);
     expect(screen.getByTestId("viewport-result-colour-no-value")).toHaveTextContent(`No value: 0 of ${model.pipe_segments.length} members`);
-    expect(screen.getByTestId("viewport-overlay-standing")).toHaveTextContent("Numerical health: checks passed");
+    expect(screen.getByTestId("viewport-overlay-standing")).toHaveTextContent("Numerical health: solver checks found no problem");
 
     fireEvent.change(screen.getByTestId("viewport-overlay-quantity"), { target: { value: "normal-stress-maximum" } });
     expect(screen.getByTestId("viewport-result-colour-title")).toHaveTextContent("Normal-stress maximum [Pa]");

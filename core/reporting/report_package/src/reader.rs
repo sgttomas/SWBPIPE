@@ -43,7 +43,9 @@
 //! §2.9) is the same 2.0.0 container selected by the manifest's optional
 //! `user_release` record. When the record is present the reader requires an
 //! unblocked package under the `desktop_user_released_report_package_1`
-//! profile (legacy record 1.0.0 pressure-free, D-6 record 1.1.0 also exact);
+//! profile (record 1.0.0 for a pressure-free result, 1.2.0 for an exact-route
+//! one; the retired 1.1.0 refused for its version before any other check of
+//! the record, `user_release::check_record_version`);
 //! exactly one HTML, PDF, audit and result member and no
 //! state/comparison/handoff member; a result within that record's scope;
 //! the record's constants and forms; its bound model
@@ -279,8 +281,13 @@ pub(crate) fn read_report_package_container_in(
     // A record, or the user-released profile, selects the user-released
     // member rule; the record's own checks then decide (W-18b §2.9).
     let user_released = fields.user_release.is_some() || fields.export_profile_id == crate::user_release::USER_RELEASED_DESKTOP_PROFILE;
-    let exact_user_release = fields.user_release.as_ref().and_then(|record| record["record_version"].as_str())
-        == Some(open_pipe_stress_report_renderer::USER_RELEASE_EXACT_RECORD_VERSION);
+    let record_version = fields.user_release.as_ref().map(|record| record["record_version"].as_str().unwrap_or_default());
+    // DEL-08-01 REQ-024: a retired record version is refused for its version,
+    // before the members' checks, which speak of the route.
+    if let Some(version) = record_version {
+        crate::user_release::check_record_version(version, None).map_err(user_release_unbound)?;
+    }
+    let exact_user_release = record_version == Some(open_pipe_stress_report_renderer::USER_RELEASE_EXACT_RECORD_VERSION);
     let members = verify_members(bytes, &archive, &rows, fields.export_blocked, &fields.export_profile_id, user_released, exact_user_release, admitted)?;
     // W-18b (§2.9): the record's checks, after the members are verified and
     // before the rebuild; the rebuild then holds the record's form exactly.
@@ -1012,6 +1019,13 @@ fn verify_members(
                             document_form::check_route_admitted_in(&document, admitted).map_err(&defect)?;
                             // W-11 §3.5: the runner profile packages no exact identity.
                             exact_sections::check_runner_profile(export_profile_id, &document).map_err(&defect)?;
+                            // The exact record version on a pressure-free result
+                            // refuses as not of its route (DEL-08-01 REQ-024).
+                            if user_released && exact_user_release {
+                                let exact = document_form::producer_contract_id(&document).is_some_and(exact_sections::is_exact_identity);
+                                crate::user_release::check_record_version(open_pipe_stress_report_renderer::USER_RELEASE_EXACT_RECORD_VERSION, Some(exact))
+                                    .map_err(user_release_unbound)?;
+                            }
                             // Keep the legacy record's refusal and its precedence.
                             if user_released && !exact_user_release {
                                 exact_sections::check_user_released_profile(crate::user_release::USER_RELEASED_DESKTOP_PROFILE, &document)

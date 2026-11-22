@@ -1,0 +1,1393 @@
+{
+ "document": "swbpipe.reference_system_ope_ref_references",
+ "status": "candidate frozen references; derived and cross-checked by the author TASK before the fixture's RS-OPE-REF was solved against them, not yet independently refuted",
+ "specification": "DEL-09-01 (the member states of RS-OPE and RS-OPE-REF; EQ-1 and EQ-2 for RS-OPE-REF; EQ-3 on RS-OPE-REF - RS-SUS)",
+ "inputs": "the specification's statements (§3.2, §4.1, §5.1, §8, §8.1), transcribed in the generator; no fixture model file and no product output is read",
+ "controls_read": ["validation/references/reference_system_r1_ce/references.json"],
+ "units": {
+  "modulus": "Pa",
+  "temperature": "K",
+  "strain": "1",
+  "force": "N",
+  "moment": "N*m"
+ },
+ "checks": {
+  "member states": "the reference derives the state of every member of RS-OPE and RS-OPE-REF, 26 per case; for each member the product publishes, 25 per case (it removes the replaced span RS-P180's record before publication, though it still resolves the member), the consumed material point(s), E, nu, G, the thermal strain and (RS-OPE-REF) the analysis-basis reason equal `member_states`",
+  "EQ-1": "in RS-OPE-REF, the sum of the global Z support action components over every support, RS-VS1 and RS-CE1 included, equals W_total",
+  "EQ-2": "in RS-OPE-REF, the horizontal (X, Y) resultant is zero and the support action moment resultant about the origin equals reaction_moment_about_origin",
+  "EQ-3": "on every published signed component row, RS-EXP = RS-OPE-REF - RS-SUS; magnitude rows equal the norm of the combined components; rows the combination withholds are excluded and listed; the identity establishes the combination's algebra and nothing about either solve"
+ },
+ "criterion": "EQ-1, EQ-2, EQ-3: the r1_ce package's (DEC-024/DEC-026), |observed - expected| <= 1e-9 * |expected|, a zero row against 1e-9 * zero_scale; member states: the consumer states its a priori rounding bound",
+ "crosscheck": [
+  {"check": "RS-OPE's modulus at 210 degC is 188.3 GPa: 189 + (210 - 200)/(300 - 200) * (182 - 189)", "agrees": true},
+  {"check": "RS-OPE-REF's modulus is the 20 degC point's 200 GPa on every member", "agrees": true},
+  {"check": "the thermal strain from 20 to 210 degC is 57/25000 = alpha * 190 (the ratio form's denominator is 1)", "agrees": true},
+  {"check": "RS-OPE and RS-OPE-REF have the same thermal strain on every member", "agrees": true},
+  {"check": "RS-P180 has zero eigenstrain in both cases", "agrees": true},
+  {"check": "the two cases' moduli differ on every member: ratio 1883/2000", "agrees": true},
+  {"check": "G = E / 2.6 in both cases (nu = 0.3)", "agrees": true},
+  {"check": "25 members of each case have an operating temperature; RS-P180 has none", "agrees": true},
+  {"check": "validation/references/reference_system_r1_ce/references.json's bytes match its own SHA256SUMS", "agrees": true},
+  {"check": "validation/references/reference_system_r1_ce/references.json states EQ-1 and EQ-2 for exactly RS-SUS, RS-OPE and RS-SAM", "agrees": true},
+  {"check": "validation/references/reference_system_r1_ce/references.json: W_total is the sum of its member and component weight records", "agrees": true},
+  {"check": "validation/references/reference_system_r1_ce/references.json: the weight moment about the origin is (-S_y, S_x, 0)", "agrees": true},
+  {"check": "validation/references/reference_system_r1_ce/references.json: the reaction moment about the origin is minus the weight moment", "agrees": true}
+ ],
+ "member_states": {
+  "load:RS-OPE": [
+   {
+    "member": "pipe:RS-P010",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "temperature_interpolation",
+    "material_selection_temperature_K": "9663/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T200",
+      "temperature_K": "9463/20",
+      "E_Pa": {"exact": "189000000000", "decimal": "1.890000000000000000000000000000000000000e+11", "value": 189000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     },
+     {
+      "point_id": "point:RS-M1-T300",
+      "temperature_K": "11463/20",
+      "E_Pa": {"exact": "182000000000", "decimal": "1.820000000000000000000000000000000000000e+11", "value": 182000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": {"exact": "1/10", "decimal": "1.000000000000000000000000000000000000000e-1", "value": 0.1},
+    "E_Pa": {"exact": "188300000000", "decimal": "1.883000000000000000000000000000000000000e+11", "value": 188300000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "941500000000/13", "decimal": "7.242307692307692307692307692307692307692e+10", "value": 72423076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": null
+   },
+   {
+    "member": "pipe:RS-P020",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "temperature_interpolation",
+    "material_selection_temperature_K": "9663/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T200",
+      "temperature_K": "9463/20",
+      "E_Pa": {"exact": "189000000000", "decimal": "1.890000000000000000000000000000000000000e+11", "value": 189000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     },
+     {
+      "point_id": "point:RS-M1-T300",
+      "temperature_K": "11463/20",
+      "E_Pa": {"exact": "182000000000", "decimal": "1.820000000000000000000000000000000000000e+11", "value": 182000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": {"exact": "1/10", "decimal": "1.000000000000000000000000000000000000000e-1", "value": 0.1},
+    "E_Pa": {"exact": "188300000000", "decimal": "1.883000000000000000000000000000000000000e+11", "value": 188300000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "941500000000/13", "decimal": "7.242307692307692307692307692307692307692e+10", "value": 72423076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": null
+   },
+   {
+    "member": "pipe:RS-P030",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "temperature_interpolation",
+    "material_selection_temperature_K": "9663/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T200",
+      "temperature_K": "9463/20",
+      "E_Pa": {"exact": "189000000000", "decimal": "1.890000000000000000000000000000000000000e+11", "value": 189000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     },
+     {
+      "point_id": "point:RS-M1-T300",
+      "temperature_K": "11463/20",
+      "E_Pa": {"exact": "182000000000", "decimal": "1.820000000000000000000000000000000000000e+11", "value": 182000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": {"exact": "1/10", "decimal": "1.000000000000000000000000000000000000000e-1", "value": 0.1},
+    "E_Pa": {"exact": "188300000000", "decimal": "1.883000000000000000000000000000000000000e+11", "value": 188300000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "941500000000/13", "decimal": "7.242307692307692307692307692307692307692e+10", "value": 72423076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": null
+   },
+   {
+    "member": "pipe:RS-P040",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "temperature_interpolation",
+    "material_selection_temperature_K": "9663/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T200",
+      "temperature_K": "9463/20",
+      "E_Pa": {"exact": "189000000000", "decimal": "1.890000000000000000000000000000000000000e+11", "value": 189000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     },
+     {
+      "point_id": "point:RS-M1-T300",
+      "temperature_K": "11463/20",
+      "E_Pa": {"exact": "182000000000", "decimal": "1.820000000000000000000000000000000000000e+11", "value": 182000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": {"exact": "1/10", "decimal": "1.000000000000000000000000000000000000000e-1", "value": 0.1},
+    "E_Pa": {"exact": "188300000000", "decimal": "1.883000000000000000000000000000000000000e+11", "value": 188300000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "941500000000/13", "decimal": "7.242307692307692307692307692307692307692e+10", "value": 72423076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": null
+   },
+   {
+    "member": "pipe:RS-P050",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "temperature_interpolation",
+    "material_selection_temperature_K": "9663/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T200",
+      "temperature_K": "9463/20",
+      "E_Pa": {"exact": "189000000000", "decimal": "1.890000000000000000000000000000000000000e+11", "value": 189000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     },
+     {
+      "point_id": "point:RS-M1-T300",
+      "temperature_K": "11463/20",
+      "E_Pa": {"exact": "182000000000", "decimal": "1.820000000000000000000000000000000000000e+11", "value": 182000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": {"exact": "1/10", "decimal": "1.000000000000000000000000000000000000000e-1", "value": 0.1},
+    "E_Pa": {"exact": "188300000000", "decimal": "1.883000000000000000000000000000000000000e+11", "value": 188300000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "941500000000/13", "decimal": "7.242307692307692307692307692307692307692e+10", "value": 72423076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": null
+   },
+   {
+    "member": "pipe:RS-P060",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "temperature_interpolation",
+    "material_selection_temperature_K": "9663/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T200",
+      "temperature_K": "9463/20",
+      "E_Pa": {"exact": "189000000000", "decimal": "1.890000000000000000000000000000000000000e+11", "value": 189000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     },
+     {
+      "point_id": "point:RS-M1-T300",
+      "temperature_K": "11463/20",
+      "E_Pa": {"exact": "182000000000", "decimal": "1.820000000000000000000000000000000000000e+11", "value": 182000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": {"exact": "1/10", "decimal": "1.000000000000000000000000000000000000000e-1", "value": 0.1},
+    "E_Pa": {"exact": "188300000000", "decimal": "1.883000000000000000000000000000000000000e+11", "value": 188300000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "941500000000/13", "decimal": "7.242307692307692307692307692307692307692e+10", "value": 72423076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": null
+   },
+   {
+    "member": "pipe:RS-P065",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "temperature_interpolation",
+    "material_selection_temperature_K": "9663/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T200",
+      "temperature_K": "9463/20",
+      "E_Pa": {"exact": "189000000000", "decimal": "1.890000000000000000000000000000000000000e+11", "value": 189000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     },
+     {
+      "point_id": "point:RS-M1-T300",
+      "temperature_K": "11463/20",
+      "E_Pa": {"exact": "182000000000", "decimal": "1.820000000000000000000000000000000000000e+11", "value": 182000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": {"exact": "1/10", "decimal": "1.000000000000000000000000000000000000000e-1", "value": 0.1},
+    "E_Pa": {"exact": "188300000000", "decimal": "1.883000000000000000000000000000000000000e+11", "value": 188300000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "941500000000/13", "decimal": "7.242307692307692307692307692307692307692e+10", "value": 72423076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": null
+   },
+   {
+    "member": "pipe:RS-P070",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "temperature_interpolation",
+    "material_selection_temperature_K": "9663/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T200",
+      "temperature_K": "9463/20",
+      "E_Pa": {"exact": "189000000000", "decimal": "1.890000000000000000000000000000000000000e+11", "value": 189000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     },
+     {
+      "point_id": "point:RS-M1-T300",
+      "temperature_K": "11463/20",
+      "E_Pa": {"exact": "182000000000", "decimal": "1.820000000000000000000000000000000000000e+11", "value": 182000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": {"exact": "1/10", "decimal": "1.000000000000000000000000000000000000000e-1", "value": 0.1},
+    "E_Pa": {"exact": "188300000000", "decimal": "1.883000000000000000000000000000000000000e+11", "value": 188300000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "941500000000/13", "decimal": "7.242307692307692307692307692307692307692e+10", "value": 72423076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": null
+   },
+   {
+    "member": "pipe:RS-P080",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "temperature_interpolation",
+    "material_selection_temperature_K": "9663/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T200",
+      "temperature_K": "9463/20",
+      "E_Pa": {"exact": "189000000000", "decimal": "1.890000000000000000000000000000000000000e+11", "value": 189000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     },
+     {
+      "point_id": "point:RS-M1-T300",
+      "temperature_K": "11463/20",
+      "E_Pa": {"exact": "182000000000", "decimal": "1.820000000000000000000000000000000000000e+11", "value": 182000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": {"exact": "1/10", "decimal": "1.000000000000000000000000000000000000000e-1", "value": 0.1},
+    "E_Pa": {"exact": "188300000000", "decimal": "1.883000000000000000000000000000000000000e+11", "value": 188300000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "941500000000/13", "decimal": "7.242307692307692307692307692307692307692e+10", "value": 72423076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": null
+   },
+   {
+    "member": "pipe:RS-P085",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "temperature_interpolation",
+    "material_selection_temperature_K": "9663/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T200",
+      "temperature_K": "9463/20",
+      "E_Pa": {"exact": "189000000000", "decimal": "1.890000000000000000000000000000000000000e+11", "value": 189000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     },
+     {
+      "point_id": "point:RS-M1-T300",
+      "temperature_K": "11463/20",
+      "E_Pa": {"exact": "182000000000", "decimal": "1.820000000000000000000000000000000000000e+11", "value": 182000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": {"exact": "1/10", "decimal": "1.000000000000000000000000000000000000000e-1", "value": 0.1},
+    "E_Pa": {"exact": "188300000000", "decimal": "1.883000000000000000000000000000000000000e+11", "value": 188300000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "941500000000/13", "decimal": "7.242307692307692307692307692307692307692e+10", "value": 72423076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": null
+   },
+   {
+    "member": "pipe:RS-P090",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "temperature_interpolation",
+    "material_selection_temperature_K": "9663/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T200",
+      "temperature_K": "9463/20",
+      "E_Pa": {"exact": "189000000000", "decimal": "1.890000000000000000000000000000000000000e+11", "value": 189000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     },
+     {
+      "point_id": "point:RS-M1-T300",
+      "temperature_K": "11463/20",
+      "E_Pa": {"exact": "182000000000", "decimal": "1.820000000000000000000000000000000000000e+11", "value": 182000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": {"exact": "1/10", "decimal": "1.000000000000000000000000000000000000000e-1", "value": 0.1},
+    "E_Pa": {"exact": "188300000000", "decimal": "1.883000000000000000000000000000000000000e+11", "value": 188300000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "941500000000/13", "decimal": "7.242307692307692307692307692307692307692e+10", "value": 72423076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": null
+   },
+   {
+    "member": "pipe:RS-P100",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "temperature_interpolation",
+    "material_selection_temperature_K": "9663/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T200",
+      "temperature_K": "9463/20",
+      "E_Pa": {"exact": "189000000000", "decimal": "1.890000000000000000000000000000000000000e+11", "value": 189000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     },
+     {
+      "point_id": "point:RS-M1-T300",
+      "temperature_K": "11463/20",
+      "E_Pa": {"exact": "182000000000", "decimal": "1.820000000000000000000000000000000000000e+11", "value": 182000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": {"exact": "1/10", "decimal": "1.000000000000000000000000000000000000000e-1", "value": 0.1},
+    "E_Pa": {"exact": "188300000000", "decimal": "1.883000000000000000000000000000000000000e+11", "value": 188300000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "941500000000/13", "decimal": "7.242307692307692307692307692307692307692e+10", "value": 72423076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": null
+   },
+   {
+    "member": "pipe:RS-P110",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "temperature_interpolation",
+    "material_selection_temperature_K": "9663/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T200",
+      "temperature_K": "9463/20",
+      "E_Pa": {"exact": "189000000000", "decimal": "1.890000000000000000000000000000000000000e+11", "value": 189000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     },
+     {
+      "point_id": "point:RS-M1-T300",
+      "temperature_K": "11463/20",
+      "E_Pa": {"exact": "182000000000", "decimal": "1.820000000000000000000000000000000000000e+11", "value": 182000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": {"exact": "1/10", "decimal": "1.000000000000000000000000000000000000000e-1", "value": 0.1},
+    "E_Pa": {"exact": "188300000000", "decimal": "1.883000000000000000000000000000000000000e+11", "value": 188300000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "941500000000/13", "decimal": "7.242307692307692307692307692307692307692e+10", "value": 72423076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": null
+   },
+   {
+    "member": "pipe:RS-P120",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "temperature_interpolation",
+    "material_selection_temperature_K": "9663/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T200",
+      "temperature_K": "9463/20",
+      "E_Pa": {"exact": "189000000000", "decimal": "1.890000000000000000000000000000000000000e+11", "value": 189000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     },
+     {
+      "point_id": "point:RS-M1-T300",
+      "temperature_K": "11463/20",
+      "E_Pa": {"exact": "182000000000", "decimal": "1.820000000000000000000000000000000000000e+11", "value": 182000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": {"exact": "1/10", "decimal": "1.000000000000000000000000000000000000000e-1", "value": 0.1},
+    "E_Pa": {"exact": "188300000000", "decimal": "1.883000000000000000000000000000000000000e+11", "value": 188300000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "941500000000/13", "decimal": "7.242307692307692307692307692307692307692e+10", "value": 72423076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": null
+   },
+   {
+    "member": "pipe:RS-P130",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "temperature_interpolation",
+    "material_selection_temperature_K": "9663/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T200",
+      "temperature_K": "9463/20",
+      "E_Pa": {"exact": "189000000000", "decimal": "1.890000000000000000000000000000000000000e+11", "value": 189000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     },
+     {
+      "point_id": "point:RS-M1-T300",
+      "temperature_K": "11463/20",
+      "E_Pa": {"exact": "182000000000", "decimal": "1.820000000000000000000000000000000000000e+11", "value": 182000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": {"exact": "1/10", "decimal": "1.000000000000000000000000000000000000000e-1", "value": 0.1},
+    "E_Pa": {"exact": "188300000000", "decimal": "1.883000000000000000000000000000000000000e+11", "value": 188300000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "941500000000/13", "decimal": "7.242307692307692307692307692307692307692e+10", "value": 72423076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": null
+   },
+   {
+    "member": "pipe:RS-P140",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "temperature_interpolation",
+    "material_selection_temperature_K": "9663/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T200",
+      "temperature_K": "9463/20",
+      "E_Pa": {"exact": "189000000000", "decimal": "1.890000000000000000000000000000000000000e+11", "value": 189000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     },
+     {
+      "point_id": "point:RS-M1-T300",
+      "temperature_K": "11463/20",
+      "E_Pa": {"exact": "182000000000", "decimal": "1.820000000000000000000000000000000000000e+11", "value": 182000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": {"exact": "1/10", "decimal": "1.000000000000000000000000000000000000000e-1", "value": 0.1},
+    "E_Pa": {"exact": "188300000000", "decimal": "1.883000000000000000000000000000000000000e+11", "value": 188300000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "941500000000/13", "decimal": "7.242307692307692307692307692307692307692e+10", "value": 72423076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": null
+   },
+   {
+    "member": "pipe:RS-P150",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "temperature_interpolation",
+    "material_selection_temperature_K": "9663/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T200",
+      "temperature_K": "9463/20",
+      "E_Pa": {"exact": "189000000000", "decimal": "1.890000000000000000000000000000000000000e+11", "value": 189000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     },
+     {
+      "point_id": "point:RS-M1-T300",
+      "temperature_K": "11463/20",
+      "E_Pa": {"exact": "182000000000", "decimal": "1.820000000000000000000000000000000000000e+11", "value": 182000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": {"exact": "1/10", "decimal": "1.000000000000000000000000000000000000000e-1", "value": 0.1},
+    "E_Pa": {"exact": "188300000000", "decimal": "1.883000000000000000000000000000000000000e+11", "value": 188300000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "941500000000/13", "decimal": "7.242307692307692307692307692307692307692e+10", "value": 72423076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": null
+   },
+   {
+    "member": "pipe:RS-P160",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "temperature_interpolation",
+    "material_selection_temperature_K": "9663/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T200",
+      "temperature_K": "9463/20",
+      "E_Pa": {"exact": "189000000000", "decimal": "1.890000000000000000000000000000000000000e+11", "value": 189000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     },
+     {
+      "point_id": "point:RS-M1-T300",
+      "temperature_K": "11463/20",
+      "E_Pa": {"exact": "182000000000", "decimal": "1.820000000000000000000000000000000000000e+11", "value": 182000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": {"exact": "1/10", "decimal": "1.000000000000000000000000000000000000000e-1", "value": 0.1},
+    "E_Pa": {"exact": "188300000000", "decimal": "1.883000000000000000000000000000000000000e+11", "value": 188300000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "941500000000/13", "decimal": "7.242307692307692307692307692307692307692e+10", "value": 72423076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": null
+   },
+   {
+    "member": "pipe:RS-P170",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "temperature_interpolation",
+    "material_selection_temperature_K": "9663/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T200",
+      "temperature_K": "9463/20",
+      "E_Pa": {"exact": "189000000000", "decimal": "1.890000000000000000000000000000000000000e+11", "value": 189000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     },
+     {
+      "point_id": "point:RS-M1-T300",
+      "temperature_K": "11463/20",
+      "E_Pa": {"exact": "182000000000", "decimal": "1.820000000000000000000000000000000000000e+11", "value": 182000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": {"exact": "1/10", "decimal": "1.000000000000000000000000000000000000000e-1", "value": 0.1},
+    "E_Pa": {"exact": "188300000000", "decimal": "1.883000000000000000000000000000000000000e+11", "value": 188300000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "941500000000/13", "decimal": "7.242307692307692307692307692307692307692e+10", "value": 72423076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": null
+   },
+   {
+    "member": "pipe:RS-P180",
+    "operating_temperature_K": null,
+    "material_selection_kind": "temperature_interpolation",
+    "material_selection_temperature_K": "9663/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T200",
+      "temperature_K": "9463/20",
+      "E_Pa": {"exact": "189000000000", "decimal": "1.890000000000000000000000000000000000000e+11", "value": 189000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     },
+     {
+      "point_id": "point:RS-M1-T300",
+      "temperature_K": "11463/20",
+      "E_Pa": {"exact": "182000000000", "decimal": "1.820000000000000000000000000000000000000e+11", "value": 182000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": {"exact": "1/10", "decimal": "1.000000000000000000000000000000000000000e-1", "value": 0.1},
+    "E_Pa": {"exact": "188300000000", "decimal": "1.883000000000000000000000000000000000000e+11", "value": 188300000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "941500000000/13", "decimal": "7.242307692307692307692307692307692307692e+10", "value": 72423076923.07692},
+    "thermal_state": "unchanged_reference",
+    "expansion_law": null,
+    "thermal_strain": {"exact": "0", "decimal": "0", "value": 0.0},
+    "analysis_basis_override_reason": null
+   },
+   {
+    "member": "pipe:RS-P190",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "temperature_interpolation",
+    "material_selection_temperature_K": "9663/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T200",
+      "temperature_K": "9463/20",
+      "E_Pa": {"exact": "189000000000", "decimal": "1.890000000000000000000000000000000000000e+11", "value": 189000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     },
+     {
+      "point_id": "point:RS-M1-T300",
+      "temperature_K": "11463/20",
+      "E_Pa": {"exact": "182000000000", "decimal": "1.820000000000000000000000000000000000000e+11", "value": 182000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": {"exact": "1/10", "decimal": "1.000000000000000000000000000000000000000e-1", "value": 0.1},
+    "E_Pa": {"exact": "188300000000", "decimal": "1.883000000000000000000000000000000000000e+11", "value": 188300000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "941500000000/13", "decimal": "7.242307692307692307692307692307692307692e+10", "value": 72423076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": null
+   },
+   {
+    "member": "pipe:RS-P200",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "temperature_interpolation",
+    "material_selection_temperature_K": "9663/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T200",
+      "temperature_K": "9463/20",
+      "E_Pa": {"exact": "189000000000", "decimal": "1.890000000000000000000000000000000000000e+11", "value": 189000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     },
+     {
+      "point_id": "point:RS-M1-T300",
+      "temperature_K": "11463/20",
+      "E_Pa": {"exact": "182000000000", "decimal": "1.820000000000000000000000000000000000000e+11", "value": 182000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": {"exact": "1/10", "decimal": "1.000000000000000000000000000000000000000e-1", "value": 0.1},
+    "E_Pa": {"exact": "188300000000", "decimal": "1.883000000000000000000000000000000000000e+11", "value": 188300000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "941500000000/13", "decimal": "7.242307692307692307692307692307692307692e+10", "value": 72423076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": null
+   },
+   {
+    "member": "pipe:RS-P210",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "temperature_interpolation",
+    "material_selection_temperature_K": "9663/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T200",
+      "temperature_K": "9463/20",
+      "E_Pa": {"exact": "189000000000", "decimal": "1.890000000000000000000000000000000000000e+11", "value": 189000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     },
+     {
+      "point_id": "point:RS-M1-T300",
+      "temperature_K": "11463/20",
+      "E_Pa": {"exact": "182000000000", "decimal": "1.820000000000000000000000000000000000000e+11", "value": 182000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": {"exact": "1/10", "decimal": "1.000000000000000000000000000000000000000e-1", "value": 0.1},
+    "E_Pa": {"exact": "188300000000", "decimal": "1.883000000000000000000000000000000000000e+11", "value": 188300000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "941500000000/13", "decimal": "7.242307692307692307692307692307692307692e+10", "value": 72423076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": null
+   },
+   {
+    "member": "pipe:RS-P220",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "temperature_interpolation",
+    "material_selection_temperature_K": "9663/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T200",
+      "temperature_K": "9463/20",
+      "E_Pa": {"exact": "189000000000", "decimal": "1.890000000000000000000000000000000000000e+11", "value": 189000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     },
+     {
+      "point_id": "point:RS-M1-T300",
+      "temperature_K": "11463/20",
+      "E_Pa": {"exact": "182000000000", "decimal": "1.820000000000000000000000000000000000000e+11", "value": 182000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": {"exact": "1/10", "decimal": "1.000000000000000000000000000000000000000e-1", "value": 0.1},
+    "E_Pa": {"exact": "188300000000", "decimal": "1.883000000000000000000000000000000000000e+11", "value": 188300000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "941500000000/13", "decimal": "7.242307692307692307692307692307692307692e+10", "value": 72423076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": null
+   },
+   {
+    "member": "pipe:RS-P225",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "temperature_interpolation",
+    "material_selection_temperature_K": "9663/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T200",
+      "temperature_K": "9463/20",
+      "E_Pa": {"exact": "189000000000", "decimal": "1.890000000000000000000000000000000000000e+11", "value": 189000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     },
+     {
+      "point_id": "point:RS-M1-T300",
+      "temperature_K": "11463/20",
+      "E_Pa": {"exact": "182000000000", "decimal": "1.820000000000000000000000000000000000000e+11", "value": 182000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": {"exact": "1/10", "decimal": "1.000000000000000000000000000000000000000e-1", "value": 0.1},
+    "E_Pa": {"exact": "188300000000", "decimal": "1.883000000000000000000000000000000000000e+11", "value": 188300000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "941500000000/13", "decimal": "7.242307692307692307692307692307692307692e+10", "value": 72423076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": null
+   },
+   {
+    "member": "pipe:RS-P230",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "temperature_interpolation",
+    "material_selection_temperature_K": "9663/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T200",
+      "temperature_K": "9463/20",
+      "E_Pa": {"exact": "189000000000", "decimal": "1.890000000000000000000000000000000000000e+11", "value": 189000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     },
+     {
+      "point_id": "point:RS-M1-T300",
+      "temperature_K": "11463/20",
+      "E_Pa": {"exact": "182000000000", "decimal": "1.820000000000000000000000000000000000000e+11", "value": 182000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": {"exact": "1/10", "decimal": "1.000000000000000000000000000000000000000e-1", "value": 0.1},
+    "E_Pa": {"exact": "188300000000", "decimal": "1.883000000000000000000000000000000000000e+11", "value": 188300000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "941500000000/13", "decimal": "7.242307692307692307692307692307692307692e+10", "value": 72423076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": null
+   }
+  ],
+  "load:RS-OPE-REF": [
+   {
+    "member": "pipe:RS-P010",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "exact_point",
+    "material_selection_temperature_K": "5863/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T020",
+      "temperature_K": "5863/20",
+      "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": null,
+    "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "1000000000000/13", "decimal": "7.692307692307692307692307692307692307692e+10", "value": 76923076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
+   },
+   {
+    "member": "pipe:RS-P020",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "exact_point",
+    "material_selection_temperature_K": "5863/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T020",
+      "temperature_K": "5863/20",
+      "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": null,
+    "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "1000000000000/13", "decimal": "7.692307692307692307692307692307692307692e+10", "value": 76923076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
+   },
+   {
+    "member": "pipe:RS-P030",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "exact_point",
+    "material_selection_temperature_K": "5863/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T020",
+      "temperature_K": "5863/20",
+      "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": null,
+    "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "1000000000000/13", "decimal": "7.692307692307692307692307692307692307692e+10", "value": 76923076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
+   },
+   {
+    "member": "pipe:RS-P040",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "exact_point",
+    "material_selection_temperature_K": "5863/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T020",
+      "temperature_K": "5863/20",
+      "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": null,
+    "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "1000000000000/13", "decimal": "7.692307692307692307692307692307692307692e+10", "value": 76923076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
+   },
+   {
+    "member": "pipe:RS-P050",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "exact_point",
+    "material_selection_temperature_K": "5863/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T020",
+      "temperature_K": "5863/20",
+      "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": null,
+    "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "1000000000000/13", "decimal": "7.692307692307692307692307692307692307692e+10", "value": 76923076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
+   },
+   {
+    "member": "pipe:RS-P060",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "exact_point",
+    "material_selection_temperature_K": "5863/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T020",
+      "temperature_K": "5863/20",
+      "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": null,
+    "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "1000000000000/13", "decimal": "7.692307692307692307692307692307692307692e+10", "value": 76923076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
+   },
+   {
+    "member": "pipe:RS-P065",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "exact_point",
+    "material_selection_temperature_K": "5863/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T020",
+      "temperature_K": "5863/20",
+      "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": null,
+    "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "1000000000000/13", "decimal": "7.692307692307692307692307692307692307692e+10", "value": 76923076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
+   },
+   {
+    "member": "pipe:RS-P070",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "exact_point",
+    "material_selection_temperature_K": "5863/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T020",
+      "temperature_K": "5863/20",
+      "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": null,
+    "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "1000000000000/13", "decimal": "7.692307692307692307692307692307692307692e+10", "value": 76923076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
+   },
+   {
+    "member": "pipe:RS-P080",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "exact_point",
+    "material_selection_temperature_K": "5863/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T020",
+      "temperature_K": "5863/20",
+      "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": null,
+    "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "1000000000000/13", "decimal": "7.692307692307692307692307692307692307692e+10", "value": 76923076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
+   },
+   {
+    "member": "pipe:RS-P085",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "exact_point",
+    "material_selection_temperature_K": "5863/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T020",
+      "temperature_K": "5863/20",
+      "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": null,
+    "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "1000000000000/13", "decimal": "7.692307692307692307692307692307692307692e+10", "value": 76923076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
+   },
+   {
+    "member": "pipe:RS-P090",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "exact_point",
+    "material_selection_temperature_K": "5863/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T020",
+      "temperature_K": "5863/20",
+      "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": null,
+    "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "1000000000000/13", "decimal": "7.692307692307692307692307692307692307692e+10", "value": 76923076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
+   },
+   {
+    "member": "pipe:RS-P100",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "exact_point",
+    "material_selection_temperature_K": "5863/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T020",
+      "temperature_K": "5863/20",
+      "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": null,
+    "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "1000000000000/13", "decimal": "7.692307692307692307692307692307692307692e+10", "value": 76923076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
+   },
+   {
+    "member": "pipe:RS-P110",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "exact_point",
+    "material_selection_temperature_K": "5863/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T020",
+      "temperature_K": "5863/20",
+      "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": null,
+    "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "1000000000000/13", "decimal": "7.692307692307692307692307692307692307692e+10", "value": 76923076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
+   },
+   {
+    "member": "pipe:RS-P120",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "exact_point",
+    "material_selection_temperature_K": "5863/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T020",
+      "temperature_K": "5863/20",
+      "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": null,
+    "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "1000000000000/13", "decimal": "7.692307692307692307692307692307692307692e+10", "value": 76923076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
+   },
+   {
+    "member": "pipe:RS-P130",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "exact_point",
+    "material_selection_temperature_K": "5863/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T020",
+      "temperature_K": "5863/20",
+      "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": null,
+    "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "1000000000000/13", "decimal": "7.692307692307692307692307692307692307692e+10", "value": 76923076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
+   },
+   {
+    "member": "pipe:RS-P140",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "exact_point",
+    "material_selection_temperature_K": "5863/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T020",
+      "temperature_K": "5863/20",
+      "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": null,
+    "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "1000000000000/13", "decimal": "7.692307692307692307692307692307692307692e+10", "value": 76923076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
+   },
+   {
+    "member": "pipe:RS-P150",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "exact_point",
+    "material_selection_temperature_K": "5863/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T020",
+      "temperature_K": "5863/20",
+      "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": null,
+    "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "1000000000000/13", "decimal": "7.692307692307692307692307692307692307692e+10", "value": 76923076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
+   },
+   {
+    "member": "pipe:RS-P160",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "exact_point",
+    "material_selection_temperature_K": "5863/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T020",
+      "temperature_K": "5863/20",
+      "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": null,
+    "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "1000000000000/13", "decimal": "7.692307692307692307692307692307692307692e+10", "value": 76923076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
+   },
+   {
+    "member": "pipe:RS-P170",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "exact_point",
+    "material_selection_temperature_K": "5863/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T020",
+      "temperature_K": "5863/20",
+      "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": null,
+    "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "1000000000000/13", "decimal": "7.692307692307692307692307692307692307692e+10", "value": 76923076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
+   },
+   {
+    "member": "pipe:RS-P180",
+    "operating_temperature_K": null,
+    "material_selection_kind": "exact_point",
+    "material_selection_temperature_K": "5863/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T020",
+      "temperature_K": "5863/20",
+      "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": null,
+    "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "1000000000000/13", "decimal": "7.692307692307692307692307692307692307692e+10", "value": 76923076923.07692},
+    "thermal_state": "unchanged_reference",
+    "expansion_law": null,
+    "thermal_strain": {"exact": "0", "decimal": "0", "value": 0.0},
+    "analysis_basis_override_reason": null
+   },
+   {
+    "member": "pipe:RS-P190",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "exact_point",
+    "material_selection_temperature_K": "5863/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T020",
+      "temperature_K": "5863/20",
+      "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": null,
+    "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "1000000000000/13", "decimal": "7.692307692307692307692307692307692307692e+10", "value": 76923076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
+   },
+   {
+    "member": "pipe:RS-P200",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "exact_point",
+    "material_selection_temperature_K": "5863/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T020",
+      "temperature_K": "5863/20",
+      "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": null,
+    "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "1000000000000/13", "decimal": "7.692307692307692307692307692307692307692e+10", "value": 76923076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
+   },
+   {
+    "member": "pipe:RS-P210",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "exact_point",
+    "material_selection_temperature_K": "5863/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T020",
+      "temperature_K": "5863/20",
+      "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": null,
+    "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "1000000000000/13", "decimal": "7.692307692307692307692307692307692307692e+10", "value": 76923076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
+   },
+   {
+    "member": "pipe:RS-P220",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "exact_point",
+    "material_selection_temperature_K": "5863/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T020",
+      "temperature_K": "5863/20",
+      "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": null,
+    "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "1000000000000/13", "decimal": "7.692307692307692307692307692307692307692e+10", "value": 76923076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
+   },
+   {
+    "member": "pipe:RS-P225",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "exact_point",
+    "material_selection_temperature_K": "5863/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T020",
+      "temperature_K": "5863/20",
+      "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": null,
+    "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "1000000000000/13", "decimal": "7.692307692307692307692307692307692307692e+10", "value": 76923076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
+   },
+   {
+    "member": "pipe:RS-P230",
+    "operating_temperature_K": "9663/20",
+    "material_selection_kind": "exact_point",
+    "material_selection_temperature_K": "5863/20",
+    "consumed_material_points": [
+     {
+      "point_id": "point:RS-M1-T020",
+      "temperature_K": "5863/20",
+      "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+      "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3}
+     }
+    ],
+    "interpolation_fraction": null,
+    "E_Pa": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0},
+    "nu": {"exact": "3/10", "decimal": "3.000000000000000000000000000000000000000e-1", "value": 0.3},
+    "G_Pa": {"exact": "1000000000000/13", "decimal": "7.692307692307692307692307692307692307692e+10", "value": 76923076923.07692},
+    "thermal_state": "free_length_state",
+    "expansion_law": "law:RS-M1-SECANT",
+    "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
+   }
+  ]
+ },
+ "distinguishing": {
+  "same_thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
+  "E_Pa": {
+   "load:RS-OPE": {"exact": "188300000000", "decimal": "1.883000000000000000000000000000000000000e+11", "value": 188300000000.0},
+   "load:RS-OPE-REF": {"exact": "200000000000", "decimal": "2.000000000000000000000000000000000000000e+11", "value": 200000000000.0}
+  },
+  "G_Pa": {
+   "load:RS-OPE": {"exact": "941500000000/13", "decimal": "7.242307692307692307692307692307692307692e+10", "value": 72423076923.07692},
+   "load:RS-OPE-REF": {"exact": "1000000000000/13", "decimal": "7.692307692307692307692307692307692307692e+10", "value": 76923076923.07692}
+  },
+  "E_ratio_RS-OPE_to_RS-OPE-REF": {"exact": "1883/2000", "decimal": "9.415000000000000000000000000000000000000e-1", "value": 0.9415},
+  "rule": "the two cases carry the same thermal strain and differ in modulus only; a reader of the published load reference state tells them apart by the consumed point(s), E and G, and by RS-OPE-REF's stated analysis-basis reason"
+ },
+ "eq1_eq2": {
+  "cases": ["load:RS-OPE-REF"],
+  "bound_to": "validation/references/reference_system_r1_ce/references.json",
+  "bound_sha256": "b6ddbde9f2b34a60c488a71c636290a16dce6980753b0fcb9d7ae3679824bd9e",
+  "grounds": ["RS-OPE-REF's W is the self-weight of the same members with the same gravity and the same component weights as RS-SUS, RS-OPE and RS-SAM (spec §8.1)", "a free-length thermal state is an eigenstrain: it applies no external load, so the reaction resultant is unchanged by temperature, whatever the modulus", "every pressure closure transfers to the wall, so each region is self-equilibrated under pressure (spec §9.2, EQ-2)", "RS-CE1's 9000 N is the same support action in every case and adds no weight"],
+  "key_values": {
+   "W_total_N": {"exact": "(3600) + (66155686593423/5000000000)*pi + (124534361799687/800000000000)*pi^2", "decimal": "4.670322490564860095471265355254888995203e+4", "value": 46703.2249056486},
+   "weight_resultant_N": [
+    {"exact": "0", "decimal": "0", "value": 0.0},
+    {"exact": "0", "decimal": "0", "value": 0.0},
+    {"exact": "(-3600) + (-66155686593423/5000000000)*pi + (-124534361799687/800000000000)*pi^2", "decimal": "-4.670322490564860095471265355254888995203e+4", "value": -46703.2249056486}
+   ],
+   "weight_first_moment_N_m": [
+    {"exact": "(4605) + (240668557483367167/3200000000000)*pi + (2917059564163647/3200000000000)*pi^2", "decimal": "2.498777487664089019349981475078363474243e+5", "value": 249877.7487664089},
+    {"exact": "(6060) + (689381386488375721/5000000000000)*pi + (253997473516297/800000000000)*pi^2", "decimal": "4.423446680907879514438097775553619846411e+5", "value": 442344.66809078795},
+    {"exact": "(24705/4) + (1192422469821139207/16000000000000)*pi + (1884196126085903/3200000000000)*pi^2", "decimal": "2.461191889411345380296485437021716426115e+5", "value": 246119.18894113455}
+   ],
+   "weight_moment_about_origin_N_m": [
+    {"exact": "(-6060) + (-689381386488375721/5000000000000)*pi + (-253997473516297/800000000000)*pi^2", "decimal": "-4.423446680907879514438097775553619846411e+5", "value": -442344.66809078795},
+    {"exact": "(4605) + (240668557483367167/3200000000000)*pi + (2917059564163647/3200000000000)*pi^2", "decimal": "2.498777487664089019349981475078363474243e+5", "value": 249877.7487664089},
+    {"exact": "0", "decimal": "0", "value": 0.0}
+   ],
+   "reaction_moment_about_origin_N_m": [
+    {"exact": "(6060) + (689381386488375721/5000000000000)*pi + (253997473516297/800000000000)*pi^2", "decimal": "4.423446680907879514438097775553619846411e+5", "value": 442344.66809078795},
+    {"exact": "(-4605) + (-240668557483367167/3200000000000)*pi + (-2917059564163647/3200000000000)*pi^2", "decimal": "-2.498777487664089019349981475078363474243e+5", "value": -249877.7487664089},
+    {"exact": "0", "decimal": "0", "value": 0.0}
+   ]
+  }
+ },
+ "eq3": {
+  "combination": "combination:RS-EXP",
+  "label": "RS-EXP expansion: RS-OPE-REF - RS-SUS, the difference of two solved states on the 20 degC modulus",
+  "minuend": "load:RS-OPE-REF",
+  "subtrahend": "load:RS-SUS",
+  "identity": "on every published signed component row (support force and moment components, translation and rotation components, element end-force components), RS-EXP = RS-OPE-REF - RS-SUS; magnitude rows are recomputed from the combined components; rows the combination withholds, such as tie-rod forces, are excluded",
+  "both_operands_on_one_material_basis": "every member of RS-SUS and RS-OPE-REF selects the 20 degC point",
+  "what_it_establishes": "the combination's algebra: RS-EXP is the row-by-row difference of the two published solved states; it establishes nothing about either solve, and RS-EXP is the difference of two independently solved equilibria, not a solution of the system under the load difference"
+ }
+}

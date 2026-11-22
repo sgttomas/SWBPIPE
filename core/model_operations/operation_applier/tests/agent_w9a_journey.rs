@@ -13,6 +13,13 @@
 //! 1e-9 times its family's zero scale). The fixture's inputs are checked against
 //! the reference inputs, so neither side is a copy the other cannot detect.
 //!
+//! The blank states shear deformation in straight members as included
+//! (Timoshenko), and the reference states none, so the proposal's first step
+//! sets the pressure-free selection to Euler-Bernoulli with the same operation
+//! the person's control issues; activation on EX carries it into the contract.
+//! Without that step PF solves as Timoshenko and misses the frozen references,
+//! and EX's Euler-Bernoulli activation is refused as a conflict.
+//!
 //! This establishes the operation/solver link of the journey. It does not
 //! establish the catalog projection, the webview stamp, a native session or a
 //! model round trip; their checks are named in the Design. All data are invented.
@@ -26,6 +33,8 @@ const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, Pre
 const RELATIVE: f64 = 1.0e-9;
 const CASE: &str = "case:w9";
 const PF_SEMANTICS: &str = "openpipestress.result_semantics/0.3.0/preview-physics-2";
+const PF_TIMOSHENKO_SEMANTICS: &str = "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1";
+const SHEAR_STEP: &str = "op:w9a:0";
 const EX_SEMANTICS: &str = "openpipestress.result_semantics/0.3.0/pressure-3";
 
 fn fixture() -> Value {
@@ -64,9 +73,16 @@ fn stamped(operation: &Value, host: &Value) -> Value {
 }
 
 fn batch(route: &str) -> (Value, Value) {
+    batch_without(route, None)
+}
+
+/// The route's batch, leaving out the operation `omit` names.
+fn batch_without(route: &str, omit: Option<&str>) -> (Value, Value) {
     let f = fixture();
     let blank = f["blank"]["model"].clone();
-    let operations: Vec<Value> = f["routes"][route]["operations"].as_array().unwrap().iter().map(|o| stamped(o, &f["host"])).collect();
+    let operations: Vec<Value> = f["routes"][route]["operations"].as_array().unwrap().iter()
+        .filter(|o| omit.is_none_or(|id| o["operation_id"] != id))
+        .map(|o| stamped(o, &f["host"])).collect();
     let claim = hash(&blank);
     (blank, json!({"batch_id": format!("agent-{}", f["host"]["proposalHandle"].as_str().unwrap()), "operations": operations, "source_model_hash": claim["value"]}))
 }
@@ -159,9 +175,11 @@ fn row(out: &MechanicsEnvelope, kind: &str, entity: &str, component: &str, locat
     (found[0].value, found[0].unit.clone())
 }
 
-fn compare(out: &MechanicsEnvelope, reference: &Value, label: &str) -> usize {
+/// The frozen rows `out` misses under the W-9 criterion, and how many were compared.
+fn misses(out: &MechanicsEnvelope, reference: &Value, label: &str) -> (usize, Vec<String>) {
     let scales = &reference["zero_scales"];
     let mut count = 0;
+    let mut missed = Vec::new();
     for r in reference["rows"].as_array().unwrap() {
         let (entity, component, unit) = (r["entity"].as_str().unwrap(), r["component"].as_str().unwrap(), r["unit"].as_str().unwrap());
         let expected = r["value"].as_f64().unwrap();
@@ -197,10 +215,23 @@ fn compare(out: &MechanicsEnvelope, reference: &Value, label: &str) -> usize {
             q => panic!("quantity {q}"),
         };
         let tolerance = RELATIVE * if expected == 0.0 { zero_scale.abs() } else { expected.abs() };
-        assert!(observed.is_finite() && (observed - expected).abs() <= tolerance, "{what}: observed {observed:.17e} expected {expected:.17e}");
+        if !(observed.is_finite() && (observed - expected).abs() <= tolerance) {
+            missed.push(format!("{what}: observed {observed:.17e} expected {expected:.17e}"));
+        }
         count += 1;
     }
+    (count, missed)
+}
+
+fn compare(out: &MechanicsEnvelope, reference: &Value, label: &str) -> usize {
+    let (count, missed) = misses(out, reference, label);
+    assert!(missed.is_empty(), "{missed:#?}");
     count
+}
+
+fn solve(model: &Value, mode: PreviewSolverMode, label: &str) -> MechanicsEnvelope {
+    run_linear_static_preview_value_with_mode(json!({"model": model, "materials": []}), mode)
+        .unwrap_or_else(|e| panic!("{label}: typed boundary rejected the applied document: {e}"))
 }
 
 fn journey(route: &str, semantics: &str) {
@@ -208,8 +239,7 @@ fn journey(route: &str, semantics: &str) {
     let reference = reference();
     for mode in MODES {
         let label = format!("W9-A agent journey {route} {}", mode.as_str());
-        let out = run_linear_static_preview_value_with_mode(json!({"model": model, "materials": []}), mode)
-            .unwrap_or_else(|e| panic!("{label}: typed boundary rejected the applied document: {e}"));
+        let out = solve(&model, mode, &label);
         let blocking: Vec<String> = out.diagnostics.iter().filter(|d| d.severity == "blocking" || d.severity == "failure").map(|d| format!("{}: {}", d.code, d.message)).collect();
         assert_eq!(out.status.mechanics, "MECHANICS_SOLVED", "{label}: {blocking:?}");
         assert!(blocking.is_empty(), "{label}: {blocking:?}");
@@ -228,4 +258,53 @@ fn w9a_built_from_blank_by_one_agent_proposal_solves_on_pf() {
 #[test]
 fn w9a_built_from_blank_by_one_agent_proposal_solves_on_ex() {
     journey("EX", EX_SEMANTICS);
+}
+
+/// The proposal states the reference's beam theory: the blank states
+/// Timoshenko, the proposal's first step sets Euler-Bernoulli, and the
+/// reference states no shear deformation.
+#[test]
+fn the_proposal_sets_the_reference_beam_theory_first() {
+    let f = fixture();
+    assert_eq!(f["blank"]["model"]["model_settings"], json!({"shear_model": "timoshenko_annulus_energy_v1"}));
+    assert!(serde_json::from_str::<Value>(REFERENCES).unwrap()["theory"].as_str().unwrap().contains("Euler-Bernoulli space frame, no shear deformation"));
+    for route in ["PF", "EX"] {
+        let first = &f["routes"][route]["operations"][0];
+        assert_eq!(first["operation_id"], SHEAR_STEP, "{route}");
+        assert_eq!((&first["change"]["change_kind"], &first["change"]["field_path"], &first["change"]["after"]), (&json!("set_model_setting"), &json!("model_settings.shear_model"), &json!("euler_bernoulli")), "{route}");
+    }
+    assert_eq!(applied("PF")["model_settings"], json!({"shear_model": "euler_bernoulli"}));
+    // Activation carried the selection into the contract and removed it.
+    let exact = applied("EX");
+    assert!(exact.get("model_settings").is_none(), "{:#}", exact["model_settings"]);
+    assert_eq!(exact["pressure_contract"]["shear_model"], "euler_bernoulli");
+}
+
+/// Without the step the same journey is not the reference's: PF solves as
+/// Timoshenko and misses frozen rows, and EX's Euler-Bernoulli activation
+/// conflicts with the blank's Timoshenko selection and applies nothing.
+#[test]
+fn without_the_euler_bernoulli_step_the_journey_is_timoshenko_and_misses_the_references() {
+    let (blank, batch) = batch_without("PF", Some(SHEAR_STEP));
+    let claim = hash(&blank);
+    let outcome = apply_operation_batch(&blank, &batch, Some(&claim));
+    assert_eq!(outcome["validation"]["batch_validation_status"], "passed", "{outcome:#}");
+    let model = outcome["applied_model"].clone();
+    let reference = reference();
+    for mode in MODES {
+        let label = format!("W9-A agent journey PF without the step {}", mode.as_str());
+        let out = solve(&model, mode, &label);
+        assert_eq!(out.status.mechanics, "MECHANICS_SOLVED", "{label}");
+        assert_eq!(out.producer.semantic_contract_id, PF_TIMOSHENKO_SEMANTICS, "{label}");
+        let (rows, missed) = misses(&out, &reference, &label);
+        assert_eq!(rows, reference["rows"].as_array().unwrap().len());
+        assert!(!missed.is_empty(), "{label}: Timoshenko met every frozen Euler-Bernoulli row");
+        println!("{label}: {} of {rows} frozen rows missed", missed.len());
+    }
+    let (blank, batch) = batch_without("EX", Some(SHEAR_STEP));
+    let refused = apply_operation_batch(&blank, &batch, Some(&hash(&blank)));
+    assert!(refused["applied_model"].is_null(), "{refused:#}");
+    let codes: Vec<&Value> = refused["operation_outcomes"].as_array().unwrap().iter()
+        .flat_map(|step| step["diagnostics"].as_array().unwrap().iter().map(|d| &d["code"])).collect();
+    assert!(codes.contains(&&json!("OP-PRESSURE-PROFILE-SHEAR-MODEL-CONFLICT")), "{codes:?}");
 }
