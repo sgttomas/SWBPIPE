@@ -2118,6 +2118,28 @@ pub(crate) mod test_support {
         (registry, gate, receipt.job_id)
     }
 
+    /// DEL-08-01 REQ-024 (`report_standing_package_tests`): a gated registry job
+    /// admitted from `intake` under `mode` in native custody and released with
+    /// `result`, so that its result is held for the native run-record builder.
+    /// Returns the registry, its gate (kept alive by the caller) and the job id.
+    pub(crate) fn held_natively(
+        host: Arc<ScriptedHost>,
+        intake: &[u8],
+        mode: Option<&str>,
+        result: &str,
+    ) -> (SolveJobRegistry, Arc<crate::solve_worker::test_support::Gate>, String) {
+        let gate = crate::solve_worker::test_support::Gate::new("held");
+        let pool = MemoryPool::with_wait_tick(host, Duration::from_millis(5));
+        pool.set_max_running_workers(16);
+        let registry = SolveJobRegistry::with_hooks(pool, gate.launcher(), Arc::new(thread_spawn));
+        let receipt = registry.start_with_custody(intake, mode, ResultCustody::Native).unwrap_or_else(|e| panic!("{e:?}"));
+        gate.wait_started(1);
+        gate.release(result);
+        let status = wait_terminal(&registry, &receipt.job_id);
+        assert_eq!(status.state, "completed", "{status:?}");
+        (registry, gate, receipt.job_id)
+    }
+
     /// Runs one job through the real ordinary solve in a worker and returns
     /// its terminal status and the taken bytes (if it completed).
     pub(crate) fn run_job(model: &serde_json::Value, mode: Option<&str>) -> (SolveJobStatusReport, Option<String>) {

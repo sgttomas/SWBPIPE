@@ -334,6 +334,39 @@ export function requireRouteHeaderAgreement(header: NativeRouteHeader, verdict: 
 
 export type VerdictRequest = Readonly<{ modelText?: string | null; invocationText?: string | null; reader?: ReaderName | null }>;
 
+/** DEL-08-01 REQ-024, "Package and user release": the report's frame statements for a held
+ * result, as the native host gives them (the verdict command's `report_frame_statements`
+ * operation): the renderer's own lines for the result's standing record, each a line, in
+ * the frame's order. The webview composes none of them. */
+export type NativeFrameStatements = Readonly<{
+  document_kind: "swbpipe.desktop.report_frame_statements"; version: 1; job_id: string;
+  frame_statements: readonly string[];
+}>;
+const FRAME_STATEMENTS_KEYS = ["document_kind", "version", "job_id", "frame_statements"];
+export function decodeNativeFrameStatements(delivered: unknown, jobId: string): NativeFrameStatements {
+  const keys = plain(delivered) ? Object.keys(delivered) : [];
+  if (!plain(delivered) || keys.length !== FRAME_STATEMENTS_KEYS.length || !keys.every((key) => FRAME_STATEMENTS_KEYS.includes(key))
+    || delivered.document_kind !== "swbpipe.desktop.report_frame_statements" || delivered.version !== 1 || delivered.job_id !== jobId
+    || !Array.isArray(delivered.frame_statements) || !delivered.frame_statements.every((line) => typeof line === "string" && line.length > 0)) {
+    malformed("not this job's report frame statements");
+  }
+  return freeze({ ...(delivered as unknown as NativeFrameStatements), frame_statements: freeze([...(delivered.frame_statements as string[])]) });
+}
+/** The held result's frame statements, read natively with the standing's bound texts, cached
+ * by them. A refusal (`REPORT-FRAME-STATEMENTS-UNAVAILABLE: ...`) is thrown and not kept. */
+export function readNativeFrameStatements(jobId: string, request: Readonly<{ modelText: string; invocationText: string | null }>): Promise<NativeFrameStatements> {
+  return cached(jobId, keyOf("report_frame_statements", request.modelText, request.invocationText), async () => {
+    const delivered = decodeNativeFrameStatements(await send(NATIVE_VERDICT_COMMAND, {
+      jobId,
+      operation: "report_frame_statements",
+      modelJson: request.modelText,
+      ...(request.invocationText != null ? { invocationJson: request.invocationText } : {})
+    }), jobId);
+    live(jobId); // A late reply cannot resurrect disposed custody.
+    return delivered;
+  });
+}
+
 /* -------------------------------------------------------------------------- *
  * Per-job caches, bound by exact inputs, dropped on disposal
  * -------------------------------------------------------------------------- */
