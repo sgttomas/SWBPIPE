@@ -2020,11 +2020,13 @@ export function useWorkspaceSession() {
     return () => { retained.status = event.type === "withdrawn" ? "withdrawn" : "unknown"; };
   }), [sessionEvents]);
 
-  async function handleQueueOperationBatch(batch: OperationBatch, options: { importContext?: ImportContext; precondition?: BatchPrecondition } = {}): Promise<void> {
-    await registerOperationBatch(batch, {
+  /** Whether the batch was registered for review (false where registration refused it). */
+  async function handleQueueOperationBatch(batch: OperationBatch, options: { importContext?: ImportContext; precondition?: BatchPrecondition } = {}): Promise<boolean> {
+    const registered = await registerOperationBatch(batch, {
       ...(options.importContext ? { importContext: options.importContext } : {}),
       ...(options.precondition ? { precondition: options.precondition } : {})
     });
+    return registered !== null;
   }
 
   /** Requeue a stored record with its author re-derived host-side (DEL-16-03).

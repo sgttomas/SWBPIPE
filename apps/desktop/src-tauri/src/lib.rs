@@ -12388,3 +12388,7 @@ mod stored_result_limit_tests {
         save_in_place(&store, Value::Null, None).expect("a run the session opened is its to replace");
     }
 }
+
+#[cfg(test)]
+#[path = "model_settings_persistence_tests.rs"]
+mod model_settings_persistence_tests;
