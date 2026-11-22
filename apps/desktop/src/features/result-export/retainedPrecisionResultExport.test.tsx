@@ -184,7 +184,7 @@ describe.each(MODES)("%s: byte parity with I76's Rust golden (T6S-2, T6S-4)", (m
     expect(disclosed.find((d: Json) => d.source_result_id === "result:disp:N0").message).toBe("displacement_magnitude: retained_precision_absolute_verified; verified only to the receipt's absolute bound b = 5.4215527659630466e-24 m (binary64 3b1a378ea78c5ce9), below the relative accuracy floor; source value/unit and annotation retained; withheld from rule binding and reliance");
     // No standing token, no invocation and no producer-origin claim (CQ-4, CQ-5; D-U7-6).
     const text = JSON.stringify(doc);
-    for (const token of ["numerically_eligible", "integrity_checked", "needs_recompute"]) expect(text).not.toContain(token);
+    for (const token of ["numerically_eligible", "solver_checks_passed", "needs_recompute"]) expect(text).not.toContain(token);
     const keys = keysOf(doc);
     for (const key of ["request", "solver_mode", "invocation_bound"]) expect(keys.has(key)).toBe(false);
     expect(e.reproducibility.request_hash).toBeNull();

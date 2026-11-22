@@ -274,7 +274,8 @@ fn checked_dispatch(
     assert_eq!(
         actual,
         json!({"ok":error.is_null(),"route":route,"binding":binding,"error":error,
-        "standing":{"route":route,"token":token,"status":if eligible {"integrity_checked"} else {"needs_recompute"},"eligible":eligible,"findings":findings}}),
+        "standing":{"route":route,"token":token,"status":if eligible {"solver_checks_passed"} else {"needs_recompute"},"eligible":eligible,"findings":findings,
+            "integrity_bound":{"status":"not_verified","reason":"inverse_norm_bound_not_verified"}}}),
         "explicit governed dispatch disposition"
     );
     actual

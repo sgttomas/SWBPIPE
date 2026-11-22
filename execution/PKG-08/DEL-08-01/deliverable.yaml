@@ -219,6 +219,7 @@ code_paths:
 - fixtures/reports/invented/report_quantity_display_parity.json
 - fixtures/reports/invented/report_result_rows_parity.json
 - fixtures/reports/invented/report_diagnostics_parity.json
+- fixtures/reports/invented/report_members_vectors/**
 - fixtures/reports/invented/user_release_derivation_vectors.json
 - fixtures/reports/invented/user_release_exact/**
 - fixtures/reports/invented/user_release_record.json
@@ -256,6 +257,7 @@ checks:
 - apps/desktop/src-tauri/src/user_release_reach_scan_tests.rs
 - apps/desktop/src/features/report/renderedReport.test.tsx
 - apps/desktop/src/features/report/renderedReportNativeRoutes.test.tsx
+- apps/desktop/src/features/report/pfTimoshenkoRenderRows.test.tsx
 - apps/desktop/src/features/report/renderedReportGate.app.test.tsx
 - apps/desktop/src/features/report/restoredRunReportWords.app.test.tsx
 - apps/desktop/src/features/report/withheldPackageStatus.app.test.tsx
@@ -268,6 +270,7 @@ checks:
 - apps/desktop/src/features/report/reportResultRows.parity.test.ts
 - apps/desktop/src/features/report/reportQuantityDisplay.parity.test.ts
 - apps/desktop/src/features/report/reportDiagnostics.parity.test.ts
+- apps/desktop/src/features/report/reportMembersVectors.test.ts
 - apps/desktop/src/features/report/reportComposition.parity.test.ts
 - apps/desktop/src/features/report/modelInputTables.parity.test.ts
 - apps/desktop/src/features/report/ReportComposer.test.tsx
