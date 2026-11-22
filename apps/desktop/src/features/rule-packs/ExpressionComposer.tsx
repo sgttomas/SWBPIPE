@@ -7,6 +7,15 @@ import {
   unitEntryMatchesDimension,
   type UnitCatalogRoute
 } from "../../services/unitCatalogService";
+import {
+  COMPOSER_FIELD_WORDS,
+  DIMENSION_WORDS,
+  FORMULA_KIND_WORDS,
+  NODE_KIND_WORDS,
+  OPERATOR_WORDS,
+  childWord,
+  wordFor
+} from "./rulePackWords";
 
 // Structured AST expression composer (Phase C2 slice 2, TP-C2-COMPOSER-001).
 //
@@ -172,7 +181,8 @@ export function collectRulePackVariables(document: RulePackDocument): RulePackVa
         variables.push({
           id,
           kind: "required_input",
-          name: (record && asString(record.name)) ?? id
+          // An input whose name is empty is named by its identifier.
+          name: (record && asString(record.name)) || id
         });
       }
     }
@@ -266,8 +276,13 @@ function defaultLiteral(): AstNode {
   };
 }
 
+/**
+ * A new variable reference names the first input, the only declarations a
+ * formula binds; with no input it names none. A stored reference is never
+ * rewritten here.
+ */
 function defaultVariableRef(variables: RulePackVariable[]): AstNode {
-  return { node: "variable_ref", variable_id: variables[0]?.id ?? "" };
+  return { node: "variable_ref", variable_id: bindableVariables(variables)[0]?.id ?? "" };
 }
 
 /**
@@ -488,7 +503,10 @@ function NodeShell({
       style={{ marginLeft: depth > 0 ? 12 : 0 }}
     >
       <small className="rule-pack-node-label">
-        {label}: <strong data-testid="rule-pack-node-kind">{kind}</strong>
+        {childWord(label)}:{" "}
+        <strong data-testid="rule-pack-node-kind" title={`Format name: ${kind}`}>
+          {wordFor(NODE_KIND_WORDS, kind)}
+        </strong>
       </small>
       {children}
     </div>
@@ -507,8 +525,8 @@ function NodeTypeSelect({
   onChange: (next: AstNode) => void;
 }) {
   return (
-    <label className="rule-pack-node-field">
-      <span>node</span>
+    <label className="rule-pack-node-field" title="Format name: node">
+      <span>{COMPOSER_FIELD_WORDS.node}</span>
       <select
         data-testid="rule-pack-node-type"
         value={kind}
@@ -518,8 +536,8 @@ function NodeTypeSelect({
         }
       >
         {EDITABLE_NODE_TYPES.map((type) => (
-          <option key={type} value={type}>
-            {type}
+          <option key={type} value={type} title={type}>
+            {wordFor(NODE_KIND_WORDS, type)}
           </option>
         ))}
       </select>
@@ -560,8 +578,8 @@ export function DimensionSelect({
     >
       {!known ? <option value={value}>(current) {value}</option> : null}
       {DIMENSIONS.map((option) => (
-        <option key={option} value={option}>
-          {option}
+        <option key={option} value={option} title={option}>
+          {wordFor(DIMENSION_WORDS, option)}
         </option>
       ))}
     </select>
@@ -676,8 +694,8 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
     return (
       <NodeShell kind={kind} label={label} depth={depth}>
         {typeSelect}
-        <label className="rule-pack-node-field">
-          <span>value</span>
+        <label className="rule-pack-node-field" title="Format name: value">
+          <span>{COMPOSER_FIELD_WORDS.value}</span>
           <input
             type="number"
             data-testid="rule-pack-literal-value"
@@ -689,8 +707,8 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
             }}
           />
         </label>
-        <label className="rule-pack-node-field">
-          <span>dimension</span>
+        <label className="rule-pack-node-field" title="Format name: dimension">
+          <span>{COMPOSER_FIELD_WORDS.dimension}</span>
           <DimensionSelect
             testId="rule-pack-literal-dimension"
             value={dimension}
@@ -698,8 +716,8 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
             onChange={(next) => updateQuantity({ dimension: next })}
           />
         </label>
-        <label className="rule-pack-node-field">
-          <span>unit_ref</span>
+        <label className="rule-pack-node-field" title="Format name: unit_ref">
+          <span>{COMPOSER_FIELD_WORDS.unit_ref}</span>
           <UnitRefField
             testId="rule-pack-literal-unit"
             value={unitRef}
@@ -715,32 +733,37 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
 
   if (kind === "variable_ref") {
     const variableId = asString(node.variable_id) ?? "";
-    const known = variables.some((variable) => variable.id === variableId);
+    // A formula binds only declared inputs: a limit never binds as a formula
+    // variable (the validator refuses it), so the picker offers inputs only.
+    // A stored reference to anything else stays shown as "(current)".
+    const inputs = bindableVariables(variables);
+    const known = inputs.some((variable) => variable.id === variableId);
+    const shown = variableNames(inputs);
     return (
       <NodeShell kind={kind} label={label} depth={depth}>
         {typeSelect}
-        <label className="rule-pack-node-field">
-          <span>variable</span>
+        <label className="rule-pack-node-field" title="Format name: variable">
+          <span>{COMPOSER_FIELD_WORDS.variable}</span>
           <select
             data-testid="rule-pack-variable-ref"
             value={variableId}
             disabled={disabled}
             onChange={(event) => onChange({ ...node, variable_id: event.target.value })}
           >
-            {variables.length === 0 ? <option value="">(no declared inputs or slots)</option> : null}
+            {inputs.length === 0 ? <option value="">(no declared inputs)</option> : null}
             {!known && variableId !== "" ? (
               <option value={variableId}>(current) {variableId}</option>
             ) : null}
-            {variables.map((variable) => (
-              <option key={variable.id} value={variable.id}>
-                {variable.id} ({variable.kind})
+            {inputs.map((variable) => (
+              <option key={variable.id} value={variable.id} title={`${variable.id} (${variable.kind})`}>
+                {shown[variable.id]}
               </option>
             ))}
           </select>
         </label>
         {variableId === "" ? (
-          <small className="rule-pack-node-readonly" data-testid="rule-pack-variable-ref-empty">
-            No variable selected; validation will report a missing reference until one is chosen.
+          <small className="rule-pack-node-note" data-testid="rule-pack-variable-ref-empty">
+            No input chosen; the check reports a missing reference until one is.
           </small>
         ) : null}
       </NodeShell>
@@ -752,8 +775,8 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
     return (
       <NodeShell kind={kind} label={label} depth={depth}>
         {typeSelect}
-        <label className="rule-pack-node-field">
-          <span>operator</span>
+        <label className="rule-pack-node-field" title="Format name: operator">
+          <span>{COMPOSER_FIELD_WORDS.operator}</span>
           <select
             data-testid="rule-pack-unary-operator"
             value={operator}
@@ -761,8 +784,8 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
             onChange={(event) => onChange({ ...node, operator: event.target.value })}
           >
             {UNARY_OPERATORS.map((option) => (
-              <option key={option} value={option}>
-                {option}
+              <option key={option} value={option} title={option}>
+                {wordFor(OPERATOR_WORDS, option)}
               </option>
             ))}
           </select>
@@ -798,8 +821,8 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
     return (
       <NodeShell kind={kind} label={label} depth={depth}>
         {typeSelect}
-        <label className="rule-pack-node-field">
-          <span>operator</span>
+        <label className="rule-pack-node-field" title="Format name: operator">
+          <span>{COMPOSER_FIELD_WORDS.operator}</span>
           <select
             data-testid={testId}
             value={operator}
@@ -807,8 +830,8 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
             onChange={(event) => onChange({ ...node, operator: event.target.value })}
           >
             {operators.map((option) => (
-              <option key={option} value={option}>
-                {option}
+              <option key={option} value={option} title={option}>
+                {wordFor(OPERATOR_WORDS, option)}
               </option>
             ))}
           </select>
@@ -905,8 +928,8 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
       <NodeShell kind={kind} label={label} depth={depth}>
         {typeSelect}
         {isLookup ? (
-          <label className="rule-pack-node-field">
-            <span>mode</span>
+          <label className="rule-pack-node-field" title="Format name: mode">
+            <span>{COMPOSER_FIELD_WORDS.mode}</span>
             <select
               data-testid="rule-pack-lookup-mode"
               value={LOOKUP_MODES.includes(mode as (typeof LOOKUP_MODES)[number]) ? mode : "exact"}
@@ -914,15 +937,15 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
               onChange={(event) => onChange({ ...node, mode: event.target.value })}
             >
               {LOOKUP_MODES.map((option) => (
-                <option key={option} value={option}>
-                  {option}
+                <option key={option} value={option} title={option}>
+                  {wordFor(OPERATOR_WORDS, option)}
                 </option>
               ))}
             </select>
           </label>
         ) : null}
-        <label className="rule-pack-node-field">
-          <span>table_id</span>
+        <label className="rule-pack-node-field" title="Format name: table_id">
+          <span>{COMPOSER_FIELD_WORDS.table_id}</span>
           <input
             type="text"
             data-testid="rule-pack-table-id"
@@ -931,8 +954,8 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
             onChange={(event) => updateTable({ table_id: event.target.value })}
           />
         </label>
-        <label className="rule-pack-node-field">
-          <span>arg dimension</span>
+        <label className="rule-pack-node-field" title="Format name: argument_dimension">
+          <span>{COMPOSER_FIELD_WORDS.argument_dimension}</span>
           <DimensionSelect
             testId="rule-pack-table-argument-dimension"
             value={argumentDimension}
@@ -940,8 +963,8 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
             onChange={(next) => updateTable({ argument_dimension: next })}
           />
         </label>
-        <label className="rule-pack-node-field">
-          <span>arg unit_ref</span>
+        <label className="rule-pack-node-field" title="Format name: argument_unit_ref">
+          <span>{COMPOSER_FIELD_WORDS.argument_unit_ref}</span>
           <UnitRefField
             testId="rule-pack-table-argument-unit"
             value={argumentUnitRef}
@@ -951,8 +974,8 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
             onChange={(next) => updateTable({ argument_unit_ref: next })}
           />
         </label>
-        <label className="rule-pack-node-field">
-          <span>result dimension</span>
+        <label className="rule-pack-node-field" title="Format name: result_dimension">
+          <span>{COMPOSER_FIELD_WORDS.result_dimension}</span>
           <DimensionSelect
             testId="rule-pack-table-result-dimension"
             value={resultDimension}
@@ -960,8 +983,8 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
             onChange={(next) => updateTable({ result_dimension: next })}
           />
         </label>
-        <label className="rule-pack-node-field">
-          <span>result unit_ref</span>
+        <label className="rule-pack-node-field" title="Format name: result_unit_ref">
+          <span>{COMPOSER_FIELD_WORDS.result_unit_ref}</span>
           <UnitRefField
             testId="rule-pack-table-result-unit"
             value={resultUnitRef}
@@ -971,14 +994,13 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
             onChange={(next) => updateTable({ result_unit_ref: next })}
           />
         </label>
-        <small className="rule-pack-node-readonly" data-testid="rule-pack-table-guidance">
-          Row arguments must be strictly increasing; interpolate needs at least two rows. The
-          evaluator blocks out-of-range arguments — it never extrapolates or clamps.
+        <small className="rule-pack-node-note" data-testid="rule-pack-table-guidance">
+          Arguments must increase; interpolation needs two rows; nothing outside the table.
         </small>
         {rows.map((row, index) => (
           <div className="rule-pack-table-row" data-testid="rule-pack-table-row" key={`row-${index}`}>
-            <label className="rule-pack-node-field">
-              <span>argument</span>
+            <label className="rule-pack-node-field" title="Format name: argument">
+              <span>{COMPOSER_FIELD_WORDS.argument}</span>
               <input
                 type="number"
                 data-testid="rule-pack-table-row-argument"
@@ -990,8 +1012,8 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
                 }}
               />
             </label>
-            <label className="rule-pack-node-field">
-              <span>result</span>
+            <label className="rule-pack-node-field" title="Format name: result">
+              <span>{COMPOSER_FIELD_WORDS.result}</span>
               <input
                 type="number"
                 data-testid="rule-pack-table-row-result"
@@ -1045,8 +1067,8 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
   return (
     <NodeShell kind={kind} label={label} depth={depth}>
       {typeSelect}
-      <label className="rule-pack-node-field">
-        <span>function</span>
+      <label className="rule-pack-node-field" title="Format name: function">
+        <span>{COMPOSER_FIELD_WORDS.function}</span>
         <select
           data-testid="rule-pack-aggregate-function"
           value={aggregateFunction}
@@ -1054,8 +1076,8 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
           onChange={(event) => onChange({ ...node, function: event.target.value })}
         >
           {AGGREGATE_FUNCTIONS.map((option) => (
-            <option key={option} value={option}>
-              {option}
+            <option key={option} value={option} title={option}>
+              {wordFor(OPERATOR_WORDS, option)}
             </option>
           ))}
         </select>
@@ -1166,26 +1188,14 @@ export function ExpressionComposer({
 
   return (
     <div className="report-list rule-pack-expression-composer" data-testid="rule-pack-expression-composer">
-      <strong>Expression composer (structured AST; no writable text syntax - DEC-037)</strong>
-
-      <div className="rule-pack-variable-browser" data-testid="rule-pack-variable-browser">
-        <small>
-          Declared variables ({variables.length}):{" "}
-          {variables.length === 0
-            ? "none yet — add a required input or value slot in the document below."
-            : variables.map((variable) => `${variable.id} (${variable.kind})`).join(", ")}
-        </small>
-      </div>
-
       {formulas.length === 0 ? (
         <small data-testid="rule-pack-composer-empty">
-          No formula declarations in this document; add one in the document JSON below to compose an
-          expression.
+          This pack has no formula; add one in the document (JSON).
         </small>
       ) : (
         <>
-          <label className="rule-pack-node-field">
-            <span>formula</span>
+          <label className="rule-pack-node-field" title="Format name: formula">
+            <span>{COMPOSER_FIELD_WORDS.formula}</span>
             <select
               data-testid="rule-pack-formula-select"
               value={activeFormulaId ?? ""}
@@ -1193,27 +1203,21 @@ export function ExpressionComposer({
               onChange={(event) => setSelectedFormulaId(event.target.value)}
             >
               {formulas.map((formula) => (
-                <option key={formula.id} value={formula.id}>
-                  {formula.id} ({formula.kind})
+                <option key={formula.id} value={formula.id} title={`${formula.id} (${formula.kind})`}>
+                  {formula.id} ({wordFor(FORMULA_KIND_WORDS, formula.kind)})
                 </option>
               ))}
             </select>
           </label>
           {activeFormula ? (
             <>
-              <small className="rule-pack-node-readonly" data-testid="rule-pack-expression-unit-policy">
-                {expressionUnitPolicySummary(unitCatalogRoute, activeFormula.expression)}
-              </small>
               <div
-                className="operation-record"
+                className="rule-pack-reads-as"
                 data-testid="rule-pack-expression-text-preview"
                 aria-label="Read-only expression text preview"
+                title="Read-only preview (DEC-037): this text is not editable and is never parsed; the pack stores the structured formula."
               >
-                <small>
-                  Read-only AST-to-text preview (DEC-037); this text is not editable and is never
-                  parsed. The checksum-bound rule-pack member remains the structured AST.
-                </small>
-                <code>{renderExpressionText(activeFormula.expression)}</code>
+                <small>{COMPOSER_FIELD_WORDS.readsAs}:</small> <code>{renderExpressionText(activeFormula.expression)}</code>
               </div>
               <ExpressionNodeEditor
                 node={activeFormula.expression}
@@ -1229,8 +1233,43 @@ export function ExpressionComposer({
           ) : null}
         </>
       )}
+
+      <details className="rule-pack-disclosure" data-testid="rule-pack-expression-details">
+        <summary>Details</summary>
+        <div className="rule-pack-variable-browser" data-testid="rule-pack-variable-browser">
+          <small>
+            Declared variables ({variables.length}):{" "}
+            {variables.length === 0
+              ? "none yet — add an input or limit."
+              : variables.map((variable) => `${variable.id} (${variable.kind})`).join(", ")}
+          </small>
+        </div>
+        {activeFormula ? (
+          <small className="rule-pack-node-readonly" data-testid="rule-pack-expression-unit-policy">
+            {expressionUnitPolicySummary(unitCatalogRoute, activeFormula.expression)}
+          </small>
+        ) : null}
+      </details>
     </div>
   );
+}
+
+/** The variables a formula can bind: the declared required inputs. */
+export function bindableVariables(variables: RulePackVariable[]): RulePackVariable[] {
+  return variables.filter((variable) => variable.kind === "required_input");
+}
+
+/**
+ * How the picker names each input: by its name, with its identifier beside a
+ * name two inputs share, so different inputs never look the same.
+ */
+export function variableNames(inputs: RulePackVariable[]): Record<string, string> {
+  const shown: Record<string, string> = {};
+  for (const variable of inputs) {
+    const shared = inputs.filter((other) => other.name === variable.name).length > 1;
+    shown[variable.id] = shared && variable.name !== variable.id ? `${variable.name} (${variable.id})` : variable.name;
+  }
+  return shown;
 }
 
 function expressionUnitPolicySummary(route: UnitCatalogRoute | null, expression: AstNode): string {

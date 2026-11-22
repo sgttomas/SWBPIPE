@@ -15,6 +15,26 @@ import { exitAfterSignals, runUnderLock } from "../scripts/worktreeBuildLock.mjs
 
 export const MARK_PRESENT = "NATIVE-SMOKE-MARK-PRESENT";
 export const UNRESOLVED_TERMINATION = "UNRESOLVED TERMINATION";
+/** The marks of an agent operating the screen, which the caller's statement that it is the launch's attendant covers. */
+export const ATTENDANT_EXEMPT_MARKS = Object.freeze(["sky_computer_use_service_launchd", "sky_computer_use_service_process", "codex_app_server_stdio"]);
+export const ATTENDANT_STATEMENT = "the agent operating the screen is this launch's attendant";
+
+/**
+ * Whether `marks` (marksCheck) refuse a start: as marksRefuse, except that with `attendant`, the statement of an
+ * attended start (walkthrough/native/run.mjs --attended --attendant-on-screen <who>), the marks of an agent operating
+ * the screen do not; a check that could not be made, or another application's candidate bundle, refuses as always.
+ * { refuse, exempted, invalid? }: `exempted` names each mark present that the statement covered; a statement given
+ * whose stated_by is blank refuses the start, with `invalid`, even with no mark present.
+ */
+export function marksDecision(marks, attendant = null) {
+  // A statement given is valid or the start is refused, whatever the marks: it is checked before they are.
+  if (attendant !== null && attendant !== undefined && !(typeof attendant.stated_by === "string" && attendant.stated_by.trim() !== "")) {
+    return { refuse: true, exempted: [], invalid: "the attendant's statement names no one who makes it (stated_by is blank)" };
+  }
+  if (!marksRefuse(marks)) return { refuse: false, exempted: [] };
+  if (!attendant || marks.check_failures.length > 0 || marks.app_v4_candidate_bundle) return { refuse: true, exempted: [] };
+  return { refuse: false, exempted: ATTENDANT_EXEMPT_MARKS.filter((key) => marks[key] === true) };
+}
 
 /**
  * Launches `command commandArgs` (the wrapper that runs `executable`) for `phase` unless a mark is present, judges
@@ -25,21 +45,30 @@ export const UNRESOLVED_TERMINATION = "UNRESOLVED TERMINATION";
  * (exit 1, the failed launch recorded and named). Otherwise the result is `{ report, read, outcome, failures, census }`;
  * `report` is the report as read, or `{ ok: false, error }` when there is none, so that a failed launch's
  * observations stay readable. `marksRun` and `census` are internal seams for the test; the runners leave them unset.
+ * `abort`, optional, is an AbortSignal handed to runUnderLock, which owns the started child: aborting it ends the
+ * launch with SIGKILL to that child (its own group) and the phase's record keeps runUnderLock's receipt as `abort`.
+ * Absent, nothing changes.
+ * `attendant`, optional, is an attended start's statement `{ stated_by }` (marksDecision): with it the marks of an
+ * agent operating the screen do not refuse the start, `beforeStart` is given `{ marks, exempted }`, and the phase's
+ * record keeps `attendant: { stated_by, statement, exempted }`. Absent, nothing changes.
  */
 export async function judgedPhase({
   phase, checkName, launches, check, summaryPath, summary = () => ({}),
   executable, command, commandArgs, cwd, env, stdio = ["ignore", "inherit", "inherit"], timeoutMs, reportPath, nonce,
-  censusBoundMs, beforeStart = () => {}, marksRun, census = awaitNoProcesses
+  censusBoundMs, beforeStart = () => {}, marksRun, census = awaitNoProcesses, abort, attendant
 }) {
   const marks = marksRun ? marksCheck(marksRun) : marksCheck();
-  if (marksRefuse(marks)) {
-    launches[phase] = { marks, launched: false };
+  const decision = attendant ? marksDecision(marks, attendant) : { refuse: marksRefuse(marks), exempted: [] };
+  const stated = attendant ? { attendant: { stated_by: attendant.stated_by ?? null, statement: ATTENDANT_STATEMENT, exempted: decision.exempted, ...(decision.invalid ? { invalid: decision.invalid } : {}) } } : {};
+  if (decision.refuse) {
+    launches[phase] = { marks, launched: false, ...stated };
     writeFileSync(summaryPath, JSON.stringify({ ...summary(), launches, refused: MARK_PRESENT }, null, 2));
     return { stop: MARK_PRESENT, exitCode: 2, marks };
   }
-  beforeStart();
+  if (attendant) beforeStart({ marks, exempted: decision.exempted });
+  else beforeStart();
   const started = new Date().toISOString();
-  const { status, signal, timedOut } = await runUnderLock(command, commandArgs, { cwd, env, stdio, timeoutMs });
+  const { status, signal, timedOut, abort: abortReceipt } = await runUnderLock(command, commandArgs, { cwd, env, stdio, timeoutMs, ...(abort ? { abort } : {}) });
   const ended = new Date().toISOString();
   // The census: no process may still run the private copy (a solve worker runs it in its own process group,
   // which runUnderLock does not track).
@@ -48,7 +77,7 @@ export async function judgedPhase({
   const read = readReport(reportPath);
   const failures = launchFailures({ status, signal, timedOut, census: termination, report: read.report, problem: read.problem, nonce });
   const outcome = recordedOutcome({ status, signal, timedOut, census: termination, nonce, started, ended });
-  launches[phase] = { marks, outcome, failures };
+  launches[phase] = { marks, outcome, failures, ...(abort ? { abort: abortReceipt ?? null } : {}), ...stated };
   check(checkName, failures.length === 0, failures.length === 0 ? undefined : failures);
   if (!termination?.resolved) {
     writeFileSync(summaryPath, JSON.stringify({ ...summary(), launches, stopped: UNRESOLVED_TERMINATION }, null, 2));

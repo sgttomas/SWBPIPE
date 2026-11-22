@@ -171,9 +171,7 @@ function harnessDoc(): DeclarationDocument {
 describe("CheckDefinitionsEditor component", () => {
   it("lists the declared checks from the draft template", () => {
     render(<Harness initial={buildDraftRulePackDocument()} />);
-    expect(screen.getByTestId("rule-pack-check-definitions").textContent).toContain(
-      "Check definitions (1)"
-    );
+    expect(screen.getByTestId("rule-pack-check-definitions").textContent).toContain("Checks (1)");
     expect((screen.getByTestId("rule-pack-check-id") as HTMLInputElement).value).toBe(
       "user_check_1"
     );
@@ -191,10 +189,10 @@ describe("CheckDefinitionsEditor component", () => {
     render(<Harness initial={document} />);
     const select = screen.getByTestId("rule-pack-check-category-ref") as HTMLSelectElement;
     expect(select.value).toBe("user_stress_category_1");
-    // Named categories show their name beside the id; an unnamed one shows its id.
+    // Named categories show their name; an unnamed one falls back to its id.
     expect(Array.from(select.options).map((option) => option.textContent)).toEqual([
       "user_stress_category_1",
-      "Second invented category (user_stress_category_2)"
+      "Second invented category"
     ]);
     fireEvent.change(select, { target: { value: "user_stress_category_2" } });
     expect(checksOf(harnessDoc())[0].category_ref).toEqual({ ref_id: "user_stress_category_2", ref_type: "stress_category" });
