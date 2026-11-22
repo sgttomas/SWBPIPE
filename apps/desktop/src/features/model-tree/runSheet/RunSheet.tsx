@@ -48,6 +48,12 @@ const isPrintable = (event: ReactKeyboardEvent) => event.key.length === 1 && !ev
 type Address = Readonly<{ rowKey: string; column: SheetColumnKey }>;
 type Editing = Readonly<{ rowKey: string; column: SheetColumnKey; text: string }>;
 
+/** The view command of "Fit row in viewport": a Fit Selection of the row's own entity, or of none
+ * (the view then moves nothing). */
+export function fitRowCommand(target: EntityRef | null): ViewportViewCommand {
+  return { type: "fit-selection", targets: target ? [target] : [] };
+}
+
 export function RunSheet({ host, model, operationBusy = false, viewCommand, onSelect }: Props) {
   const { store } = host;
   const state = store.state;
@@ -485,7 +491,8 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
         const node = row.resolved.end?.id;
         const target = pipe ? { type: "pipe" as const, id: pipe } : node ? { type: "node" as const, id: node } : null;
         if (target) onSelect?.(target);
-        viewCommand?.({ type: "fit-selection" });
+        // The row's own target travels with the command: the selection above is not yet committed.
+        viewCommand?.(fitRowCommand(target));
       }, row.status === "applied" && viewCommand ? null : row.status === "applied" ? "The viewport is not available." : "A row that is not applied has no geometry in the model yet."),
     ];
     if (row.status === "detached") {

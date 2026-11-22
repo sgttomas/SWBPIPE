@@ -15,8 +15,11 @@ import {
   projectCommand,
   selectTreeEntity,
   showCanvas,
-  showModelTree
+  showModelTree,
+  viewportControl
 } from "../e2e/workspace-driver";
+import { readFileSync } from "node:fs";
+import { expectViewportLabelTargets } from "../e2e/ui-foundation-workflows";
 import { Journey } from "./recorder";
 
 const INVENTED = "invented_walkthrough_input";
@@ -214,8 +217,8 @@ test("04 edit a model: a node, a support and a load on the demonstration model",
   await journey.step("grid", "The model as a grid", async () => { await page.getByRole("button", { name: "Grid", exact: true }).first().click(); });
   await journey.step("table-view", "Table view", async () => { await page.getByTestId("view-switch-table").click(); });
   await journey.step("model-view", "Model view", async () => { await page.getByTestId("view-switch-model").click(); });
-  await journey.step("viewport-selection", "The viewport's selection and navigation controls opened", async () => {
-    await page.getByText("Selection & navigation", { exact: true }).click();
+  await journey.step("viewport-selection", "The view's More menu opened", async () => {
+    await page.getByTestId("viewport-more").click();
   });
   await journey.step("review-changes", "Review changes, with nothing queued", async () => {
     await page.getByTestId("view-switch-both").click();
@@ -326,5 +329,193 @@ test("08 save, close and resume (DEL-07-06 AC-007)", async ({ page }) => {
   await journey.step("list-local", "File > List Local Projects", async () => { await menu(page, "file", "file.list-local"); });
   await journey.step("reopened", "The application opened again in the same browser", async () => { await open(page); });
   await journey.step("open-local", "File > Open Local Project", async () => { await menu(page, "file", "file.open-local"); });
+  journey.finish();
+});
+
+/** Opens the application on another model in place of its demonstration model, as the e2e suite does. */
+async function openModel(page: Page, model: unknown): Promise<void> {
+  const body = `const model=${JSON.stringify(model)};\nexport { model as default };`;
+  await page.route(/(?:invented_demo_model-[^/]+\.js|fixtures\/product_preview\/invented_demo_model\.json)(?:\?.*)?$/, async (route) => {
+    await route.fulfill({ status: 200, contentType: "application/javascript", body });
+  });
+  await open(page);
+}
+
+/** Selects an entity by its label on the canvas, or by the tree when its label is not drawn. */
+async function selectInView(page: Page, type: "node" | "pipe" | "support" | "component", id: string): Promise<string | void> {
+  const label = page.getByTestId(`viewport-select-${id}`);
+  if (await label.isVisible()) {
+    await label.click();
+    return;
+  }
+  await showModelTree(page);
+  await selectTreeEntity(page, type, id);
+  await page.getByTestId("view-switch-model").click();
+  return "its label was not drawn, so it was selected in the tree";
+}
+
+/** Checks every drawn label's pointer target (at least 24 by 24, uncovered) and says so in the note. */
+async function labelTargets(page: Page, found?: string | void): Promise<string> {
+  await page.waitForTimeout(350);
+  const witness = await expectViewportLabelTargets(page);
+  const toggle = ((await page.getByTestId("toggle-viewport-labels").textContent()) ?? "").trim();
+  const checked = `${witness.length} labels drawn, each target at least 24 by 24 CSS px and uncovered; the toggle reads "${toggle}"`;
+  return found ? `${found}; ${checked}` : checked;
+}
+
+/** Where an authored point is drawn on the canvas, in page pixels. */
+async function canvasPointOf(page: Page, authoredPoint: { x: number; y: number; z: number }): Promise<{ x: number; y: number }> {
+  return page.evaluate((authoredPoint) => {
+    const api = (globalThis as any).__openPipeStressUiDiagnosticsV1;
+    const current = api.readCurrent();
+    if ("status" in current.viewport || current.model.generation === null) throw new Error("the view is unavailable");
+    const projected = api.projectAuthoredPoint({ modelGeneration: current.model.generation, cameraSequence: current.viewport.camera.sequence, authoredPoint });
+    if (projected.status !== "available" || !projected.insideCanvasCss) throw new Error("the point is outside the canvas");
+    const bounds = document.querySelector('[data-testid="viewport-canvas"] canvas')!.getBoundingClientRect();
+    return { x: bounds.left + projected.canvasCssPoint.x, y: bounds.top + projected.canvasCssPoint.y };
+  }, authoredPoint);
+}
+
+async function orbit(page: Page): Promise<void> {
+  const box = await page.getByTestId("viewport-canvas").boundingBox();
+  if (!box) throw new Error("the canvas has no box");
+  await page.mouse.move(box.x + box.width * 0.5, box.y + box.height * 0.6);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width * 0.75, box.y + box.height * 0.45, { steps: 12 });
+  await page.mouse.up();
+}
+
+test("09 the 3D view: controls, fit, standard views, labels", async ({ page }) => {
+  const journey = new Journey(page, 9, "view", "The 3D view: its controls, the model kept in view, the standard views and the labels");
+  const demo = JSON.parse(readFileSync(new URL("../../../fixtures/product_preview/invented_demo_model.json", import.meta.url), "utf8"));
+  await open(page);
+  await journey.step("first-open", "The application as first opened: the demonstration model fitted in the view", async () => labelTargets(page));
+  await journey.step("model-view", "Model view: the canvas alone", async () => { await page.getByTestId("view-switch-model").click(); });
+  for (const view of ["front", "top", "side", "isometric"] as const) {
+    await journey.step(`view-${view}`, `The ${view} view, from the canvas's view controls`, async () => {
+      await page.getByTestId(`viewport-view-${view}`).click();
+    });
+  }
+  await journey.step("orbited", "The view orbited by a drag on the canvas: no standard view is pressed", async () => orbit(page));
+  await journey.step("fit-after-orbit", "Fit Model after the orbit: the model reframed, the direction the person looked from kept", async () => {
+    await page.getByTestId("viewport-fit-model").click();
+  });
+  await journey.step("view-restored", "Isometric pressed again: the standard view restored and shown pressed", async () => {
+    await page.getByTestId("viewport-view-isometric").click();
+  });
+  await journey.step("canvas-click", "A click on the canvas itself at node N-120's drawn point, not on a label: what it picks is selected, the view still fitted", async () => {
+    const node = demo.nodes.find((candidate: { id: string }) => candidate.id === "node:N-120") ?? demo.nodes[0];
+    const point = await canvasPointOf(page, node.position);
+    const onCanvas = await page.evaluate(({ x, y }) => document.elementFromPoint(x, y)?.closest('[data-testid="viewport-canvas"]') !== null, point);
+    await page.mouse.click(point.x, point.y);
+    await page.waitForTimeout(200);
+    const selection = await page.locator(".shell-status-selection").first().getAttribute("title").catch(() => null);
+    const picked = `the click selected ${selection ?? "nothing named in the status bar"}`;
+    return onCanvas ? picked : `a label lay over the node's point, so the click went to it; ${picked}`;
+  });
+  await journey.step("canvas-resized", "The window 120 px shorter: the canvas shorter by as much, the model refitted to it, still wholly in view, Isometric still pressed", async () => {
+    // A change of canvas that is the same at every width: the window itself. (Model view docks the
+    // inspector, and Both view at narrow widths lays the inspector over the canvas, so neither is a
+    // resize of the canvas alone.) The step asserts the canvas really changed before the picture;
+    // the window is restored after it.
+    const size = async () => page.getByTestId("viewport-canvas").evaluate((element) => {
+      const box = element.getBoundingClientRect();
+      return { width: Math.round(box.width), height: Math.round(box.height) };
+    });
+    const before = await size();
+    const window = page.viewportSize();
+    if (!window) throw new Error("the window has no size");
+    await page.setViewportSize({ width: window.width, height: window.height - 120 });
+    await expect.poll(async () => before.height - (await size()).height).toBeGreaterThanOrEqual(100);
+    await expect(page.getByTestId("viewport-view-isometric")).toHaveAttribute("aria-pressed", "true");
+    const after = await size();
+    return `the canvas went from ${before.width} by ${before.height} to ${after.width} by ${after.height}; Isometric still pressed`;
+  });
+  // The window restored for the pictures that follow.
+  {
+    const window = page.viewportSize();
+    if (window) await page.setViewportSize({ width: window.width, height: window.height + 120 });
+  }
+  await journey.step("more-menu", "The bar's More open as a second row, with a control in it on; Fit and the views uncovered", async () => {
+    await page.getByTestId("viewport-more").click();
+    const menuPanel = page.getByTestId("viewport-more-menu");
+    await expect(menuPanel).toBeVisible();
+    const measure = menuPanel.getByRole("button", { name: "Measure", exact: true });
+    const axes = menuPanel.getByRole("combobox", { name: "Element axes" });
+    if (await axes.count()) await axes.selectOption("local");
+    else if (await measure.count()) await measure.click();
+    else return "every group fits in the bar at this size; More holds Fit Visible";
+  });
+  {
+    const menuPanel = page.getByTestId("viewport-more-menu");
+    const axes = menuPanel.getByRole("combobox", { name: "Element axes" });
+    const measure = menuPanel.getByRole("button", { name: "Measure", exact: true });
+    if (await axes.count()) await axes.selectOption("off");
+    if (await measure.count() && await measure.getAttribute("aria-pressed") === "true") await measure.click();
+    await page.keyboard.press("Escape");
+  }
+  await journey.step("selection-label", "A pipe selected from its label: its label emphasised", async () => labelTargets(page, await selectInView(page, "pipe", "pipe:P-120")));
+  await journey.step("isolate", "Isolate: the selection drawn, the rest dimmed, and the quiet line says so", async () => {
+    await (await viewportControl(page, page.getByRole("button", { name: "Isolate", exact: true }))).click();
+    await page.keyboard.press("Escape");
+    await expect(page.getByTestId("viewport-isolated-count")).toBeVisible();
+  });
+  await journey.step("hidden-show-all", "Hide: the pipe hidden, and the quiet line's Show all", async () => {
+    await (await viewportControl(page, page.getByRole("button", { name: "Show all", exact: true }))).click();
+    await page.keyboard.press("Escape");
+    await selectInView(page, "pipe", "pipe:P-120");
+    await (await viewportControl(page, page.getByRole("button", { name: "Hide", exact: true }))).click();
+    await page.keyboard.press("Escape");
+    await expect(page.getByTestId("viewport-hidden-count")).toBeVisible();
+  });
+  await page.getByTestId("viewport-hidden-count").click();
+  await journey.step("measure-armed", "Measure armed: the quiet line says what it waits for", async () => {
+    await (await viewportControl(page, page.getByRole("button", { name: "Measure", exact: true }))).click();
+    await expect(page.getByTestId("viewport-measure-prompt")).toBeVisible();
+  });
+  {
+    await (await viewportControl(page, page.getByRole("button", { name: "Measure", exact: true }))).click();
+    if (await page.getByTestId("viewport-more-menu").count()) await page.keyboard.press("Escape");
+  }
+  await journey.step("box-select-beside-label", "Box Select: a box drawn from just beside a label, inside its target's margin", async () => {
+    await (await viewportControl(page, page.getByTestId("viewport-box-select"))).click();
+    if (await page.getByTestId("viewport-more-menu").count()) await page.keyboard.press("Escape");
+    const label = page.locator(".viewport-selection-layer .viewport-select-target:not([style*='visibility: hidden'])").first();
+    const plate = await label.boundingBox();
+    if (!plate) throw new Error("no label is drawn");
+    await page.mouse.move(plate.x + plate.width / 2, plate.y - 2);
+    await page.mouse.down();
+    await page.mouse.move(plate.x + plate.width / 2 - 140, plate.y + 110, { steps: 8 });
+    await expect(page.locator(".viewport-box-rect")).toBeVisible();
+  });
+  await page.mouse.up();
+  await (await viewportControl(page, page.getByTestId("viewport-box-select"))).click();
+  if (await page.getByTestId("viewport-more-menu").count()) await page.keyboard.press("Escape");
+  await journey.step("dark", "The view in the dark theme (View > Dark)", async () => {
+    await page.emulateMedia({ colorScheme: "dark" });
+    await menu(page, "view", "view.theme.dark");
+  });
+  await menu(page, "view", "view.theme.system");
+  await page.emulateMedia({ colorScheme: null });
+
+  const reference = JSON.parse(readFileSync(new URL("../../../fixtures/reference_system/reference_system.json", import.meta.url), "utf8"));
+  await journey.step("reference-system", "The reference system: its boundary nodes named first, and the Labels toggle's count", async () => {
+    await openModel(page, reference);
+    await page.getByTestId("view-switch-model").click();
+    return labelTargets(page);
+  });
+  await journey.step("reference-system-both", "The reference system in Both view, beside the table", async () => {
+    await page.getByTestId("view-switch-both").click();
+    return labelTargets(page);
+  });
+  await journey.step("reference-system-front", "The reference system from the front", async () => {
+    await page.getByTestId("view-switch-model").click();
+    await page.getByTestId("viewport-view-front").click();
+  });
+  await journey.step("reference-system-selected", "The reference system with a node selected: its label emphasised and drawn", async () => {
+    await page.getByTestId("viewport-view-isometric").click();
+    const node = reference.nodes[Math.floor(reference.nodes.length / 2)];
+    return labelTargets(page, await selectInView(page, "node", node.id));
+  });
   journey.finish();
 });

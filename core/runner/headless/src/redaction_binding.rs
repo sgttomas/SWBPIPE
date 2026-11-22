@@ -113,6 +113,9 @@ struct ContractClassification {
     source_metadata_present: bool,
     finding_class: Option<&'static str>,
     finding_severity: Option<&'static str>,
+    /// The labels this classification took from the item's `provenance` object as the item's
+    /// own (the provenance fallback).
+    read_from_provenance: Vec<&'static str>,
 }
 
 /// The user-released export context (DEL-08-01 Design `report-user-release.md`
@@ -180,9 +183,16 @@ fn classify_contract_item(
                 .is_some_and(|value| !value.is_array() && !value.is_object())
         });
     let provenance = item.get("provenance").and_then(Value::as_object);
-    let stated_or_provenance = |key: &str| match item.get(key) {
+    let mut read_from_provenance: Vec<&'static str> = Vec::new();
+    let mut stated_or_provenance = |key: &'static str| match item.get(key) {
         Some(value) if !value.is_null() => Some(value),
-        own => provenance.map_or(own, |value| value.get(key)),
+        own => match provenance {
+            Some(provenance) => {
+                read_from_provenance.push(key);
+                provenance.get(key)
+            }
+            None => own,
+        },
     };
     let privacy = stated_or_provenance("privacy_classification");
     let redistribution = stated_or_provenance("redistribution_status");
@@ -191,7 +201,13 @@ fn classify_contract_item(
     // label that matches no class.
     let review = match item.get("review_status") {
         Some(value) if value.as_str().is_some_and(|text| text != "unknown") => Some(value),
-        own => provenance.map_or(own, |value| value.get("review_status")),
+        own => match provenance {
+            Some(provenance) => {
+                read_from_provenance.push("review_status");
+                provenance.get("review_status")
+            }
+            None => own,
+        },
     };
     // Payload-carried local-private intent is not read in the user-released context
     // (§3.2): only the wrapper's release intent decides there.
@@ -233,23 +249,13 @@ fn classify_contract_item(
     };
     let review_text = review.and_then(Value::as_str).unwrap_or("unknown");
 
-    let contains_payload = blocking_flag_option(item.get("contains_payload"))
-        || blocking_flag_option(item.get("payload_present"))
-        || PAYLOAD_KEYS.iter().any(|key| item.contains_key(*key));
-    let secret_present = blocking_flag_option(item.get("secret_material_present"))
-        || SECRET_KEYS.iter().any(|key| item.contains_key(*key));
-    let cloud_present = blocking_flag_option(item.get("cloud_or_network_reference"))
-        || CLOUD_KEYS.iter().any(|key| item.contains_key(*key));
-    let sql_present = blocking_flag_option(item.get("direct_sql_access"))
-        || SQL_KEYS.iter().any(|key| item.contains_key(*key));
-    let storage_bypass = [
-        "storage_bypass",
-        "storage_bypass_requested",
-        "direct_storage_bypass",
-        "application_service_bypass",
-    ]
-    .iter()
-    .any(|key| blocking_flag_option(item.get(*key)));
+    let flags = StatedFlags::of(item);
+    let contains_payload =
+        flags.payload || PAYLOAD_KEYS.iter().any(|key| item.contains_key(*key));
+    let secret_present = flags.secret || SECRET_KEYS.iter().any(|key| item.contains_key(*key));
+    let cloud_present = flags.cloud || CLOUD_KEYS.iter().any(|key| item.contains_key(*key));
+    let sql_present = flags.sql || SQL_KEYS.iter().any(|key| item.contains_key(*key));
+    let storage_bypass = flags.storage_bypass;
     let path_present = blocking_flag_option(item.get("concrete_path_present"))
         || PATH_KEYS.iter().any(|key| item.contains_key(*key));
 
@@ -258,23 +264,21 @@ fn classify_contract_item(
     } else {
         "redact_value"
     };
-    let (decided_action, decided_reason) = if professional_claim(item.get("professional_claim")) {
-        ("block_export", "PROFESSIONAL_BOUNDARY_BLOCKED")
-    } else if cloud_present {
-        ("block_export", "CLOUD_OR_NETWORK_REFERENCE_BLOCKED")
-    } else if sql_present {
-        ("block_export", "DIRECT_SQL_ACCESS_BLOCKED")
-    } else if storage_bypass {
-        ("block_export", "STORAGE_BYPASS_BLOCKED")
-    } else if secret_present {
-        ("block_export", "SECRET_MATERIAL_BLOCKED")
-    } else if contains_payload {
-        ("block_export", "PAYLOAD_METADATA_ONLY_REQUIRED")
-    } else if privacy_text == Some("protected_suspected")
-        || redistribution_text == Some("protected_suspected")
-        || matches!(review_text, "quarantined" | "rejected")
-    {
-        ("block_export", "PROTECTED_CONTENT_BLOCKED")
+    let boundary = boundary_reason(
+        professional_claim(item.get("professional_claim")),
+        StatedFlags {
+            payload: contains_payload,
+            secret: secret_present,
+            cloud: cloud_present,
+            sql: sql_present,
+            storage_bypass,
+        },
+        privacy_text,
+        redistribution_text,
+        review_text,
+    );
+    let (decided_action, decided_reason) = if let Some(reason) = boundary {
+        ("block_export", reason)
     } else if export_context == USER_RELEASED_REPORT_CONTEXT {
         // Steps 10-13 of §3.2, before any unknown-metadata branch.
         if matches!(
@@ -366,6 +370,7 @@ fn classify_contract_item(
         action,
         reason_code: reason,
         source_metadata_present: metadata_present,
+        read_from_provenance,
         finding_class,
         finding_severity: finding_class.map(|_| {
             if action == "block_export" {
@@ -374,6 +379,155 @@ fn classify_contract_item(
                 "WARNING"
             }
         }),
+    }
+}
+
+/// The blocking flags an object states, each read as `blocking_flag` reads it; in the
+/// classifier each is joined with the member names of its set.
+#[cfg(test)]
+#[derive(Clone, Copy)]
+struct StatedFlags {
+    payload: bool,
+    secret: bool,
+    cloud: bool,
+    sql: bool,
+    storage_bypass: bool,
+}
+
+#[cfg(test)]
+impl StatedFlags {
+    fn of(object: &Map<String, Value>) -> Self {
+        StatedFlags {
+            payload: blocking_flag_option(object.get("contains_payload"))
+                || blocking_flag_option(object.get("payload_present")),
+            secret: blocking_flag_option(object.get("secret_material_present")),
+            cloud: blocking_flag_option(object.get("cloud_or_network_reference")),
+            sql: blocking_flag_option(object.get("direct_sql_access")),
+            storage_bypass: [
+                "storage_bypass",
+                "storage_bypass_requested",
+                "direct_storage_bypass",
+                "application_service_bypass",
+            ]
+            .iter()
+            .any(|key| blocking_flag_option(object.get(*key))),
+        }
+    }
+}
+
+/// Steps 1-8 of the decision order, the blocks that come first in every context (TypeScript
+/// `boundaryActionFor`, Python `_boundary_action`); `None` when none of them decides.
+#[cfg(test)]
+fn boundary_reason(
+    claim: bool,
+    flags: StatedFlags,
+    privacy: Option<&str>,
+    redistribution: Option<&str>,
+    review: &str,
+) -> Option<&'static str> {
+    if claim {
+        Some("PROFESSIONAL_BOUNDARY_BLOCKED")
+    } else if flags.cloud {
+        Some("CLOUD_OR_NETWORK_REFERENCE_BLOCKED")
+    } else if flags.sql {
+        Some("DIRECT_SQL_ACCESS_BLOCKED")
+    } else if flags.storage_bypass {
+        Some("STORAGE_BYPASS_BLOCKED")
+    } else if flags.secret {
+        Some("SECRET_MATERIAL_BLOCKED")
+    } else if flags.payload {
+        Some("PAYLOAD_METADATA_ONLY_REQUIRED")
+    } else if privacy == Some("protected_suspected")
+        || redistribution == Some("protected_suspected")
+        || matches!(review, "quarantined" | "rejected")
+    {
+        Some("PROTECTED_CONTENT_BLOCKED")
+    } else {
+        None
+    }
+}
+
+/// The reason of the first of decision-order steps 1-8 that an object's own explicit members
+/// state, read as the classifier reads them; no member name decides here. `read_by_item` names
+/// the labels of a `provenance` object that its item's classification already took as the
+/// item's own: they are that item's statement, decided at the item (TypeScript
+/// `statementReason`, Python `_statement_reason`).
+#[cfg(test)]
+fn statement_reason(object: &Map<String, Value>, read_by_item: &[&str]) -> Option<&'static str> {
+    let label = |key: &str| {
+        if read_by_item.contains(&key) {
+            None
+        } else {
+            object.get(key)
+        }
+    };
+    boundary_reason(
+        professional_claim(object.get("professional_claim")),
+        StatedFlags::of(object),
+        label("privacy_classification").and_then(Value::as_str),
+        label("redistribution_status").and_then(Value::as_str),
+        label("review_status")
+            .and_then(Value::as_str)
+            .unwrap_or("unknown"),
+    )
+}
+
+/// A node's place: the root's is `$`; a member's is its parent's place, a dot, the member
+/// name's length, a colon and the name; an element's is its parent's place and its index in
+/// brackets. The length makes each segment's end known, so a member name holding a dot or
+/// brackets cannot read as a traversal and two distinct places never share one; the mirror's
+/// unprefixed paths do not make them share one either. Used only to compare places within one
+/// run (TypeScript `memberPlace`, Python `_member_place`).
+#[cfg(test)]
+fn member_place(parent: &str, name: &str) -> String {
+    format!("{parent}.{}:{name}", name.len())
+}
+
+#[cfg(test)]
+fn index_place(parent: &str, index: usize) -> String {
+    format!("{parent}[{index}]")
+}
+
+/// What the mirrored walk records for the statement reading, by place: every place whose
+/// object the walk decided `block_export`, and, by the place of a blocked item's `provenance`
+/// object, the labels the item's own classification took from it (TypeScript
+/// `StatementReads`, Python `_StatementReads`).
+#[cfg(test)]
+#[derive(Default)]
+struct StatementReads {
+    blocked: std::collections::HashSet<String>,
+    fallback: std::collections::HashMap<String, Vec<&'static str>>,
+}
+
+/// Every object at any depth of the input as received, its payload intent members included,
+/// that states a blocking statement is decided `block_export` at its own path, after the
+/// walk's decisions; iterative. Not decided again: the object the walk already blocked at that
+/// place, and a statement the item classifier took as its item's own label through the
+/// provenance fallback, both known by place, never by the written path (TypeScript
+/// `decideStatements`, Python `_decide_statements`). The mirror's paths carry no key prefix.
+#[cfg(test)]
+fn route_statement_decisions(source: &Value, reads: &StatementReads, out: &mut Vec<RouteDecision>) {
+    let mut stack: Vec<(&Value, String, String)> = vec![(source, "$".to_string(), "$".to_string())];
+    while let Some((node, at, place)) = stack.pop() {
+        match node {
+            Value::Object(map) => {
+                let read = reads.fallback.get(&place).map(Vec::as_slice).unwrap_or(&[]);
+                if let Some(reason) = statement_reason(map, read) {
+                    if !reads.blocked.contains(&place) {
+                        out.push((at.clone(), "block_export", reason));
+                    }
+                }
+                for (key, item) in map.iter().rev() {
+                    stack.push((item, format!("{at}.{key}"), member_place(&place, key)));
+                }
+            }
+            Value::Array(items) => {
+                for (index, item) in items.iter().enumerate().rev() {
+                    stack.push((item, format!("{at}[{index}]"), index_place(&place, index)));
+                }
+            }
+            _ => {}
+        }
     }
 }
 
@@ -624,17 +778,35 @@ fn route_raised(
 #[allow(clippy::too_many_arguments)]
 fn route_walk(
     value: &Value,
-    path: &str,
+    (path, place): (&str, &str),
     public_basis: bool,
     context: &str,
     intent: bool,
     floor: Option<(&'static str, &'static str)>,
     omit: bool,
     out: &mut Vec<RouteDecision>,
+    reads: &mut StatementReads,
 ) {
-    let decide = |item: &Map<String, Value>| {
+    // What a blocked item's own classification took from its provenance as the item's labels;
+    // the statement reading does not decide those labels a second time.
+    let decide = |item: &Map<String, Value>, reads: &mut StatementReads| {
         let decided = classify_contract_item(item, context, intent, false);
+        if decided.action == "block_export" {
+            reads
+                .fallback
+                .insert(member_place(place, "provenance"), decided.read_from_provenance);
+        }
         (decided.action, decided.reason_code)
+    };
+    // Every place the walk decides `block_export`, which the statement reading does not decide
+    // again.
+    let push = |decided: (&'static str, &'static str),
+                reads: &mut StatementReads,
+                out: &mut Vec<RouteDecision>| {
+        if decided.0 == "block_export" {
+            reads.blocked.insert(place.to_string());
+        }
+        out.push((path.to_string(), decided.0, decided.1));
     };
     match value {
         Value::Object(record) => {
@@ -642,14 +814,14 @@ fn route_walk(
                 .get("value")
                 .is_some_and(|value| !value.is_object() && !value.is_array());
             if scalar_value && route_item_label(record) {
-                let (action, reason) = route_raised(decide(record), floor, omit);
-                out.push((path.to_string(), action, reason));
+                let decided = route_raised(decide(record, reads), floor, omit);
+                push(decided, reads, out);
                 return;
             }
             if scalar_value && route_explicit_metadata(record) {
-                let item = decide(record);
+                let item = decide(record, reads);
                 if item.0 == "block_export" {
-                    out.push((path.to_string(), item.0, item.1));
+                    push(item, reads, out);
                     return;
                 }
                 let redacts = route_action_rank(item.0) >= route_action_rank("redact_value");
@@ -675,13 +847,14 @@ fn route_walk(
                     };
                     route_walk(
                         child,
-                        &format!("{path}.{key}"),
+                        (&format!("{path}.{key}"), &member_place(place, key)),
                         basis,
                         context,
                         intent,
                         member_floor,
                         own_omit || omit,
                         out,
+                        reads,
                     );
                 }
                 return;
@@ -690,13 +863,14 @@ fn route_walk(
             for (key, child) in record {
                 route_walk(
                     child,
-                    &format!("{path}.{key}"),
+                    (&format!("{path}.{key}"), &member_place(place, key)),
                     basis,
                     context,
                     intent,
                     floor,
                     omit,
                     out,
+                    reads,
                 );
             }
         }
@@ -704,20 +878,21 @@ fn route_walk(
             for (index, child) in items.iter().enumerate() {
                 route_walk(
                     child,
-                    &format!("{path}[{index}]"),
+                    (&format!("{path}[{index}]"), &index_place(place, index)),
                     false,
                     context,
                     intent,
                     floor,
                     omit,
                     out,
+                    reads,
                 );
             }
         }
         scalar => {
             let leaf = route_path_leaf(path, scalar, public_basis);
-            let (action, reason) = route_raised(decide(&leaf), floor, omit);
-            out.push((path.to_string(), action, reason));
+            let decided = route_raised(decide(&leaf, reads), floor, omit);
+            push(decided, reads, out);
         }
     }
 }
@@ -743,9 +918,23 @@ fn route_record_decisions(
             .map(|path| (path, "block_export", "EXPORT_INPUT_RESERVED_NAME"))
             .collect();
     }
-    let payload = strip_intent(input);
+    let payload = strip_intent(input.clone());
     let mut out = Vec::new();
-    route_walk(&payload, "$", false, context, intent, None, false, &mut out);
+    let mut reads = StatementReads::default();
+    route_walk(
+        &payload,
+        ("$", "$"),
+        false,
+        context,
+        intent,
+        None,
+        false,
+        &mut out,
+        &mut reads,
+    );
+    // Blocking statements are read from the input as received: removing a payload intent
+    // member from the controlled copy exempts no object inside it (DEL-12-02 AC-004).
+    route_statement_decisions(&input, &reads, &mut out);
     out
 }
 
@@ -2779,5 +2968,268 @@ mod tests {
         );
         assert!(released.source_metadata_present);
         assert_eq!(released.reason_code, "USER_RELEASE_VALUE_UNBOUND");
+    }
+
+    // Explicit blocking statements at depth (DEL-12-02 AC-003): the corpus's `statement_cases`,
+    // expanded and run identically by tests/security/test_redaction_export_controls.py and
+    // redactionExportControls.test.ts. Expected values are the corpus's, written from the
+    // decision order. The mirror lists members alphabetically, so decisions compare as sets.
+    const STATEMENT_MARK: &str = "@statement";
+    const STEP_1_TO_8_REASONS: [&str; 7] = [
+        "PROFESSIONAL_BOUNDARY_BLOCKED",
+        "CLOUD_OR_NETWORK_REFERENCE_BLOCKED",
+        "DIRECT_SQL_ACCESS_BLOCKED",
+        "STORAGE_BYPASS_BLOCKED",
+        "SECRET_MATERIAL_BLOCKED",
+        "PAYLOAD_METADATA_ONLY_REQUIRED",
+        "PROTECTED_CONTENT_BLOCKED",
+    ];
+
+    /// The position's payload with the member named `@statement` replaced by `members`.
+    fn with_statement(value: &Value, members: &Value) -> Value {
+        match value {
+            Value::Object(map) => {
+                let mut output = Map::new();
+                for (key, item) in map {
+                    if key == STATEMENT_MARK {
+                        for (member, member_value) in members.as_object().expect("members") {
+                            output.insert(member.clone(), member_value.clone());
+                        }
+                    } else {
+                        output.insert(key.clone(), with_statement(item, members));
+                    }
+                }
+                Value::Object(output)
+            }
+            Value::Array(items) => Value::Array(
+                items
+                    .iter()
+                    .map(|item| with_statement(item, members))
+                    .collect(),
+            ),
+            other => other.clone(),
+        }
+    }
+
+    fn sorted_pairs(value: &Value) -> Vec<Vec<String>> {
+        let mut pairs: Vec<Vec<String>> = value
+            .as_array()
+            .expect("decision list")
+            .iter()
+            .map(|pair| {
+                pair.as_array()
+                    .expect("decision")
+                    .iter()
+                    .map(|part| part.as_str().expect("text").to_string())
+                    .collect()
+            })
+            .collect();
+        pairs.sort();
+        pairs
+    }
+
+    /// (case id, payload, route expectation) for every statement at every position, every
+    /// non-statement at the positions that give the whole decision list, and the named cases.
+    fn expanded_statement_cases() -> (Value, Vec<(String, Value, Value)>) {
+        let corpus: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/redaction_export_controls/cases.json"
+        ))
+        .expect("shared redaction corpus must remain valid JSON");
+        let spec = corpus["statement_cases"].clone();
+        let mut cases = Vec::new();
+        for position in spec["positions"].as_array().expect("positions") {
+            let statement_path = position["statement_path"].as_str().expect("path");
+            for statement in spec["statements"].as_array().expect("statements") {
+                let reason = statement["reason"].as_str().expect("reason");
+                let decisions: Vec<Value> = position["statement_decisions"]
+                    .as_array()
+                    .expect("statement decisions")
+                    .iter()
+                    .map(|pair| {
+                        serde_json::json!([
+                            pair[0]
+                                .as_str()
+                                .expect("path")
+                                .replace("{statement_path}", statement_path),
+                            pair[1].as_str().expect("reason").replace("{reason}", reason)
+                        ])
+                    })
+                    .collect();
+                cases.push((
+                    format!("{}/{}", position["name"], statement["name"]),
+                    with_statement(&position["payload"], &statement["members"]),
+                    serde_json::json!({ "statement_decisions": decisions }),
+                ));
+            }
+            if let Some(whole) = position.get("expected_decisions") {
+                for other in spec["non_statements"].as_array().expect("non-statements") {
+                    cases.push((
+                        format!("{}/{}", position["name"], other["name"]),
+                        with_statement(&position["payload"], &other["members"]),
+                        serde_json::json!({ "statement_decisions": [], "expected_decisions": whole }),
+                    ));
+                }
+            }
+        }
+        for named in spec["named_cases"].as_array().expect("named cases") {
+            cases.push((
+                named["case_id"].as_str().expect("case id").to_string(),
+                named["payload"].clone(),
+                named["route"].clone(),
+            ));
+        }
+        (spec, cases)
+    }
+
+    #[test]
+    fn explicit_statements_block_at_every_position_in_every_setting() {
+        let (spec, cases) = expanded_statement_cases();
+        assert_eq!(cases.len(), 8 * 16 + 2 * 14 + 6);
+        let mut failures = Vec::new();
+        for (case_id, payload, expected) in &cases {
+            for setting in spec["settings"].as_array().expect("settings") {
+                let context = setting[0].as_str().expect("context");
+                let intent = setting[1].as_bool().expect("intent");
+                let decided = route_record_decisions("record", &payload["record"], context, intent);
+                let mut statement_decisions: Vec<Vec<String>> = decided
+                    .iter()
+                    .filter(|decision| {
+                        decision.1 == "block_export" && STEP_1_TO_8_REASONS.contains(&decision.2)
+                    })
+                    .map(|decision| vec![decision.0.clone(), decision.2.to_string()])
+                    .collect();
+                statement_decisions.sort();
+                if statement_decisions != sorted_pairs(&expected["statement_decisions"]) {
+                    failures.push(format!("{case_id} {context} {intent}: {statement_decisions:?}"));
+                    continue;
+                }
+                if let Some(whole) = expected.get("expected_decisions") {
+                    let mut all: Vec<Vec<String>> = decided
+                        .iter()
+                        .map(|decision| {
+                            vec![
+                                decision.0.clone(),
+                                decision.1.to_string(),
+                                decision.2.to_string(),
+                            ]
+                        })
+                        .collect();
+                    all.sort();
+                    assert_eq!(all, sorted_pairs(whole), "{case_id} {context} {intent}");
+                }
+            }
+        }
+        assert!(failures.is_empty(), "{failures:#?}");
+    }
+
+    /// The corpus's `raw_cases` on the mirrored route exporter: its whole decision list, with the
+    /// paths the mirror writes (`mirror_decisions` and its local_private forms), compared without
+    /// regard to order; each decision is counted. The mirror's `{record_key: record}` entry takes
+    /// the payload's sole member as its key and value; only a bare root array has no such form.
+    #[test]
+    fn raw_statement_cases_give_whole_decision_lists_on_the_mirrored_route() {
+        let (spec, _) = expanded_statement_cases();
+        let raw = spec["raw_cases"].as_array().expect("raw cases");
+        let rows = |value: &Value| {
+            let mut rows: Vec<Vec<String>> = value
+                .as_array()
+                .expect("rows")
+                .iter()
+                .map(|row| {
+                    row.as_array()
+                        .expect("row")
+                        .iter()
+                        .map(|part| part.as_str().expect("text").to_string())
+                        .collect()
+                })
+                .collect();
+            rows.sort();
+            rows
+        };
+        let mut failures = Vec::new();
+        let mut mirrored = 0;
+        for case in raw {
+            let case_id = case["case_id"].as_str().expect("case id");
+            let route = &case["route"];
+            if route.get("mirror_decisions").is_none() {
+                continue;
+            }
+            mirrored += 1;
+            let payload = case["payload"].as_object().expect("payload");
+            assert_eq!(payload.len(), 1, "{case_id}");
+            let (record_key, record) = payload.iter().next().expect("sole member");
+            for setting in spec["settings"].as_array().expect("settings") {
+                let context = setting[0].as_str().expect("context");
+                let intent = setting[1].as_bool().expect("intent");
+                let expected = match (context, intent) {
+                    ("local_private", false) => route
+                        .get("mirror_decisions_local_private_without_intent")
+                        .or_else(|| route.get("mirror_decisions_local_private")),
+                    ("local_private", true) => route.get("mirror_decisions_local_private"),
+                    _ => None,
+                }
+                .unwrap_or(&route["mirror_decisions"]);
+                let mut all: Vec<Vec<String>> =
+                    route_record_decisions(record_key, record, context, intent)
+                        .iter()
+                        .map(|decision| {
+                            vec![
+                                decision.0.clone(),
+                                decision.1.to_string(),
+                                decision.2.to_string(),
+                            ]
+                        })
+                        .collect();
+                all.sort();
+                if all != rows(expected) {
+                    failures.push(format!("{case_id} {context} {intent}: {all:?}"));
+                }
+            }
+        }
+        assert!(mirrored >= 46, "{mirrored}");
+        assert!(failures.is_empty(), "{failures:#?}");
+    }
+
+    #[test]
+    fn paired_control_locates_the_block_at_the_provenance_not_the_record() {
+        let (spec, _) = expanded_statement_cases();
+        let named = |case_id: &str| {
+            spec["named_cases"]
+                .as_array()
+                .expect("named cases")
+                .iter()
+                .find(|case| case["case_id"] == case_id)
+                .expect("named case")["payload"]["record"]
+                .clone()
+        };
+        let ordinary = named("paired-control-ordinary-provenance-keeps-the-item-decision");
+        let blocking = named("paired-control-blocking-provenance-is-decided-at-the-provenance");
+        let without_provenance = |record: &Value| {
+            let mut map = record.as_object().expect("record").clone();
+            map.remove("provenance");
+            map
+        };
+        assert_eq!(without_provenance(&ordinary), without_provenance(&blocking));
+        for setting in spec["settings"].as_array().expect("settings") {
+            let context = setting[0].as_str().expect("context");
+            let intent = setting[1].as_bool().expect("intent");
+            assert_eq!(
+                route_record_decisions("record", &ordinary, context, intent),
+                vec![route_decision("$.record", "include", "SAFE_PUBLIC_METADATA")]
+            );
+            let refused = route_record_decisions("record", &blocking, context, intent);
+            assert_eq!(
+                refused
+                    .iter()
+                    .filter(|decision| decision.1 == "block_export")
+                    .cloned()
+                    .collect::<Vec<_>>(),
+                vec![route_decision(
+                    "$.record.provenance",
+                    "block_export",
+                    "PROTECTED_CONTENT_BLOCKED"
+                )]
+            );
+        }
     }
 }

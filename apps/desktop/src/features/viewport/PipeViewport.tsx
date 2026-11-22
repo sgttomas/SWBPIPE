@@ -88,6 +88,7 @@ import {
   claimBoxSelectionPointerDown,
   createRenderTransform,
   displayedBoundsForEntityKeys,
+  fitSelectionPlan,
   formatMeasurementDisplayValue,
   fittedViewportDistance,
   hideSelectionVisibility,
@@ -112,6 +113,10 @@ import {
 import { createFigureMaterial, figureEdgeOutlineFor } from "./viewportFigureMaterial";
 import { buildDeformationOverlay, buildRotationOverlay, deformationAtPhase, rotationGlyphAnchors } from "./deformationOverlay";
 import { DEFLECTION_PHASE_STEPS, DeflectedShapeControls, deflectionLabel, deflectionSummaryScale } from "./DeflectedShapeControls";
+import { ViewportOverflowBar } from "./ViewportOverflowBar";
+import { ViewportSizeWatch } from "./viewportSizeWatch";
+import { alongViewPose, fitApplied, fitDirection, initialCameraRuleState, personMovedCamera, refitForCanvas, standardViewApplied, standardViewPose, type CameraPose, type CameraRuleState, type FitCommandKind } from "./viewportCameraRule";
+import { labelObstacles, layoutLabels, type LabelBox, type LabelCandidate, type LabelKind } from "./viewportLabelLayout";
 import { buildElementAxesView, type ElementAxesFrame, type ElementAxesView } from "./elementAxes";
 import { elementAxisDisplayLength, instancedElementAxisMeshes, type ElementAxisPlacement } from "./viewportElementAxes";
 import { instancedRotationGlyphMeshes, type RotationGlyphPlacement } from "./viewportRotationGlyph";
@@ -276,7 +281,7 @@ function normalizedPresentationInset(value: number | undefined): number {
 export type CreationTool = "node" | "pipe" | "support" | "component" | "load";
 export type ViewportExposureInteraction = "measurement" | "box-selection";
 type ViewportCommandType = "create_node" | "connect_pipe_run" | "insert_component_symbol";
-type ViewPreset = "iso" | "front" | "top";
+type ViewPreset = "iso" | "front" | "top" | "side";
 const VIEWPORT_DIMENSIONLESS_UNIT_VALIDATION_STATUS = "not_required_dimensionless";
 /** One full undeformed-deformed-undeformed animation cycle, and the step between drawn phases. */
 const DEFLECTION_CYCLE_MS = 2400;
@@ -435,6 +440,7 @@ export function PipeViewport({
   explicitHiddenKeys = hiddenKeys,
   dimmedKeys = new Set(),
   isolationActive = false,
+  isolationSelectionKeys = null,
   hiddenCount = 0,
   modelIndex,
   modelCommitToken = null,
@@ -468,6 +474,8 @@ export function PipeViewport({
   const presentationBottomInset = normalizedPresentationInset(presentationBottomInsetPx);
   const hostRef = useRef<HTMLDivElement | null>(null);
   const viewportResourceRef = useRef<ViewportResource | null>(null);
+  // The furniture's size watches, served by the resource's one ResizeObserver for its lifetime.
+  const [sizeWatch] = useState(() => new ViewportSizeWatch());
   const selectionPresentationBindingRef = useRef(new SelectionPresentationBinding());
   const mainFrameRef = useRef({
     generation: null as number | null,
@@ -494,8 +502,15 @@ export function PipeViewport({
     position: [number, number, number];
     target: [number, number, number];
   } | null>(null);
-  const lastPresetRef = useRef<ViewPreset | null>(null);
   const fittedSessionGenerationRef = useRef<number | null>(null);
+  // The model stays in view: the last fit is remembered with the canvas size it was made for, and
+  // while the person has not orbited, panned or zoomed since, a new canvas size (a panel opened or
+  // closed, the window resized, Table, Model and Both switched) fits again the same way.
+  // The camera rule (viewportCameraRule.ts): the current standard view, and what was last fitted.
+  const cameraRuleRef = useRef<CameraRuleState>(initialCameraRuleState("iso"));
+  const refitForSizeRef = useRef<((width: number, height: number) => void) | null>(null);
+  // Where each label was drawn last (its place beside the anchor), kept across hover and selection.
+  const labelPlaceRef = useRef(new Map<EntityKey, number>());
   const pickRef = useRef<((event: { clientX: number; clientY: number }) => EntityRef | null) | null>(null);
   const pointerGestureRef = useRef<{ gesture: PointerGesture; target: Element; pointerDownAt: number } | null>(null);
   const boxGestureRef = useRef<{
@@ -540,7 +555,8 @@ export function PipeViewport({
   const [placementMessage, setPlacementMessage] = useState<string | null>(null);
   const [webglAvailable, setWebglAvailable] = useState<boolean | null>(null);
   const [viewportContextStatus, setViewportContextStatus] = useState<ViewportContextStatus>("ready");
-  const [viewPreset, setViewPreset] = useState<ViewPreset>("iso");
+  // The standard view shown pressed: null once the person has moved the camera off it.
+  const [viewPreset, setViewPreset] = useState<ViewPreset | null>("iso");
   const [showLabels, setShowLabels] = useState(true);
   const [showLoads, setShowLoads] = useState(true);
   const [showGrid, setShowGrid] = useState(true);
@@ -571,6 +587,9 @@ export function PipeViewport({
   const [boxPublication, setBoxPublication] = useState<BoxPublication | null>(null);
   const [measurementActive, setMeasurementActive] = useState(false);
   const [measurementSource, setMeasurementSource] = useState<MeasurementSource | null>(null);
+  // Why Measure refused the last pick ("a support cannot be measured"), shown in its prompt until the
+  // next accepted pick.
+  const [measureRefusal, setMeasureRefusal] = useState<string | null>(null);
   const measurementGateRef = useRef(0);
   const [measurementReadout, setMeasurementReadout] = useState<{
     status: "idle" | "pending" | "available" | "unavailable";
@@ -578,7 +597,8 @@ export function PipeViewport({
     reason: string;
   }>({ status: "idle", values: new Map(), reason: "Choose two authored nodes or one authored pipe." });
   const [geometryMode, setGeometryMode] = useState<"schematic" | "actual-od">("schematic");
-  const [viewCommandStatus, setViewCommandStatus] = useState("No view command dispatched.");
+  // Empty at rest: the live status speaks only of a view command it ran.
+  const [viewCommandStatus, setViewCommandStatus] = useState("");
   const [odGeneration, setOdGeneration] = useState(0);
   const odGenerationRef = useRef(0);
   const odRequestGateRef = useRef(0);
@@ -618,9 +638,11 @@ export function PipeViewport({
     () => visibilityEligibleSelectionKeys(activeModelIndex, orderedSelectionKeys),
     [activeModelIndex, orderedSelectionKeys]
   );
-  const visibilitySelectionReason = visibilitySelectionKeys.length > 0
-    ? null
-    : "Select at least one valid drawable node, pipe, support, or component.";
+  const visibilitySelectionReason = visibilitySelectionKeys.length === 0
+    ? "Select at least one valid drawable node, pipe, support, or component."
+    : visibilitySelectionKeys.every((key) => hiddenKeys.has(key))
+      ? "The selection is hidden. Show all to see it again."
+      : null;
   const [hoveredEntityKey, setHoveredEntityKey] = useState<EntityKey | null>(null);
   // B9: the entity context menu. A right-click (or a secondary press released within 4 CSS px,
   // so that a right-drag still pans) opens it at the pointer; Shift+F10 or the ContextMenu key
@@ -673,26 +695,58 @@ export function PipeViewport({
     diagnosticsStateRef.current.selectionPublication = publication;
     setSelectionPublication(publication);
   }, [orderedSelectionKeys, orderedPrimarySelectionKey, selectionPublication]);
+  // The nodes that bound the system: a node that carries a support or ends a line (anchors,
+  // nozzles, free ends). Their labels come before other nodes' (viewportLabelLayout.ts).
+  const boundaryNodeKeys = useMemo(() => {
+    const boundary = new Set<EntityKey>();
+    for (const support of model.supports) boundary.add(entityKey({ type: "node", id: support.node }));
+    for (const node of model.nodes) {
+      const key = entityKey({ type: "node", id: node.id });
+      if ((activeModelIndex.pipeKeysByNode.get(key)?.length ?? 0) <= 1) boundary.add(key);
+    }
+    return boundary;
+  }, [activeModelIndex, model.nodes, model.supports]);
   const labelKeys = useMemo(
     () => prioritizedLabelKeys(activeModelIndex, {
       primaryKey: primarySelectionKey,
       hoverKey: hoveredEntityKey,
       selectedKeys: orderedSelectionKeys,
+      boundaryKeys: [...boundaryNodeKeys],
       hiddenKeys
     }),
-    [activeModelIndex, hiddenKeys, hoveredEntityKey, orderedSelectionKeys, primarySelectionKey]
+    [activeModelIndex, boundaryNodeKeys, hiddenKeys, hoveredEntityKey, orderedSelectionKeys, primarySelectionKey]
   );
+  // How many entities could carry a label (shown, with an anchor): the Labels toggle states how many
+  // of them are drawn when not all are.
+  const labelableCount = useMemo(() => {
+    let count = 0;
+    for (const key of activeModelIndex.visibilityEligibleKeys) {
+      if (!hiddenKeys.has(key) && activeModelIndex.entities.get(key)?.anchor && isLabelKind(activeModelIndex.entities.get(key)!.ref.type)) count += 1;
+    }
+    return count;
+  }, [activeModelIndex, hiddenKeys]);
   const selectionTargets = useMemo(
     () => viewportSelectionTargets(activeModelIndex, labelKeys),
     [activeModelIndex, labelKeys]
   );
+  // The labels the layout drew last (the count the diagnostics report), and the Labels toggle's count
+  // text, written by the layout outside React so that orbiting re-renders nothing.
+  const drawnLabelCountRef = useRef(0);
+  const labelsCountRef = useRef<HTMLSpanElement | null>(null);
+  const labelsCountTextRef = useRef("");
+  function writeLabelsCount(drawn: number | null) {
+    const text = drawn !== null && drawn < labelableCount ? ` ${drawn}/${labelableCount}` : "";
+    labelsCountTextRef.current = text;
+    const element = labelsCountRef.current;
+    if (element && element.textContent !== text) element.textContent = text;
+  }
   const diagnosticsStateRef = useRef({
     assignment,
     identityHash: modelIdentityHash,
     index: activeModelIndex,
     projectId: model.project.id,
     labelsEnabled: showLabels,
-    labelCount: labelKeys.length,
+    labelCount: drawnLabelCountRef.current,
     boxPublication,
     geometryMode,
     odGeneration,
@@ -709,7 +763,7 @@ export function PipeViewport({
     index: activeModelIndex,
     projectId: model.project.id,
     labelsEnabled: showLabels,
-    labelCount: labelKeys.length,
+    labelCount: drawnLabelCountRef.current,
     boxPublication,
     geometryMode,
     odGeneration,
@@ -1107,6 +1161,11 @@ export function PipeViewport({
       resource = new ViewportResource(host, {
         onContextStatus: setViewportContextStatus,
         onRestore: () => viewportResourceRef.current?.invalidate(),
+        onCameraMovedByPerson: () => {
+          cameraRuleRef.current = personMovedCamera(cameraRuleRef.current);
+          setViewPreset(null);
+        },
+        onResize: (_current, width, height) => refitForSizeRef.current?.(width, height),
         onCameraChange: (current) => {
           cameraStateRef.current = {
             position: [current.camera.position.x, current.camera.position.y, current.camera.position.z],
@@ -1163,13 +1222,13 @@ export function PipeViewport({
     setWebglAvailable(true);
     resource.setPresentationBottomInsetPx(presentationBottomInset);
     viewportResourceRef.current = resource;
+    sizeWatch.attach((element, callback) => resource.observeSize(element, callback));
     // Register stable lazy factories once. Product callbacks update only
     // bounded refs; diagnostics materialization happens on an explicit pull.
     publishViewportDiagnostics(resource);
     resource.setOrigin(renderTransform.origin);
-    fitViewportCamera(resource, viewPreset, renderTransform.localBounds);
+    applyStandardView(resource, cameraRuleRef.current.standardView ?? cameraRuleRef.current.lastStandardView);
     fittedSessionGenerationRef.current = activeModelIndex.sessionGeneration;
-    lastPresetRef.current = viewPreset;
     draftProjectorRef.current = (event, plane) => resource.projectToAuthoredPlane(
       event,
       plane.normal,
@@ -1183,6 +1242,7 @@ export function PipeViewport({
       draftProjectorRef.current = null;
       routingVisualUpdaterRef.current = null;
       viewportResourceRef.current = null;
+      sizeWatch.detach();
       try {
         resource.dispose();
       } finally {
@@ -1553,67 +1613,158 @@ export function PipeViewport({
   useEffect(() => {
     const resource = viewportResourceRef.current;
     if (!resource) return;
-    const anchorPositions: Array<{
-      key: EntityKey;
-      position: THREE.Vector3;
-      offsetPct: number;
-    }> = [];
+    // Labels name without covering (viewportLabelLayout.ts): set off their anchors, never over one
+    // another or the canvas's furniture, the selected and hovered ones first and always drawn.
+    const anchors: Array<{ key: EntityKey; kind: LabelKind; position: THREE.Vector3; boundary: boolean; lines: Array<[THREE.Vector3, THREE.Vector3]> }> = [];
+    const localPoint = (point: Readonly<{ x: number; y: number; z: number }>) => {
+      const local = authoredToLocal(point, renderTransform.origin);
+      return new THREE.Vector3(local.x, local.y, local.z);
+    };
+    // A pipe's centreline, from its end nodes' anchors.
+    const pipeLine = (pipeKey: EntityKey): [THREE.Vector3, THREE.Vector3] | null => {
+      const record = activeModelIndex.entities.get(pipeKey)?.record as { from?: string; to?: string } | undefined;
+      const from = record?.from ? activeModelIndex.entities.get(entityKey({ type: "node", id: record.from }))?.anchor : null;
+      const to = record?.to ? activeModelIndex.entities.get(entityKey({ type: "node", id: record.to }))?.anchor : null;
+      return from && to ? [localPoint(from), localPoint(to)] : null;
+    };
     for (const key of labelKeys) {
       const indexed = activeModelIndex.entities.get(key);
-      if (!indexed?.anchor) continue;
-      const position = authoredToLocal(indexed.anchor, renderTransform.origin);
-      if (indexed.ref.type === "support") position.y -= 0.26;
-      if (indexed.ref.type === "component") position.y += 0.2;
-      anchorPositions.push({
-        key,
-        position: new THREE.Vector3(position.x, position.y, position.z),
-        offsetPct: indexed.ref.type === "support" ? 8 : indexed.ref.type === "component" ? -8 : 0
+      if (!indexed?.anchor || !isLabelKind(indexed.ref.type)) continue;
+      // The label's own entity's lines, which its target keeps off: a pipe's centreline, a node's pipes.
+      const ownPipes = indexed.ref.type === "pipe" ? [key] : indexed.ref.type === "node" ? activeModelIndex.pipeKeysByNode.get(key) ?? [] : [];
+      const lines = ownPipes.flatMap((pipeKey) => {
+        const line = pipeLine(pipeKey);
+        return line ? [line] : [];
       });
+      anchors.push({ key, kind: indexed.ref.type, position: localPoint(indexed.anchor), boundary: indexed.ref.type === "node" && boundaryNodeKeys.has(key), lines });
     }
+    const labelled = new Set(anchors.map((anchor) => anchor.key));
+    for (const key of [...labelPlaceRef.current.keys()]) if (!labelled.has(key)) labelPlaceRef.current.delete(key);
+    const emphasisRank = new Map<EntityKey, number>();
+    if (primarySelectionKey) emphasisRank.set(primarySelectionKey, 0);
+    for (const key of orderedSelectionKeys) if (!emphasisRank.has(key)) emphasisRank.set(key, 1);
+    if (hoveredEntityKey && !emphasisRank.has(hoveredEntityKey)) emphasisRank.set(hoveredEntityKey, 2);
+    const sizes = new Map<EntityKey, { width: number; height: number }>();
+    const written = new Map<EntityKey, string>();
+    let laidOut: { cameraSequence: number; width: number; height: number } | null = null;
+    // The furniture's boxes, read once and again only when the furniture changes (a status line,
+    // a legend or the factor appears, changes or goes) or the canvas changes size: not per frame.
+    let obstacles: { width: number; height: number; boxes: LabelBox[] } | null = null;
+    const frameElement = selectionLayerRef.current?.parentElement ?? hostRef.current?.parentElement ?? null;
+    const furniture = frameElement
+      ? [...frameElement.querySelectorAll<HTMLElement>(":scope > .viewport-canvas-right, :scope > .viewport-canvas-foot")]
+      : [];
+    const furnitureChanged = () => {
+      obstacles = null;
+      laidOut = null;
+      resource.invalidate();
+    };
+    const furnitureMutations = typeof MutationObserver === "undefined" ? null : new MutationObserver(furnitureChanged);
+    // Sizes through the view's one ResizeObserver (the resource's): no observer of its own here.
+    const furnitureSizes = furniture.map((element) => sizeWatch.watch(element, furnitureChanged));
+    for (const element of furniture) furnitureMutations?.observe(element, { childList: true, subtree: true, characterData: true });
     const updateLabelAnchors = () => {
       const layer = selectionLayerRef.current;
       if (!layer) {
         diagnosticsStateRef.current.labelCount = 0;
+        drawnLabelCountRef.current = 0;
+        writeLabelsCount(null);
         return;
       }
-      const buttons = new Map(
-        [...layer.querySelectorAll<HTMLElement>("[data-entity-key]")]
-          .map((button) => [button.dataset.entityKey, button] as const)
-      );
       const width = Math.max(1, layer.clientWidth || resource.renderer.domElement.clientWidth);
       const height = Math.max(1, layer.clientHeight || resource.renderer.domElement.clientHeight);
-      const occupied: Array<{ left: number; right: number; top: number; bottom: number }> = [];
-      let visibleCount = 0;
-      for (const { key, position, offsetPct } of anchorPositions) {
+      // Only a changed camera, canvas size, model or label set lays the labels out again; this
+      // closure is rebuilt when the model or the label set changes.
+      if (laidOut && laidOut.cameraSequence === resource.cameraSequence && laidOut.width === width && laidOut.height === height) return;
+      laidOut = { cameraSequence: resource.cameraSequence, width, height };
+      // Reads first: the label buttons, their sizes and the furniture's boxes.
+      const buttons = new Map(
+        [...layer.querySelectorAll<HTMLElement>("[data-entity-key]")]
+          .map((button) => [button.dataset.entityKey as EntityKey, button] as const)
+      );
+      if (!obstacles || obstacles.width !== width || obstacles.height !== height) {
+        const origin = layer.getBoundingClientRect();
+        const frame = layer.parentElement;
+        const boxes: LabelBox[] = frame
+          ? [...frame.querySelectorAll<HTMLElement>(".viewport-canvas-right > *, .viewport-canvas-foot > *, .viewport-axis-triad")].flatMap((element) => {
+              const box = element.getBoundingClientRect();
+              if (box.width <= 0 || box.height <= 0) return [];
+              return [{ left: box.left - origin.left, top: box.top - origin.top, right: box.right - origin.left, bottom: box.bottom - origin.top }];
+            })
+          : [];
+        // The closed drawer's tab strip covers the canvas's foot: no label is placed or counted under it.
+        obstacles = { width, height, boxes: labelObstacles(boxes, { width, height }, presentationBottomInset) };
+      }
+      const candidates: LabelCandidate<EntityKey>[] = [];
+      const toCanvas = (point: THREE.Vector3) => {
+        const projected = point.clone().project(resource.camera);
+        return { x: (projected.x * 0.5 + 0.5) * width, y: (-projected.y * 0.5 + 0.5) * height, behind: projected.z > 1 || projected.z < -1 };
+      };
+      for (const { key, kind, position, boundary, lines } of anchors) {
         const button = buttons.get(key);
         if (!button) continue;
+        let size = sizes.get(key);
+        if (!size || size.width <= 0) {
+          // The drawn size, rounded up: a whole-pixel offsetWidth can be narrower than the plate.
+          const rect = button.getBoundingClientRect();
+          size = { width: Math.ceil(rect.width), height: Math.ceil(rect.height) };
+          sizes.set(key, size);
+        }
         const projected = position.clone().project(resource.camera);
         const outsideFrustum = projected.x < -1 || projected.x > 1 || projected.y < -1 || projected.y > 1 ||
           projected.z < -1 || projected.z > 1;
-        if (outsideFrustum) {
-          button.style.display = "none";
+        const rank = emphasisRank.get(key);
+        candidates.push({
+          key,
+          kind,
+          x: outsideFrustum ? Number.NaN : (projected.x * 0.5 + 0.5) * width,
+          y: outsideFrustum ? Number.NaN : (-projected.y * 0.5 + 0.5) * height,
+          width: size.width,
+          height: size.height,
+          emphasised: rank !== undefined,
+          emphasisRank: rank,
+          preferredPlace: labelPlaceRef.current.get(key),
+          boundary,
+          avoid: lines.flatMap(([a, b]) => {
+            const [p, q] = [toCanvas(a), toCanvas(b)];
+            return p.behind || q.behind ? [] : [{ x1: p.x, y1: p.y, x2: q.x, y2: q.y }];
+          })
+        });
+      }
+      const placements = layoutLabels(candidates, { width, height }, obstacles.boxes);
+      // Then writes, only where a label changed.
+      let visibleCount = 0;
+      for (const placement of placements) {
+        if (placement.drawn) labelPlaceRef.current.set(placement.key, placement.place);
+        else labelPlaceRef.current.delete(placement.key);
+        const button = buttons.get(placement.key);
+        if (!button) continue;
+        const next = placement.drawn ? `${Math.round(placement.left)},${Math.round(placement.top)}` : "hidden";
+        if (placement.drawn) visibleCount += 1;
+        if (written.get(placement.key) === next) continue;
+        written.set(placement.key, next);
+        if (!placement.drawn) {
+          button.style.visibility = "hidden";
           continue;
         }
-        const x = clamp((projected.x * 0.5 + 0.5) * width, 29, Math.max(29, width - 29));
-        const y = clamp((-projected.y * 0.5 + 0.5) * height + offsetPct * height / 100, 13, Math.max(13, height - 13));
-        const box = { left: x - 31, right: x + 31, top: y - 15, bottom: y + 15 };
-        const overlaps = occupied.some((placed) =>
-          box.left < placed.right && box.right > placed.left && box.top < placed.bottom && box.bottom > placed.top
-        );
-        button.style.display = overlaps ? "none" : "";
-        if (overlaps) continue;
-        occupied.push(box);
-        visibleCount += 1;
-        button.style.left = `${x}px`;
-        button.style.top = `${y}px`;
+        button.style.visibility = "";
+        button.style.transform = "none";
+        button.style.left = `${Math.round(placement.left)}px`;
+        button.style.top = `${Math.round(placement.top)}px`;
       }
       diagnosticsStateRef.current.labelCount = visibleCount;
+      drawnLabelCountRef.current = visibleCount;
+      writeLabelsCount(visibleCount);
     };
     resource.setLabelUpdater(updateLabelAnchors);
     updateLabelAnchors();
     resource.invalidate();
-    return () => resource.setLabelUpdater(null);
-  }, [activeModelIndex, labelKeys, renderTransform, showLabels]);
+    return () => {
+      furnitureMutations?.disconnect();
+      for (const stop of furnitureSizes) stop();
+      resource.setLabelUpdater(null);
+    };
+  }, [activeModelIndex, boundaryNodeKeys, hoveredEntityKey, labelKeys, labelableCount, orderedSelectionKeys, presentationBottomInset, primarySelectionKey, renderTransform, showLabels]);
 
   useEffect(() => {
     const resource = viewportResourceRef.current;
@@ -1678,6 +1829,7 @@ export function PipeViewport({
 
   useEffect(() => {
     setMeasurementSource(null);
+    setMeasureRefusal(null);
     setMeasurementActive(false);
     setBoxSelectActive(false);
     setBoxRect(null);
@@ -1699,19 +1851,30 @@ export function PipeViewport({
   useEffect(() => {
     const resource = viewportResourceRef.current;
     if (!resource || fittedSessionGenerationRef.current === activeModelIndex.sessionGeneration) return;
-    fitViewportCamera(resource, viewPreset, renderTransform.localBounds);
+    // A model opened or replaced: the current standard view, or the last one applied when the
+    // person had moved the camera, fitted to the new model.
+    applyStandardView(resource, cameraRuleRef.current.standardView ?? cameraRuleRef.current.lastStandardView);
     fittedSessionGenerationRef.current = activeModelIndex.sessionGeneration;
-    lastPresetRef.current = viewPreset;
     resource.invalidate();
-  }, [activeModelIndex.sessionGeneration, renderTransform.localBounds, viewPreset]);
+  }, [activeModelIndex.sessionGeneration, renderTransform.localBounds]);
 
-  useEffect(() => {
+  /** A standard view, applied every time: the model fitted from that direction, the view current. */
+  function applyStandardView(resource: ViewportResource, view: ViewPreset) {
+    fitViewportCamera(resource, view, renderTransform.localBounds);
+    const size = viewportCanvasSize(resource);
+    cameraRuleRef.current = standardViewApplied(cameraRuleRef.current, view, size.width, size.height);
+    setViewPreset(view);
+  }
+
+  function pressStandardView(view: ViewPreset) {
     const resource = viewportResourceRef.current;
-    if (!resource || lastPresetRef.current === viewPreset) return;
-    fitViewportCamera(resource, viewPreset, renderTransform.localBounds);
-    lastPresetRef.current = viewPreset;
-    resource.invalidate();
-  }, [renderTransform.localBounds, viewPreset]);
+    if (resource) {
+      applyStandardView(resource, view);
+      resource.invalidate();
+    } else {
+      setViewPreset(view);
+    }
+  }
 
   function addIntent(commandType: ViewportCommandType) {
     const intent = buildIntent(
@@ -2385,14 +2548,35 @@ export function PipeViewport({
     geometryMode === "actual-od" ? actualOd.radii : new Map()
   );
 
-  function fitDisplayedBounds(label: string, authoredBounds: Bounds3 | null) {
+  /** The authored envelope a fit command frames: the selection (or the entities a Fit Selection
+   * fitted, when refitting it), the shown geometry or the model. */
+  function fitCommandBounds(kind: FitCommandKind, fittedKeys?: readonly EntityKey[]): Bounds3 | null {
+    const radii = geometryMode === "actual-od" ? actualOd.radii : new Map<EntityKey, number>();
+    const keys = kind === "fit-selection" ? (fittedKeys ?? orderedSelectionKeys) : activeModelIndex.visibilityEligibleKeys;
+    const mask = kind === "fit-model" ? new Set<EntityKey>() : hiddenKeys;
+    return displayedBoundsForEntityKeys(activeModelIndex, keys, mask, radii);
+  }
+
+  function fitAuthoredBounds(resource: ViewportResource, authoredBounds: Bounds3 | null) {
     const localBounds = authoredBounds ? {
       min: authoredToLocal(authoredBounds.min, renderTransform.origin),
       max: authoredToLocal(authoredBounds.max, renderTransform.origin)
     } : null;
+    // On a standard view the person has not moved, the view's original fit; otherwise along the
+    // direction they look from.
+    const direction = fitDirection(cameraRuleRef.current);
+    if (direction.kind === "standard-view") fitViewportCamera(resource, direction.view, localBounds);
+    else fitViewportCameraAlong(resource, localBounds);
+  }
+
+  function fitDisplayedBounds(label: string, kind: FitCommandKind, authoredBounds: Bounds3 | null, fittedKeys?: readonly EntityKey[]) {
     const resource = viewportResourceRef.current;
     if (resource) {
-      fitViewportCamera(resource, viewPreset, localBounds);
+      fitAuthoredBounds(resource, authoredBounds);
+      const size = viewportCanvasSize(resource);
+      // A Fit Selection keeps the keys it framed: a hidden selected entity, outside the bounds now,
+      // stays outside the refit after it is shown again.
+      cameraRuleRef.current = fitApplied(cameraRuleRef.current, kind, size.width, size.height, kind === "fit-selection" ? fittedKeys : undefined);
       resource.invalidate();
     }
     setViewCommandStatus(resource
@@ -2431,16 +2615,23 @@ export function PipeViewport({
     if (command.type === "set-measurement") {
       if (command.active) onViewportInteractionStart("measurement");
       setMeasurementActive(command.active);
+      setMeasureRefusal(null);
       if (command.active) cancelBoxSelection();
       setViewCommandStatus(`Measurement ${command.active ? "enabled" : "disabled"}.`);
       return;
     }
     if (command.type === "apply-measurement-target") {
+      // Whether Measure takes the pick depends only on what was picked.
+      const verdict = applyMeasurementTargetCommand(activeModelIndex, null, command.ref);
+      setPlacementMessage(verdict.message);
+      setViewCommandStatus(verdict.message);
+      setMeasureRefusal(verdict.accepted ? null : `a ${command.ref.type} cannot be measured`);
       setMeasurementSource((current) => {
-        const result = applyMeasurementTargetCommand(activeModelIndex, current, command.ref);
-        setPlacementMessage(result.message);
-        setViewCommandStatus(result.message);
-        return result.source;
+        if (verdict.accepted) return applyMeasurementTargetCommand(activeModelIndex, current, command.ref).source;
+        // A refused pick clears a finished measurement, which would otherwise stand as if it answered
+        // this pick; a first node still waiting for its second is kept.
+        const finished = current?.kind === "pipe" || (current?.kind === "nodes" && current.keys.length === 2);
+        return finished ? null : current;
       });
       return;
     }
@@ -2477,14 +2668,51 @@ export function PipeViewport({
       setViewCommandStatus("All eligible model geometry shown.");
       return;
     }
-    const radii = geometryMode === "actual-od" ? actualOd.radii : new Map<EntityKey, number>();
-    const keys = command.type === "fit-selection" ? orderedSelectionKeys : activeModelIndex.visibilityEligibleKeys;
-    const mask = command.type === "fit-model" ? new Set<EntityKey>() : hiddenKeys;
-    fitDisplayedBounds(
-      command.type === "fit-model" ? "Fit Model" : command.type === "fit-selection" ? "Fit Selection" : "Fit Visible",
-      displayedBoundsForEntityKeys(activeModelIndex, keys, mask, radii)
-    );
+    if (command.type === "fit-selection") {
+      // The command's own targets when it names them (a run sheet row), else the selection: the
+      // bounds and the remembered keys both come from what this fit frames.
+      const targets = command.targets ? command.targets.map((ref) => entityKey(ref)) : orderedSelectionKeys;
+      const plan = fitSelectionPlan(activeModelIndex, targets, hiddenKeys, geometryMode === "actual-od" ? actualOd.radii : new Map());
+      if (!plan) {
+        setViewCommandStatus("Fit Selection: nothing it names is drawn; the view is unchanged.");
+        return;
+      }
+      fitDisplayedBounds("Fit Selection", "fit-selection", plan.bounds, plan.keys);
+      return;
+    }
+    fitDisplayedBounds(command.type === "fit-model" ? "Fit Model" : "Fit Visible", command.type, fitCommandBounds(command.type));
   }
+
+  // A new canvas size fits again as the last fit did, unless the person has moved the camera since;
+  // then the camera is left as they left it and Fit stays one press away. A fit of a selection that
+  // is no longer drawn fits the model.
+  useLayoutEffect(() => {
+    refitForSizeRef.current = (width, height) => {
+      const resource = viewportResourceRef.current;
+      if (!resource) return;
+      const last = refitForCanvas(cameraRuleRef.current, width, height);
+      if (!last) return;
+      const view = cameraRuleRef.current.standardView;
+      if (last.kind === "standard-view" && view) fitViewportCamera(resource, view, renderTransform.localBounds);
+      else if (last.kind !== "standard-view") {
+        fitAuthoredBounds(resource, fitCommandBounds(last.kind, last.keys as readonly EntityKey[] | undefined) ?? fitCommandBounds("fit-model"));
+      }
+      cameraRuleRef.current = { ...cameraRuleRef.current, fitted: { ...last, width, height } };
+      resource.invalidate();
+    };
+  });
+
+  // The quiet status line over the canvas: only statements that apply now, never an empty row.
+  // Actual OD states itself only while it is asked for and not wholly drawn.
+  const actualOdStatusShown = geometryMode === "actual-od" && actualOd.status !== "available";
+  // Measure, while armed and short of its two points, says what it waits for.
+  const measurePrompt = measurementActive && measurementPoints.length < 2
+    ? `Measure: ${measureRefusal ? `${measureRefusal} · ` : ""}pick ${measurementPoints.length === 0 ? "a node or a pipe" : "a second node"} · press Measure again to end`
+    : null;
+  const isolatedCount = isolationActive ? isolationSelectionKeys?.size ?? 0 : 0;
+  const viewportStatusShown = Boolean(elementAxes) || hiddenCount > 0 || isolationActive || Boolean(measurePrompt) || selectedHiddenCount > 0 || actualOdStatusShown ||
+    viewportContextStatus !== "ready" || activeModelIndex.invalidGeometry.size > 0 || Boolean(renderTransformResolution.issue);
+
 
   const entityCommandEnvironment: EntityCommandEnvironment = {
     model,
@@ -2551,166 +2779,218 @@ export function PipeViewport({
       style={{ "--viewport-presentation-bottom-inset": `${presentationBottomInset}px` } as CSSProperties}
     >
       <div className="viewport-toolbar">
-        <div className="viewport-toolbar-controls" role="group" aria-label="Viewport controls">
-        <span>3D Centerline</span>
-        <details
-          className={`viewport-deformation-status ${deformation.state}`}
-          aria-label="Viewport deformation overlay status"
-          data-testid="viewport-deformation-status"
-        >
-          <summary>{deformation.state === "available" ? `Deformation · ${deflectionSummaryScale(deformation)}` : deformation.state === "blocked" ? "Deformation · blocked" : "Deformation · unavailable"}</summary>
-          <div><strong data-testid="viewport-deformation-summary">{deformation.maximum ? <>available; nodes={deformation.nodeCount}; max=<QuantityReadout quantity={{ ...deformation.maximum, dimension_id: "length" }} /></> : deformation.summary}</strong>
-          <small data-testid="viewport-deformation-boundary">{deformation.boundary}</small>{" "}
-          <small data-testid="viewport-rotation-summary">rotation: {rotation.maximum ? <>available; nodes={rotation.nodeCount}; drawn={rotation.drawnCount}; max |component|=<QuantityReadout quantity={{ ...rotation.maximum, dimension_id: "angle" }} /></> : rotation.summary}</small>{" "}
-          <small data-testid="viewport-rotation-boundary">{rotation.boundary}</small>
-          {result ? (
-            <DeflectedShapeControls
-              cases={overlayCases}
-              caseKey={deflectionCase?.key ?? null}
-              onCaseChange={(key) => { setDeflectionCaseKey(key); setDeflectionFactor(null); setDeflectionPhase(1); }}
-              deformation={fullDeformation}
-              onFactorChange={setDeflectionFactor}
-              ghost={undeformedGhost}
-              onGhostChange={setUndeformedGhost}
-              playing={deflectionPlaying}
-              onPlayingChange={(playing) => { setDeflectionPlaying(playing); if (!playing) setDeflectionPhase(1); }}
-              phase={drawnPhase}
-              onPhaseChange={(phase) => { setDeflectionPlaying(false); setDeflectionPhase(phase); }}
-              reducedMotion={reducedMotion}
-            />
-          ) : null}</div>
-        </details>
-        <div className="viewport-display-toggles" role="group" aria-label="Viewport display toggles">
-          <button
-            type="button"
-            data-testid="toggle-viewport-labels"
-            aria-pressed={showLabels}
-            className={showLabels ? "active" : ""}
-            onClick={() => setShowLabels((value) => !value)}
-            title="Show or hide entity labels"
-          >
-            Labels
-          </button>
-          <button
-            type="button"
-            data-testid="toggle-viewport-loads"
-            aria-pressed={showLoads}
-            className={showLoads ? "active" : ""}
-            onClick={() => setShowLoads((value) => !value)}
-            title="Show or hide load arrows"
-          >
-            Loads
-          </button>
-          <button
-            type="button"
-            data-testid="toggle-viewport-grid"
-            aria-pressed={showGrid}
-            className={showGrid ? "active" : ""}
-            onClick={() => setShowGrid((value) => !value)}
-            title="Show or hide the ground grid"
-          >
-            Grid
-          </button>
-          {result ? (
-            <>
-              <button
-                type="button"
-                data-testid="toggle-viewport-result-colour"
-                aria-pressed={resultColourOn}
-                className={resultColourOn ? "active" : ""}
-                onClick={() => setResultColourOn((value) => !value)}
-                title="Colour members by the magnitude of a result quantity for one case"
-              >
-                Result colour
-              </button>
-              <button
-                type="button"
-                data-testid="toggle-viewport-reactions"
-                aria-pressed={reactionsOn}
-                className={reactionsOn ? "active" : ""}
-                onClick={() => setReactionsOn((value) => !value)}
-                title="Show support reaction arrows for one case"
-              >
-                Reactions
-              </button>
-            </>
-          ) : null}
-        </div>
-        <div className="viewport-display-toggles viewport-element-axes-toggle" role="group" aria-label="Element axes">
-          {([null, "local", "global"] as const).map((frame) => (
-            <button
-              key={frame ?? "off"}
-              type="button"
-              data-testid={`viewport-element-axes-${frame ?? "off"}`}
-              aria-pressed={elementAxesFrame === frame}
-              className={elementAxesFrame === frame ? "active" : ""}
-              onClick={() => setElementAxesFrame(frame)}
-              title={frame === "local"
-                ? "Show each member's local axes: x from its From node to its To node, y from its y_reference, z = x × y"
-                : frame === "global" ? "Show the model's global X, Y and Z axes at each member" : "Hide the element axes"}
-            >{frame === "local" ? "Local axes" : frame === "global" ? "Global axes" : "No axes"}</button>
-          ))}
-        </div>
-        <div className="viewport-selection-tools" role="group" aria-label="Viewport selection tools">
-          <button
-            aria-pressed={boxSelectActive}
-            className={boxSelectActive ? "active" : ""}
-            data-testid="viewport-box-select"
-            onClick={() => dispatchViewportViewCommand({ type: "set-box-select", active: !boxSelectActive })}
-            type="button"
-          >Box Select</button>
-          <label><span className="visually-hidden">Selection filter</span>
-            <select
-              aria-label="Selection filter"
-              data-testid="viewport-selection-filter"
-              onChange={(event) => dispatchViewportViewCommand({ type: "set-selection-filter", filter: event.target.value as BoxSelectionFilter })}
-              value={boxSelectionFilter}
-            >
-              <option value="all">All</option><option value="pipes">Pipes</option><option value="nodes">Nodes</option>
-              <option value="supports">Supports</option><option value="components">Components</option>
-            </select>
-          </label>
-          <button onClick={() => dispatchViewportViewCommand({ type: "hide-selection" })} disabled={Boolean(visibilitySelectionReason)} title={visibilitySelectionReason ?? "Hide selected geometry (H). Hidden geometry is removed from canvas picking."} type="button">Hide</button>
-          <button aria-describedby="viewport-visibility-help" onClick={() => dispatchViewportViewCommand({ type: "isolate-selection" })} disabled={Boolean(visibilitySelectionReason)} title={visibilitySelectionReason ?? "Isolate selected geometry (I): dim other shown geometry to 20%. Dimmed geometry remains selectable; Hide wins."} type="button">Isolate</button>
-          <button onClick={() => dispatchViewportViewCommand({ type: "show-all" })} disabled={explicitHiddenKeys.size === 0 && !isolationActive} title={explicitHiddenKeys.size === 0 && !isolationActive ? "All eligible entities are already shown." : "Clear Hide and isolation; show every eligible entity at its normal opacity."} type="button">Show All</button>
-          <span className="visually-hidden" id="viewport-visibility-help">Isolate captures the selected geometry. Other shown geometry is dimmed to 20% and remains available to click, hover and box selection; nearer dimmed geometry can be picked before farther undimmed geometry. Selection does not change the snapshot. Hide takes precedence. Show All clears both. I and H apply while focus is in the viewport.</span>
-          <button data-testid="viewport-fit-model" onClick={() => dispatchViewportViewCommand({ type: "fit-model" })} type="button">Fit Model</button>
-          <button onClick={() => dispatchViewportViewCommand({ type: "fit-visible" })} type="button">Fit Visible</button>
-          <button data-testid="viewport-fit-selection" onClick={() => dispatchViewportViewCommand({ type: "fit-selection" })} disabled={!fitSelectionBounds} title={fitSelectionBounds ? "Fit currently visible selected geometry." : "No visible valid selected geometry can be fitted."} type="button">Fit Selection</button>
-        </div>
-        <div className="viewport-geometry-tools" role="group" aria-label="Viewport geometry">
-          <button aria-pressed={geometryMode === "schematic"} data-testid="viewport-geometry-schematic" onClick={() => dispatchViewportViewCommand({ type: "set-geometry-mode", mode: "schematic" })} type="button">Schematic</button>
-          <button aria-pressed={geometryMode === "actual-od"} data-testid="viewport-geometry-actual-od" onClick={() => dispatchViewportViewCommand({ type: "set-geometry-mode", mode: "actual-od" })} type="button">Actual OD</button>
-          <button aria-pressed={measurementActive} onClick={() => dispatchViewportViewCommand({ type: "set-measurement", active: !measurementActive })} type="button">Measure</button>
-        </div>
-        </div>
-        <div className="viewport-toolbar-status-strip" aria-label="Viewport status">
-          <span
-            className="viewport-toolbar-selection-status"
-            title={`Selected ${selection.type}: ${selection.id}`}
-          >Selected: {selection.id}</span>
-          {elementAxes ? <ElementAxesStatus view={elementAxes} selection={selection} /> : null}
-          {hiddenCount > 0 ? <button type="button" className="viewport-hidden-count" data-testid="viewport-hidden-count" onClick={() => dispatchViewportViewCommand({ type: "show-all" })} title="Clear Hide and isolation">{hiddenCount} hidden · Show all</button> : null}
-          {selectedHiddenCount > 0 ? <span role="status" title={`${selectedHiddenCount} selected item${selectedHiddenCount === 1 ? " is" : "s are"} hidden`}>{selectedHiddenCount} selected item{selectedHiddenCount === 1 ? " is" : "s are"} hidden</span> : null}
-          <span role="status" data-testid="viewport-od-status" title={geometryMode === "actual-od" ? actualOd.reason : "Schematic centerline geometry"}>{geometryMode === "actual-od" ? actualOd.reason : "Schematic centerline geometry"}</span>
-          <span role="status" aria-label="View command status" data-testid="viewport-view-command-status" title={viewCommandStatus}>{viewCommandStatus}</span>
-          {viewportContextStatus !== "ready" ? (
-            <span role="status" data-testid="viewport-context-status" title={viewportContextStatus === "lost" ? "3D context lost; rendering paused." : "Restoring 3D resources…"}>
-              {viewportContextStatus === "lost" ? "3D context lost; rendering paused." : "Restoring 3D resources…"}
-            </span>
-          ) : null}
-          {activeModelIndex.invalidGeometry.size > 0 ? (
-            <span role="status" data-testid="viewport-invalid-geometry" title={`${activeModelIndex.invalidGeometry.size} item${activeModelIndex.invalidGeometry.size === 1 ? "" : "s"} excluded: ${activeModelIndex.invalidGeometry.values().next().value}`}>
-              {activeModelIndex.invalidGeometry.size} item{activeModelIndex.invalidGeometry.size === 1 ? "" : "s"} excluded: {activeModelIndex.invalidGeometry.values().next().value}
-            </span>
-          ) : null}
-          {renderTransformResolution.issue ? (
-            <span role="status" data-testid="viewport-render-transform-status" title={`Viewport geometry excluded: ${renderTransformResolution.issue}`}>
-              Viewport geometry excluded: {renderTransformResolution.issue}
-            </span>
-          ) : null}
-        </div>
+        <ViewportOverflowBar
+          watchSize={sizeWatch.watch}
+          label="Viewport controls"
+          groups={[
+            {
+              key: "display",
+              heading: "Display",
+              label: "Viewport display toggles",
+              onCount: [showLabels, showLoads, showGrid, Boolean(result) && resultColourOn, Boolean(result) && reactionsOn].filter(Boolean).length,
+              signature: result ? "result" : "model",
+              content: (
+                <>
+                  <button
+                    type="button"
+                    data-testid="toggle-viewport-labels"
+                    aria-pressed={showLabels}
+                    className={showLabels ? "active" : ""}
+                    onClick={() => setShowLabels((value) => !value)}
+                    title="Show or hide entity labels. Where labels would collide, some are not drawn; select an entity to see its label."
+                  >
+                    Labels<span data-testid="viewport-labels-count" ref={labelsCountRef}>{labelsCountTextRef.current}</span>
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="toggle-viewport-loads"
+                    aria-pressed={showLoads}
+                    className={showLoads ? "active" : ""}
+                    onClick={() => setShowLoads((value) => !value)}
+                    title="Show or hide load arrows"
+                  >
+                    Loads
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="toggle-viewport-grid"
+                    aria-pressed={showGrid}
+                    className={showGrid ? "active" : ""}
+                    onClick={() => setShowGrid((value) => !value)}
+                    title="Show or hide the ground grid"
+                  >
+                    Grid
+                  </button>
+                  {result ? (
+                    <>
+                      <button
+                        type="button"
+                        data-testid="toggle-viewport-result-colour"
+                        aria-pressed={resultColourOn}
+                        className={resultColourOn ? "active" : ""}
+                        onClick={() => setResultColourOn((value) => !value)}
+                        title="Colour members by the magnitude of a result quantity for one case"
+                      >
+                        Result colour
+                      </button>
+                      <button
+                        type="button"
+                        data-testid="toggle-viewport-reactions"
+                        aria-pressed={reactionsOn}
+                        className={reactionsOn ? "active" : ""}
+                        onClick={() => setReactionsOn((value) => !value)}
+                        title="Show support reaction arrows for one case"
+                      >
+                        Reactions
+                      </button>
+                    </>
+                  ) : null}
+                </>
+              )
+            },
+            ...(result ? [{
+              key: "deformation",
+              heading: "Deformation",
+              label: "Deformation",
+              onCount: (deflectionPlaying ? 1 : 0) + (undeformedGhost ? 1 : 0),
+              signature: `${deformation.state}:${deformation.state === "available" ? deflectionSummaryScale(deformation) : ""}`,
+              content: (
+                <details
+                  className={`viewport-deformation-status ${deformation.state}`}
+                  aria-label="Viewport deformation overlay status"
+                  data-testid="viewport-deformation-status"
+                >
+                  <summary>{deformation.state === "available" ? `Deformation · ${deflectionSummaryScale(deformation)}` : deformation.state === "blocked" ? "Deformation · blocked" : "Deformation · unavailable"}</summary>
+                  <div><strong data-testid="viewport-deformation-summary">{deformation.maximum ? <>available; nodes={deformation.nodeCount}; max=<QuantityReadout quantity={{ ...deformation.maximum, dimension_id: "length" }} /></> : deformation.summary}</strong>
+                  <small data-testid="viewport-deformation-boundary">{deformation.boundary}</small>{" "}
+                  <small data-testid="viewport-rotation-summary">rotation: {rotation.maximum ? <>available; nodes={rotation.nodeCount}; drawn={rotation.drawnCount}; max |component|=<QuantityReadout quantity={{ ...rotation.maximum, dimension_id: "angle" }} /></> : rotation.summary}</small>{" "}
+                  <small data-testid="viewport-rotation-boundary">{rotation.boundary}</small>
+                  <DeflectedShapeControls
+                    cases={overlayCases}
+                    caseKey={deflectionCase?.key ?? null}
+                    onCaseChange={(key) => { setDeflectionCaseKey(key); setDeflectionFactor(null); setDeflectionPhase(1); }}
+                    deformation={fullDeformation}
+                    onFactorChange={setDeflectionFactor}
+                    ghost={undeformedGhost}
+                    onGhostChange={setUndeformedGhost}
+                    playing={deflectionPlaying}
+                    onPlayingChange={(playing) => { setDeflectionPlaying(playing); if (!playing) setDeflectionPhase(1); }}
+                    phase={drawnPhase}
+                    onPhaseChange={(phase) => { setDeflectionPlaying(false); setDeflectionPhase(phase); }}
+                    reducedMotion={reducedMotion}
+                  /></div>
+                </details>
+              )
+            }] : []),
+            {
+              key: "select",
+              heading: "Select",
+              label: "Viewport selection tools",
+              onCount: (boxSelectActive ? 1 : 0) + (boxSelectionFilter !== "all" ? 1 : 0),
+              signature: "select",
+              content: (
+                <>
+                  <button
+                    aria-pressed={boxSelectActive}
+                    className={boxSelectActive ? "active" : ""}
+                    data-testid="viewport-box-select"
+                    onClick={() => dispatchViewportViewCommand({ type: "set-box-select", active: !boxSelectActive })}
+                    title="Drag a box on the canvas to select what it encloses"
+                    type="button"
+                  >Box Select</button>
+                  <label><span className="visually-hidden">Selection filter</span>
+                    <select
+                      aria-label="Selection filter"
+                      data-testid="viewport-selection-filter"
+                      onChange={(event) => dispatchViewportViewCommand({ type: "set-selection-filter", filter: event.target.value as BoxSelectionFilter })}
+                      title="What a box selection picks"
+                      value={boxSelectionFilter}
+                    >
+                      <option value="all">All</option><option value="pipes">Pipes</option><option value="nodes">Nodes</option>
+                      <option value="supports">Supports</option><option value="components">Components</option>
+                    </select>
+                  </label>
+                </>
+              )
+            },
+            {
+              key: "geometry",
+              heading: "Geometry",
+              label: "Viewport geometry",
+              onCount: geometryMode === "actual-od" ? 1 : 0,
+              signature: "geometry",
+              content: (
+                <>
+                  <button aria-pressed={geometryMode === "schematic"} data-testid="viewport-geometry-schematic" onClick={() => dispatchViewportViewCommand({ type: "set-geometry-mode", mode: "schematic" })} title="Draw each pipe as its centreline" type="button">Schematic</button>
+                  <button aria-pressed={geometryMode === "actual-od"} data-testid="viewport-geometry-actual-od" onClick={() => dispatchViewportViewCommand({ type: "set-geometry-mode", mode: "actual-od" })} title="Draw each straight pipe at its entered outside diameter" type="button">Actual OD</button>
+                </>
+              )
+            },
+            {
+              key: "visibility",
+              heading: "Visibility",
+              label: "Viewport visibility",
+              onCount: 0,
+              signature: "visibility",
+              content: (
+                <>
+                  <button onClick={() => dispatchViewportViewCommand({ type: "hide-selection" })} disabled={Boolean(visibilitySelectionReason)} title={visibilitySelectionReason ?? "Hide selected geometry (H). Hidden geometry is removed from canvas picking."} type="button">Hide</button>
+                  <button aria-describedby="viewport-visibility-help" onClick={() => dispatchViewportViewCommand({ type: "isolate-selection" })} disabled={Boolean(visibilitySelectionReason)} title={visibilitySelectionReason ?? "Isolate selected geometry (I): dim other shown geometry to 20%. Dimmed geometry remains selectable; Hide wins."} type="button">Isolate</button>
+                  <button onClick={() => dispatchViewportViewCommand({ type: "show-all" })} disabled={explicitHiddenKeys.size === 0 && !isolationActive} title={explicitHiddenKeys.size === 0 && !isolationActive ? "All eligible entities are already shown." : "Clear Hide and isolation; show every eligible entity at its normal opacity."} type="button">Show all</button>
+                  <span className="visually-hidden" id="viewport-visibility-help">Isolate captures the selected geometry. Other shown geometry is dimmed to 20% and remains available to click, hover and box selection; nearer dimmed geometry can be picked before farther undimmed geometry. Selection does not change the snapshot. Hide takes precedence. Show all clears both. I and H apply while focus is in the viewport.</span>
+                </>
+              )
+            },
+            {
+              key: "axes",
+              heading: "Element axes",
+              label: "Element axes",
+              onCount: elementAxesFrame ? 1 : 0,
+              signature: "axes",
+              content: (
+                <label className="viewport-element-axes-toggle"><span className="visually-hidden">Element axes</span>
+                  <select
+                    aria-label="Element axes"
+                    data-testid="viewport-element-axes"
+                    onChange={(event) => setElementAxesFrame(event.target.value === "local" ? "local" : event.target.value === "global" ? "global" : null)}
+                    title={elementAxesFrame === "local"
+                      ? "Each member's local axes: x from its From node to its To node, y from its y_reference, z = x × y"
+                      : elementAxesFrame === "global" ? "The model's global X, Y and Z axes at each member" : "Element axes are hidden"}
+                    value={elementAxesFrame ?? "off"}
+                  >
+                    <option data-testid="viewport-element-axes-off" value="off">No axes</option>
+                    <option data-testid="viewport-element-axes-local" value="local">Local axes</option>
+                    <option data-testid="viewport-element-axes-global" value="global">Global axes</option>
+                  </select>
+                </label>
+              )
+            },
+            {
+              key: "measure",
+              heading: "Measure",
+              label: "Measurement",
+              onCount: measurementActive ? 1 : 0,
+              signature: "measure",
+              content: (
+                <button aria-pressed={measurementActive} onClick={() => dispatchViewportViewCommand({ type: "set-measurement", active: !measurementActive })} title="Measure between two authored nodes, or along one pipe" type="button">Measure</button>
+              )
+            }
+          ]}
+          menuGroups={[
+            {
+              key: "fit",
+              heading: "Fit",
+              label: "Fit",
+              onCount: 0,
+              signature: "fit",
+              content: (
+                <button data-testid="viewport-fit-visible" onClick={() => dispatchViewportViewCommand({ type: "fit-visible" })} title="Fit the geometry that is not hidden" type="button">Fit Visible</button>
+              )
+            }
+          ]}
+        />
       </div>
+      <span className="visually-hidden" role="status" aria-label="View command status" data-testid="viewport-view-command-status">{viewCommandStatus}</span>
       <div className={`viewport-frame${boxSelectActive ? " box-select-active" : ""}`}>
         <div
           className="viewport-canvas"
@@ -2734,6 +3014,62 @@ export function PipeViewport({
           aria-label="Three.js pipe centerline viewport"
           title={webglAvailable === false ? pointerCaptureReason : "Click a part to select it; drag to orbit, scroll to zoom"}
         />
+        {/* Before the labels, so that Tab reaches Fit and the standard views first (reading order).
+            The canvas furniture keeps to its own places so that none covers another: the view
+            cluster with the result legend under it down the right; the status line and the
+            deformation factor along the foot, between the axis triad and the right edge. */}
+        <div className="viewport-canvas-right" data-testid="viewport-canvas-right">
+          <div className="viewport-view-cube" role="group" aria-label="View controls" data-testid="viewport-view-cube" title="Drag to orbit · scroll to zoom · right-drag to pan">
+            {/* Fit Model is always here; Fit Selection stands beside it while a selection is shown. */}
+            <span className="viewport-fit-commands">
+              {fitSelectionBounds ? (
+                <button type="button" className="viewport-fit" data-testid="viewport-fit-selection" onClick={() => dispatchViewportViewCommand({ type: "fit-selection" })} title="Fit the shown selection in the view">Fit Selection</button>
+              ) : null}
+              <button type="button" className="viewport-fit" data-testid="viewport-fit-model" onClick={() => dispatchViewportViewCommand({ type: "fit-model" })} title="Fit the whole model in the view">Fit Model</button>
+            </span>
+            <span className="viewport-view-presets">
+              <button type="button" data-testid="viewport-view-front" aria-pressed={viewPreset === "front"} onClick={() => pressStandardView("front")} title="Look along −Z at the X–Y plane">Front</button>
+              <button type="button" data-testid="viewport-view-top" aria-pressed={viewPreset === "top"} onClick={() => pressStandardView("top")} title="Look down −Y at the X–Z plane">Top</button>
+              <button type="button" data-testid="viewport-view-side" aria-pressed={viewPreset === "side"} onClick={() => pressStandardView("side")} title="Look along −X at the Z–Y plane">Side</button>
+              <button type="button" data-testid="viewport-view-isometric" aria-pressed={viewPreset === "iso"} onClick={() => pressStandardView("iso")} title="Isometric view">Isometric</button>
+            </span>
+          </div>
+          {result && (colourOverlay || reactionOverlay) ? (
+            <ResultOverlayLegend
+              result={sessionResult}
+              cases={overlayCases}
+              overlayCase={overlayCase}
+              onCaseChange={setOverlayCaseKey}
+              quantities={overlayQuantities}
+              quantity={overlayQuantity}
+              onQuantityChange={setOverlayQuantityId}
+              colour={colourOverlay}
+              reactions={reactionOverlay}
+              standing={resultStanding}
+              focus={overlayFocus(hoveredEntityKey, selection)}
+              contour={colourOverlay ? {
+                resolution: overlayResolution,
+                onResolutionChange: setOverlayResolution,
+                display: overlayDisplay,
+                onDisplayChange: setOverlayDisplay,
+                thresholdOn: overlayThresholdOn,
+                onThresholdOnChange: setOverlayThresholdOn,
+                thresholdText: overlayThresholdText,
+                onThresholdTextChange: setOverlayThresholdText,
+                threshold: overlayThreshold,
+                numbers: contourValues && contourValueAnchors ? { selected: contourValueAnchors.length, candidates: contourValues.candidateCount } : null
+              } : null}
+            />
+          ) : null}
+        </div>
+        {colourOverlay?.state === "available" && colourOverlay.quantity && contourValueAnchors ? (
+          <ResultValueLabels
+            anchors={contourValueAnchors}
+            unit={colourOverlay.unit ?? ""}
+            dimension={colourOverlay.quantity.dimension}
+            resourceRef={viewportResourceRef}
+          />
+        ) : null}
         {showLabels ? (
           <div
             className="viewport-selection-layer"
@@ -2747,7 +3083,7 @@ export function PipeViewport({
                 <button
                   aria-label={`Select ${target.label} in viewport`}
                   aria-pressed={active}
-                  className={`viewport-select-target ${target.kind} ${active ? "active" : ""}`}
+                  className={`viewport-select-target ${target.kind} ${active ? "active" : ""}${hoveredEntityKey === entityKey(target.ref) ? " hovered" : ""}`}
                   data-entity-key={entityKey(target.ref)}
                   data-dimmed={dimmedKeys.has(entityKey(target.ref))}
                   data-testid={`viewport-select-${target.ref.id}`}
@@ -2776,7 +3112,6 @@ export function PipeViewport({
                   title={`${target.label} (${target.ref.id})${dimmedKeys.has(entityKey(target.ref)) ? " — dimmed by isolation; still selectable" : ""}`}
                   type="button"
                 >
-                  <ViewportTargetIcon kind={target.kind} />
                   <span>{shortEntityToken(target.ref.id)}</span>
                 </button>
               );
@@ -2798,59 +3133,46 @@ export function PipeViewport({
         <div className="viewport-axis-triad" aria-label="Orientation gizmo showing X, Y, Z axes" data-testid="viewport-axis-triad" role="img">
           <div className="viewport-gizmo-host" ref={gizmoHostRef} aria-hidden="true" />
         </div>
-        <div className="viewport-view-cube" aria-label="View controls" data-testid="viewport-view-cube">
-          <button type="button" aria-pressed={viewPreset === "front"} onClick={() => setViewPreset("front")}>
-            Front
-          </button>
-          <button type="button" aria-pressed={viewPreset === "top"} onClick={() => setViewPreset("top")}>
-            Top
-          </button>
-          <button type="button" data-testid="viewport-view-isometric" aria-pressed={viewPreset === "iso"} onClick={() => setViewPreset("iso")}>
-            Isometric
-          </button>
-        </div>
-        {result && (colourOverlay || reactionOverlay) ? (
-          <ResultOverlayLegend
-            result={sessionResult}
-            cases={overlayCases}
-            overlayCase={overlayCase}
-            onCaseChange={setOverlayCaseKey}
-            quantities={overlayQuantities}
-            quantity={overlayQuantity}
-            onQuantityChange={setOverlayQuantityId}
-            colour={colourOverlay}
-            reactions={reactionOverlay}
-            standing={resultStanding}
-            focus={overlayFocus(hoveredEntityKey, selection)}
-            contour={colourOverlay ? {
-              resolution: overlayResolution,
-              onResolutionChange: setOverlayResolution,
-              display: overlayDisplay,
-              onDisplayChange: setOverlayDisplay,
-              thresholdOn: overlayThresholdOn,
-              onThresholdOnChange: setOverlayThresholdOn,
-              thresholdText: overlayThresholdText,
-              onThresholdTextChange: setOverlayThresholdText,
-              threshold: overlayThreshold,
-              numbers: contourValues && contourValueAnchors ? { selected: contourValueAnchors.length, candidates: contourValues.candidateCount } : null
-            } : null}
-          />
-        ) : null}
-        {colourOverlay?.state === "available" && colourOverlay.quantity && contourValueAnchors ? (
-          <ResultValueLabels
-            anchors={contourValueAnchors}
-            unit={colourOverlay.unit ?? ""}
-            dimension={colourOverlay.quantity.dimension}
-            resourceRef={viewportResourceRef}
-          />
-        ) : null}
-        {deformation.state === "available" ? (
-          <div className="viewport-deflection-label" data-testid="viewport-deflection-label">
-            {deflectionLabel(deformation, deflectionCase?.label ?? null)}
+        <div className="viewport-canvas-foot">
+          {viewportStatusShown ? (
+            <div className="viewport-status-line" aria-label="Viewport status" data-testid="viewport-status-line">
+              {elementAxes ? <ElementAxesStatus view={elementAxes} selection={selection} /> : null}
+              {measurePrompt ? <span role="status" data-testid="viewport-measure-prompt">{measurePrompt}</span> : null}
+              {hiddenCount > 0 || isolationActive ? (
+                <button
+                  type="button"
+                  className="viewport-hidden-count"
+                  data-testid={hiddenCount > 0 ? "viewport-hidden-count" : "viewport-isolated-count"}
+                  onClick={() => dispatchViewportViewCommand({ type: "show-all" })}
+                  title="Clear Hide and isolation"
+                >{[hiddenCount > 0 ? `${hiddenCount} hidden` : null, isolationActive ? `${isolatedCount} isolated` : null, "Show all"].filter(Boolean).join(" · ")}</button>
+              ) : null}
+              {selectedHiddenCount > 0 ? <span role="status" title={`${selectedHiddenCount} selected item${selectedHiddenCount === 1 ? " is" : "s are"} hidden`}>{selectedHiddenCount} selected item{selectedHiddenCount === 1 ? " is" : "s are"} hidden</span> : null}
+              {actualOdStatusShown ? <span role="status" data-testid="viewport-od-status" title={actualOd.reason}>{actualOd.reason}</span> : null}
+              {viewportContextStatus !== "ready" ? (
+                <span role="status" data-testid="viewport-context-status" title={viewportContextStatus === "lost" ? "3D context lost; rendering paused." : "Restoring 3D resources…"}>
+                  {viewportContextStatus === "lost" ? "3D context lost; rendering paused." : "Restoring 3D resources…"}
+                </span>
+              ) : null}
+              {activeModelIndex.invalidGeometry.size > 0 ? (
+                <span role="status" data-testid="viewport-invalid-geometry" title={`${activeModelIndex.invalidGeometry.size} item${activeModelIndex.invalidGeometry.size === 1 ? "" : "s"} excluded: ${activeModelIndex.invalidGeometry.values().next().value}`}>
+                  {activeModelIndex.invalidGeometry.size} item{activeModelIndex.invalidGeometry.size === 1 ? "" : "s"} excluded: {activeModelIndex.invalidGeometry.values().next().value}
+                </span>
+              ) : null}
+              {renderTransformResolution.issue ? (
+                <span role="status" data-testid="viewport-render-transform-status" title={`Viewport geometry excluded: ${renderTransformResolution.issue}`}>
+                  Viewport geometry excluded: {renderTransformResolution.issue}
+                </span>
+              ) : null}
+            </div>
+          ) : null}
+          <div className="viewport-canvas-foot-end">
+            {deformation.state === "available" ? (
+              <div className="viewport-deflection-label" data-testid="viewport-deflection-label">
+                {deflectionLabel(deformation, deflectionCase?.label ?? null)}
+              </div>
+            ) : null}
           </div>
-        ) : null}
-        <div className="viewport-scale-bar" data-testid="viewport-scale-bar">
-          <QuantityReadout quantity={{ value: 1, unit: defaultLengthUnit, dimension_id: "length" }} />
         </div>
       </div>
       <section className="command-bar" aria-label="Command and selection bar" data-testid="command-bar">
@@ -2916,27 +3238,12 @@ export function PipeViewport({
             Load
           </button>
         </div>
-        <span className="command-active-tool" data-testid="armed-creation-tool" title={creationToolStatusLabel(armedCreationTool)}>
+        <span className="visually-hidden" role="status" data-testid="armed-creation-tool" title={creationToolStatusLabel(armedCreationTool)}>
           {armedCreationTool ? `${armedCreationTool.charAt(0).toUpperCase()}${armedCreationTool.slice(1)} tool armed` : "Select"}
         </span>
-        <details className="command-context"><summary>Selection &amp; navigation</summary><div className="command-context-content">
-        <button
-          type="button"
-          className="command-preview-button"
-          data-testid="queue-armed-creation-intent"
-          disabled={draftReviewBusy || !viewportCommandTypeForCreationTool(armedCreationTool)}
-          onClick={queueArmedPreviewIntent}
-          title="Queue a review-only preview intent for the armed viewport tool"
-        >
-          Queue preview
-        </button>
-        <span aria-label="Selection summary" role="status" data-testid="command-selection-readout">
+        <span className="visually-hidden" aria-label="Selection summary" role="status" data-testid="command-selection-readout">
           Selected {selection.type}: {selection.id}; {visibleIntents.length} queued
         </span>
-        <span className="command-hint" data-testid="viewport-orbit-hint">
-          Drag to orbit · scroll to zoom · right-drag to pan
-        </span>
-        </div></details>
       </section>
       {measurementPoints.length > 0 || measurementReadout.status === "unavailable" ? (
         <div className="viewport-measurement-strip" role="status" data-testid="viewport-measurement-readout">
@@ -2958,6 +3265,18 @@ export function PipeViewport({
           data-testid="viewport-editor-intents"
         >
         <h3 className="viewport-tool-heading">{nodeToolActive ? "Create node" : pipeToolActive ? "Create pipe" : componentToolActive ? "Insert component" : "Pending changes"}</h3>
+        {viewportCommandTypeForCreationTool(armedCreationTool) ? (
+          <button
+            type="button"
+            className="command-preview-button"
+            data-testid="queue-armed-creation-intent"
+            disabled={draftReviewBusy}
+            onClick={queueArmedPreviewIntent}
+            title="Queue a review-only preview intent for the armed viewport tool"
+          >
+            Queue preview
+          </button>
+        ) : null}
         <fieldset className="viewport-intent-controls" disabled={draftReviewBusy} data-testid="viewport-draft-flight-controls">
           <div className={`viewport-node-form${nodeToolActive ? " active" : ""}`} aria-label="Explicit node geometry">
             <label>
@@ -3537,33 +3856,33 @@ function creationToolStatusLabel(tool: CreationTool | null): string {
   return "Model focus";
 }
 
+/** The drawing surface's CSS size, as the renderer was last sized; none when it cannot say. */
+function viewportCanvasSize(resource: ViewportResource): { width: number; height: number } {
+  const renderer = resource.renderer as Partial<Pick<THREE.WebGLRenderer, "getSize">>;
+  if (typeof renderer.getSize !== "function") return { width: 0, height: 0 };
+  const size = renderer.getSize(new THREE.Vector2());
+  return { width: size.x, height: size.y };
+}
+
 function fitViewportCamera(resource: ViewportResource, preset: ViewPreset, bounds: Bounds3 | null) {
   // Programmatic camera commands establish a new pose; retained user-input
   // damping must not be applied on top of it.
   resource.cancelNavigation();
-  const center = bounds
-    ? {
-        x: bounds.min.x / 2 + bounds.max.x / 2,
-        y: bounds.min.y / 2 + bounds.max.y / 2,
-        z: bounds.min.z / 2 + bounds.max.z / 2
-      }
-    : { x: 0, y: 0, z: 0 };
-  const extent = bounds
-    ? Math.max(bounds.max.x - bounds.min.x, bounds.max.y - bounds.min.y, bounds.max.z - bounds.min.z, 1)
-    : 4;
-  const distance = fittedViewportDistance(bounds, preset, resource.camera.fov, resource.camera.aspect);
-  if (preset === "front") {
-    resource.camera.position.set(center.x, center.y, center.z + distance);
-  } else if (preset === "top") {
-    resource.camera.position.set(center.x, center.y + distance, center.z);
-  } else {
-    const diagonal = distance / Math.sqrt(3);
-    resource.camera.position.set(center.x + diagonal, center.y + diagonal, center.z + diagonal);
-  }
-  resource.controls.target.set(center.x, center.y, center.z);
-  resource.camera.near = Math.max(0.001, distance / 100_000);
-  resource.camera.far = Math.max(1_000, distance + extent * 8);
-  resource.camera.lookAt(center.x, center.y, center.z);
+  applyCameraPose(resource, standardViewPose(preset, bounds, resource.camera.fov, resource.camera.aspect));
+}
+
+/** Fit along the direction the camera looks from now: the person's direction kept, reframed. */
+function fitViewportCameraAlong(resource: ViewportResource, bounds: Bounds3 | null) {
+  resource.cancelNavigation();
+  applyCameraPose(resource, alongViewPose(resource.camera.quaternion.clone(), bounds, resource.camera.fov, resource.camera.aspect));
+}
+
+function applyCameraPose(resource: ViewportResource, pose: CameraPose) {
+  resource.camera.position.set(pose.position.x, pose.position.y, pose.position.z);
+  resource.controls.target.set(pose.target.x, pose.target.y, pose.target.z);
+  resource.camera.near = pose.near;
+  resource.camera.far = pose.far;
+  resource.camera.lookAt(pose.target.x, pose.target.y, pose.target.z);
   resource.camera.updateProjectionMatrix();
   resource.markCameraProjectionChanged();
 }
@@ -3820,12 +4139,6 @@ function eventPositionFraction(
   };
 }
 
-function ViewportTargetIcon({ kind }: { kind: ViewportSelectionTarget["kind"] }) {
-  if (kind === "node") return <CircleDot size={13} aria-hidden="true" />;
-  if (kind === "pipe") return <GitBranch size={13} aria-hidden="true" />;
-  return <Box size={13} aria-hidden="true" />;
-}
-
 function viewportSelectionTargets(index: ModelIndex, keys: readonly EntityKey[]): ViewportSelectionTarget[] {
   const rawTargets = keys.flatMap((key) => {
     const entity = index.entities.get(key);
@@ -3844,6 +4157,10 @@ function viewportSelectionTargets(index: ModelIndex, keys: readonly EntityKey[])
     ...target,
     screen: projectToViewport(position, bounds, offsetY)
   }));
+}
+
+function isLabelKind(type: string): type is LabelKind {
+  return type === "node" || type === "pipe" || type === "support" || type === "component";
 }
 
 function selectionContainsKey(keys: ReadonlySet<EntityKey>, ref: EntityRef): boolean {

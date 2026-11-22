@@ -57,6 +57,10 @@ describe("the viewport context menu", () => {
     const { model } = await loadBundledMechanicsReference();
     const pipe = model.pipe_segments[0];
     const { onSelect, onHiddenKeysChange, onIsolationSelectionChange } = mount(model, { type: "pipe", id: pipe.id });
+    // At rest the view command status says nothing; it speaks only of a command it ran.
+    const status = screen.getByTestId("viewport-view-command-status");
+    expect(status).toHaveAttribute("role", "status");
+    expect(status).toBeEmptyDOMElement();
     fireEvent.click(screen.getByRole("button", { name: "Hide" }));
     fireEvent.click(screen.getByRole("button", { name: "Isolate" }));
     const toolbarHidden = onHiddenKeysChange.mock.calls[0][0];
