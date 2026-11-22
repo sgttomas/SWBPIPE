@@ -133,8 +133,8 @@ export function NativeResultsPanel({
   viewRequest = null,
   model = null,
   exportAnalysisRun = null,
-  recordedTableRead = null,
-  runIdentityKey = null
+  runIdentityKey = null,
+  recordedTableRead = null
 }: {
   result: NativeResult;
   /** RT-A4 §10.4: a reopened run recorded before RT-A4 names the registry table it was read under

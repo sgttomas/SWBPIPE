@@ -40,7 +40,7 @@
     "source": "features/workspace/workspaceSession.ts: from `if (output.model_ref !== solveModel.project.id) {` to the end of its block, holding `SOLVE-RESULT-MODEL-MISMATCH`"
   },
   "the panel's first page and the empty-page re-read": {
-    "sha256": "d5c2790dc566b2260a68c5c8ccabc3fbbc12537f5e8105d8cb2000060570d8cd",
+    "sha256": "1491422aba921413308ef834034f25513aa94d5ece6df378d53f51966c19a7eb",
     "source": "features/results/NativeResultsPanel.tsx: from `let read = await queryNativeRows(result, filter, pageIndex * pageSize, pageSize);` through the line holding `const outcomes = read.rows.length ? await semanticsOf(`, holding `if (read.rows.length === 0 && read.total > 0) {`; with features/results/NativeResultsPanel.tsx: from `const [filterText, setFilterText] = useState(\"\");` through the line holding `}), [filterText, familyFilter, activeFrame, activeCase, kindFilter, selectionOnly, selectionEntityId]);`; with services/nativeResult.ts: `queryNativeRows`; with services/resultDetail.ts: `panelDetailFilter`; with features/results/ResultsPanel.tsx: `ALL_FRAMES`; with features/results/resultsNavigator.ts: `ALL_CASES`"
   },
   "the semantics' recorded-table agreement": {
