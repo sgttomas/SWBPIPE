@@ -16,6 +16,7 @@ import type {
   SelectedReviewTarget
 } from "../../types";
 import { modelDocumentVersionCheckStatus } from "../../services/projectService";
+import { designKnowledgeDiagnostics, designKnowledgeRecords } from "../../services/designKnowledge";
 import { MBF_EXPORT_ROUTE_ID, MBF_PROFILE_LABEL, MBF_PROFILE_OPEN_ITEMS } from "../caepipe-mbf/mbfExport";
 
 const HEADLESS_FINAL_CLI =
@@ -208,7 +209,7 @@ function buildExportReviewManifest({
   storageCapability: LocalStorageCapability | null;
 }) {
   const run = analysisRun?.analysis_run;
-  const diagnostics = [...model.diagnostics, ...(knowledge?.diagnostics ?? []), ...(result?.diagnostics ?? [])];
+  const diagnostics = [...model.diagnostics, ...designKnowledgeDiagnostics(knowledge, model), ...(result?.diagnostics ?? [])];
   const operationRecordCount = editorIntents.length + (proposal ? 1 : 0);
   const storageAuditReady = true;
   const validationPreflightReady = true;
@@ -613,7 +614,7 @@ function buildExportReviewManifest({
         "tests/test_design_authoring_comparison_workspace.py",
         "apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx"
       ],
-      current_design_knowledge_record_count: knowledge?.records.length ?? 0,
+      current_design_knowledge_record_count: designKnowledgeRecords(knowledge, model).length,
       current_model_state_count: run ? 1 : 0,
       current_analysis_run_count: run ? 1 : 0,
       current_result_row_count: (result ? resultRowCount(result) : 0),
