@@ -100,6 +100,24 @@ def user_text(item):
     return "".join(part.get("text", "") for part in content or [] if isinstance(part, dict))
 
 
+def fixture_blank_project_id():
+    """The project id of the fixture's blank document, which its Project-targeted operations name."""
+    return json.loads(FIXTURE.read_text())["blank"]["model"]["project"]["id"]
+
+
+def bound_operations(operations, project_id):
+    """The fixture's operations bound to a live blank: each operation targeting the fixture blank's Project
+    targets `project_id` instead (a new blank's id is formed from the time it is created). Nothing else changes."""
+    blank = fixture_blank_project_id()
+    bound = []
+    for op in operations:
+        target = op.get("target") or {}
+        if target.get("object_type") == "Project" and target.get("ref") == blank:
+            op = {**op, "target": {**target, "ref": project_id}}
+        bound.append(op)
+    return bound
+
+
 class Script:
     """Replays W9-A from the actual tool outcomes; every call it makes is derived
     from what the product returned, and anything unexpected ends the turn."""
@@ -154,11 +172,16 @@ class Script:
             if summary.get("status") != "ok":
                 return self.fail("summary not ok")
             basis = summary["basis"]
+            project_id = (summary.get("data") or {}).get("projectId")
+            if not isinstance(project_id, str) or not project_id:
+                return self.fail("summary has no projectId")
+            # The Project setting targets the live blank, whose id the summary gives.
+            operations = bound_operations(self.operations, project_id)
             return self.call(name("swbpipe_propose_operations"), {
                 "workspaceHandle": summary["data"]["workspaceHandle"], "basis": basis,
-                "claimedModelHash": basis["modelHash"], "operations": self.operations,
+                "claimedModelHash": basis["modelHash"], "operations": operations,
                 "assumptions": [{"assumptionId": "a1", "statement": "Every input is the person's stated W9-A input.",
-                                 "affectedOperationIds": [op["operation_id"] for op in self.operations]}]})
+                                 "affectedOperationIds": [op["operation_id"] for op in operations]}]})
         proposed = outputs[1]
         if proposed.get("status") != "pending_review":
             return self.fail(f"proposal {proposed.get('status')}")
@@ -337,8 +360,12 @@ def judge(report, reference, operations, captured=None):
     count = re.match(r"(\d+) proposed changes\b", str(batch.get("summary") or ""))
     if not count or int(count.group(1)) != len(operations):
         failures.append(f"batch summary {batch.get('summary')!r}")
-    # The batch as Batch review shows it submitted: the fixture's operations, in order.
-    if batch.get("submitted") != [operation_key(op) for op in operations]:
+    # The batch as Batch review shows it submitted: the fixture's operations, in order, the Project setting
+    # targeting the blank project the window created.
+    project_id = (report.get("blank") or {}).get("project_id")
+    if not isinstance(project_id, str) or not project_id:
+        failures.append("no blank project id observed in the window")
+    if batch.get("submitted") != [operation_key(op) for op in bound_operations(operations, project_id)]:
         failures.append("the submitted batch is not the fixture's operations in order")
     if not batch.get("apply_message"):
         failures.append("no batch receipt after Apply")
