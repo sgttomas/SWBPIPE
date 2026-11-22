@@ -19,11 +19,14 @@
 //!   webview or read from or saved to the Keychain (RT-E1 D4,
 //!   DEL-16-06).
 //!
-//! The harness substitutes exactly three things for a person at the machine: it
+//! The harness substitutes exactly four things for a person at the machine: it
 //! names the file the next model-document chooser returns (`native_smoke_choose`;
 //! the Open Model Document…, Save Model Document…, Save Handoff…, Save Report
 //! Package…, Save canonical HTML…, Export MBF's save and Import MBF's open choosers) instead of showing the chooser, it delivers native menu commands through the same
-//! dispatch a menu click uses (`native_smoke_menu`), and in place of the report
+//! dispatch a menu click uses (`native_smoke_menu`), it asks for a quit or a close of the main window by the route
+//! a person's takes (`native_smoke_request_close`; the request meets the unsaved-changes guard as a person's does,
+//! and where the web view acknowledges it and a prompt is needed, the prompt is answered in the page), and in place
+//! of the report
 //! print's system dialog it records which print document reached the native
 //! print (`record_report_print`, read by `native_smoke_take_report_prints`; the
 //! driver then asks for the open print window to be closed with
@@ -654,6 +657,35 @@ async fn confirm_closed(selected: Option<String>, registered: impl Fn(&str) -> b
 #[tauri::command]
 pub fn native_smoke_menu(app: AppHandle, command_id: String) {
     crate::dispatch_native_menu_command(&app, &command_id);
+}
+
+/// A quit or a close of the main window, delivered by the route a person's takes.
+///
+/// - `"quit"` calls `request_quit`, the function the SWBPIPE › Quit SWBPIPE menu click calls, and then returns
+///   `Ok(())`; it has no error of its own. Where the main web view is missing or the close request cannot be
+///   dispatched to it, `request_close`'s own fallback applies, as it does for the menu click: the request proceeds
+///   without a prompt.
+/// - `"window"` asks the main window to close, so its close-requested handler runs. Only this arm returns
+///   `NATIVE-WINDOW-UNAVAILABLE`, when there is no main window.
+/// - Any other kind returns `NATIVE-CLOSE-KIND-UNKNOWN`.
+///
+/// Either request meets the unsaved-changes guard (`close_guard.rs`). The prompt is shown and answered in the page
+/// only where the web view acknowledges the request and its state needs a prompt; an attempt the web view does not
+/// acknowledge in time proceeds without one. This command answers no prompt, abandons no request and exits nothing
+/// of its own. Where the app then exits, the caller may never see the reply.
+#[tauri::command]
+pub fn native_smoke_request_close(app: AppHandle, kind: String) -> Result<(), String> {
+    match kind.as_str() {
+        "quit" => {
+            crate::request_quit(&app);
+            Ok(())
+        }
+        "window" => {
+            let window = app.get_webview_window("main").ok_or_else(|| "NATIVE-WINDOW-UNAVAILABLE: main webview is not installed".to_string())?;
+            window.close().map_err(|error| error.to_string())
+        }
+        other => Err(format!("NATIVE-CLOSE-KIND-UNKNOWN: {other:?}; the kind is \"quit\" or \"window\"")),
+    }
 }
 
 /// One entry of the menu the app built, as [`native_smoke_menu_items`] returns it. A separator carries nothing; an

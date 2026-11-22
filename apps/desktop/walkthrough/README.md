@@ -66,7 +66,8 @@ shows, and how much of it), its `step` and its picture. Two marks, as DEL-07-06
 VER-007 asks: `redrawn` is true where the picture is the app's document
 redrawn outside its window, and `substitutions` lists each act of the
 scripted-run build the step used in place of a person's (the file a chooser
-returns, a native menu command, the report print dialog). For the launched
+returns, a native menu command, a request to quit or to close the main window,
+the report print dialog). For the launched
 app, the index's `native_surfaces` records each native surface: the window,
 the menu bar as drawn, the file chooser, the print dialog, the 3D view and any
 other native dialog. Each is supplied only by an attended capture of it in the
@@ -83,6 +84,7 @@ permission prompt. The 3D view keeps its own record of each step under
 `--show-window` as well. `index.html` lists them under "Native surfaces not
 pictured, and those an attended capture supplies". For the launched app,
 `native_menus` holds the menu each launch built, read from it.
+
 
 ## When a journey stops
 
