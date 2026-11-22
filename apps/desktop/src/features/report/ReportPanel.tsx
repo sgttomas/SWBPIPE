@@ -23,6 +23,7 @@ import { isSpringHangerSupport, springHangerKind } from "./springHangerSupport";
 import type { NumericalHealthView } from "../results/numericalHealth";
 import { reportLineText } from "../results/numericalHealthText";
 import { modelDocumentVersionCheckStatus } from "../../services/projectService";
+import { designKnowledgeDiagnostics } from "../../services/designKnowledge";
 import { ECCENTRIC_OFFSET_CONVENTION, ECCENTRIC_REDUCER_STRESS_BASIS } from "../component-creation/eccentricOffsetConvention";
 
 export function ReportPanel({
@@ -337,7 +338,7 @@ function reportDiagnostics({
   knowledge: DesignKnowledge | null;
   result: MechanicsResult;
 }): Diagnostic[] {
-  return [...model.diagnostics, ...(knowledge?.diagnostics ?? []), ...result.diagnostics];
+  return [...model.diagnostics, ...designKnowledgeDiagnostics(knowledge, model), ...result.diagnostics];
 }
 
 /** W-15 slice c (Design `eccentric-reducer-offset.md` §4, P11): a reducer with a
