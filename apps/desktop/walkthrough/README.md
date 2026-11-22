@@ -66,7 +66,8 @@ shows, and how much of it), its `step` and its picture. Two marks, as DEL-07-06
 VER-007 asks: `redrawn` is true where the picture is the app's document
 redrawn outside its window, and `substitutions` lists each act of the
 scripted-run build the step used in place of a person's (the file a chooser
-returns, a native menu command, the report print dialog). The index's
+returns, a native menu command, a request to quit or to close the main window,
+the report print dialog). The index's
 `native_surfaces` names each native surface not pictured, what prevents it (a
 permission prompt, or a substitution), and whether that leaves evidence
 missing; `index.html` lists them under "Native surfaces not pictured". For the
