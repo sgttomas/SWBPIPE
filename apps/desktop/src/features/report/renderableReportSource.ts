@@ -3,8 +3,9 @@
  * The rendered report and its print view take an exact-route result whatever its
  * numerical standing, where Current's other requirements hold, its mechanics are
  * solved and the product reader reads it. Every other output, the report package
- * included, keeps Current (`currentSolvedResult`), which also requires numerical
- * eligibility.
+ * on the pressure-free routes included, keeps Current (`currentSolvedResult`), which
+ * also requires numerical eligibility. On the exact route the report package and the
+ * user release take this same source (DEL-08-01 REQ-024, "Package and user release").
  *
  * This selection is a candidate. The webview holds a native result's header and its
  * native standing, not its rows, so it judges readability from the standing's
@@ -12,7 +13,7 @@
  * closed standing-finding vocabulary, `STANDING_FINDINGS`). The reader's checks that
  * need the full result (a case record against its integrity code, duplicated
  * evidence) are made before any render: by the build step on the full copy
- * (`buildCurrentResultExport` with purpose "report-render") and by the native host
+ * (`buildCurrentResultExport` with purpose "report") and by the native host
  * (`exact_source_binding.rs` `read_delivered_source`). If either refuses, the panel
  * shows that refusal by name and no rendered report. */
 

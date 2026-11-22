@@ -257,10 +257,10 @@ export function currentResultDocumentBase(model:PreviewModel,result:MechanicsRes
   return {schema_version:RESULT_EXPORT_VERSION,deliverable_id:'DEL-08-04',package_id:'PKG-08',scope_item:'SOW-046',objectives:['OBJ-007','OBJ-009'],export_format_status:{baseline_format:'schema_first_json_result_envelope',additional_formats:'TBD',public_transport_protocol:'TBD',local_fea_package_format:'TBD',external_adapter_formats:'TBD'},result_envelope:{schema_version:RESULT_EXPORT_VERSION,envelope_id:`result-envelope:${result.run_id}`,model_ref:ref('model_payload',model.project.id),run_ref:ref('analysis_run',run.run_id),solver_version:{solver_name:solverBasis.solver_name,solver_version:solverBasis.solver_version,solver_build_ref:solverBasis.solver_build_ref},unit_system_ref:ref('unit_system',`${model.project.id}:units`),load_basis_refs:run.load_basis_refs.map(x=>exactLoadCase(result,x.object_type)?ref('load_case',x.ref):ref(x.object_type,x.ref)),result_sets:[{set_id:`result-set:${result.run_id}:mechanics`,set_type:'mechanics',basis_ref:ref('analysis_run',run.run_id),values:[]}],diagnostics:documentDiagnostics(result,run.diagnostics),provenance,reproducibility:{model_hash:null,run_hashes:run.hashes.map(x=>({algorithm:x.algorithm,canonicalization:x.canonicalization,payload_ref:ref(x.payload_ref.object_type,x.payload_ref.ref),value:x.value})),audit_manifest_ref:ref('audit_manifest',manifestRef),deterministic_ordering:true},analysis_status:run.analysis_status,professional_boundary:run.professional_boundary,downstream_use:{review:true,regression_comparison:true,report_consumption:true,headless_automation:true,governed_downstream_tooling:true,additional_export_formats:'TBD'}}};
 }
 /** What the Current builder builds for (DEL-08-01 REQ-017, DEL-08-04): the standalone Export
- * Result JSON, and every report emission but the rendered report, take only a numerically
- * eligible result; the rendered report takes any solved result the reader reads, and states
- * its numerical standing (REQ-024). */
-export type CurrentResultExportPurpose='result-export'|'report-render';
+ * Result JSON takes only a numerically eligible result; a report (the rendered report and its
+ * print view, and on the exact route the report package and the user release) takes any solved
+ * result the reader reads, and states its numerical standing (REQ-024). */
+export type CurrentResultExportPurpose='result-export'|'report';
 /** The Current builder's standing admission for `purpose`. */
 function currentStandingAdmitted(result:MechanicsResult,model:PreviewModel,purpose:CurrentResultExportPurpose):boolean{
   if(purpose==='result-export')return numericalResultStanding(result,model).eligible;
