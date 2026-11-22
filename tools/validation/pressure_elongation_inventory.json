@@ -28,11 +28,11 @@
    ".json",
    ".jsonl"
   ],
-  "files": 543,
+  "files": 545,
   "claimed_by": {
    "group": 142,
    "in_code": 64,
-   "exemption": 337
+   "exemption": 339
   }
  },
  "counts": {
@@ -9975,6 +9975,15 @@
    ]
   },
   {
+   "reason": "its exact-route documents carry only empty pressure-region lists (the seismic_component_weight package has no internal pressure), so no solved case carries pressure",
+   "paths": [
+    "core/product_physics/tests/seismic_component_weight.rs"
+   ],
+   "files": [
+    "core/product_physics/tests/seismic_component_weight.rs"
+   ]
+  },
+  {
    "reason": "producer of a data group above; its committed documents are claimed by that group",
    "paths": [
     "fixtures/reference_system/generate_reference_system.py",
@@ -10233,6 +10242,7 @@
     "fixtures/results/modal_*.request.json",
     "fixtures/results/retained_precision_cases.json",
     "fixtures/results/retained_precision_*_successor_*.json",
+    "fixtures/results/seismic_component_record_corpus.json",
     "validation/qualification/fixtures/first_static/*.json",
     "validation/qualification/fixtures/load_reference/*.json",
     "validation/references/inverse_norm_witness/requests/linear.request.json",
@@ -10289,6 +10299,7 @@
     "fixtures/results/retained_precision_o4_w1e_successor_dense_scrutiny.json",
     "fixtures/results/retained_precision_o4_w1e_successor_sparse_interactive.json",
     "fixtures/results/retained_precision_o4_w1e_unavailable_successor_sparse_interactive.json",
+    "fixtures/results/seismic_component_record_corpus.json",
     "validation/qualification/fixtures/first_static/axial.runner_input.candidate.json",
     "validation/qualification/fixtures/first_static/bending_torsion.runner_input.candidate.json",
     "validation/qualification/fixtures/load_reference/coefficient_definition.preview_request.json",
