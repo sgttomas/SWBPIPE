@@ -96,8 +96,12 @@ code_paths:
 # writes numbered screens with their word and control counts. It records what a person sees and where
 # a journey stops; it judges nothing and is no check of AC-007.
 - apps/desktop/walkthrough/**
+# Documents the walkthrough places in its throwaway home and opens by the desktop's own controls,
+# such as the demonstration model stating the Timoshenko shear selection for the report journey.
+- fixtures/walkthrough/**
 # AC-007's missing-data use case: its start model, requests and person-entered values, and the
-# offline judge of a trace of it. No driver runs it yet.
+# offline judge of a trace of it. The native walkthrough's missing-data journey opens its start
+# model; no driver runs its requests or its judge yet.
 - fixtures/embedded_agent/use_cases/missing-data/**
 - tools/agent_missing_data_judge.py
 # A review-export panel the v1.0 interface does not mount (LIM-039), and a Python reference
