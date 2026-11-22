@@ -2986,11 +2986,16 @@ export function useWorkspaceSession() {
         savedBasisSequence.current += 1;
         setSavedModelBasis(verifiedBasis);
       }
-      if (!stillCurrent()) return;
+      // As in saveProject: an edit that lands while this verified write (or its history read) is in
+      // flight, with no other project operation after it, leaves the session bound to the project.
+      const keepStoredBinding = () => {
+        if (verifiedBasis && request === projectRequest.current && sameProjectSession()) setProjectSummary(created.summary);
+      };
+      if (!stillCurrent()) { keepStoredBinding(); return; }
       const returnedHistory = requestHistoricalRun
         ? created.native?.restored ? historyAfterRestoredSave(requestHistoricalRun, created.native) : await buildHistoricalRunContext(created)
         : null;
-      if (!stillCurrent()) return;
+      if (!stillCurrent()) { keepStoredBinding(); return; }
       if (requestHistoricalRun) {
         setHistoricalRun((current) => current === requestHistoricalRun ? returnedHistory : current);
       }
@@ -3948,17 +3953,17 @@ export function useWorkspaceSession() {
         savedBasisSequence.current += 1;
         setSavedModelBasis(verifiedBasis);
       }
-      if (!stillCurrent()) {
-        // An edit landed while this save was written and verified, and no other project operation
-        // followed: the write stands, so the session stays bound to the stored project, and the
-        // newer working model (with its unsaved edits) is kept as it is.
+      // An edit landed while this save was written and verified (or while its history was read), and
+      // no other project operation followed: the write stands, so the session stays bound to the
+      // stored project, and the newer working model (with its unsaved edits) is kept as it is.
+      const keepStoredBinding = () => {
         if (verifiedBasis && request === projectRequest.current && sameProjectSession()) setProjectSummary(saved.summary);
-        return;
-      }
+      };
+      if (!stillCurrent()) { keepStoredBinding(); return; }
       const returnedHistory = requestHistoricalRun
         ? saved.native?.restored ? historyAfterRestoredSave(requestHistoricalRun, saved.native) : await buildHistoricalRunContext(saved)
         : null;
-      if (!stillCurrent()) return;
+      if (!stillCurrent()) { keepStoredBinding(); return; }
       if (requestHistoricalRun) {
         // Preserve a fresh Current solve that completed while the native save
         // was pending. Only the still-owned Historical snapshot may refresh.

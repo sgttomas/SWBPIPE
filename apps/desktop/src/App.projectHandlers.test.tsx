@@ -1184,6 +1184,33 @@ describe("the Project page's stored-project binding", () => {
     expect(screen.getByTestId("project-edited")).toBeInTheDocument();
   });
 
+  it("keeps the stored binding when an edit lands during Save as New Local Project: Saved, changed since", async () => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    setTauriRuntime(true);
+    const pendingCreate = deferred<LocalProjectEnvelope>();
+    let createRequest: Record<string, unknown> | undefined;
+    // `create_local_project` takes its fields flat, not under `request`.
+    invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
+      if (command === "create_local_project") { createRequest = args; return pendingCreate.promise; }
+      if (command === "list_local_projects") return Promise.resolve(createRequest ? listing(model) : []);
+      return Promise.resolve({});
+    });
+    expect(savedLine()).toHaveTextContent(/^Not saved as a project\.$/);
+    act(() => nativeMenuCommand("file.new-local"));
+    await waitFor(() => expect(createRequest).toBeDefined());
+    await applyGridEditWhilePending();
+    await act(async () => {
+      pendingCreate.resolve(savedEnvelopeFor(model, createRequest!, "Created invented project under a model edit."));
+      await pendingCreate.promise;
+    });
+    await flushPendingWork();
+    await waitFor(() => expect(savedLine()).toHaveTextContent(`Saved ${formatAutosaveTime(SAVED_AT * 1000)}. Changed since.`));
+    expect(within(projectPage()).getByTestId(`project-saved-open-${model.project.id}`)).toHaveTextContent("open now");
+    expect(screen.getByTestId("project-edited")).toBeInTheDocument();
+  });
+
   it("unbinds a model file opened over its stored project: not saved, and its stored row not open", async () => {
     const model = await loadPreviewModel();
     render(<App />);

@@ -41,8 +41,8 @@ function useSavedProjects(active: boolean, projectOperation: string, projectBusy
   const [listing, setListing] = useState<Listing<LocalProjectIndexEntry>>({ items: null, failure: null });
   const request = useRef(0);
   useEffect(() => {
-    if (!active || projectBusy) return;
     const current = ++request.current;
+    if (!active || projectBusy) return;
     listLocalProjects().then(
       (items: unknown) => {
         if (current !== request.current) return;
