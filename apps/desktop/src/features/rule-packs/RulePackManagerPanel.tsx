@@ -19,6 +19,7 @@ import {
   type RulePackComputedChecksum,
   type RulePackDocument,
   type RulePackDocumentValidation,
+  type RulePackListRoute,
   type RulePackUnitCheckFinding,
   type RulePackUnitCheckOperand,
   type RulePackValidationFinding
@@ -125,6 +126,10 @@ export function RulePackManagerPanel({
   // The project whose packs the list may show: a read started for another
   // project (a save or delete that finished after the project changed) is dropped.
   const currentProject = useRef<string | null>(null);
+  // The list query the opening read started, while it is still unanswered: the
+  // mount effect run again (React's development StrictMode replays it) takes it
+  // over instead of starting a second query.
+  const openingQuery = useRef<{ project: string; query: Promise<RulePackListRoute> } | null>(null);
 
   const projectId = model?.project.id ?? null;
   currentProject.current = projectId;
@@ -150,7 +155,24 @@ export function RulePackManagerPanel({
   useEffect(() => {
     setEntries([]);
     setListRefreshed(false);
-    void readList(projectId);
+    let query: Promise<RulePackListRoute> | undefined;
+    if (projectId !== null) {
+      const held = openingQuery.current;
+      const started = held && held.project === projectId ? held.query : listLocalRulePacks(projectId);
+      openingQuery.current = { project: projectId, query: started };
+      const release = () => {
+        if (openingQuery.current?.query === started) openingQuery.current = null;
+      };
+      started.then(release, release);
+      query = started;
+    }
+    void readList(projectId, query);
+    // A read this effect started never lands after it is cleaned up (a project
+    // change, the page closing, or StrictMode's replay, whose second run reads
+    // the same query again under its own request).
+    return () => {
+      listRequest.current += 1;
+    };
   }, [projectId]);
 
   // Back on the page: the list is read again, in place.
@@ -168,7 +190,10 @@ export function RulePackManagerPanel({
    * so it cannot supersede the open project's own read. Returns the entries read,
    * or null when none were.
    */
-  async function readList(forProject: string | null): Promise<LocalRulePackIndexEntry[] | null> {
+  async function readList(
+    forProject: string | null,
+    query?: Promise<RulePackListRoute>
+  ): Promise<LocalRulePackIndexEntry[] | null> {
     if (forProject !== currentProject.current) return null;
     const request = ++listRequest.current;
     if (forProject === null) {
@@ -179,10 +204,12 @@ export function RulePackManagerPanel({
     }
     const stale = () => request !== listRequest.current || currentProject.current !== forProject;
     try {
-      const route = await listLocalRulePacks(forProject);
+      const route = await (query ?? listLocalRulePacks(forProject));
       if (stale()) return null;
+      // A list that was not read says nothing about which packs are stored.
       if (route.route === "unavailable_browser_preview") {
         setEntries([]);
+        setListRefreshed(false);
         setListStatus({ text: PAGE_WORDS.listUnavailable, code: route.diagnostic });
         return null;
       }
@@ -193,6 +220,7 @@ export function RulePackManagerPanel({
     } catch (error) {
       if (stale()) return null;
       setEntries([]);
+      setListRefreshed(false);
       setListStatus({ text: `The saved rule packs could not be read: ${String(error)}`, code: "RULE-PACK-BACKEND-ERROR (list)" });
       return null;
     }
@@ -327,6 +355,13 @@ export function RulePackManagerPanel({
         reportUnavailable(route.diagnostic);
         return;
       }
+      // Saved under another identifier than the pack it was opened from (its
+      // identifier edited in the document): the pack it was opened from is no
+      // longer the open one, from the moment this text's verdict is shown.
+      const renamed =
+        openedEntry !== null &&
+        (openedEntry.rule_pack_id !== route.envelope.rule_pack_id || openedEntry.project_id !== route.envelope.project_id);
+      if (renamed) setOpenedEntry(null);
       acceptValidation(route.envelope.validation, text);
       setSavedText(text);
       const blocking = faultsOf(route.envelope.validation, document).length;
@@ -335,13 +370,8 @@ export function RulePackManagerPanel({
         code: `${route.envelope.message} (rule_pack_id=${route.envelope.rule_pack_id}, storage=${route.envelope.storage_mode})`
       });
       const listed = await readList(actProject);
-      // Saved under another identifier than the pack it was opened from (its
-      // identifier edited in the document): the open pack is the one saved, so
-      // the old pack's row shows no verdict of this text.
-      if (
-        openedEntry &&
-        (openedEntry.rule_pack_id !== route.envelope.rule_pack_id || openedEntry.project_id !== route.envelope.project_id)
-      ) {
+      // Once listed, the pack saved is the open one.
+      if (renamed) {
         setOpenedEntry(
           listed?.find(
             (entry) => entry.project_id === route.envelope.project_id && entry.rule_pack_id === route.envelope.rule_pack_id

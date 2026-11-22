@@ -1,3 +1,4 @@
+import { StrictMode } from "react";
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { PreviewModel } from "../../types";
@@ -568,11 +569,19 @@ describe("the list shows one project's packs only", () => {
 });
 
 /** The Rules page as the shell mounts it: retained, asleep while hidden, counted back in. */
-function ShellRules({ shown, model }: { shown: boolean; model: PreviewModel }) {
+function ShellRules({
+  shown,
+  model,
+  onQueueIntent
+}: {
+  shown: boolean;
+  model: PreviewModel;
+  onQueueIntent?: (intent: unknown) => void;
+}) {
   const visit = useReturnCount(shown);
   return (
     <DormantSection page="rule-packs" active={shown} sessionGeneration={1}>
-      <RulePackManagerPanel model={model} visit={visit} />
+      <RulePackManagerPanel model={model} visit={visit} onQueueIntent={onQueueIntent} />
     </DormantSection>
   );
 }
@@ -603,11 +612,51 @@ describe("the list is read again on each return to the Rules page", () => {
     expect(backend.listProjects).toEqual(["project:invented-page", "project:invented-page", "project:invented-page"]);
   });
 
-  it("reads once on the first showing", async () => {
-    render(<ShellRules shown model={modelStub} />);
+  it("reads once on the first showing, under StrictMode as the app runs, and again for another project", async () => {
+    backend.entries = [savedEntry, otherEntry];
+    const { rerender } = render(
+      <StrictMode>
+        <ShellRules shown model={modelStub} />
+      </StrictMode>
+    );
     await screen.findByTestId("rule-pack-entry-invented_saved_pack");
     await act(async () => {});
     expect(backend.listCalls).toBe(1);
+
+    rerender(
+      <StrictMode>
+        <ShellRules shown model={modelFor("project:invented-other")} />
+      </StrictMode>
+    );
+    await screen.findByTestId("rule-pack-entry-invented_other_pack");
+    expect(screen.queryByTestId("rule-pack-entry-invented_saved_pack")).toBeNull();
+    expect(backend.listProjects).toEqual(["project:invented-page", "project:invented-other"]);
+  });
+
+  it("never says a model's pack is missing from the store when a return's read fails", async () => {
+    const referencing = {
+      project: { id: "project:invented-page", name: "Invented Page Project" },
+      rule_pack_refs: [
+        {
+          rule_pack_id: "invented_saved_pack",
+          name: "Invented saved pack",
+          rule_pack_version: "0.2.0",
+          checksum: { algorithm: "sha256", value: "0".repeat(64) }
+        }
+      ]
+    } as unknown as PreviewModel;
+    const queue = vi.fn();
+    const { rerender } = render(<ShellRules shown model={referencing} onQueueIntent={queue} />);
+    await screen.findByTestId("rule-pack-entry-invented_saved_pack");
+    expect(screen.getByTestId("rule-pack-model-ref-invented_saved_pack")).toBeTruthy();
+    expect(screen.queryByTestId("rule-pack-ref-unresolved-invented_saved_pack")).toBeNull();
+
+    rerender(<ShellRules shown={false} model={referencing} onQueueIntent={queue} />);
+    backend.listFailures = 1;
+    rerender(<ShellRules shown model={referencing} onQueueIntent={queue} />);
+    await waitFor(() => expect(screen.getByTestId("rule-pack-list-status").textContent).toContain("could not be read"));
+    expect(screen.getByTestId("rule-pack-model-ref-invented_saved_pack")).toBeTruthy();
+    expect(screen.queryByTestId("rule-pack-ref-unresolved-invented_saved_pack")).toBeNull();
   });
 });
 
@@ -697,8 +746,17 @@ describe("a pack saved under another identifier", () => {
     backend.entries = [savedEntry, renamed];
     fireEvent.click(screen.getByTestId("rule-pack-save"));
     await waitFor(() => expect(backend.releaseSave).not.toBeNull());
+    // The list read after the save is held: meanwhile the old row shows no verdict of the new text.
+    backend.heldLists = 1;
     await act(async () => {
       backend.releaseSave?.();
+    });
+    await waitFor(() => expect(backend.releaseLists).toHaveLength(1));
+    expect(screen.getByTestId("rule-pack-save-state").textContent).toBe("");
+    expect(row("invented_saved_pack").textContent).not.toContain("to fix");
+    expect(row("invented_saved_pack").textContent).toContain("awaiting review");
+    await act(async () => {
+      backend.releaseLists[0]();
     });
     await waitFor(() => expect(row("private_draft_rule_pack").textContent).toContain("to fix"));
     expect(row("invented_saved_pack").textContent).not.toContain("to fix");

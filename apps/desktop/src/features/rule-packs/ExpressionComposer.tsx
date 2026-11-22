@@ -276,8 +276,13 @@ function defaultLiteral(): AstNode {
   };
 }
 
+/**
+ * A new variable reference names the first input, the only declarations a
+ * formula binds; with no input it names none. A stored reference is never
+ * rewritten here.
+ */
 function defaultVariableRef(variables: RulePackVariable[]): AstNode {
-  return { node: "variable_ref", variable_id: variables[0]?.id ?? "" };
+  return { node: "variable_ref", variable_id: bindableVariables(variables)[0]?.id ?? "" };
 }
 
 /**

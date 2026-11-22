@@ -626,6 +626,30 @@ describe("ExpressionComposer component", () => {
     expect(expression.right).toEqual(unknownNode);
   });
 
+  it("never binds a limit when Kind is set to Input with no input declared, and keeps a stored reference", () => {
+    const document = setFormulaExpression(
+      { ...buildDraftRulePackDocument(), required_inputs: [] },
+      "user_formula_1",
+      { node: "variable_ref", variable_id: "user_limit_slot_1" }
+    );
+    expect(defaultExpressionNode("variable_ref", collectRulePackVariables(document))).toEqual({
+      node: "variable_ref",
+      variable_id: ""
+    });
+    render(<Harness initial={document} />);
+    // A reference already stored is shown as it is, and left as it is.
+    expect(screen.getByTestId("rule-pack-variable-ref").textContent).toContain("(current) user_limit_slot_1");
+    expect(harnessExpression()).toEqual({ node: "variable_ref", variable_id: "user_limit_slot_1" });
+
+    // Kind away and back to Input: the new reference names no declaration.
+    fireEvent.change(screen.getAllByTestId("rule-pack-node-type")[0], { target: { value: "literal" } });
+    fireEvent.change(screen.getAllByTestId("rule-pack-node-type")[0], { target: { value: "variable_ref" } });
+    expect(harnessExpression()).toEqual({ node: "variable_ref", variable_id: "" });
+    const picker = screen.getByTestId("rule-pack-variable-ref") as HTMLSelectElement;
+    expect(Array.from(picker.options).map((option) => option.textContent)).toEqual(["(no declared inputs)"]);
+    expect(screen.getByTestId("rule-pack-variable-ref-empty")).toBeTruthy();
+  });
+
   it("preserves a refusal-marker node read-only with no node-type selector", () => {
     // Refusal markers (unsupported_form / unsafe_host_access) are always
     // read-only. This pins the preservation guarantee the removed table
