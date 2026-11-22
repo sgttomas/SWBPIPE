@@ -22,8 +22,9 @@
 //! the Open Model Document…, Save Model Document…, Save Handoff…, Save Report
 //! Package…, Save canonical HTML…, Export MBF's save and Import MBF's open choosers) instead of showing the chooser, it delivers native menu commands through the same
 //! dispatch a menu click uses (`native_smoke_menu`), it asks for a quit or a close of the main window by the route
-//! a person's takes (`native_smoke_request_close`; the unsaved-changes guard holds the request and the prompt is
-//! answered in the page, as a person answers it), and in place of the report
+//! a person's takes (`native_smoke_request_close`; the request meets the unsaved-changes guard as a person's does,
+//! and where the web view acknowledges it and a prompt is needed, the prompt is answered in the page), and in place
+//! of the report
 //! print's system dialog it records which print document reached the native
 //! print (`record_report_print`, read by `native_smoke_take_report_prints`; the
 //! driver then asks for the open print window to be closed with
@@ -576,11 +577,20 @@ pub fn native_smoke_menu(app: AppHandle, command_id: String) {
     crate::dispatch_native_menu_command(&app, &command_id);
 }
 
-/// A quit or a close of the main window, delivered by the route a person's takes: `"quit"` runs SWBPIPE › Quit
-/// SWBPIPE's own handling (`request_quit`, which the menu click calls), `"window"` asks the main window to close, so
-/// its close-requested handler runs. Either way the unsaved-changes guard holds the request and asks the web view,
-/// where the person answers; this answers no prompt, abandons no request and exits nothing of its own. It returns once
-/// the request is made; where the app then exits, the caller may never see the reply.
+/// A quit or a close of the main window, delivered by the route a person's takes.
+///
+/// - `"quit"` calls `request_quit`, the function the SWBPIPE › Quit SWBPIPE menu click calls, and then returns
+///   `Ok(())`; it has no error of its own. Where the main web view is missing or the close request cannot be
+///   dispatched to it, `request_close`'s own fallback applies, as it does for the menu click: the request proceeds
+///   without a prompt.
+/// - `"window"` asks the main window to close, so its close-requested handler runs. Only this arm returns
+///   `NATIVE-WINDOW-UNAVAILABLE`, when there is no main window.
+/// - Any other kind returns `NATIVE-CLOSE-KIND-UNKNOWN`.
+///
+/// Either request meets the unsaved-changes guard (`close_guard.rs`). The prompt is shown and answered in the page
+/// only where the web view acknowledges the request and its state needs a prompt; an attempt the web view does not
+/// acknowledge in time proceeds without one. This command answers no prompt, abandons no request and exits nothing
+/// of its own. Where the app then exits, the caller may never see the reply.
 #[tauri::command]
 pub fn native_smoke_request_close(app: AppHandle, kind: String) -> Result<(), String> {
     match kind.as_str() {

@@ -12399,7 +12399,6 @@ mod stored_result_limit_tests {
 #[cfg(test)]
 mod scripted_close_route_tests {
     use crate::close_guard::{CloseDecision, CloseGuard, CloseKind};
-    use std::collections::BTreeMap;
     use std::path::Path;
     use syn::visit::{self, Visit};
 
@@ -12456,9 +12455,55 @@ mod scripted_close_route_tests {
         between(text, braces.open().start(), braces.close().end())
     }
 
-    /// A function from its `fn` to its closing brace: the signature and the whole body.
-    fn signature_and_body(text: &str, function: &syn::ItemFn) -> String {
-        between(text, function.sig.fn_token.span.start(), function.block.brace_token.span.close().end())
+    /// The source text between two span locations, exactly as written.
+    fn span_text(text: &str, start: proc_macro2::LineColumn, end: proc_macro2::LineColumn) -> String {
+        let lines: Vec<&str> = text.lines().collect();
+        let mut out = Vec::new();
+        for line in start.line..=end.line {
+            let chars: Vec<char> = lines[line - 1].chars().collect();
+            let from = if line == start.line { start.column } else { 0 };
+            let to = if line == end.line { end.column } else { chars.len() };
+            out.push(chars[from..to].iter().collect::<String>());
+        }
+        out.join("\n")
+    }
+
+    /// A whole function item as written: from its first outer attribute (doc comments included) or, without one, its
+    /// visibility or `fn`, through its closing brace; so its attributes, visibility, qualifiers (`const`, `async`,
+    /// `unsafe`, `extern`), signature and body.
+    fn item_text(text: &str, function: &syn::ItemFn) -> String {
+        let start = match (function.attrs.first(), &function.vis) {
+            (Some(attr), _) => attr.pound_token.span.start(),
+            (None, syn::Visibility::Public(token)) => token.span.start(),
+            (None, _) => function.sig.constness.as_ref().map(|token| token.span.start())
+                .or(function.sig.asyncness.as_ref().map(|token| token.span.start()))
+                .or(function.sig.unsafety.as_ref().map(|token| token.span.start()))
+                .unwrap_or_else(|| function.sig.fn_token.span.start()),
+        };
+        span_text(text, start, function.block.brace_token.span.close().end())
+    }
+
+    /// Source text as tokens, at every depth of its groups: identifiers, punctuation with its spacing, and literals
+    /// exactly as written (a string literal keeps every character between its quotes); whitespace outside literals
+    /// and comments other than doc comments do not count.
+    fn tokens(text: &str) -> Vec<String> {
+        fn walk(stream: proc_macro2::TokenStream, out: &mut Vec<String>) {
+            for token in stream {
+                match token {
+                    proc_macro2::TokenTree::Ident(ident) => out.push(format!("ident {ident}")),
+                    proc_macro2::TokenTree::Punct(punct) => out.push(format!("punct {} {:?}", punct.as_char(), punct.spacing())),
+                    proc_macro2::TokenTree::Literal(literal) => out.push(format!("literal {literal}")),
+                    proc_macro2::TokenTree::Group(group) => {
+                        out.push(format!("open {:?}", group.delimiter()));
+                        walk(group.stream(), out);
+                        out.push(format!("close {:?}", group.delimiter()));
+                    }
+                }
+            }
+        }
+        let mut out = Vec::new();
+        walk(text.parse::<proc_macro2::TokenStream>().unwrap_or_else(|error| panic!("does not lex: {error}")), &mut out);
+        out
     }
 
     /// The identifiers in macro tokens, inside their groups at every depth.
@@ -12472,13 +12517,11 @@ mod scripted_close_route_tests {
         }
     }
 
-    /// Every identifier (macro tokens included, at every depth), the calls of `request_quit`, and the menu event's
-    /// first `if` (its Quit branch).
+    /// Every identifier (macro tokens included, at every depth) and the menu event's first `if` (its Quit branch).
     #[derive(Default)]
     struct Read {
         idents: Vec<String>,
         quit_branch: Option<(proc_macro2::LineColumn, proc_macro2::LineColumn, proc_macro2::LineColumn)>,
-        quit_calls: usize,
     }
     impl<'ast> Visit<'ast> for Read {
         fn visit_ident(&mut self, node: &'ast proc_macro2::Ident) {
@@ -12487,12 +12530,6 @@ mod scripted_close_route_tests {
         fn visit_macro(&mut self, node: &'ast syn::Macro) {
             macro_idents(node.tokens.clone(), &mut self.idents);
             visit::visit_macro(self, node);
-        }
-        fn visit_expr_call(&mut self, node: &'ast syn::ExprCall) {
-            if matches!(&*node.func, syn::Expr::Path(path) if path.path.segments.last().is_some_and(|segment| segment.ident == "request_quit")) {
-                self.quit_calls += 1;
-            }
-            visit::visit_expr_call(self, node);
         }
         fn visit_expr_method_call(&mut self, node: &'ast syn::ExprMethodCall) {
             if node.method == "on_menu_event" {
@@ -12509,43 +12546,53 @@ mod scripted_close_route_tests {
         }
     }
 
-    /// The command as reviewed, from its `fn` to its closing brace (compared with whitespace removed).
-    const COMMAND: &str = r#"fn native_smoke_request_close(app: AppHandle, kind: String) -> Result<(), String> {
-        match kind.as_str() {
-            "quit" => {
-                crate::request_quit(&app);
-                Ok(())
+    /// The command as reviewed: the whole item, its doc comment and attributes, visibility, signature and body,
+    /// compared token by token with literals exactly as written ([`tokens`]).
+    const COMMAND: &str = r##"        /// A quit or a close of the main window, delivered by the route a person's takes.
+        ///
+        /// - `"quit"` calls `request_quit`, the function the SWBPIPE › Quit SWBPIPE menu click calls, and then returns
+        ///   `Ok(())`; it has no error of its own. Where the main web view is missing or the close request cannot be
+        ///   dispatched to it, `request_close`'s own fallback applies, as it does for the menu click: the request proceeds
+        ///   without a prompt.
+        /// - `"window"` asks the main window to close, so its close-requested handler runs. Only this arm returns
+        ///   `NATIVE-WINDOW-UNAVAILABLE`, when there is no main window.
+        /// - Any other kind returns `NATIVE-CLOSE-KIND-UNKNOWN`.
+        ///
+        /// Either request meets the unsaved-changes guard (`close_guard.rs`). The prompt is shown and answered in the page
+        /// only where the web view acknowledges the request and its state needs a prompt; an attempt the web view does not
+        /// acknowledge in time proceeds without one. This command answers no prompt, abandons no request and exits nothing
+        /// of its own. Where the app then exits, the caller may never see the reply.
+        #[tauri::command]
+        pub fn native_smoke_request_close(app: AppHandle, kind: String) -> Result<(), String> {
+            match kind.as_str() {
+                "quit" => {
+                    crate::request_quit(&app);
+                    Ok(())
+                }
+                "window" => {
+                    let window = app.get_webview_window("main").ok_or_else(|| "NATIVE-WINDOW-UNAVAILABLE: main webview is not installed".to_string())?;
+                    window.close().map_err(|error| error.to_string())
+                }
+                other => Err(format!("NATIVE-CLOSE-KIND-UNKNOWN: {other:?}; the kind is \"quit\" or \"window\"")),
             }
-            "window" => {
-                let window = app.get_webview_window("main").ok_or_else(|| "NATIVE-WINDOW-UNAVAILABLE: main webview is not installed".to_string())?;
-                window.close().map_err(|error| error.to_string())
-            }
-            other => Err(format!("NATIVE-CLOSE-KIND-UNKNOWN: {other:?}; the kind is \"quit\" or \"window\"")),
-        }
-    }"#;
+        }"##;
 
     /// Identifiers the command must not name: it answers no prompt, abandons no request and exits nothing of its own.
     /// The denylist walks only the command's own body; a helper the command called would not be read. What closes that
-    /// is the exact comparison with [`COMMAND`]: the body can call nothing but what that text calls.
+    /// is the exact comparison with [`COMMAND`]: the item can call nothing but what that text calls.
     const REFUSED: [&str; 18] = [
         "exit", "process", "destroy", "eval", "finish_close", "request_close", "resolve", "resolve_close_request", "acknowledge", "acknowledge_close_request",
         "acknowledgement_deadline", "abandon_to_proceed", "CloseGuard", "CloseDecision", "state", "try_state", "emit", "prevent_close",
     ];
 
-    /// What is wrong with the command in `native_smoke` (the text of `native_smoke.rs`): empty when it is a public
-    /// `#[tauri::command]` whose signature and body are exactly [`COMMAND`], and its body names nothing on [`REFUSED`].
+    /// What is wrong with the command in `native_smoke` (the text of `native_smoke.rs`): empty when the whole item is,
+    /// token by token, [`COMMAND`], and its body names nothing on [`REFUSED`].
     fn command_problems(native_smoke: &str) -> Vec<String> {
         let file = syn::parse_file(native_smoke).unwrap();
         let Some(command) = top_fn(&file, "native_smoke_request_close") else { return vec!["no fn native_smoke_request_close".into()] };
         let mut problems = Vec::new();
-        if !matches!(command.vis, syn::Visibility::Public(_)) {
-            problems.push("the command is not pub".into());
-        }
-        if !command.attrs.iter().any(|attr| attr.path().segments.iter().map(|segment| segment.ident.to_string()).collect::<Vec<_>>() == ["tauri", "command"]) {
-            problems.push("the command is not a #[tauri::command]".into());
-        }
-        let found = signature_and_body(native_smoke, command);
-        if found != normalized(COMMAND) {
+        let found = item_text(native_smoke, command);
+        if tokens(&found) != tokens(COMMAND) {
             problems.push(format!("the command differs from its reviewed text: {found}"));
         }
         let mut read = Read::default();
@@ -12554,16 +12601,101 @@ mod scripted_close_route_tests {
         problems
     }
 
-    /// The files of `files` that call `request_quit`, with how many calls each makes.
-    fn request_quit_callers(files: &[(String, String)]) -> BTreeMap<String, usize> {
-        files
-            .iter()
-            .filter_map(|(name, text)| {
+    /// Every place `request_quit` is named outside test-only items, in any file of `files`: as an identifier anywhere
+    /// in the code (a call, a path, a function pointer, an import) or inside macro tokens at any depth. Returns (the
+    /// allowed sites found, each by its name, and every other occurrence as `file:line:column`). The allowed sites
+    /// are three: the `fn request_quit` definition in `lib.rs`, the call in the menu event's Quit branch in `lib.rs`,
+    /// and the `"quit"` arm of `native_smoke_request_close` in `native_smoke.rs`.
+    fn request_quit_uses(files: &[(String, String)]) -> (Vec<String>, Vec<String>) {
+        type At = proc_macro2::LineColumn;
+        #[derive(Default)]
+        struct Uses {
+            at: Vec<At>,
+        }
+        fn macro_uses(stream: proc_macro2::TokenStream, at: &mut Vec<At>) {
+            for token in stream {
+                match token {
+                    proc_macro2::TokenTree::Ident(ident) if ident == "request_quit" => at.push(ident.span().start()),
+                    proc_macro2::TokenTree::Group(group) => macro_uses(group.stream(), at),
+                    _ => {}
+                }
+            }
+        }
+        impl<'ast> Visit<'ast> for Uses {
+            fn visit_item(&mut self, node: &'ast syn::Item) {
+                let attrs: &[syn::Attribute] = match node {
+                    syn::Item::Const(item) => &item.attrs,
+                    syn::Item::Enum(item) => &item.attrs,
+                    syn::Item::Fn(item) => &item.attrs,
+                    syn::Item::Impl(item) => &item.attrs,
+                    syn::Item::Macro(item) => &item.attrs,
+                    syn::Item::Mod(item) => &item.attrs,
+                    syn::Item::Static(item) => &item.attrs,
+                    syn::Item::Struct(item) => &item.attrs,
+                    syn::Item::Trait(item) => &item.attrs,
+                    syn::Item::Type(item) => &item.attrs,
+                    syn::Item::Use(item) => &item.attrs,
+                    _ => &[],
+                };
+                let test_only = attrs.iter().any(|attr| attr.path().is_ident("cfg") && matches!(&attr.meta, syn::Meta::List(list) if list.tokens.to_string() == "test"));
+                if !test_only {
+                    visit::visit_item(self, node);
+                }
+            }
+            fn visit_ident(&mut self, node: &'ast proc_macro2::Ident) {
+                if node == "request_quit" {
+                    self.at.push(node.span().start());
+                }
+            }
+            fn visit_macro(&mut self, node: &'ast syn::Macro) {
+                macro_uses(node.tokens.clone(), &mut self.at);
+                visit::visit_macro(self, node);
+            }
+        }
+        let within = |at: At, open: At, close: At| (open.line, open.column) <= (at.line, at.column) && (at.line, at.column) < (close.line, close.column);
+        let mut allowed = Vec::new();
+        let mut other = Vec::new();
+        for (name, text) in files {
+            let file = syn::parse_file(text).unwrap_or_else(|error| panic!("{name} does not parse: {error}"));
+            let mut uses = Uses::default();
+            uses.visit_file(&file);
+            // The allowed sites of this file, by name and span.
+            let mut sites: Vec<(&str, At, At)> = Vec::new();
+            if name == "lib.rs" {
+                if let Some(function) = top_fn(&file, "request_quit") {
+                    let ident = function.sig.ident.span();
+                    sites.push(("lib.rs definition", ident.start(), ident.end()));
+                }
                 let mut read = Read::default();
-                read.visit_file(&syn::parse_file(text).unwrap_or_else(|error| panic!("{name} does not parse: {error}")));
-                (read.quit_calls > 0).then(|| (name.clone(), read.quit_calls))
-            })
-            .collect()
+                read.visit_file(&file);
+                if let Some((_, open, close)) = read.quit_branch {
+                    sites.push(("lib.rs menu Quit branch", open, close));
+                }
+            }
+            if name == "native_smoke.rs" {
+                if let Some(command) = top_fn(&file, "native_smoke_request_close") {
+                    for statement in &command.block.stmts {
+                        if let syn::Stmt::Expr(syn::Expr::Match(matched), _) = statement {
+                            for arm in &matched.arms {
+                                let quit = matches!(&arm.pat, syn::Pat::Lit(pattern) if matches!(&pattern.lit, syn::Lit::Str(literal) if literal.value() == "quit"));
+                                if let (true, syn::Expr::Block(block)) = (quit, &*arm.body) {
+                                    let braces = block.block.brace_token.span;
+                                    sites.push(("native_smoke.rs quit arm", braces.open().start(), braces.close().end()));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            for at in uses.at {
+                match sites.iter().find(|(_, open, close)| within(at, *open, *close)) {
+                    Some((site, _, _)) => allowed.push(site.to_string()),
+                    None => other.push(format!("{name}:{}:{}", at.line, at.column + 1)),
+                }
+            }
+        }
+        allowed.sort();
+        (allowed, other)
     }
 
     /// Where `lib` (the text of `lib.rs`) names the command: (inside an `app_invoke_handler!` in a `let` gated exactly
@@ -12641,6 +12773,18 @@ mod scripted_close_route_tests {
         let signature = smoke.replacen("pub fn native_smoke_request_close(app: AppHandle, kind: String)", "pub fn native_smoke_request_close(app: AppHandle, kind: String, proceed: bool)", 1);
         assert_ne!(signature, smoke);
         assert!(command_problems(&signature).iter().any(|problem| problem.starts_with("the command differs")));
+        // A string literal changed by one space.
+        let literal = smoke.replacen("app.get_webview_window(\"main\")", "app.get_webview_window(\"main \")", 1);
+        assert_ne!(literal, smoke);
+        assert!(command_problems(&literal).iter().any(|problem| problem.starts_with("the command differs")));
+        // A qualifier added to the signature.
+        let qualified = smoke.replacen("pub fn native_smoke_request_close(", "pub async fn native_smoke_request_close(", 1);
+        assert_ne!(qualified, smoke);
+        assert!(command_problems(&qualified).iter().any(|problem| problem.starts_with("the command differs")));
+        // The attribute removed.
+        let unattributed = smoke.replacen("#[tauri::command]\npub fn native_smoke_request_close(", "pub fn native_smoke_request_close(", 1);
+        assert_ne!(unattributed, smoke);
+        assert!(command_problems(&unattributed).iter().any(|problem| problem.starts_with("the command differs")));
     }
 
     #[test]
@@ -12652,13 +12796,31 @@ mod scripted_close_route_tests {
     }
 
     #[test]
-    fn request_quit_is_called_from_the_menu_branch_and_the_command_only() {
-        let mut files = crate_sources();
-        let expected = BTreeMap::from([("lib.rs".to_string(), 1), ("native_smoke.rs".to_string(), 1)]);
-        assert_eq!(request_quit_callers(&files), expected);
-        // A caller in a third file, at any depth of the tree, is found.
-        files.push(("embedded_agent/sample.rs".to_string(), "fn f(app: &tauri::AppHandle) { crate::request_quit(app); }".to_string()));
-        assert_eq!(request_quit_callers(&files).get("embedded_agent/sample.rs"), Some(&1));
+    fn request_quit_is_named_only_at_its_definition_the_menu_branch_and_the_commands_quit_arm() {
+        let files = crate_sources();
+        let (allowed, other) = request_quit_uses(&files);
+        assert_eq!(allowed, ["lib.rs definition", "lib.rs menu Quit branch", "native_smoke.rs quit arm"]);
+        assert_eq!(other, Vec::<String>::new());
+        // A call, a function pointer and a macro argument in a third file, at any depth of the tree, are each found.
+        for sample in [
+            "fn f(app: &tauri::AppHandle) { crate::request_quit(app); }",
+            "fn f() { let quit = crate::request_quit::<tauri::Wry>; drop(quit); }",
+            "fn f() { some_macro!(request_quit); }",
+            "fn f() { some_macro!(a, (b, [crate::request_quit])); }",
+        ] {
+            let mut with = files.clone();
+            with.push(("embedded_agent/sample.rs".to_string(), sample.to_string()));
+            let (allowed, other) = request_quit_uses(&with);
+            assert_eq!(allowed.len(), 3, "{sample}");
+            assert_eq!(other.len(), 1, "{sample}: {other:?}");
+            assert!(other[0].starts_with("embedded_agent/sample.rs:1:"), "{sample}: {other:?}");
+        }
+        // A second use beside an allowed site, in lib.rs itself, is found too.
+        let lib = files.iter().find(|(name, _)| name == "lib.rs").unwrap().1.clone();
+        let extra = lib.replacen("fn request_quit<", "fn quit_pointer() { let _ = request_quit::<tauri::Wry>; }\nfn request_quit<", 1);
+        assert_ne!(extra, lib);
+        let with: Vec<(String, String)> = files.iter().map(|(name, text)| (name.clone(), if name == "lib.rs" { extra.clone() } else { text.clone() })).collect();
+        assert_eq!(request_quit_uses(&with).1.len(), 1);
     }
 
     #[test]
