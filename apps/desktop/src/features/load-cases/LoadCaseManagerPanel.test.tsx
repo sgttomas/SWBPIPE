@@ -671,6 +671,29 @@ describe("LoadCaseManagerPanel combination editing", () => {
 });
 
 describe("LoadCaseManagerPanel layout", () => {
+  it("selects a case the pressure panel names as not given regions, and opens its Pressure section", () => {
+    const model = inventedModel();
+    model.pressure_contract = { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "timoshenko_annulus_energy_v1" };
+    model.load_cases[0].pressure_regions = [];
+    const { select } = mount(model, { type: "load", id: "load:dead" });
+    expect(byId("load-case-section-pressure")).not.toHaveAttribute("open");
+    fireEvent.click(screen.getByRole("button", { name: "load:hot has not been given pressure regions" }));
+    expect(select).toHaveBeenLastCalledWith({ type: "load", id: "load:hot" });
+    expect(byId("load-manager-selected-case")).toHaveAttribute("data-entity-id", "load:hot");
+    expect(byId("load-case-section-pressure")).toHaveAttribute("open");
+    // The person starts a draft region and closes the section; the next press opens it again, the draft kept.
+    fireEvent.click(within(byId("load-case-section-pressure")).getByRole("button", { name: "Add pressure region" }));
+    expect(within(byId("load-case-section-pressure")).getByText("Region 1")).toBeInTheDocument();
+    const pressure = byId("load-case-section-pressure") as HTMLDetailsElement;
+    pressure.open = false;
+    fireEvent(pressure, new Event("toggle"));
+    expect(byId("load-case-section-pressure")).not.toHaveAttribute("open");
+    fireEvent.click(screen.getByRole("button", { name: "load:hot has not been given pressure regions" }));
+    expect(byId("load-case-section-pressure")).toHaveAttribute("open");
+    expect(byId("load-case-section-pressure")).toBe(pressure);
+    expect(within(byId("load-case-section-pressure")).getByText("Region 1")).toBeInTheDocument();
+  });
+
   it("shows what exists first and opens each creation form only on its command", () => {
     const model = inventedModel();
     model.load_cases[0].pressure_regions = [];

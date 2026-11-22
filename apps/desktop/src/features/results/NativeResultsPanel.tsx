@@ -77,6 +77,7 @@ import { displayRoute, sameContractBinding, type RowSemantics } from "./resultRe
 import { isRetainedRoute } from "./numericalResultQuality";
 import { retainedPrecisionStandingText } from "./retainedPrecisionStanding";
 import { recordedTableLabel, type RecordedBinding } from "../../services/recordedPreRtA4";
+import { RotationGroupNote } from "./sectionRotationNote";
 
 type Row = MechanicsResult["results"][number];
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -589,6 +590,7 @@ export function NativeResultsPanel({
         {groups.length > 0 ? groups.map((group) => (
           <section key={group.title} className="result-group" aria-label={`${group.title} results`} data-testid={`result-group-${group.title.toLowerCase()}`}>
             <h3>{group.title}</h3>
+            <RotationGroupNote group={group.title} result={result} />
             <CsvExportControl tableLabel={`${group.title} results`} testId={`result-group-${group.title.toLowerCase()}-export-csv`} stream={() => exportGroup(group.title)} />
             <table data-csv-export={resultGroupCsvKind(group.title)}>
               <thead><tr><th>ID</th><th>Entity</th><th>Location</th><th title="The coordinate frame the row's value is stated in, as the row states it">Frame</th><th>Value</th><th>Entered source</th></tr></thead>

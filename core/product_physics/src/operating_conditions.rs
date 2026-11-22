@@ -415,15 +415,16 @@ pub(crate) fn judge(model: &PreviewModel) -> Judgement {
 /// it takes [`judge`]'s diagnostics, applies its plan when there is one, and then
 /// removes every member no later stage reads. A document refused by a
 /// document-level rule keeps its members; nothing after the refusal solves it.
-pub(crate) fn lower(model: &mut PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
+/// Returns the added weights it appended, as (case index, load id): the
+/// seismic model-check warning names exactly these as a condition's added
+/// weight (DEL-05-01 REQ-008), whatever an authored load's id or provenance.
+pub(crate) fn lower(model: &mut PreviewModel, diagnostics: &mut Vec<Diagnostic>) -> Vec<(usize, String)> {
     let judged = judge(model);
     diagnostics.extend(judged.diagnostics);
     if judged.document_refused {
-        return;
+        return Vec::new();
     }
-    if let Some(planned) = judged.plan {
-        planned.apply(model);
-    }
+    let added = judged.plan.map(|planned| planned.apply(model)).unwrap_or_default();
     // The members no later stage reads.
     model.condition_sets.clear();
     model.spectra.clear();
@@ -434,6 +435,7 @@ pub(crate) fn lower(model: &mut PreviewModel, diagnostics: &mut Vec<Diagnostic>)
         case.condition_use = None;
     }
     crate::document_members::lower_axis_aligned_directions(model);
+    added
 }
 
 /// The `document_kind` of [`preview_operating_conditions`]'s report.
