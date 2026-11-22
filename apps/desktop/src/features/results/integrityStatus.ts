@@ -47,7 +47,7 @@ export function worseState(a: NumericalHealthState, b: NumericalHealthState): Nu
  * worst state (`gatedState`; not assessed where the gate yields no health), in the indicator's
  * words. It reads "solver checks found no problem" only where both say checks passed, and never
  * shows a raw token. */
-function leadStateText(result: Pick<MechanicsResult, "numerical_quality">, gated: NumericalHealthState): string {
+export function leadStateText(result: Pick<MechanicsResult, "numerical_quality">, gated: NumericalHealthState): string {
   return NUMERICAL_HEALTH_STATE_TEXT[worseState(documentStatusState(result.numerical_quality?.status), gated)];
 }
 /** "Numerical health: {state}." on the results line. */

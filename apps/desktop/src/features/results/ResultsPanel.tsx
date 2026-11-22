@@ -388,7 +388,7 @@ function FullResultsPanel({
           {!health && route !== "unsupported" && !isRetainedRoute(route) ? <p data-testid="numerical-health-boundary">{BOUNDARY_SENTENCE}</p> : null}
           <KnownSemanticNotices result={result} testIdPrefix="results" recordedTableRead={recordedTableRead} />
           <SectionBasisHeadlines result={result} />
-          <PhysicsSourceEvidencePanel result={result} />
+          <PhysicsSourceEvidencePanel result={result} health={health} />
           <ResultControls
             familyCounts={familyCounts}
             familyFilter={familyFilter}

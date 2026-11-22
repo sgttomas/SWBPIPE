@@ -3,7 +3,9 @@ import { isNativeResult, nativeCustody, readNativeValidation, type SessionResult
 import type { LoadStateContractEvidence, LoadReferenceStateRecord, MechanicsResult, PreviewModel } from "../../types";
 import { readerValidate, sourceContract } from "../results/resultReader";
 import { numericalResultStanding } from "../results/resultStanding";
-import { numericalQualityStatusText, standingStatusText } from "../results/integrityStatus";
+import { numericalHealthView, parseNumericalHealth, readNumericalHealth, type NumericalHealthView } from "../results/numericalHealth";
+import { documentStatusState, standingStatusText, worseState } from "../results/integrityStatus";
+import { NUMERICAL_HEALTH_STATE_TEXT } from "../results/numericalHealthText";
 
 /* Read-only view of the published `contract_evidence.load_reference_states`.
  * Values are shown only after the Rust reader of the route has admitted the
@@ -52,7 +54,7 @@ function useNativeAdmission(result: SessionResult | null, route: Route | null): 
   return read && read.of === result ? read.admission : null;
 }
 
-export function LoadReferenceStatesBlock({ result, model }: { result: SessionResult | null; model: PreviewModel }) {
+export function LoadReferenceStatesBlock({ result, model, numericalHealth }: { result: SessionResult | null; model: PreviewModel; numericalHealth?: NumericalHealthView | null }) {
   const route = routeOf(result);
   const nativeAdmission = useNativeAdmission(result, route);
   if (!result || !route) return null;
@@ -66,22 +68,29 @@ export function LoadReferenceStatesBlock({ result, model }: { result: SessionRes
     <div className="panel-subtitle">Resolved load/reference states (published, read-only)</div>
     <p data-testid="load-reference-states-route">Route: {routeLabel}</p>
     {admitted.state === "refused" && <p role="status" data-testid="load-reference-states-refused">No value is shown: the load/reference-state reader refused this result ({admitted.reason}).</p>}
-    {admitted.state === "admitted" && <AdmittedStates result={result} model={model} joined={joined} />}
+    {admitted.state === "admitted" && <AdmittedStates result={result} model={model} joined={joined} numericalHealth={numericalHealth} />}
   </section>;
 }
 
-function AdmittedStates({ result, model, joined }: { result: SessionResult; model: PreviewModel; joined: boolean }) {
+function AdmittedStates({ result, model, joined, numericalHealth }: { result: SessionResult; model: PreviewModel; joined: boolean; numericalHealth?: NumericalHealthView | null }) {
   const standing = numericalResultStanding(result, model);
   const evidence = result.contract_evidence as unknown as LoadStateContractEvidence;
   const cases = result.numerical_quality?.cases ?? [];
+  const health = numericalHealth !== undefined
+    ? numericalHealth
+    : isNativeResult(result)
+      ? numericalHealthView(parseNumericalHealth(nativeCustody(result).summary.header.numerical_health), { eligible: standing.eligible, verdictHold: false, documentStatus: result.numerical_quality?.status })
+      : numericalHealthView(readNumericalHealth(result, standing.findings), { eligible: standing.eligible, verdictHold: false, documentStatus: result.numerical_quality?.status });
   return <>
     <p data-testid="load-reference-states-standing">
       Result standing: {standingStatusText(standing.status)}{standing.findings.length ? `; findings: ${standing.findings.join(", ")}` : ""}
     </p>
     {evidence.load_reference_states.map(record => {
       const published = cases.find(c => c.basis_ref.ref_type === "load_case" && c.basis_ref.ref_id === record.load_case_id);
-      const label = !joined && standing.eligible && published?.solve_quality === "checks_passed" ? SOLVER_CHECKS_PASSED_LABEL : NEEDS_RECOMPUTE_NOT_CURRENT;
-      return <CaseState key={record.load_case_id} record={record} label={label} quality={published ? numericalQualityStatusText(published.solve_quality) : "not published"} />;
+      const gated = health?.caseState(record.load_case_id) ?? "not_assessed";
+      const effective = published ? worseState(documentStatusState(published.solve_quality), gated) : null;
+      const label = !joined && standing.eligible && effective === "checks_passed" ? SOLVER_CHECKS_PASSED_LABEL : NEEDS_RECOMPUTE_NOT_CURRENT;
+      return <CaseState key={record.load_case_id} record={record} label={label} quality={effective ? NUMERICAL_HEALTH_STATE_TEXT[effective] : "not published"} />;
     })}
   </>;
 }

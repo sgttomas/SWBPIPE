@@ -2,6 +2,8 @@ import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, expect, it } from "vitest";
 import type { MechanicsResult } from "../../types";
 import { hasNativeMechanicsInvocation } from "../../services/previewService";
+import { documentStatusState } from "./integrityStatus";
+import { NUMERICAL_HEALTH_STATE_TEXT } from "./numericalHealthText";
 import { PhysicsSourceEvidencePanel } from "./PhysicsSourceEvidencePanel";
 
 afterEach(cleanup);
@@ -68,7 +70,7 @@ it.each(["n05", "n06", "mixed", "fields"])('shows each %s stress maximum as labe
     const result = fixture(`${name}-${mode}`), before = JSON.stringify(result);
     const view = render(<PhysicsSourceEvidencePanel result={result} />);
     const panel = screen.getByRole("region", { name: "Recorded recovery evidence" });
-    expect(panel).toHaveTextContent(`Ordinary numerical attempt: ${result.numerical_quality!.status === "checks_passed" ? "solver checks found no problem" : result.numerical_quality!.status}`);
+    expect(panel).toHaveTextContent(`Ordinary numerical attempt: ${NUMERICAL_HEALTH_STATE_TEXT[documentStatusState(result.numerical_quality!.status)]}`);
     expect(panel.textContent).not.toContain("checks_passed");
     expect(panel).toHaveTextContent("exact_pressure_v3");
     expect(panel).toHaveTextContent("These recorded labels do not grant Current use");

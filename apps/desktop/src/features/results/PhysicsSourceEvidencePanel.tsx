@@ -1,14 +1,13 @@
 import type { MechanicsResult } from "../../types";
 import { PRESSURE_SOURCE_CONTRACT_ID } from "./numericalResultQuality";
-import { numericalQualityStatusText } from "./integrityStatus";
+import { documentStatusState, leadStateText, worseState } from "./integrityStatus";
+import { gatedState, numericalHealthView, readNumericalHealth, type NumericalHealthView } from "./numericalHealth";
+import { NUMERICAL_HEALTH_STATE_TEXT } from "./numericalHealthText";
 
 type RecordValue = Record<string, unknown>;
 const record = (v: unknown): RecordValue | null => v && typeof v === "object" && !Array.isArray(v) ? v as RecordValue : null;
 const rows = (v: unknown): RecordValue[] => Array.isArray(v) ? v.map(record).filter((x): x is RecordValue => x !== null) : [];
 const text = (v: unknown) => typeof v === "string" && v ? v : "unavailable";
-/** An ordinary attempt's quality in the desktop's state words: the solver's `checks_passed` reads
- * "solver checks found no problem" (release exit criterion 18); every other status as recorded. */
-const quality = (v: unknown) => typeof v === "string" && v ? numericalQualityStatusText(v) : "unavailable";
 
 /** The panel's own marker for a field it cannot display: a member the row always lists that the
  * record lacks, or a value of another kind than its field's. It does not begin with the word
@@ -84,24 +83,29 @@ function Entries({ entries, testId }: { entries: Entry[]; testId: string }) {
  * the retained-source composite pressure-source-1 (B7b: the v3 twin of the retired
  * physics-source-1). The private invocation and method validators remain the
  * eligibility owners. */
-export function PhysicsSourceEvidencePanel({ result }: { result: MechanicsResult }) {
+export function PhysicsSourceEvidencePanel({ result, health }: { result: MechanicsResult; health?: NumericalHealthView | null }) {
   const physical = record(result.contract_evidence), receipt = record(result.source_block_recovery), body = record(receipt?.body);
   const cases = rows(body?.cases), exactCases = rows(physical?.exact_cases);
   const composite = result.producer?.semantic_contract_id === PRESSURE_SOURCE_CONTRACT_ID;
   if (!composite) return null;
+  const effectiveHealth = health !== undefined
+    ? health
+    : numericalHealthView(readNumericalHealth(result, null), { eligible: false, verdictHold: false, documentStatus: result.numerical_quality?.status });
   const receiptIds = cases.map(c => text(record(c.basis_ref)?.ref_id));
   const physicalIds = exactCases.map(c => text(c.load_case_id));
   const coverageMatches = (receiptIds.length === physicalIds.length && new Set(receiptIds).size === receiptIds.length && receiptIds.every(id => physicalIds.includes(id)));
   return <section aria-label="Recorded recovery evidence" data-testid="physics-source-evidence">
-    <p>Physical profile: {text(result.formulation_basis?.profile_id)}. Ordinary numerical attempt: {quality(result.numerical_quality?.status)}.</p>
+    <p>Physical profile: {text(result.formulation_basis?.profile_id)}. Ordinary numerical attempt: {leadStateText(result, gatedState(effectiveHealth))}.</p>
     <p>Producer receipt: {text(body?.status)}. These recorded labels do not grant Current use; actual invocation and complete method evidence are checked separately.</p>
     <p data-testid="physics-source-case-coverage">Recorded cases: {cases.length}; physical cases: {exactCases.length}. {coverageMatches ? "Receipt and physical case identities agree." : "Case evidence is incomplete or inconsistent."}</p>
     {cases.map((c, index) => {
       const id = text(record(c.basis_ref)?.ref_id), exact = exactCases.find(x => x.load_case_id === id);
       const ordinary = result.numerical_quality?.cases.find(x => x.basis_ref.ref_id === id);
+      const gatedCase = effectiveHealth?.caseState(id) ?? "not_assessed";
+      const caseAttempt = ordinary ? NUMERICAL_HEALTH_STATE_TEXT[worseState(documentStatusState(ordinary.solve_quality), gatedCase)] : "unavailable";
       return <article key={`${id}:${index}`} data-testid={`physics-source-case-${id}`}>
         <h4>{id}</h4>
-        <p>Ordinary case attempt: {quality(ordinary?.solve_quality)}. Selected method: <code>{text(c.selected_method)}</code>. Producer outcome: {text(c.outcome)}.</p>
+        <p>Ordinary case attempt: {caseAttempt}. Selected method: <code>{text(c.selected_method)}</code>. Producer outcome: {text(c.outcome)}.</p>
         {exact ? <p>Material selection: {text(exact.material_basis)}; {rows(exact.pipe_materials).length} member material records; {rows(exact.pipe_sections).length} section records.</p> : null}
         {rows(exact?.pipe_stress_extrema).length > 0 ? <p data-testid={`physics-source-recorded-fields-notice-${index}`}>{RECORDED_FIELDS_NOTICE}</p> : null}
         {/* Test identifiers go by position (case, entry), never by a recorded identifier. */}

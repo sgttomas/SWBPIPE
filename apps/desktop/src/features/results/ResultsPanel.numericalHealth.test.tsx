@@ -144,6 +144,29 @@ describe("ResultsPanel numerical health", () => {
     render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={passed} />);
     expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Numerical health: solver checks found no problem\. /);
   });
+
+  it("gates PhysicsSourceEvidencePanel through the worse of document status and gated health on the reviewer's n05 contradiction", () => {
+    const result = JSON.parse(readFileSync(resolve(__dirname, "../../../../../fixtures/product_preview/pressure_source/physics_source/n05-dense_scrutiny.raw.json"), "utf8")) as MechanicsResult;
+    result.numerical_quality!.status = "checks_passed";
+    render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} />);
+    expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Ordinary solve: sensitive\. /);
+    const evidence = screen.getByTestId("physics-source-evidence");
+    expect(evidence).toHaveTextContent("Ordinary numerical attempt: sensitive.");
+    expect(evidence).toHaveTextContent("Ordinary case attempt: sensitive.");
+    expect(evidence.textContent).not.toContain("solver checks found no problem");
+  });
+
+  it("does not show solver checks found no problem in PhysicsSourceEvidencePanel when mechanics did not solve", () => {
+    const result = JSON.parse(readFileSync(resolve(__dirname, "../../../../../fixtures/product_preview/pressure_source/physics_source/mixed-sparse_interactive.raw.json"), "utf8")) as MechanicsResult;
+    result.status.mechanics = "MODEL_INCOMPLETE";
+    result.numerical_quality!.status = "checks_passed";
+    render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} />);
+    expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Ordinary solve: not assessed\. /);
+    const evidence = screen.getByTestId("physics-source-evidence");
+    expect(evidence).toHaveTextContent("Ordinary numerical attempt: not assessed.");
+    expect(screen.getByTestId("physics-source-case-case:ordinary-pressure")).toHaveTextContent("Ordinary case attempt: not assessed.");
+    expect(evidence.textContent).not.toContain("solver checks found no problem");
+  });
 });
 
 describe("the indicator never reads better than the document's own status", () => {

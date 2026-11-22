@@ -4,6 +4,7 @@ import { SolvePanel } from "./SolvePanel";
 import { SOLVER_CHECKS_PASSED_LABEL, NEEDS_RECOMPUTE_NOT_CURRENT } from "./LoadReferenceStatesBlock";
 import { initialSolveJob } from "../workspace/solveJobAudit";
 import { LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE, SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED, numericalResultStanding, registerSourceRecovery } from "../results/resultStanding";
+import { numericalHealthView, parseNumericalHealth, type NumericalHealthView } from "../results/numericalHealth";
 import { PRESSURE_2_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL } from "../results/loadReferenceOutputAvailability";
 import type { LoadStateContractEvidence, MechanicsResult, PreviewModel } from "../../types";
 import type { PreviewSolverMode } from "../../services/previewService";
@@ -36,10 +37,10 @@ const coreFallback = (mode: PreviewSolverMode) => {
   const request = fixture("load_reference_fallback_uz.request.json") as { model: PreviewModel };
   return { model: request.model, result: fixture(`load_reference_fallback_uz-${mode}.raw.json`) as MechanicsResult };
 };
-function renderSolve(model: PreviewModel, result: MechanicsResult | null, solverMode: PreviewSolverMode = "sparse_interactive") {
+function renderSolve(model: PreviewModel, result: MechanicsResult | null, solverMode: PreviewSolverMode = "sparse_interactive", numericalHealth?: NumericalHealthView | null) {
   // The committed request models are rendered unmodified (the two ordinary ones
   // carry no `diagnostics` array; SolvePanel treats that as none).
-  return render(<SolvePanel analysisRun={null} model={model} result={result} running={false} solveJob={initialSolveJob()} solverMode={solverMode} onCancel={() => {}} onRun={() => {}} onSolverModeChange={() => {}} />);
+  return render(<SolvePanel analysisRun={null} model={model} result={result} running={false} solveJob={initialSolveJob()} solverMode={solverMode} {...(numericalHealth !== undefined ? { numericalHealth } : {})} onCancel={() => {}} onRun={() => {}} onSolverModeChange={() => {}} />);
 }
 const records = (result: MechanicsResult) => (result.contract_evidence as unknown as LoadStateContractEvidence).load_reference_states;
 const text = (value: unknown) => value === null ? "—" : String(value);
@@ -123,6 +124,47 @@ describe("resolved-state block: ordinary pressure-2 with load/reference states",
     expect(screen.getByTestId("load-reference-states-refused")).toHaveTextContent("SOURCE_LOAD_REFERENCE_STRETCH_BINDING");
     expect(screen.queryByTestId("load-reference-members-case:cold")).toBeNull();
     expect(screen.queryByTestId("load-reference-state-standing-case:cold")).toBeNull();
+  });
+
+  it("gates published case quality to not assessed when SolvePanel receives null numericalHealth", () => {
+    const { model, result } = pair("load_reference", "connected", "sparse_interactive");
+    renderSolve(model, result, "sparse_interactive", null);
+    for (const record of records(result)) {
+      const el = screen.getByTestId(`load-reference-state-standing-${record.load_case_id}`);
+      expect(el).toHaveTextContent(NEEDS_RECOMPUTE_NOT_CURRENT);
+      expect(el).toHaveTextContent("(published solve quality: not assessed)");
+      expect(el).not.toHaveTextContent("solver checks found no problem");
+      expect(el).not.toHaveTextContent(SOLVER_CHECKS_PASSED_LABEL);
+    }
+  });
+
+  it("gates published case quality through the worse of published solve_quality and SolvePanel's numericalHealth", () => {
+    const { model, result } = pair("load_reference", "connected", "sparse_interactive");
+    const parsed = parseNumericalHealth({
+      route: "generic",
+      verdict_only: false,
+      cases: records(result).map((record) => ({
+        case_id: record.load_case_id,
+        state: "sensitive",
+        code: "NUMERICAL_INTEGRITY_SENSITIVE",
+        integrity_diagnostic_id: null,
+        rcond: 1e-11,
+        digits: 11,
+        conditioning_sensitive: true,
+        causes: []
+      })),
+      combinations: []
+    });
+    expect(parsed).not.toBeNull();
+    const sensitiveView = numericalHealthView(parsed, { eligible: false, verdictHold: false })!;
+    renderSolve(model, result, "sparse_interactive", sensitiveView);
+    for (const record of records(result)) {
+      const el = screen.getByTestId(`load-reference-state-standing-${record.load_case_id}`);
+      expect(el).toHaveTextContent(NEEDS_RECOMPUTE_NOT_CURRENT);
+      expect(el).toHaveTextContent("(published solve quality: sensitive)");
+      expect(el).not.toHaveTextContent("solver checks found no problem");
+      expect(el).not.toHaveTextContent(SOLVER_CHECKS_PASSED_LABEL);
+    }
   });
 });
 
