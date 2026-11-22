@@ -1197,14 +1197,12 @@ button:focus-visible {
 }
 
 .viewport-axis-triad,
-.viewport-view-cube,
-.viewport-scale-bar {
+.viewport-view-cube {
   position: absolute;
   z-index: 2;
 }
 
-.viewport-axis-triad,
-.viewport-scale-bar {
+.viewport-axis-triad {
   pointer-events: none;
 }
 
@@ -1260,18 +1258,6 @@ button:focus-visible {
   border-color: #31403d;
 }
 
-.viewport-scale-bar {
-  right: 14px;
-  bottom: calc(14px + var(--viewport-presentation-bottom-inset, 0px));
-  min-width: 90px;
-  padding: 5px 8px 7px;
-  border-bottom: 4px solid var(--canvas-label);
-  color: var(--canvas-label);
-  background: var(--canvas-labelBg);
-  font-size: 12px;
-  font-weight: 700;
-  text-align: center;
-}
 
 .command-bar {
   display: flex;
@@ -4496,12 +4482,6 @@ body { min-width: 760px; min-height: 540px; }
   font-weight: 600;
   white-space: normal;
 }
-.numerical-health-green {
-  color: var(--text-primary);
-  border-color: var(--cat-3);
-  box-shadow: inset 3px 0 0 var(--cat-3);
-  background: var(--surface-panel);
-}
 .numerical-health-red {
   color: var(--status-failedInk);
   border-color: var(--issue-blocking);
@@ -4741,7 +4721,15 @@ body { min-width: 760px; min-height: 540px; }
 
 /* Status bar: the selection's type is a quiet label and its id is set as an identifier. */
 .app-shell .shell-status-selection .shell-status-selection-type { color: var(--text-secondary); }
-.app-shell .shell-status-selection .shell-status-selection-id { color: var(--ui-text); font-family: var(--font-mono); font-size: var(--type-size-caption); }
+.app-shell .shell-status-selection .shell-status-selection-id { color: var(--ui-text); font-family: var(--font-mono); font-size: var(--type-size-caption); line-height: var(--type-lineHeight-caption); }
+/* The selection gives way type first, then the count, and the identifier last. */
+/* One line-height across the sans type and the monospace identifier, so the row is one chip line
+   tall on every platform's fonts. */
+.app-shell .shell-status-selection { display: flex; align-items: center; min-width: 0; line-height: var(--type-lineHeight-chip); }
+.app-shell .shell-status-selection > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: pre; }
+.app-shell .shell-status-selection > .shell-status-selection-type { flex: 0 1000 auto; }
+.app-shell .shell-status-selection > .shell-status-selection-count { flex: 0 100 auto; }
+.app-shell .shell-status-selection > .shell-status-selection-id { flex: 0 1 auto; margin-inline-start: 0.3em; }
 
 /* Results actions (Inspect bundled reference, Key results) are ordinary commands in one group at
    the head of the results column, not full-width bars. */
@@ -4783,6 +4771,109 @@ body { min-width: 760px; min-height: 540px; }
 .app-shell .quantity-field-row > label + label { flex: 1 1 6rem; }
 .app-shell .quantity-field-row > label > input { width: 100%; min-width: 0; margin-inline: 0; color: var(--ui-text); }
 .app-shell .quantity-field > .quantity-field-row + button { margin-top: var(--space-2); }
+
+/* ---- The 3D view's controls (lane 1, human controls) ----------------------------------------
+   One bar above the canvas: the view's groups in priority order, then More. Groups that do not
+   fit move whole into More (ViewportOverflowBar), so no control is ever clipped or scrolled
+   sideways. Fit and the standard views sit together at the canvas's top right. The structure is
+   unscoped, so the view lays out the same wherever it is mounted (the e2e harnesses mount it alone);
+   sizes that must outrank the shell's control sizes are scoped to the shell. */
+.app-shell .viewport-toolbar {
+  position: relative; z-index: 3; display: grid; grid-template-rows: auto; height: auto; min-height: 0;
+  padding: var(--space-2) var(--space-4); gap: var(--space-2); font-weight: var(--type-weight-regular);
+}
+.viewport-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); min-width: 0; }
+.viewport-bar-groups { display: flex; flex: none; flex-wrap: nowrap; align-items: center; gap: var(--space-4); }
+.viewport-bar-group { display: flex; flex: none; flex-wrap: nowrap; align-items: center; gap: var(--space-1); }
+.viewport-bar-group + .viewport-bar-group { padding-inline-start: var(--space-4); border-inline-start: 1px solid var(--ui-divider); }
+.app-shell .viewport-bar button, .app-shell .viewport-bar select, .app-shell .viewport-more-menu button, .app-shell .viewport-more-menu select {
+  min-height: 24px; height: 24px; padding: 0 var(--space-3); font-size: var(--type-size-caption); white-space: nowrap;
+}
+.viewport-bar label, .viewport-more-menu label { display: inline-flex; align-items: center; margin: 0; }
+.viewport-more { flex: none; margin-inline-start: auto; }
+.viewport-more-button { display: inline-flex; align-items: center; gap: var(--space-2); }
+.viewport-more-caret { font-size: 9px; color: var(--ui-muted); }
+.viewport-more-count {
+  min-width: 16px; height: 16px; padding: 0 var(--space-2); box-sizing: border-box; border-radius: 8px;
+  color: var(--ui-accent-text); background: var(--ui-accent); font-size: 10px; line-height: 16px; text-align: center;
+}
+/* More, open: a second row of the bar, in the flow, so it pushes the canvas down rather than
+   covering its Fit and view controls. Its groups sit side by side, each under its heading. */
+.viewport-more-menu {
+  flex: 1 0 100%; order: 3; display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--space-2) var(--space-6);
+  box-sizing: border-box; padding: var(--space-2) 0 var(--space-1); border-top: 1px solid var(--ui-divider); color: var(--ui-text);
+}
+.viewport-more-group { display: grid; gap: var(--space-1); }
+.viewport-more-heading { color: var(--ui-muted); font-size: var(--type-size-caption); }
+.viewport-more-controls { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.viewport-bar .viewport-deformation-status, .viewport-more-menu .viewport-deformation-status {
+  max-width: none; padding-left: 0; border-left: 0; font-size: var(--type-size-caption);
+}
+.viewport-bar .viewport-deformation-status > summary { min-height: 24px; line-height: 24px; white-space: nowrap; }
+.viewport-more-menu .viewport-deformation-status[open] > div { position: static; width: auto; box-shadow: none; }
+/* The canvas furniture has its own places, so none covers another. Down the right: Fit and the
+   standard views, then the result legend, ending above the foot. Along the foot, between the axis
+   triad and the right edge: the status line, then the deflection factor and the scale bar. */
+.viewport-canvas-right {
+  position: absolute; z-index: 4; top: var(--space-4); right: var(--space-4);
+  bottom: calc(var(--space-4) + 44px + var(--viewport-presentation-bottom-inset, 0px));
+  display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-4);
+  max-width: calc(100% - 2 * var(--space-4)); pointer-events: none;
+}
+.viewport-canvas-right > * { pointer-events: auto; }
+.viewport-canvas-right > .viewport-result-legend { position: static; flex: 0 1 auto; min-height: 0; max-height: none; max-width: 100%; }
+.viewport-canvas-foot {
+  position: absolute; z-index: 4; left: calc(var(--space-4) + 96px + var(--space-4)); right: var(--space-4);
+  bottom: calc(var(--space-4) + var(--viewport-presentation-bottom-inset, 0px));
+  display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-4); pointer-events: none;
+}
+.viewport-canvas-foot > * { pointer-events: auto; }
+.viewport-canvas-foot-end { display: flex; flex: none; align-items: flex-end; gap: var(--space-4); margin-inline-start: auto; pointer-events: none; }
+.viewport-canvas-foot-end > .viewport-deflection-label { position: static; }
+/* The status line: only what applies now, quiet, on the canvas's label plate. */
+.viewport-status-line {
+  display: flex; flex: 0 1 auto; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-4); min-width: 0;
+  padding: var(--space-1) var(--space-3); border-radius: var(--radius-control);
+  color: var(--canvas-label); background: var(--canvas-labelBg); font-size: var(--type-size-caption); line-height: 16px;
+}
+.viewport-status-line > span { min-width: 0; overflow-wrap: anywhere; }
+.app-shell .viewport-status-line .viewport-hidden-count { min-height: 24px; height: 24px; padding: 0 var(--space-3); font-size: var(--type-size-caption); }
+/* Fit and the standard views: one cluster at the canvas's top right. */
+.viewport-view-cube { position: static; display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: var(--space-3); max-width: 100%; }
+.app-shell .viewport-view-cube button {
+  min-height: 24px; height: 24px; padding: 0 var(--space-3); font-size: var(--type-size-caption); box-shadow: var(--elevation-1);
+}
+.viewport-fit-commands { display: inline-flex; gap: var(--space-2); }
+.viewport-view-presets { display: inline-flex; }
+.viewport-view-presets > button { border-radius: 0; }
+.viewport-view-presets > button + button { margin-inline-start: -1px; }
+.viewport-view-presets > button:first-child { border-start-start-radius: var(--radius-control); border-end-start-radius: var(--radius-control); }
+.viewport-view-presets > button:last-child { border-start-end-radius: var(--radius-control); border-end-end-radius: var(--radius-control); }
+.viewport-view-presets > button[aria-pressed="true"] { position: relative; z-index: 1; }
+/* Entity labels: a small tag naming its entity, set off from it (the view places it by
+   viewportLabelLayout.ts), on the canvas's label plate, so it names without covering. The selected
+   label takes the selection colour; the hovered one its hover edge. */
+.app-shell .viewport-selection-layer .viewport-select-target {
+  width: auto; min-width: 0; max-width: 160px; height: 16px; min-height: 0; padding: 0 var(--space-2); gap: 0;
+  color: var(--canvas-label); background: var(--canvas-labelBg); border: 1px solid transparent; border-radius: 2px;
+  box-shadow: none; font-size: 10px; font-weight: var(--type-weight-medium); line-height: 14px;
+}
+.app-shell .viewport-selection-layer .viewport-select-target:hover, .app-shell .viewport-selection-layer .viewport-select-target.hovered { border-color: var(--canvas-hover); background-image: none; }
+.app-shell .viewport-selection-layer .viewport-select-target.active {
+  color: var(--text-inverse); background: var(--canvas-selection); border-color: var(--canvas-selection); outline: none;
+}
+.app-shell .viewport-selection-layer .viewport-select-target:focus-visible { outline: 2px solid var(--ui-focus); outline-offset: 1px; }
+/* The label's pointer target: a transparent area centred on the plate, at least 24 by 24 CSS
+   pixels (DEL-07-06 REQ-014, 2.5.8), so the plate stays small. The layout keeps these targets apart
+   (LABEL_TARGET_PX in viewportLabelLayout.ts). The insets are measured from the padding box, inside
+   the plate's 1 px border: each side covers the border and reaches out by half the plate's
+   shortfall from 24. */
+.viewport-selection-layer .viewport-select-target::before {
+  /* The press follows the label's own: none while Box Select is on, so a box drawn from beside a
+     label starts on the canvas. */
+  content: ""; position: absolute; pointer-events: inherit; background: transparent;
+  inset: min(-1px, calc((100% - 24px) / 2)) min(-1px, calc((100% - 24px) / 2));
+}
 
 /* A page or pane that could not be shown (`PartErrorBoundary.tsx`): its message stands in the part's
    place, no larger than the part, and the rest of the window keeps working. The window's own

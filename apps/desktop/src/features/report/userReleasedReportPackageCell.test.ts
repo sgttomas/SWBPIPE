@@ -80,7 +80,7 @@ describe("the route-010 cell (§2.2, §11)", () => {
     timoshenko.producer!.semantic_contract_id = PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID;
     expect(reportPackageUnavailableReason(timoshenko)).toBeNull();
     expect(userReleasedReportPackageUnavailableReason(timoshenko)).toBe(
-      `${REPORT_PACKAGE_ROUTE_NOT_ADMITTED}: a shareable report package carries pressure-free (preview-physics-2) results and eligible exact pressure route (pressure-3, pressure-source-1) results; this result is ${PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID}. It can be saved in a local private package.`
+      `${REPORT_PACKAGE_ROUTE_NOT_ADMITTED}: a shareable report package carries pressure-free (preview-physics-2) results and exact pressure route (pressure-3, pressure-source-1) results; this result is ${PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID}. It can be saved in a local private package.`
     );
   });
 
@@ -147,7 +147,7 @@ describe("the record (§2.3, §11)", () => {
   const inputManifest = { manifest_ref: { object_type: "InputManifest", ref: "input-manifest:invented" }, manifest_sha256: "e".repeat(64) } as never;
   const model = { project: { id: "project:invented" } } as never;
 
-  it("is record 1.0.0 for a pressure-free result and 1.1.0 for an exact result", async () => {
+  it("is record 1.0.0 for a pressure-free result and 1.2.0 for an exact result, with the same items not carried", async () => {
     const pressureFree = await userReleaseRecord({ model, result: { run_id: "run:a b", producer: { semantic_contract_id: USER_RELEASED_ADMITTED_CONTRACT_IDS[0] } } as never, inputManifest, document, userReleasedAt: "2026-10-27T00:00:00Z" }) as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
     expect(pressureFree.record_version).toBe("1.0.0");
     expect(pressureFree.scope.not_carried).toEqual(["rule_pack_references", "user_rule_outcomes", "run_comparisons", "handoff_records", "library_records", "audit_assets"]);
@@ -155,8 +155,9 @@ describe("the record (§2.3, §11)", () => {
     expect(pressureFree.bound_to.result_document_derivative_sha256).toBe("d".repeat(64));
     for (const id of USER_RELEASED_ADMITTED_CONTRACT_IDS.slice(1)) {
       const exact = await userReleaseRecord({ model, result: { run_id: "run:x", producer: { semantic_contract_id: id } } as never, inputManifest, document, userReleasedAt: "2026-10-27T00:00:00Z" }) as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
-      expect(exact.record_version).toBe("1.1.0");
-      expect(exact.scope.not_carried.at(-1)).toBe("ineligible_exact_route_results");
+      expect(exact.record_version).toBe("1.2.0");
+      // DEL-08-01 REQ-024: no result is named as not carried on the ground of its standing.
+      expect(exact.scope.not_carried).toEqual(["rule_pack_references", "user_rule_outcomes", "run_comparisons", "handoff_records", "library_records", "audit_assets"]);
     }
   });
 

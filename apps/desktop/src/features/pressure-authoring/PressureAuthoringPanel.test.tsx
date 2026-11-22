@@ -1,11 +1,12 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, expect, it, vi } from "vitest";
-import { MaterialConstitutiveForm, PressureAuthoringPanel, pressureModeText } from "./PressureAuthoringPanel";
-import { pressureProfileTarget } from "./pressureContract";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { MaterialConstitutiveForm, PRESSURE_REGION_DEFINITION, PressureAuthoringPanel, pressureOpenItems, pressureProfileLine, pressureRegionsCountLine, pressureRegionsFact } from "./PressureAuthoringPanel";
+import { pressureProfileTarget, SHEAR_MODEL_CHOICES, SHEAR_MODEL_LABEL } from "./pressureContract";
 import { MaterialTemperatureForm } from "../material-temperature/MaterialTemperatureForm";
 import type { PreviewModel, EditorOperationIntent } from "../../types";
 import fixture from "../../../../../fixtures/model_operations/exact_pressure_authoring_model.json";
 vi.mock("../../services/hashService", () => ({ canonicalJsonString: vi.fn(async (value: unknown) => JSON.stringify(value)) }));
+import { canonicalJsonString } from "../../services/hashService";
 afterEach(cleanup);
 // B7b: the fixture is the current exact-contract document (0.9.0, 3.0.0/exact_pressure_v3
 // with an explicit euler_bernoulli selection); a pressure-free document is the same 0.8.0
@@ -29,7 +30,7 @@ const change = (label: string, value: string) => fireEvent.change(screen.getByLa
 async function queuedProfile(current: PreviewModel, shear?: string) {
   const queue = vi.fn(); render(<PressureAuthoringPanel model={current} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={queue} />);
   change("Pressure profile", "exact_pressure_v3");
-  if (shear) change("Shear model", shear);
+  if (shear) change("Shear deformation in straight members", shear);
   fireEvent.click(screen.getByRole("button", { name: "Queue pressure profile" }));
   await waitFor(() => expect(queue).toHaveBeenCalledOnce());
   const after = JSON.parse((queue.mock.calls[0][0] as EditorOperationIntent).change.after);
@@ -61,6 +62,7 @@ it("shows a model without a pressure contract as pressure-free (U3)", () => {
   const free = pressureFree();
   render(<PressureAuthoringPanel model={free} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={vi.fn()} />);
   expect(screen.getByText(/pressure mode: none \(pressure-free namespace; legacy pressure primitives are refused\)/)).toBeInTheDocument();
+  expect(screen.queryByTestId("pressure-profile-line")).toBeNull();
   expect(screen.queryByText(/pressure mode: legacy\b/)).toBeNull();
 });
 it("says when a model without a contract still carries legacy pressure primitives, and when a contract is unsupported (U3, RV127 N-5)", () => {
@@ -86,14 +88,28 @@ it("offers only exact_pressure_v3 and re-authors a retired v2 contract explicitl
   expect(JSON.parse(queue.mock.calls[0][0].change.before)).toEqual({ schema_version: "0.9.0", pressure_contract: { version: "2.0.0", mode: "exact_straight_pressure_v2" } });
   expect(JSON.parse(queue.mock.calls[0][0].change.after)).toEqual({ schema_version: "0.9.0", pressure_contract: V3 });
 });
-it("shows a declared 3.0.0/exact_pressure_v3 contract with its families, the signed-pressure hint and the tangency rule (T4-U2)", () => {
+/** The status line's clause for a choice, read from the constants the controls show. */
+const clause = (value: string) => {
+  const lower = (text: string) => text.charAt(0).toLowerCase() + text.slice(1);
+  return `${lower(SHEAR_MODEL_LABEL)} is ${lower(SHEAR_MODEL_CHOICES.find(choice => choice.value === value)!.label)}`;
+};
+it("names the selection in the status line in the control's own words", () => {
+  expect(clause("timoshenko_annulus_energy_v1")).toBe("shear deformation in straight members is included (Timoshenko)");
+  expect(clause("euler_bernoulli")).toBe("shear deformation in straight members is not included (Euler–Bernoulli)");
+});
+it("says on a document carrying the profile that pressure is activated, with its theory, and lists no families (T4-U2)", () => {
   const v3 = structuredClone(model); v3.pressure_contract = V3;
-  render(<PressureAuthoringPanel model={v3} selection={{ type: "load", id: model.load_cases[0].id }} loadCaseId={model.load_cases[0].id} onQueueIntent={vi.fn()} />);
-  // T4-U8: the mode text also names the document's straight-member shear model and
-  // states that realized arcs are Euler–Bernoulli under either model.
-  expect(screen.getByText(/pressure mode: exact_pressure_v3 \(straight members, realized bends and linear restraints or springs; other families are refused by name; straight members use Timoshenko \(energy-matched annular shear factor\), and realized arcs are Euler–Bernoulli under either shear model; pressure-3 results are read with their standing, and only the result JSON and stress-neutral exports, the rule check, the rendered report and the report package admit a numerically eligible result\)/)).toBeInTheDocument();
+  const view = render(<PressureAuthoringPanel model={v3} selection={{ type: "load", id: model.load_cases[0].id }} loadCaseId={model.load_cases[0].id} onQueueIntent={vi.fn()} />);
+  expect(screen.getByTestId("pressure-profile-line").textContent).toBe(
+    "Pressure is activated. Shear deformation in straight members is included (Timoshenko).");
+  // A complete document lists nothing open.
+  expect(screen.queryByTestId("pressure-profile-open")).toBeNull();
+  // No enumeration of families and no outputs sentence anywhere in the panel.
+  for (const gone of ["realized bends and linear restraints", "other families are refused by name", "admit a numerically eligible result", "pressure mode:"]) {
+    expect(view.container.textContent).not.toContain(gone);
+  }
   expect(screen.queryByText(/solves are refused/)).toBeNull();
-  expect(screen.getByText(/a direction change above 1e-3 rad at a bend's end is refused as a mitre/)).toBeInTheDocument();
+  expect(screen.getByText(PRESSURE_REGION_DEFINITION)).toBeInTheDocument();
   expect(screen.getByText(/signed \(a negative value is a net external differential; external-pressure stability and collapse are not assessed\)/)).toBeInTheDocument();
   cleanup();
   // A document not on the current contract (here the retired v2 label) keeps the non-negative hint.
@@ -104,13 +120,13 @@ it("shows a declared 3.0.0/exact_pressure_v3 contract with its families, the sig
 it("writes the Timoshenko default and Euler–Bernoulli only as an explicit choice (T4-U8, D-6/O3)", async () => {
   const free = pressureFree();
   render(<PressureAuthoringPanel model={free} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={vi.fn()} />);
-  const selector = screen.getByLabelText("Shear model") as HTMLSelectElement;
+  const selector = screen.getByLabelText("Shear deformation in straight members") as HTMLSelectElement;
   expect([...selector.options].map(o => [o.value, o.textContent])).toEqual([
-    ["timoshenko_annulus_energy_v1", "Timoshenko (energy-matched annular shear factor)"],
-    ["euler_bernoulli", "Euler–Bernoulli"],
+    ["timoshenko_annulus_energy_v1", "Included (Timoshenko)"],
+    ["euler_bernoulli", "Not included (Euler–Bernoulli)"],
   ]);
   expect(selector.value).toBe("timoshenko_annulus_energy_v1");
-  expect(screen.getByText("The shear model applies to straight members; realized arcs are Euler–Bernoulli under either model.")).toBeInTheDocument();
+  expect(screen.getByText("Realized arcs are Euler–Bernoulli under either choice.")).toBeInTheDocument();
   cleanup();
   // The default write, without touching the selector.
   expect(await queuedProfile(free)).toEqual({ schema_version: "0.9.0", pressure_contract: V3 });
@@ -119,7 +135,7 @@ it("writes the Timoshenko default and Euler–Bernoulli only as an explicit choi
   // Activation writes only the profile: no allowance is supplied for a section missing one.
   const missing = pressureFree(); delete missing.pipe_segments[0].section.corrosion_allowance;
   render(<PressureAuthoringPanel model={missing} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={vi.fn()} />);
-  change("Pressure profile", "exact_pressure_v3"); change("Shear model", "euler_bernoulli");
+  change("Pressure profile", "exact_pressure_v3"); change("Shear deformation in straight members", "euler_bernoulli");
   expect(screen.getByRole("button", { name: "Queue pressure profile" })).toBeDisabled();
   expect(missing.pipe_segments[0].section.corrosion_allowance).toBeUndefined();
 });
@@ -127,8 +143,9 @@ it("preserves a document's shear selection on re-queue unless the user changes i
   // Euler–Bernoulli stays Euler–Bernoulli, and the selector shows it.
   const eb = withContract(V3_EB);
   render(<PressureAuthoringPanel model={eb} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={vi.fn()} />);
-  expect((screen.getByLabelText("Shear model") as HTMLSelectElement).value).toBe("euler_bernoulli");
-  expect(screen.getByText(/straight members use Euler–Bernoulli, and realized arcs are Euler–Bernoulli under either shear model/)).toBeInTheDocument();
+  expect((screen.getByLabelText("Shear deformation in straight members") as HTMLSelectElement).value).toBe("euler_bernoulli");
+  expect(screen.getByTestId("pressure-profile-line").textContent).toBe(
+    "Pressure is activated. Shear deformation in straight members is not included (Euler–Bernoulli).");
   cleanup();
   expect(await queuedProfile(eb)).toEqual({ schema_version: "0.9.0", pressure_contract: V3_EB });
   expect(eb.pressure_contract).toEqual(V3_EB);
@@ -141,7 +158,17 @@ it("preserves a document's shear selection on re-queue unless the user changes i
   // carries the default, which the before/after review shows explicitly.
   for (const contract of [{ version: "3.0.0", mode: "exact_pressure_v3" }, { ...V3, shear_model: "cowper" }]) {
     const current = withContract(contract);
-    expect(pressureModeText(current)).toContain("no admitted shear model is selected, so solves are refused until one is");
+    // The line says only that pressure is activated, and the open items say the choice is missing.
+    expect(pressureProfileLine(current)).toBe("Pressure is activated.");
+    const view = render(<PressureAuthoringPanel model={current} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={vi.fn()} />);
+    expect(screen.getByTestId("pressure-profile-line").textContent).toBe("Pressure is activated.");
+    expect(within(screen.getByTestId("pressure-profile-open")).getAllByRole("listitem").map(item => item.textContent)).toEqual(
+      ["whether shear deformation is included is chosen"]);
+    expect(view.container.textContent).not.toContain("no admitted shear model");
+    // The item is a press to the selector.
+    fireEvent.click(screen.getByRole("button", { name: "whether shear deformation is included is chosen" }));
+    expect(document.activeElement).toBe(screen.getByLabelText("Shear deformation in straight members"));
+    cleanup();
     expect(pressureProfileTarget(current)).toEqual({ schema_version: "0.9.0", pressure_contract: V3 });
     expect(await queuedProfile(current)).toEqual({ schema_version: "0.9.0", pressure_contract: V3 });
   }
@@ -150,6 +177,15 @@ it("preserves a document's shear selection on re-queue unless the user changes i
   expect(pressureProfileTarget(eb, "timoshenko_annulus_energy_v1").pressure_contract).toEqual(V3);
   expect(pressureProfileTarget(pressureFree()).pressure_contract).toEqual(V3);
   expect(pressureProfileTarget(pressureFree(), "euler_bernoulli").pressure_contract).toEqual(V3_EB);
+  // A pressure-free selection is carried: the selector shows it and the queued profile names it.
+  for (const [stated, contract] of [["euler_bernoulli", V3_EB], ["timoshenko_annulus_energy_v1", V3]] as const) {
+    const free = pressureFree(); free.model_settings = { ...free.model_settings, shear_model: stated };
+    expect(pressureProfileTarget(free).pressure_contract).toEqual(contract);
+    render(<PressureAuthoringPanel model={free} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={vi.fn()} />);
+    expect((screen.getByLabelText("Shear deformation in straight members") as HTMLSelectElement).value).toBe(stated);
+    cleanup();
+    expect(await queuedProfile(free)).toEqual({ schema_version: "0.9.0", pressure_contract: contract });
+  }
 });
 it("labels realized-bend members with k and geometry-only bend spans as needing realization (T4-U2)", () => {
   const v3 = structuredClone(model); v3.pressure_contract = V3;
@@ -177,7 +213,7 @@ it("retains regions and ordered terminal declarations through an edit", async ()
 it("queues explicit empty regions for an undeclared case without changing its loads", async () => {
   const input = structuredClone(model); delete input.load_cases[1].pressure_regions;
   const queue = vi.fn(); render(<PressureAuthoringPanel model={input} selection={{ type: "load", id: input.load_cases[1].id }} loadCaseId={input.load_cases[1].id} onQueueIntent={queue} />);
-  fireEvent.click(screen.getByRole("button", { name: "Queue explicit empty pressure regions" })); await waitFor(() => expect(queue).toHaveBeenCalledOnce());
+  fireEvent.click(screen.getByRole("button", { name: "Queue no pressure regions for this case" })); await waitFor(() => expect(queue).toHaveBeenCalledOnce());
   expect(queue.mock.calls[0][0].change.before).toBe("not_present"); expect(queue.mock.calls[0][0].change.after).toBe("[]");
   expect(input.load_cases[1].primitive_loads).toEqual(model.load_cases[1].primitive_loads);
 });
@@ -261,4 +297,245 @@ it("adds, changes and removes an existing material's thermal expansion coefficie
   const removed = second.mock.calls[0][0] as EditorOperationIntent;
   expect(JSON.parse(removed.change.before).thermal_expansion_coefficient).toEqual({ value: 1.2e-5, unit: "1/K" });
   expect(Object.hasOwn(JSON.parse(removed.change.after), "thermal_expansion_coefficient")).toBe(false);
+});
+it("queues a single profile change as the Pressure profile, and says so", async () => {
+  const queue = vi.fn();
+  render(<PressureAuthoringPanel model={pressureFree()} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={queue} />);
+  change("Pressure profile", "exact_pressure_v3");
+  fireEvent.click(screen.getByRole("button", { name: "Queue pressure profile" }));
+  await waitFor(() => expect(queue).toHaveBeenCalledOnce());
+  expect((queue.mock.calls[0][0] as EditorOperationIntent).change.field_label).toBe("Pressure profile");
+  expect(await screen.findByText("Pressure profile queued for validation and review.")).toBeInTheDocument();
+});
+it("lists, under the activated line, what the document lacks before it will solve, by the names the tree shows", () => {
+  const open = () => screen.queryByTestId("pressure-profile-open");
+  const items = () => within(screen.getByTestId("pressure-profile-open")).getAllByRole("listitem").map(item => item.textContent);
+  const current = withContract(V3);
+  delete current.pipe_segments[0].section.corrosion_allowance;
+  current.pipe_segments[0].label = "Riser";
+  delete current.load_cases[1].pressure_regions;
+  const caseName = current.load_cases[1].label || current.load_cases[1].id;
+  expect(pressureOpenItems(current).map(item => [item.kind, item.id])).toEqual([
+    ["allowance", current.pipe_segments[0].id], ["regions", current.load_cases[1].id]]);
+  render(<PressureAuthoringPanel model={current} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={vi.fn()} />);
+  expect(screen.getByTestId("pressure-profile-line").textContent).toBe(
+    "Pressure is activated. Shear deformation in straight members is included (Timoshenko).");
+  expect(within(open()!).getByText("This model will not solve until:")).toBeInTheDocument();
+  expect(items()).toEqual(["Riser has not been given a corrosion allowance", `${caseName} has not been given pressure regions`]);
+  cleanup();
+  // An explicit zero allowance and an explicit empty regions list are given: nothing is open.
+  const given = withContract(V3);
+  given.pipe_segments[0].section.corrosion_allowance = { value: 0, unit: "m" };
+  given.load_cases[1].pressure_regions = [];
+  expect(pressureOpenItems(given)).toEqual([]);
+  render(<PressureAuthoringPanel model={given} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={vi.fn()} />);
+  expect(open()).toBeNull();
+  cleanup();
+  // A document without a pressure contract has no activated line and no open items.
+  expect(pressureOpenItems(pressureFree())).toEqual([]);
+  render(<PressureAuthoringPanel model={pressureFree()} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={vi.fn()} />);
+  expect(open()).toBeNull();
+  expect(screen.queryByTestId("pressure-profile-line")).toBeNull();
+});
+it("states the change of theory under the selector only where the pick differs, and queues a stated model's change with the activation", async () => {
+  const line = () => screen.queryByTestId("pressure-shear-selection-line")?.textContent ?? null;
+  const mount = (current: PreviewModel, onQueueBatch = vi.fn(async (_batch: unknown) => true), queue = vi.fn()) => {
+    render(<PressureAuthoringPanel model={current} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={queue} onQueueBatch={onQueueBatch} />);
+    return { onQueueBatch, queue };
+  };
+  // A stated model: nothing at rest; a differing pick names both.
+  for (const [stated, pick, said] of [
+    ["euler_bernoulli", "timoshenko_annulus_energy_v1", "Model settings state Euler–Bernoulli. Queuing this changes it to Timoshenko."],
+    ["timoshenko_annulus_energy_v1", "euler_bernoulli", "Model settings state Timoshenko. Queuing this changes it to Euler–Bernoulli."],
+  ] as const) {
+    const free = pressureFree(); free.model_settings = { ...free.model_settings, shear_model: stated };
+    const { onQueueBatch, queue } = mount(free);
+    expect(line()).toBeNull();
+    change("Pressure profile", "exact_pressure_v3");
+    change("Shear deformation in straight members", pick);
+    expect(line()).toBe(said);
+    fireEvent.click(screen.getByRole("button", { name: "Queue pressure profile" }));
+    await waitFor(() => expect(onQueueBatch).toHaveBeenCalledOnce());
+    const batch = onQueueBatch.mock.calls[0][0] as { operations: EditorOperationIntent[] };
+    expect(batch.operations.map(op => [op.change.field_path, op.change.after])).toEqual([
+      ["model_settings.shear_model", pick], ["pressure_profile", JSON.stringify({ schema_version: "0.9.0", pressure_contract: pick === "euler_bernoulli" ? V3_EB : V3 })]]);
+    expect(queue).not.toHaveBeenCalled();
+    expect(await screen.findByTestId("pressure-shear-batch-notice")).toHaveTextContent(/^Shear deformation change and pressure profile queued for validation and review\.$/);
+    change("Shear deformation in straight members", stated);
+    expect(line()).toBeNull();
+    cleanup();
+  }
+  // No stated model: the selector starts at Timoshenko and says what activation changes; Euler–Bernoulli says nothing.
+  mount(pressureFree());
+  expect(line()).toBe("This document solves as Euler–Bernoulli today. Activating the pressure contract changes its straight members to Timoshenko.");
+  change("Shear deformation in straight members", "euler_bernoulli");
+  expect(line()).toBeNull();
+  cleanup();
+  // A document on the exact route says nothing.
+  mount(withContract(V3_EB));
+  change("Shear deformation in straight members", "timoshenko_annulus_energy_v1");
+  expect(line()).toBeNull();
+});
+it("is the region named by its heading, Pressure, with the profile field still Pressure profile", () => {
+  const view = render(<PressureAuthoringPanel model={model} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={vi.fn()} />);
+  const region = screen.getByRole("region", { name: "Pressure" });
+  expect(within(region).getByRole("heading", { level: 3 }).textContent).toBe("Pressure");
+  expect(within(region).getByLabelText("Pressure profile")).toBeInTheDocument();
+  expect(view.container.textContent).not.toContain("Pressure mechanics profile");
+  expect(screen.queryByRole("region", { name: "Exact pressure authoring" })).toBeNull();
+});
+it("counts the load cases with pressure regions by the solve's own test, and says nothing when every case has some", () => {
+  const count = () => screen.queryByTestId("pressure-regions-count")?.textContent ?? null;
+  const mount = (current: PreviewModel) => { cleanup(); render(<PressureAuthoringPanel model={current} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={vi.fn()} />); };
+  // One case with a region, one stating none.
+  const some = withContract(V3);
+  expect(pressureRegionsCountLine(some)).toBe("1 of 2 load cases have pressure regions.");
+  mount(some);
+  expect(count()).toBe("1 of 2 load cases have pressure regions.");
+  // None: a case not given regions and a case stating none count alike.
+  const none = withContract(V3); none.load_cases[0].pressure_regions = []; delete none.load_cases[1].pressure_regions;
+  mount(none);
+  expect(count()).toBe("No load case has a pressure region yet.");
+  // A region at zero pressure counts, as it does for the solve.
+  const all = withContract(V3);
+  all.load_cases[1].pressure_regions = [{ ...structuredClone(all.load_cases[0].pressure_regions![0]), id: "region:zero", pressure: { value: 0, unit: "kPa" } }];
+  expect(pressureRegionsCountLine(all)).toBeNull();
+  mount(all);
+  expect(count()).toBeNull();
+  // A document without the current profile says nothing.
+  expect(pressureRegionsCountLine(pressureFree())).toBeNull();
+  mount(pressureFree());
+  expect(count()).toBeNull();
+});
+it("makes each case the open items name a press that selects the case, where the load manager gives one", () => {
+  const current = withContract(V3); delete current.load_cases[1].pressure_regions;
+  const name = `${current.load_cases[1].label || current.load_cases[1].id} has not been given pressure regions`;
+  const onSelect = vi.fn();
+  render(<PressureAuthoringPanel model={current} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={vi.fn()} onSelect={onSelect} />);
+  fireEvent.click(screen.getByRole("button", { name }));
+  expect(onSelect).toHaveBeenCalledExactlyOnceWith({ type: "load", id: current.load_cases[1].id });
+  cleanup();
+  // Without one, the item is text.
+  render(<PressureAuthoringPanel model={current} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={vi.fn()} />);
+  expect(screen.queryByRole("button", { name })).toBeNull();
+  expect(screen.getByText(name)).toBeInTheDocument();
+});
+it("states under the regions heading what the case has and what a region is, and offers to state none only where it is not stated", async () => {
+  const mount = (current: PreviewModel, index: number, queue = vi.fn()) => {
+    cleanup();
+    render(<PressureAuthoringPanel model={current} selection={{ type: "load", id: current.load_cases[index].id }} loadCaseId={current.load_cases[index].id} onQueueIntent={queue} />);
+    const regions = within(screen.getByRole("region", { name: "Case pressure regions" }));
+    const paragraphs = screen.getByRole("region", { name: "Case pressure regions" }).querySelectorAll(":scope > p");
+    return { queue, regions, paragraphs: [...paragraphs].map(p => p.textContent) };
+  };
+  // Not given: the fact, the definition, and an enabled press that states none.
+  const unstated = structuredClone(model); delete unstated.load_cases[1].pressure_regions;
+  expect(pressureRegionsFact(unstated.load_cases[1])).toBe("This case has not been given pressure regions.");
+  let view = mount(unstated, 1);
+  expect(view.paragraphs).toEqual(["This case has not been given pressure regions.", PRESSURE_REGION_DEFINITION]);
+  expect(PRESSURE_REGION_DEFINITION).toBe("A region is one unbranched, equal-bore run of pipe (and any inline expansion-joint connector) between its two terminals, changing direction only at realized bends.");
+  fireEvent.click(view.regions.getByRole("button", { name: "Queue no pressure regions for this case" }));
+  await waitFor(() => expect(view.queue).toHaveBeenCalledOnce());
+  // Stated none: the fact, and nothing to press.
+  view = mount(model, 1);
+  expect(view.paragraphs[0]).toBe("This case has no pressure regions.");
+  expect(view.regions.getByRole("button", { name: "Queue no pressure regions for this case" })).toBeDisabled();
+  // Regions: the count; removing the last row offers to state none.
+  view = mount(model, 0);
+  expect(view.paragraphs[0]).toBe("1 pressure region.");
+  expect(pressureRegionsFact({ ...model.load_cases[0], pressure_regions: [model.load_cases[0].pressure_regions![0], model.load_cases[0].pressure_regions![0]] })).toBe("2 pressure regions.");
+  expect(view.regions.getByRole("button", { name: "Queue pressure regions" })).toBeEnabled();
+  fireEvent.click(view.regions.getByRole("button", { name: "Remove region 1" }));
+  expect(view.regions.getByRole("button", { name: "Queue no pressure regions for this case" })).toBeEnabled();
+  // The old rules paragraph is gone.
+  for (const gone of ["Terminal order and closure transfer are user-authored.", "The solver checks continuity", "refused as a mitre", "No pressure-region declaration has been applied.", "applied regions."]) {
+    expect(screen.getByRole("region", { name: "Case pressure regions" }).textContent).not.toContain(gone);
+  }
+});
+/** The batch path's guards: a pick that differs from the stated model, with canonicalization held until released. */
+describe("the shear change and activation batch", () => {
+  const stated = () => { const free = pressureFree(); free.model_settings = { ...free.model_settings, shear_model: "euler_bernoulli" }; return free; };
+  let release: () => void = () => undefined;
+  beforeEach(() => {
+    const gate = new Promise<void>(resolve => { release = resolve; });
+    vi.mocked(canonicalJsonString).mockImplementation(async (value: unknown) => { await gate; return JSON.stringify(value); });
+  });
+  afterEach(() => {
+    release();
+    vi.mocked(canonicalJsonString).mockImplementation(async (value: unknown) => JSON.stringify(value));
+  });
+  const props = (model: PreviewModel, onQueueBatch: (batch: unknown) => Promise<boolean | undefined>, epoch = 1) =>
+    ({ model, selection: { type: "load" as const, id: model.load_cases[0].id }, onQueueIntent: vi.fn(), onQueueBatch, preparationEpoch: epoch });
+  const pick = () => { change("Pressure profile", "exact_pressure_v3"); change("Shear deformation in straight members", "timoshenko_annulus_energy_v1"); };
+  const press = () => fireEvent.click(screen.getByRole("button", { name: "Queue pressure profile" }));
+  const notice = () => screen.queryByTestId("pressure-shear-batch-notice");
+
+  it("submits once when pressed twice while the batch is formed, and is disabled meanwhile", async () => {
+    const onQueueBatch = vi.fn(async () => true);
+    const model = stated();
+    render(<PressureAuthoringPanel {...props(model, onQueueBatch)} />);
+    pick();
+    press();
+    expect(screen.getByRole("button", { name: "Queue pressure profile" })).toBeDisabled();
+    press();
+    await act(async () => { release(); });
+    await waitFor(() => expect(onQueueBatch).toHaveBeenCalledTimes(1));
+    expect(await screen.findByTestId("pressure-shear-batch-notice")).toHaveTextContent("Shear deformation change and pressure profile queued for validation and review.");
+    expect(screen.getByRole("button", { name: "Queue pressure profile" })).toBeEnabled();
+  });
+
+  it("submits nothing after unmount, or once the preparation epoch moved, while the batch was formed", async () => {
+    const onQueueBatch = vi.fn(async () => true);
+    const model = stated();
+    const view = render(<PressureAuthoringPanel {...props(model, onQueueBatch)} />);
+    pick();
+    press();
+    view.unmount();
+    await act(async () => { release(); });
+    expect(onQueueBatch).not.toHaveBeenCalled();
+    // The epoch moves before the batch is formed: refused, and said.
+    const gate = new Promise<void>(resolve => { release = resolve; });
+    vi.mocked(canonicalJsonString).mockImplementation(async (value: unknown) => { await gate; return JSON.stringify(value); });
+    const second = render(<PressureAuthoringPanel {...props(model, onQueueBatch, 1)} />);
+    pick();
+    press();
+    second.rerender(<PressureAuthoringPanel {...props(model, onQueueBatch, 2)} />);
+    await act(async () => { release(); });
+    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("The model or pending changes changed. Review this choice and queue it again."));
+    expect(onQueueBatch).not.toHaveBeenCalled();
+    expect(notice()).toBeNull();
+  });
+
+  it("says the batch was queued only when it was registered, and a later single change clears that", async () => {
+    const model = stated();
+    for (const answer of [false, undefined]) {
+      const refused = vi.fn(async () => answer);
+      render(<PressureAuthoringPanel {...props(model, refused)} />);
+      pick();
+      press();
+      await act(async () => { release(); });
+      await waitFor(() => expect(refused).toHaveBeenCalledOnce());
+      expect(notice()).toBeNull();
+      cleanup();
+    }
+    const registered = vi.fn(async () => true);
+    const queue = vi.fn();
+    render(<PressureAuthoringPanel {...props(model, registered)} onQueueIntent={queue} />);
+    pick();
+    press();
+    await act(async () => { release(); });
+    expect(await screen.findByTestId("pressure-shear-batch-notice")).toBeInTheDocument();
+    // Back to the stated model: a single profile change, and the batch notice goes.
+    change("Shear deformation in straight members", "euler_bernoulli");
+    press();
+    expect(notice()).toBeNull();
+    await waitFor(() => expect(queue).toHaveBeenCalledOnce());
+    expect(await screen.findByText("Pressure profile queued for validation and review.")).toBeInTheDocument();
+    // And a batch clears the single change's notice: one notice at a time.
+    change("Shear deformation in straight members", "timoshenko_annulus_energy_v1");
+    press();
+    expect(screen.queryByText("Pressure profile queued for validation and review.")).toBeNull();
+    await waitFor(() => expect(registered).toHaveBeenCalledTimes(2));
+    expect(await screen.findByTestId("pressure-shear-batch-notice")).toBeInTheDocument();
+  });
 });

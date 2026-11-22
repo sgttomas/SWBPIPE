@@ -133,6 +133,7 @@ checks:
 - apps/desktop/src-tauri/src/autosave_tests.rs
 - apps/desktop/src-tauri/src/autosave_commands_tests.rs
 - apps/desktop/src-tauri/src/backup_tests.rs
+- apps/desktop/src-tauri/src/model_settings_persistence_tests.rs
 - apps/desktop/src/services/projectService.test.ts
 - apps/desktop/src/services/blankLoadStateModel.test.ts
 - apps/desktop/src/features/autosave/useAutosave.test.tsx

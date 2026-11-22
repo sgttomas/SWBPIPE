@@ -47,7 +47,8 @@
 //! carries `exact_route`, is bound to its source natively right after the
 //! request text is parsed and before the other content checks: the named
 //! job's custody, the resubmitted result and intake texts against the digests
-//! the host recorded for that job, the native reader's eligible standing, the
+//! the host recorded for that job, the native reader's reading of a solved
+//! result (whatever its numerical standing, DEL-08-01 REQ-024), the
 //! admission's digests, then the request's source and the model text against
 //! the delivered result and the solved model (`exact_source_binding.rs`).
 //! Custody is checked again after the save dialog and before the write.
@@ -1267,7 +1268,6 @@ fn bind_exact_save_source(
         &digests,
         exact_result_text.unwrap_or(""),
         exact_intake_text.unwrap_or(""),
-        exact_binding::SourceAdmission::Eligible,
     )
     .map_err(|refusal| exact_refused(refusal, ADMISSION))?;
     // The save's own equalities: the request's source is the delivered result,
@@ -1282,8 +1282,9 @@ fn bind_exact_save_source(
         return Err(exact_refused(exact_binding::not_delivered("model"), "/model"));
     }
     // DEL-08-01 REQ-024: the packaged report states the standing record the reader
-    // derives from the bound result and model, exactly, after the
-    // save's own equalities above.
+    // derives from the bound result and model, exactly, after the save's own
+    // equalities above, for every result the binding admits: numerical standing
+    // is stated here, never a ground for refusing the save or the user release.
     let derived = open_pipe_stress_report_standing::report_standing::historical_standing_record(&bound.source, &bound.model, &bound.standing).ok();
     if derived.is_none() || request.pointer("/report/numerical_standing") != derived.as_ref() {
         return Err(exact_refused(exact_binding::sections_mismatch("numerical_standing"), "/request/report/numerical_standing"));
@@ -1653,6 +1654,9 @@ fn admit_both_routes(
     let request_value = parse_canonical("request", &request_text)?;
     drop(request_text);
     check_request_object_form(&request_value)?;
+    if user_release_route {
+        check_user_release_record_version(&request_value)?;
+    }
     // D-6: both routes require W-11's exact source binding below. Route 010
     // additionally retains its solve attestation and whole-request derivation.
     // W-11 (§3.6): the native source binding of an exact-route request, before
@@ -1852,6 +1856,24 @@ fn refused_sized(code: &str, path: &str, detail: &str) -> ReportPackageSaveComma
 /// Step 4 (§2.5): the record is of its form (§2.3; no `content_binding`) and
 /// each bound member equals a value admission itself computed or already
 /// bound, never another caller field alone.
+/// DEL-08-01 REQ-024: the user-release record's version, first among route 010's
+/// checks of the request, before the exact source binding and every check that
+/// speaks of the route: a retired version is refused for its version, and the
+/// version follows the request's result natively, pressure-free with record
+/// 1.0.0 and exact with 1.2.0 (`user_release::check_record_version`). The
+/// record's other members are step 4's ([`check_user_release_record`]).
+fn check_user_release_record_version(request: &Value) -> Result<(), ReportPackageSaveCommandError> {
+    const VERSION: &str = "/request/report/report_context/user_release/record_version";
+    let Some(version) = text_at(request, "/report/report_context/user_release/record_version") else {
+        return Ok(());
+    };
+    user_release::check_record_version(version, Some(exact_request(request))).map_err(|message| {
+        // The library's refusal is "CODE: text", its code one of the two version codes.
+        let (code, text) = message.split_once(": ").unwrap_or((user_release::RECORD_VERSION_RETIRED, message.as_str()));
+        refuse(code, VERSION, text.to_string())
+    })
+}
+
 fn check_user_release_record(
     request: &Value,
     bound: &UserReleaseBound<'_>,

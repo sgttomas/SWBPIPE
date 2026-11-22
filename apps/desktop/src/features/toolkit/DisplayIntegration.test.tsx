@@ -1,10 +1,11 @@
 import { changeFormControl, expectFormControlValue } from "../../test-support/workspaceTestControls";
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { DisplayUnitsProvider, DisplayUnitSelector } from "../display-units";
 import { PropertyInspector } from "../model-tree/PropertyInspector";
 import { ModelTree } from "../model-tree/ModelTree";
 import { PipeViewport, buildDeformationOverlay } from "../viewport/PipeViewport";
+import type { ViewportViewCommand } from "../viewport/viewportSelection";
 import { selectedProperties, selectedPropertyRows } from "../model-workspace/modelView";
 import { loadPreviewModel } from "../../services/previewService";
 import { computeModelHash } from "../../services/hashService";
@@ -76,13 +77,23 @@ describe("typed model display integration", () => {
     } finally { rectSpy.mockRestore(); widthSpy.mockRestore(); heightSpy.mockRestore(); }
   });
 
-  it("retains deformation geometry while converting only the viewport scale readout", async () => {
+  it("retains deformation geometry while converting only the view's measured length", async () => {
     const model = await loadPreviewModel();
     const before = buildDeformationOverlay(model, null);
-    render(<DisplayUnitsProvider initialPreference="US"><PipeViewport model={model} selection={{ type: "project", id: model.project.id }} onSelect={vi.fn()} /></DisplayUnitsProvider>);
-    const scale = screen.getByTestId("viewport-scale-bar");
-    await waitFor(() => expect(scale.querySelector('[data-display-status="converted"]')).not.toBeNull());
-    expect(scale).toHaveTextContent("in");
+    const viewCommandRef: { current: ((command: ViewportViewCommand) => void) | null } = { current: null };
+    render(<DisplayUnitsProvider initialPreference="US"><PipeViewport model={model} selection={{ type: "project", id: model.project.id }} onSelect={vi.fn()} viewCommandRef={viewCommandRef} /></DisplayUnitsProvider>);
+    // Measure along one pipe: the readout states the pipe's stored length, converted for display.
+    const pipe = model.pipe_segments[0];
+    act(() => viewCommandRef.current?.({ type: "set-measurement", active: true }));
+    act(() => viewCommandRef.current?.({ type: "apply-measurement-target", ref: { type: "pipe", id: pipe.id } }));
+    const distance = await waitFor(() => {
+      const readout = screen.getByTestId("viewport-measurement-readout").querySelector<HTMLElement>('[data-measurement-label="Distance"]');
+      expect(readout).not.toBeNull();
+      expect(readout).toHaveAttribute("data-display-status", "converted");
+      return readout!;
+    });
+    expect(distance).toHaveAttribute("data-raw-unit", "in");
+    expect(distance).toHaveTextContent(/ in$/);
     expect(buildDeformationOverlay(model, null)).toEqual(before);
   });
 });

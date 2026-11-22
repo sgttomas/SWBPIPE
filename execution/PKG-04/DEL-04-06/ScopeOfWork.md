@@ -60,7 +60,7 @@ A diagnostic is a statement about the discrete model and its solve. The absence 
 
 **Undecided.** Whether the numerical-integrity diagnostic that the solve integration and the retained-precision method raise for a sensitive case already meets REQ-008's obligation.
 
-**Not met.** REQ-013's seismic warning: neither the solve's checks before stiffness formation nor the on-demand checks raise it. DEL-05-01 defines the warning and records it as not met.
+**Seismic warning.** When they reach it, the solve's checks before stiffness formation and the on-demand checks both raise DEL-05-01 REQ-008's seismic findings, through one judgement that both call. On a pressure-free Timoshenko document with a partial-span wind entry the solve stops earlier, at `PF_TIMOSHENKO_PARTIAL_SPAN_UNSUPPORTED`, while the on-demand checks can raise the seismic findings (issue 530). VER-004's seismic cases are exercised in both solver modes: cases with and without each applicable warning condition; a case whose own applicable component weights compete with weights elsewhere in the document; and a case that reports several distinct differing applied gravity magnitudes. Each compares the on-demand findings with the solve's.
 
 ### Acceptance criteria
 

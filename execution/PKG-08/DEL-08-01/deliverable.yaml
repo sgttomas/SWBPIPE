@@ -186,6 +186,13 @@ code_paths:
 - apps/desktop/src/features/report/pfTimoshenkoReport.ts
 - apps/desktop/src/features/report/reportPackageRequest.ts
 - apps/desktop/src/features/report/userReleasedReportPackageSave.ts
+# REQ-024 "Package and user release": the dialog's frame statements, the native host's
+# report_frame_statements operation of the verdict command (also DEL-04-07 and DEL-07-07 code);
+# its reply decoder is in apps/desktop/src/services/nativeResult.ts, DEL-07-07's. The rendered
+# report's source, which the package and the user release also take on the exact route.
+- apps/desktop/src/features/report/reportFrameStatements.ts
+- apps/desktop/src-tauri/src/native_verdict.rs
+- apps/desktop/src/features/report/renderableReportSource.ts
 - apps/desktop/src/features/report/controlledRouteEvidence.ts
 - apps/desktop/src/services/reportRenderService.ts
 - apps/desktop/src/services/reportPackageSaveService.ts
@@ -231,6 +238,7 @@ code_paths:
 - fixtures/reports/invented/report_quantity_display_parity.json
 - fixtures/reports/invented/report_result_rows_parity.json
 - fixtures/reports/invented/report_diagnostics_parity.json
+- fixtures/reports/invented/report_members_vectors/**
 - fixtures/reports/invented/user_release_derivation_vectors.json
 - fixtures/reports/invented/user_release_exact/**
 - fixtures/reports/invented/user_release_record.json
@@ -265,6 +273,7 @@ checks:
 - apps/desktop/src-tauri/src/object_form_tests.rs
 - apps/desktop/src-tauri/src/user_release_admission_tests.rs
 - apps/desktop/src-tauri/src/user_release_save_tests.rs
+- apps/desktop/src-tauri/src/report_standing_package_tests.rs
 - apps/desktop/src-tauri/src/saved_package_entries_tests.rs
 - apps/desktop/src-tauri/src/user_release_reach_scan_tests.rs
 - apps/desktop/src/features/report/renderedReport.test.tsx
@@ -282,6 +291,7 @@ checks:
 - apps/desktop/src/features/report/reportResultRows.parity.test.ts
 - apps/desktop/src/features/report/reportQuantityDisplay.parity.test.ts
 - apps/desktop/src/features/report/reportDiagnostics.parity.test.ts
+- apps/desktop/src/features/report/reportMembersVectors.test.ts
 - apps/desktop/src/features/report/reportComposition.parity.test.ts
 - apps/desktop/src/features/report/modelInputTables.parity.test.ts
 - apps/desktop/src/features/report/ReportComposer.test.tsx
@@ -291,10 +301,14 @@ checks:
 - apps/desktop/src/features/report/userReleaseDerivation.parity.test.ts
 - apps/desktop/src/features/report/userReleaseExact.parity.test.ts
 - apps/desktop/src/features/report/UserReleaseDialog.test.tsx
+- apps/desktop/src/features/report/reportFrameStatements.test.ts
+- apps/desktop/src/features/report/renderableReportSource.test.ts
 - apps/desktop/src/features/report/userReleasedReportPackageCell.test.ts
 - apps/desktop/src/features/report/userReleasedReportPackageSave.test.ts
 - apps/desktop/src/features/workspace/reportPackageSave.session.test.tsx
 - apps/desktop/src/features/workspace/userReleaseSave.session.test.tsx
+- apps/desktop/src/features/workspace/reportPackageAdmission.session.test.tsx
+- apps/desktop/src/test/reportPackageDeniedStates.ts
 - apps/desktop/src/features/workspace/reportPackageRedactionRecords.session.test.tsx
 - apps/desktop/src/features/results/outputPolicy.test.ts
 - apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx

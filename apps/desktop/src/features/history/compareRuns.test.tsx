@@ -7,7 +7,7 @@
 // and the current run, and disables Compare… with the stated reason; the run
 // comparison view shows each side's standing, the counts, the context deltas, the
 // diagnostics, and a filterable, paged table. All data are invented.
-import { act, cleanup, fireEvent, render, renderHook, screen, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, renderHook, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
@@ -151,8 +151,8 @@ describe("the session's Compare… of two runs", () => {
     expect(admission).toEqual({ projectId: PROJECT, recordingIds: [earlier.run.recording_id, later.run.recording_id] });
     const shown = hook.current.runComparison!;
     expect([shown.left.id, shown.right.id]).toEqual([earlier.run.recording_id, later.run.recording_id]);
-    // Both recorded runs are read from their stored result and snapshot: integrity_checked.
-    expect([shown.left.standing.status, shown.right.standing.status]).toEqual(["integrity_checked", "integrity_checked"]);
+    // Both recorded runs are read from their stored result and snapshot: solver_checks_passed.
+    expect([shown.left.standing.status, shown.right.standing.status]).toEqual(["solver_checks_passed", "solver_checks_passed"]);
     expect(shown.comparison.run_gate).toEqual([]);
     expect(shown.comparison.summary.compared_nonzero).toBeGreaterThan(0);
     // The context: the solver mode differs; the settings and load basis do not.
@@ -187,7 +187,7 @@ describe("the session's Compare… of two runs", () => {
     };
     const shown = await shownFor([later, earlier]);
     expect([shown.left.id, shown.right.id]).toEqual([earlier.run.recording_id, later.run.recording_id]);
-    expect([shown.left.standing.status, shown.right.standing.status]).toEqual(["integrity_checked", "integrity_checked"]);
+    expect([shown.left.standing.status, shown.right.standing.status]).toEqual(["solver_checks_passed", "solver_checks_passed"]);
     expect(shown.comparison.run_gate).toEqual([]);
     const current = await recordedRead({ model: MODEL, source: SPARSE, mode: "sparse_interactive" }, EARLY, "Sparse");
     const control = await shownFor([later, current]);
@@ -212,6 +212,39 @@ describe("the session's Compare… of two runs", () => {
     expect([shown.left.kind, shown.right.kind]).toEqual(["recorded", "current"]);
     expect(shown.right.standing.eligible).toBe(true);
     expect(shown.comparison.summary.compared_nonzero).toBeGreaterThan(0);
+  });
+
+  // #545: the store keys a saved state by its model's hash (one state per model; Save Model State and
+  // Record Run find it again rather than write a second), and a recorded run keeps only its state's id.
+  // Two runs of an unchanged model, recorded after two different snapshot names were typed, are both
+  // tied to the one stored state, which keeps the name it was saved with.
+  it("#545: two runs of one unchanged model name the one stored state on both sides; Record Run says it knows that state only once it is listed", async () => {
+    const runA = await recordedRead({ model: MODEL, source: SPARSE, mode: "sparse_interactive" }, EARLY, "Run A");
+    const runB = await recordedRead({ model: MODEL, source: DENSE, mode: "dense_scrutiny" }, LATE, "Run B");
+    expect(runB.run.state_id).toBe(runA.run.state_id);
+    await nativeStore([runA, runB]);
+    const stored = invokeMock.getMockImplementation()!;
+    let list!: () => void;
+    const listed = new Promise<void>((resolve) => { list = resolve; });
+    invokeMock.mockImplementation(async (command: string, args: Record<string, unknown>) => {
+      if (command === "list_model_states") await listed;
+      return stored(command, args);
+    });
+    const current = await transientOf({ model: MODEL, source: DENSE, mode: "dense_scrutiny" });
+    const runSlot: CurrentRunSlot = { result: DENSE, analysisRun: current.record, inputManifest: current.manifest, restored: false };
+    const { result: hook } = sessionHistory({ runSlot });
+    // Before the project's states are listed the session does not know whether one holds the solved model.
+    expect(hook.current.recordRunState).toBeNull();
+    expect(hook.current.recordRunStateKnown).toBe(false);
+    await act(async () => { list(); await listed; });
+    await waitFor(() => expect(hook.current.recordRunStateKnown).toBe(true));
+    expect(hook.current.recordRunState?.state_name).toBe("After solve");
+    let compared = false;
+    await act(async () => { compared = await hook.current.compareRuns(runA.run.recording_id, runB.run.recording_id); });
+    expect(compared, hook.current.historyMessage).toBe(true);
+    render(<RunComparisonView result={hook.current.runComparison!} onClose={() => {}} />);
+    expect(screen.getByTestId("run-comparison-side-left")).toHaveTextContent(`Left: "Run A" (${runA.run.recording_id}), recorded ${EARLY}, against saved state "After solve" (${STATE_ID}).`);
+    expect(screen.getByTestId("run-comparison-side-right")).toHaveTextContent(`Right: "Run B" (${runB.run.recording_id}), recorded ${LATE}, against saved state "After solve" (${STATE_ID}).`);
   });
 
   it("refuses a comparison whose current run is retired while it is prepared: during the admission and during the reads", async () => {
@@ -384,7 +417,7 @@ describe("the session's Compare… of two runs", () => {
     expect(shown!.comparison.run_gate).toEqual(["left_run_needs_recompute", "right_run_needs_recompute"]);
     expect(shown!.comparison.summary.compared).toBe(0);
     render(<RunComparisonView result={shown!} onClose={() => {}} />);
-    expect(screen.getByTestId("run-comparison-gate")).toHaveTextContent("a run on the pressure-source or retained route reads needs_recompute");
+    expect(screen.getByTestId("run-comparison-gate")).toHaveTextContent("a run on the pressure-source or retained route reads needs recompute");
   });
 });
 
@@ -473,8 +506,8 @@ describe("Compare… of runs in the History panel", () => {
 function side(name: string, overrides: Partial<RunComparisonSide> = {}): RunComparisonSide {
   return {
     kind: "recorded", id: `runrec:${name}`, description: `"${name}" (runrec:${name})`, createdAt: EARLY, state: `"After solve" (${STATE_ID})`,
-    standing: { contract: "preview_physics", status: "integrity_checked", eligible: true, findings: [] }, recordedTableRead: null,
-    input: { rows: [], standing: { contract: "preview_physics", status: "integrity_checked", eligible: true, findings: [] }, semantic_identity: { route: "preview_physics", contract_id: "c", contract_sha256: "s" }, context: {}, diagnostics: [] },
+    standing: { contract: "preview_physics", status: "solver_checks_passed", eligible: true, findings: [], integrity_bound: { status: "not_verified", reason: "inverse_norm_bound_not_verified" } }, recordedTableRead: null,
+    input: { rows: [], standing: { contract: "preview_physics", status: "solver_checks_passed", eligible: true, findings: [] }, semantic_identity: { route: "preview_physics", contract_id: "c", contract_sha256: "s" }, context: {}, diagnostics: [] },
     ...overrides
   };
 }
@@ -501,7 +534,7 @@ describe("the run comparison view", () => {
     );
     render(<RunComparisonView result={shown} onClose={() => {}} />);
     expect(screen.getByTestId("run-comparison-side-left")).toHaveTextContent('Left: "left" (runrec:left), recorded 2026-10-25T10:00:00.000Z, against saved state "After solve"');
-    expect(screen.getByTestId("run-comparison-side-left")).toHaveTextContent("reads integrity_checked (route preview_physics)");
+    expect(screen.getByTestId("run-comparison-side-left")).toHaveTextContent("Its result is numerically eligible (route preview_physics).");
     for (const [id, count] of [["mapped", 2], ["compared", 1], ["changed", 1], ["not-compared", 1], ["left-only", 2], ["right-only", 2], ["context", 2], ["diagnostics-added", 1], ["diagnostics-removed", 1]] as const) {
       expect(screen.getByTestId(`run-comparison-count-${id}`), id).toHaveTextContent(String(count));
     }
