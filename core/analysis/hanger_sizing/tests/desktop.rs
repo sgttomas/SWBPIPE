@@ -49,7 +49,8 @@ fn lowercase_sha256(text: &str) -> bool {
 /// tests (a plain object; `document_sha256` matching `^[0-9a-f]{64}$`; each of
 /// the five standings a plain object with `status` passed, failed or
 /// not_checked and `difference` null or a string; `binding.not_checked` an
-/// array of strings), with each object's members exactly those of
+/// array of strings; `integrity_bound` exactly `{status: not_verified, reason:
+/// inverse_norm_bound_not_verified}`), with each object's members exactly those of
 /// `HangerSizingReaderEvidence`.
 fn assert_desktop_evidence(evidence: &Value) {
     assert_eq!(keys(evidence), ["document_sha256", "verdict"]);
@@ -57,9 +58,12 @@ fn assert_desktop_evidence(evidence: &Value) {
     let verdict = &evidence["verdict"];
     assert_eq!(keys(verdict), {
         let mut names = STANDINGS.to_vec();
+        names.push("integrity_bound");
         names.sort_unstable();
         names
     });
+    assert_eq!(keys(&verdict["integrity_bound"]), ["reason", "status"]);
+    assert_eq!(verdict["integrity_bound"], json!({"status": "not_verified", "reason": "inverse_norm_bound_not_verified"}));
     for name in STANDINGS {
         let standing = &verdict[name];
         let members: &[&str] = if name == "binding" { &["difference", "not_checked", "status"] } else { &["difference", "status"] };
@@ -146,7 +150,7 @@ fn the_crate_hash_of_the_committed_two_span_document_is_the_desktops() {
     let committed = read_json("hanger_sizing_result_two_span.json");
     assert_eq!(
         checked_sha256(&committed).as_deref(),
-        Some("1a2db93e2a4be7b639b2188420056d0fe89433d9ef256177aade3980da0e11e2")
+        Some("9d16a68b7dc4a2906bb0b3c3c6eac22445c5f9a5038fb265e02546bdf584590c")
     );
 }
 

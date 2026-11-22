@@ -68,6 +68,7 @@ def test_the_verifier_returns_the_corpus_standings(entry):
     for standing in PYTHON_STANDINGS:
         assert verdict[standing]["status"] == entry["expected"][standing], (entry["id"], standing, verdict[standing])
     assert verdict["binding"]["not_checked"] == entry["expected"]["binding_not_checked"], entry["id"]
+    assert verdict["integrity_bound"] == {"status": "not_verified", "reason": "inverse_norm_bound_not_verified"}
 
 
 def test_the_corpus_holds_the_documents_and_mutations_the_design_requires():
@@ -218,6 +219,10 @@ ACCEPTED_DISCLOSURES = [
     _integrity("V_C", "failed"),
 ]
 
+# The integrity message PR 272 first published, before the bound was stated as not verified.
+LEGACY_INTEGRITY_MESSAGE = ("sensitive: the numerical-integrity standing of this derived solve is sensitive, "
+                            "not checks_passed; every value sizing takes from it carries that standing")
+
 # (id, disclosures, the verifier's difference, whether the schema can state it)
 REFUSED_DISCLOSURES = [
     ("unknown-code", [{"code": "HANGER_SIZING_UNKNOWN", "names": ["S_W"], "message": "x"}], "code: not one of", True),
@@ -234,6 +239,9 @@ REFUSED_DISCLOSURES = [
     ("no-label", [{**_unavailable("S_W"), "names": []}], "not exactly one solve label", True),
     ("label-not-string", [{**_integrity("S_W", "sensitive"), "names": [7]}], "not a string", True),
     ("checks-passed-token", [_integrity("S_W", "checks_passed")], "not the integrity message", True),
+    ("solver-checks-passed-token", [_integrity("S_W", "solver_checks_passed")], "not the integrity message", True),
+    ("legacy-checks-passed-message", [{**_integrity("S_W", "sensitive"), "message": LEGACY_INTEGRITY_MESSAGE}],
+     "not the integrity message of a standing other than solver_checks_passed", True),
     ("token-case", [_integrity("S_W", "SENSITIVE")], "not the integrity message", True),
     ("token-only", [{**_integrity("S_W", "sensitive"), "message": "sensitive"}], "not the integrity message", True),
     ("warning-empty", [_unavailable("S_W", "")], "message: empty", True),
@@ -275,3 +283,9 @@ def test_the_schemas_disclosure_vocabulary_is_the_verifiers():
             defs["CorrectionUnavailableDisclosure"]["properties"]["code"]["const"]) == hs.SOLVE_DISCLOSURE_CODES
     assert defs["SolveIntegrityDisclosure"]["properties"]["message"]["enum"] == [
         hs.integrity_message(token) for token in hs.NONPASSING_STANDINGS]
+    assert defs["IntegrityBound"] == {
+        "type": "object", "description": defs["IntegrityBound"]["description"],
+        "properties": {"status": {"const": hs.INTEGRITY_BOUND_STATUS}, "reason": {"const": hs.INTEGRITY_BOUND_REASON}},
+        "required": ["status", "reason"], "additionalProperties": False}
+    assert defs["Result"]["properties"]["integrity_bound"] == {"$ref": "#/$defs/IntegrityBound"}
+    assert "integrity_bound" in defs["Result"]["required"]

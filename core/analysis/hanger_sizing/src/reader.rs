@@ -114,6 +114,7 @@ impl Verdict {
             "arithmetic_consistent_with_published_positions": self.arithmetic.to_json(),
             "derivation": self.derivation.to_json(),
             "reproduction": self.reproduction.to_json(),
+            "integrity_bound": derived::integrity_bound(),
         })
     }
 }
@@ -189,7 +190,7 @@ const REFUSED_KEYS: [&str; 9] = [
     "document_kind", "schema_version", "semantic_contract_id", "route", "limitations", "basis_statement", "status", "inputs", "refusals",
 ];
 const INPUT_KEYS: [&str; 5] = ["canonical_profile", "sizing_request", "sizing_request_sha256", "solve_request", "library"];
-const RESULT_KEYS: [&str; 5] = ["verification_standing", "cases", "candidates", "solves", "disclosures"];
+const RESULT_KEYS: [&str; 6] = ["verification_standing", "integrity_bound", "cases", "candidates", "solves", "disclosures"];
 const CANDIDATE_KEYS: [&str; 15] = [
     "support", "node", "dof", "family_policy", "outcome", "w_n", "u_cold_m", "operating", "span_m", "required_travel_m",
     "failure_counts", "selected", "governing", "verification_assumption", "verification",
@@ -372,6 +373,9 @@ fn closure_sized(doc: &Value) -> R<()> {
 
     let result = obj(&top["result"], "$.result", &RESULT_KEYS)?;
     let standing = one_of(&result["verification_standing"], "$.result.verification_standing", &["unconditional", "conditional"])?;
+    let bound = obj(&result["integrity_bound"], "$.result.integrity_bound", &["status", "reason"])?;
+    constant(&bound["status"], "$.result.integrity_bound.status", derived::INTEGRITY_BOUND_STATUS)?;
+    constant(&bound["reason"], "$.result.integrity_bound.reason", derived::INTEGRITY_BOUND_REASON)?;
     let operating = request.operating_cases();
     let named: Vec<&str> = std::iter::once(request.weight_case.as_str()).chain(operating.iter().copied()).collect();
 
@@ -484,7 +488,7 @@ fn closure_sized(doc: &Value) -> R<()> {
             if code == derived::DERIVED_SOLVE_INTEGRITY {
                 let token = message.split(':').next().unwrap_or_default();
                 if !derived::NONPASSING_STANDINGS.contains(&token) || message != derived::integrity_message(token) {
-                    return Err(format!("{path}.message: not the integrity message of a standing other than checks_passed"));
+                    return Err(format!("{path}.message: not the integrity message of a standing other than solver_checks_passed"));
                 }
             } else if message.is_empty() {
                 return Err(format!("{path}.message: empty"));
@@ -1077,10 +1081,35 @@ mod disclosure_closure_tests {
         refused(json!([{"code": derived::DISPLACEMENT_CORRECTION_UNAVAILABLE, "names": [], "message": PRODUCT_WARNING}]), "not exactly one solve label");
         refused(json!([{"code": derived::DERIVED_SOLVE_INTEGRITY, "names": [7], "message": derived::integrity_message("sensitive")}]), "not a string");
         refused(json!([integrity("S_W", "checks_passed")]), "not the integrity message");
+        refused(json!([integrity("S_W", "solver_checks_passed")]), "not the integrity message");
+        // The message PR 272 first published, before the bound was stated as not verified.
+        refused(json!([{"code": derived::DERIVED_SOLVE_INTEGRITY, "names": ["S_W"],
+            "message": "sensitive: the numerical-integrity standing of this derived solve is sensitive, not checks_passed; every value sizing takes from it carries that standing"}]),
+            "not the integrity message of a standing other than solver_checks_passed");
         refused(json!([integrity("S_W", "SENSITIVE")]), "not the integrity message");
         refused(json!([{"code": derived::DERIVED_SOLVE_INTEGRITY, "names": ["S_W"], "message": "sensitive"}]), "not the integrity message");
         refused(json!([{"code": derived::DISPLACEMENT_CORRECTION_UNAVAILABLE, "names": ["S_W"], "message": ""}]), "message: empty");
         refused(json!([{"code": derived::DISPLACEMENT_CORRECTION_UNAVAILABLE, "names": ["S_W"], "message": PRODUCT_WARNING, "extra": 1}]),
             "not a member of the closed object");
+    }
+
+    #[test]
+    fn the_integrity_bound_is_closed_and_fixed() {
+        let doc: Value = serde_json::from_str(TWO_SPAN).expect("fixture JSON");
+        assert_eq!(doc["result"]["integrity_bound"], derived::integrity_bound());
+        assert_eq!(closure(&doc), Ok(()));
+        let verdict = read_document_with(&doc, Supplied::default(), ReadOptions::WITHOUT_REPRODUCTION).to_json();
+        assert_eq!(verdict["integrity_bound"], json!({"status": "not_verified", "reason": "inverse_norm_bound_not_verified"}));
+        let refused_bound = |change: &dyn Fn(&mut Value), reason: &str| {
+            let mut changed = doc.clone();
+            change(&mut changed);
+            let error = closure(&changed).expect_err("closure refuses");
+            assert!(error.contains(reason), "{error}");
+        };
+        refused_bound(&|d| { d["result"].as_object_mut().expect("result").remove("integrity_bound"); }, "$.result.integrity_bound: missing");
+        refused_bound(&|d| d["result"]["integrity_bound"]["status"] = json!("verified"), "$.result.integrity_bound.status: not");
+        refused_bound(&|d| d["result"]["integrity_bound"]["reason"] = json!("invented_reason"), "$.result.integrity_bound.reason: not");
+        refused_bound(&|d| d["result"]["integrity_bound"]["bound"] = json!(1.0), "$.result.integrity_bound.bound: not a member of the closed object");
+        refused_bound(&|d| d["result"]["integrity_bound"] = json!("not_verified"), "$.result.integrity_bound: not an object");
     }
 }

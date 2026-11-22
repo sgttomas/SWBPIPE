@@ -25,6 +25,7 @@ import type {
   HangerSizingCandidate,
   HangerSizingDocument,
   HangerSizingFamilyPolicy,
+  HangerSizingIntegrityBound,
   HangerSizingOutcome,
   HangerSizingRefusedDocument,
   HangerSizingRequest,
@@ -39,6 +40,9 @@ export const F_COLD_LABEL = "installed setting (at drawn position)";
 export const F_COLD_CONDITION_LABEL = "cold-condition load";
 /** A variation the document publishes as null. */
 export const NO_RATIO_FORMED = "no ratio formed";
+/** What every sized result states of the ordinary derived solves' error bound (LIM-026). */
+export const HANGER_SIZING_INTEGRITY_BOUND_TEXT =
+  "Ordinary-solve error bound: not verified by SWBPIPE (inverse_norm_bound_not_verified; LIM-026).";
 
 // ---------------------------------------------------------------------------------------------
 // Values
@@ -412,6 +416,7 @@ export type HangerSizingReaderEvidence = {
     readonly arithmetic_consistent_with_published_positions: ReaderStanding;
     readonly derivation: ReaderStanding;
     readonly reproduction: ReaderStanding;
+    readonly integrity_bound: HangerSizingIntegrityBound;
   };
 };
 
@@ -428,6 +433,8 @@ export type StandingView = Readonly<{
 export type StandingsView = Readonly<{
   binding: Readonly<{ state: "bound"; documentSha256: string }> | Readonly<{ state: "unbound"; reason: StandingsUnboundReason }>;
   standings: readonly StandingView[];
+  /** The verdict's `integrity_bound` when the evidence is bound to this document; otherwise null. */
+  integrityBound: HangerSizingIntegrityBound | null;
 }>;
 
 const STANDING_STATUSES: ReadonlySet<string> = new Set(["passed", "failed", "not_checked"]);
@@ -443,12 +450,22 @@ function wellFormedEvidence(value: unknown): value is HangerSizingReaderEvidence
   const verdict = value.verdict;
   if (!isPlainObject(verdict) || !HANGER_SIZING_STANDING_NAMES.every((name) => wellFormedStanding(verdict[name]))) return false;
   const notChecked = (verdict.binding as Record<string, unknown>).not_checked;
-  return Array.isArray(notChecked) && notChecked.every((item) => typeof item === "string");
+  if (!Array.isArray(notChecked) || !notChecked.every((item) => typeof item === "string")) return false;
+  return wellFormedIntegrityBound(verdict.integrity_bound);
+}
+
+/** Exactly `{status: "not_verified", reason: "inverse_norm_bound_not_verified"}`, as the reader states it. */
+function wellFormedIntegrityBound(value: unknown): value is HangerSizingIntegrityBound {
+  return isPlainObject(value)
+    && Object.keys(value).length === 2
+    && value.status === "not_verified"
+    && value.reason === "inverse_norm_bound_not_verified";
 }
 
 const unbound = (reason: StandingsUnboundReason): StandingsView => ({
   binding: { state: "unbound", reason },
-  standings: HANGER_SIZING_STANDING_NAMES.map((name) => ({ name, status: "not_checked" as const, difference: null }))
+  standings: HANGER_SIZING_STANDING_NAMES.map((name) => ({ name, status: "not_checked" as const, difference: null })),
+  integrityBound: null
 });
 
 async function standingsView(document: HangerSizingDocument, evidence: unknown): Promise<StandingsView> {
@@ -464,7 +481,8 @@ async function standingsView(document: HangerSizingDocument, evidence: unknown):
       return name === "binding"
         ? { name, status: standing.status, difference: standing.difference, notChecked: [...evidence.verdict.binding.not_checked] }
         : { name, status: standing.status, difference: standing.difference };
-    })
+    }),
+    integrityBound: { status: evidence.verdict.integrity_bound.status, reason: evidence.verdict.integrity_bound.reason }
   };
 }
 
@@ -487,6 +505,8 @@ export type HangerSizingSizedView = Readonly<{
   /** Each named case with its role, in the document's order. */
   cases: readonly CaseView[];
   verificationStanding: "unconditional" | "conditional";
+  /** The document's `result.integrity_bound`: the ordinary derived solves' error bound is not verified. */
+  integrityBound: HangerSizingIntegrityBound;
   library: LibraryGateView;
   rows: readonly CandidateRowView[];
   solves: readonly SolveView[];
@@ -521,6 +541,7 @@ async function sizedView(document: HangerSizingSizedDocument, evidence: unknown,
       usesConditionSet: entry.uses_condition_set
     })),
     verificationStanding: document.result.verification_standing,
+    integrityBound: { status: document.result.integrity_bound.status, reason: document.result.integrity_bound.reason },
     library: gate.state === "bound" ? { state: "bound", libraryId: gate.libraryId, sha256: gate.sha256 } : gate,
     rows,
     solves: document.result.solves.map((solve) => ({

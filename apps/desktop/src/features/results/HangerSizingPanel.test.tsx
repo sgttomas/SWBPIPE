@@ -61,7 +61,8 @@ const verdict = (): HangerSizingReaderEvidence["verdict"] => ({
   binding: { status: "passed", difference: null, not_checked: ["solve_request"] },
   arithmetic_consistent_with_published_positions: { status: "passed", difference: null },
   derivation: { status: "not_checked", difference: null },
-  reproduction: { status: "failed", difference: "V_O1: reproduced value differs" }
+  reproduction: { status: "failed", difference: "V_O1: reproduced value differs" },
+  integrity_bound: { status: "not_verified", reason: "inverse_norm_bound_not_verified" }
 });
 
 async function renderSized(props: Parameters<typeof HangerSizingPanel>[0]) {
@@ -246,16 +247,16 @@ describe("HangerSizingPanel: basis, solves, standing and disclosures", () => {
     // The messages are the product's own forms (the integrity message of a sensitive standing; the
     // DISPLACEMENT_CORRECTION_UNAVAILABLE warning of the forced-failure fixture rt_a3_s6_c1_correction_unavailable).
     const disclosures: HangerSizingDisclosure[] = [
-      { code: "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", names: ["S_O1"], message: "sensitive: the numerical-integrity standing of this derived solve is sensitive, not checks_passed; every value sizing takes from it carries that standing" },
+      { code: "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", names: ["S_O1"], message: "sensitive: the solver's numerical-integrity status for this derived solve is sensitive, not solver_checks_passed; every value sizing takes from it carries that standing (integrity_bound: not_verified, inverse_norm_bound_not_verified)" },
       { code: "DISPLACEMENT_CORRECTION_UNAVAILABLE", names: ["S_O1"], message: "Load case load:VACUUM: the corrected displacement of node:A:UX could not be certified (forced by test); no published result of this case relies on the member-relative formation check." },
-      { code: "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", names: ["V_O1"], message: "sensitive: the numerical-integrity standing of this derived solve is sensitive, not checks_passed; every value sizing takes from it carries that standing" }
+      { code: "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", names: ["V_O1"], message: "sensitive: the solver's numerical-integrity status for this derived solve is sensitive, not solver_checks_passed; every value sizing takes from it carries that standing (integrity_bound: not_verified, inverse_norm_bound_not_verified)" }
     ];
     const document = twoSpan() as unknown as { result: { disclosures: unknown[] } };
     document.result.disclosures = disclosures;
     await renderSized({ document: document as unknown as HangerSizingDocument });
-    expect(byId("disclosure-0").textContent).toBe("HANGER_SIZING_DERIVED_SOLVE_INTEGRITY (S_O1): sensitive: the numerical-integrity standing of this derived solve is sensitive, not checks_passed; every value sizing takes from it carries that standing");
+    expect(byId("disclosure-0").textContent).toBe("HANGER_SIZING_DERIVED_SOLVE_INTEGRITY (S_O1): sensitive: the solver's numerical-integrity status for this derived solve is sensitive, not solver_checks_passed; every value sizing takes from it carries that standing (integrity_bound: not_verified, inverse_norm_bound_not_verified)");
     expect(byId("disclosure-1").textContent).toBe("DISPLACEMENT_CORRECTION_UNAVAILABLE (S_O1): Load case load:VACUUM: the corrected displacement of node:A:UX could not be certified (forced by test); no published result of this case relies on the member-relative formation check.");
-    expect(byId("disclosure-2").textContent).toBe("HANGER_SIZING_DERIVED_SOLVE_INTEGRITY (V_O1): sensitive: the numerical-integrity standing of this derived solve is sensitive, not checks_passed; every value sizing takes from it carries that standing");
+    expect(byId("disclosure-2").textContent).toBe("HANGER_SIZING_DERIVED_SOLVE_INTEGRITY (V_O1): sensitive: the solver's numerical-integrity status for this derived solve is sensitive, not solver_checks_passed; every value sizing takes from it carries that standing (integrity_bound: not_verified, inverse_norm_bound_not_verified)");
   });
 });
 
@@ -269,6 +270,10 @@ describe("HangerSizingPanel: reader standings", () => {
     expect(byId("standing-binding").textContent).toBe("binding: passed; inputs not checked: solve_request");
     expect(byId("standing-derivation").textContent).toBe("derivation: not checked");
     expect(byId("standing-reproduction").textContent).toBe("reproduction: failed (first difference: V_O1: reproduced value differs)");
+    expect(byId("standings-integrity-bound").textContent).toBe("Integrity bound: not_verified (inverse_norm_bound_not_verified).");
+    expect(byId("integrity-bound").textContent).toBe(
+      "Integrity bound: not_verified (inverse_norm_bound_not_verified) — SWBPIPE does not verify an error bound for the ordinary derived solves (LIM-026)."
+    );
   });
 
   it("shows the unbound reason and every standing as not checked for absent or mismatched evidence", async () => {
@@ -281,6 +286,8 @@ describe("HangerSizingPanel: reader standings", () => {
       expect(byId("standings-binding").textContent).toBe(`Reader evidence not bound: ${reason}. Every standing reads not checked.`);
       for (const name of HANGER_SIZING_STANDING_NAMES) expect(byId(`standing-${name}`).textContent).toBe(`${name}: not checked`);
       expect(byId("standings").textContent).not.toMatch(/passed|valid|accepted/i);
+      expect(screen.queryByTestId("hanger-sizing-standings-integrity-bound")).toBeNull();
+      expect(byId("integrity-bound").textContent).toContain("not_verified (inverse_norm_bound_not_verified)");
       cleanup();
     }
   });

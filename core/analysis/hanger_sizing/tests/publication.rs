@@ -544,6 +544,7 @@ fn the_reader_returns_the_corpus_standings() {
             assert_eq!(statuses(&verdict), wanted, "{id}: {verdict}");
         }
         assert_eq!(verdict["binding"]["not_checked"], expected["binding_not_checked"], "{id}");
+        assert_eq!(verdict["integrity_bound"], derived::integrity_bound(), "{id}");
     }
     assert_eq!(same_build, 5, "the five genuine sized entries: three on the pressure-free route, two on the exact route");
 }
@@ -793,6 +794,29 @@ fn the_schema_states_the_crates_fixed_members() {
     assert_eq!(defs["Identity"]["properties"]["schema_version"]["const"], publish::SCHEMA_VERSION);
     assert_eq!(defs["Identity"]["properties"]["semantic_contract_id"]["const"], publish::SEMANTIC_CONTRACT_ID);
     assert_eq!(enumeration(&defs["Route"]), publish::ROUTES);
+    let bound = &defs["IntegrityBound"];
+    assert_eq!(bound["properties"]["status"]["const"], derived::INTEGRITY_BOUND_STATUS);
+    assert_eq!(bound["properties"]["reason"]["const"], derived::INTEGRITY_BOUND_REASON);
+    assert_eq!(bound["required"], json!(["status", "reason"]));
+    assert_eq!(bound["additionalProperties"], json!(false));
+    assert_eq!(defs["Result"]["properties"]["integrity_bound"], json!({"$ref": "#/$defs/IntegrityBound"}));
+    assert!(defs["Result"]["required"].as_array().unwrap().contains(&json!("integrity_bound")));
+    let messages: Vec<String> = derived::NONPASSING_STANDINGS.iter().map(|token| derived::integrity_message(token)).collect();
+    assert_eq!(enumeration(&defs["SolveIntegrityDisclosure"]["properties"]["message"]), messages);
+}
+
+/// Sizing states a passing solve and the unverified bound in the reader
+/// verdict's own words (`result_export::reader_verdict`, LIM-026), so the two
+/// cannot drift apart.
+#[test]
+fn the_standing_and_the_bound_are_the_reader_verdicts() {
+    use open_pipe_stress_result_export::reader_verdict;
+    assert_eq!(derived::SOLVER_CHECKS_PASSED, reader_verdict::SOLVER_CHECKS_PASSED);
+    assert_eq!(derived::integrity_bound(), reader_verdict::integrity_bound());
+    assert_eq!(
+        derived::integrity_bound(),
+        json!({"status": derived::INTEGRITY_BOUND_STATUS, "reason": derived::INTEGRITY_BOUND_REASON})
+    );
 }
 
 // --- §8.3.8: the existing readers' actual handling ----------------------------

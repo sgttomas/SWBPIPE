@@ -413,6 +413,31 @@
       }
     },
     {
+      "id": "mutation-integrity-bound-verified",
+      "note": "",
+      "document": "hanger_sizing_result_two_span.json",
+      "input": "hanger_sizing_input_two_span.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [
+        {
+          "op": "replace",
+          "path": "/result/integrity_bound/status",
+          "value": "verified"
+        }
+      ],
+      "expected": {
+        "closure": "failed",
+        "binding": "not_checked",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "not_checked",
+        "derivation": "not_checked",
+        "reproduction": "not_checked"
+      }
+    },
+    {
       "id": "mutation-refused-request-null",
       "note": "sizing_request_sha256 must be null exactly when sizing_request is.",
       "document": "hanger_sizing_result_refused.json",

@@ -19,7 +19,7 @@ export type HangerSizingLoadCategory =
   | "weight" | "distributed_force" | "pressure" | "thermal" | "hydrotest" | "wind" | "seismic"
   | "occasional" | "concentrated_force" | "concentrated_moment" | "imposed_displacement";
 /** The two state disclosures (each at most once), then the per-solve disclosures (each at most once per
- * solve label, naming that label): a derived solve's integrity standing other than checks_passed, and the
+ * solve label, naming that label): a derived solve's integrity standing other than solver_checks_passed, and the
  * product's displacement-correction warning with its message unchanged. */
 export type HangerSizingDisclosureCode =
   | "HANGER_SIZING_SUPPORT_STATE_DIFFERS"
@@ -240,8 +240,16 @@ export type HangerSizingRefusal = {
   readonly message: string;
 };
 
+/** The bound every sized result states (LIM-026, release exit criterion 18): SWBPIPE verifies no error bound
+ * for the ordinary solve's values, whatever the derived solves' standings. */
+export type HangerSizingIntegrityBound = Readonly<{
+  readonly status: "not_verified";
+  readonly reason: "inverse_norm_bound_not_verified";
+}>;
+
 export type HangerSizingResult = {
   readonly verification_standing: "unconditional" | "conditional";
+  readonly integrity_bound: HangerSizingIntegrityBound;
   readonly cases: readonly HangerSizingCase[];
   readonly candidates: readonly HangerSizingCandidate[];
   readonly solves: readonly HangerSizingSolve[];

@@ -205,6 +205,9 @@ function ReaderStandings({ standings, tid }: { standings: StandingsView; tid: Ti
       ) : (
         <p data-testid={tid("standings-binding")}>Reader evidence not bound: {standings.binding.reason}. Every standing reads not checked.</p>
       )}
+      {standings.integrityBound !== null ? (
+        <p data-testid={tid("standings-integrity-bound")}>Integrity bound: {standings.integrityBound.status} ({standings.integrityBound.reason}).</p>
+      ) : null}
       <ul>
         {standings.standings.map((standing) => (
           <li key={standing.name} data-testid={tid(`standing-${standing.name}`)}>
@@ -232,6 +235,9 @@ function SizedView({ view, document, modelHash, tid }: { view: HangerSizingSized
       <p role="note" className={conditional ? "hanger-sizing-conditional" : undefined} data-testid={tid("verification-standing")}>
         <strong>{conditional ? HANGER_SIZING_CONDITIONAL_TEXT : HANGER_SIZING_UNCONDITIONAL_TEXT}</strong>
         {conditional && noFit.length > 0 ? <> Candidates with no fit: {noFit.join(", ")}.</> : null}
+      </p>
+      <p role="note" data-testid={tid("integrity-bound")}>
+        Integrity bound: {view.integrityBound.status} ({view.integrityBound.reason}) — SWBPIPE does not verify an error bound for the ordinary derived solves (LIM-026).
       </p>
       <BasisBlock basis={view.basis} cases={view.cases} library={view.library} tid={tid} />
 

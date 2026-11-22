@@ -11,6 +11,7 @@ import type { HangerSizingDocument } from "./hangerSizingResult";
 import {
   F_COLD_CONDITION_LABEL,
   F_COLD_LABEL,
+  HANGER_SIZING_INTEGRITY_BOUND_TEXT,
   HANGER_SIZING_STANDING_NAMES,
   NO_RATIO_FORMED,
   hangerSizingView,
@@ -46,8 +47,10 @@ const verdict = (difference: string | null = null): HangerSizingReaderEvidence["
   binding: { status: "passed", difference: null, not_checked: ["solve_request"] },
   arithmetic_consistent_with_published_positions: { status: "passed", difference: null },
   derivation: { status: "not_checked", difference: null },
-  reproduction: { status: difference === null ? "not_checked" : "failed", difference }
+  reproduction: { status: difference === null ? "not_checked" : "failed", difference },
+  integrity_bound: { status: "not_verified", reason: "inverse_norm_bound_not_verified" }
 });
+const NOT_VERIFIED = { status: "not_verified", reason: "inverse_norm_bound_not_verified" } as const;
 
 const numbersIn = (value: unknown, out: number[] = []): number[] => {
   if (typeof value === "number") out.push(value);
@@ -353,7 +356,8 @@ describe("hangerSizingView: reader standings as bound evidence", () => {
     const view = await sized(document as unknown as HangerSizingDocument, { document_sha256: hash, verdict: verdict() });
     expect(view.readerStandings).toEqual({
       binding: { state: "unbound", reason: "document_not_hashable" },
-      standings: HANGER_SIZING_STANDING_NAMES.map((name) => ({ name, status: "not_checked", difference: null }))
+      standings: HANGER_SIZING_STANDING_NAMES.map((name) => ({ name, status: "not_checked", difference: null })),
+      integrityBound: null
     });
   });
 
@@ -362,6 +366,11 @@ describe("hangerSizingView: reader standings as bound evidence", () => {
     const hash = await canonicalSha256HexCheckedV1(document);
     const view = await sized(document, { document_sha256: hash, verdict: verdict("V_O1: reproduced value differs") });
     expect(view.readerStandings.binding).toEqual({ state: "bound", documentSha256: hash });
+    expect(view.readerStandings.integrityBound).toEqual(NOT_VERIFIED);
+    expect(view.integrityBound).toEqual(NOT_VERIFIED);
+    expect(HANGER_SIZING_INTEGRITY_BOUND_TEXT).toBe(
+      "Ordinary-solve error bound: not verified by SWBPIPE (inverse_norm_bound_not_verified; LIM-026)."
+    );
     expect(view.readerStandings.standings).toEqual([
       { name: "closure", status: "passed", difference: null },
       { name: "binding", status: "passed", difference: null, notChecked: ["solve_request"] },
@@ -376,14 +385,14 @@ describe("hangerSizingView: reader standings as bound evidence", () => {
   it("shows every standing as not_checked without evidence", async () => {
     for (const absent of [undefined, null]) {
       const view = await sized(twoSpan(), absent);
-      expect(view.readerStandings).toEqual({ binding: { state: "unbound", reason: "evidence_not_supplied" }, standings: allNotChecked });
+      expect(view.readerStandings).toEqual({ binding: { state: "unbound", reason: "evidence_not_supplied" }, standings: allNotChecked, integrityBound: null });
     }
   });
 
   it("shows every standing as not_checked for evidence bound to another document, however it reads", async () => {
     const twoHash = await canonicalSha256HexCheckedV1(twoSpan());
     const four = await sized(fourSpan(), { document_sha256: twoHash, verdict: verdict() });
-    expect(four.readerStandings).toEqual({ binding: { state: "unbound", reason: "evidence_bound_to_other_document" }, standings: allNotChecked });
+    expect(four.readerStandings).toEqual({ binding: { state: "unbound", reason: "evidence_bound_to_other_document" }, standings: allNotChecked, integrityBound: null });
     // Evidence computed before a one-number change no longer binds.
     const changed = twoSpan() as unknown as { result: { candidates: { w_n: number }[] } };
     changed.result.candidates[0].w_n = 5000.000000000001;
@@ -401,12 +410,17 @@ describe("hangerSizingView: reader standings as bound evidence", () => {
       { document_sha256: hash.toUpperCase(), verdict: verdict() },
       { document_sha256: hash, verdict: { ...verdict(), closure: { status: "ok", difference: null } } },
       { document_sha256: hash, verdict: { ...verdict(), binding: { status: "passed", difference: null } } },
+      { document_sha256: hash, verdict: { ...verdict(), integrity_bound: undefined } },
+      { document_sha256: hash, verdict: { ...verdict(), integrity_bound: { status: "verified", reason: "inverse_norm_bound_not_verified" } } },
+      { document_sha256: hash, verdict: { ...verdict(), integrity_bound: { status: "not_verified", reason: "invented" } } },
+      { document_sha256: hash, verdict: { ...verdict(), integrity_bound: { ...NOT_VERIFIED, bound: 1 } } },
+      { document_sha256: hash, verdict: { ...verdict(), integrity_bound: "not_verified" } },
       true,
       "passed"
     ];
     for (const evidence of malformed) {
       const view = await sized(twoSpan(), evidence as HangerSizingReaderEvidence);
-      expect(view.readerStandings).toEqual({ binding: { state: "unbound", reason: "evidence_malformed" }, standings: allNotChecked });
+      expect(view.readerStandings).toEqual({ binding: { state: "unbound", reason: "evidence_malformed" }, standings: allNotChecked, integrityBound: null });
     }
   });
 });

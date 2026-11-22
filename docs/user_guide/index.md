@@ -754,11 +754,16 @@ to CSV.
   cold-condition solve (`HANGER_SIZING_COLD_REFERENCE_STATE_DIFFERS`); judge whether W
   is representative when either appears.
   They also name, by solve label (such as `S_O1`), each derived solve whose
-  numerical-integrity standing is not checks passed, with its standing
+  standing is not `solver_checks_passed`, with its standing
   (`HANGER_SIZING_DERIVED_SOLVE_INTEGRITY`), and each solve whose displacement
   correction was unavailable, with the solver's own message
   (`DISPLACEMENT_CORRECTION_UNAVAILABLE`). Values taken from that solve carry its
   standing.
+- **Integrity bound.** `solver_checks_passed` means only that the solver's own
+  checks found nothing against a solve; it is not a verified error bound.
+  SWBPIPE does not verify that bound, so every sized result, the panel and each
+  CSV row state `integrity_bound` as `not_verified`
+  (`inverse_norm_bound_not_verified`, LIM-026).
 - **Standings.** The desktop shows the product reader's standings for the document it
   shows: closure, binding, arithmetic consistent with the published positions and
   derivation. None of them states that the mechanics are verified.

@@ -27,7 +27,7 @@ const twoSpan = () => clone(twoSpanJson) as unknown as HangerSizingSizedDocument
 const fourSpan = () => clone(fourSpanJson) as unknown as HangerSizingSizedDocument;
 
 /** The committed two_span document's checked canonical hash. */
-const TWO_SPAN_SHA256 = "1a2db93e2a4be7b639b2188420056d0fe89433d9ef256177aade3980da0e11e2";
+const TWO_SPAN_SHA256 = "9d16a68b7dc4a2906bb0b3c3c6eac22445c5f9a5038fb265e02546bdf584590c";
 
 async function sized(document: HangerSizingDocument, library?: unknown): Promise<HangerSizingSizedView> {
   const view = await hangerSizingView(document, null, library);
@@ -71,10 +71,10 @@ const CANDIDATE_HEADER = [
   "Variable records failing E1 [1]", "Variable records failing E2 [1]", "Variable records failing V0 [1]", "Variable records failing L [1]",
   "Variable records failing T [1]", "Variable records failing V [1]",
   "Constant records failing E1 [1]", "Constant records failing L [1]", "Constant records failing T [1]",
-  "Verification standing", "Verification standing meaning", "Disclosures"
+  "Verification standing", "Verification standing meaning", "Integrity bound", "Disclosures"
 ];
 /** The qualification cells an unconditional document without disclosures carries on every row. */
-const UNCONDITIONAL_CELLS = ["unconditional", `"${HANGER_SIZING_UNCONDITIONAL_TEXT}"`, "none"];
+const UNCONDITIONAL_CELLS = ["unconditional", `"${HANGER_SIZING_UNCONDITIONAL_TEXT}"`, "not_verified (inverse_norm_bound_not_verified)", "none"];
 
 const RECORD = "008305de2dab833901ab4d9d4bd7bf29f7399670f12c9cedf7714502bb1683de";
 
@@ -203,6 +203,7 @@ describe("hanger-sizing CSV: document-level qualifications and library quantitie
       for (const row of csv.rows) {
         expect(textField(csv, row, "Verification standing")).toBe("conditional");
         expect(textField(csv, row, "Verification standing meaning")).toBe(meaning);
+        expect(textField(csv, row, "Integrity bound")).toBe("not_verified (inverse_norm_bound_not_verified)");
         expect(textField(csv, row, "Disclosures")).toBe("none");
       }
     }
@@ -225,11 +226,11 @@ describe("hanger-sizing CSV: document-level qualifications and library quantitie
   it("carries each derived solve's integrity and correction-unavailable disclosures, by solve label, on every row", async () => {
     const document = twoSpan() as unknown as { result: { disclosures: { code: string; names: string[]; message: string }[] } };
     document.result.disclosures = [
-      { code: "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", names: ["S_O1"], message: "sensitive: the numerical-integrity standing of this derived solve is sensitive, not checks_passed; every value sizing takes from it carries that standing" },
+      { code: "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", names: ["S_O1"], message: "sensitive: the solver's numerical-integrity status for this derived solve is sensitive, not solver_checks_passed; every value sizing takes from it carries that standing (integrity_bound: not_verified, inverse_norm_bound_not_verified)" },
       { code: "DISPLACEMENT_CORRECTION_UNAVAILABLE", names: ["S_O1"], message: "Load case load:VACUUM: the corrected displacement of node:A:UX could not be certified (forced by test); no published result of this case relies on the member-relative formation check." }
     ];
     const { candidates, solves } = await exports(document as unknown as HangerSizingSizedDocument);
-    const expected = "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY (S_O1): sensitive: the numerical-integrity standing of this derived solve is sensitive, not checks_passed; every value sizing takes from it carries that standing | DISPLACEMENT_CORRECTION_UNAVAILABLE (S_O1): Load case load:VACUUM: the corrected displacement of node:A:UX could not be certified (forced by test); no published result of this case relies on the member-relative formation check.";
+    const expected = "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY (S_O1): sensitive: the solver's numerical-integrity status for this derived solve is sensitive, not solver_checks_passed; every value sizing takes from it carries that standing (integrity_bound: not_verified, inverse_norm_bound_not_verified) | DISPLACEMENT_CORRECTION_UNAVAILABLE (S_O1): Load case load:VACUUM: the corrected displacement of node:A:UX could not be certified (forced by test); no published result of this case relies on the member-relative formation check.";
     for (const table of [candidates.table, solves.table]) {
       const csv = readCsv(serializeCsvTable(table));
       for (const row of csv.rows) expect(textField(csv, row, "Disclosures")).toBe(expected);
@@ -278,7 +279,7 @@ describe("hanger-sizing solves CSV", () => {
     const document = twoSpan();
     expect(serializeCsvTable(solves.table)).toBe(CSV_BOM + crlf([
       ...preamble(`sha256:${TWO_SPAN_SHA256}`, "all solves"),
-      "Solve,Case,Derived document sha256,Nonlinear support,State,Verification standing,Verification standing meaning,Disclosures",
+      "Solve,Case,Derived document sha256,Nonlinear support,State,Verification standing,Verification standing meaning,Integrity bound,Disclosures",
       ...document.result.solves.map((solve) => [solve.label, solve.case, solve.derived_document_sha256, "support:C-lift", "active", ...UNCONDITIONAL_CELLS].join(","))
     ]));
     expect(document.result.solves.map((solve) => solve.label)).toEqual(["S_W", "S_C", "S_O1", "S_O2", "V_C", "V_O1", "V_O2"]);

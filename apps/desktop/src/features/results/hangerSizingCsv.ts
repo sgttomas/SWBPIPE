@@ -97,8 +97,9 @@ export async function hangerSizingCsvProvenance(input: { document: HangerSizingS
 const quantity = (value: SiQuantity): CsvCell => csvNumber(value.value);
 
 /** The document-level qualifications every row of both files carries: the published standing,
- * its meaning (naming the no-fit candidates when conditional), and the disclosures. */
-type Qualifications = Readonly<{ standing: string; meaning: string; disclosures: string }>;
+ * its meaning (naming the no-fit candidates when conditional), the unverified integrity bound
+ * (LIM-026), and the disclosures. */
+type Qualifications = Readonly<{ standing: string; meaning: string; integrityBound: string; disclosures: string }>;
 function qualifications(view: HangerSizingSizedView): Qualifications {
   const conditional = view.verificationStanding === "conditional";
   const noFit = view.rows.filter((row) => row.outcome === "no_record_fits").map((row) => row.support);
@@ -108,14 +109,17 @@ function qualifications(view: HangerSizingSizedView): Qualifications {
   const disclosures = view.disclosures.length === 0
     ? HANGER_SIZING_NO_DISCLOSURES
     : view.disclosures.map((finding) => `${finding.code}${finding.names.length > 0 ? ` (${finding.names.join(", ")})` : ""}: ${finding.message}`).join(" | ");
-  return { standing: view.verificationStanding, meaning, disclosures };
+  const integrityBound = `${view.integrityBound.status} (${view.integrityBound.reason})`;
+  return { standing: view.verificationStanding, meaning, integrityBound, disclosures };
 }
 const QUALIFICATION_COLUMNS: readonly CsvColumn[] = [
   { kind: "text", label: "Verification standing" },
   { kind: "text", label: "Verification standing meaning" },
+  { kind: "text", label: "Integrity bound" },
   { kind: "text", label: "Disclosures" }
 ];
-const qualificationCells = (q: Qualifications): CsvCell[] => [csvText(q.standing), csvText(q.meaning), csvText(q.disclosures)];
+const qualificationCells = (q: Qualifications): CsvCell[] =>
+  [csvText(q.standing), csvText(q.meaning), csvText(q.integrityBound), csvText(q.disclosures)];
 const variationCell = (value: VariationView): CsvCell => (value.state === "ratio" ? csvNumber(value.ratio.value) : csvStatus(value.text));
 const countCell = (counts: FailureCountsView, key: string): CsvCell => {
   if (counts.state === "not_tested") return csvStatus(HANGER_SIZING_NOT_TESTED);

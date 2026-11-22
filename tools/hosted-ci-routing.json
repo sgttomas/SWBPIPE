@@ -250,7 +250,7 @@
   ],
   "piping_runtime_reads": {
     "source_trees": {
-      "core/analysis/hanger_sizing/Cargo.toml": "974178ddbdcd8ccd8a667707ae71d3fbddf4810f64f6256df196f6010156eba3",
+      "core/analysis/hanger_sizing/Cargo.toml": "cc93ef521ecfa28543e4371038fd5864275b8ae0231626219039ff0c22111463",
       "core/gui/viewport_editor/Cargo.toml": "32de48e1e1afd2bc77f84655a69561bdc96074a31fe17f705e7b3a0d8aa6eddf",
       "core/handoff/caepipe_mbf_engine/Cargo.toml": "665cfd34254f574ae7e7bcfbb0399ccd24247c17337e7fda43a43ea4a1e408d4",
       "core/handoff/caepipe_mbf_wasm/Cargo.toml": "26ee5f7833006eccfbccf2633c6f785d6f25b282cd7043f48f0078a9efa4f39d",
@@ -6462,7 +6462,7 @@
         }
       },
       "core/analysis/hanger_sizing/tests/publication.rs": {
-        "sha256": "375f0535569ef9af1fc2dd32428ef7155a09f60ce5cf1a61148adfdc614f94fc",
+        "sha256": "8d3454cb7482ed133162bb7b4060d9dd08d68aaa1c00a4b2533f2252a1ad1294",
         "source_trees": [
           "core/analysis/hanger_sizing/Cargo.toml"
         ],
@@ -6514,7 +6514,7 @@
         ]
       },
       "core/analysis/hanger_sizing/tests/desktop.rs": {
-        "sha256": "4f9bdfb40f01563ac2e9a8068ee06abe667571d7c696ea36b495073ce0d938e6",
+        "sha256": "79b0ad7443261f78da5e1a76e86ee7991384c2aec75820f941fa8b2065ac89c2",
         "source_trees": [
           "core/analysis/hanger_sizing/Cargo.toml"
         ],

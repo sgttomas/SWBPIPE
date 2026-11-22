@@ -13,6 +13,10 @@ not_checked, and states nothing about mechanics:
   invented consistently passes it. `derivation` and `reproduction` are the Rust
   reader's alone.
 
+Beside the standings, every verdict carries `integrity_bound` (`not_verified`,
+`inverse_norm_bound_not_verified`): SWBPIPE verifies no error bound for the ordinary
+solve's values (LIM-026), and a sized document must state the same.
+
 When closure fails nothing else is checked. A document is admitted by the checked
 profile's rules first: duplicate keys are refused by an `object_pairs_hook`, and
 numbers outside `openpipestress_jcs_ijson_v1` (non-finite, or integral beyond
@@ -45,7 +49,7 @@ CANONICAL_PROFILE = "openpipestress_jcs_ijson_v1"
 LIMITATIONS = (
     "Hanger sizing selects records of the user's own library by the user's own tests on the stated cases; it judges no hanger's suitability for a service and determines no code compliance.",
     "Sized means the sizing algorithm completed. A candidate may have no fitting record, and the verification may be conditional; both are stated in the result.",
-    "Loads and positions come from derived solves of the bound solve request and inherit every premise of those solves; nonlinear supports take each case's own converged state.",
+    "Loads and positions come from derived solves of the bound solve request and inherit every premise of those solves; SWBPIPE does not verify an error bound for the ordinary solve's values (integrity_bound: not_verified, inverse_norm_bound_not_verified), and nonlinear supports take each case's own converged state without an independently verified confirmation bound.",
     "The stated route is the bound solve request's own, on which every derived solve runs; sizing changes only the candidates' roles and adds no mechanics of its own, so pressure enters a sized value only as those solves include it.",
 )
 BASIS_STATEMENT = (
@@ -68,13 +72,20 @@ REFUSAL_CODES = frozenset("HANGER_SIZING_" + code for code in (
 DISCLOSURE_CODES = ("HANGER_SIZING_SUPPORT_STATE_DIFFERS", "HANGER_SIZING_COLD_REFERENCE_STATE_DIFFERS")
 # The per-solve disclosures, each at most once per solve label of the document's plan, naming exactly that label.
 SOLVE_DISCLOSURE_CODES = ("HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", "DISPLACEMENT_CORRECTION_UNAVAILABLE")
-# The numerical-integrity standings other than checks_passed, and the integrity disclosure's fixed message.
+# The standing of a derived solve the solver's own checks found nothing against: the solver's report, not a
+# verified bound. Every sized result and every verdict states the bound as not verified (LIM-026).
+SOLVER_CHECKS_PASSED = "solver_checks_passed"
+INTEGRITY_BOUND_STATUS = "not_verified"
+INTEGRITY_BOUND_REASON = "inverse_norm_bound_not_verified"
+INTEGRITY_BOUND = {"status": INTEGRITY_BOUND_STATUS, "reason": INTEGRITY_BOUND_REASON}
+# The standings other than solver_checks_passed, and the integrity disclosure's fixed message.
 NONPASSING_STANDINGS = ("not_assessed", "sensitive", "unresolved", "failed")
 
 
 def integrity_message(token):
-    return (f"{token}: the numerical-integrity standing of this derived solve is {token}, not checks_passed; "
-            "every value sizing takes from it carries that standing")
+    return (f"{token}: the solver's numerical-integrity status for this derived solve is {token}, "
+            f"not {SOLVER_CHECKS_PASSED}; every value sizing takes from it carries that standing "
+            f"(integrity_bound: {INTEGRITY_BOUND_STATUS}, {INTEGRITY_BOUND_REASON})")
 
 LOAD_CATEGORIES = frozenset(("weight", "distributed_force", "pressure", "thermal", "hydrotest", "wind", "seismic",
                              "occasional", "concentrated_force", "concentrated_moment", "imposed_displacement"))
@@ -444,8 +455,12 @@ def _closure_sized(doc):
     _string(library["library_id"], "$.inputs.library.library_id")
     _hash(library["sha256"], "$.inputs.library.sha256")
 
-    result = _obj(doc["result"], "$.result", ("verification_standing", "cases", "candidates", "solves", "disclosures"))
+    result = _obj(doc["result"], "$.result",
+                  ("verification_standing", "integrity_bound", "cases", "candidates", "solves", "disclosures"))
     standing = _one_of(result["verification_standing"], "$.result.verification_standing", ("unconditional", "conditional"))
+    bound = _obj(result["integrity_bound"], "$.result.integrity_bound", ("status", "reason"))
+    _constant(bound["status"], "$.result.integrity_bound.status", INTEGRITY_BOUND_STATUS)
+    _constant(bound["reason"], "$.result.integrity_bound.reason", INTEGRITY_BOUND_REASON)
     operating = _operating(request)
     named = [request["weight_case"], *operating]
     cases = _array(result["cases"], "$.result.cases")
@@ -524,7 +539,7 @@ def _closure_sized(doc):
             if code == "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY":
                 token = message.split(":", 1)[0]
                 if token not in NONPASSING_STANDINGS or message != integrity_message(token):
-                    raise Difference(f"{path}.message: not the integrity message of a standing other than checks_passed")
+                    raise Difference(f"{path}.message: not the integrity message of a standing other than solver_checks_passed")
             elif not message:
                 raise Difference(f"{path}.message: empty")
             continue
@@ -946,20 +961,24 @@ def verify(document: str | Any, *, solve_request: Any = None, library: Any = Non
         except Difference as difference:
             return {"closure": {"status": "failed", "difference": f"not admitted: {difference}"},
                     "binding": {**NOT_CHECKED, "not_checked": []},
-                    "arithmetic_consistent_with_published_positions": dict(NOT_CHECKED)}
+                    "arithmetic_consistent_with_published_positions": dict(NOT_CHECKED),
+                    "integrity_bound": dict(INTEGRITY_BOUND)}
     else:
         try:
             _profile(document, "$", 1)
         except Difference as difference:
             return {"closure": {"status": "failed", "difference": f"not admitted: {difference}"},
                     "binding": {**NOT_CHECKED, "not_checked": []},
-                    "arithmetic_consistent_with_published_positions": dict(NOT_CHECKED)}
+                    "arithmetic_consistent_with_published_positions": dict(NOT_CHECKED),
+                    "integrity_bound": dict(INTEGRITY_BOUND)}
     closure_standing = _standing(closure, document)
     if closure_standing["status"] != "passed":
         return {"closure": closure_standing, "binding": {**NOT_CHECKED, "not_checked": []},
-                "arithmetic_consistent_with_published_positions": dict(NOT_CHECKED)}
+                "arithmetic_consistent_with_published_positions": dict(NOT_CHECKED),
+                "integrity_bound": dict(INTEGRITY_BOUND)}
     sized = document["status"] == "sized"
     binding, not_checked, library_bound = _binding(document, solve_request, library, sized)
     arithmetic = _standing(_arithmetic, document, library) if sized and library is not None and library_bound else dict(NOT_CHECKED)
     return {"closure": closure_standing, "binding": {**binding, "not_checked": not_checked},
-            "arithmetic_consistent_with_published_positions": arithmetic}
+            "arithmetic_consistent_with_published_positions": arithmetic,
+            "integrity_bound": dict(INTEGRITY_BOUND)}

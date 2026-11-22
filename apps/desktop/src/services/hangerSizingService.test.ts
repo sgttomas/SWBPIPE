@@ -120,6 +120,7 @@ describe("sizeHangers", () => {
       ["derivation", "passed"],
       ["reproduction", "not_checked"]
     ]);
+    expect(view.readerStandings.integrityBound).toEqual({ status: "not_verified", reason: "inverse_norm_bound_not_verified" });
   });
 
   it("awaits its retirement before sending, and carries the epoch that retirement acknowledged", async () => {

@@ -1941,13 +1941,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 640,
+    "line": 668,
     "via": "field code"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 640,
+     "line": 668,
      "via": "field code",
      "severity": null,
      "through": [
@@ -3679,7 +3679,7 @@
     },
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 785,
+     "line": 786,
      "via": "code-message pair",
      "severity": null
     }
@@ -4004,13 +4004,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 783,
+    "line": 784,
     "via": "code-message pair"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 783,
+     "line": 784,
      "via": "code-message pair",
      "severity": null
     }
@@ -4034,13 +4034,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 855,
+    "line": 883,
     "via": "field code"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 855,
+     "line": 883,
      "via": "field code",
      "severity": null
     }
@@ -4109,19 +4109,19 @@
     },
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 623,
+     "line": 650,
      "via": "refusal()",
      "severity": null
     },
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 652,
+     "line": 680,
      "via": "refusal()",
      "severity": null
     },
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 704,
+     "line": 732,
      "via": "refusal()",
      "severity": null
     },
@@ -4163,13 +4163,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 628,
+    "line": 656,
     "via": "field code"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 628,
+     "line": 656,
      "via": "field code",
      "severity": null,
      "through": [
@@ -4178,7 +4178,7 @@
     }
    ],
    "messages": [
-    "integrity_message(standing_token(status))"
+    "integrity_message(token)"
    ],
    "classification": "numerical_standing",
    "reason": "solve_disclosures carries a derived solve's numerical-integrity status other than checks_passed, with its exact standing token and solve label. It qualifies the sizing quantities without itself refusing the request.",
@@ -4208,7 +4208,7 @@
     },
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 782,
+     "line": 783,
      "via": "code-message pair",
      "severity": null
     }
@@ -4233,13 +4233,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 825,
+    "line": 826,
     "via": "add()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 825,
+     "line": 826,
      "via": "add()",
      "severity": null
     }
@@ -4263,13 +4263,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 758,
+    "line": 786,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 758,
+     "line": 786,
      "via": "refusal()",
      "severity": null
     }
@@ -4293,13 +4293,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 767,
+    "line": 768,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 767,
+     "line": 768,
      "via": "refusal()",
      "severity": null,
      "through": [
@@ -4357,13 +4357,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 868,
+    "line": 869,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 868,
+     "line": 869,
      "via": "refusal()",
      "severity": null,
      "through": [
@@ -4424,13 +4424,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 883,
+    "line": 884,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 883,
+     "line": 884,
      "via": "refusal()",
      "severity": null,
      "through": [
@@ -4439,7 +4439,7 @@
     },
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 886,
+     "line": 887,
      "via": "refusal()",
      "severity": null,
      "through": [
@@ -4497,13 +4497,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 773,
+    "line": 774,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 773,
+     "line": 774,
      "via": "refusal()",
      "severity": null,
      "through": [
@@ -4530,13 +4530,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 789,
+    "line": 790,
     "via": "code-message pair"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 789,
+     "line": 790,
      "via": "code-message pair",
      "severity": null
     }
@@ -4560,13 +4560,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 786,
+    "line": 814,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 786,
+     "line": 814,
      "via": "refusal()",
      "severity": null
     },
@@ -4596,13 +4596,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 902,
+    "line": 903,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 902,
+     "line": 903,
      "via": "refusal()",
      "severity": null,
      "through": [
@@ -4681,13 +4681,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 793,
+    "line": 794,
     "via": "code-message pair"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 793,
+     "line": 794,
      "via": "code-message pair",
      "severity": null
     }
@@ -4711,13 +4711,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 786,
+    "line": 787,
     "via": "code-message pair"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 786,
+     "line": 787,
      "via": "code-message pair",
      "severity": null
     }
@@ -4741,13 +4741,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 850,
+    "line": 878,
     "via": "field code"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 850,
+     "line": 878,
      "via": "field code",
      "severity": null
     }
@@ -4831,13 +4831,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 792,
+    "line": 793,
     "via": "code-message pair"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 792,
+     "line": 793,
      "via": "code-message pair",
      "severity": null
     }
@@ -4891,13 +4891,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 791,
+    "line": 792,
     "via": "code-message pair"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 791,
+     "line": 792,
      "via": "code-message pair",
      "severity": null
     }
@@ -4921,13 +4921,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 790,
+    "line": 791,
     "via": "code-message pair"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 790,
+     "line": 791,
      "via": "code-message pair",
      "severity": null
     }
@@ -4951,13 +4951,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 779,
+    "line": 780,
     "via": "code-message pair"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 779,
+     "line": 780,
      "via": "code-message pair",
      "severity": null
     }
@@ -4981,13 +4981,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 780,
+    "line": 781,
     "via": "code-message pair"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 780,
+     "line": 781,
      "via": "code-message pair",
      "severity": null,
      "through": [
@@ -5014,13 +5014,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 815,
+    "line": 816,
     "via": "add()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 815,
+     "line": 816,
      "via": "add()",
      "severity": null,
      "through": [
@@ -21523,7 +21523,7 @@
   },
   {
    "file": "core/analysis/hanger_sizing/src/publish.rs",
-   "line": 814,
+   "line": 815,
    "at": "add()",
    "why": "a tuple source REQUIRED_MEMBERS the scanner cannot follow",
    "expression": "code",
@@ -21531,7 +21531,7 @@
   },
   {
    "file": "core/analysis/hanger_sizing/src/publish.rs",
-   "line": 817,
+   "line": 818,
    "at": "add()",
    "why": "a tuple source REQUIRED_MEMBERS the scanner cannot follow",
    "expression": "code",
@@ -21539,7 +21539,7 @@
   },
   {
    "file": "core/analysis/hanger_sizing/src/publish.rs",
-   "line": 833,
+   "line": 834,
    "at": "add()",
    "why": "a tuple source REQUIRED_METHOD_MEMBERS the scanner cannot follow",
    "expression": "code",
@@ -21547,7 +21547,7 @@
   },
   {
    "file": "core/analysis/hanger_sizing/src/publish.rs",
-   "line": 839,
+   "line": 840,
    "at": "add()",
    "why": "a tuple source REQUIRED_METHOD_MEMBERS the scanner cannot follow",
    "expression": "code",
@@ -21555,7 +21555,7 @@
   },
   {
    "file": "core/analysis/hanger_sizing/src/publish.rs",
-   "line": 845,
+   "line": 846,
    "at": "refusal()",
    "why": "parameter sizing of required_findings(), of type &Value, turned into text",
    "expression": "code",
@@ -22095,15 +22095,15 @@
   {
    "literal": "S_C",
    "sites": [
-    "core/analysis/hanger_sizing/src/derived.rs:792",
-    "core/analysis/hanger_sizing/src/derived.rs:853",
+    "core/analysis/hanger_sizing/src/derived.rs:820",
+    "core/analysis/hanger_sizing/src/derived.rs:881",
     "core/analysis/hanger_sizing/src/publish.rs:427"
    ]
   },
   {
    "literal": "S_O1",
    "sites": [
-    "core/analysis/hanger_sizing/src/derived.rs:848"
+    "core/analysis/hanger_sizing/src/derived.rs:876"
    ]
   },
   {
@@ -22115,11 +22115,11 @@
   {
    "literal": "S_W",
    "sites": [
-    "core/analysis/hanger_sizing/src/derived.rs:775",
-    "core/analysis/hanger_sizing/src/derived.rs:776",
-    "core/analysis/hanger_sizing/src/derived.rs:780",
-    "core/analysis/hanger_sizing/src/derived.rs:848",
-    "core/analysis/hanger_sizing/src/derived.rs:853",
+    "core/analysis/hanger_sizing/src/derived.rs:803",
+    "core/analysis/hanger_sizing/src/derived.rs:804",
+    "core/analysis/hanger_sizing/src/derived.rs:808",
+    "core/analysis/hanger_sizing/src/derived.rs:876",
+    "core/analysis/hanger_sizing/src/derived.rs:881",
     "core/analysis/hanger_sizing/src/publish.rs:427"
    ]
   },
@@ -22330,7 +22330,7 @@
   {
    "literal": "V_C",
    "sites": [
-    "core/analysis/hanger_sizing/src/derived.rs:828",
+    "core/analysis/hanger_sizing/src/derived.rs:856",
     "core/analysis/hanger_sizing/src/publish.rs:429"
    ]
   },

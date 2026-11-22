@@ -574,40 +574,67 @@ fn check_source(request_doc: &Value, sites: &[Site], mode: PreviewSolverMode) ->
 }
 
 /// The disclosure of a derived solve whose numerical-integrity standing is not
-/// checks passed (REQ-003). Its one name is the solve's label.
+/// [`SOLVER_CHECKS_PASSED`] (REQ-003). Its one name is the solve's label.
 pub const DERIVED_SOLVE_INTEGRITY: &str = "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY";
 /// The product's own warning that a case's displacement correction was
 /// unavailable (DEL-04-07 *Published displacement*), carried with the product's
 /// message unchanged. Its one name is the solve's label.
 pub const DISPLACEMENT_CORRECTION_UNAVAILABLE: &str = "DISPLACEMENT_CORRECTION_UNAVAILABLE";
 
-/// The closed token of a numerical-quality status, as the product publishes it
-/// (`numerical_quality.status`, snake case).
+/// The standing sizing states for a derived solve the solver's own checks found
+/// nothing against: the solver's report, not a verified bound. It is the reader
+/// verdict's `result_export::reader_verdict::SOLVER_CHECKS_PASSED`.
+pub const SOLVER_CHECKS_PASSED: &str = "solver_checks_passed";
+/// The `status` of every sized document's and reader verdict's `integrity_bound`
+/// (LIM-026, release exit criterion 18).
+pub const INTEGRITY_BOUND_STATUS: &str = "not_verified";
+/// The `reason` of every sized document's and reader verdict's `integrity_bound`.
+pub const INTEGRITY_BOUND_REASON: &str = "inverse_norm_bound_not_verified";
+
+/// The `integrity_bound` member of every sized document's `result` and every
+/// reader verdict: SWBPIPE verifies no error bound for the ordinary solve's
+/// values, so the bound is stated as not verified whatever the solves' standings.
+/// It is the reader verdict's `result_export::reader_verdict::integrity_bound`.
+pub fn integrity_bound() -> Value {
+    json!({"status": INTEGRITY_BOUND_STATUS, "reason": INTEGRITY_BOUND_REASON})
+}
+
+/// The closed token sizing states for a numerical-quality status. The four
+/// non-passing statuses keep the product's own serialization
+/// (`numerical_quality.status`, snake case). `ChecksPassed`, which the product
+/// serializes as the solver's wire token `checks_passed`, is stated as
+/// [`SOLVER_CHECKS_PASSED`]: it reports that the solver's checks found nothing,
+/// and asserts no error bound, which sizing publishes as [`integrity_bound`]
+/// (`not_verified`, `inverse_norm_bound_not_verified`) per LIM-026 and release
+/// exit criterion 18.
 pub fn standing_token(status: NumericalQualityStatus) -> &'static str {
     match status {
         NumericalQualityStatus::NotAssessed => "not_assessed",
-        NumericalQualityStatus::ChecksPassed => "checks_passed",
+        NumericalQualityStatus::ChecksPassed => SOLVER_CHECKS_PASSED,
         NumericalQualityStatus::Sensitive => "sensitive",
         NumericalQualityStatus::Unresolved => "unresolved",
         NumericalQualityStatus::Failed => "failed",
     }
 }
 
-/// The standings other than checks passed, each disclosed by
+/// The standings other than [`SOLVER_CHECKS_PASSED`], each disclosed by
 /// [`DERIVED_SOLVE_INTEGRITY`] with [`integrity_message`].
 pub const NONPASSING_STANDINGS: [&str; 4] = ["not_assessed", "sensitive", "unresolved", "failed"];
 
 /// The fixed message of a [`DERIVED_SOLVE_INTEGRITY`] disclosure: the standing's
-/// closed token first, then its meaning.
+/// closed token first, then its meaning and the unverified bound.
 pub fn integrity_message(token: &str) -> String {
-    format!("{token}: the numerical-integrity standing of this derived solve is {token}, not checks_passed; every value sizing takes from it carries that standing")
+    format!(
+        "{token}: the solver's numerical-integrity status for this derived solve is {token}, not {SOLVER_CHECKS_PASSED}; every value sizing takes from it carries that standing (integrity_bound: {INTEGRITY_BOUND_STATUS}, {INTEGRITY_BOUND_REASON})"
+    )
 }
 
 /// What one derived solve's envelope gives sizing beyond its values (REQ-003): a
 /// blocking diagnostic refuses the request with the solve's diagnostics, before
 /// anything else is read; otherwise the solve's disclosures. A derived document
 /// keeps one case, so its `numerical_quality.status`, the most severe standing of
-/// its cases, is that case's `solve_quality`. A standing other than checks passed is
+/// its cases, is that case's `solve_quality`. A standing other than
+/// [`SOLVER_CHECKS_PASSED`] is
 /// disclosed with its exact token, and the product's
 /// `DISPLACEMENT_CORRECTION_UNAVAILABLE` warning with its message unchanged (more
 /// than one, which a one-case document does not publish, would be joined by "; "),
@@ -623,11 +650,12 @@ fn solve_disclosures(label: &str, status: NumericalQualityStatus, diagnostics: &
         return Err(refusal("HANGER_SIZING_DERIVED_SOLVE_FAILED", vec![label.to_string()], blocking.join("; ")));
     }
     let mut disclosures = Vec::new();
-    if status != NumericalQualityStatus::ChecksPassed {
+    let token = standing_token(status);
+    if token != SOLVER_CHECKS_PASSED {
         disclosures.push(Disclosure {
             code: DERIVED_SOLVE_INTEGRITY,
             names: vec![label.to_string()],
-            message: integrity_message(standing_token(status)),
+            message: integrity_message(token),
         });
     }
     let unavailable: Vec<&str> = diagnostics
@@ -944,7 +972,7 @@ mod disclosure_tests {
     }
 
     #[test]
-    fn every_standing_other_than_checks_passed_is_disclosed_with_its_exact_token() {
+    fn every_standing_other_than_solver_checks_passed_is_disclosed_with_its_exact_token() {
         let (_, diagnostics) = fixture();
         let ordinary: Vec<Diagnostic> = diagnostics.into_iter().filter(|d| d.code != DISPLACEMENT_CORRECTION_UNAVAILABLE).collect();
         let all = [
@@ -955,18 +983,27 @@ mod disclosure_tests {
             NumericalQualityStatus::Failed,
         ];
         for status in all {
-            // The token is the product's own serialization of the status.
-            assert_eq!(serde_json::to_value(status).expect("status"), json!(standing_token(status)));
-            assert_eq!(status_of(standing_token(status)), status);
+            let wire = serde_json::to_value(status).expect("status");
+            assert_eq!(status_of(wire.as_str().expect("token")), status);
             let found = solve_disclosures("V_C", status, &ordinary).expect("not refused");
             if status == NumericalQualityStatus::ChecksPassed {
+                // The product's wire token stays the solver's; sizing states it as
+                // solver_checks_passed and discloses nothing for it.
+                assert_eq!(wire, json!("checks_passed"));
+                assert_eq!(standing_token(status), "solver_checks_passed");
+                assert_eq!(standing_token(status), SOLVER_CHECKS_PASSED);
                 assert!(found.is_empty());
                 assert!(!NONPASSING_STANDINGS.contains(&standing_token(status)));
             } else {
+                // A non-passing token is the product's own serialization of the status.
                 let token = standing_token(status);
+                assert_eq!(wire, json!(token));
                 assert!(NONPASSING_STANDINGS.contains(&token));
                 assert_eq!(found, vec![Disclosure { code: DERIVED_SOLVE_INTEGRITY, names: vec!["V_C".into()], message: integrity_message(token) }]);
                 assert_eq!(found[0].message.split(':').next(), Some(token));
+                assert!(found[0].message.contains("not solver_checks_passed"), "{}", found[0].message);
+                assert!(found[0].message.contains("(integrity_bound: not_verified, inverse_norm_bound_not_verified)"), "{}", found[0].message);
+                assert!(!found[0].message.contains("not checks_passed"), "{}", found[0].message);
             }
         }
     }

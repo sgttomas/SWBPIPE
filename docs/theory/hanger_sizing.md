@@ -226,9 +226,14 @@ the hot condition. It warns in the same way where replacing the candidates by th
 forces found another equilibrium in the weight case
 (`HANGER_SIZING_COLD_REFERENCE_STATE_DIFFERS`).
 
-A derived solve also carries its own numerical standing. Where a solve's
-numerical-integrity standing is anything other than checks passed, the result
-discloses it by the solve's label with the exact standing token
+A derived solve also carries its own numerical standing. A solve the solver's
+own checks found nothing against stands as `solver_checks_passed`: that is the
+solver's report, and asserts no verified error bound. SWBPIPE does not verify
+the bound the ordinary solve's integrity check rests on, so every sized result
+states `integrity_bound` as `not_verified` (`inverse_norm_bound_not_verified`,
+LIM-026) whatever its solves' standings. Where a solve's standing is anything
+other than `solver_checks_passed`, the result discloses it by the solve's label
+with the exact standing token and that unverified bound
 (`HANGER_SIZING_DERIVED_SOLVE_INTEGRITY`). Where the product could not form a
 case's displacement correction, its warning is carried by the solve's label with the
 product's message unchanged (`DISPLACEMENT_CORRECTION_UNAVAILABLE`). Neither refuses

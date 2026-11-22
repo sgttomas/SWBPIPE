@@ -35,7 +35,7 @@ pub const CANONICAL_PROFILE: &str = "openpipestress_jcs_ijson_v1";
 pub const LIMITATIONS: [&str; 4] = [
     "Hanger sizing selects records of the user's own library by the user's own tests on the stated cases; it judges no hanger's suitability for a service and determines no code compliance.",
     "Sized means the sizing algorithm completed. A candidate may have no fitting record, and the verification may be conditional; both are stated in the result.",
-    "Loads and positions come from derived solves of the bound solve request and inherit every premise of those solves; nonlinear supports take each case's own converged state.",
+    "Loads and positions come from derived solves of the bound solve request and inherit every premise of those solves; SWBPIPE does not verify an error bound for the ordinary solve's values (integrity_bound: not_verified, inverse_norm_bound_not_verified), and nonlinear supports take each case's own converged state without an independently verified confirmation bound.",
     "The stated route is the bound solve request's own, on which every derived solve runs; sizing changes only the candidates' roles and adds no mechanics of its own, so pressure enters a sized value only as those solves include it.",
 ];
 
@@ -742,6 +742,7 @@ pub fn sized_document(
                 VerificationStanding::Unconditional => "unconditional",
                 VerificationStanding::Conditional => "conditional",
             },
+            "integrity_bound": derived::integrity_bound(),
             "cases": cases,
             "candidates": candidates,
             "solves": solves,
