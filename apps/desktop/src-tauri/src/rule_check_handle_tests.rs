@@ -102,21 +102,17 @@ fn run_command(registry: &SolveJobRegistry, args: &Value) -> Result<Value, Strin
 /// Each outcome of `answer` takes at least its least reply bytes and at most its
 /// priced text, and the pack's projection counts exactly the runner's outcomes.
 fn outcomes_within_their_price(pack: &Value, answer: &Value, label: &str) {
-    let named = |check: &Value, key: &str| check.get(key).and_then(Value::as_array).map_or(0, Vec::len) as u64;
-    let inputs: std::collections::HashMap<&str, u64> = pack["check_definitions"]
-        .as_array()
-        .unwrap()
-        .iter()
-        .map(|check| (check["check_id"].as_str().unwrap(), named(check, "required_input_refs") + named(check, "value_slot_refs")))
-        .collect();
     let outcomes = answer["checks"].as_array().unwrap();
-    for outcome in outcomes {
-        let text = serde_json::to_string(outcome).unwrap().len() as u64 + 1;
-        let priced = RULE_CHECK_OUTCOME_TEXT_BYTES + RULE_CHECK_INPUT_TEXT_BYTES * inputs[outcome["check_id"].as_str().unwrap()];
-        assert!(text >= RULE_CHECK_OUTCOME_LEAST_BYTES && text <= priced, "{label}: an outcome of {text} bytes, priced at {priced}: {outcome}");
+    if outcomes.is_empty() {
+        return;
     }
-    if !outcomes.is_empty() {
-        assert_eq!(rule_check_projection(pack).outcomes, outcomes.len() as u64, "{label}: the projection counts the runner's outcomes");
+    let prices = rule_check_prices(pack);
+    assert_eq!(rule_check_projection(pack).outcomes, outcomes.len() as u64, "{label}: the projection counts the runner's outcomes");
+    let mut each = prices.iter().flat_map(|price| std::iter::repeat(price).take(price.outcomes as usize));
+    for outcome in outcomes {
+        let price = each.next().unwrap();
+        let text = serde_json::to_string(outcome).unwrap().len() as u64 + 1;
+        assert!(text >= price.least_text && text <= price.priced_text, "{label}: an outcome of {text} bytes, priced at {} to {}: {outcome}", price.least_text, price.priced_text);
     }
 }
 
@@ -1071,11 +1067,21 @@ fn an_ambiguous_selection_stops_at_its_second_row() {
     }
     let job = solve_holding(&registry, &gate, &serde_json::to_string(&parsed).unwrap(), ResultCustody::Native);
     rule_solver_selection::PREVIEW_MOST_SELECTED.with(|most| most.set(0));
+    rule_solver_selection::PREVIEW_ROWS_EXAMINED.with(|count| count.set(0));
     let body = serde_json::to_vec(&json!({"jobId": job, "queries": [row_query(&parsed, &probe.row)]})).unwrap();
     let preview = preview_command(&registry, body).unwrap();
     let basis = &preview["inputs"][0]["bases"][0];
     assert_eq!((&basis["matched"], &basis["rows"]), (&json!(2), &json!([])));
     assert_eq!(rule_solver_selection::PREVIEW_MOST_SELECTED.with(std::cell::Cell::get), 2);
+    // The selection stopped at its second match: the copies follow every original
+    // candidate of the row's basis, kind and entity, so the second match is the first
+    // copy, and no candidate after it is examined (100 more copies match). The reply is
+    // emitted twice, counted and then written, so each pass examines that many.
+    let originals = probe.parsed["results"].as_array().unwrap().iter()
+        .filter(|row| row["basis_ref"] == probe.row["basis_ref"] && row["kind"] == probe.row["kind"] && row["entity_ref"] == probe.row["entity_ref"] && !rule_solver_selection::is_held_operand_row(row))
+        .count();
+    let examined = rule_solver_selection::PREVIEW_ROWS_EXAMINED.with(std::cell::Cell::get);
+    assert_eq!(examined, 2 * (originals + 1), "candidates examined over both passes, of {} with 101 matching", originals + 100);
     registry.dispose_result(&job).unwrap();
 }
 
@@ -1089,12 +1095,12 @@ fn a_rule_check_too_large_for_its_reply_is_refused_before_it_runs() {
     let pack = widened(&pack_for(&probe.model, &probe.parsed, &probe.row), 200, 250);
     let projection = rule_check_projection(&pack);
     assert_eq!(projection.outcomes, 50_000);
-    assert!(projection.outcomes * RULE_CHECK_OUTCOME_LEAST_BYTES > MAX_RULE_CHECK_REPLY_BYTES);
+    assert!(projection.least_bytes > MAX_RULE_CHECK_REPLY_BYTES);
     let job = solve_holding(&registry, &gate, &probe.text, ResultCustody::Native);
     let started = RULE_CHECK_RUNS_STARTED.with(std::cell::Cell::get);
     let expected = format!(
         "RULE_CHECK_RESPONSE_LIMIT: the rule check would return 50000 outcomes, at least {} bytes, past its {MAX_RULE_CHECK_REPLY_BYTES}-byte reply limit; check fewer load cases or checks",
-        50_000 * RULE_CHECK_OUTCOME_LEAST_BYTES
+        projection.least_bytes
     );
     for handle in [job.as_str(), "a-handle-naming-nothing"] {
         let error = run_command(&registry, &json!({"rulePackDocument": pack, "jobId": handle, "model": probe.model})).unwrap_err();
@@ -1117,8 +1123,10 @@ fn a_rule_check_leases_its_priced_work_before_it_runs() {
     let probe = probe();
     let pack = widened(&pack_for(&probe.model, &probe.parsed, &probe.row), 1000, 2);
     let projection = rule_check_projection(&pack);
-    let per_outcome = RULE_CHECK_OUTCOME_WORK_FACTOR * (RULE_CHECK_OUTCOME_TEXT_BYTES + 3 * RULE_CHECK_INPUT_TEXT_BYTES);
-    assert_eq!(projection, RuleCheckProjection { outcomes: 2000, work_bytes: 2000 * per_outcome });
+    let prices = rule_check_prices(&pack);
+    assert_eq!(projection.outcomes, 2000);
+    assert_eq!(projection.work_bytes, prices.iter().map(|price| price.outcomes * price.priced_text * RULE_CHECK_OUTCOME_WORK_FACTOR).sum::<u64>());
+    assert!(prices.iter().all(|price| price.priced_text > RULE_CHECK_OUTCOME_TEXT_BYTES + 3 * RULE_CHECK_INPUT_TEXT_BYTES), "each outcome is priced with its identifiers");
     let job = solve_holding(&registry, &gate, &probe.text, ResultCustody::Native);
     let args = json!({"rulePackDocument": pack, "jobId": job, "model": probe.model});
     let started = RULE_CHECK_RUNS_STARTED.with(std::cell::Cell::get);
@@ -1141,7 +1149,7 @@ fn a_rule_check_reply_past_its_limit_is_refused_as_it_is_counted() {
     let probe = probe();
     let pack = widened(&pack_for(&probe.model, &probe.parsed, &probe.row), 20_000, 1);
     let projection = rule_check_projection(&pack);
-    assert!(projection.outcomes * RULE_CHECK_OUTCOME_LEAST_BYTES <= MAX_RULE_CHECK_REPLY_BYTES, "the projection fits");
+    assert!(projection.least_bytes <= MAX_RULE_CHECK_REPLY_BYTES, "the projection fits");
     let job = solve_holding(&registry, &gate, &probe.text, ResultCustody::Native);
     let supplied = supplied_for(&probe.parsed, &probe.row, false);
     let started = RULE_CHECK_RUNS_STARTED.with(std::cell::Cell::get);
@@ -1151,4 +1159,43 @@ fn a_rule_check_reply_past_its_limit_is_refused_as_it_is_counted() {
     let counted = RULE_CHECK_REPLY_COUNTED.with(std::cell::Cell::get);
     assert!(counted > MAX_RULE_CHECK_REPLY_BYTES && counted <= MAX_RULE_CHECK_REPLY_BYTES + 64 * 1024, "{counted} bytes counted");
     registry.dispose_result(&job).unwrap();
+}
+
+/// A check whose identifiers are long is priced from their written lengths: a
+/// 128 KiB check id on 128 bases writes at least 16 MiB of ids, so the run is
+/// refused by name from the pack alone, before custody is read or the runner starts.
+#[test]
+fn a_rule_check_is_priced_from_its_identifiers_lengths() {
+    let (registry, gate) = registry();
+    let probe = probe();
+    let mut pack = widened(&pack_for(&probe.model, &probe.parsed, &probe.row), 1, 128);
+    let long = "c".repeat(128 * 1024);
+    pack["check_definitions"][0]["check_id"] = json!(long);
+    let projection = rule_check_projection(&pack);
+    assert_eq!(projection.outcomes, 128);
+    assert_eq!(projection.least_bytes, 128 * (RULE_CHECK_OUTCOME_LEAST_BYTES + 128 * 1024));
+    assert!(128 * RULE_CHECK_OUTCOME_LEAST_BYTES <= MAX_RULE_CHECK_REPLY_BYTES, "without the id's length the run would be admitted");
+    let job = solve_holding(&registry, &gate, &probe.text, ResultCustody::Native);
+    let started = RULE_CHECK_RUNS_STARTED.with(std::cell::Cell::get);
+    let error = run_command(&registry, &json!({"rulePackDocument": pack, "jobId": job, "model": probe.model})).unwrap_err();
+    assert_eq!(error, format!(
+        "RULE_CHECK_RESPONSE_LIMIT: the rule check would return 128 outcomes, at least {} bytes, past its {MAX_RULE_CHECK_REPLY_BYTES}-byte reply limit; check fewer load cases or checks",
+        projection.least_bytes
+    ));
+    assert_eq!(RULE_CHECK_RUNS_STARTED.with(std::cell::Cell::get), started, "the runner did not start");
+    registry.dispose_result(&job).unwrap();
+}
+
+/// Checks sharing a category are priced from the category's declarations once,
+/// never by forming each check's basis list: 1,000 checks on 1,000 shared cases
+/// count one basis list and are refused by name with their million outcomes.
+#[test]
+fn checks_sharing_a_category_are_priced_without_forming_their_bases() {
+    let probe = probe();
+    let pack = widened(&pack_for(&probe.model, &probe.parsed, &probe.row), 1000, 1000);
+    RULE_CHECK_CATEGORIES_PRICED.with(|count| count.set(0));
+    let projection = rule_check_projection(&pack);
+    assert_eq!(RULE_CHECK_CATEGORIES_PRICED.with(std::cell::Cell::get), 1, "one category's list is counted once");
+    assert_eq!(projection.outcomes, 1_000_000);
+    assert!(projection.least_bytes > MAX_RULE_CHECK_REPLY_BYTES);
 }

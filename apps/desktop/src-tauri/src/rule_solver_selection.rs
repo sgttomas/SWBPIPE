@@ -269,7 +269,11 @@ impl<'a> RowIndex<'a> {
             ))
             .map(|rows| {
                 rows.iter()
-                    .filter(|(row, rod)| row_matches(selector, basis, row, *rod))
+                    .filter(|(row, rod)| {
+                        #[cfg(test)]
+                        PREVIEW_ROWS_EXAMINED.with(|count| count.set(count.get() + 1));
+                        row_matches(selector, basis, row, *rod)
+                    })
                     .map(|(row, _)| *row)
                     .take(most)
                     .collect()
@@ -572,6 +576,8 @@ thread_local! {
     pub(crate) static PREVIEW_LARGEST_PIECE: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
     /// Test support: the most rows one basis's selection has collected on this thread.
     pub(crate) static PREVIEW_MOST_SELECTED: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+    /// Test support: how many candidate rows the preview's selection has examined on this thread.
+    pub(crate) static PREVIEW_ROWS_EXAMINED: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
 }
 
 /// The most queries one selector preview may carry: one per solver input of a pack.

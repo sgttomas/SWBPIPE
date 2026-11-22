@@ -4130,11 +4130,10 @@ fn run_rule_checks_args(args: &mut Args, store: &dyn Fn() -> Result<PathBuf, Str
         "RULE_CHECK_SOLVED_ENVELOPE_REQUIRED: run the solve job and supply its jobId".to_string(),
     ))?;
     let projection = rule_check_projection(&rule_pack_document);
-    let least = projection.outcomes.saturating_mul(RULE_CHECK_OUTCOME_LEAST_BYTES);
-    if least > MAX_RULE_CHECK_REPLY_BYTES {
+    if projection.least_bytes > MAX_RULE_CHECK_REPLY_BYTES {
         return Err(CommandError::Command(format!(
-            "{RULE_CHECK_RESPONSE_LIMIT}: the rule check would return {} outcomes, at least {least} bytes, past its {MAX_RULE_CHECK_REPLY_BYTES}-byte reply limit; check fewer load cases or checks",
-            projection.outcomes
+            "{RULE_CHECK_RESPONSE_LIMIT}: the rule check would return {} outcomes, at least {} bytes, past its {MAX_RULE_CHECK_REPLY_BYTES}-byte reply limit; check fewer load cases or checks",
+            projection.outcomes, projection.least_bytes
         )));
     }
     let held = acquire_rule_check_source(registry, &job_id, false)?;
@@ -4190,38 +4189,155 @@ pub(crate) const MAX_RULE_CHECK_REPLY_BYTES: u64 = rule_solver_selection::MAX_PR
 pub(crate) const RULE_CHECK_OUTCOME_LEAST_BYTES: u64 = r#"{"check_id":"","category_ref":"","basis_ref":null,"status":"","acceptability_relation":"","bound_inputs":[],"completeness_findings":[],"evaluator_findings":[],"diagnostic_codes":[]},"#.len() as u64;
 /// One outcome's text is priced at this many bytes, and this many more for each
 /// input and value slot its check names (a bound input, and a finding about it,
-/// for each). The
-/// committed rule-check runs stay within it (`rule_check_handle_tests.rs`).
+/// for each), plus [`RULE_CHECK_ID_REPEATS`] times the written length of each
+/// identifier the outcome can carry (its check, category, required load case and
+/// basis, and its inputs' ids). The committed rule-check runs stay within it
+/// (`rule_check_handle_tests.rs`).
 pub(crate) const RULE_CHECK_OUTCOME_TEXT_BYTES: u64 = 4096;
 pub(crate) const RULE_CHECK_INPUT_TEXT_BYTES: u64 = 1024;
+/// How many times an outcome may write one identifier: as its own member and in
+/// the subject and message of findings about it.
+pub(crate) const RULE_CHECK_ID_REPEATS: u64 = 4;
 /// The working memory of one outcome, as a multiple of its priced text: the
 /// runner's typed outcome, the JSON value of the answer (whose maps and strings
 /// take several times their text) and the reply's text.
 pub(crate) const RULE_CHECK_OUTCOME_WORK_FACTOR: u64 = 8;
 
-/// A rule check's size, projected from the pack alone with the runner's own basis
-/// plan (`plan_check_bases`): one outcome per check and mapped basis, and one for
-/// a check the plan gives no basis list; and the working memory they are priced
-/// at ([`RULE_CHECK_OUTCOME_TEXT_BYTES`], [`RULE_CHECK_INPUT_TEXT_BYTES`],
-/// [`RULE_CHECK_OUTCOME_WORK_FACTOR`]).
+/// A rule check's size, projected from the pack alone before anything is
+/// planned or run: one outcome per check and mapped basis, and one for a check
+/// the runner's basis plan (`plan_check_bases`) gives no basis list, counted
+/// from the pack's own declarations without building the plan; the least bytes
+/// those outcomes take in the reply; and the working memory they are priced at.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct RuleCheckProjection {
     pub(crate) outcomes: u64,
+    pub(crate) least_bytes: u64,
     pub(crate) work_bytes: u64,
 }
 
-pub(crate) fn rule_check_projection(pack: &Value) -> RuleCheckProjection {
-    let checks = pack.get("check_definitions").and_then(Value::as_array).map(Vec::as_slice).unwrap_or(&[]);
-    let mut projection = RuleCheckProjection { outcomes: 0, work_bytes: 0 };
-    for (check, plan) in checks.iter().zip(rule_pack_document::plan_check_bases(pack)) {
-        let bases = plan.bases.as_ref().map_or(1, Vec::len) as u64;
-        let named = |key: &str| check.get(key).and_then(Value::as_array).map_or(0, Vec::len) as u64;
-        let inputs = named("required_input_refs").saturating_add(named("value_slot_refs"));
-        let text = RULE_CHECK_INPUT_TEXT_BYTES.saturating_mul(inputs).saturating_add(RULE_CHECK_OUTCOME_TEXT_BYTES);
-        projection.outcomes = projection.outcomes.saturating_add(bases);
-        projection.work_bytes = projection.work_bytes.saturating_add(bases.saturating_mul(text).saturating_mul(RULE_CHECK_OUTCOME_WORK_FACTOR));
+/// One check's share of a [`RuleCheckProjection`]: how many outcomes it makes,
+/// and the least and priced text of each.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct RuleCheckPrice {
+    pub(crate) outcomes: u64,
+    pub(crate) least_text: u64,
+    pub(crate) priced_text: u64,
+}
+
+/// The length of `text` as compact JSON writes it, without its quotes.
+fn json_text_len(text: &str) -> u64 {
+    text.chars()
+        .map(|c| match c {
+            '"' | '\\' | '\n' | '\r' | '\t' | '\u{8}' | '\u{c}' => 2,
+            c if (c as u32) < 0x20 => 6,
+            c => c.len_utf8() as u64,
+        })
+        .sum()
+}
+
+/// Each check's price, in `check_definitions` order. Each category's basis list
+/// is counted once, as `plan_check_bases` would form it (one load-case mapping,
+/// a non-empty list of required load case references each declared once with a
+/// well-formed `basis_ref`, none repeated), so a pack whose checks share a
+/// category costs its declarations, not checks × bases.
+pub(crate) fn rule_check_prices(pack: &Value) -> Vec<RuleCheckPrice> {
+    use std::collections::{HashMap, HashSet};
+    fn list<'a>(value: &'a Value, key: &str) -> &'a [Value] {
+        value.get(key).and_then(Value::as_array).map(Vec::as_slice).unwrap_or(&[])
     }
-    projection
+    fn ref_of<'a>(value: Option<&'a Value>, ref_type: &str) -> Option<&'a str> {
+        value
+            .filter(|reference| reference.get("ref_type").and_then(Value::as_str) == Some(ref_type))
+            .and_then(|reference| reference.get("ref_id").and_then(Value::as_str))
+            .filter(|id| !id.is_empty())
+    }
+    let mut load_cases: HashMap<&str, Vec<&Value>> = HashMap::new();
+    for item in list(pack, "required_load_cases") {
+        if let Some(id) = item.get("required_load_case_id").and_then(Value::as_str).filter(|id| !id.is_empty()) {
+            load_cases.entry(id).or_default().push(item);
+        }
+    }
+    let mut mappings: HashMap<&str, Vec<&Value>> = HashMap::new();
+    for mapping in list(pack, "load_case_mappings") {
+        if let Some(category) = ref_of(mapping.get("category_ref"), rule_pack_document::format::CATEGORY_REF_TYPE) {
+            mappings.entry(category).or_default().push(mapping);
+        }
+    }
+    // Per category: its basis count (None where the plan gives no basis list) and
+    // the written length of the identifiers its bases (or its refusal) can carry.
+    let mut categories: HashMap<&str, (Option<u64>, u64)> = HashMap::new();
+    let plan = |category: &str| -> (Option<u64>, u64) {
+        #[cfg(test)]
+        RULE_CHECK_CATEGORIES_PRICED.with(|count| count.set(count.get() + 1));
+        let Some([mapping]) = mappings.get(category).map(Vec::as_slice) else {
+            return (None, 0);
+        };
+        let refs = list(mapping, "required_load_case_refs");
+        let mut ids = 0u64;
+        let mut seen = HashSet::new();
+        let mut planned = !refs.is_empty();
+        for reference in refs {
+            let Some(id) = ref_of(Some(reference), rule_pack_document::format::REQUIRED_LOAD_CASE_REF_TYPE) else {
+                planned = false;
+                continue;
+            };
+            ids = ids.saturating_add(json_text_len(id));
+            let declared = match load_cases.get(id).map(Vec::as_slice) {
+                Some([declared]) => *declared,
+                _ => {
+                    planned = false;
+                    continue;
+                }
+            };
+            match declared.get("basis_ref").filter(|basis| rule_pack_document::BasisRef::from_value(basis).is_some()) {
+                Some(basis) => {
+                    for key in ["ref_type", "ref_id"] {
+                        ids = ids.saturating_add(basis.get(key).and_then(Value::as_str).map_or(0, json_text_len));
+                    }
+                }
+                None => planned = false,
+            }
+            if !seen.insert(id) {
+                planned = false;
+            }
+        }
+        (planned.then_some(refs.len() as u64), ids)
+    };
+    list(pack, "check_definitions")
+        .iter()
+        .map(|check| {
+            let check_id = check.get("check_id").and_then(Value::as_str).map_or(0, json_text_len);
+            let category = ref_of(check.get("category_ref"), rule_pack_document::format::CATEGORY_REF_TYPE);
+            let (bases, basis_ids) = match category {
+                None => (None, 0),
+                Some(category) => *categories.entry(category).or_insert_with(|| plan(category)),
+            };
+            let named = |key: &str| list(check, key);
+            let inputs = named("required_input_refs").iter().chain(named("value_slot_refs"));
+            let (count, input_ids) = inputs.fold((0u64, 0u64), |(count, ids), reference| {
+                (count + 1, ids.saturating_add(reference.get("ref_id").and_then(Value::as_str).map_or(0, json_text_len)))
+            });
+            let ids = check_id
+                .saturating_add(category.map_or(0, json_text_len))
+                .saturating_add(basis_ids)
+                .saturating_add(input_ids);
+            RuleCheckPrice {
+                outcomes: bases.unwrap_or(1),
+                least_text: RULE_CHECK_OUTCOME_LEAST_BYTES.saturating_add(check_id),
+                priced_text: RULE_CHECK_OUTCOME_TEXT_BYTES
+                    .saturating_add(RULE_CHECK_INPUT_TEXT_BYTES.saturating_mul(count))
+                    .saturating_add(RULE_CHECK_ID_REPEATS.saturating_mul(ids)),
+            }
+        })
+        .collect()
+}
+
+pub(crate) fn rule_check_projection(pack: &Value) -> RuleCheckProjection {
+    rule_check_prices(pack).into_iter().fold(RuleCheckProjection { outcomes: 0, least_bytes: 0, work_bytes: 0 }, |total, price| RuleCheckProjection {
+        outcomes: total.outcomes.saturating_add(price.outcomes),
+        least_bytes: total.least_bytes.saturating_add(price.outcomes.saturating_mul(price.least_text)),
+        work_bytes: total.work_bytes.saturating_add(price.outcomes.saturating_mul(price.priced_text).saturating_mul(RULE_CHECK_OUTCOME_WORK_FACTOR)),
+    })
 }
 
 /// The exact length of `value`'s compact JSON, counted as it is written and
@@ -4254,6 +4370,8 @@ fn capped_reply_length(value: &Value, limit: u64) -> Result<u64, ()> {
 thread_local! {
     /// Test support: how many rule checks have reached the runner on this thread.
     pub(crate) static RULE_CHECK_RUNS_STARTED: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+    /// Test support: how many stress categories' basis lists the pricing has counted on this thread.
+    pub(crate) static RULE_CHECK_CATEGORIES_PRICED: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
     /// Test support: how many reply bytes the last count had seen when it stopped or ended.
     pub(crate) static RULE_CHECK_REPLY_COUNTED: std::cell::Cell<u64> = const { std::cell::Cell::new(0) };
 }

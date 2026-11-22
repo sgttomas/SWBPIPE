@@ -260,7 +260,14 @@ function Controls({ table, group, view, threshold, onGroup, onMode, onThreshold,
 }) {
   const rules = table.groups.filter((item) => item.source === "rule_category");
   const stresses = table.groups.filter((item) => item.source === "emitted_stress");
-  const ratioDisabledReason = group.modes.includes("ratio") ? null : table.run.state === "used" ? RATIO_DISABLED_EMITTED : RATIO_DISABLED_NO_RUN;
+  // While the run's rows are read, or once their read is refused, the run's own note says why.
+  const ratioDisabledReason = group.modes.includes("ratio")
+    ? null
+    : table.run.state === "used"
+      ? RATIO_DISABLED_EMITTED
+      : table.run.state === "rows_pending" || table.run.state === "rows_unread"
+        ? table.run.note
+        : RATIO_DISABLED_NO_RUN;
   const unit = view.keyUnit ? displayQuantityParts(0, view.keyUnit).unit : null;
   const disabled = view.threshold.state === "disabled";
   return (

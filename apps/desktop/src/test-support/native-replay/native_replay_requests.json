@@ -1758,6 +1758,19 @@
    "source_sha256": "9c8ffd644882918dc8d00a03dcaf0f84f51442d537e5a56f1ae8f9184c57d079"
   },
   {
+   "key": "17c0a69c4a15d6039f3c8b66f8486c16dfa638ef016633b45ddcbebd0df4df99",
+   "command": "lookup_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$JOB",
+    "ordinals": [
+     54
+    ],
+    "match": "first"
+   },
+   "source_sha256": "34862037bcf42e42fca7d9772f6b1ad79d7961aadadbbba7fe3cc0a7351739d1",
+   "source_path": "fixtures/results/preview_physics_connected_sparse.json"
+  },
+  {
    "key": "17df81f8fe0736c6a5041835bb886b876977bd0e8acebc358f217dbbf82a0b52",
    "command": "query_preview_mechanics_job_rows",
    "args": {
@@ -4067,6 +4080,22 @@
    "source_sha256": "180cdcac7af02b9383aa065eddd72f802c503db93ccd023c51099c805f850d39"
   },
   {
+   "key": "385bf1e46031e87ded17f6bd4cca07fb4797197262dfdf97eef26b43513357bc",
+   "command": "lookup_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$JOB",
+    "ordinals": [
+     277,
+     278,
+     78,
+     79
+    ],
+    "match": "first"
+   },
+   "source_sha256": "6ed191dc109cb3bb08c9401ef033635c8ef04d1aa0f0bb946da31b0264908f97",
+   "source_path": "fixtures/results/pressure_connected_ui_mechanics_sparse.json"
+  },
+  {
    "key": "388410b7c489d542ce1ea1d093f78b7173fd9c5622156929906e563f85bc4d86",
    "command": "lookup_preview_mechanics_job_rows",
    "args": {
@@ -4876,6 +4905,19 @@
     "limit": 1000
    },
    "source_sha256": "55b659aa3531496896b111718041281cf485b78338334f7c32cb5f49acfd3edb"
+  },
+  {
+   "key": "41f35f4659a7d8cd79aabdcaf4f3d1fa58562b576c0ff67345824ef992535913",
+   "command": "lookup_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$JOB",
+    "ids": [
+     "result:stress:pipe-fixture-span:end-i:bending-normal-y"
+    ],
+    "match": "first"
+   },
+   "source_sha256": "34862037bcf42e42fca7d9772f6b1ad79d7961aadadbbba7fe3cc0a7351739d1",
+   "source_path": "fixtures/results/preview_physics_connected_sparse.json"
   },
   {
    "key": "423ffd04e33b06910a974f65fb4c2ca25bac29c6aa4cb537d02df3ae8cfc2be2",
@@ -6088,6 +6130,19 @@
     "operation": "route_header"
    },
    "source_sha256": "ae84f53051afe7fb11b39c800b6f183c44bdfa3f670a8b2276acebb1c147c6db"
+  },
+  {
+   "key": "51cddf0ef92b4b121ff03113268a9ada900de6c3c59fdd4ce802c96dc00eae6a",
+   "command": "lookup_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$JOB",
+    "ids": [
+     "result:stress:pipe-fixture-span:end-i:axial-normal"
+    ],
+    "match": "last"
+   },
+   "source_sha256": "34862037bcf42e42fca7d9772f6b1ad79d7961aadadbbba7fe3cc0a7351739d1",
+   "source_path": "fixtures/results/preview_physics_connected_sparse.json"
   },
   {
    "key": "51ea96305f3613002703d03276372c3888ebd0ceaf1db5292c62f5d16ad67eaa",

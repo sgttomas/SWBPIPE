@@ -22,6 +22,8 @@ import type { ReactionOverlay, ReactionVector } from "./reactionOverlay";
 
 /** Shown where the session has no numerical health presentation for the result. */
 export const NUMERICAL_HEALTH_UNAVAILABLE_TEXT = "Numerical health is not available for this result.";
+/** Appended to a requested colour quantity the result does not offer. */
+export const QUANTITY_UNAVAILABLE_SUFFIX = " (unavailable)";
 export const RESULT_COLOUR_BOUNDARY_TEXT =
   "Colour shows the magnitude of emitted result rows, from 0 to the largest member value. It marks no limit.";
 export const RESULT_CONTOUR_BOUNDARY_TEXT =
@@ -228,6 +230,9 @@ export function ResultOverlayLegend({
   contour?: ResultContourControls | null;
 }) {
   const lines = standingLines(standing, overlayCase);
+  // A requested quantity the result does not offer (a rule ratio whose rows are being read or were
+  // refused) is shown selected and unavailable, never as another quantity.
+  const unoffered = quantity && !quantities.some((item) => item.id === quantity.id) ? quantity : null;
   const focusMember = colour?.state === "available" && focus?.ref.type === "pipe" ? colour.members.get(focus.ref.id) : undefined;
   const focusSupport = reactions && focus?.ref.type === "support" ? focus.ref.id : null;
   return (
@@ -250,8 +255,9 @@ export function ResultOverlayLegend({
         >
           <label className="viewport-legend-field">
             <span>Quantity</span>
-            <select aria-label="Result colour quantity" data-testid="viewport-overlay-quantity" disabled={quantities.length === 0} value={quantity?.id ?? ""} onChange={(event) => onQuantityChange(event.target.value)}>
-              {quantities.length === 0 ? <option value="">No quantity</option> : null}
+            <select aria-label="Result colour quantity" data-testid="viewport-overlay-quantity" disabled={quantities.length === 0 && !unoffered} value={quantity?.id ?? ""} onChange={(event) => onQuantityChange(event.target.value)}>
+              {quantities.length === 0 && !unoffered ? <option value="">No quantity</option> : null}
+              {unoffered ? <option value={unoffered.id} disabled>{`${unoffered.label}${QUANTITY_UNAVAILABLE_SUFFIX}`}</option> : null}
               {quantities.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
             </select>
           </label>

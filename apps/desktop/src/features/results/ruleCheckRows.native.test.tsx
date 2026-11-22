@@ -20,13 +20,14 @@ import { DisplayUnitsProvider } from "../display-units";
 import { displayQuantityParts } from "../report/reportQuantityDisplay";
 import { PipeViewport } from "../viewport/PipeViewport";
 import { availableResultColourQuantities, buildResultColourOverlay, resultOverlayCases } from "../viewport/resultColourOverlay";
+import { QUANTITY_UNAVAILABLE_SUFFIX } from "../viewport/ResultOverlayLegend";
 import type { ViewportViewCommand } from "../viewport/viewportSelection";
 import { buildKeyResults } from "./keyResults";
 import { KeyResultsPanel } from "./KeyResultsPanel";
-import { STRESS_RATIO_NO_RESULT, STRESS_RATIO_RULE_ROWS_PENDING, STRESS_RATIO_RUN_NOT_THIS_RESULT, buildStressRatioTable, stressRatioLocationText, stressRatioRuleRowsUnreadText } from "./stressRatioTable";
+import { ruleCheckBoundResultIds as ruleCheckBoundIds, STRESS_RATIO_NO_RESULT, STRESS_RATIO_RULE_ROWS_PENDING, STRESS_RATIO_RUN_NOT_THIS_RESULT, buildStressRatioTable, stressRatioLocationText, stressRatioRuleRowsUnreadText } from "./stressRatioTable";
 import { STRESS_RATIO_NO_LOCATION, STRESS_RATIO_NO_RATIO } from "./stressRatioTableCsv";
 import { StressRatioTablePanel } from "./StressRatioTablePanel";
-import { collectRuleCheckRows, readRuleCheckRows, RULE_CHECK_ROWS_KEPT_LIMIT_BYTES, useRuleCheckRows } from "./useRuleCheckRows";
+import { collectRuleCheckRows, readRuleCheckRows, RULE_CHECK_ROWS_KEPT_LIMIT_BYTES, useRuleCheckRows, utf8Length } from "./useRuleCheckRows";
 import type { MechanicsResult } from "../../types";
 
 /** A one-entry catalog: the display-units provider reads one; no conversion is exercised here. */
@@ -48,24 +49,41 @@ afterEach(() => {
   delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
 });
 
-async function nativeResult(): Promise<NativeResult> {
-  const replay = createNativeMechanicsReplay({ profile: "preview" });
+async function nativeResult(profile: "preview" | "pressure" = "preview"): Promise<NativeResult> {
+  const replay = createNativeMechanicsReplay({ profile });
+  const solved = profile === "preview" ? pair : nativeMechanicsReplayPair("sparse_interactive", { profile });
   invokeMock.mockImplementation((command: string, args?: unknown, options?: unknown) => {
     if (command === "get_unit_catalog") return Promise.resolve(UNIT_CATALOG);
     if (REPLAY_COMMANDS.includes(command)) return replay.invoke(command, args, options);
     return Promise.reject(new Error(`UNEXPECTED_COMMAND: ${command}`));
   });
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-  const started = await startPreviewMechanicsJob(pair.model, "sparse_interactive", { custody: "native" });
+  const started = await startPreviewMechanicsJob(solved.model, "sparse_interactive", { custody: "native" });
   if (started.mode !== "backend_job") throw new Error("not a backend job");
   const terminal = await awaitPreviewMechanicsJob(started.job_id);
-  return (await readNativeFreshResult(started.job_id, terminal.result_bytes ?? 0, { standingModel: pair.model, summaryModel: pair.model })).result;
+  return (await readNativeFreshResult(started.job_id, terminal.result_bytes ?? 0, { standingModel: solved.model, summaryModel: solved.model })).result;
+}
+
+/** The run's first rule category and the case of its first row. On this result the run's rows are
+ * held by the numerical standing, so a category forms no ratio; the displays are held to what the
+ * builders form on the full rows, whatever that is. */
+function ruleGroup(table: ReturnType<typeof buildStressRatioTable>) {
+  const group = table.groups.find((item) => item.source === "rule_category")!;
+  return { group, caseKey: group.rows.find((row) => row.case)!.case!.key };
 }
 
 const keySpies = () => ({
   onEverySolveChange: vi.fn(), onShowRatioContour: vi.fn(), onShowDeflectedShape: vi.fn(), onShowSupport: vi.fn(),
   onShowContactStatus: vi.fn(), onOpenTable: vi.fn(), onBackToEditing: vi.fn(), onOpenRuleChecks: vi.fn(), onClose: vi.fn()
 });
+
+/** The viewport's quantity selector shows `id` selected, as an unavailable quantity. */
+function expectRatioUnavailable(id: string) {
+  const select = screen.getByTestId("viewport-overlay-quantity") as HTMLSelectElement;
+  expect(select).toHaveValue(id);
+  expect(select.selectedOptions[0]).toHaveTextContent(QUANTITY_UNAVAILABLE_SUFFIX.trim());
+  expect(select.selectedOptions[0]).toBeDisabled();
+}
 
 const viewport = (run: ReturnType<typeof ruleCheckRunOn>, result: NativeResult, command: { current: ((value: ViewportViewCommand) => void) | null }) => (
   <PipeViewport model={pair.model} result={result} resultStanding={standing} ruleCheckRun={run} selection={{ type: "project", id: "project:invented" }} onSelect={vi.fn()} onQueueIntent={vi.fn()} viewCommandRef={command} />
@@ -92,19 +110,20 @@ it("the stress and ratio table, the key results and the viewport's rule ratios r
   // The table: the run is used, and the shown rule group's rows are located (members and stations)
   // and valued as on the full rows.
   await waitFor(() => expect(screen.getByTestId("stress-ratio-run")).toHaveTextContent(expected.run.note));
-  const group = expected.groups[0];
-  expect(group.source).toBe("rule_category");
+  const { group, caseKey } = ruleGroup(expected);
+  fireEvent.change(screen.getByTestId("stress-ratio-group"), { target: { value: group.id } });
   let valued = 0;
   for (const row of group.rows) {
     const text = row.locations.length > 0 ? row.locations.map(stressRatioLocationText).join("; ") : STRESS_RATIO_NO_LOCATION;
     expect(screen.getByRole("button", { name: `Highlight ${text}, ${row.caseLabel}` })).toBeInTheDocument();
+    // A ranked row shows its ratio (or why none is formed); a pinned row its incomplete or withheld reason.
     const cell = screen.queryByTestId(`stress-ratio-value-${row.key}`);
-    if (cell && row.outcome) {
-      expect(cell).toHaveTextContent(row.outcome.ratio !== null ? displayQuantityParts(row.outcome.ratio, "").number : row.outcome.ratioNote ?? STRESS_RATIO_NO_RATIO);
-      valued += 1;
-    }
+    const reason = screen.queryByTestId(`stress-ratio-reason-${row.key}`);
+    if (cell) expect(cell).toHaveTextContent(row.outcome!.ratio !== null ? displayQuantityParts(row.outcome!.ratio, "").number : row.outcome!.ratioNote ?? STRESS_RATIO_NO_RATIO);
+    else expect(reason).toHaveTextContent((row.outcome!.status === "RULE_INPUTS_INCOMPLETE" ? row.outcome!.incompleteReason : row.withheldReason) ?? "");
+    valued += 1;
   }
-  expect(valued).toBeGreaterThan(0);
+  expect(valued).toBe(group.rows.length);
   // A bound row's location selects the row by its published id, and the selection highlights it.
   const boundRow = group.rows.find((row) => row.target.resultId !== null)!;
   const boundText = boundRow.locations.map(stressRatioLocationText).join("; ");
@@ -119,26 +138,25 @@ it("the stress and ratio table, the key results and the viewport's rule ratios r
   expect(screen.getByTestId("key-results-ratio-note")).toHaveAttribute("data-ratio-state", "used");
   expect(screen.getByTestId("key-results-ratio-note")).toHaveTextContent(expectedKey.ratio.note!);
 
-  // The viewport: the run's ratio colours the members with the contributions the full rows give.
+  // The viewport: the run's ratio, as the builders form it on the full rows (offered and drawn, or
+  // offered and held, or not offered and shown unavailable).
   const ratioQuantity = `rule-ratio:${group.id}`;
-  const overlayCase = resultOverlayCases(pair.model, full).find((item) => item.key === group.rows[0].case!.key)!;
-  const expectedColour = buildResultColourOverlay({
-    model: pair.model, result: full, standing, overlayCase, ratioTable: expected,
-    quantity: availableResultColourQuantities(pair.model, full, expected).find((item) => item.id === ratioQuantity)!
-  });
-  expect(expectedColour.state).toBe("available");
+  const overlayCase = resultOverlayCases(pair.model, full).find((item) => item.key === caseKey)!;
+  const offered = availableResultColourQuantities(pair.model, full, expected).find((item) => item.id === ratioQuantity) ?? null;
   act(() => command.current!({ type: "show-result-colour", quantityId: ratioQuantity, caseKey: overlayCase.key }));
   await waitFor(() => expect(screen.getByTestId("viewport-overlay-quantity")).toHaveValue(ratioQuantity));
-  await waitFor(() => expect(screen.getByTestId("viewport-result-colour-min")).toHaveAttribute("title", String(expectedColour.minimum)));
-  expect(screen.getByTestId("viewport-result-colour-max")).toHaveAttribute("title", String(expectedColour.maximum));
-  expect(screen.getByTestId("viewport-result-colour-no-value")).toHaveTextContent(`No value: ${expectedColour.noValueCount} of ${expectedColour.memberCount}`);
-
-  // An emitted stress's value names its row by the published id in its title.
-  const emitted = expected.groups.find((item) => item.source === "emitted_stress")!;
-  fireEvent.change(screen.getByTestId("stress-ratio-group"), { target: { value: emitted.id } });
-  const first = emitted.rows.find((row) => row.stress)!;
-  const parts = displayQuantityParts(first.stress!.value, first.stress!.unit);
-  await waitFor(() => expect(screen.getAllByTitle(`${parts.number} ${parts.unit} (${first.stress!.resultId})`).length).toBeGreaterThan(0));
+  if (!offered) expectRatioUnavailable(ratioQuantity);
+  else {
+    const expectedColour = buildResultColourOverlay({ model: pair.model, result: full, standing, overlayCase, ratioTable: expected, quantity: offered });
+    await waitFor(() => expect(screen.getByTestId("viewport-result-colour-legend")).toHaveAttribute("data-state", expectedColour.state));
+    if (expectedColour.state === "available") {
+      expect(screen.getByTestId("viewport-result-colour-min")).toHaveAttribute("title", String(expectedColour.minimum));
+      expect(screen.getByTestId("viewport-result-colour-max")).toHaveAttribute("title", String(expectedColour.maximum));
+    } else {
+      expect(screen.getByTestId("viewport-result-colour-reason")).toHaveTextContent(expectedColour.reason!);
+    }
+    expect(screen.getByTestId("viewport-result-colour-no-value")).toHaveTextContent(`No value: ${expectedColour.noValueCount} of ${expectedColour.memberCount}`);
+  }
 
   // The rows were read by id; no full copy was read or taken.
   expect(sent("lookup_preview_mechanics_job_rows")).toBeGreaterThanOrEqual(1);
@@ -170,10 +188,13 @@ it("while the run's rows are read, the displays say so, keep the result's own st
   expect(emitted.length).toBeGreaterThan(0);
   expect(offered).toEqual(expect.arrayContaining(emitted));
   expect(screen.getByTestId("key-results-ratio-note")).toHaveAttribute("data-ratio-state", "rows_pending");
-  const group = expected.groups[0];
-  act(() => command.current!({ type: "show-result-colour", quantityId: `rule-ratio:${group.id}`, caseKey: group.rows[0].case!.key }));
+  const { group, caseKey } = ruleGroup(expected);
+  act(() => command.current!({ type: "show-result-colour", quantityId: `rule-ratio:${group.id}`, caseKey }));
   await waitFor(() => expect(screen.getByTestId("viewport-result-colour-reason")).toHaveTextContent(STRESS_RATIO_RULE_ROWS_PENDING));
   expect(screen.queryByTestId("viewport-result-colour-min")).toBeNull();
+  expectRatioUnavailable(`rule-ratio:${group.id}`);
+  // The table's ratio mode says why there is no ratio: the run's own note.
+  expect(screen.getByTestId("stress-ratio-mode-reason")).toHaveTextContent(STRESS_RATIO_RULE_ROWS_PENDING);
 
   release();
   await waitFor(() => expect(screen.getByTestId("stress-ratio-run")).toHaveTextContent(expected.run.note));
@@ -218,10 +239,12 @@ it("a refused read of the run's rows says the rows could not be read, in the ref
   const offered = [...(screen.getByTestId("stress-ratio-group") as HTMLSelectElement).options].map((option) => option.value);
   expect(offered).toEqual(expect.arrayContaining(expected.groups.filter((item) => item.source === "emitted_stress").map((item) => item.id)));
   // Only the ratio is withheld: the viewport says why and draws no other quantity in its place.
-  const group = expected.groups[0];
-  act(() => command.current!({ type: "show-result-colour", quantityId: `rule-ratio:${group.id}`, caseKey: group.rows[0].case!.key }));
+  const { group, caseKey } = ruleGroup(expected);
+  act(() => command.current!({ type: "show-result-colour", quantityId: `rule-ratio:${group.id}`, caseKey }));
   await waitFor(() => expect(screen.getByTestId("viewport-result-colour-reason")).toHaveTextContent(unread));
   expect(screen.queryByTestId("viewport-result-colour-min")).toBeNull();
+  expectRatioUnavailable(`rule-ratio:${group.id}`);
+  expect(screen.getByTestId("stress-ratio-mode-reason")).toHaveTextContent(unread);
   expect(sent("lookup_preview_mechanics_job_rows")).toBeGreaterThanOrEqual(1);
   expect(sent("read_preview_mechanics_job_rows_all")).toBe(0);
 });
@@ -270,14 +293,19 @@ it("refuses the run's rows as disposed once custody ends, whether the read is ke
   const replayed = invokeMock.getMockImplementation()!;
   let release!: () => void;
   const gate = new Promise<void>((resolve) => { release = resolve; });
-  invokeMock.mockImplementation((command: string, args?: unknown, options?: unknown) =>
-    command === "lookup_preview_mechanics_job_rows" ? gate.then(() => replayed(command, args, options)) : replayed(command, args, options));
+  // The replies are answered while the result is held and delivered only after its custody ends.
+  invokeMock.mockImplementation((command: string, args?: unknown, options?: unknown) => {
+    if (command !== "lookup_preview_mechanics_job_rows") return replayed(command, args, options);
+    const answered = replayed(command, args, options) as Promise<unknown>;
+    return gate.then(() => answered);
+  });
   const reading = readRuleCheckRows(other, run);
-  const looking = lookupNativeRows(other, { ids: ["invented:any"], match: "last" });
+  const looking = lookupNativeRows(other, { ids: [ruleCheckBoundIds(run)[0]], match: "last" });
   await waitFor(() => expect(sent("lookup_preview_mechanics_job_rows")).toBeGreaterThanOrEqual(2));
   await disposeDeliveredMechanicsResult(other);
   release();
-  // A reply that arrives after custody ended is neither returned by the lookup nor kept by the read.
+  // A reply that arrives after custody ended is neither returned by the lookup nor kept by the read,
+  // though the command answered it while the result was held.
   await expect(looking).rejects.toThrow(NATIVE_RESULT_DISPOSED);
   await expect(reading).rejects.toThrow(NATIVE_RESULT_DISPOSED);
 });
@@ -305,4 +333,38 @@ it("is ready at once with no rows for a run binding none, and drops an earlier r
   expect(status.current.state).toBe("loading");
   release();
   await waitFor(() => expect(status.current.state).toBe("ready"));
+});
+
+it("shows no rows read while the result was held once its custody has ended, though nothing else changes", async () => {
+  const result = await nativeResult();
+  const run = ruleCheckRunOn(full);
+  const { result: status, rerender } = renderHook(({ which }) => useRuleCheckRows(result, which), { initialProps: { which: run } });
+  await waitFor(() => expect(status.current.state).toBe("ready"));
+  await disposeDeliveredMechanicsResult(result);
+  rerender({ which: run });
+  expect(status.current.state).toBe("error");
+  expect((status.current as { message: string }).message).toContain(NATIVE_RESULT_DISPOSED);
+});
+
+it("bounds the kept rows by their UTF-8 bytes", async () => {
+  expect(["", "a", "é", "€", "😀", "a\u{d800}b"].map(utf8Length)).toEqual([0, 1, 2, 3, 4, 5]);
+  // Fewer UTF-16 code units than the limit, more bytes.
+  const wide = "é".repeat(RULE_CHECK_ROWS_KEPT_LIMIT_BYTES / 2 + 1);
+  expect(wide.length).toBeLessThan(RULE_CHECK_ROWS_KEPT_LIMIT_BYTES);
+  await expect(collectRuleCheckRows(["a"], lookupOver([inventedRow("a", wide)]))).rejects.toThrow("RESULT-DETAIL-RESPONSE-LIMIT");
+});
+
+it("names a shown emitted stress by its published id in its value's title", async () => {
+  // This result's emitted stresses are admitted by its standing, so their values are shown.
+  const pressure = nativeMechanicsReplayPair("sparse_interactive", { profile: "pressure" });
+  const result = await nativeResult("pressure");
+  const ids = new Set(pressure.source.results.map((row) => row.id));
+  render(<DisplayUnitsProvider><StressRatioTablePanel model={pressure.model} result={result} standing={standing} /></DisplayUnitsProvider>);
+  await waitFor(() => {
+    const titles = [...document.querySelectorAll("[data-testid^='stress-ratio-value-'] span[title]")].map((item) => item.getAttribute("title")!);
+    const named = titles.map((title) => /\(([^()]*)\)$/.exec(title)?.[1]).filter((id): id is string => !!id);
+    expect(named.length).toBeGreaterThan(0);
+    expect(named.every((id) => ids.has(id))).toBe(true);
+  });
+  expect(sent("read_preview_mechanics_job_rows_all")).toBe(0);
 });

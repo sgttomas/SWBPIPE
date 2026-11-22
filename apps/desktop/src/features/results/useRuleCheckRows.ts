@@ -27,7 +27,7 @@ export type RuleCheckRowsStatus = Readonly<
   | { state: "error"; error: unknown; message: string }
 >;
 
-/** The most the kept rows may hold, counted as the UTF-16 length of their kept strings: the run's
+/** The most the kept rows may hold, counted as the UTF-8 bytes of their kept strings: the run's
  * reply limit (`MAX_RULE_CHECK_REPLY_BYTES`, 8 MiB). The run's outcomes, and so its bound ids, are
  * bounded by that reply; a held result whose bound rows carry longer locations is refused here. */
 export const RULE_CHECK_ROWS_KEPT_LIMIT_BYTES = 8 * 1024 * 1024;
@@ -42,9 +42,22 @@ export function keptRuleCheckRow(ordinal: number, row: ResultRow): ResultRow {
   return Object.freeze({ id: nativeRowKey(ordinal), entity_ref: row.entity_ref, metadata: Object.freeze(kept) }) as unknown as ResultRow;
 }
 
+/** The UTF-8 length of `text` in bytes (a lone surrogate counts as the three bytes of its replacement). */
+export function utf8Length(text: string): number {
+  let bytes = 0;
+  for (let i = 0; i < text.length; i += 1) {
+    const unit = text.charCodeAt(i);
+    if (unit < 0x80) bytes += 1;
+    else if (unit < 0x800) bytes += 2;
+    else if (unit >= 0xd800 && unit <= 0xdbff && i + 1 < text.length && (text.charCodeAt(i + 1) & 0xfc00) === 0xdc00) { bytes += 4; i += 1; }
+    else bytes += 3;
+  }
+  return bytes;
+}
+
 function keptLength(row: ResultRow): number {
   const metadata = row.metadata as Record<string, string>;
-  return row.id.length + (row.entity_ref?.length ?? 0) + Object.values(metadata).reduce((sum, text) => sum + text.length, 0);
+  return utf8Length(row.id) + utf8Length(row.entity_ref ?? "") + Object.values(metadata).reduce((sum, text) => sum + utf8Length(text), 0);
 }
 
 /** The bound rows `ids` names, page by page through `lookup` ("last": the full rows' index by id
@@ -110,6 +123,17 @@ export function readRuleCheckRows(result: NativeResult, run: SessionRuleCheckRun
 }
 
 const IDLE: RuleCheckRowsStatus = Object.freeze({ state: "idle" });
+const DISPOSED = new WeakMap<NativeResult, RuleCheckRowsStatus>();
+/** The refusal a display shows once the result's custody has ended: the same object for a result. */
+function disposedStatus(result: NativeResult): RuleCheckRowsStatus {
+  let status = DISPOSED.get(result);
+  if (!status) {
+    const error = new Error(`${NATIVE_RESULT_DISPOSED}: ${nativeCustody(result).jobId}'s native custody has ended.`);
+    status = Object.freeze({ state: "error", error, message: error.message });
+    DISPOSED.set(result, status);
+  }
+  return status;
+}
 const LOADING: RuleCheckRowsStatus = Object.freeze({ state: "loading" });
 const NO_ROWS: RuleCheckRowsStatus = Object.freeze({ state: "ready", rows: new Map() });
 
@@ -132,6 +156,8 @@ export function useRuleCheckRows(result: SessionResult | null | undefined, run: 
     return () => { live = false; };
   }, [native, run, bindsNothing]);
   if (!native || !run) return IDLE;
+  // Rows read while the result was held are not shown once its custody has ended.
+  if (!isNativeJobLive(nativeCustody(native).jobId)) return disposedStatus(native);
   if (bindsNothing) return NO_ROWS;
   return read && read.result === native && read.run === run ? read.status : LOADING;
 }
