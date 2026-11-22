@@ -313,8 +313,32 @@ test("07 user rule pack (DEL-07-06 AC-007)", async ({ page }) => {
   const journey = new Journey(page, 7, "rule-pack", "Rule pack: bring a private rule pack into the local store and apply it");
   await open(page);
   await journey.step("rules-page", "The Rules page", async () => { await page.getByTestId("rail-page-rules").click(); });
-  await journey.step("new-draft", "A new rule pack draft", async () => { await page.getByTestId("rule-pack-new-draft").click(); });
-  await journey.scrolled("new-draft", "The rule pack draft", 4);
+  await journey.step("new-draft", "A new rule pack: its parts closed", async () => { await page.getByTestId("rule-pack-new-draft").click(); });
+  // Each part of the pack opens in place; picture each form, one part open at a time.
+  const parts = [
+    ["loadCases", "load-cases", "Load cases this pack needs"],
+    ["categories", "categories", "Stress categories"],
+    ["inputs", "inputs", "Inputs and limits"],
+    ["formula", "formula", "Formula"],
+    ["checks", "checks", "Checks"]
+  ] as const;
+  let previous: string | null = null;
+  for (const [key, step, note] of parts) {
+    await journey.step(`part-${step}`, `The pack's part opened: ${note}`, async () => {
+      if (previous) await page.getByTestId(`rule-pack-part-${previous}`).locator(":scope > summary").click();
+      const part = page.getByTestId(`rule-pack-part-${key}`);
+      await part.locator(":scope > summary").click();
+      await part.evaluate((element) => element.scrollIntoView({ block: "start" }));
+    });
+    await journey.scrolled(`part-${step}`, `The ${note} part`, 3);
+    previous = key;
+  }
+  await journey.step("check-more", "A check's further settings opened", async () => {
+    const more = page.getByTestId("rule-pack-check-more").first();
+    await more.locator(":scope > summary").click();
+    await more.evaluate((element) => element.scrollIntoView({ block: "start" }));
+  });
+  await journey.scrolled("check-more", "A check's further settings", 2);
   await journey.step("libraries-page", "The Libraries page", async () => { await page.getByTestId("rail-page-libraries").click(); });
   await journey.step("library-sample", "Libraries with the invented sample loaded", async () => { await page.getByTestId("library-load-template").click(); });
   await journey.scrolled("library-sample", "The library sample");

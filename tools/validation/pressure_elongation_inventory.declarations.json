@@ -1251,6 +1251,15 @@
   },
   {
    "paths": [
+    "core/product_physics/tests/exact_load_state_generated_references.rs"
+   ],
+   "reference": "validation/references/exact_load_state_equivalent_static",
+   "expectations": "reference_file",
+   "cases_named": "some",
+   "detail": "exact_load_state_equivalent_static frozen references: STRAIGHT and FRAME built from the package and solved as load and reference-state documents in both settings; named (eqs_document with elongation on lists every pressurised case) against the package's elongation-on values, unnamed (off) against its elongation-off values; the refusal controls solve the unnamed document. The generated-interactions models carry no pressure region"
+  },
+  {
+   "paths": [
     "core/product_physics/tests/load_reference_state_runtime_extension.rs"
    ],
    "expectations": "reference_file",
@@ -1922,6 +1931,7 @@
     "core/product_physics/tests/fixtures/rf_source_method/order_four_sensitive.request.json",
     "core/product_physics/tests/fixtures/rt_a3_nonlinear/b1_loaded_inactive_reaction.json",
     "core/product_physics/tests/fixtures/silent_zero/*.request.json",
+    "core/reporting/result_export/tests/fixtures/generated_identities.json",
     "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz.request.json",
     "core/runner/headless/tests/t4_u5b_requests/MO-F.request.json",
     "core/runner/headless/tests/t4_u5b_requests/MO-T.request.json",

@@ -41,7 +41,7 @@ const S2_REFUSAL = `${RULE_PACKS_NOT_RESOLVED}: recorded run \`${RUN.recording_i
 function history(overrides: Partial<WorkspaceSession["project"]["history"]> = {}) {
   return {
     states: [STATE], runs: [RUN], unreadable: { states: [TAMPERED_STATE], runs: [TAMPERED_RUN] }, runCheck: null, recordRunUnavailableReason: null, recordRunState: STATE,
-    historyMessage: "", historyOperation: "", historyBusy: false, basisStateId: null, refreshStates: vi.fn(), saveState: vi.fn(), openState: vi.fn(), editLabels: vi.fn(),
+    historyMessage: "", historyMessageDetails: null, historyOperation: "", historyBusy: false, basisStateId: null, refreshStates: vi.fn(), saveState: vi.fn(), openState: vi.fn(), editLabels: vi.fn(),
     deleteState: vi.fn(), recordRun: vi.fn(async () => true), editRunLabels: vi.fn(async () => true), deleteRun: vi.fn(async () => true), checkRun: vi.fn(async () => true),
     deleteUnreadable: vi.fn(async () => true),
     ...overrides

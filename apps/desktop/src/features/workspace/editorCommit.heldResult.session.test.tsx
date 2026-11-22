@@ -10,7 +10,9 @@ import * as operationBatchService from "../../services/operationBatchService";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock, { nativeReopen: "actual" }) }));
 import { createSolveJobTransport, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
+import { storedSampleProposal } from "../../test/storedSampleProposal";
 import { getLocalStorageCapability } from "../../services/projectService";
+import { NATIVE_OPEN_PROJECT_COMMAND } from "../../services/nativeReopen";
 import { loadDesignKnowledge, resetSessionResultCustodyForTests } from "../../services/previewService";
 import { loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
 import { buildGridOperationIntent, type GridColumn } from "./table/modelTableAdapter";
@@ -44,10 +46,12 @@ const coordinate: EditorBuilder<CoordinateInput> = {
   }
 };
 
-async function solvedSession(steps: { solve: boolean; aggregate: boolean } = { solve: true, aggregate: true }) {
+async function solvedSession(steps: { solve: boolean; aggregate: boolean; openStoredProposal?: boolean } = { solve: true, aggregate: true }) {
   const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "pressure" });
   const storage = await getLocalStorageCapability(), knowledge = await loadDesignKnowledge();
   const engine = loadWasmEngine();
+  const storedTarget = steps.openStoredProposal ? { target_type: "result" as const, id: pair.source.results[0].id } : null;
+  const storedProposal = storedTarget ? await storedSampleProposal(pair.source, storedTarget) : null;
   const transport = createSolveJobTransport((request) => {
     if (!isDeepStrictEqual(request.model, pair.model)) throw new Error("REPLAY_REQUEST_MISMATCH");
     return pair.bytes;
@@ -60,9 +64,30 @@ async function solvedSession(steps: { solve: boolean; aggregate: boolean } = { s
       case "check_model_library_refs": return [];
       case "load_preview_model": if (args === undefined) return structuredClone(pair.model); break;
       case "find_local_project": return null;
+      case "list_autosaves": return [];
       case "list_model_states": return [];
       case "list_analysis_runs": return [];
       case "cancel_model_checks": return null;
+      case "dispose_all_preview_mechanics_results": return { released_results: 0, released_bytes: 0, abandoned_jobs: 0 };
+      case NATIVE_OPEN_PROJECT_COMMAND:
+        return storedProposal && storedTarget ? {
+          summary: {
+            project_id: pair.model.project.id,
+            project_name: pair.model.project.name,
+            storage_backend: "sqlite_local",
+            storage_path: "/tmp/openpipestress-test/projects.sqlite3",
+            saved_at_unix: 1700000000,
+            updated_at_unix: 1700000000,
+            operation_count: 0,
+            has_mechanics_result: false,
+            message: "Opened local project."
+          },
+          model: structuredClone(pair.model),
+          editor_intents: [],
+          proposal: storedProposal,
+          selected_review_target: storedTarget,
+          stored_run: { state: "none" }
+        } : null;
       case "validate_model_operation_batch":
       case "apply_model_operation_batch": {
         const run = (await engine)[command === "apply_model_operation_batch" ? "applyOperationBatchJson" : "validateOperationBatchJson"];
@@ -76,6 +101,11 @@ async function solvedSession(steps: { solve: boolean; aggregate: boolean } = { s
   function Harness() { current = useWorkspaceSession(); return null; }
   render(<Harness />);
   await waitFor(() => expect(current.model.modelHash).not.toBeNull());
+  if (steps.openStoredProposal) {
+    await act(async () => { await current.project.handleOpenProject(); });
+    await waitFor(() => expect(current.results.proposal).not.toBeNull());
+    expect(current.results.selectedReviewTarget).toEqual(storedTarget);
+  }
   if (!steps.solve) return () => current;
   await act(async () => { await current.results.handleRun(); });
   await waitFor(() => expect(current.results.analysisRun).not.toBeNull(), { timeout: 20000 });
@@ -103,14 +133,13 @@ it("a commit with a fresh result held clears the result, its analysis run, its i
   expect(state().operations.undoStack).toHaveLength(1);
 }, 60_000);
 
-/** A commit with a checkpoint listener that throws `thrown` after publication, a fresh result and a proposal held:
+/** A commit with a checkpoint listener that throws `thrown` after publication and a fresh result held:
  * committed with a notice, and every one of the ten clears is seen. */
 async function commitWithFailingListener(thrown: () => unknown) {
   const state = await solvedSession();
-  await act(async () => { await state().results.handleProposal(); });
-  await waitFor(() => expect(state().results.proposal).not.toBeNull());
   const held = state().results;
   expect([held.result, held.analysisRun, held.inputManifest, held.ruleCheckAggregate].map((value) => value !== null)).toEqual([true, true, true, true]);
+  expect([held.proposal, held.selectedReviewTarget]).toEqual([null, null]);
   state().operations.sessionEvents.listen((event) => event.type === "checkpoint" ? () => { throw thrown(); } : undefined);
   const ruleGate = vi.spyOn(RuleRevisionGenerationGate.prototype, "invalidate");
   const node = state().model.model!.nodes[1];
@@ -121,8 +150,9 @@ async function commitWithFailingListener(thrown: () => unknown) {
   // The ten clears: the report package's computed state, the rule revision gate, the historical run, the result,
   // the analysis run, the input manifest, the rule-check aggregate, the proposal, the selected review target and the
   // solve job. The model write does not invalidate the rule revision gate, so its call here is the commit's clear.
-  // The selected review target is set only by opening or creating a project, which this harness does not do; it is
-  // asserted as left clear.
+  // The solve clears proposal and selectedReviewTarget, nothing in the desktop makes a sample proposal (issue 512),
+  // and this fresh-solve harness selects neither a result nor a diagnostic; both start null above and remain null
+  // here, while the reopen test below verifies held non-null proposal and selectedReviewTarget transition to null.
   expect({ busy: after.reportPackageBusy, redaction: after.reportPackageRedaction, route: after.reportPackageRoute }).toEqual({ busy: false, redaction: null, route: null });
   expect(ruleGate).toHaveBeenCalled();
   expect([after.historicalRun, after.result, after.analysisRun, after.inputManifest, after.ruleCheckAggregate, after.proposal, after.selectedReviewTarget])
@@ -142,6 +172,22 @@ it("a listener's failure after publication, with a fresh result held: the commit
 it("a listener throwing an object with no prototype after publication: committed with a fixed notice, and all ten clears are made (Q3)", async () => {
   const outcome = await commitWithFailingListener(() => Object.create(null));
   expect(outcome.notice).toContain("A view of the session did not take this change: a failure that could not be put into words");
+}, 60_000);
+
+it("a listener's failure after publication on an opened project holding a stored proposal and review target: committed with a notice, and both are cleared", async () => {
+  const state = await solvedSession({ solve: false, aggregate: false, openStoredProposal: true });
+  expect([state().results.proposal, state().results.selectedReviewTarget].map((value) => value !== null)).toEqual([true, true]);
+  state().operations.sessionEvents.listen((event) => event.type === "checkpoint" ? () => { throw new Error("invented listener failure"); } : undefined);
+  const ruleGate = vi.spyOn(RuleRevisionGenerationGate.prototype, "invalidate");
+  const node = state().model.model!.nodes[1];
+  let outcome: Json;
+  await act(async () => { outcome = await state().editorBinding.bindCommit(coordinate)({ nodeId: node.id, value: String(node.position.z + 0.5) }); });
+  expect(outcome).toMatchObject({ status: "committed", resultsCleared: false });
+  expect(outcome.notice).toContain("invented listener failure");
+  expect(ruleGate).toHaveBeenCalled();
+  const after = state().results;
+  expect([after.proposal, after.selectedReviewTarget]).toEqual([null, null]);
+  expect(state().model.model!.nodes[1].position.z).toBe(node.position.z + 0.5);
 }, 60_000);
 
 /** Holds the next application until released, then runs the real one. */

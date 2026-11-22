@@ -56,7 +56,7 @@ const REQUEST = `${DIR}/coupled_friction.request.json`;
  * (`the_app_gate_render_request_renders_through_production_with_its_standing`). Both tests hold
  * its SHA-256, so each reads exactly the bytes the other makes or checks. */
 const APP_RENDER_REQUEST = `${DIR}/pressure_3_coupled_friction_sensitive.app_render_request.json`;
-const APP_RENDER_REQUEST_SHA256 = "7072ee35b1fdc822932613792b89b7b2cf3738fe97982d5b10da02e3a0295a4a";
+const APP_RENDER_REQUEST_SHA256 = "217708dc55ad57f8c8a6ff241008ffdffa4a057fe980dadf8a7f5717e45ca27f";
 const WRITE_APP_RENDER_REQUEST = "OPENPIPESTRESS_WRITE_APP_RENDER_REQUEST";
 /** The render's clock, pinned so the request's generated_at is reproducible. */
 const PINNED_RENDER_TIME = new Date("2026-11-14T12:00:00.000Z");

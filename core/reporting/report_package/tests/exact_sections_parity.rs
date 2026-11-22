@@ -44,6 +44,10 @@ const MODEL_SHA256: &str = "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1
 const DERIVATIVE_SHA256: &str = "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2";
 const BYTES_SHA256: &str = "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3";
 const NATIVE_JOB_ID: &str = "invented-solve-job-1";
+/// The applied-loads limitation's (S14) generation sentences, and the sentence they replaced (issue 452).
+const S14_GENERATION: &str = "The case generates equivalent-static wind and seismic loads from the same inputs and mass basis as on a plain exact-route document. Each generated load is applied at factor 1 beside the declared ledger and appears once in the case's record of load sources. A generated identity that also identifies another stored, synthesized or generated load source in the document is refused (EQUIVALENT_STATIC_GENERATED_ID_COLLISION).";
+const S14_RETIRED_REFUSAL: &str =
+    "Generated equivalent-static (seismic or wind) loads have no ledger class and are refused by name (EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED).";
 const INPUT_MANIFEST_REF: &str = "invented-input-manifest";
 
 fn source_text(path: &str) -> &'static str {
@@ -152,6 +156,18 @@ fn refusals() -> Vec<(&'static str, Value, &'static str)> {
         (
             "s9_without_its_last_sentence",
             spec(straight, "/cases/0/envelope", json!([{"op": "replace_text", "pointer": "/formulation_basis/limitations/8", "from": format!(" {OMITTED_SENTENCE}"), "to": ""}])),
+            EXACT_LIMITATION_UNREGISTERED,
+        ),
+        (
+            // Issue 452: a load-state result saved by an earlier build states the retired applied-loads
+            // limitation (S14), whose last sentence said generated loads are refused. The table holds only
+            // its replacement, so such a result is solved again before it is reported.
+            "a_load_state_result_saved_with_the_retired_applied_loads_limitation",
+            spec(
+                straight,
+                "/cases/2/envelope",
+                json!([{"op": "replace_text", "pointer": "/formulation_basis/limitations/12", "from": S14_GENERATION, "to": S14_RETIRED_REFUSAL}]),
+            ),
             EXACT_LIMITATION_UNREGISTERED,
         ),
         (
@@ -368,8 +384,9 @@ fn item_9_refuses_unregistered_and_changed_limitations() {
     for (name, spec, code) in refusals().into_iter().filter(|(_, _, code)| *code == EXACT_LIMITATION_UNREGISTERED) {
         let source = resolve(&spec);
         // A source and report rebound coherently to the changed source: only
-        // the limitation can refuse.
-        let (document, audit, mut report) = coherent(&straight_source());
+        // the limitation can refuse. The report is bound to the vector's own
+        // envelope as committed (its path and pointer, without the edits).
+        let (document, audit, mut report) = coherent(&resolve(&json!({"path": spec["path"], "pointer": spec["pointer"]})));
         report["exact_route"]["admission"]["received_result_sha256"] = Value::from(digest(&source).unwrap());
         let error = check_exact_sections(&source, &document, &audit, &report).unwrap_err();
         assert_eq!(

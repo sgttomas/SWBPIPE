@@ -25,7 +25,6 @@ import {
   HardDrive,
   Play,
   Save,
-  Sparkles,
   X
 } from "lucide-react";
 import { AgentStrip } from "./features/workspace/shell/AgentStrip";
@@ -119,6 +118,7 @@ import { ReviewGeometryPanel } from "./features/review-geometry/ReviewGeometryPa
 import { RuleCheckPanel } from "./features/rule-check/RuleCheckPanel";
 import { RuleCheckRunPanel } from "./features/rule-check/RuleCheckRunPanel";
 import { RulePackManagerPanel } from "./features/rule-packs/RulePackManagerPanel";
+import { useReturnCount } from "./features/rule-packs/useReturnCount";
 import { LinesSection } from "./features/model-data/LinesSection";
 import { AssumptionsPanel } from "./features/model-data/AssumptionsPanel";
 import { ConstraintsPanel } from "./features/model-data/ConstraintsPanel";
@@ -239,7 +239,6 @@ function AppSession() {
     handleInspectBundledReference,
     handleCancelRun,
     handleRuleCheckAggregate,
-    handleProposal,
     handleSelectResult,
     handleSelectDiagnostic,
     handleSaveReportPackage,
@@ -306,6 +305,7 @@ function AppSession() {
     projectEnvelopeHashIntegrity,
     modelDocumentVersion,
     projectMessage,
+    projectMessageDetails,
     projectOperation,
     projectBusy,
     requestBlankProject,
@@ -357,6 +357,8 @@ function AppSession() {
     exposeViewportForNarrowInteraction,
     toggleWorkspaceRail
   } = session.chrome;
+  // Each return to the Rules page reaches the retained, sleeping page as a new count, and it reads its list again.
+  const rulePacksVisit = useReturnCount(activeSection === "rule-packs");
   // "Show solver diagnostic" (DEL-07-05 numerical health §3): the Issues drawer's
   // Diagnostics panel opens filtered to exactly that diagnostic, once.
   const { filterRequest: diagnosticFilterRequest, requestDiagnosticFilter } = useDiagnosticFilterRequest({ issuesDrawerOpen, result, analysisRun });
@@ -620,7 +622,6 @@ function AppSession() {
             <EmbeddedAgentPanel session={session.agent} active={activeSection === "operations" && operationTab === "agent"} onReview={() => {setActiveSection("operations");setOperationTab("review");}} />
             <AgentWorkbenchPanel
               appliedOperationCount={appliedOperations.length}
-              mechanicsReady={Boolean(result)}
               model={model}
               proposal={proposal}
               queuedIntentCount={editorIntents.length}
@@ -629,7 +630,6 @@ function AppSession() {
               selectedReviewTarget={selectedReviewTarget}
               statusText={r3ExitJourneyStatus({ result, ruleCheckAggregate, projectSummary })}
               reviewActive={activeSection === "operations" && operationTab === "review"}
-              onGenerateProposal={handleProposal}
               onOpenOperations={() => { setActiveSection("operations"); setOperationTab("review"); }}
               onOpenResults={() => setActiveSection("results")}
               onRunMechanics={handleRun}
@@ -740,9 +740,7 @@ function AppSession() {
                   />
                   <AgentProposalPanel
                     proposal={proposal}
-                    mechanicsReady={Boolean(result)}
                     selectedReviewTarget={selectedReviewTarget}
-                    onLoad={handleProposal}
                   />
                 </div>
               </section>
@@ -1111,6 +1109,7 @@ function AppSession() {
           <div className={shell.page === "project" ? "shell-project-strip" : "shell-project-strip inactive"}>
       <details className="project-strip" aria-label="Project summary">
         <summary><span data-testid="local-project-message" role="status">{projectMessage}</span><span className="project-details-label">Details</span></summary>
+        {projectMessageDetails ? <p data-testid="local-project-message-details">{projectMessageDetails}</p> : null}
         <span data-testid="local-project-review-context">{projectReviewContext(editorIntents, proposal, appliedOperations.length)}</span>
         {projectIndex && projectIndex.length > 0 ? (
           <div className="project-index-picker" data-testid="project-index-picker" aria-label="Open a listed project">
@@ -1152,7 +1151,8 @@ function AppSession() {
               {activeSection === "rule-packs" || activatedExpensiveSections.has("rule-packs") ? (
               <DormantSection page="rule-packs" active={activeSection === "rule-packs"} sessionGeneration={projectSessionGeneration}>
               <RulePackManagerPanel model={model} result={currentSolvedResult} onR3JourneyEvent={recordR3JourneyEvent}
-                queuedIntents={editorIntents} onQueueIntent={handleQueueEditorIntent} operationBusy={operationBusy} />
+                queuedIntents={editorIntents} onQueueIntent={handleQueueEditorIntent} operationBusy={operationBusy}
+                visit={rulePacksVisit} />
               </DormantSection>) : null}
             </section>
 
@@ -1221,6 +1221,7 @@ function AppSession() {
                     projectSummary={projectSummary}
                     projectIndex={projectIndex}
                     projectMessage={projectMessage}
+                    projectMessageDetails={projectMessageDetails}
                     projectOperation={projectOperation}
                     editorIntents={editorIntents}
                     proposal={proposal}
@@ -1598,7 +1599,6 @@ function MenuBar({
 
 function AgentWorkbenchPanel({
   appliedOperationCount,
-  mechanicsReady,
   model,
   proposal,
   queuedIntentCount,
@@ -1607,13 +1607,11 @@ function AgentWorkbenchPanel({
   selectedReviewTarget,
   statusText,
   reviewActive,
-  onGenerateProposal,
   onOpenOperations,
   onOpenResults,
   onRunMechanics
 }: {
   appliedOperationCount: number;
-  mechanicsReady: boolean;
   model: PreviewModel;
   proposal: AgentProposal | null;
   queuedIntentCount: number;
@@ -1622,7 +1620,6 @@ function AgentWorkbenchPanel({
   selectedReviewTarget: SelectedReviewTarget | null;
   statusText: string;
   reviewActive: boolean;
-  onGenerateProposal: () => void;
   onOpenOperations: () => void;
   onOpenResults: () => void;
   onRunMechanics: () => void;
@@ -1655,16 +1652,6 @@ function AgentWorkbenchPanel({
         <button type="button" data-testid="agent-run-mechanics" onClick={onRunMechanics} disabled={running}>
           <Play size={15} aria-hidden="true" />
           Run
-        </button>
-        <button
-          type="button"
-          data-testid="agent-generate-proposal"
-          onClick={onGenerateProposal}
-          disabled={!mechanicsReady}
-          title={mechanicsReady ? undefined : "Run mechanics before generating a review proposal."}
-        >
-          <Sparkles size={15} aria-hidden="true" />
-          Propose
         </button>
         <button type="button" data-testid="agent-open-operations" aria-pressed={reviewActive} onClick={onOpenOperations}>
           <ClipboardCheck size={15} aria-hidden="true" />

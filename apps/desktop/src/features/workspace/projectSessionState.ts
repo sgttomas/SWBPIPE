@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useSequencedState } from "./reportSourceSequence";
 import type {
   LocalProjectIndexEntry,
@@ -38,7 +38,19 @@ export function useProjectSessionState(advanceReportSource?: () => number) {
   const [modelDocumentVersion, setModelDocumentVersion] = useState<ModelDocumentVersionStatus | null>(null);
   const [projectEnvelopeHashIntegrity, setProjectEnvelopeHashIntegrity] =
     useState<ProjectEnvelopeHashIntegrityEvidence | null>(null);
-  const [projectMessage, setProjectMessage] = useState("Local project store not opened.");
+  const [projectStatus, setProjectStatus] = useState<{ message: string; details: string | null }>({
+    message: "Local project store not opened.",
+    details: null
+  });
+  const setProjectMessage = useCallback(
+    (next: string | ((prev: string) => string), details: string | null = null) => {
+      setProjectStatus((prev) => ({
+        message: typeof next === "function" ? next(prev.message) : next,
+        details: typeof next === "function" ? prev.details : details
+      }));
+    },
+    []
+  );
   const [projectOperation, setProjectOperation] = useState("not_started");
   const [projectBusy, setProjectBusy] = useState(false);
   return {
@@ -51,7 +63,9 @@ export function useProjectSessionState(advanceReportSource?: () => number) {
     projectEnvelopeHash, setProjectEnvelopeHash,
     modelDocumentVersion, setModelDocumentVersion,
     projectEnvelopeHashIntegrity, setProjectEnvelopeHashIntegrity,
-    projectMessage, setProjectMessage,
+    projectMessage: projectStatus.message,
+    projectMessageDetails: projectStatus.details,
+    setProjectMessage,
     projectOperation, setProjectOperation,
     projectBusy, setProjectBusy
   };

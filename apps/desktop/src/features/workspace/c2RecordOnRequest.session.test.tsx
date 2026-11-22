@@ -1,5 +1,5 @@
 /** The session's C2 loader (`loadC2Full`) gives a native result's run record only to a consumer that
- * asks for it. A consumer that does not ask (the sample proposal, the gates given no record) is
+ * asks for it. A consumer that does not ask (the gates given no record) is
  * neither refused for the record's stored length nor made to wait for the record's build; one
  * that asks (the gates given a record, both report-package saves, reference inspection's retained
  * run, the comparison with a recorded run) gets today's record, checked against the native
@@ -73,16 +73,15 @@ function resultLength(bytes: number) {
   const custody = nativeResult.nativeCustody;
   return vi.spyOn(nativeResult, "nativeCustody").mockImplementation((result) => ({ ...custody(result), resultBytes: bytes }));
 }
-/** The record-size refusal's own words, as a caller's status carries them. */
-const RECORD_REFUSAL = `RESULT-DETAIL-WEBVIEW-LIMIT (record_bytes=${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1}, limit_bytes=${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES})`;
-/** The same refusal in the C2 gates' words, as both package saves show it (sizes in bytes and MiB). */
-const PACKAGE_RECORD_REFUSAL = nativeResult.describeFullResultRefused(
-  new FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES, "", "record"), "the report package");
+/** The record one byte above the limit, refused for its size. */
+const RECORD_REFUSED = new FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES, "", "record");
+/** That refusal as both package saves show it: the fact, for the report package. */
+const PACKAGE_RECORD_REFUSAL = nativeResult.fullResultRefusalWords(RECORD_REFUSED, "the report package").fact;
 const failure = (promise: Promise<unknown>) => promise.then(() => null, (error: unknown) => error);
 
 describe("a consumer that does not ask for the run record (the change)", () => {
   it("gets the full copy and no record, unrefused by the record's length and without building it", async () => {
-    const { hook, load, copies } = await solvedSession();
+    const { load, copies } = await solvedSession();
     const builds = vi.spyOn(previewService, "buildAnalysisRunPreview");
     const previews = recordAboveLimit();
     const full = await load({ record: false });
@@ -91,11 +90,6 @@ describe("a consumer that does not ask for the run record (the change)", () => {
     expect(builds).not.toHaveBeenCalled();
     // The record's length was not read for it.
     expect(previews).not.toHaveBeenCalled();
-    expect(copies()).toBe(1);
-    // The sample proposal reads the copy alone, so the record's length does not refuse it.
-    await act(async () => { await hook.result.current.results.handleProposal(); });
-    expect(hook.result.current.results.proposal).not.toBeNull();
-    expect(builds).not.toHaveBeenCalled();
     expect(copies()).toBe(1);
   }, 60_000);
 });
@@ -180,7 +174,7 @@ describe("the session's callers that use the record, with a fitting result and a
     await waitFor(() => expect(hook.result.current.results.reportPackageRoute).not.toBeNull());
     const route = hook.result.current.results.reportPackageRoute as { route: string; diagnostic: string };
     expect(route.route).toBe("redaction_blocked");
-    expect(route.diagnostic).toContain(PACKAGE_RECORD_REFUSAL);
+    expect(route.diagnostic).toBe(`Not saved: no shareable report package was written and no user release was made. ${PACKAGE_RECORD_REFUSAL}`);
     expect(copies()).toBe(0);
     expect(builds).not.toHaveBeenCalled();
     expect(invokeMock.mock.calls.some(([command]) => command === "save_report_package")).toBe(false);
@@ -198,12 +192,18 @@ describe("the session's callers that use the record, with a fitting result and a
     expect(copies()).toBe(0);
   }, 60_000);
 
-  it("reference inspection retains no run and says the record refused it, before the copy", async () => {
+  it("reference inspection retains no run and says keeping the current solve met the limit, with Details beside it", async () => {
     const { hook, copies } = await solvedSession();
     recordAboveLimit();
     await act(async () => { await hook.result.current.results.handleInspectBundledReference(); });
-    expect(hook.result.current.project.projectMessage).toContain(`The current solve's result is not retained while the reference is inspected: ${RECORD_REFUSAL}`);
+    const words = nativeResult.fullResultRefusalWords(RECORD_REFUSED, "keeping the current solve while inspecting the reference");
+    expect(hook.result.current.project.projectMessage).toBe(`The current solve's result is not retained. ${words.fact}`);
+    expect(hook.result.current.project.projectMessageDetails).toBe(words.details);
+    expect(hook.result.current.project.projectMessage).not.toMatch(/RESULT-DETAIL|bytes|for the reference inspection/i);
     expect(copies()).toBe(0);
+    // A subsequent project message clears stale retention-refusal Details.
+    await act(async () => { await hook.result.current.project.handleOpenProject("missing-project"); });
+    expect(hook.result.current.project.projectMessageDetails).toBeNull();
   }, 60_000);
 });
 
