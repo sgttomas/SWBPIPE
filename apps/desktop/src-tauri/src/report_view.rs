@@ -200,9 +200,10 @@
 //! is installed with its grown lease. Then, the lock released, the window is
 //! built and acknowledged; a window that does not answer is a failed opening,
 //! its record and lease released ([`VIEW_WINDOW_FAILED`]). After the
-//! acknowledgement the record must still be open: a sweep may have retired it
-//! meanwhile, and then the window is destroyed and the opening refused as not
-//! showable.
+//! acknowledgement the record must still be open: a sweep or the main
+//! window's destruction may have retired it meanwhile, and then the window is
+//! destroyed and the opening refused, as not showable after a sweep and as a
+//! failed window after the main window's destruction.
 //!
 //! Closing. A window's life is the native render's currency: the sweep
 //! ([`close_unshowable`]), run beside every close of a retired print window

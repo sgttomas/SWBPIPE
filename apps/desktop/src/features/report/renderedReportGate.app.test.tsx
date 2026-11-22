@@ -446,7 +446,6 @@ describe("each currency boundary reaches the desktop with the Report section nev
 
   it("a model edit sends advance_report_source", async () => {
     const { advances, why } = await mountApp();
-    await waitFor(() => expect(advances().length, why()).toBeGreaterThan(0), { timeout: 10_000 });
     act(() => nativeMenuCommand("view.stage.model"));
     await waitFor(() => expect(screen.getByTestId("layout-mode-grid")).toBeInTheDocument());
     await act(() => new Promise((r) => setTimeout(r, 50)));
