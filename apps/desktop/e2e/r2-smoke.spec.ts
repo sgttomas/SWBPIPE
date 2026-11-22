@@ -473,7 +473,7 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await page.getByTestId("load-manager-create-primitive-category").selectOption("thermal");
   await expect(page.getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-T300");
   await expectVirtualTarget(page, "load-manager-create-primitive-pipe", "pipe:P-100");
-  await expect(page.getByTestId("load-manager-create-primitive-direction")).toHaveValue("global_z");
+  await expect(page.getByTestId("load-manager-create-primitive-direction")).toHaveCount(0);
   await expect(page.getByTestId("load-manager-create-primitive-unit")).toHaveValue("degC");
   await expect(page.getByTestId("queue-create-primitive-intent")).toBeEnabled();
   await page.getByTestId("load-manager-create-primitive-category").selectOption("imposed_displacement");

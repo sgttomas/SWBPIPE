@@ -12,7 +12,7 @@ import type { ViewportViewCommand } from "../viewport/viewportSelection";
 import type { WorkspaceSectionId } from "../workspace/workspaceSections";
 import { canSurfaceRevealNow } from "../workspace/surfaceReveal";
 import type { KeyResultsTable } from "./KeyResultsPanel";
-import type { ResultsViewRequest } from "./ResultsPanel";
+import { resultViewIdentity, type ResultsViewRequest } from "./ResultsPanel";
 import { KEY_RESULTS_AUTO_OPEN_START, SUPPORT_STATE_ROW_KIND, keyResultsAutoOpen, withheldSupportStateRows } from "./keyResults";
 import type { ResultOverlayStanding } from "./numericalHealth";
 
@@ -118,7 +118,7 @@ export function useKeyResultsSession(input: {
         serial.current += 1;
         // A native result's withheld support-state rows are S's table (built with the same standing).
         const withheld = isNativeResult(result) ? nativeCustody(result).summary.header.tables.withheld_support_state_rows as ReturnType<typeof withheldSupportStateRows> : withheldSupportStateRows(result, input.standing);
-        setHeldRequest({ of: result, request: { serial: serial.current, runId: result.run_id, kind: SUPPORT_STATE_ROW_KIND, withheld } });
+        setHeldRequest({ of: result, request: { serial: serial.current, runId: result.run_id, viewKey: resultViewIdentity(result)!, kind: SUPPORT_STATE_ROW_KIND, withheld } });
         revealInResults(KEY_RESULTS_REVEAL_TARGETS.results);
       },
       onOpenTable: (table: KeyResultsTable) => revealInResults(KEY_RESULTS_REVEAL_TARGETS[table]),

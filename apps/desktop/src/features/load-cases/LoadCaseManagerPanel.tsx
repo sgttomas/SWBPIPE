@@ -12,6 +12,7 @@ import {
 } from "./operatingDifferenceTemplate";
 import {
   defaultPrimitiveLoadDirection,
+  loadRowDirection,
   optionalString,
   primitiveLoadCategoryFromValue,
   primitiveLoadDefaultUnit,
@@ -917,7 +918,7 @@ export function LoadCaseManagerPanel({
                           </button>
                         </td>
                         <td>{primitiveTargetLabel(primitive.load)}</td>
-                        <td>{directionLabel(primitiveDirection(primitive.load))}</td>
+                        <td>{loadRowDirection(primitive.load.dimension, directionLabel(primitiveDirection(primitive.load)))}</td>
                         <td className="loads-number">{primitiveMagnitudeDisplay(primitive.load)}</td>
                         <td>{primitiveUnit(primitive.load)}</td>
                       </tr>
@@ -1023,6 +1024,9 @@ export function LoadCaseManagerPanel({
                     ))}
                   </select>
                 </label>
+                {/* A temperature has no direction: no choice is offered, and the draft keeps the
+                    schema-required default (global_z) that a category change sets. */}
+                {primitiveLoadDraft.category !== "thermal" ? (
                 <label>
                   <span>Direction</span>
                   <select
@@ -1038,6 +1042,7 @@ export function LoadCaseManagerPanel({
                     ))}
                   </select>
                 </label>
+                ) : null}
                 <label>
                   <span>Magnitude ({primitiveDraftUnitBasis.label})</span>
                   <input
