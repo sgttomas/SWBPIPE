@@ -3480,13 +3480,14 @@ class _Importer:
             return 0.0
         section = self.pipes[element.section]
         od, thk = section["od"].value, section["thk"].value
-        try:
-            if self.si:
-                od, thk = od / 1000.0, thk / 1000.0
-                return -density * (math.pi / 4.0 * (od**2 - (od - 2.0 * thk) ** 2)) * STANDARD_GRAVITY
-            return -density * (math.pi / 4.0 * (od**2 - (od - 2.0 * thk) ** 2))
-        except OverflowError:
+        if self.si:
+            od, thk = od / 1000.0, thk / 1000.0
+        inner = od - 2.0 * thk
+        outer_sq, inner_sq = od * od, inner * inner
+        if not (math.isfinite(outer_sq) and math.isfinite(inner_sq)):
             return -math.inf  # refused as unrepresentable by the caller
+        area = math.pi / 4.0 * (outer_sq - inner_sq)
+        return -density * area * STANDARD_GRAVITY if self.si else -density * area
 
     def material_qualifies(self, name: str) -> tuple[str, str, str | None, bool] | None:
         """(origin, source name, redistribution status, recorded) from a bound sidecar's recorded origin or the
