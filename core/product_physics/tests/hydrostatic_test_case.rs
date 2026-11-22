@@ -601,6 +601,45 @@ fn the_held_four_span_case_solves_on_a_load_state_twin() {
     }
 }
 
+/// A held test case on a load and reference-state twin whose ledger leaves out
+/// its generated self-weight, one pipe's or every pipe's, is refused by name
+/// with no result: the case would apply none of that weight while its mark
+/// stated it. Each omitted load is named; with every one omitted, the
+/// diagnostic for a case with no generated self-weight is not raised as well.
+/// The same document with its whole ledger solves.
+#[test]
+fn a_test_case_whose_ledger_omits_its_self_weight_is_refused() {
+    let refs = refs();
+    let held = refs["cases"].as_array().unwrap().iter().find(|c| c["id"] == "HT-4S-TEST-HELD").unwrap().clone();
+    let (skeleton, built) = skeleton("M4", "euler_bernoulli");
+    let mut model = skeleton.clone();
+    model["load_cases"] = json!([case_record(&skeleton, &built, &held)]);
+    let whole = twin(&model);
+    for mode in MODES {
+        solved(&whole, mode, "the twin with its whole ledger");
+    }
+    let generated: Vec<String> = whole["load_cases"][0]["analysis_state"]["load_sources"].as_array().unwrap().iter()
+        .map(|source| source["source_ref"].as_str().unwrap().to_string()).collect();
+    assert_eq!(generated.len(), built.nodes - 1, "one listed self-weight per pipe");
+    for omitted in [&generated[..1], &generated[..]] {
+        let mut document = whole.clone();
+        document["load_cases"][0]["analysis_state"]["load_sources"]
+            .as_array_mut().unwrap().retain(|source| !omitted.iter().any(|id| source["source_ref"] == **id));
+        let what = format!("{} of {} self-weights omitted", omitted.len(), generated.len());
+        refused(&document, "LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID", &what);
+        for mode in MODES {
+            let out = run(&document, mode);
+            let named: Vec<&Value> = out["diagnostics"].as_array().unwrap().iter()
+                .filter(|d| d["code"] == "LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID").collect();
+            assert_eq!(named.len(), omitted.len(), "{what} {mode:?}: one refusal per omitted load: {:?}", codes(&out));
+            for id in omitted {
+                assert!(named.iter().any(|d| d["affected_refs"].as_array().unwrap().iter().any(|r| r == id)), "{what} {mode:?}: {id} is named");
+            }
+            assert!(out["contract_evidence"]["exact_cases"].as_array().map_or(true, |cases| cases.is_empty()), "{what} {mode:?}: no exact case");
+        }
+    }
+}
+
 // ------------------------------------------------------------------ the product reader
 
 /// Every solved reference document, and the load and reference-state twin, is

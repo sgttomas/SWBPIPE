@@ -329,6 +329,12 @@ pub(crate) fn judge(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) -> 
                 vec![id.to_string()]));
             continue;
         };
+        // On a load and reference-state document the case applies only the
+        // sources its ledger lists, so each generated self-weight the contents
+        // enter must be listed; otherwise the mark would state a weight the
+        // case does not apply.
+        let ledger = case.analysis_state.value().map(|state| &state.load_sources);
+        let mut unlisted = 0;
         let mut entering = Vec::new();
         for load in &case.primitive_loads {
             let Some(found) = evidence(load) else { continue };
@@ -352,12 +358,22 @@ pub(crate) fn judge(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) -> 
                     vec![id.to_string(), load.id.clone()]));
                 continue;
             }
+            if ledger.is_some_and(|sources| !sources.iter().any(|source| source.source_ref == load.id)) {
+                unlisted += 1;
+                diagnostics.push(case_diag(id, &format!("contents-unlisted:{}", stable_suffix(&load.id)), LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID,
+                    format!("hydrostatic test case `{id}` selects contents `{key}` for its generated self-weight `{}`, which its analysis_state.load_sources does not list; the case would apply none of that self-weight while its result stated the contents' weight, so nothing is solved", load.id),
+                    vec![id.to_string(), load.id.clone()]));
+                continue;
+            }
             entering.push((load, pipe, found));
         }
-        if entering.is_empty() {
+        if entering.is_empty() && unlisted == 0 {
             diagnostics.push(case_diag(id, "contents-self-weight", LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID,
                 format!("hydrostatic test case `{id}` selects contents `{key}` but carries no generated self-weight for them to enter; contents are a mass input of the self-weight calculation and are never a load of their own, so nothing is solved"),
                 vec![id.to_string(), key.clone()]));
+            continue;
+        }
+        if entering.is_empty() {
             continue;
         }
         for (load, pipe_id, found) in entering {
