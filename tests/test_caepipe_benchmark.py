@@ -52,6 +52,13 @@ BENCHMARK = ROOT / "validation" / "caepipe_benchmark"
 MANIFEST = BENCHMARK / "manifest.json"
 
 
+@pytest.fixture(autouse=True)
+def _live_session_passed_through(monkeypatch):
+    """Every live route opens its session first (liveness, then the share's letter); that opening is examined in
+    tests/test_caepipe_live_session.py, and here it passes the configuration through unchanged."""
+    monkeypatch.setattr(run_pilot, "live_session", lambda config, emit=print: config)
+
+
 def tracked_models() -> list[dict]:
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     return [json.loads((BENCHMARK / entry["file"]).read_text(encoding="utf-8")) for entry in manifest["models"]]
@@ -2242,13 +2249,15 @@ def test_a_pending_exclusive_job_holds_the_run(fake_benchmark, monkeypatch, caps
     monkeypatch.setattr(run_pilot.time, "sleep", command_sleep(poll))
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 0
     assert polls == [30.0, 30.0] and [call[0] for call in state["calls"]] == ["cpb-g1-01"]
-    assert "cpb-g1-01: an exclusive job is pending; waiting for it (up to 1800 s)" in capsys.readouterr().out
+    # The hold is checked before the session's first guest call, so the run waits there, then opens the session.
+    assert "before the session: an exclusive job is pending; waiting for it (up to 1800 s)" in capsys.readouterr().out
     state["calls"].clear()
     state["exclusive"].write_text(f"{os.getpid()}\n", encoding="ascii")
     monkeypatch.setattr(run_pilot.time, "sleep", command_sleep(lambda seconds: None))
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 1
     assert state["calls"] == []
-    assert "stopped before cpb-g1-01: an exclusive job was still pending after 1800 s" in capsys.readouterr().out
+    assert "stopped before the first guest step: an exclusive job was still pending after 1800 s" in \
+        capsys.readouterr().out
 
 
 # The answer's form is the Windows version line alone, with nothing on stderr: any other text with exit 0 (an
