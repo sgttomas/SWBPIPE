@@ -209,6 +209,17 @@ pub(crate) fn holds_supports(case: &PreviewLoadCase) -> bool {
     test_condition(case).is_some_and(|test| test.held_supports == HeldSupports::SpringsAndConstantEffort)
 }
 
+/// The supports held by every case of a document whose every load case holds
+/// supports, or `None` when some case is solved on the document's own system
+/// (no load case, a case that holds nothing, or no holdable support).
+pub(crate) fn all_cases_held(model: &PreviewModel) -> Option<Vec<HeldSupport>> {
+    if model.load_cases.is_empty() || !model.load_cases.iter().all(holds_supports) {
+        return None;
+    }
+    let (held, _) = held_set(model, "");
+    (!held.is_empty()).then_some(held)
+}
+
 /// On a document with a pressure contract, a case's `condition_use` is admitted
 /// only on a test case and only as a contents selection.
 pub(crate) fn admits_exact_use(case: &PreviewLoadCase) -> bool {

@@ -29,7 +29,7 @@
 //! REQ-014, DEL-04-03 REQ-014) lands, and those rows then become part of that
 //! change's evidence.
 use open_pipe_stress_product_physics::self_weight::{generate_self_weight_operations, SelfWeightGravity, SelfWeightRequest, MANUAL_OVERRIDE_METHOD};
-use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewModel, PreviewSolverMode};
+use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, LinearStaticPreviewRequest, PreviewModel, PreviewSolverMode};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
@@ -919,6 +919,37 @@ fn blocked_by(model: &Value, code: &str, what: &str) {
     }
 }
 
+fn assert_pre_solve_matches_solve(model: &Value, expect_blocking_code: Option<&str>, what: &str) {
+    let findings: Vec<Value> = LinearStaticPreviewRequest::pre_formation_checks_value(json!({"model": model, "materials": []}))
+        .expect("pre-formation checks read the request")
+        .into_iter()
+        .map(|d| serde_json::to_value(d).unwrap())
+        .collect();
+    let blocking: Vec<&str> = findings
+        .iter()
+        .filter(|d| d["severity"] == "blocking")
+        .filter_map(|d| d["code"].as_str())
+        .collect();
+    match expect_blocking_code {
+        None => assert!(blocking.is_empty(), "{what}: expected no blocking pre-solve diagnostics, got {blocking:?}"),
+        Some(code) => assert!(blocking.contains(&code), "{what}: expected pre-solve {code}, got {blocking:?}"),
+    }
+    for mode in MODES {
+        let published = run(model, mode)["diagnostics"].as_array().cloned().unwrap_or_default();
+        assert!(published.len() >= findings.len(), "{what} {mode:?}: solve published fewer diagnostics");
+        for (finding, diagnostic) in findings.iter().zip(&published) {
+            for key in ["id", "code", "severity", "affected_refs", "source"] {
+                assert_eq!(finding.get(key), diagnostic.get(key), "{what} {mode:?}: {key} differs");
+            }
+            let (check_text, solve_text) = (finding["message"].as_str().unwrap(), diagnostic["message"].as_str().unwrap());
+            assert!(solve_text.starts_with(check_text), "{what} {mode:?}: message differs");
+        }
+        if expect_blocking_code.is_some() {
+            assert_eq!(published.len(), findings.len(), "{what} {mode:?}: blocked solve must publish only pre-solve findings");
+        }
+    }
+}
+
 /// The ground restraints are checked on the system each case is solved on. A
 /// document whose every case holds its supports is checked on the replaced
 /// system, where a held constant-effort support is the rigid restraint it is:
@@ -944,6 +975,10 @@ fn ground_restraints_are_checked_on_the_system_each_case_is_solved_on() {
         _ => None,
     };
     let value = |row: &Value| if scale(row).is_some() { si(row) } else { row["value"].as_f64().unwrap() };
+    assert_pre_solve_matches_solve(&held, None, "valid held-only four-span witness");
+    for (doc, model) in four_span_documents() {
+        assert_pre_solve_matches_solve(&model, None, &doc);
+    }
     for mode in MODES {
         let (on_held, on_prop) = (solved(&held, mode, "a held-only document on its replaced system"), solved(&prop, mode, "the explicit prop"));
         assert_eq!(exact_case(&on_held, id)["test_condition"]["held_support_refs"], json!(["support:e-ce"]), "{mode:?}");
@@ -960,9 +995,12 @@ fn ground_restraints_are_checked_on_the_system_each_case_is_solved_on() {
         assert_eq!(compared, theirs.len(), "{mode:?}: the same rows");
         assert!(compared > 50, "{mode:?}: compared {compared}");
     }
-    blocked_by(&propped(vec![end_guide_uy(), end_ce()], &[id, "HT-4S-ORDINARY"]), "SOLVER_SYSTEM_BLOCKED",
-        "an ordinary case on five ground constraints beside the held case");
-    blocked_by(&propped(vec![end_ce()], &[id]), "SOLVER_SYSTEM_BLOCKED", "a replaced system of five ground constraints");
+    let mixed = propped(vec![end_guide_uy(), end_ce()], &[id, "HT-4S-ORDINARY"]);
+    blocked_by(&mixed, "SOLVER_SYSTEM_BLOCKED", "an ordinary case on five ground constraints beside the held case");
+    assert_pre_solve_matches_solve(&mixed, Some("SOLVER_SYSTEM_BLOCKED"), "mixed held + ordinary on five ground constraints");
+    let under = propped(vec![end_ce()], &[id]);
+    blocked_by(&under, "SOLVER_SYSTEM_BLOCKED", "a replaced system of five ground constraints");
+    assert_pre_solve_matches_solve(&under, Some("SOLVER_SYSTEM_BLOCKED"), "replaced system of five ground constraints");
 }
 
 // ------------------------------------------------------------------ the certificate

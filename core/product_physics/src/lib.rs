@@ -3218,9 +3218,7 @@ fn run_linear_static_preview_observed_inner(
     // system, whose ground restraints `solve_held_case` checks by the same
     // rule. The document's own system is checked when some case is solved on
     // it: with no case, a case that holds nothing, or no support held.
-    let holds_all = !model.load_cases.is_empty() && model.load_cases.iter().all(hydrostatic::holds_supports)
-        && !hydrostatic::held_set(&model, "").0.is_empty();
-    if !holds_all {
+    if hydrostatic::all_cases_held(&model).is_none() {
         check_ground_restraints(&model, &built, &boundary, &mut diagnostics);
     }
     for finding in &boundary.findings {
