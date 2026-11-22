@@ -302,4 +302,52 @@ describe("a warning that applies is on its closed line, without a press", () => 
     expect(summary).toHaveTextContent("Shear deformation: Timoshenko (energy-matched annular shear factor), set by the pressure profile");
     expect(summary).toHaveTextContent("Pressure elongation: off (default), not included in any load case");
   });
+
+  const projectUnitsSummary = () => {
+    expect(line("Project units")).not.toHaveAttribute("open");
+    return line("Project units").querySelector("summary")!;
+  };
+  const unitNotes = () => within(projectUnitsSummary()).queryAllByRole("note").map((note) => {
+    expect(note).toBeVisible();
+    return note.textContent?.trim();
+  });
+
+  it("no unit warning on the closed Project units line where every stored unit reads", () => {
+    const model = inventedModel();
+    mount({ type: "project", id: model.project.id }, {}, model);
+    expect(projectUnitsSummary()).toHaveTextContent("m, N, moment not set, Pa, stress not set, degC, rad");
+    expect(unitNotes()).toEqual([]);
+  });
+
+  it("a length the nodes need and the document lacks, on the closed Project units line", () => {
+    const model = inventedModel();
+    delete (model.project.units as Record<string, unknown>).length;
+    mount({ type: "project", id: model.project.id }, {}, model);
+    expect(projectUnitsSummary()).toHaveTextContent("length not set");
+    expect(unitNotes()).toEqual(["Missing project unit: length. The model has nodes whose positions have no stated unit, and assigning one would be an interpretation. Re-author the model with a length unit; no fix is offered."]);
+  });
+
+  it("a stored value that is not a unit symbol, and a legacy spelling, on the closed Project units line", () => {
+    const model = inventedModel();
+    model.project.units = { ...model.project.units, pressure: 7, temperature: "C" } as unknown as PreviewModel["project"]["units"];
+    mount({ type: "project", id: model.project.id }, {}, model);
+    expect(projectUnitsSummary()).toHaveTextContent("m, N, moment not set, pressure not a unit symbol, stress not set, C, rad");
+    expect(unitNotes()).toEqual([
+      "project.units.pressure is not a unit symbol; choose one.",
+      "Stored as C, a legacy spelling. A new choice must be a catalog symbol (degC)."
+    ]);
+  });
+
+  it("a blank unit string reads as not a unit symbol, never as a blank entry", () => {
+    const model = inventedModel();
+    model.project.units = { ...model.project.units, length: "  ", force: " " } as PreviewModel["project"]["units"];
+    mount({ type: "project", id: model.project.id }, {}, model);
+    const summary = projectUnitsSummary();
+    expect(summary).toHaveTextContent("length not a unit symbol, force not a unit symbol, moment not set, Pa, stress not set, degC, rad");
+    expect(summary.textContent).not.toMatch(/,\s*,/);
+    expect(unitNotes()).toEqual([
+      "project.units.length is not a unit symbol, and the model has nodes whose positions it governs. Re-author the model with a length unit; no fix is offered.",
+      "project.units.force is not a unit symbol; choose one."
+    ]);
+  });
 });

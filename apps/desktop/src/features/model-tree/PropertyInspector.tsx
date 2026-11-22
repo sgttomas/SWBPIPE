@@ -15,7 +15,7 @@ import { draftSupportFamily, SUPPORT_FAMILY_OPTIONS, suggestedSupportFamily, sup
 import { ModelDataAnnotations } from "../model-data/ModelDataAnnotations";
 import { combinationTermsText } from "../load-cases/combinationOperands";
 import { ModelSettingsSection } from "../model-settings/ModelSettingsSection";
-import { ProjectUnitsSection } from "../project-units/ProjectUnitsSection";
+import { ProjectUnitsSection, projectUnitRow } from "../project-units/ProjectUnitsSection";
 import { ListPlus, Pencil, PlayCircle, PlusCircle, SearchCheck, Trash2, X } from "lucide-react";
 import { deleteLine, kindName, offersBendAtCorner, modelSettingsValues, offersSupportForm, projectUnitValues, supportFormLine } from "./inspectorActions";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
@@ -46,7 +46,7 @@ import {
   type FieldUnitDefault
 } from "../project-units/projectUnitSelection";
 import { componentDraftMissingUnitNotices, isProjectUnitKey, missingProjectUnitText, projectUnitMissing, type MissingProjectUnitMode } from "../project-units/missingProjectUnit";
-import type { ProjectUnitKey } from "../../services/projectService";
+import { PROJECT_UNIT_KEYS, type ProjectUnitKey } from "../../services/projectService";
 import { entityRefFromKey, type OrderedSelectionState } from "../workspace/selectionState";
 import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 import type { CreationTool } from "../viewport/PipeViewport";
@@ -548,6 +548,14 @@ export function PropertyInspector({
       .filter((id) => id && !model.pipe_segments.some((pipe) => pipe.id === id))
     : [];
   const libraryWarnings = currentLibraryRefFindings(model, publishedLibraryRefs).filter((finding) => finding.entity_ref === propertiesTarget.id);
+  // A stored unit the Project units section warns about at rest: a length the nodes need and the document
+  // lacks or cannot read, a value that is not a unit symbol, or a legacy or non-catalog spelling.
+  const projectUnitWarnings = propertiesTarget.type === "project"
+    ? PROJECT_UNIT_KEYS.flatMap((key) => {
+      const notice = projectUnitRow(model, key, unitCatalogRoute).notice;
+      return notice && notice.kind !== "missing-offer" ? [{ key, text: notice.text }] : [];
+    })
+    : [];
   const richProps = { getPreparationEpoch, model, preparationEpoch: selectionState?.preparationEpoch, selection: propertiesTarget, queuedIntents, onQueueIntent, operationBusy: operationBusy || multiSelection };
   // What a delete refuses, and its operation, shown only when asked for.
   const deletionNote = (text: string, intent: EditorOperationIntent) => <>
@@ -997,7 +1005,7 @@ export function PropertyInspector({
       ) : null}
       {propertiesTarget.type === "project" ? (
         <details className="inspector-details inspector-line" data-testid="project-units-details">
-          <summary><span>Project units</span> <span className="inspector-line-value">{projectUnitValues(model)}</span></summary>
+          <summary><span>Project units</span> <span className="inspector-line-value">{projectUnitValues(model)}</span>{projectUnitWarnings.map((warning) => <span key={warning.key} className="inspector-line-warning" role="note"> {warning.text}</span>)}</summary>
           <ProjectUnitsSection key={`project-units:${projectSessionGeneration}`} model={model} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} unitCatalogRoute={unitCatalogRoute} />
         </details>
       ) : null}

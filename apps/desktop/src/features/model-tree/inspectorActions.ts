@@ -5,6 +5,7 @@ import { authoredPressureElongationCases, authoredShearModel, effectiveNodeProxi
 import { documentShearModel, SHEAR_MODEL_CHOICES as PROFILE_SHEAR_CHOICES } from "../pressure-authoring/pressureContract";
 import { SHEAR_MODEL_CHOICES, UNSTATED_SHEAR_MODEL } from "../model-settings/ModelSettingsSection";
 import { PROJECT_UNIT_KEYS } from "../../services/projectService";
+import { storedProjectUnit } from "../project-units/projectUnitIntents";
 
 /** Below this turn, in radians, two pipes run straight through their node beyond any doubt. This is
  * not the operation engine's rule: it is three orders of magnitude inside the engine's own lower bound
@@ -81,10 +82,14 @@ export function modelSettingsValues(model: PreviewModel): string {
   return parts.join(" · ");
 }
 
-/** "Project units" with the stored symbols, for its closed line. */
+/** "Project units" with the stored symbols, for its closed line. A key the document lacks is "not set";
+ * one it holds as a non-string or a blank string is "not a unit symbol", as the section itself reads it. */
 export function projectUnitValues(model: PreviewModel): string {
-  const units = (model.project.units ?? {}) as Record<string, unknown>;
-  return PROJECT_UNIT_KEYS.map((key) => (typeof units[key] === "string" && units[key] ? units[key] : `${key} not set`)).join(", ");
+  return PROJECT_UNIT_KEYS.map((key) => {
+    const stored = storedProjectUnit(model, key);
+    if (stored === undefined) return `${key} not set`;
+    return typeof stored === "string" && stored.trim() ? stored.trim() : `${key} not a unit symbol`;
+  }).join(", ");
 }
 
 /** The inspector's names for entity kinds, singular and plural. */
