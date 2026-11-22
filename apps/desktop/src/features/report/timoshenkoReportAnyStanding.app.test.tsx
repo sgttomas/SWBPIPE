@@ -44,9 +44,10 @@ const root = resolve(__dirname, "../../../../../");
 
 /** A solve's producer bytes and the model they were solved for (a solve request's `model`, or a
  * model document, with `shearModel` selected where given). */
-type Source = { raw: string; model: string; shearModel?: string };
+type Source = { id: string; raw: string; model: string; shearModel?: string };
 /** The product's own eligible Timoshenko result for its frozen request. */
 const ELIGIBLE: Source = {
+  id: "eligible",
   raw: "fixtures/results/preview_physics_timoshenko_straight_sparse.json",
   model: "validation/references/pf_timoshenko/requests/PFT-SB-L1-CM0-TIMOSHENKO.request.json"
 };
@@ -54,6 +55,7 @@ const ELIGIBLE: Source = {
  * numerically sensitive torsion model with Timoshenko straight members selected, its one load case
  * sensitive (`pf_timoshenko_envelopes.rs` keeps the bytes current). */
 const NOT_ELIGIBLE: Source = {
+  id: "sensitive-torsion",
   raw: "fixtures/results/preview_physics_timoshenko_sensitive_torsion_sparse.json",
   model: "fixtures/product_preview/numerical_sensitive_torsion_model.json",
   shearModel: "timoshenko_annulus_energy_v1"
@@ -117,12 +119,11 @@ async function openReportStage() {
   return screen.findByTestId("rendered-report-panel");
 }
 
-let mountSequence = 0;
 async function mountApp(source: Source) {
   const model = sourceModel(source);
   const raw = readFileSync(resolve(root, source.raw), "utf8");
   const [storage, knowledge] = [await getLocalStorageCapability(), await loadDesignKnowledge()];
-  const transport = createSolveJobTransport(async () => raw, { jobIdPrefix: `invented-timoshenko-report-job:${++mountSequence}` });
+  const transport = createSolveJobTransport(async () => raw, { jobIdPrefix: `invented-timoshenko-report-job:${source.id}` });
   const renders: Json[] = [];
   const prints: Json[] = [];
   const htmlSaves: Json[] = [];

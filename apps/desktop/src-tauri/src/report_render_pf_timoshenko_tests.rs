@@ -318,6 +318,12 @@ fn the_app_render_request_of_a_not_eligible_timoshenko_result_states_its_standin
     for phrase in [
         "Numerical health, as the solver reports it: 0 checks passed, 1 sensitive, 0 quality unresolved, 0 not assessed, of 1 load case.".to_string(),
         "The product reader&#39;s findings on this result&#39;s standing:".to_string(),
+        open_pipe_stress_report_renderer::escape_html(
+            "Not every load case of this result is checks passed, so the product reader does not find it numerically eligible. (NUMERICAL_INTEGRITY_NOT_QUALIFIED)",
+        ),
+        open_pipe_stress_report_renderer::escape_html(
+            "At least one load case's record is not a checks-passed record; each load case's numerical health is stated by load case. (NUMERICAL_CASE_EVIDENCE_INCOMPLETE)",
+        ),
         format!("<tr><td>{id}</td><td>Numerical health: sensitive</td>"),
     ] {
         assert!(html.contains(&phrase), "{phrase}");
