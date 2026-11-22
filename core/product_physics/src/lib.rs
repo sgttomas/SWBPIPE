@@ -3143,7 +3143,9 @@ fn run_linear_static_preview_observed_inner(
         return blocked_envelope(model, diagnostics);
     }
     // DEL-05-01 REQ-008: the seismic model-check warning, before formation (warnings only).
-    seismic_warning::append(&model, &seismic_entered, &mut diagnostics);
+    if !case_state::is_load_state(&model) {
+        seismic_warning::append(&model, &materials, None, &seismic_entered, &mut diagnostics);
+    }
     // W-15 slice c (DEL-03-05 Design `eccentric-reducer-offset.md` §3.2): a
     // declared eccentric offset is checked against the normalized node
     // geometry, which governs. The first pass returns before any index is
@@ -3182,6 +3184,7 @@ fn run_linear_static_preview_observed_inner(
         if has_blocking(&diagnostics) {
             return blocked_envelope(model, diagnostics);
         }
+        seismic_warning::append(&model, &materials, Some(&resolved), &seismic_entered, &mut diagnostics);
         Some(resolved)
     } else {
         None

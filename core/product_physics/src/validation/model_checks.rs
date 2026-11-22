@@ -103,10 +103,9 @@ fn pre_formation_checks(request: LinearStaticPreviewRequest) -> Vec<Diagnostic> 
     if has_blocking(&diagnostics) {
         return diagnostics;
     }
-    crate::seismic_warning::append(&model, &seismic_entered, &mut diagnostics);
-
     let load_state = case_state::is_load_state(&model);
     if !load_state {
+        crate::seismic_warning::append(&model, &materials, None, &seismic_entered, &mut diagnostics);
         pressure_material::resolve_base(&model, &mut materials, &mut diagnostics);
     }
     if has_blocking(&diagnostics) {
@@ -126,6 +125,7 @@ fn pre_formation_checks(request: LinearStaticPreviewRequest) -> Vec<Diagnostic> 
         if has_blocking(&diagnostics) {
             return diagnostics;
         }
+        crate::seismic_warning::append(&model, &materials, Some(&resolved), &seismic_entered, &mut diagnostics);
         Some(resolved)
     } else {
         None

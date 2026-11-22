@@ -1,7 +1,9 @@
 //! DEL-05-01 REQ-008: the seismic model-check warning (issue 452 decision 7).
 //!
-//! On each seismic case (a case with `equivalent_static.seismic`) of a
-//! document that is not a load and reference-state document, three findings
+//! On each seismic case (a case with `equivalent_static.seismic`) — on plain
+//! documents against the case's primitive loads, and on load and
+//! reference-state documents against each case's resolved load sources
+//! (`effective_case`) and applied component-weight primitives — three findings
 //! at warning severity, which refuse nothing and change no load:
 //!
 //! - [`WEIGHT_LOAD_ENTERED`]: one per case that has any load in the solver's
@@ -75,6 +77,9 @@ pub(crate) struct Entered {
     seismic: Vec<(usize, Option<Quantity>)>,
     /// The self-weight plan's fresh primitives, (case index, primitive index).
     fresh: HashSet<(usize, usize)>,
+    /// The self-weight plan's fresh primitives by identity, (case index, load id),
+    /// for load and reference-state effective cases whose indices follow `load_sources`.
+    fresh_ids: HashSet<(usize, String)>,
     /// The fresh component-weight primitives, in document order.
     component_weights: Vec<ComponentWeight>,
     /// The added weights the lowering appended, (case index, load id).
@@ -88,11 +93,10 @@ fn is_seismic(case: &PreviewLoadCase) -> bool {
 /// Read, before normalization, what the findings need of the document as
 /// entered, with `condition_added`, the added weights
 /// `operating_conditions::lower` appended. Nothing is read when no case is
-/// seismic, or on a load and reference-state document, where seismic
-/// generation is refused.
+/// seismic.
 pub(crate) fn capture(model: &PreviewModel, condition_added: &[(usize, String)]) -> Entered {
     let mut entered = Entered::default();
-    if crate::case_state::is_load_state(model) || !model.load_cases.iter().any(is_seismic) {
+    if !model.load_cases.iter().any(is_seismic) {
         return entered;
     }
     entered.seismic = model.load_cases.iter().enumerate().filter(|(_, case)| is_seismic(case))
@@ -106,6 +110,7 @@ pub(crate) fn capture(model: &PreviewModel, condition_added: &[(usize, String)])
         let Some(case) = model.load_cases.iter().position(|c| c.id == status.case_id) else { continue };
         entered.fresh.insert((case, status.primitive_index));
         let load = &model.load_cases[case].primitive_loads[status.primitive_index];
+        entered.fresh_ids.insert((case, load.id.clone()));
         let Some(evidence) = load.provenance.as_deref().and_then(|p| serde_json::from_str::<serde_json::Value>(p).ok()) else { continue };
         if evidence["method"] != COMPONENT_WEIGHT_METHOD {
             continue;
@@ -179,23 +184,36 @@ fn listed(named: Vec<String>, total: usize) -> String {
 }
 
 /// Raise the findings on the normalized `model`, from what [`capture`] read
-/// before normalization.
-pub(crate) fn append(model: &PreviewModel, entered: &Entered, diagnostics: &mut Vec<Diagnostic>) {
+/// before normalization. On a load and reference-state document,
+/// `resolved_cases` provides each case's effective case over `load_sources`.
+pub(crate) fn append(
+    model: &PreviewModel,
+    materials: &[crate::MaterialInput],
+    resolved_cases: Option<&[crate::case_state::resolve::ResolvedCase]>,
+    entered: &Entered,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
     for (case_index, gravity) in &entered.seismic {
-        let case = &model.load_cases[*case_index];
+        let resolved = resolved_cases.map(|cases| &cases[*case_index]);
+        let case = resolved.map_or(&model.load_cases[*case_index], |state| &state.effective_case);
         // One gate for all three findings: a case whose seismic generation
         // the generator refuses generates no seismic load, so none of them is
         // raised for it.
-        let Some(plan) = admitted(model, case) else { continue };
+        let Some(plan) = admitted(model, materials, case, resolved) else { continue };
         let mut weights: Vec<&str> = Vec::new();
         let mut conditions: Vec<(&str, String)> = Vec::new();
         for (index, load) in case.primitive_loads.iter().enumerate() {
             if !matches!(crate::parse_category(&load.category), Ok(PrimitiveLoadCategory::Weight)) {
                 continue;
             }
+            let is_fresh = if resolved.is_some() {
+                entered.fresh_ids.contains(&(*case_index, load.id.clone()))
+            } else {
+                entered.fresh.contains(&(*case_index, index))
+            };
             if let Some(pipe) = condition_added(entered, *case_index, load) {
                 conditions.push((&load.id, pipe));
-            } else if !entered.fresh.contains(&(*case_index, index)) {
+            } else if !is_fresh {
                 weights.push(&load.id);
             }
         }
@@ -243,7 +261,7 @@ pub(crate) fn append(model: &PreviewModel, entered: &Entered, diagnostics: &mut 
                 refs,
             ));
         }
-        if let Some(finding) = gravity_finding(model, entered, *case_index, gravity.as_ref(), &plan) {
+        if let Some(finding) = gravity_finding(model, resolved_cases, entered, *case_index, gravity.as_ref(), &plan) {
             diagnostics.push(finding);
         }
     }
@@ -254,10 +272,16 @@ pub(crate) fn append(model: &PreviewModel, entered: &Entered, diagnostics: &mut 
 /// the case's seismic loads with no refusal (a present, finite, strictly
 /// positive gravity; at least one entered g-factor, every entered one finite;
 /// no component-plan refusal; every unreplaced member's mass; the
-/// generator's own checks) and no generated id collides with an authored one
-/// (`refuse_generated_id_collisions`); otherwise `None`. The generator is
+/// generator's own checks) and no generated id collision (`refuse_generated_id_collisions`,
+/// and for load/reference-state documents `refuse_load_state_generated_collisions`,
+/// plus `refuse_document_generated_collisions`); otherwise `None`. The generator is
 /// asked, so the gate cannot drift from it.
-fn admitted<'a>(model: &'a PreviewModel, case: &PreviewLoadCase) -> Option<crate::seismic_component::Plan<'a>> {
+fn admitted<'a>(
+    model: &'a PreviewModel,
+    materials: &[crate::MaterialInput],
+    case: &PreviewLoadCase,
+    resolved: Option<&crate::case_state::resolve::ResolvedCase>,
+) -> Option<crate::seismic_component::Plan<'a>> {
     let seismic = case.equivalent_static.as_ref()?.seismic.as_ref()?;
     let mut loads = Vec::new();
     let mut refusals = Vec::new();
@@ -265,18 +289,32 @@ fn admitted<'a>(model: &'a PreviewModel, case: &PreviewLoadCase) -> Option<crate
         return None;
     };
     crate::refuse_generated_id_collisions(case, &loads, &mut refusals);
+    if let Some(state) = resolved {
+        crate::refuse_load_state_generated_collisions(model, case, state, &loads, &mut refusals);
+    }
+    crate::refuse_document_generated_collisions(model, materials, case, &loads, &mut refusals);
     refusals.is_empty().then_some(plan)
 }
 
-fn gravity_finding(model: &PreviewModel, entered: &Entered, case_index: usize, gravity: Option<&Quantity>, plan: &crate::seismic_component::Plan) -> Option<Diagnostic> {
-    let case = &model.load_cases[case_index];
+fn gravity_finding(
+    model: &PreviewModel,
+    resolved_cases: Option<&[crate::case_state::resolve::ResolvedCase]>,
+    entered: &Entered,
+    case_index: usize,
+    gravity: Option<&Quantity>,
+    plan: &crate::seismic_component::Plan,
+) -> Option<Diagnostic> {
+    let case = resolved_cases.map_or(&model.load_cases[case_index], |cases| &cases[case_index].effective_case);
     let entered_gravity = gravity?;
     // The normalized seismic gravity (normalize_model_units converted it),
     // finite and strictly positive since the case is admitted; it is not a
     // signed request, so no magnitude is taken.
     let seismic = case.equivalent_static.as_ref()?.seismic.as_ref()?.gravity_acceleration.as_ref()?.value;
     let generated: HashSet<&str> = plan.items.iter().map(|item| item.component.id.as_str()).collect();
-    let applies = |w: &&ComponentWeight| generated.contains(w.component.as_str());
+    let applied_in_case = |w: &&ComponentWeight| {
+        resolved_cases.is_none_or(|cases| cases[w.case].effective_case.primitive_loads.iter().any(|l| l.id == w.load_id))
+    };
+    let applies = |w: &&ComponentWeight| generated.contains(w.component.as_str()) && applied_in_case(w);
     let own: Vec<&ComponentWeight> = entered.component_weights.iter().filter(|w| w.case == case_index).filter(applies).collect();
     let read = if own.is_empty() { entered.component_weights.iter().filter(applies).collect() } else { own };
     // Every differing weight is named, with its component and load; only the

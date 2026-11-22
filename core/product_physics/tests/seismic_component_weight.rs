@@ -1833,3 +1833,171 @@ fn a_stale_or_modified_plan_is_refused_before_the_warning() {
         }
     }
 }
+
+/// DEL-05-01 REQ-008 on load and reference-state documents (round-1 review of PR 479):
+/// static-equivalent seismic generation is admitted here, so both the solve
+/// and pre-solve model checks evaluate the seismic warnings against each
+/// case's resolved load sources (`analysis_state.load_sources`): listed
+/// entered weight loads warn (excluding unlisted ones), fresh plan loads
+/// stay exempt even when listed after excluded primitives (shifting index),
+/// applied component-weight primitives trigger `GRAVITY_DIFFERS` iff listed,
+/// and a case whose load-state generation is refused emits no seismic warnings.
+#[test]
+fn load_state_seismic_warnings_follow_resolved_load_sources() {
+    let id = "SCW-CANT-EX-SEISMIC-XYZ-G10";
+    let case_id = "case:seismic";
+    let alone = document(Route::Ex, Model::Cant, ONE_MAPPED, vec![case_of(reference(id), case_id)]);
+    let as_load_state = |mut wire: Value, listed_per_case: &[&[String]]| -> Value {
+        let e = input("E");
+        let nu = input("nu");
+        wire["model"]["materials"][0]["temperature_points"] = json!([
+            {"id": "point:inst", "temperature": qv(20.0, "degC"), "elastic_modulus": qv(e, "Pa"),
+             "poisson_ratio": qv(nu, "1"), "provenance": PROV}
+        ]);
+        wire["model"]["materials"][0]["expansion_laws"] = json!([
+            {"id": "law:secant", "definition": "engineering_secant", "datum_temperature": qv(20.0, "degC"),
+             "data": {"kind": "constant", "coefficient": qv(1.2e-5, "1/K")}, "provenance": PROV}
+        ]);
+        let member_refs: Vec<Value> = ["AB", "BC", "CD"].iter().map(|p| json!({
+            "pipe_ref": p, "basis": {"kind": "temperature_reference", "installation_temperature": qv(20.0, "degC")},
+            "fit": {"kind": "none"}, "provenance": PROV
+        })).collect();
+        wire["model"]["reference_configurations"] = json!([{
+            "id": "reference:installed", "label": "Installed reference",
+            "geometry_ref": {"kind": "authored_model_geometry"}, "member_references": member_refs, "provenance": PROV
+        }]);
+        let element_states: Vec<Value> = ["AB", "BC", "CD"].iter().map(|p| json!({
+            "pipe_ref": p, "operating_temperature": qv(20.0, "degC"),
+            "material_selection": {"kind": "exact_point", "material_ref": "material:scw", "point_ref": "point:inst"},
+            "thermal_state": {"kind": "unchanged_reference", "provenance": PROV}
+        })).collect();
+        let cases = wire["model"]["load_cases"].as_array_mut().unwrap();
+        assert_eq!(cases.len(), listed_per_case.len());
+        for (case, listed) in cases.iter_mut().zip(listed_per_case) {
+            case["analysis_state"] = json!({
+                "contract": "openpipestress.load_reference_state/1.0.0",
+                "reference_configuration_ref": "reference:installed",
+                "element_states": element_states,
+                "support_states": [{"support_ref": "support:A", "participation": {"kind": "active_model_device"}}],
+                "load_sources": listed.iter().map(|s| json!({"source_ref": s, "factor": 1.0})).collect::<Vec<_>>(),
+                "history": {"kind": "independent_equilibrium"},
+                "provenance": PROV
+            });
+        }
+        wire
+    };
+
+    // 1. Listed weight load warns while an excluded weight load in the same case does not.
+    let mut mixed_case = case_of(reference(id), case_id);
+    mixed_case["primitive_loads"] = json!([
+        entered_load("load:excluded-weight", "weight", "CD"),
+        entered_load("load:listed-weight", "weight", "AB"),
+    ]);
+    let mixed = as_load_state(
+        document(Route::Ex, Model::Cant, ONE_MAPPED, vec![mixed_case.clone()]),
+        &[&["load:listed-weight".to_string()]],
+    );
+    let checks = model_checks(&mixed);
+    for mode in MODES {
+        let out = solved(&mixed, mode, "load-state mixed weights");
+        let found = findings(&out["diagnostics"], WEIGHT_LOAD_ENTERED, case_id);
+        assert_eq!(found.len(), 1, "{mode:?}: {found:?}");
+        assert_eq!(named(&out["diagnostics"], WEIGHT_LOAD_ENTERED, case_id), ["load:listed-weight"]);
+        assert!(found[0]["message"].as_str().unwrap().contains("1 entered weight load acts"));
+        assert!(!found[0]["message"].as_str().unwrap().contains("load:excluded-weight"));
+        assert_eq!(findings(&checks, WEIGHT_LOAD_ENTERED, case_id), found);
+        assert!(findings(&out["diagnostics"], GRAVITY_DIFFERS, case_id).is_empty());
+        assert!(findings(&checks, GRAVITY_DIFFERS, case_id).is_empty());
+    }
+
+    // 2. Only an excluded weight load: neither solve nor pre-solve checks warn.
+    let mut excl_case = case_of(reference(id), case_id);
+    excl_case["primitive_loads"] = json!([entered_load("load:excluded-weight", "weight", "CD")]);
+    let excl_only = as_load_state(
+        document(Route::Ex, Model::Cant, ONE_MAPPED, vec![excl_case]),
+        &[&[]],
+    );
+    let checks = model_checks(&excl_only);
+    for mode in MODES {
+        let out = solved(&excl_only, mode, "load-state excluded weight only");
+        assert!(codes(&out).iter().any(|c| c == "LOAD_STATE_SOURCE_EXCLUDED"), "{mode:?}");
+        for diagnostics in [&out["diagnostics"], &checks] {
+            assert!(findings(diagnostics, WEIGHT_LOAD_ENTERED, case_id).is_empty(), "{mode:?}");
+            assert!(findings(diagnostics, GRAVITY_DIFFERS, case_id).is_empty(), "{mode:?}");
+        }
+    }
+
+    // 3. Fresh plan load listed after an excluded primitive stays exempt (index shifts 1 -> 0),
+    // and listed component-weight primitives at 9.79 m/s^2 raise GRAVITY_DIFFERS against 10 m/s^2.
+    let weight_case = applied_weight_case(&alone["model"], 9.79);
+    let weight_all_ids: Vec<String> = weight_case["primitive_loads"].as_array().unwrap().iter()
+        .map(|l| l["id"].as_str().unwrap().to_string()).collect();
+    let weight_pipe_ids: Vec<String> = weight_case["primitive_loads"].as_array().unwrap().iter()
+        .filter(|l| !is_component_weight(l))
+        .map(|l| l["id"].as_str().unwrap().to_string()).collect();
+    let weight_comp_ids: Vec<String> = weight_case["primitive_loads"].as_array().unwrap().iter()
+        .filter(|l| is_component_weight(l))
+        .map(|l| l["id"].as_str().unwrap().to_string()).collect();
+    assert!(!weight_comp_ids.is_empty());
+    let fresh_member = plan_loads(&alone["model"], case_id, 10.0).into_iter()
+        .find(|l| !is_component_weight(l)).unwrap();
+    let fresh_member_id = fresh_member["id"].as_str().unwrap().to_string();
+    let mut fresh_case = case_of(reference(id), case_id);
+    fresh_case["primitive_loads"] = json!([entered_load("load:excluded-weight", "weight", "CD"), fresh_member]);
+    let gravity_mismatch = as_load_state(
+        document(Route::Ex, Model::Cant, ONE_MAPPED, vec![weight_case.clone(), fresh_case.clone()]),
+        &[&weight_all_ids, &[fresh_member_id.clone()]],
+    );
+    let checks = model_checks(&gravity_mismatch);
+    for mode in MODES {
+        let out = solved(&gravity_mismatch, mode, "load-state gravity mismatch");
+        let found = findings(&out["diagnostics"], GRAVITY_DIFFERS, case_id);
+        assert_eq!(found.len(), 1, "{mode:?}: {found:?}");
+        assert_eq!(found[0]["severity"], "warning");
+        let msg = found[0]["message"].as_str().unwrap();
+        assert!(msg.contains("states gravity 10 m/s^2") && msg.contains("formed at 9.79 m/s^2") && msg.contains("component:valve"), "{msg}");
+        let refs_found: Vec<String> = found[0]["affected_refs"].as_array().unwrap().iter()
+            .map(|r| r.as_str().unwrap().to_string()).collect();
+        for cid in &weight_comp_ids {
+            assert!(refs_found.contains(cid), "{cid} in {refs_found:?}");
+        }
+        assert_eq!(findings(&checks, GRAVITY_DIFFERS, case_id), found);
+        assert!(findings(&out["diagnostics"], WEIGHT_LOAD_ENTERED, case_id).is_empty(), "{mode:?}");
+        assert!(findings(&checks, WEIGHT_LOAD_ENTERED, case_id).is_empty(), "{mode:?}");
+    }
+
+    // 4. Excluding component-weight primitives in case:weight suppresses GRAVITY_DIFFERS.
+    let weight_comp_excluded = as_load_state(
+        document(Route::Ex, Model::Cant, ONE_MAPPED, vec![weight_case.clone(), fresh_case]),
+        &[&weight_pipe_ids, &[fresh_member_id]],
+    );
+    let checks = model_checks(&weight_comp_excluded);
+    for mode in MODES {
+        let out = solved(&weight_comp_excluded, mode, "load-state component weights excluded");
+        for diagnostics in [&out["diagnostics"], &checks] {
+            assert!(findings(diagnostics, WEIGHT_LOAD_ENTERED, case_id).is_empty(), "{mode:?}");
+            assert!(findings(diagnostics, GRAVITY_DIFFERS, case_id).is_empty(), "{mode:?}");
+        }
+    }
+
+    // 5. Unlisted collision refusing load-state seismic generation suppresses all seismic warnings.
+    let mut collided_case = mixed_case;
+    collided_case["primitive_loads"].as_array_mut().unwrap().push(
+        entered_load(&format!("{case_id}:generated:seismic:global-y:element-0"), "weight", "AB"),
+    );
+    let refused_wire = as_load_state(
+        document(Route::Ex, Model::Cant, ONE_MAPPED, vec![weight_case, collided_case]),
+        &[&weight_all_ids, &["load:listed-weight".to_string()]],
+    );
+    let checks = model_checks(&refused_wire);
+    for mode in MODES {
+        let out = run(&refused_wire, mode);
+        assert_eq!(out["status"]["mechanics"], "MODEL_INCOMPLETE", "{mode:?}");
+        assert!(codes(&out).iter().any(|c| c == "EQUIVALENT_STATIC_GENERATED_ID_COLLISION"), "{mode:?}: {:?}", codes(&out));
+        for diagnostics in [&out["diagnostics"], &checks] {
+            for warning in [GRAVITY_DIFFERS, WEIGHT_LOAD_ENTERED, CONDITION_WEIGHT_ADDED] {
+                assert!(findings(diagnostics, warning, case_id).is_empty(), "{mode:?} {warning}");
+            }
+        }
+    }
+}
