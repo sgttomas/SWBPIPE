@@ -10046,7 +10046,7 @@
       },
       "case_id": "hydro_21_accept_set_test_condition",
       "claimed_model_hash": null,
-      "description": "DEL-05-01 REQ-014: declaring HT a hydrostatic test holding springs and constant-effort supports on the exact route applies; the case has no contents selection yet, a staged warning (LOAD_CASE_TEST_CONTENTS_UNSELECTED).",
+      "description": "DEL-05-01 REQ-014: declaring HT a hydrostatic test holding springs and constant-effort supports on the exact route applies; the case has no contents selection yet and its pressure_regions is [], two staged warnings (LOAD_CASE_TEST_CONTENTS_UNSELECTED, LOAD_CASE_TEST_PRESSURE_REGION_REQUIRED).",
       "expected": {
         "applied_model": {
           "analysis_status": {
@@ -10292,6 +10292,15 @@
               ],
               "blocking": false,
               "code": "LOAD_CASE_TEST_CONTENTS_UNSELECTED",
+              "severity": "warning"
+            },
+            {
+              "affected_refs": [
+                "HT",
+                "pressure_regions"
+              ],
+              "blocking": false,
+              "code": "LOAD_CASE_TEST_PRESSURE_REGION_REQUIRED",
               "severity": "warning"
             }
           ],
@@ -10604,7 +10613,7 @@
       },
       "case_id": "hydro_22_accept_contents_use_of_a_test_case",
       "claimed_model_hash": null,
-      "description": "The test case's contents selection, contents_density alone, applies on the exact route; it has no generated self-weight yet, a staged warning (LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID).",
+      "description": "The test case's contents selection, contents_density alone, applies on the exact route; it has no generated self-weight yet and no pressure region, staged warnings (LOAD_CASE_TEST_SELF_WEIGHT_MISSING, LOAD_CASE_TEST_PRESSURE_REGION_REQUIRED).",
       "expected": {
         "applied_model": {
           "analysis_status": {
@@ -10850,10 +10859,19 @@
             {
               "affected_refs": [
                 "HT",
+                "pressure_regions"
+              ],
+              "blocking": false,
+              "code": "LOAD_CASE_TEST_PRESSURE_REGION_REQUIRED",
+              "severity": "warning"
+            },
+            {
+              "affected_refs": [
+                "HT",
                 "HYDRO"
               ],
               "blocking": false,
-              "code": "LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID",
+              "code": "LOAD_CASE_TEST_SELF_WEIGHT_MISSING",
               "severity": "warning"
             }
           ],

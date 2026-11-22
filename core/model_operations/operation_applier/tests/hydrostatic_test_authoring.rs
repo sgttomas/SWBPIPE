@@ -10,7 +10,8 @@
 use open_pipe_stress_operation_applier::document_validator::validate_model_document;
 use open_pipe_stress_operation_applier::{apply_operation, canonical_json, sha256_hex, validate_operation, OperationOutcome};
 use open_pipe_stress_product_physics::operating_conditions::preview_operating_conditions;
-use open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION;
+use open_pipe_stress_product_physics::self_weight::{generate_self_weight_operations, SelfWeightRequest, MANUAL_OVERRIDE_METHOD};
+use open_pipe_stress_product_physics::{PreviewModel, MODEL_SCHEMA_VERSION};
 use serde_json::{json, Value};
 
 const PROV: &str = "invented_hydrostatic_test_authoring_input";
@@ -173,16 +174,17 @@ fn inverse(intent: &Value, outcome: &OperationOutcome) -> Value {
 }
 
 /// Both orders of authoring a test case, previewed, applied and undone: the
-/// declaration first (staged: no contents yet), then the contents selection
-/// (staged: no generated self-weight yet), and back by the inverses to the
-/// original bytes. The document stays admitted by the validator at each step.
+/// declaration first (staged: no contents yet, and no pressure region on a
+/// case whose pressure_regions is []), then the contents selection (staged: no
+/// generated self-weight yet), and back by the inverses to the original bytes.
+/// The document stays admitted by the validator at each step.
 #[test]
 fn a_test_case_is_declared_and_given_contents_and_undone() {
     let model = exact();
     let declare = set_test(&model, "HT", HELD);
     let (declared, outcome) = applied(&model, &declare);
     assert_eq!(case(&declared, "HT")["test_condition"], json!({"kind": "hydrostatic", "held_supports": HELD}));
-    assert_eq!(codes_at(&outcome, "warning"), ["LOAD_CASE_TEST_CONTENTS_UNSELECTED"], "{:?}", records(&outcome));
+    assert_eq!(codes_at(&outcome, "warning"), ["LOAD_CASE_TEST_CONTENTS_UNSELECTED", "LOAD_CASE_TEST_PRESSURE_REGION_REQUIRED"], "{:?}", records(&outcome));
     let row = &outcome.diff_preview[0];
     assert_eq!((row.entity_ref.as_str(), row.object_type.as_str(), row.field_path.as_str(), row.before.as_str()), ("HT", "Load", "test_condition", "not_present"));
     assert_eq!(row.after, canonical_json(&json!({"kind": "hydrostatic", "held_supports": HELD})));
@@ -190,7 +192,7 @@ fn a_test_case_is_declared_and_given_contents_and_undone() {
     let select = set_use(&declared, "HT", &json!({"contents_density": "HYDRO"}));
     let (selected, outcome2) = applied(&declared, &select);
     assert_eq!(case(&selected, "HT")["condition_use"], json!({"contents_density": "HYDRO"}));
-    assert_eq!(codes_at(&outcome2, "warning"), ["LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID"], "{:?}", records(&outcome2));
+    assert_eq!(codes_at(&outcome2, "warning"), ["LOAD_CASE_TEST_PRESSURE_REGION_REQUIRED", "LOAD_CASE_TEST_SELF_WEIGHT_MISSING"], "{:?}", records(&outcome2));
     assert_eq!(preview_operating_conditions(&selected)["resolved"], json!(false), "staged: the solve still refuses the case by name");
 
     // The held choice changes in place; its inverse restores it.
@@ -271,7 +273,48 @@ fn the_refusals_of_the_test_condition_operations() {
     // A selected key the set lacks, or a condition without contents, is staged.
     let (missing, outcome) = applied(&declared, &set_use(&declared, "HT", &json!({"contents_density": "NOPE"})));
     let _ = missing;
-    assert!(codes_at(&outcome, "warning").contains(&"LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID".to_string()), "{:?}", records(&outcome));
+    assert!(codes_at(&outcome, "warning").contains(&"LOAD_CASE_TEST_SELF_WEIGHT_MISSING".to_string()), "{:?}", records(&outcome));
+}
+
+/// `case`'s generated self-weight on every pipe of `model`, as the product's
+/// plan would add it, with gravity along -Z.
+fn generated_self_weight(model: &Value, case: &str) -> Vec<Value> {
+    let mut bare = model.clone();
+    bare["load_cases"] = json!([]);
+    let typed: PreviewModel = serde_json::from_value(bare.clone()).unwrap();
+    let request: SelfWeightRequest = serde_json::from_value(json!({"case_id": case, "label": case, "pipe_refs": ["pipe:a-b", "pipe:b-c"],
+        "gravity": {"value": -9.81, "unit": "m/s^2", "axis": "global_z"}, "provenance": PROV, "source_model_hash": claim(&bare)["value"]})).unwrap();
+    let plan = generate_self_weight_operations(&typed, &request).unwrap_or_else(|d| panic!("self-weight plan refused: {d:?}"));
+    plan.changes[1..].iter().map(|change| serde_json::from_str(&change.after).unwrap()).collect()
+}
+
+/// A test case whose contents have no generated self-weight yet is a staged
+/// state (LOAD_CASE_TEST_SELF_WEIGHT_MISSING, a warning), and with its
+/// generated self-weight the selection applies without it. A case carrying a
+/// self-weight its contents cannot enter, here a manual override, is not a
+/// staged state: the selection is refused by name
+/// (LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID, blocking).
+#[test]
+fn a_missing_self_weight_is_staged_and_one_the_contents_cannot_enter_blocks() {
+    let model = exact();
+    let (declared, _) = applied(&model, &set_test(&model, "HT", HELD));
+    let contents = json!({"contents_density": "HYDRO"});
+    let (_, staged) = applied(&declared, &set_use(&declared, "HT", &contents));
+    assert!(codes_at(&staged, "warning").contains(&"LOAD_CASE_TEST_SELF_WEIGHT_MISSING".to_string()), "{:?}", records(&staged));
+    assert!(!records(&staged).iter().any(|(code, _)| code == "LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID"), "{:?}", records(&staged));
+
+    let loads = generated_self_weight(&declared, "HT");
+    let mut weighed = declared.clone();
+    weighed["load_cases"][1]["primitive_loads"] = json!(loads.clone());
+    let (_, entered) = applied(&weighed, &set_use(&weighed, "HT", &contents));
+    assert!(!records(&entered).iter().any(|(code, _)| code.contains("SELF_WEIGHT")), "{:?}", records(&entered));
+
+    let mut overridden = weighed.clone();
+    let prior: Value = serde_json::from_str(loads[0]["provenance"].as_str().unwrap()).unwrap();
+    overridden["load_cases"][1]["primitive_loads"][0]["provenance"] = json!(json!({"method": MANUAL_OVERRIDE_METHOD, "original_generation_provenance": prior,
+        "decision": "preserve_modified_generated_load", "source_model_hash": claim(&weighed)["value"]}).to_string());
+    let outcome = refused(&overridden, &set_use(&overridden, "HT", &contents), "LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID");
+    assert!(!records(&outcome).iter().any(|(code, _)| code == "LOAD_CASE_TEST_SELF_WEIGHT_MISSING"), "{:?}", records(&outcome));
 }
 
 /// The pressure-free route: a test condition is not authored; one the document

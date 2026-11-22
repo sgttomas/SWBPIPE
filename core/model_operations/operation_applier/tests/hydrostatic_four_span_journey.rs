@@ -37,7 +37,7 @@
 //! contents entering each pipe's generated weight once.
 use open_pipe_stress_operation_applier::document_validator::validate_model_document;
 use open_pipe_stress_operation_applier::{apply_operation, apply_operation_batch, canonical_json, sha256_hex};
-use open_pipe_stress_product_physics::self_weight::{generate_self_weight_operations, SelfWeightGravity, SelfWeightRequest};
+use open_pipe_stress_product_physics::self_weight::{generate_self_weight_operations, SelfWeightGravity, SelfWeightRequest, MANUAL_OVERRIDE_METHOD};
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewModel, PreviewSolverMode};
 use serde_json::{json, Value};
 
@@ -300,6 +300,40 @@ fn a_case_created_on_the_loads_page_also_takes_its_region_first() {
     refused_with(&created, &test_condition_intent(&created), "EXACT_PRESSURE_REGIONS_REQUIRED");
     let regioned = set_region(&created);
     assert!(set_test_condition(&regioned)["load_cases"][0]["test_condition"].is_object());
+}
+
+/// Contents selected on a test case that carries no generated self-weight yet
+/// (the Loads page's created case) are a staged state: the selection applies
+/// with LOAD_CASE_TEST_SELF_WEIGHT_MISSING as a warning, and the solve refuses
+/// the case by that name with no result until the weight is generated. A
+/// case whose self-weight the contents cannot enter, one generated load
+/// overridden by hand, is not staged: the selection is refused by name with
+/// the document unchanged (LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID).
+#[test]
+fn a_missing_self_weight_is_staged_and_one_the_contents_cannot_enter_is_refused() {
+    let model = fixture();
+    let payload = json!({"id": CASE, "label": "Hydrostatic test", "kind": "primitive_user_load", "status": "draft", "provenance": PROV, "primitive_loads": []});
+    let created = apply(&model, &operation("Load", CASE, "create", "create_load_case", "load_cases", "not_present", &payload.to_string(),
+        "none", "dimensionless", "explicit user-entered empty load-case shell; primitive loads are not inferred"), "the created case");
+    let tested = set_test_condition(&set_region(&created));
+    let outcome = apply_operation(&tested, &select_contents_intent(&tested), Some(&claim(&tested)));
+    let selected = outcome.applied_model.clone().unwrap_or_else(|| panic!("the staged selection was refused: {:?}", outcome.diagnostics));
+    assert!(outcome.diagnostics.iter().any(|d| d.code == "LOAD_CASE_TEST_SELF_WEIGHT_MISSING" && d.severity == "warning"), "{:?}", outcome.diagnostics);
+    assert!(!outcome.diagnostics.iter().any(|d| d.code == "LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID"), "{:?}", outcome.diagnostics);
+    for mode in MODES {
+        let out = serde_json::to_value(run_linear_static_preview_value_with_mode(json!({"model": selected, "materials": []}), mode).unwrap()).unwrap();
+        assert_eq!(out["status"]["mechanics"], "MODEL_INCOMPLETE", "{mode:?}");
+        assert!(out["results"].as_array().unwrap().is_empty(), "{mode:?}: no rows");
+        assert!(out["diagnostics"].as_array().unwrap().iter().any(|d| d["code"] == "LOAD_CASE_TEST_SELF_WEIGHT_MISSING" && d["severity"] == "blocking"),
+            "{mode:?}: {}", out["diagnostics"]);
+    }
+
+    let mut overridden = set_test_condition(&set_region(&generate_self_weight(&fixture())));
+    let load = &mut overridden["load_cases"][0]["primitive_loads"][0];
+    let prior: Value = serde_json::from_str(load["provenance"].as_str().unwrap()).unwrap();
+    load["provenance"] = json!(json!({"method": MANUAL_OVERRIDE_METHOD, "original_generation_provenance": prior,
+        "decision": "preserve_modified_generated_load", "source_model_hash": format!("sha256:{}", "0".repeat(64))}).to_string());
+    refused_with(&overridden, &select_contents_intent(&overridden), "LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID");
 }
 
 // ------------------------------------------------------------------ the reader models

@@ -300,15 +300,40 @@ fn without_pressure(mut request: Value) -> Value {
 /// setting absent; every case named; and, when a case carries pressure (so naming
 /// every case includes pressure elongation), every case named with the pressure
 /// regions removed. The statement does not depend on the rest of the list.
-fn elongation_variants(request: Value) -> Vec<(&'static str, Value)> {
+fn elongation_variants(request: Value, test: bool) -> Vec<(&'static str, Value)> {
     let mut variants = vec![(NOT_INCLUDED_KEY, pressure_elongation::without_elongation(&request))];
     if pressure_elongation::pressurised_cases(&request).is_empty() {
         variants.push((NO_EFFECT_KEY, with_elongation(request)));
     } else {
         variants.push((INCLUDED_KEY, with_elongation(request.clone())));
-        variants.push((NO_EFFECT_KEY, with_elongation(without_pressure(pressure_elongation::without_elongation(&request)))));
+        let unpressurised = pressure_elongation::without_elongation(&request);
+        variants.push((NO_EFFECT_KEY, if test { unpressurised_beside_test(unpressurised) } else { with_elongation(without_pressure(unpressurised)) }));
     }
     variants
+}
+
+/// A hydrostatic test document's request for the no-effect statement. A test
+/// case states the pressure of at least one region
+/// (`LOAD_CASE_TEST_PRESSURE_REGION_REQUIRED`), so it keeps its regions and is
+/// not named; every ordinary case loses its regions and is named, and a
+/// document with no ordinary case gains one with no load.
+fn unpressurised_beside_test(mut request: Value) -> Value {
+    let model = &mut request["model"];
+    let cases = model["load_cases"].as_array_mut().unwrap();
+    if cases.iter().all(|case| case.get("test_condition").is_some()) {
+        cases.push(json!({"id": "HT-4S-DRY", "label": "Dry", "kind": "primitive_user_load", "status": "draft",
+            "provenance": "invented ordinary case with no load", "primitive_loads": [], "pressure_regions": []}));
+    }
+    let mut named = Vec::new();
+    for case in cases.iter_mut().filter(|case| case.get("test_condition").is_none()) {
+        case["pressure_regions"] = json!([]);
+        named.push(case["id"].clone());
+    }
+    if model.get("model_settings").is_none() {
+        model["model_settings"] = json!({});
+    }
+    model["model_settings"]["pressure_elongation"] = json!({"operating_load_cases": named});
+    request
 }
 
 /// The start of the hydrostatic test statement (`hydrostatic::HYDROSTATIC_TEST_LIMITATION`).
@@ -375,7 +400,7 @@ fn produced_lists() -> &'static [CoverageList] {
         tagged(producer_inputs(), false)
             .into_iter()
             .chain(tagged(hydrostatic_test_inputs(), true))
-            .flat_map(|(shape, test, request)| elongation_variants(request).into_iter().map(move |(elongation, request)| (shape, test, elongation, request)))
+            .flat_map(|(shape, test, request)| elongation_variants(request, test).into_iter().map(move |(elongation, request)| (shape, test, elongation, request)))
             // One list per (shape, test, statement): a later request supplies only what the earlier lacked.
             .scan(BTreeSet::new(), |seen, (shape, test, elongation, request)| {
                 Some(seen.insert((shape, test, elongation)).then_some((shape, test, elongation, request)))

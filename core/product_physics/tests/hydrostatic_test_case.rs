@@ -28,7 +28,7 @@
 //! full. The skip is removed when the variable spring preload law (DEL-04-11
 //! REQ-014, DEL-04-03 REQ-014) lands, and those rows then become part of that
 //! change's evidence.
-use open_pipe_stress_product_physics::self_weight::{generate_self_weight_operations, SelfWeightGravity, SelfWeightRequest};
+use open_pipe_stress_product_physics::self_weight::{generate_self_weight_operations, SelfWeightGravity, SelfWeightRequest, MANUAL_OVERRIDE_METHOD};
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewModel, PreviewSolverMode};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
@@ -729,10 +729,48 @@ fn each_refusal_is_raised_by_name_with_no_result() {
     unselected["load_cases"][0].as_object_mut().unwrap().remove("condition_use");
     refused(&unselected, "LOAD_CASE_TEST_CONTENTS_UNSELECTED", "a test case with no contents selection");
 
-    // A selection with no generated self-weight to enter.
+    // A selection with no generated self-weight to enter: the self-weight is
+    // missing (a state authoring stages), not one the contents cannot enter.
     let mut weightless = two_span_held();
     weightless["load_cases"][0]["primitive_loads"] = json!([]);
-    refused(&weightless, "LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID", "a test case with no generated self-weight");
+    refused(&weightless, "LOAD_CASE_TEST_SELF_WEIGHT_MISSING", "a test case with no generated self-weight");
+    for mode in MODES {
+        assert!(!codes(&run(&weightless, mode)).iter().any(|c| c.starts_with("LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID")), "{mode:?}: missing, not invalid");
+    }
+
+    // A self-weight the contents cannot enter, a manual override of the
+    // generated load: refused by name, and not as missing.
+    let mut overridden = two_span_held();
+    let load = &mut overridden["load_cases"][0]["primitive_loads"][0];
+    let prior: Value = serde_json::from_str(load["provenance"].as_str().unwrap()).unwrap();
+    let load_id = load["id"].clone();
+    load["provenance"] = json!(json!({"method": MANUAL_OVERRIDE_METHOD, "original_generation_provenance": prior,
+        "decision": "preserve_modified_generated_load", "source_model_hash": format!("sha256:{}", "0".repeat(64))}).to_string());
+    refused(&overridden, "LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID", "a test case with a manual override of its self-weight");
+    for mode in MODES {
+        let out = run(&overridden, mode);
+        assert!(out["diagnostics"].as_array().unwrap().iter().any(|d| d["code"] == "LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID"
+            && d["affected_refs"].as_array().unwrap().contains(&load_id)), "{mode:?}: the override is named: {:?}", codes(&out));
+        assert!(!codes(&out).iter().any(|c| c.starts_with("LOAD_CASE_TEST_SELF_WEIGHT_MISSING")), "{mode:?}: invalid, not missing");
+    }
+
+    // A test case that states no pressure region: refused by name. Absent, the
+    // list is refused for every exact case; a region at zero pressure is a
+    // test at zero pressure and solves.
+    let mut regionless = two_span_held();
+    regionless["load_cases"][0]["pressure_regions"] = json!([]);
+    refused(&regionless, "LOAD_CASE_TEST_PRESSURE_REGION_REQUIRED", "a test case with pressure_regions []");
+    let mut absent = two_span_held();
+    absent["load_cases"][0].as_object_mut().unwrap().remove("pressure_regions");
+    refused(&absent, "EXACT_PRESSURE_REGIONS_REQUIRED", "a test case with no pressure_regions member");
+    for mode in MODES {
+        assert!(!codes(&run(&absent, mode)).iter().any(|c| c.starts_with("LOAD_CASE_TEST_PRESSURE_REGION_REQUIRED")), "{mode:?}: absent is the route's refusal");
+    }
+    let mut zero = two_span_held();
+    zero["load_cases"][0]["pressure_regions"][0]["pressure"] = qv(0.0, "Pa");
+    for mode in MODES {
+        solved(&zero, mode, "a test case at zero pressure");
+    }
 
     // A selected key the pipe's set does not have.
     let mut missing = two_span_held();

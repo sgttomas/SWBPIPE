@@ -56,9 +56,12 @@
 //! a `pressure_contract` the only use admitted is a hydrostatic test case's
 //! contents selection, `{"contents_density": <key>}` alone; every other use is
 //! refused (`LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED`). A test case stated
-//! before its contents selection or its generated self-weight is a staged
-//! state (`LOAD_CASE_TEST_CONTENTS_UNSELECTED`,
-//! `LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID`, warnings).
+//! before its contents selection, its generated self-weight or its pressure
+//! regions is a staged state (`LOAD_CASE_TEST_CONTENTS_UNSELECTED`,
+//! `LOAD_CASE_TEST_SELF_WEIGHT_MISSING`,
+//! `LOAD_CASE_TEST_PRESSURE_REGION_REQUIRED`, warnings). A self-weight the
+//! contents cannot enter (`LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID`) is not
+//! staged and blocks.
 //!
 //! **The solve's judgement, classified (SWBPIPE Agent 0, 2026-11-02;
 //! [`report_judgement`]).** After an admitted operation, and once the document
@@ -136,7 +139,7 @@ pub(crate) enum Staged {
 
 /// The staged-state findings (SWBPIPE Agent 0, 2026-11-02): exactly these
 /// are warnings. Every other finding blocks.
-pub(crate) const STAGED_FINDINGS: [Staged; 10] = [
+pub(crate) const STAGED_FINDINGS: [Staged; 11] = [
     Staged::Code(pp_resolution::OPERATING_CONDITION_SET_MISSING),
     Staged::Code(pp_resolution::OPERATING_CONDITION_KEY_MISSING),
     Staged::Code(pp_resolution::OPERATING_CONDITION_VALUE_MISSING),
@@ -144,11 +147,13 @@ pub(crate) const STAGED_FINDINGS: [Staged; 10] = [
     Staged::Code(pp_resolution::LOAD_CASE_CONDITION_TEMPERATURE_CONFLICT),
     Staged::Code(pp_resolution::LOAD_CASE_CONDITION_WIND_EXPOSURE_CONFLICT),
     Staged::Code(pp_resolution::LOAD_CASE_CONDITION_WIND_INPUT_MISSING),
-    // A hydrostatic test case stated before its contents selection or its
-    // generated self-weight (DEL-05-01 REQ-014): either order of authoring passes
-    // through one of these.
+    // A hydrostatic test case stated before its contents selection, its
+    // generated self-weight or its pressure regions (DEL-05-01 REQ-014): any
+    // order of authoring passes through these. A self-weight the contents
+    // cannot enter is not a staged state and blocks.
     Staged::Code(pp_hydrostatic::LOAD_CASE_TEST_CONTENTS_UNSELECTED),
-    Staged::Code(pp_hydrostatic::LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID),
+    Staged::Code(pp_hydrostatic::LOAD_CASE_TEST_SELF_WEIGHT_MISSING),
+    Staged::Code(pp_hydrostatic::LOAD_CASE_TEST_PRESSURE_REGION_REQUIRED),
     Staged::EmptyGeneratedWindExposure,
 ];
 
@@ -1097,7 +1102,8 @@ mod tests {
                 "LOAD_CASE_CONDITION_WIND_EXPOSURE_CONFLICT",
                 "LOAD_CASE_CONDITION_WIND_INPUT_MISSING",
                 "LOAD_CASE_TEST_CONTENTS_UNSELECTED",
-                "LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID",
+                "LOAD_CASE_TEST_SELF_WEIGHT_MISSING",
+                "LOAD_CASE_TEST_PRESSURE_REGION_REQUIRED",
             ]
         );
         assert!(STAGED_FINDINGS.contains(&Staged::EmptyGeneratedWindExposure));

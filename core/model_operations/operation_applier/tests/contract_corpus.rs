@@ -500,7 +500,7 @@ fn condition_set_corpus_cases_match_the_rust_contract_reference() {
     for code in CONDITION_SET_BLOCK_CODES {
         assert!(blocked.contains(code), "no condition-set corpus case blocks with `{code}`");
     }
-    for code in ["OPERATING_CONDITION_SET_MISSING", "EQUIVALENT_STATIC_INPUT_MISSING", "LOAD_CASE_TEST_CONTENTS_UNSELECTED", "LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID"] {
+    for code in ["OPERATING_CONDITION_SET_MISSING", "EQUIVALENT_STATIC_INPUT_MISSING", "LOAD_CASE_TEST_CONTENTS_UNSELECTED", "LOAD_CASE_TEST_SELF_WEIGHT_MISSING"] {
         assert!(warned.contains(code) && !blocked.contains(code), "`{code}` is a staged warning in the corpus");
     }
     for code in ["LOAD_CASE_TEST_CONDITION_PRESSURE_FREE", "SNUBBER_DYNAMIC_ONLY_UNSUPPORTED"] {

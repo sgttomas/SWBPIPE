@@ -34,10 +34,18 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 pub const LOAD_CASE_TEST_CONDITION_PRESSURE_FREE: &str = "LOAD_CASE_TEST_CONDITION_PRESSURE_FREE";
 /// A test case that selects no contents density (`condition_use.contents_density`).
 pub const LOAD_CASE_TEST_CONTENTS_UNSELECTED: &str = "LOAD_CASE_TEST_CONTENTS_UNSELECTED";
-/// The selected test contents have no generated self-weight to enter, or the
-/// test case carries a self-weight load they cannot enter (a manual override, a
-/// legacy-method load, or one generated for another case).
+/// A test case that selects contents but carries no generated self-weight for
+/// them to enter: the self-weight is yet to be generated. Authoring stages it.
+pub const LOAD_CASE_TEST_SELF_WEIGHT_MISSING: &str = "LOAD_CASE_TEST_SELF_WEIGHT_MISSING";
+/// The test case carries a self-weight load its contents cannot enter (a
+/// manual override, a legacy-method load, or one generated for another case
+/// or target), a generated self-weight its load-state ledger does not list, or
+/// one whose mass with the test contents cannot be formed.
 pub const LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID: &str = "LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID";
+/// An exact-route test case whose `pressure_regions` is the explicit empty
+/// list: a test case states the pressure of at least one region (zero
+/// included), so a case with none is not a test.
+pub const LOAD_CASE_TEST_PRESSURE_REGION_REQUIRED: &str = "LOAD_CASE_TEST_PRESSURE_REGION_REQUIRED";
 /// Two held supports act on one degree of freedom of one node.
 pub const LOAD_CASE_TEST_HELD_SUPPORT_DUPLICATE: &str = "LOAD_CASE_TEST_HELD_SUPPORT_DUPLICATE";
 /// A held support acts on a degree of freedom another support already restrains.
@@ -314,6 +322,13 @@ pub(crate) fn judge(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) -> 
     for (case_index, case) in model.load_cases.iter().enumerate() {
         let Some(test) = test_condition(case) else { continue };
         let id = case.id.as_str();
+        // An absent list is refused for every exact case by the pressure
+        // admission; a region at zero pressure is a test at zero pressure.
+        if case.pressure_regions.as_ref().is_some_and(Vec::is_empty) {
+            diagnostics.push(case_diag(id, "pressure-region", LOAD_CASE_TEST_PRESSURE_REGION_REQUIRED,
+                format!("hydrostatic test case `{id}` states no pressure region (pressure_regions is []); a test case states the pressure of at least one region, zero included, so nothing is solved"),
+                vec![id.to_string(), "pressure_regions".to_string()]));
+        }
         if test.held_supports == HeldSupports::SpringsAndConstantEffort {
             let (held, refusals) = held_set(lowered.as_ref().expect("formed when a case holds supports"), id);
             diagnostics.extend(refusals);
@@ -385,7 +400,7 @@ pub(crate) fn judge(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) -> 
             entering.push((load, pipe, found));
         }
         if entering.is_empty() && unlisted == 0 {
-            diagnostics.push(case_diag(id, "contents-self-weight", LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID,
+            diagnostics.push(case_diag(id, "self-weight-missing", LOAD_CASE_TEST_SELF_WEIGHT_MISSING,
                 format!("hydrostatic test case `{id}` selects contents `{key}` but carries no generated self-weight for them to enter; contents are a mass input of the self-weight calculation and are never a load of their own, so nothing is solved"),
                 vec![id.to_string(), key.clone()]));
             continue;

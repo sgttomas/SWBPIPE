@@ -17,9 +17,9 @@ use serde_json::{json, Value};
 
 const PROV: &str = "invented_s3a_condition_set_test_input";
 
-/// The staged findings of §11, by code, with the hydrostatic test case's two
+/// The staged findings of §11, by code, with the hydrostatic test case's three
 /// (DEL-05-01 REQ-014).
-const STAGED: [&str; 10] = [
+const STAGED: [&str; 11] = [
     "OPERATING_CONDITION_SET_MISSING",
     "OPERATING_CONDITION_KEY_MISSING",
     "OPERATING_CONDITION_VALUE_MISSING",
@@ -29,7 +29,8 @@ const STAGED: [&str; 10] = [
     "LOAD_CASE_CONDITION_WIND_INPUT_MISSING",
     "EQUIVALENT_STATIC_INPUT_MISSING",
     "LOAD_CASE_TEST_CONTENTS_UNSELECTED",
-    "LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID",
+    "LOAD_CASE_TEST_SELF_WEIGHT_MISSING",
+    "LOAD_CASE_TEST_PRESSURE_REGION_REQUIRED",
 ];
 
 /// S-K1 (§2.2 item 4): (1, 2^-1023, 0), a skewed direction with a subnormal canonical
