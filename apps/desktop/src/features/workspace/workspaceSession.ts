@@ -1251,14 +1251,21 @@ export function useWorkspaceSession() {
 
   /** Issue 519: a plain kept save's returned claim may be accepted: the history's stored claim, kept as
    * it was on an unchanged re-save (none, where the reopened project was stored without one), or a
-   * claim of the form the store computes for the project. Its digest is not recomputed (the kept
-   * proposal never reaches the webview). */
-  function validPlainKeptEnvelopeClaim(claim: ProjectEnvelopeHashEvidence | null, projectModel: PreviewModel, history: HistoricalRunContext | null): boolean {
-    const historicalClaim = history?.envelopeHash ?? null;
-    if (!claim) return history !== null && historicalClaim === null;
+   * claim of the form the store computes for the project. `preservedHistory` is the reopened run's
+   * history only when the store's read-back shows the payload unchanged (so it kept the stored claim);
+   * otherwise null. Its digest is not recomputed (the kept proposal never reaches the webview). */
+  function validPlainKeptEnvelopeClaim(claim: ProjectEnvelopeHashEvidence | null, projectModel: PreviewModel, preservedHistory: HistoricalRunContext | null): boolean {
+    const historicalClaim = preservedHistory?.envelopeHash ?? null;
+    if (!claim) return preservedHistory !== null && historicalClaim === null;
     if (historicalClaim && Object.keys({ ...claim, ...historicalClaim }).every((key) => Reflect.get(claim, key) === Reflect.get(historicalClaim, key))) return true;
     return wellFormedEnvelopeHashClaim(claim, projectModel.project.id)
       && Object.entries(projectEnvelopeHashEvidence(projectModel, claim.value)).every(([key, value]) => Reflect.get(claim, key) === value);
+  }
+
+  /** A fresh native save's envelope claim as evidence over its digest, where it has the store's form
+   * for the project; none otherwise (the save's integrity then records no recomputation). */
+  function freshNativeEnvelopeEvidence(reply: NativeProjectSave, projectModel: PreviewModel): ProjectEnvelopeHashEvidence | null {
+    return wellFormedEnvelopeHashClaim(reply.project_envelope_hash, projectModel.project.id) ? projectEnvelopeHashEvidence(projectModel, reply.project_envelope_hash.value) : null;
   }
 
   /** C1 slice 6's save continuity: the envelope basis a reopened saved run's history holds (the
@@ -2983,7 +2990,9 @@ export function useWorkspaceSession() {
       if (!sameProjectSession()) return;
       // A reopened saved run's re-save: the stored claim is checked against the evidence computed over
       // what was stored (as the legacy session recomputed it), which the reply names by its payload hash.
-      const recomputedReturnedEnvelopeHash = created.native ? (created.native.restored ? projectEnvelopeHashEvidence(requestModel, created.native.restored.envelope_payload_hash) : created.native.project_envelope_hash) : await computeProjectEnvelopeHash({
+      // A fresh native save's claim is the store's: it is read as evidence over its digest, never
+      // compared with itself.
+      const recomputedReturnedEnvelopeHash = created.native ? (created.native.restored ? projectEnvelopeHashEvidence(requestModel, created.native.restored.envelope_payload_hash) : freshNativeEnvelopeEvidence(created.native, requestModel)) : await computeProjectEnvelopeHash({
         model: created.model,
         editor_intents: created.editor_intents,
         proposal: created.proposal,
@@ -3963,11 +3972,23 @@ export function useWorkspaceSession() {
       pendingObservation = { envelope: saved, ordinal: writeObservation };
       // Issue 519: a kept save leaves the stored proposal in the store, so its reply carries none; one
       // that carries a proposal is not read (the proposal never enters the session).
-      if (kept && saved.proposal != null) {
+      if (kept && saved.proposal !== null) {
         throw new Error("PROJECT-PERSISTENCE-RESPONSE-INTEGRITY: a save that kept the stored proposal returned a proposal; it is not read.");
       }
+      // A plain save that kept the stored proposal (Option A): the store computed the envelope hash over
+      // what it stores and the webview never receives the kept proposal, so nothing is recomputed here
+      // (`hash_recompute_unavailable`); the reopen verifies the stored envelope whole. Its claim is
+      // checked for form only, and only to accept the reply. The history's stored claim stands only
+      // where the store's read-back shows the payload unchanged (an unchanged re-save keeps it).
+      const plainKept = !saved.native && kept;
+      const preservedHistoricalPayload = Boolean(plainKept && requestHistoricalRun && requestHistoricalRun.envelopePayloadHash !== null &&
+        keptBrowserHistory && keptBrowserHistory.envelopePayloadHash === requestHistoricalRun.envelopePayloadHash);
+      const keptClaimAccepted = plainKept && saved.proposal === null &&
+        validPlainKeptEnvelopeClaim(saved.project_envelope_hash ?? null, requestModel, preservedHistoricalPayload ? requestHistoricalRun : null);
       if (saved.summary.project_id === requestModel.project.id) {
-        recordStoredBase(saved);
+        // A kept save's claim that is not accepted is not taken as the base: the next save asks.
+        if (!plainKept || keptClaimAccepted) recordStoredBase(saved);
+        else if (storedBaseRef.current?.projectId === requestModel.project.id) storedBaseRef.current = null;
         // Any write but a kept save replaced the stored proposal or wrote a copy without it: the notice
         // ends with the write's commit, even if the session has moved on before the reply is adopted.
         if (!kept) unadmittedStoredProposal.current = null;
@@ -3979,12 +4000,8 @@ export function useWorkspaceSession() {
       if (!sameProjectSession()) return;
       // A reopened saved run's re-save: the stored claim is checked against the evidence computed over
       // what was stored (as the legacy session recomputed it), which the reply names by its payload hash.
-      // A plain save that kept the stored proposal (Option A): the store computed the envelope hash over
-      // what it stores and the webview never receives the kept proposal, so nothing is recomputed here
-      // (`hash_recompute_unavailable`); the reopen verifies the stored envelope whole. Its claim is
-      // checked for form only, and only to accept the reply.
-      const plainKept = !saved.native && kept;
-      const recomputedReturnedEnvelopeHash = saved.native ? (saved.native.restored ? projectEnvelopeHashEvidence(requestModel, saved.native.restored.envelope_payload_hash) : saved.native.project_envelope_hash) : plainKept ? null : await computeProjectEnvelopeHash({
+      // A fresh native save's claim is read as evidence over its digest, never compared with itself.
+      const recomputedReturnedEnvelopeHash = saved.native ? (saved.native.restored ? projectEnvelopeHashEvidence(requestModel, saved.native.restored.envelope_payload_hash) : freshNativeEnvelopeEvidence(saved.native, requestModel)) : plainKept ? null : await computeProjectEnvelopeHash({
         model: saved.model,
         editor_intents: saved.editor_intents,
         proposal: saved.proposal,
@@ -4000,7 +4017,6 @@ export function useWorkspaceSession() {
       // A preserved absent claim has no envelope half to compare: the model claim alone is checked, and
       // the integrity record stays `not_persisted`.
       const retainedModelHash = !responseModelChanged ? requestHistoricalRun?.modelHash ?? null : null;
-      const keptClaimAccepted = plainKept && saved.proposal == null && validPlainKeptEnvelopeClaim(saved.project_envelope_hash ?? null, requestModel, requestHistoricalRun);
       const hashesMatch = !plainKept
         ? persistenceHashesMatch(saved, returnedModelHash, recomputedReturnedEnvelopeHash, retainedModelHash)
         : keptClaimAccepted && (saved.project_envelope_hash
@@ -4062,7 +4078,7 @@ export function useWorkspaceSession() {
       setProjectEnvelopeHash(saved.project_envelope_hash ?? null);
       setModelDocumentVersion(saved.model_document_version ?? null);
       setProjectMessage(`${saved.summary.message}${writtenStoredProposalSentence(unadmitted, { projectId: requestModel.project.id, generation, kept, replacedWhole: keepStoredProposal && !kept })}`);
-      projectSaveLanded.current = { projectId: saved.summary.project_id, base: saved.project_envelope_hash?.value ?? null, model: requestModel };
+      projectSaveLanded.current = { projectId: saved.summary.project_id, base: !plainKept || keptClaimAccepted ? saved.project_envelope_hash?.value ?? null : null, model: requestModel };
       setProjectOperation("save");
       void autosave.afterProjectSaved(saved.summary.project_id, returnedModelHash?.value ?? null);
     } catch (error) {

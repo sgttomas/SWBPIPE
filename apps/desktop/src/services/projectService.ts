@@ -723,12 +723,13 @@ export const STORED_PROPOSAL_KEEP_REFUSED = "STORED-PROPOSAL-KEEP-REFUSED";
 const PERSISTENCE_RESPONSE_INTEGRITY = "PROJECT-PERSISTENCE-RESPONSE-INTEGRITY";
 
 /** Issue 519: an envelope hash claim of the form a save computes for `projectId`'s stored envelope (a
- * SHA-256 digest with this product's evidence members). The claim's form only: a kept save's claim is
- * over a stored proposal the webview never receives, so the digest itself is not recomputed here. */
+ * SHA-256 digest with this product's seven evidence members, and no other). The claim's form only: a
+ * kept save's claim is over a stored proposal the webview never receives, so the digest itself is not
+ * recomputed here. */
 export function wellFormedEnvelopeHashClaim(claim: unknown, projectId: string): claim is ProjectEnvelopeHashEvidence {
   if (typeof claim !== "object" || claim === null || Array.isArray(claim)) return false;
   const evidence = claim as Record<string, unknown>;
-  return typeof evidence.value === "string" && /^sha256:[0-9a-f]{64}$/.test(evidence.value)
+  return Object.keys(evidence).length === 7 && typeof evidence.value === "string" && /^sha256:[0-9a-f]{64}$/.test(evidence.value)
     && evidence.algorithm === "sha256" && evidence.canonicalization === "rfc8785_jcs"
     && evidence.payload_scope === "project_envelope_payload" && evidence.payload_excludes === "storage_summary_and_envelope_hash_carrier_fields"
     && evidence.payload_ref === projectId && evidence.hash_status === "computed_local_preview";
@@ -813,7 +814,7 @@ export async function saveLocalProjectKeepingStoredProposal(
   });
   // The store keeps the stored proposal and computes the envelope hash over what it stores: its reply
   // carries no stored proposal and a claim of that form, or it is not read.
-  if (saved?.proposal != null) throw new Error(`${PERSISTENCE_RESPONSE_INTEGRITY}: a kept save's reply must not carry a stored proposal.`);
+  if (saved?.proposal !== null) throw new Error(`${PERSISTENCE_RESPONSE_INTEGRITY}: a kept save's reply must not carry a stored proposal.`);
   if (!wellFormedEnvelopeHashClaim(saved?.project_envelope_hash, model.project.id)) {
     throw new Error(`${PERSISTENCE_RESPONSE_INTEGRITY}: a kept save's reply must carry the store's envelope hash for project \`${model.project.id}\`.`);
   }

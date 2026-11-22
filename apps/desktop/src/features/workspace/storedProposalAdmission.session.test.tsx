@@ -160,6 +160,12 @@ async function storedWithRun(base: PreviewModel, id: string, proposal: unknown, 
   return model;
 }
 
+/** The keeping save's reply, as `change` makes it from the store's. */
+function keptReplyChanged(change: (reply: Json) => Json) {
+  const real = projectService.saveLocalProjectKeepingStoredProposal;
+  vi.spyOn(projectService, "saveLocalProjectKeepingStoredProposal").mockImplementationOnce(async (...args) => change(structuredClone(await real(...args))));
+}
+
 const envelopeMismatch = (history: unknown) => JSON.stringify(history ?? null).includes("HISTORICAL_ENVELOPE_HASH_MISMATCH");
 
 const notice = admitStoredProposal(UNADMITTED);
@@ -527,11 +533,6 @@ describe("a kept save of a reopened saved run stored without an envelope claim (
 });
 
 describe("a kept save's reply (issue 519 review 2, item 3)", () => {
-  /** The keeping save's reply, as `change` makes it from the store's. */
-  function keptReplyChanged(change: (reply: Json) => Json) {
-    const real = projectService.saveLocalProjectKeepingStoredProposal;
-    vi.spyOn(projectService, "saveLocalProjectKeepingStoredProposal").mockImplementationOnce(async (...args) => change(structuredClone(await real(...args))));
-  }
 
   it("is never verified from its own claim: a tampered digest is shown as persisted, nothing recomputed", async () => {
     const { result } = await readySession();
@@ -624,6 +625,59 @@ describe("a kept save's reply (issue 519 review 2, item 3)", () => {
     const shownText = `${screen.getByTestId("project-validation-panel").textContent}${screen.getByTestId("project-storage-panel").textContent}`;
     expect(shownText).toContain("integrity_status=hash_recompute_unavailable");
     expect(shownText).not.toMatch(/MISMATCH|mismatch_review_required|save_failed|Save failed/);
+  });
+});
+
+describe("a kept save's reply shape (issue 519 review 2, final)", () => {
+  it("of a reopened saved run whose payload changed is not accepted with the history's old claim: nothing verified, the base not kept", async () => {
+    const { result } = await readySession();
+    const model = structuredClone(result.current.model.model!);
+    model.project.id = "project:issue-519-r2-substituted-claim";
+    const modelHash = await computeModelHash(model);
+    const run = savedRun(model.project.id) as never;
+    const valid = (await computeProjectEnvelopeHash({ model, editor_intents: [], proposal: UNADMITTED as never, selected_review_target: null, mechanics_result: run, analysis_run: null, model_hash: modelHash }))!;
+    const old = { ...valid, value: "sha256:stale-historical" };
+    await createLocalProject(model, [], UNADMITTED as never, null, run, null, modelHash, old);
+    await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
+    expect(result.current.results.historicalRun?.designation).toBe("historical_saved_run");
+    // The review target changes the stored payload; the history stays live.
+    act(() => { result.current.results.handleSelectDiagnostic("diagnostic:invented"); });
+    expect(result.current.results.historicalRun?.designation).toBe("historical_saved_run");
+    keptReplyChanged((reply) => ({ ...reply, project_envelope_hash: structuredClone(old) }));
+    await act(async () => { await result.current.project.handleSaveProject(); });
+    expect(result.current.project.projectEnvelopeHashIntegrity?.integrity_status).not.toBe("verified_match");
+    expect(result.current.project.modelHashIntegrity?.integrity_status).not.toBe("verified_match");
+    // The old claim is not taken as the base: the next save sends none, so the store asks.
+    const keeping = vi.spyOn(projectService, "saveLocalProjectKeepingStoredProposal");
+    let pending!: Promise<void>;
+    act(() => { pending = result.current.project.handleSaveProject(); });
+    await waitFor(() => expect(result.current.project.replaceProjectPrompt).not.toBeNull());
+    expect(keeping.mock.calls.at(-1)?.[7]).toBeNull();
+    act(() => result.current.project.replaceProjectPrompt!.choose("cancel"));
+    await act(async () => { await pending; });
+  });
+
+  it("that omits the proposal member is refused, from the desktop store and in the session", async () => {
+    const hook = await readySession();
+    const model = await storedWith(hook.result.current.model.model!, "project:issue-519-r2-omitted", UNADMITTED);
+    const opened = (await openLocalProject(model.project.id))!;
+    const valid = (await computeProjectEnvelopeHash({ model: opened.model, editor_intents: [], proposal: UNADMITTED as never, selected_review_target: null, mechanics_result: null, analysis_run: null, model_hash: opened.model_hash }))!;
+    const omitted: Json = { ...structuredClone(opened), project_envelope_hash: valid };
+    delete omitted.proposal;
+    invokeMock.mockImplementation(async (command: string) => command === "save_local_project" ? structuredClone(omitted) : null);
+    (window as Json).__TAURI_INTERNALS__ = {};
+    await expect(saveLocalProjectKeepingStoredProposal(opened.model, [], null, null, null, opened.model_hash, null, valid.value))
+      .rejects.toThrow(/^PROJECT-PERSISTENCE-RESPONSE-INTEGRITY: /);
+    delete (window as Json).__TAURI_INTERNALS__;
+    invokeMock.mockReset();
+
+    const { result } = hook;
+    await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
+    keptReplyChanged((reply) => { const changed = { ...reply }; delete changed.proposal; return changed; });
+    await act(async () => { await result.current.project.handleSaveProject(); });
+    expect(result.current.project.projectOperation).toBe("save_failed");
+    expect(result.current.project.projectMessage).toContain("PROJECT-PERSISTENCE-RESPONSE-INTEGRITY");
+    expect(result.current.project.projectEnvelopeHashIntegrity?.integrity_status).not.toBe("verified_match");
   });
 });
 

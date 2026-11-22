@@ -101,6 +101,28 @@ describe("a kept save's reply (issue 519 review 2)", () => {
     await expect(saveNativeLocalProject(REQUEST, { ...fields, keepStoredProposal: undefined })).resolves.toMatchObject({ proposal: { proposal_id: "proposal:own" } });
     delete (window as Json).__TAURI_INTERNALS__;
   });
+
+  it("of a fresh save carries the store's envelope claim for the project, kept or not, or is refused by name", async () => {
+    (window as Json).__TAURI_INTERNALS__ = {};
+    const fields = { model: MODEL, editorIntents: [], proposal: null, selectedReviewTarget: null, modelHash: null, confirmedRevision: null, mode: "save" as const, expectedBase: "sha256:base", keepStoredProposal: true as const };
+    const saved = saveReplies[0];
+    const claim = saved.project_envelope_hash;
+    for (const hash of [
+      { ...claim, payload_scope: "model_payload" },
+      { ...claim, payload_ref: "project:another" },
+      { ...claim, algorithm: "sha512" },
+      { ...claim, canonicalization: "json" },
+      { ...claim, payload_excludes: "none" },
+      { ...claim, hash_status: "claimed" },
+      { ...claim, extra: "member" }
+    ]) {
+      const bad = { ...saved, proposal: null, project_envelope_hash: hash };
+      expect(() => decodeNativeProjectSave(bad), JSON.stringify(hash)).toThrow(NATIVE_PROJECT_SAVE_MALFORMED);
+      invokeMock.mockResolvedValueOnce(bad);
+      await expect(saveNativeLocalProject(REQUEST, fields), JSON.stringify(hash)).rejects.toThrow(NATIVE_PROJECT_SAVE_MALFORMED);
+    }
+    delete (window as Json).__TAURI_INTERNALS__;
+  });
 });
 
 // C1 slice 6's save continuity: the actual re-save reply (`native_reopen_replies.json`, written by
@@ -155,17 +177,44 @@ describe("a reopened saved run's re-save", () => {
   });
 
   it("reads a kept unchanged re-save that preserved a stale stored claim, and refuses a non-digest claim it computed (issue 519 review 2)", async () => {
-    const basis = { payload_sha256: RESTORED.findings.envelope_payload_hash, evidence: reopen.open.reply.value.project_envelope_hash };
     const fields = { mode: "save" as const, model: MODEL, editorIntents: [], proposal: null, selectedReviewTarget: null, modelHash: null, confirmedRevision: null, expectedBase: "sha256:base", keepStoredProposal: true as const };
     const stale = { ...RESAVED, proposal: null, project_envelope_hash: { ...RESAVED.project_envelope_hash, value: "sha256:stale-historical" } };
+    // The session's basis holds the stale claim it opened with.
+    const staleBasis = { payload_sha256: RESTORED.findings.envelope_payload_hash, evidence: stale.project_envelope_hash };
     // The basis kept: the stored claim is the history's, preserved as stored, whatever its value.
     invokeMock.mockResolvedValueOnce({ ...stale, restored: { ...RESAVED.restored, envelope_basis_kept: true } });
-    await expect(saveRestoredLocalProject(RESTORED, basis, fields)).resolves.toMatchObject({ project_envelope_hash: { value: "sha256:stale-historical" } });
+    await expect(saveRestoredLocalProject(RESTORED, staleBasis, fields)).resolves.toMatchObject({ project_envelope_hash: { value: "sha256:stale-historical" } });
     // A fresh claim is the store's digest, or the reply is not read.
     invokeMock.mockResolvedValueOnce({ ...stale, restored: { ...RESAVED.restored, envelope_basis_kept: false } });
-    await expect(saveRestoredLocalProject(RESTORED, basis, fields)).rejects.toThrow(NATIVE_PROJECT_SAVE_MALFORMED);
+    await expect(saveRestoredLocalProject(RESTORED, staleBasis, fields)).rejects.toThrow(NATIVE_PROJECT_SAVE_MALFORMED);
     // A carried proposal is refused whatever the basis.
     invokeMock.mockResolvedValueOnce({ ...stale, proposal: { proposal_id: "proposal:carried" }, restored: { ...RESAVED.restored, envelope_basis_kept: true } });
-    await expect(saveRestoredLocalProject(RESTORED, basis, fields)).rejects.toThrow(NATIVE_PROJECT_SAVE_MALFORMED);
+    await expect(saveRestoredLocalProject(RESTORED, staleBasis, fields)).rejects.toThrow(NATIVE_PROJECT_SAVE_MALFORMED);
+  });
+
+  it("of a restored re-save is the session's basis claim when the basis was kept, and the store's claim otherwise (issue 519 review 2)", async () => {
+    for (const keep of [true, false] as const) {
+      const fields = { mode: "save" as const, model: MODEL, editorIntents: [], proposal: null, selectedReviewTarget: null, modelHash: null, confirmedRevision: null, expectedBase: "sha256:base", ...(keep ? { keepStoredProposal: true as const } : {}) };
+      const claim = RESAVED.project_envelope_hash;
+      const stale = { ...claim, value: "sha256:stale-historical" };
+      const reply = (hash: unknown, kept: boolean) => ({ ...RESAVED, proposal: null, project_envelope_hash: hash, restored: { ...RESAVED.restored, envelope_basis_kept: kept } });
+      const basisWith = (evidence: unknown) => ({ payload_sha256: RESTORED.findings.envelope_payload_hash, evidence: evidence as never });
+      const read = async (hash: unknown, kept: boolean, evidence: unknown) => {
+        invokeMock.mockResolvedValueOnce(reply(hash, kept));
+        return saveRestoredLocalProject(RESTORED, basisWith(evidence), fields);
+      };
+      // The basis not kept: a fresh claim of the store's form, never none or another payload's.
+      await expect(read(claim, false, stale)).resolves.toMatchObject({ project_envelope_hash: claim });
+      for (const hash of [null, { ...claim, payload_scope: "model_payload" }, { ...claim, payload_ref: "project:another" }, stale]) {
+        await expect(read(hash, false, hash), `${keep} ${JSON.stringify(hash)}`).rejects.toThrow(NATIVE_PROJECT_SAVE_MALFORMED);
+      }
+      // The basis kept: exactly the claim the session's basis holds (none, stale or current).
+      await expect(read(null, true, null)).resolves.toMatchObject({ project_envelope_hash: null });
+      await expect(read(stale, true, stale)).resolves.toMatchObject({ project_envelope_hash: stale });
+      await expect(read(claim, true, claim)).resolves.toMatchObject({ project_envelope_hash: claim });
+      for (const [hash, evidence] of [[null, claim], [claim, null], [stale, claim], [claim, stale], [{ ...stale, value: "sha256:other-stale" }, stale]] as const) {
+        await expect(read(hash, true, evidence), `${keep} ${JSON.stringify(hash)} ${JSON.stringify(evidence)}`).rejects.toThrow(NATIVE_PROJECT_SAVE_MALFORMED);
+      }
+    }
   });
 });

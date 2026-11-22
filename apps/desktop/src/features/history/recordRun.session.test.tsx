@@ -9,6 +9,7 @@
  * unit fake (`nativePersistenceFake.ts`). All data are invented. */
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { isDeepStrictEqual } from "node:util";
+import { createHash } from "node:crypto";
 import { useState } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
@@ -82,12 +83,13 @@ async function session(options: { stored?: boolean; foreign?: StoredProjectEntry
   let rowSequence = 0;
   const saveProject = (request: Json): LocalProjectEnvelope => {
     const id = request.model.project.id as string;
-    const base = `sha256:${id}#${++rowSequence}`;
+    // A stored revision's token, as the store's claim carries it (a digest of the invented row).
+    const base = `sha256:${createHash("sha256").update(`${id}#${++rowSequence}`).digest("hex")}`;
     store.rows.set(id, base);
     const envelope = {
       summary: { project_id: id, project_name: request.model.project.name, message: "Saved current project model snapshot without external file copies." },
       model: request.model, editor_intents: [], proposal: null, selected_review_target: null, mechanics_result: request.mechanics_result ?? null,
-      analysis_run: request.analysis_run ?? null, model_hash: request.model_hash, project_envelope_hash: { value: base }, model_document_version: null
+      analysis_run: request.analysis_run ?? null, model_hash: request.model_hash, project_envelope_hash: { algorithm: "sha256", canonicalization: "rfc8785_jcs", payload_scope: "project_envelope_payload", payload_excludes: "storage_summary_and_envelope_hash_carrier_fields", payload_ref: id, value: base, hash_status: "computed_local_preview" }, model_document_version: null
     } as unknown as LocalProjectEnvelope;
     store.savedEnvelopes.push(envelope);
     return envelope;

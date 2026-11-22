@@ -121,6 +121,8 @@ code_paths:
 - apps/desktop/src/features/workspace/storedProposalAdmission.ts
 - apps/desktop/src/features/workspace/storedProposalAdmission.test.ts
 - apps/desktop/src/features/workspace/storedProposalAdmission.session.test.tsx
+# The session's check of a save's returned hash claims (shared with DEL-07-11).
+- apps/desktop/src/features/workspace/savedModelBasis.ts
 # The native saves' keeping of a stored proposal (issue 519). The files are shared with DEL-07-07 and
 # DEL-14-02, whose native persistence and restored re-save they also are.
 - apps/desktop/src-tauri/src/native_persistence.rs
