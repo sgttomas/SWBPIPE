@@ -166,7 +166,7 @@ export async function cancelNativeModelChecks(): Promise<void> {
 function checkFailureText(error: unknown): string {
   if (error instanceof ResourceUnavailableError && error.refusal.kind === "worker_limit_reached") {
     const { running, limit } = error.refusal;
-    return `Refused by the memory pool: Model checks could not start because all worker slots are occupied (${running} running, limit ${limit}). Run model checks again after a running worker finishes.`;
+    return `Refused by the memory pool: model checks could not start because all worker slots are occupied (${running} running, limit ${limit}). Run model checks again after a running worker finishes.`;
   }
   return nativeFailureText(error);
 }

@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { convertDisplayQuantities, type DisplayQuantityRequest, type DisplayQuantityResult } from "../../services/displayQuantityService";
 import { DISPLAY_TARGETS, type DisplayUnitPreference } from "./targets";
-import { describeResourceRefusal, ResourceUnavailableError } from "../../services/memoryPool";
+import { poolRefusalReading, ResourceUnavailableError } from "../../services/memoryPool";
 export { DISPLAY_TARGETS, type DisplayUnitPreference } from "./targets";
 
 export type DisplaySourceQuantity = Readonly<{ value: number | string; unit: string; dimension_id: string }>;
@@ -31,7 +31,7 @@ function makeBatcher(converter: Converter) {
         }
         catch (error) {
           results = [];
-          if (error instanceof ResourceUnavailableError) unavailable = `conversion refused by the memory pool: ${describeResourceRefusal(error.refusal)}`;
+          if (error instanceof ResourceUnavailableError) unavailable = `conversion refused${poolRefusalReading(error.refusal)}`;
         }
         for (const { request, resolve: finish } of batch) {
           const matches = results.filter((result) => result && result.id === request.id);

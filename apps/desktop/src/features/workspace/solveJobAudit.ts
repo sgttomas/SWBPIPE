@@ -11,7 +11,7 @@ import type {
   ResultTooLarge,
   SolveJobStartReceipt
 } from "../../services/previewService";
-import { describeResourceRefusal, describeSolveWorkerFailure, formatBytes, resourceRefusalCode, ResourceUnavailableError } from "../../services/memoryPool";
+import { describeResourceRefusalAfterColon, describeSolveWorkerFailure, formatBytes, resourceRefusalCode, ResourceUnavailableError } from "../../services/memoryPool";
 import type {
   AnalysisRunEnvelope,
   MechanicsResult,
@@ -226,7 +226,7 @@ export function progressSolveJob(current: SolveJobAuditState, status: BackendSol
           {
             event_id: "solve-preview-queued-waiting",
             state: current.state,
-            message: `Backend solve job ${status.job_id} is waiting in the queue: ${describeResourceRefusal(reason)}`,
+            message: `Backend solve job ${status.job_id} is waiting in the queue: ${describeResourceRefusalAfterColon(reason)}`,
             result_available: false,
             diagnostic_count: 0,
             result_row_count: 0,
@@ -344,7 +344,7 @@ export function refusedSolveJob(
       {
         event_id: at === "take" ? REFUSED_AT_TAKE_EVENT : at === "session_step" ? REFUSED_AT_SESSION_STEP_EVENT : REFUSED_EVENT,
         state: "refused",
-        message: `Refused by the memory pool (${refusal.kind}): ${describeResourceRefusal(refusal)} No result was published. ${describeSolveRefusalRetry(refusal, point)} Refusal code: ${resourceRefusalCode(refusal)}.`,
+        message: `Refused by the memory pool (${refusal.kind}): ${describeResourceRefusalAfterColon(refusal)} No result was published. ${describeSolveRefusalRetry(refusal, point)} Refusal code: ${resourceRefusalCode(refusal)}.`,
         result_available: false,
         diagnostic_count: 0,
         result_row_count: 0,

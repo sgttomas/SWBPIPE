@@ -77,9 +77,9 @@ describe("the engine's checks say whether they did not run or did not complete, 
     native();
     invokeMock.mockRejectedValue({ code: "RESOURCE_UNAVAILABLE", refusal: { kind: "worker_limit_reached", running: 4, limit: 4 }, pool: null });
     const run = await runModelChecks(model);
-    expect(run.solve).toEqual({ kind: "unavailable", reason: expect.stringContaining("Model checks could not start because all worker slots are occupied") });
+    expect(run.solve).toEqual({ kind: "unavailable", reason: expect.stringContaining("model checks could not start because all worker slots are occupied") });
     const { message, labels } = await drawer(run);
-    expect(message).toMatch(/^The model checks did not run: Refused by the memory pool: Model checks could not start/);
+    expect(message).toMatch(/^The model checks did not run: Refused by the memory pool: model checks could not start/);
     expect(labels).toEqual(["not run", "not run", "not run"]);
   });
 

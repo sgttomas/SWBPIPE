@@ -69,7 +69,7 @@ export function describeResourceRefusal(refusal: ResourceRefusal): string {
     case "worker_cap_exceeded":
       return `The solve needed more memory than the per-invocation budget of ${formatBytes(refusal.cap_bytes)} allows (requested ${formatBytes(refusal.requested_bytes)}). ${SOLVE_WORKER_MEMORY_ADVICE}`;
     case "worker_growth_refused":
-      return `The solve needed more memory (${formatBytes(refusal.requested_bytes)}) than could be reserved while it ran: ${describeResourceRefusal(refusal.cause)} ${SOLVE_WORKER_MEMORY_ADVICE}`;
+      return `The solve needed more memory (${formatBytes(refusal.requested_bytes)}) than could be reserved while it ran: ${describeResourceRefusalAfterColon(refusal.cause)} ${SOLVE_WORKER_MEMORY_ADVICE}`;
     case "worker_footprint_exceeded":
       return `The solve's measured memory footprint (${formatBytes(refusal.footprint_bytes)}) does not fit the per-invocation budget, so the solve was ended (its reservation was ${formatBytes(refusal.grant_bytes)}). ${SOLVE_WORKER_MEMORY_ADVICE}`;
     case "worker_limit_reached":

@@ -7,7 +7,7 @@
 // undefined members are left out and -0 is written as 0). Responses are
 // unchanged.
 import { invoke } from "@tauri-apps/api/core";
-import { describeResourceRefusal, nativeInvokeError, ResourceUnavailableError } from "./memoryPool";
+import { nativeInvokeError, poolRefusalReading, ResourceUnavailableError } from "./memoryPool";
 
 /** The header that marks a raw-body invocation and names its body format. */
 export const NATIVE_INGRESS_HEADER = "x-swbpipe-ingress";
@@ -155,6 +155,6 @@ export async function invokeWithIngress<T>(
 /** The text a feature shows for a failed native request: a resource refusal
  * reads as the plain-language refusal sentence, anything else as before. */
 export function nativeFailureText(error: unknown): string {
-  if (error instanceof ResourceUnavailableError) return `Refused by the memory pool: ${describeResourceRefusal(error.refusal)}`;
+  if (error instanceof ResourceUnavailableError) return `Refused${poolRefusalReading(error.refusal)}`;
   return String(error);
 }

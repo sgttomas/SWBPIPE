@@ -100,7 +100,7 @@ describe("on-demand model checks", () => {
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     invokeMock.mockRejectedValue({ code: "RESOURCE_UNAVAILABLE", refusal: { kind: "pool_exhausted", requested_bytes: 1024 ** 3, reserved_bytes: 12 * 1024 ** 3, pool_bytes: 12 * 1024 ** 3 } });
     const run = await runModelChecks(model);
-    expect(run.solve).toEqual({ kind: "unavailable", reason: "Refused by the memory pool: The memory pool is fully reserved: this request needs 1 GiB, and 12 GiB of the 12 GiB pool is already reserved." });
+    expect(run.solve).toEqual({ kind: "unavailable", reason: "Refused by the memory pool: the memory pool is fully reserved: this request needs 1 GiB, and 12 GiB of the 12 GiB pool is already reserved." });
     // Nothing ran: no solve, slot or library finding is listed.
     expect(run.findings).toEqual([]);
   });
@@ -112,7 +112,7 @@ describe("on-demand model checks", () => {
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     invokeMock.mockRejectedValue({ code: "RESOURCE_UNAVAILABLE", refusal: { kind: "worker_limit_reached", running: 2, limit: 2 } });
     const run = await runModelChecks(model);
-    expect(run.solve).toEqual({ kind: "unavailable", reason: "Refused by the memory pool: Model checks could not start because all worker slots are occupied (2 running, limit 2). Run model checks again after a running worker finishes." });
+    expect(run.solve).toEqual({ kind: "unavailable", reason: "Refused by the memory pool: model checks could not start because all worker slots are occupied (2 running, limit 2). Run model checks again after a running worker finishes." });
     expect(run.solve.kind === "unavailable" && run.solve.reason).not.toContain("waits until one finishes");
     expect(run.findings).toEqual([]);
   });
