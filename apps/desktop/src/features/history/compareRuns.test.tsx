@@ -7,7 +7,7 @@
 // and the current run, and disables Compare… with the stated reason; the run
 // comparison view shows each side's standing, the counts, the context deltas, the
 // diagnostics, and a filterable, paged table. All data are invented.
-import { act, cleanup, fireEvent, render, renderHook, screen, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, renderHook, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
@@ -212,6 +212,39 @@ describe("the session's Compare… of two runs", () => {
     expect([shown.left.kind, shown.right.kind]).toEqual(["recorded", "current"]);
     expect(shown.right.standing.eligible).toBe(true);
     expect(shown.comparison.summary.compared_nonzero).toBeGreaterThan(0);
+  });
+
+  // #545: the store keys a saved state by its model's hash (one state per model; Save Model State and
+  // Record Run find it again rather than write a second), and a recorded run keeps only its state's id.
+  // Two runs of an unchanged model, recorded after two different snapshot names were typed, are both
+  // tied to the one stored state, which keeps the name it was saved with.
+  it("#545: two runs of one unchanged model name the one stored state on both sides; Record Run says it knows that state only once it is listed", async () => {
+    const runA = await recordedRead({ model: MODEL, source: SPARSE, mode: "sparse_interactive" }, EARLY, "Run A");
+    const runB = await recordedRead({ model: MODEL, source: DENSE, mode: "dense_scrutiny" }, LATE, "Run B");
+    expect(runB.run.state_id).toBe(runA.run.state_id);
+    await nativeStore([runA, runB]);
+    const stored = invokeMock.getMockImplementation()!;
+    let list!: () => void;
+    const listed = new Promise<void>((resolve) => { list = resolve; });
+    invokeMock.mockImplementation(async (command: string, args: Record<string, unknown>) => {
+      if (command === "list_model_states") await listed;
+      return stored(command, args);
+    });
+    const current = await transientOf({ model: MODEL, source: DENSE, mode: "dense_scrutiny" });
+    const runSlot: CurrentRunSlot = { result: DENSE, analysisRun: current.record, inputManifest: current.manifest, restored: false };
+    const { result: hook } = sessionHistory({ runSlot });
+    // Before the project's states are listed the session does not know whether one holds the solved model.
+    expect(hook.current.recordRunState).toBeNull();
+    expect(hook.current.recordRunStateKnown).toBe(false);
+    await act(async () => { list(); await listed; });
+    await waitFor(() => expect(hook.current.recordRunStateKnown).toBe(true));
+    expect(hook.current.recordRunState?.state_name).toBe("After solve");
+    let compared = false;
+    await act(async () => { compared = await hook.current.compareRuns(runA.run.recording_id, runB.run.recording_id); });
+    expect(compared, hook.current.historyMessage).toBe(true);
+    render(<RunComparisonView result={hook.current.runComparison!} onClose={() => {}} />);
+    expect(screen.getByTestId("run-comparison-side-left")).toHaveTextContent(`Left: "Run A" (${runA.run.recording_id}), recorded ${EARLY}, against saved state "After solve" (${STATE_ID}).`);
+    expect(screen.getByTestId("run-comparison-side-right")).toHaveTextContent(`Right: "Run B" (${runB.run.recording_id}), recorded ${LATE}, against saved state "After solve" (${STATE_ID}).`);
   });
 
   it("refuses a comparison whose current run is retired while it is prepared: during the admission and during the reads", async () => {

@@ -25,29 +25,31 @@ describe("element axes in the viewport", () => {
     expect(pipe.y_reference).toBeDefined();
     const modelBefore = structuredClone(model);
     const view = mount(model, source, { type: "pipe", id: pipe.id });
+    // One compact control: a selector of off, local and global, in the bar's Element axes group.
     const group = screen.getByRole("group", { name: "Element axes" });
-    const off = within(group).getByTestId("viewport-element-axes-off");
-    const local = within(group).getByTestId("viewport-element-axes-local");
-    const global = within(group).getByTestId("viewport-element-axes-global");
-    expect(off).toHaveAttribute("aria-pressed", "true");
+    const axes = within(group).getByRole("combobox", { name: "Element axes" }) as HTMLSelectElement;
+    expect(within(axes).getByTestId("viewport-element-axes-off")).toHaveTextContent("No axes");
+    expect(within(axes).getByTestId("viewport-element-axes-local")).toHaveTextContent("Local axes");
+    expect(within(axes).getByTestId("viewport-element-axes-global")).toHaveTextContent("Global axes");
+    expect(axes.value).toBe("off");
     expect(screen.queryByTestId("viewport-element-axes-status")).toBeNull();
 
-    local.focus();
-    expect(document.activeElement).toBe(local);
-    fireEvent.click(local);
-    expect(local).toHaveAttribute("aria-pressed", "true");
+    axes.focus();
+    expect(document.activeElement).toBe(axes);
+    fireEvent.change(axes, { target: { value: "local" } });
+    expect(axes.value).toBe("local");
     const status = screen.getByTestId("viewport-element-axes-status");
     expect(status).toHaveTextContent(`Local axes: ${model.pipe_segments.length} members`);
     expect(status).toHaveAttribute("title", expect.stringContaining("y from the member's y_reference, z = x × y"));
     // The selected member's axes as unit vectors in global X, Y, Z.
     expect(screen.getByTestId("viewport-element-axes-selected").textContent).toMatch(/pipe:P-130 x \(.+\) y \(.+\) z \(.+\)/u);
 
-    fireEvent.click(global);
-    expect(global).toHaveAttribute("aria-pressed", "true");
+    fireEvent.change(axes, { target: { value: "global" } });
+    expect(axes.value).toBe("global");
     expect(screen.getByTestId("viewport-element-axes-status")).toHaveTextContent("Global axes:");
     expect(screen.getByTestId("viewport-element-axes-selected")).toHaveTextContent("x (1, 0, 0) y (0, 1, 0) z (0, 0, 1)");
 
-    fireEvent.click(off);
+    fireEvent.change(axes, { target: { value: "off" } });
     expect(screen.queryByTestId("viewport-element-axes-status")).toBeNull();
     view.unmount();
     expect(model).toEqual(modelBefore);
@@ -58,7 +60,7 @@ describe("element axes in the viewport", () => {
     const target = model.pipe_segments[0];
     const edited = { ...model, pipe_segments: model.pipe_segments.map((pipe) => pipe.id === target.id ? { ...pipe, y_reference: undefined } : pipe) };
     mount(edited, source, { type: "pipe", id: target.id });
-    fireEvent.click(screen.getByTestId("viewport-element-axes-local"));
+    fireEvent.change(screen.getByRole("combobox", { name: "Element axes" }), { target: { value: "local" } });
     expect(screen.getByTestId("viewport-element-axes-status")).toHaveTextContent("1 without a local frame");
     expect(screen.getByTestId("viewport-element-axes-selected")).toHaveTextContent("no y_reference entered; no default orientation is applied");
   });
