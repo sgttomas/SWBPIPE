@@ -871,6 +871,46 @@ fn load_state_documents_generate_as_the_plain_document_does() {
     }
 }
 
+/// A seismic refusal before the generator runs stops the case's
+/// equivalent-static generation, so its wind inputs are not processed, while
+/// a refusal the generator itself makes by finding lets the case's wind
+/// generation run. The case carries wind inputs naming a pipe the model does
+/// not have, whose refusal shows that wind generation ran:
+/// - with the seismic gravity removed (refused before the generator runs),
+///   the case is refused by the missing gravity and raises no wind
+///   diagnostic;
+/// - with the seismic gravity entered as zero (the generator's own finding),
+///   the case raises that finding and the wind refusal.
+/// Both routes and both solver modes.
+#[test]
+fn an_early_seismic_refusal_stops_the_case_and_a_generator_finding_does_not() {
+    let wind_ids = |out: &Value| -> Vec<String> {
+        out["diagnostics"].as_array().unwrap().iter().map(|d| d["id"].as_str().unwrap().to_string())
+            .filter(|id| id.starts_with(&format!("diagnostic:equivalent-static:{}:wind", CASE.replace(':', "-")))).collect()
+    };
+    for route in [Route::Preview, Route::Exact] {
+        let generation = json!({"seismic": seismic()["seismic"], "wind": wind(&["pipe:none"], vec![])["wind"], "provenance": PROV});
+        let base = cantilever(route, EULER_BERNOULLI, vec![case(CASE, Some(generation), vec![])]);
+        let mut missing = base.clone();
+        missing["model"]["load_cases"][0]["equivalent_static"]["seismic"].as_object_mut().unwrap().remove("gravity_acceleration");
+        let mut zero = base.clone();
+        zero["model"]["load_cases"][0]["equivalent_static"]["seismic"]["gravity_acceleration"]["value"] = json!(0.0);
+        for mode in MODES {
+            let what = format!("{route:?} {mode:?}");
+            let out = run(&missing, mode);
+            assert_eq!(out["status"]["mechanics"], "MODEL_INCOMPLETE", "{what}: {:?}", codes(&out));
+            assert!(out["diagnostics"].as_array().unwrap().iter()
+                .any(|d| d["code"] == "EQUIVALENT_STATIC_INPUT_MISSING" && d["affected_refs"] == json!([CASE, "gravity_acceleration"])), "{what}: {:?}", codes(&out));
+            assert!(wind_ids(&out).is_empty(), "{what}: the missing gravity stops the case before wind: {:?}", wind_ids(&out));
+            let out = run(&zero, mode);
+            assert_eq!(out["status"]["mechanics"], "MODEL_INCOMPLETE", "{what}: {:?}", codes(&out));
+            assert!(out["diagnostics"].as_array().unwrap().iter()
+                .any(|d| d["code"] == "EQUIVALENT_STATIC_INPUT_INVALID" && d["message"].as_str().unwrap().contains("finite positive user-entered gravity")), "{what}: {:?}", codes(&out));
+            assert!(!wind_ids(&out).is_empty(), "{what}: the generator's finding lets wind generation run: {:?}", codes(&out));
+        }
+    }
+}
+
 /// `wire`'s single case moved into the load/reference-state group: the
 /// explicit base material selection, no thermal state, the anchor active and
 /// an empty declared ledger, so the resolved generation inputs are the plain

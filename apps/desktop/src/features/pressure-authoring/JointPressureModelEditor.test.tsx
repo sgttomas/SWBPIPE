@@ -12,6 +12,12 @@ function model(version: string): PreviewModel {
 it("queues an explicit area model through the common edit seam on 0.9.0 only", async () => {
   const queue = vi.fn();
   render(<JointPressureModelEditor model={model("0.9.0")} selection={{ type: "component", id: "component:J" }} onQueueIntent={queue} />);
+  // The form stands behind a closed line, as the inspector's other actions do: open it first.
+  const line = screen.getByTestId("joint-pressure-model-details");
+  expect(line).not.toHaveAttribute("open");
+  fireEvent.click(screen.getByText("Joint pressure model", { selector: "summary" }));
+  expect(line).toHaveAttribute("open");
+  expect(screen.getByLabelText("Joint pressure model kind")).toBeVisible();
   const change = (label: string, value: string) => fireEvent.change(screen.getByLabelText(label), { target: { value } });
   change("Joint pressure model kind", "constant_effective_area_reference_v1");
   change("Joint effective area value", "0.004"); change("Joint effective area unit", "m^2");

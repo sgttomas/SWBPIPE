@@ -179,8 +179,8 @@ describe("PropertyInspector views", () => {
     expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("3 selected items");
     const aggregate = byId("aggregate-property-inspector");
     expect(within(aggregate).getByRole("button", { name: "Start property task" })).toBeDisabled();
-    expect(aggregate).toHaveTextContent("node2");
-    expect(aggregate).toHaveTextContent("pipe1");
+    expect(aggregate).toHaveTextContent("Nodes2");
+    expect(aggregate).toHaveTextContent("Pipe1");
     expect(aggregate).toHaveTextContent("Primarynode: node:A");
     fireEvent.click(screen.getByRole("tab", { name: "Task" }));
     expect(byId("inspector-start-task")).toBeDisabled();
@@ -501,7 +501,7 @@ describe("PropertyInspector delete intents and context", () => {
     expect(byId("mass-input-completeness")).toHaveTextContent("Insulation mass is incomplete");
     cleanup();
     mount({ type: "pipe", id: "pipe:shared" }, {}, model);
-    expect(byId("pipe-section-basis")).toHaveTextContent("Shared section: section:S-1. Edit diameter and wall in Sections.");
+    expect(byId("pipe-section-basis")).toHaveTextContent("Shared section: section:S-1. Edit diameter and wall in Grid › Sections.");
     expect(screen.queryByTestId("mass-input-completeness")).not.toBeInTheDocument();
     // A shared-section pipe does not offer its own diameter or wall for editing.
     startTask();

@@ -473,7 +473,7 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await page.getByTestId("load-manager-create-primitive-category").selectOption("thermal");
   await expect(page.getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-T300");
   await expectVirtualTarget(page, "load-manager-create-primitive-pipe", "pipe:P-100");
-  await expect(page.getByTestId("load-manager-create-primitive-direction")).toHaveValue("global_z");
+  await expect(page.getByTestId("load-manager-create-primitive-direction")).toHaveCount(0);
   await expect(page.getByTestId("load-manager-create-primitive-unit")).toHaveValue("degC");
   await expect(page.getByTestId("queue-create-primitive-intent")).toBeEnabled();
   await page.getByTestId("load-manager-create-primitive-category").selectOption("imposed_displacement");
@@ -691,7 +691,7 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await expect(page.getByTestId("rendered-report-unit-basis")).toHaveCount(0);
   await expect(page.getByTestId("report-package-private-intent")).not.toBeChecked();
   await expect(page.getByTestId("report-package-save")).toBeDisabled();
-  await expect(page.getByTestId("report-package-save")).toHaveAttribute("title", /current mechanics result/);
+  await expect(page.getByTestId("report-package-save")).toHaveAttribute("title", "No current result. Solve the model first.");
   await page.getByTestId("report-package-private-intent").check();
   await expect(page.getByTestId("report-package-save")).toBeDisabled();
   await expect(page.getByTestId("report-package-save-status")).toHaveCount(0);

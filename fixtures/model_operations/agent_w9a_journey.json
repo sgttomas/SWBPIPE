@@ -35,6 +35,9 @@
     "rule_check": "RULE_INPUTS_INCOMPLETE",
     "professional_acceptance": "NOT_PROVIDED"
    },
+   "model_settings": {
+    "shear_model": "timoshenko_annulus_energy_v1"
+   },
    "materials": [],
    "sections": [],
    "nodes": [],
@@ -52,7 +55,7 @@
      "affected_refs": [
       "project:blank-local-20261030t000000z"
      ],
-     "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted."
+     "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads or engineering values were inserted. Its one stated setting is shear deformation in straight members, included (Timoshenko), which the person can change."
     }
    ]
   }
@@ -89,6 +92,26 @@
  "routes": {
   "PF": {
    "operations": [
+    {
+     "operation_id": "op:w9a:0",
+     "operation_kind": "modify",
+     "target": {
+      "object_type": "Project",
+      "ref": "project:blank-local-20261030t000000z"
+     },
+     "change": {
+      "change_id": "change:w9a:0",
+      "change_kind": "set_model_setting",
+      "field_label": "shear deformation not included (Euler-Bernoulli)",
+      "field_path": "model_settings.shear_model",
+      "before": "\"timoshenko_annulus_energy_v1\"",
+      "after": "euler_bernoulli",
+      "unit": "none",
+      "dimension": "dimensionless",
+      "source_note": "Stated in the person's W9-A request."
+     },
+     "rationale": "Build the W9-A L frame from blank: shear deformation not included (Euler-Bernoulli), as the W9-A benchmark states."
+    },
     {
      "operation_id": "op:w9a:1",
      "operation_kind": "create",
@@ -323,6 +346,26 @@
   },
   "EX": {
    "operations": [
+    {
+     "operation_id": "op:w9a:0",
+     "operation_kind": "modify",
+     "target": {
+      "object_type": "Project",
+      "ref": "project:blank-local-20261030t000000z"
+     },
+     "change": {
+      "change_id": "change:w9a:0",
+      "change_kind": "set_model_setting",
+      "field_label": "shear deformation not included (Euler-Bernoulli)",
+      "field_path": "model_settings.shear_model",
+      "before": "\"timoshenko_annulus_energy_v1\"",
+      "after": "euler_bernoulli",
+      "unit": "none",
+      "dimension": "dimensionless",
+      "source_note": "Stated in the person's W9-A request."
+     },
+     "rationale": "Build the W9-A L frame from blank: shear deformation not included (Euler-Bernoulli), as the W9-A benchmark states."
+    },
     {
      "operation_id": "op:w9a:1",
      "operation_kind": "create",

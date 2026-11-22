@@ -811,7 +811,7 @@ mod direct_native {
     use super::*;
     use crate::command_ingress::test_support::{grown_lease_meets_the_budget, headers};
     use crate::command_ingress::{admit_body, text_parse_bytes, INGRESS_ARGS_JSON_V1, REPORT_PACKAGE_WORKING_MEMORY_FACTOR};
-    use crate::exact_source_binding::{CUSTODY_RELEASED, SECTIONS_MISMATCH, SOURCE_NOT_DELIVERED, STANDING_NOT_ELIGIBLE};
+    use crate::exact_source_binding::{CUSTODY_RELEASED, MECHANICS_NOT_SOLVED, RESULT_NOT_READABLE, SECTIONS_MISMATCH, SOURCE_NOT_DELIVERED};
     use crate::memory_pool::test_host::ScriptedHost;
     use crate::report_package_save::test_support::{no_store, save_request_with, software};
     use crate::report_package_save::{
@@ -1636,15 +1636,15 @@ mod direct_native {
         }
     }
 
-    /// DEL-08-01 REQ-017 and REQ-024's present account: a pressure-source-1 result with
-    /// load/reference states is not numerically eligible but is readable. The package
-    /// save still refuses it at step 4 as not eligible (LIM-016). The render does not
-    /// refuse it at step 4; it refuses at step 5, because this request's admission
-    /// binds the witness's result digest, not this result's. That a readable,
-    /// non-eligible result renders when its admission binds it is shown by the
-    /// connecting-path witnesses below.
+    /// DEL-08-01 REQ-017 and REQ-024 ("Package and user release"): a pressure-source-1
+    /// result with load/reference states is not numerically eligible but is readable.
+    /// Neither the render nor the package save refuses it for its standing: both pass
+    /// step 4 and refuse at step 5, because this request's admission binds the
+    /// witness's result digest, not this result's. That a readable, non-eligible result
+    /// renders and saves when its admission binds it is shown by the connecting-path
+    /// witnesses below.
     #[test]
-    fn a_delivered_pressure_source_1_result_with_load_reference_states_is_read_for_render_and_refused_for_save() {
+    fn a_delivered_pressure_source_1_result_with_load_reference_states_is_read_for_render_and_save_alike() {
         let w = witness(SOURCE_1);
         let lr_raw = std::fs::read_to_string(project("fixtures/product_preview/pressure_source/load_reference_source/n05-sparse_interactive.raw.json")).unwrap();
         let lr_request: Value = serde_json::from_str(&std::fs::read_to_string(project("fixtures/product_preview/pressure_source/load_reference_source/n05.request.json")).unwrap()).unwrap();
@@ -1653,7 +1653,8 @@ mod direct_native {
         let mut request = bound(&w.request, &live.job);
         request["report"]["exact_route"]["admission"]["received_bytes_sha256"] = json!(sha256_hex(&lr_raw));
         let (code, message) = save_code(&live, save_args(&request, &w, &w.model, Some(&lr_raw), Some(&intake)));
-        assert_eq!(code, STANDING_NOT_ELIGIBLE, "{message}");
+        assert_eq!(code, SOURCE_NOT_DELIVERED, "{message}");
+        assert!(message.contains("result:"), "{message}");
         let refused = refusal_text(production_render_on(&live, &render_args(&request["report"], Some(&lr_raw), Some(&intake), Some(&canonical_json(&w.manifest)))));
         assert!(refused.starts_with(&format!("{SOURCE_NOT_DELIVERED}: result:")), "{refused}");
         // The genuine pressure-source-1 witness without load/reference states is eligible:
@@ -1662,12 +1663,11 @@ mod direct_native {
         save_admitted(&genuine, save_args(&bound(&w.request, &genuine.job), &w, &w.model, Some(&w.result), Some(&w.intake)), "pressure_source_1");
     }
 
-    /// Scrutiny of PR 328, finding 2: the package save keeps today's refusal set. A
-    /// delivered result whose mechanics are not solved is not numerically eligible, so
-    /// the save refuses it as before (`REPORT-EXACT-STANDING-NOT-ELIGIBLE`, LIM-016),
-    /// before the digest binding. The render refuses it by name and never renders it.
+    /// DEL-08-01 REQ-017, AC-009: a delivered result whose mechanics are not solved is
+    /// refused by name, before the digest binding, by the package save as by the render,
+    /// and is never rendered or packaged. The save refuses with the render's own code.
     #[test]
-    fn an_unsolved_delivered_result_keeps_the_saves_refusal_and_never_renders() {
+    fn an_unsolved_delivered_result_is_refused_by_name_by_the_save_and_the_render() {
         let w = witness(STRAIGHT);
         let mut raw: Value = serde_json::from_str(&w.result).unwrap();
         assert_eq!(raw["status"]["mechanics"], "MECHANICS_SOLVED");
@@ -1677,12 +1677,9 @@ mod direct_native {
         let mut request = bound(&w.request, &live.job);
         request["report"]["exact_route"]["admission"]["received_bytes_sha256"] = json!(sha256_hex(&raw));
         let (code, message) = save_code(&live, save_args(&request, &w, &w.model, Some(&raw), Some(&w.intake)));
-        assert_eq!(code, STANDING_NOT_ELIGIBLE, "{message}");
+        assert!(code == MECHANICS_NOT_SOLVED || code == RESULT_NOT_READABLE, "{code}: {message}");
         let refused = refusal_text(production_render_on(&live, &render_args(&request["report"], Some(&raw), Some(&w.intake), Some(&canonical_json(&w.manifest)))));
-        assert!(
-            refused.starts_with("REPORT-MECHANICS-NOT-SOLVED: ") || refused.starts_with("REPORT-RESULT-NOT-READABLE: "),
-            "{refused}"
-        );
+        assert!(refused.starts_with(&format!("{code}: ")), "the save and the render refuse alike: {code} / {refused}");
     }
 
     /// The DEL-08-01 REQ-024 connecting-path witnesses: the render arguments the

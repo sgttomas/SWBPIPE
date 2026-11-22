@@ -73,8 +73,9 @@ fn reference_standing(source: &Value, model: Option<&Value>, invocation: Option<
     };
     let done = |findings: Vec<String>| {
         let eligible = findings.is_empty();
-        json!({"route": route, "token": token, "status": if eligible { "integrity_checked" } else { "needs_recompute" },
-            "eligible": eligible, "findings": findings})
+        json!({"route": route, "token": token, "status": if eligible { "solver_checks_passed" } else { "needs_recompute" },
+            "eligible": eligible, "findings": findings,
+            "integrity_bound": {"status": "not_verified", "reason": "inverse_norm_bound_not_verified"}})
     };
     match route {
         UNSUPPORTED => {}

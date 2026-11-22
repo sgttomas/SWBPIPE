@@ -813,9 +813,20 @@ def _ordinary_findings(source: Mapping[str, Any], requested: list[Any]) -> list[
     return findings
 
 
+# The status of a verdict the solver's own checks found nothing against: the solver's report, not a verified bound.
+SOLVER_CHECKS_PASSED = "solver_checks_passed"
+
+
+def integrity_bound() -> dict[str, str]:
+    """`reader_verdict::integrity_bound`: the verdict's `integrity_bound` member (release exit criterion 18, LIM-026).
+    The product verifies the integrity check's inverse-norm step for no result, so every verdict states the bound
+    as not verified. Additive: `token`, `eligible` and every admission are unchanged."""
+    return {"status": "not_verified", "reason": "inverse_norm_bound_not_verified"}
+
+
 def standing(source: Any, model: Any = None, invocation: Any = None) -> dict[str, Any]:
-    """G1: `{route, token, status, eligible, findings}`. `token` is the verifier's numerical-use standing with the
-    model's load cases as the requested refs and the caller's invocation."""
+    """G1: `{route, token, status, eligible, findings, integrity_bound}`. `token` is the verifier's numerical-use
+    standing with the model's load cases as the requested refs and the caller's invocation."""
     model, invocation = _present(model), _present(invocation)
     requested_ids = [case.get("id") for case in model["load_cases"]] if isinstance(model, Mapping) and isinstance(model.get("load_cases"), list) else []
     token = c.numerical_use_standing(source, [{"ref_type": "load_case", "ref_id": identifier} for identifier in requested_ids], invocation)
@@ -830,7 +841,8 @@ def standing(source: Any, model: Any = None, invocation: Any = None) -> dict[str
         name = UNSUPPORTED
     def done(findings: list[str]) -> dict[str, Any]:
         eligible = not findings
-        return {"route": name, "token": token, "status": "integrity_checked" if eligible else "needs_recompute", "eligible": eligible, "findings": findings}
+        return {"route": name, "token": token, "status": SOLVER_CHECKS_PASSED if eligible else "needs_recompute", "eligible": eligible, "findings": findings,
+                "integrity_bound": integrity_bound()}
     if name == "pressure_source":
         if invocation is None:
             findings.append(SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED)

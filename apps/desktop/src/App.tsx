@@ -1,6 +1,6 @@
 import { C2ResultGate } from "./features/results/C2ResultGate";
 import type { SessionResult } from "./services/nativeResult";
-import { reportPackageUnavailableReason } from "./features/report/reportPackageRequest";
+import { reportPackageSourceUnavailableReason } from "./features/report/reportPackageRequest";
 import { CompactSelectScope } from "./features/workspace/CompactSelect";
 import { HangerSelectionPanel } from "./features/hanger-selection";
 import { HangerSizingForm } from "./features/hanger-sizing";
@@ -20,11 +20,9 @@ import {
   Bot,
   ClipboardCheck,
   Crosshair,
-  Database,
   FilePlus,
   FolderOpen,
   HardDrive,
-  List,
   Play,
   Save,
   Sparkles,
@@ -64,6 +62,7 @@ import { DesignWorkspacePanel } from "./features/design-workspace/DesignWorkspac
 import { DiffPreviewPanel } from "./features/diff-preview/DiffPreviewPanel";
 import { EditorContractPanel } from "./features/editor-contract/EditorContractPanel";
 import { KnowledgePanel } from "./features/knowledge/KnowledgePanel";
+import { designKnowledgeDiagnostics } from "./services/designKnowledge";
 import { LibraryManagerPanel } from "./features/library/LibraryManagerPanel";
 import { LoadCaseManagerPanel } from "./features/load-cases/LoadCaseManagerPanel";
 import { LocalFeaHandoffPanel } from "./features/local-fea-handoff/LocalFeaHandoffPanel";
@@ -89,9 +88,10 @@ import { OperationLedgerPanel } from "./features/operations/OperationLedgerPanel
 import { PcfExportPanel } from "./features/pcf-export/PcfExportPanel";
 import { ProjectStorageAuditPanel } from "./features/project-storage/ProjectStorageAuditPanel";
 import { ReplaceProjectPrompt } from "./features/project-storage/ReplaceProjectPrompt";
-import { HistoryPanel } from "./features/history/HistoryPanel";
+import { ProjectPage } from "./features/project-storage/ProjectPage";
 import { QuitWhileBusyPrompt, UnsavedChangesPrompt } from "./features/project-storage/UnsavedChangesPrompt";
-import { AUTOSAVE_DESKTOP_ONLY, AutosaveRecoveryPrompt } from "./features/autosave";
+import { AutosaveRecoveryPrompt } from "./features/autosave";
+import { formatAutosaveTime } from "./features/autosave/autosaveRecovery";
 import { ProjectUnitsDialog } from "./features/project-units/ProjectUnitsDialog";
 import { ModelDocumentSaveDialog } from "./features/model-file/ModelDocumentSaveDialog";
 import { HandoffSaveDialog } from "./features/handoff/HandoffSaveDialog";
@@ -167,7 +167,8 @@ export function App() {
 }
 
 function AppSession() {
-  const session = useWorkspaceSession();
+  // DEL-16-03, Commit: the editors' binder stays here, out of the context; this slice binds no editor to it.
+  const { editorBinding, ...session } = useWorkspaceSession();
   // DEL-08-01 REQ-022: the report source sequence and the report output outcomes, owned by
   // the session; the outcomes are shown outside the dormant Report section.
   const reportOutput = {
@@ -248,8 +249,12 @@ function AppSession() {
   // Save Report Package… (DEL-08-01 Design `report-package-current-results.md` §2.1):
   // enablement is synchronous, the output policy's route gate plus the presence
   // checks below. The builder's own refusals (admission, rule-check binding, rule
-  // packs) are shown in the report panel's status line after an attempt.
-  const reportPackageUnavailable = reportPackageUnavailableReason(currentSolvedResult);
+  // packs) are shown in the report panel's status line after an attempt. Its source is
+  // the rendered report's (DEL-08-01 REQ-024, "Package and user release"): Current, or an
+  // exact-route result the rendered report takes whatever its numerical standing. A
+  // pressure-free Timoshenko result the rendered report takes that is not Current is not
+  // offered a package (LIM-016), and the panel says why.
+  const reportPackageUnavailable = reportPackageSourceUnavailableReason(renderableSolvedResult, currentSolvedResult);
   // The viewport's result overlays read the same standing and numerical health view as the results panel.
   const viewportResultStanding = useMemo(() => ({ eligible: numericallyEligible, health: numericalHealth }), [numericallyEligible, numericalHealth]);
   const {
@@ -303,13 +308,11 @@ function AppSession() {
     projectMessage,
     projectOperation,
     projectBusy,
-    handleCreateProject,
     requestBlankProject,
     blankProjectUnitsRequest,
     handleOpenProject,
     handleOpenModelDocument,
     handleSaveProject,
-    handleListProjects,
     replaceProjectPrompt,
     modelDocumentSaveRequest,
     handoffSaveRequest,
@@ -438,7 +441,7 @@ function AppSession() {
           openMenu={openMenu}
           projectBusy={projectBusy}
           modelDocumentSaveReady={model !== null && !projectBusy}
-          reportPackageReady={!reportPackageUnavailable && Boolean(currentSolvedResult && analysisRun && inputManifest) && !running && !reportPackageBusy}
+          reportPackageReady={!reportPackageUnavailable && Boolean(renderableSolvedResult && analysisRun && inputManifest) && !running && !reportPackageBusy}
           running={running}
           solveWithheld={solveGate.kind === "withheld" ? solveWithheldReason(solveGate) : null}
           treeCollapsed={treeCollapsed}
@@ -470,7 +473,8 @@ function AppSession() {
             })}
           />
       </ShellToolbar>
-      <ReportOutputStatus outcomes={reportOutput.outcomes} entries={reportOutput.entries} currentSequence={reportOutput.sequence} />
+      <ReportOutputStatus outcomes={reportOutput.outcomes} entries={reportOutput.entries} currentSequence={reportOutput.sequence}
+        currentProjectId={model?.project.id ?? null} />
 
       <div className="shell-body">
         <StageRail issueCount={issueCount} />
@@ -759,6 +763,7 @@ function AppSession() {
                 operationBusy={operationBusy}
                 getPreparationEpoch={getPreparationEpoch}
                 onQueueIntent={handleQueueEditorIntent}
+                onQueueBatch={handleQueueOperationBatch}
                 onSelect={handleSelectEntity}
                 selection={selection}
               />
@@ -781,7 +786,7 @@ function AppSession() {
                   Key results
                 </button>
               </div>
-              {historicalRun ? <HistoricalRunPanel key={historicalRun.runId} context={historicalRun} /> : <ResultsPanel
+              {historicalRun ? <HistoricalRunPanel key={historicalRun.viewKey} context={historicalRun} /> : <ResultsPanel
                 result={result}
                 model={model}
                 exportAnalysisRun={currentSolvedResult !== null && result === currentSolvedResult ? analysisRun : null}
@@ -906,10 +911,11 @@ function AppSession() {
               <DormantSection page="report" active={activeSection === "report"} sessionGeneration={projectSessionGeneration}>
               <Fragment key={`report:${dormantOutputBasis}`}>
               <ComparisonPackageNotice packaged={packagedWithinRun} dropped={droppedWithinRunBases} testId="report-comparison-package-notice" />
-              {/* DEL-08-01 REQ-017, REQ-024: the rendered report's own source (a readable exact-route
-                  result whatever its standing); its package save stays on currentSolvedResult. */}
+              {/* DEL-08-01 REQ-017, REQ-024: the rendered report's own source (a readable exact-route or
+                  pressure-free Timoshenko result whatever its standing), which its package save and user
+                  release also take on the exact route. */}
               <C2ResultGate result={renderableSolvedResult} analysisRun={analysisRun} feature="the rendered report"
-                withheld={reportPackageRoute ? <ReportPackageSaveStatus route={reportPackageRoute} announce /> : null}>
+                withheld={reportPackageRoute ? <ReportPackageSaveStatus route={reportPackageRoute} /> : null}>
                 {(full) => (
                   <RenderedReportPanel
                     model={model}
@@ -926,7 +932,6 @@ function AppSession() {
                     packageRedaction={reportPackageRedaction}
                     packageRoute={reportPackageRoute}
                     onPackagePrivateIntentChange={setReportPackagePrivateIntent}
-                    packageNeedsCurrent={currentSolvedResult === null}
                     restoredRun={historicalRun?.designation === "historical_saved_run" && !running}
                     onSaveReportPackage={reportPackageUnavailable ? undefined : () => void handleSaveReportPackage()}
                     onSaveShareableReportPackage={reportPackageUnavailable ? undefined : () => void requestSaveShareableReportPackage()}
@@ -1054,6 +1059,9 @@ function AppSession() {
               getPreparationEpoch={getPreparationEpoch}
               model={model}
               onSelectReference={(entity) => { handleSelectEntity(entity); }}
+              onChangeSelected={openBulkChange}
+              armedCreationTool={armedCreationTool}
+              onArmCreationTool={handleArmCreationTool}
               onQueueIntent={handleQueueEditorIntent}
               onValidateIntent={handleValidateIntent}
               onApplyIntent={handleApplyIntent}
@@ -1078,37 +1086,20 @@ function AppSession() {
           <header className="workspace-dock-header" data-testid="workspace-dock-header">
             <h2>{shell.page ? WORKSPACE_SECTIONS.find((candidate) => candidate.id === shell.page)?.label ?? shell.page : ""}</h2>
             <div className={shell.page === "project" ? "titlebar-actions shell-project-controls" : "titlebar-actions shell-project-controls inactive"} aria-label="Local project controls">
-          <button type="button" onClick={handleCreateProject} disabled={projectBusy}>
-            <Database size={15} aria-hidden="true" />
-            Create local
-          </button>
-          <button type="button" onClick={() => requestBlankProject("local")} disabled={projectBusy}>
+          {/* New, Open… and Save: the File menu keeps the complete list (Save as New Local Project,
+              Open Local Project…, List Local Projects); the saved projects are listed on the page.
+              New's dialog offers the starting model, the ordinary blank or the one set up for internal pressure. */}
+          <button type="button" data-testid="project-new" onClick={() => requestBlankProject()} disabled={projectBusy}>
             <FilePlus size={15} aria-hidden="true" />
-            New blank
-          </button>
-          <button type="button" data-testid="new-blank-040" onClick={() => requestBlankProject("load_state")} disabled={projectBusy}>
-            <FilePlus size={15} aria-hidden="true" />
-            Blank load/reference model
+            New
           </button>
           <button data-testid="open-model-document" type="button" onClick={() => void handleOpenModelDocument()} disabled={projectBusy}>
             <FolderOpen size={15} aria-hidden="true" />
-            Open model file
+            Open…
           </button>
-          <button data-testid="project-recover-autosave" type="button" onClick={() => void autosave.recoverAutosave()} disabled={projectBusy || !autosave.settings} title={autosave.settings ? "Offer each autosave not shown to be saved" : AUTOSAVE_DESKTOP_ONLY}>
-            <FolderOpen size={15} aria-hidden="true" />
-            Recover autosave…
-          </button>
-          <button data-testid="open-local-project" type="button" onClick={() => handleOpenProject()} disabled={projectBusy}>
-            <FolderOpen size={15} aria-hidden="true" />
-            Open local
-          </button>
-          <button type="button" onClick={handleListProjects} disabled={projectBusy}>
-            <List size={15} aria-hidden="true" />
-            List local
-          </button>
-          <button type="button" onClick={handleSaveProject} disabled={projectBusy}>
+          <button type="button" data-testid="project-save" onClick={handleSaveProject} disabled={projectBusy}>
             <Save size={15} aria-hidden="true" />
-            Save local
+            Save
           </button>
             </div>
             {shell.page ? (
@@ -1122,7 +1113,7 @@ function AppSession() {
         <summary><span data-testid="local-project-message" role="status">{projectMessage}</span><span className="project-details-label">Details</span></summary>
         <span data-testid="local-project-review-context">{projectReviewContext(editorIntents, proposal, appliedOperations.length)}</span>
         {projectIndex && projectIndex.length > 0 ? (
-          <div className="project-index-picker" data-testid="project-index-picker" aria-label="Open listed project by id">
+          <div className="project-index-picker" data-testid="project-index-picker" aria-label="Open a listed project">
             {projectIndex.map((entry) => (
               <button
                 key={entry.project_id}
@@ -1132,7 +1123,7 @@ function AppSession() {
                 disabled={projectBusy}
               >
                 <FolderOpen size={15} aria-hidden="true" />
-                {entry.project_name} ({entry.project_id})
+                {entry.project_name} · saved {formatAutosaveTime(entry.updated_at_unix * 1000)}
               </button>
             ))}
           </div>
@@ -1212,7 +1203,7 @@ function AppSession() {
                   </>
                 )}
               </C2ResultGate>
-              <KnowledgePanel knowledge={knowledge} result={currentSolvedResult} />
+              <KnowledgePanel knowledge={knowledge} model={model} result={currentSolvedResult} />
               </DormantSection>) : null}
             </section>
 
@@ -1223,33 +1214,34 @@ function AppSession() {
             >
               {activeSection === "project" || activatedExpensiveSections.has("project") ? (
               <DormantSection page="project" active={activeSection === "project"} sessionGeneration={projectSessionGeneration}>
-              <ProjectStorageAuditPanel
-                model={model}
-                storageCapability={storageCapability}
-                projectSummary={projectSummary}
-                projectIndex={projectIndex}
-                projectMessage={projectMessage}
-                projectOperation={projectOperation}
-                editorIntents={editorIntents}
-                proposal={proposal}
-                modelHashIntegrity={modelHashIntegrity}
-                projectEnvelopeHashIntegrity={projectEnvelopeHashIntegrity}
-                storedRunNotOpened={storedRunNotOpened}
-              />
-              <HistoryPanel />
-              <ProjectValidationPanel
-                model={model}
-                storageCapability={storageCapability}
-                projectSummary={projectSummary}
-                projectOperation={projectOperation}
-                editorIntents={editorIntents}
-                proposal={proposal}
-                modelHash={modelHash}
-                modelHashIntegrity={modelHashIntegrity}
-                projectEnvelopeHash={projectEnvelopeHash}
-                projectEnvelopeHashIntegrity={projectEnvelopeHashIntegrity}
-                modelDocumentVersion={modelDocumentVersion}
-              />
+              <ProjectPage storageRecord={<>
+                  <ProjectStorageAuditPanel
+                    model={model}
+                    storageCapability={storageCapability}
+                    projectSummary={projectSummary}
+                    projectIndex={projectIndex}
+                    projectMessage={projectMessage}
+                    projectOperation={projectOperation}
+                    editorIntents={editorIntents}
+                    proposal={proposal}
+                    modelHashIntegrity={modelHashIntegrity}
+                    projectEnvelopeHashIntegrity={projectEnvelopeHashIntegrity}
+                    storedRunNotOpened={storedRunNotOpened}
+                  />
+                  <ProjectValidationPanel
+                    model={model}
+                    storageCapability={storageCapability}
+                    projectSummary={projectSummary}
+                    projectOperation={projectOperation}
+                    editorIntents={editorIntents}
+                    proposal={proposal}
+                    modelHash={modelHash}
+                    modelHashIntegrity={modelHashIntegrity}
+                    projectEnvelopeHash={projectEnvelopeHash}
+                    projectEnvelopeHashIntegrity={projectEnvelopeHashIntegrity}
+                    modelDocumentVersion={modelDocumentVersion}
+                  />
+              </>} />
               </DormantSection>) : null}
             </section>
 
@@ -1791,7 +1783,7 @@ function StatusPill({ label, value, testId, summaryText }: {
   );
 }
 
-function issueCountFor(
+export function issueCountFor(
   model: PreviewModel,
   knowledge: DesignKnowledge | null,
   result: SessionResult | null,
@@ -1803,7 +1795,7 @@ function issueCountFor(
   );
   return (
     model.diagnostics.length +
-    (knowledge?.diagnostics.length ?? 0) +
+    designKnowledgeDiagnostics(knowledge, model).length +
     (result?.diagnostics.length ?? 0) +
     operationDiagnosticCount +
     countMissingDataBlockers({ model, result })

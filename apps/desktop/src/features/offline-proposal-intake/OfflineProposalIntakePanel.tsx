@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { OperationBatch } from "../../services/operationBatchService";
 import { usePreparation, type WorkflowProps } from "./workflowSupport";
 import { stampImportedBatch } from "../../services/operationAuthorship";
+import { suggestedFileName } from "../fileNames";
 
 // Only envelope parsing happens here. The shared engine performs strict operation validation.
 // The parsed object keeps every asserted field; queueing then stamps each operation
@@ -68,7 +69,7 @@ export function OfflineProposalIntakePanel(props: WorkflowProps & {
           : examplesState === "failed" ? "The executable examples could not be checked; the reference below omits them."
           : currentExamples ? "Executable examples were checked against this model by the shared engine." : "Open this reference to check executable examples against the current model."}</p> : null}
         {/* The link serializes the static reference (capability list, operation schema and status line); the display below includes the checked example. */}
-        <a download="piping-operation-capabilities.json" href={`data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(props.capabilityReference, null, 2))}`}>Download capability and schema reference</a>
+        <a download={suggestedFileName("operationCapabilities")} href={`data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(props.capabilityReference, null, 2))}`}>Download capability and schema reference</a>
         <pre data-testid="capability-reference-json">{JSON.stringify(reference, null, 2)}</pre>
       </>}
     </details>

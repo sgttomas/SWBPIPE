@@ -33,8 +33,7 @@ for (const shape of ["pressure_2_straight", "pressure_source_1"]) {
     const analysisRun = await buildAnalysisRunPreview(result, { inputManifest });
     const document = await buildCurrentResultExport({ model, result, analysisRun, inputManifest });
     const userRelease = structuredClone(load("fixtures/reports/invented/user_release_record.json"));
-    userRelease.record_version = "1.1.0";
-    userRelease.scope.not_carried.push("ineligible_exact_route_results");
+    userRelease.record_version = "1.2.0";
     userRelease.scope.report_id = `report:${result.run_id}`;
     userRelease.scope.package_id = `desktop-user-released-report-${result.run_id.replace(/[^A-Za-z0-9._-]+/g, "-").replace(/^-+|-+$/g, "")}`;
     userRelease.bound_to = {

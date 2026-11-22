@@ -32,9 +32,9 @@ needs:
 - from: DEL-02-01
   condition: >-
     The model document carries a pipe section's outside diameter, wall, mill tolerance and
-    corrosion allowance, the shear model selection (required in the pressure contract, optional in
-    model settings and never written by default), and a component's stress-intensification factors,
-    each kept as authored.
+    corrosion allowance, the shear model selection (required in the pressure contract; optional in
+    model settings and written there without the user's choice only as the selection a new
+    document states), and a component's stress-intensification factors, each kept as authored.
   gating: true
 - from: DEL-02-02
   condition: >-
@@ -67,11 +67,20 @@ needs:
   gating: false
 - from: DEL-07-03
   condition: >-
-    The desktop's load manager authors a document's pressure regions as model operations; that is
-    the path on which an exact-route document's shear selection, whose default this scope states,
-    is first written.
+    The desktop's pressure authoring activates the exact route as one model operation that carries
+    the document's stated shear selection into the pressure contract, or writes
+    `timoshenko_annulus_energy_v1` when no choice is made, and removes the selection from the
+    model settings; a pick that differs from the stated selection is queued with the model-setting
+    change as one batch.
   gating: false
-  when: Examining the authored default of the shear selection
+  when: Examining the shear selection written at activation
+- from: DEL-02-05
+  condition: >-
+    A new document states timoshenko_annulus_energy_v1 in model_settings.shear_model for a
+    pressure-free document, or in pressure_contract.shear_model for an exact-route one, and only
+    there.
+  gating: false
+  when: Examining the selection a new document states
 code_paths:
 # The stress-recovery crate: component stresses, station sweeps, ranges and the section-quantity
 # sequences. The product solve links it for the section quantities; its station sweep, range and
