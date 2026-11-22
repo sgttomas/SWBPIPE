@@ -3253,6 +3253,7 @@ tbody tr:hover { background-image: linear-gradient(var(--hover-wash), var(--hove
 .review-changes { display: grid; gap: 8px; align-content: start; }
 .review-changes > p { margin: 0; }
 .review-changes-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.review-changes-actions[hidden] { display: none; }
 .review-changes-actions button { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 5px 10px; }
 .app-shell .review-changes-actions .review-apply-all:not(:disabled) {
   color: var(--text-inverse); background-color: var(--accent-fill); border-color: var(--accent-fill); font-weight: var(--type-weight-semibold);
