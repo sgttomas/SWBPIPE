@@ -89,6 +89,8 @@ checks:
 - tests/test_check_public_observations.py
 - tests/test_caepipe_benchmark.py
 - tests/test_caepipe_benchmark_tranche3.py
+- tests/test_caepipe_stated_bases.py
+- tests/test_caepipe_window_capture.py
 - tests/test_caepipe_sitting_pack_build.py
 - apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
 - apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
