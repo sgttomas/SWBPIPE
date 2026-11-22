@@ -626,8 +626,13 @@ const ENTRY_RULES: [(&str, &str, Entry); 6] = [
 /// `activate_report_source`: `observe_report_source` (the previous digest
 /// `88f99c22…4ca92df` reproduced first; the macro's only change is that line;
 /// no `mod`, no `$parameter ::`, no scanned name).
+/// Rule checks on the natively held result (#489) add one ordinary handler
+/// entry after `run_rule_checks`:
+/// `preview_rule_solver_rows` (the previous digest `659a5501…a8939a8`
+/// reproduced first; the macro's only change is that line; no `mod`, no
+/// `$parameter ::`, no scanned name).
 const MACRO_DEFINITIONS: [(&str, &str, &str); 3] = [
-    ("src-tauri/src/lib.rs", "app_invoke_handler", "659a550154e0e1d1681efaa0a68b58223dd01c96539ac05555bf5a763a8939a8"),
+    ("src-tauri/src/lib.rs", "app_invoke_handler", "bb0be144ba2998ca3b77800c94cfda635f464c003c5fc0f400d6c0dc56039c0f"),
     ("headless/src/reader_binding.rs", "base", "d80e766036e0f651522ebfe11ebc6ba1fc32ec2b9c2b3702e0b978eb86558cb2"),
     ("headless/src/reader_binding.rs", "transport", "057aa56311a7531f094632a3fe9f2d781b9364ab4865add6c7d257403732169a"),
 ];

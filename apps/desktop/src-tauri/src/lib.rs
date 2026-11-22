@@ -4083,7 +4083,7 @@ fn preview_rule_solver_rows_reply_within(args: &mut Args, registry: &SolveJobReg
         #[cfg(test)]
         crate::native_verdict::tests::gate::pass(crate::native_verdict::tests::gate::key(registry, "rule-check-serialize"));
         let text = rule_solver_selection::write_preview_reply(&envelope, &queries, &job_id, length);
-        debug_assert_eq!(text.len() as u64, length);
+        debug_assert!(text.len() as u64 == length, "the preview reply is {} bytes, not its leased {length}", text.len());
         drop(envelope);
         drop(parse);
         Ok((text, reply_lease))
@@ -4167,7 +4167,7 @@ fn run_rule_checks_args(args: &mut Args, store: &dyn Fn() -> Result<PathBuf, Str
         // Written into a buffer of exactly the leased length.
         let mut bytes = Vec::with_capacity(length as usize);
         serde_json::to_writer(&mut bytes, &answer).map_err(|error| CommandError::Response(error.to_string()))?;
-        debug_assert_eq!(bytes.len() as u64, length);
+        debug_assert!(bytes.len() as u64 == length, "the rule check reply is {} bytes, not its leased {length}", bytes.len());
         let text = String::from_utf8(bytes).map_err(|error| CommandError::Response(error.to_string()))?;
         drop(answer);
         drop(work);

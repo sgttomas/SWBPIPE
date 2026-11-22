@@ -2585,6 +2585,7 @@
               "apps/desktop/src-tauri/src/result_summary_tables.rs",
               "apps/desktop/src-tauri/src/result_summary_tests.rs",
               "apps/desktop/src-tauri/src/result_text_digest.rs",
+              "apps/desktop/src-tauri/src/rule_check_handle_tests.rs",
               "apps/desktop/src-tauri/src/rule_check_object_form_tests.rs",
               "apps/desktop/src-tauri/src/rule_solver_selection.rs",
               "apps/desktop/src-tauri/src/rule_solver_selection_tests.rs",
