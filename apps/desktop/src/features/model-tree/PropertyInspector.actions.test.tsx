@@ -329,7 +329,8 @@ describe("a warning that applies is on its closed line, without a press", () => 
 
   it("a stored value that is not a unit symbol, and a legacy spelling, on the closed Project units line", () => {
     const model = inventedModel();
-    model.project.units = { ...model.project.units, pressure: 7, temperature: "C" } as unknown as PreviewModel["project"]["units"];
+    // The schema types each unit as a string: a blank one is the value a document can carry that is not a symbol.
+    model.project.units = { ...model.project.units, pressure: "\t", temperature: "C" } as PreviewModel["project"]["units"];
     mount({ type: "project", id: model.project.id }, {}, model);
     expect(projectUnitsSummary()).toHaveTextContent("m, N, moment not set, pressure not a unit symbol, stress not set, C, rad");
     expect(unitNotes()).toEqual([
