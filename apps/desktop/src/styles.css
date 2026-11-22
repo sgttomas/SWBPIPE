@@ -4924,3 +4924,23 @@ body { min-width: 760px; min-height: 540px; }
 .project-storage-record > summary { cursor: pointer; color: var(--ui-muted); }
 .project-storage-record-body { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap: var(--space-2); margin-top: var(--space-2); align-items: start; }
 .project-storage-record-body > .panel { min-width: 0; }
+
+/* Persistent report output outcomes live region (DEL-08-01 REQ-022): kept mounted
+   outside the dormant Report section so screen readers monitor polite live updates
+   before any outcome exists. When empty it takes no layout space and stays non-visible
+   to checkVisibility({ checkOpacity: true }) without display:none or visibility:hidden. */
+.report-output-status-region {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0;
+}
+.report-output-status:empty {
+  height: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}

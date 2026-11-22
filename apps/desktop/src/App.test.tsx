@@ -12584,8 +12584,24 @@ describe("workflow current and historical result boundaries", () => {
       expect(within(report).getByTestId("report-package-save")).toHaveTextContent("Saving report package");
       expect(within(report).getByTestId("report-package-redaction-summary").textContent).toBe(currentRedaction);
       expect(within(report).queryByTestId("report-package-save-status")).not.toBeInTheDocument();
-      expect(document.body).not.toHaveTextContent("stale-route");
-      expect(document.body).not.toHaveTextContent("STALE-REPORT-PACKAGE-ERROR");
+      expect(report).not.toHaveTextContent("stale-route");
+      expect(report).not.toHaveTextContent("STALE-REPORT-PACKAGE-ERROR");
+      // DEL-08-01 REQ-022 (issue 508): the earlier sent save settles in the persistent
+      // outcome strip marked as an earlier run, without touching the open panel or the
+      // newer in-flight save.
+      const strip = screen.getByTestId("report-output-status");
+      const staleEntry = within(strip).getByTestId("report-output-1");
+      expect(staleEntry).toHaveAttribute("data-workspace-changed", "true");
+      expect(within(staleEntry).getByTestId("report-output-1-text")).toHaveTextContent("It is of an earlier run:");
+      if (staleOutcome === "success") {
+        expect(staleEntry).toHaveAttribute("data-state", "saved");
+        expect(within(staleEntry).getByTestId("report-output-1-text")).toHaveTextContent("stale-route.opsreport");
+      } else {
+        expect(staleEntry).toHaveAttribute("data-state", "unknown");
+        expect(within(staleEntry).getByTestId("report-output-1-details")).toHaveTextContent("STALE-REPORT-PACKAGE-ERROR");
+      }
+      expect(within(strip).getByTestId("report-output-2")).toHaveAttribute("data-state", "pending");
+      expect(within(strip).getByTestId("report-output-2")).toHaveAttribute("data-workspace-changed", "false");
 
       await act(async () => {
         currentSave.resolve(reportPackageSaveReceipt("current-route"));

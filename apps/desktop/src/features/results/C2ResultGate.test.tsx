@@ -79,10 +79,12 @@ it("asks the loader for the run record exactly when it was given one, and loads 
   expect(load).toHaveBeenCalledTimes(2);
 });
 
+// A request that did not proceed is announced here; a save's own outcome is shown here and
+// announced by the session's report output strip, which keeps it (issue 508), not again here.
 it.each([
-  ["a request that did not proceed", { route: "not_requested", diagnostic: "Not saved: a report package was already being saved." }],
-  ["the oversized record's refusal", { route: "redaction_blocked", diagnostic: `RESULT-DETAIL-WEBVIEW-LIMIT (record_bytes=${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1}, limit_bytes=${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES}): the run record is above the size the webview can hold whole.` }]
-] as const)("under a refused gate, %s is announced by exactly one status, below the refusal", async (_name, route) => {
+  ["a request that did not proceed", { route: "not_requested", diagnostic: "Not saved: a report package was already being saved." }, true],
+  ["the oversized record's refusal", { route: "redaction_blocked", diagnostic: `RESULT-DETAIL-WEBVIEW-LIMIT (record_bytes=${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1}, limit_bytes=${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES}): the run record is above the size the webview can hold whole.` }, false]
+] as const)("under a refused gate, %s is shown below the refusal (announced here: %s)", async (_name, route, announcedHere) => {
   const replay=createNativeMechanicsReplay({profile:"preview"});
   invokeMock.mockImplementation(replay.invoke);
   (window as unknown as Record<string,unknown>).__TAURI_INTERNALS__={};
@@ -96,17 +98,17 @@ it.each([
   const load=vi.fn(async () => { throw new FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES, "record_bytes", "record"); });
   render(
     <C2ResultGate result={native} analysisRun={record} feature="the rendered report" load={load}
-      withheld={<ReportPackageSaveStatus route={route as ReportPackageSaveRoute} announce />}>
+      withheld={<ReportPackageSaveStatus route={route as ReportPackageSaveRoute} />}>
       {() => <span data-testid="full-consumer" />}
     </C2ResultGate>
   );
   const refusal=await screen.findByTestId("c2-result-refused");
   expect(screen.queryByTestId("full-consumer")).toBeNull();
+  const shown=screen.getByTestId("report-package-save-status");
+  expect(shown.textContent).toBe(route.diagnostic);
   const announced=screen.getAllByRole("status").filter((status) => status.textContent?.includes(route.diagnostic));
-  expect(announced).toHaveLength(1);
-  expect(announced[0]).toHaveAttribute("data-testid","report-package-save-status");
-  expect(announced[0].textContent).toBe(route.diagnostic);
+  expect(announced).toEqual(announcedHere ? [shown] : []);
   // The gate's own refusal is a separate status, before it; the wrapper adds no role.
-  expect(refusal.compareDocumentPosition(announced[0]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(refusal.compareDocumentPosition(shown) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   expect(screen.getByTestId("c2-result-withheld")).not.toHaveAttribute("role");
 });
