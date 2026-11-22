@@ -23,11 +23,12 @@ import math
 from typing import Any, Mapping
 
 from .correlation import canonical_model_hash
-from .print_csv import PRINTED_DECIMALS, RESOLUTION_ABSENT, RESOLUTION_CAUSES, bind_element_rows, resolve_section
+from .print_csv import (NO_WITNESS, PRINTED_DECIMALS, RESOLUTION_ABSENT, RESOLUTION_CAUSES, bind_element_rows,
+                        candidate_resolution, printed_zero, resolve_section)
 
 
 BENCHMARK_RECORD_KIND = "openpipestress.caepipe_benchmark.comparison_record"
-BENCHMARK_RECORD_VERSION = "3"
+BENCHMARK_RECORD_VERSION = "4"
 EVIDENCE_CLASSIFICATION = ("private validation evidence for review (docs/PRD.md section 22.5); not compatibility proof, "
                            "code compliance or professional acceptance")
 
@@ -41,6 +42,15 @@ PRINTED_RESOLUTION = "printed_resolution"
 
 EXACT = "exact"
 NAMED_INEXACT = "named_inexact"
+# A class a model declares for a case with a support whose status can change (the hand-entered nonlinear members); the
+# batch route never derives it (screening_class), a window comparison takes it from the run's declaration.
+NONLINEAR = "nonlinear"
+# Why a SWBPIPE row is not compared: its unit is of another dimension than the quantity's.
+SWBPIPE_UNIT_DIMENSION = "swbpipe_unit_dimension"
+# Why a row of a member entered at the program's window has no CAEPIPE value: the print's section is not read.
+PRINT_SECTION_NOT_READ = "print_section_not_read"
+# Why a nonlinear case's required support-state match has no row of a support: the run declares no support state.
+SUPPORT_STATE_NOT_DECLARED = "support_state_not_declared"
 # The screening profile of the "Benchmark method" section of docs/RELEASE_TARGET_v1.0.md, as the Screening profile
 # definition of execution/PKG-17/DEL-17-05/ScopeOfWork.md states it: a relative tolerance by class plus a
 # printed-resolution floor per result kind, and nothing else.
@@ -48,14 +58,18 @@ SCREENING_PROFILE = {
     "basis": ("screening profile of the Benchmark method section of docs/RELEASE_TARGET_v1.0.md, as the Screening "
               "profile definition of execution/PKG-17/DEL-17-05/ScopeOfWork.md states it; proposed by the validation "
               "lane; the owner's review of the full record decides, not the profile; values are only tightened"),
-    "relative": {EXACT: 1.0e-4, NAMED_INEXACT: 5.0e-3},
+    "relative": {EXACT: 1.0e-4, NAMED_INEXACT: 5.0e-3, NONLINEAR: 2.0e-2},
+    "nonlinear": ("a case a model declares nonlinear is screened at 2e-2 and needs its support status to match "
+                  "exactly; where that status cannot be read from the print, the match is recorded as not available, "
+                  "by name, and never taken as matching"),
     "floor": ("a: one printed unit of CAEPIPE's value, one unit in the last decimal place of the candidate fixed-point "
               "precision for its column's unit label, converted to SI"),
     "floor_basis": ("the printed resolution of the prover's output, established per section of the print and printed "
                     "unit by the resolution judgment below, against a candidate fixed-point precision per unit label "
                     "(printed_decimals; observed format behaviour), which is a candidate, not proof of a print's "
                     "resolution; a value without an established resolution is unmatched with its cause, never "
-                    "screened with a wider floor"),
+                    "screened with a wider floor, except a printed zero under zero_against_zero below, which is "
+                    "screened with the candidate floor and marked and counted apart"),
     "printed_decimals": {f"{system} {label}": places for (system, label), places in sorted(PRINTED_DECIMALS.items())},
     "resolution_judgment": {
         "format_family": ("fixed-place printing at the candidate places for each unit, trailing zeros omitted, uniform "
@@ -81,6 +95,24 @@ SCREENING_PROFILE = {
     "rule": "|S - C| <= a + r * max(|S|, |C|); a the printed-resolution floor of the value's result kind, r the class "
             "tolerance",
 }
+# Zero against zero (the validation lane, 21 November 2026): a value the print shows as zero in a section with no
+# nonzero token of its unit has no established printed resolution (no_witness), so on the section rule alone it would be
+# unmatched. It is screened instead, with the floor one printed unit at the candidate places of its unit, and so is an
+# agreement when SWBPIPE's value is zero within the row's allowed difference, and a finding when it is not.
+ZERO_AGAINST_ZERO = {
+    "rule": ("where every printed token of CAEPIPE's value is a fixed-point zero, its section has no nonzero token of "
+             "that unit (cause no_witness), and the unit has candidate places, the value is screened by the profile's "
+             "rule with the floor a one printed unit at the candidate places: within_profile when |S| <= a + r |S|, "
+             "else a finding. A blank token, an English or radian label, an exponent token, or a section that shows "
+             "a nonzero token of the unit is not under this rule."),
+    "reason": ("a zero printed beside a zero SWBPIPE value is an agreement, and a zero beside a nonzero SWBPIPE value "
+               "is a finding to examine; neither is a value missing from one side"),
+    "limit": ("the candidate places are not established for the section, which shows no nonzero token: if the print "
+              "is coarser than the candidate, a SWBPIPE value smaller than half a coarser printed unit and larger than "
+              "the candidate floor reads as a finding that the print could not show, and a CAEPIPE value of up to half "
+              "a coarser printed unit reads as zero; each such row is marked zero_against_zero and counted apart"),
+}
+SCREENING_PROFILE["zero_against_zero"] = ZERO_AGAINST_ZERO
 # The closed form against SWBPIPE: both binary64 Euler-Bernoulli values (the pilot's analytic_vs_swbpipe scale).
 CLOSED_FORM_TOLERANCE = {"rel": 1.0e-6, "abs": {"m": 1.0e-9, "rad": 1.0e-9, "N": 1.0e-6, "N*m": 1.0e-6}}
 
@@ -97,6 +129,8 @@ _SWBPIPE_END = {"element_global_end_force_v1": ("element_force", "N"),
 _SWBPIPE_SUPPORT = "support_reaction_component_v2"
 _UNIT = {"displacement": "m", "rotation": "rad", "element_force": "N", "element_moment": "N*m",
          "support_force": "N", "support_moment": "N*m"}
+_DIMENSION = {"m": "length", "mm": "length", "rad": "angle", "deg": "angle", "N": "force", "kN": "force",
+              "N*m": "moment", "kN*m": "moment"}
 
 
 def _si(value: Any, unit: Any) -> float | None:
@@ -107,6 +141,13 @@ def _si(value: Any, unit: Any) -> float | None:
     factor = _TO_SI.get(unit)
     converted = None if factor is None else value * factor
     return converted if converted is not None and math.isfinite(converted) else None
+
+
+def _si_as(value: Any, unit: Any, si_unit: str) -> tuple[float | None, bool]:
+    """(the value in SI, whether its unit is of the quantity's dimension); None when it is not, or not finite."""
+    if _DIMENSION.get(unit) != _DIMENSION[si_unit]:
+        return None, False
+    return _si(value, unit), True
 
 
 def screening_class(inexact_inputs: list[str] | None) -> str:
@@ -134,8 +175,55 @@ def _close(a: float, b: float, unit: str) -> bool:
 Key = tuple[str, str, str, str]  # (kind, entity, end or "", component)
 
 
+WALL_AXIAL = "pipe_wall_axial_force_v2"
+EFFECTIVE_AXIAL = "pipe_effective_axial_force_v2"
+# The sign of the end action on the element along its axis at each end (end_i: -N, end_j: +N).
+_END_ACTION_SIGN = {"end_i": -1.0, "end_j": 1.0}
+
+
+def effective_axial_deltas(results: list[Any], case_ids: list[str],
+                           axes: Mapping[tuple[str, str], tuple[float, float, float]],
+                           pressurised: Mapping[str, set[str]]) -> tuple[dict[tuple[str, str, str], tuple[float, ...]],
+                                                                        dict[tuple[str, str], str]]:
+    """The change of each element end force (case, member, end) from the wall binding to the effective binding,
+    s (S - N_w) t, in N along global x, y, z, from SWBPIPE's own rows pipe_wall_axial_force_v2 and
+    pipe_effective_axial_force_v2 at that end; and why a (member, end) of a pressurised member has none. A member that
+    is not pressurised in a case has S = N_w there: no change. A pressurised member's end without both finite rows in
+    N, or without a known axis, has none."""
+    found: dict[tuple[str, str, str, str], list[float]] = {}
+    for row in results:
+        if not isinstance(row, Mapping) or row.get("kind") not in (WALL_AXIAL, EFFECTIVE_AXIAL):
+            continue
+        case = (row.get("basis_ref") or {}).get("ref_id")
+        location = (row.get("metadata") or {}).get("location")
+        value = row.get("value")
+        if case in case_ids and location in _END_ACTION_SIGN:
+            found.setdefault((str(case), str(row.get("entity_ref")), location, row["kind"]), []).append(
+                float(value) if row.get("unit") == "N" and isinstance(value, (int, float))
+                and not isinstance(value, bool) and math.isfinite(value) else math.nan)
+    deltas: dict[tuple[str, str, str], tuple[float, ...]] = {}
+    missing: dict[tuple[str, str], str] = {}
+    for case in case_ids:
+        for member in sorted(pressurised.get(case) or ()):
+            for end, sign in _END_ACTION_SIGN.items():
+                wall = found.get((case, member, end, WALL_AXIAL)) or []
+                effective = found.get((case, member, end, EFFECTIVE_AXIAL)) or []
+                axis = axes.get((member, end))
+                if axis is None:
+                    missing[(member, end)] = "the member's axis at this end is not known"
+                elif len(wall) != 1 or len(effective) != 1 or not all(map(math.isfinite, wall + effective)):
+                    missing[(member, end)] = (f"SWBPIPE's result does not carry one finite {WALL_AXIAL} and one "
+                                              f"{EFFECTIVE_AXIAL} in N at this end in {case}")
+                else:
+                    deltas[(case, member, end)] = tuple(sign * (effective[0] - wall[0]) * c for c in axis)
+    return deltas, missing
+
+
 def swbpipe_values(results: list[Any], case_ids: list[str], support_nodes: Mapping[str, str],
-                   anchor_nodes: set[str] | frozenset[str] = frozenset()) -> tuple[dict[Key, float], set[Key]]:
+                   anchor_nodes: set[str] | frozenset[str] = frozenset(),
+                   end_force_deltas: tuple[Mapping[tuple[str, str, str], tuple[float, ...]],
+                                           Mapping[tuple[str, str], str]] | None = None,
+                   wrong_dimension: set[Key] | None = None) -> tuple[dict[Key, float], set[Key]]:
     """SWBPIPE's values of the named cases, summed over the cases (one case, or the operating sum), in SI, and the
     keys that cannot be screened: a contribution that is missing from one of the cases, not a finite number in a
     known unit, or a sum that is not finite. Those keys carry no value and are classed unmatched, never screened on
@@ -144,7 +232,14 @@ def swbpipe_values(results: list[Any], case_ids: list[str], support_nodes: Mappi
     Support reactions are summed per CAEPIPE node (`support_nodes`: support id -> node label) because the target
     program prints one row per node; displacements are keyed by SWBPIPE node, element ends by member and end. The
     moment components of supports at a node that is not written as an anchor (`anchor_nodes`) are left out: the
-    printed restraint rows give forces only."""
+    printed restraint rows give forces only.
+
+    With `end_force_deltas` (effective_axial_deltas), each element end force of a pressurised member is taken under the
+    effective binding: its delta is added in each case where it is pressurised, and an end without one is not
+    screenable (invalid).
+
+    A row whose unit is not of its quantity's dimension (a length on a rotation) is never converted: its key is not
+    screenable, and is added to `wrong_dimension` when given, so that the record names that cause."""
     # Each contribution keeps its own identity (a support's reaction its support id) until it is complete in every
     # case; only then are contributions summed into the compared key.
     Source = tuple[Key, str]
@@ -162,15 +257,31 @@ def swbpipe_values(results: list[Any], case_ids: list[str], support_nodes: Mappi
             continue
         case = (row.get("basis_ref") or {}).get("ref_id")
         kind = row.get("kind")
-        value = _si(row.get("value"), row.get("unit"))
+
+        def converted(key: Key, si_unit: str) -> float | None:
+            value, dimensioned = _si_as(row.get("value"), row.get("unit"), si_unit)
+            if not dimensioned and wrong_dimension is not None:
+                wrong_dimension.add(key)
+            return value
+
         if kind in _SWBPIPE_NODAL:
-            name, axis, _ = _SWBPIPE_NODAL[kind]
-            add(case, (name, str(row.get("entity_ref")), "", axis), value)
+            name, axis, si_unit = _SWBPIPE_NODAL[kind]
+            key = (name, str(row.get("entity_ref")), "", axis)
+            add(case, key, converted(key, si_unit))
         elif kind in _SWBPIPE_END:
             location = (row.get("metadata") or {}).get("location")
             component = str((row.get("metadata") or {}).get("component", "")).lower()
             if location in ("end_i", "end_j") and len(component) == 2 and component[1] in _AXES:
-                add(case, (_SWBPIPE_END[kind][0], str(row.get("entity_ref")), location, component[1]), value)
+                key = (_SWBPIPE_END[kind][0], str(row.get("entity_ref")), location, component[1])
+                value = converted(key, _SWBPIPE_END[kind][1])
+                if end_force_deltas is not None and kind == "element_global_end_force_v1" and value is not None:
+                    deltas, missing = end_force_deltas
+                    delta = deltas.get((case, key[1], location))
+                    if delta is not None:
+                        value = value + delta[_AXES.index(component[1])]
+                    elif (key[1], location) in missing:
+                        value = None
+                add(case, key, value)
         elif kind == _SWBPIPE_SUPPORT:
             component = str((row.get("metadata") or {}).get("component", ""))
             node = support_nodes.get(str(row.get("entity_ref")))
@@ -178,7 +289,8 @@ def swbpipe_values(results: list[Any], case_ids: list[str], support_nodes: Mappi
                 name = "support_force" if component[0] == "F" else "support_moment"
                 if name == "support_moment" and node not in anchor_nodes:
                     continue
-                add(case, (name, f"node:{node}", "", component[1].lower()), value, str(row.get("entity_ref")))
+                key = (name, f"node:{node}", "", component[1].lower())
+                add(case, key, converted(key, _UNIT[name]), str(row.get("entity_ref")))
     sources = set().union(*per_case.values())
     for key, source in sources:
         if not all((key, source) in case_values for case_values in per_case.values()):
@@ -204,10 +316,10 @@ def swbpipe_values(results: list[Any], case_ids: list[str], support_nodes: Mappi
 def caepipe_values(tables: Mapping[str, Any], units: Mapping[str, Any], mbf: Mapping[str, Any],
                    printed: Mapping[str, Any] | None = None
                    ) -> tuple[dict[Key, float], list[dict[str, Any]], dict[str, Any], dict[Key, float],
-                              dict[Key, tuple[str, str]], dict[str, int]]:
+                              dict[Key, tuple[str, str]], dict[str, int], dict[Key, float]]:
     """CAEPIPE's values of one load case bound to SWBPIPE ids, the rows that did not bind, the element binding, the
-    floor of each value (one printed unit in SI), why a value has no floor ({key: (cause, reason)}), and the integer
-    digit count witness.
+    floor of each value (one printed unit in SI), why a value has no floor ({key: (cause, reason)}), the integer
+    digit count witness, and the candidate floor (SI) of each value without one that ZERO_AGAINST_ZERO screens.
 
     The floor comes from the section rule (print_csv.resolve_section) applied per section of the print to the printed
     tokens (`printed`, the parse's printed_resolution of the case) of the rows that bound: a row that binds to nothing,
@@ -298,7 +410,20 @@ def caepipe_values(tables: Mapping[str, Any], units: Mapping[str, Any], mbf: Map
             floors[key] = max(floors.get(key, 0.0), floor)
     for key in unresolved:
         floors.pop(key, None)
-    return values, unbound, binding, floors, unresolved, digit_witness
+    # Zero against zero: every contribution of the value a printed zero whose section has no witness of its unit.
+    zero_floors: dict[Key, float] = {}
+    rejected: set[Key] = set()
+    for (key, unit, _, entry), outcome in zip(contributions, outcomes):
+        if key not in unresolved or key in rejected:
+            continue
+        candidate = (_si(candidate_resolution(entry.get("label"), entry.get("system")), unit)
+                     if entry is not None and outcome.get("cause") == NO_WITNESS and printed_zero(entry) else None)
+        if candidate is None or not candidate > 0:
+            rejected.add(key)
+            zero_floors.pop(key, None)
+        else:
+            zero_floors[key] = max(zero_floors.get(key, 0.0), candidate)
+    return values, unbound, binding, floors, unresolved, digit_witness, zero_floors
 
 
 def add_value(values: dict[Key, float], key: Key, value: float | None, sign: float) -> None:
@@ -400,9 +525,40 @@ def _quantity_counts(rows: list[dict[str, Any]], cases: list[str], not_compared:
     return out
 
 
+def compared_cases(mbf_result: Any) -> list[str]:
+    """The cases a record compares for a written file: its mapped load cases, then the operating case."""
+    mbf = mbf_result.to_dict() if hasattr(mbf_result, "to_dict") else dict(mbf_result)
+    cases = sorted(mbf.get("load_case_map") or {})
+    return [*cases, OPERATING] if cases else []
+
+
 def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result_payload: Mapping[str, Any],
-                           mbf_result: Any, mbf_text: str, parsed_caepipe: Mapping[str, Any] | None) -> dict[str, Any]:
-    """The two-way comparison record of one benchmark model (private)."""
+                           mbf_result: Any, mbf_text: str, parsed_caepipe: Mapping[str, Any] | None,
+                           support_aliases: Mapping[str, str] | None = None,
+                           end_force_binding: Mapping[str, Any] | None = None,
+                           unread_supports: Mapping[str, str] | None = None,
+                           declared_classes: Mapping[str, str] | None = None,
+                           expected_support_states: Mapping[str, Mapping[str, str]] | None = None
+                           ) -> dict[str, Any]:
+    """The two-way comparison record of one benchmark model (private).
+
+    For a stated basis (tools/caepipe_correlation/stated_bases.py) only: `support_aliases` maps a support id of the
+    solved document to the written support whose node it stands for (an anchor realized as springs), and
+    `end_force_binding` ({"axes", "pressurised"}) takes the element end forces of pressurised members under the
+    effective axial force binding (effective_axial_deltas). Without them the record is the plain comparison.
+
+    `unread_supports` ({support id: why}) names supports of the solved document that the written file does not hold
+    and whose printed loads the comparison does not read (a member entered at the program's window): each reaction
+    component SWBPIPE publishes for one is listed as an unmatched row with that reason, never dropped, with the
+    model's closed form for it, where one is declared, beside SWBPIPE's value.
+
+    `declared_classes` ({case: class}) are the screening classes a run declares (a window comparison), used in place
+    of the class derived from the case's inexact inputs; every compared case must have one, a string naming a static
+    class of the screening profile (ValueError otherwise, never a derived class in its place). A nonlinear case
+    requires its support status to match exactly, and `expected_support_states` ({support: {case: state}}) are the
+    states declared for it. The match is recorded per case and per support, as not available where the printed state
+    is not read, never as matching; a nonlinear case with no declared state has one unmatched support-state row saying
+    so (SUPPORT_STATE_NOT_DECLARED)."""
     mbf = mbf_result.to_dict() if hasattr(mbf_result, "to_dict") else dict(mbf_result)
     envelope = swbpipe_result_payload.get("mechanics_envelope", swbpipe_result_payload)
     results = list(envelope.get("results") or [])
@@ -413,6 +569,8 @@ def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result
     inexact = benchmark_model.get("inexact_inputs") or {}
     support_nodes = {support: str(entry.get("node")) for support, entry in (mbf.get("support_map") or {}).items()
                      if isinstance(entry, Mapping)}
+    support_nodes.update({alias: support_nodes[original] for alias, original in (support_aliases or {}).items()
+                          if original in support_nodes})
     anchor_nodes = {str(entry.get("node")) for entry in (mbf.get("support_map") or {}).values()
                     if isinstance(entry, Mapping) and entry.get("caepipe_kind") == "anchor"}
     case_map = dict(mbf.get("load_case_map") or {})
@@ -423,16 +581,35 @@ def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result
     closed_forms = [entry for entry in benchmark_model.get("closed_form") or [] if isinstance(entry, Mapping)]
     expected = _expected_keys(mbf)
 
+    if declared_classes is not None:
+        static = SCREENING_PROFILE["relative"]
+        undeclared = [case for case, _, _ in compared
+                      if not (isinstance(declared_classes.get(case), str) and declared_classes[case] in static)]
+        if undeclared:
+            raise ValueError(f"the run declares no valid static screening class for {', '.join(undeclared)}; a "
+                             "declared comparison never screens a case under a derived class in its place")
     cases_out, rows, unbound_rows, bindings = [], [], [], {}
     not_compared: dict[str, int] = {}                 # expected quantities of a case that is not compared
     digit_witness_by_case: dict[str, dict[str, int]] = {}
     for case_name, swbpipe_cases, label in compared:
         inputs = list(inexact.get(case_name) or [])
-        cls = screening_class(inputs)
+        # Batch derivation without declared classes; with them, only the case's declared class (checked above).
+        declared_class = declared_classes[case_name] if declared_classes is not None else None
+        cls = declared_class if declared_class is not None else screening_class(inputs)
         status = {"case": case_name, "swbpipe_cases": swbpipe_cases, "caepipe_load_case": label,
                   "screening_class": cls, "inexact_inputs": inputs,
+                  **({"screening_class_basis": "declared by the run"} if declared_class is not None else {}),
                   "swbpipe_solved": all(case in solved for case in swbpipe_cases),
                   "caepipe_printed": isinstance(parsed_cases.get(label), Mapping)}
+        if cls == NONLINEAR:
+            expected_states = {support: states[case_name] for support, states in
+                               sorted((expected_support_states or {}).items()) if case_name in states}
+            status["support_state"] = {
+                "required": "support status must match exactly (screening profile, nonlinear class)",
+                "expected": expected_states, "match": "not_available",
+                "reason": ("the printed support state is not read: " + "; ".join(
+                    f"{support}: {(unread_supports or {}).get(support, 'no printed state is bound to it')}"
+                    for support in expected_states) if expected_states else "no support state is declared")}
         if case_name == OPERATING:
             status["basis"] = ("SWBPIPE: the sum of its mapped primitive cases (linear models, superposition); "
                                f"CAEPIPE: its {OPERATING_LABEL!r} case")
@@ -445,9 +622,25 @@ def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result
                          "reason": reason})
             not_compared[case_name] = len(expected)
             continue
-        swb, swb_invalid = swbpipe_values(results, swbpipe_cases, support_nodes, anchor_nodes)
-        cae, unbound, binding, floors, unresolved, digit_witness = caepipe_values(parsed_cases[label], units, mbf,
-                                                                                  parsed_printed.get(label))
+        for support, state in ((status.get("support_state") or {}).get("expected") or {}).items():
+            rows.append({"case": case_name, "kind": "support_state", "entity": support,
+                         "expected_state": state, "values": {"swbpipe": None, "caepipe": None},
+                         "classification": UNMATCHED, "unmatched_cause": PRINT_SECTION_NOT_READ,
+                         "reason": "the required support-state match is not available: "
+                                   + (unread_supports or {}).get(support, "no printed state is bound to it")})
+        if cls == NONLINEAR and not status["support_state"]["expected"]:
+            rows.append({"case": case_name, "kind": "support_state", "entity": None, "expected_state": None,
+                         "values": {"swbpipe": None, "caepipe": None}, "classification": UNMATCHED,
+                         "unmatched_cause": SUPPORT_STATE_NOT_DECLARED,
+                         "reason": "the case is nonlinear, so its support status must match exactly, but the run "
+                                   "declares no support state for it; the match is not available"})
+        deltas = (effective_axial_deltas(results, swbpipe_cases, end_force_binding["axes"],
+                                         end_force_binding["pressurised"]) if end_force_binding is not None else None)
+        wrong_dimension: set[Key] = set()
+        swb, swb_invalid = swbpipe_values(results, swbpipe_cases, support_nodes, anchor_nodes, deltas,
+                                          wrong_dimension)
+        cae, unbound, binding, floors, unresolved, digit_witness, zero_floors = caepipe_values(
+            parsed_cases[label], units, mbf, parsed_printed.get(label))
         digit_witness_by_case[case_name] = digit_witness
         bindings[case_name] = {key: binding[key] for key in ("basis", "unmatched_rows", "unmatched_members", "notes")}
         unbound_rows.extend({"case": case_name, **item} for item in unbound)
@@ -464,7 +657,13 @@ def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result
             row: dict[str, Any] = {"case": case_name, "kind": kind, "entity": entity, "component": axis, "unit": unit,
                                    **({"end": end} if end else {}),
                                    "values": {"swbpipe": swb.get(key), "caepipe": cae.get(key)}}
-            if key in swb and key in cae and key in unresolved:
+            if key in swb and key in cae and key in zero_floors:
+                # Zero against zero (ZERO_AGAINST_ZERO): screened with the candidate floor, and marked.
+                check = screen(swb[key], cae[key], zero_floors[key], cls)
+                row["screen"] = {name: check[name] for name in ("difference", "allowed", "relative", "floor")}
+                row["classification"] = WITHIN if check["within"] else FINDING
+                row["zero_against_zero"] = {"resolution_cause": unresolved[key][0], "floor_basis": "candidate places"}
+            elif key in swb and key in cae and key in unresolved:
                 # Not screened: no floor is established for CAEPIPE's value, and none is guessed or widened.
                 cause, why = unresolved[key]
                 row["classification"] = UNMATCHED
@@ -475,6 +674,11 @@ def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result
                 check = screen(swb[key], cae[key], floors[key], cls)
                 row["screen"] = {name: check[name] for name in ("difference", "allowed", "relative", "floor")}
                 row["classification"] = WITHIN if check["within"] else FINDING
+            elif key in wrong_dimension:
+                row["classification"] = UNMATCHED
+                row["unmatched_cause"] = SWBPIPE_UNIT_DIMENSION
+                row["reason"] = (f"a SWBPIPE row of this quantity is in a unit that is not of its dimension ({unit} "
+                                 "in SI); it is not converted or compared")
             else:
                 row["classification"] = UNMATCHED
                 row["reason"] = ("a SWBPIPE contribution is missing from a case or not a finite number"
@@ -498,6 +702,44 @@ def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result
                     row["classification"] = FINDING
                     row["reason"] = "SWBPIPE differs from the model's closed form"
             rows.append(row)
+    # Supports the written file does not hold and whose printed loads are not read: listed, never dropped, each with
+    # the model's closed form for it beside SWBPIPE's value where one is declared.
+    for support, why in sorted((unread_supports or {}).items()):
+        for case_name, swbpipe_cases, _ in compared:
+            if not all(case in solved for case in swbpipe_cases):
+                continue
+            components: dict[str, list[float | None]] = {}
+            for row in results:
+                if (isinstance(row, Mapping) and row.get("kind") == _SWBPIPE_SUPPORT
+                        and str(row.get("entity_ref")) == support
+                        and (row.get("basis_ref") or {}).get("ref_id") in swbpipe_cases):
+                    component = str((row.get("metadata") or {}).get("component", ""))
+                    if len(component) != 2 or component[0] not in "FM" or component[1].lower() not in _AXES:
+                        continue
+                    value, _ = _si_as(row.get("value"), row.get("unit"), "N" if component[0] == "F" else "N*m")
+                    components.setdefault(component, []).append(value)
+            for component, parts in sorted(components.items()):
+                total = (math.fsum(parts) if len(parts) == len(swbpipe_cases) and all(
+                    part is not None and math.isfinite(part) for part in parts) else None)
+                kind, unit = ("support_force", "N") if component[0] == "F" else ("support_moment", "N*m")
+                row = {"case": case_name, "kind": kind, "entity": support, "component": component[1].lower(),
+                       "unit": unit, "values": {"swbpipe": total, "caepipe": None}, "classification": UNMATCHED,
+                       "unmatched_cause": PRINT_SECTION_NOT_READ, "reason": why}
+                quantity = "reaction_force" if component[0] == "F" else "reaction_moment"
+                declared = [entry for entry in closed_forms if entry.get("load_case") == case_name
+                            and entry.get("support") == support and entry.get("quantity") == quantity
+                            and str(entry.get("component")) == component[1].lower()]
+                value = _si_as(declared[0].get("value"), declared[0].get("unit"), unit)[0] if len(declared) == 1 \
+                    else None
+                if value is not None:
+                    row["values"]["closed_form"] = value
+                    row["closed_form"] = {"formula": declared[0].get("formula"), "basis": declared[0].get("basis"),
+                                          "closed_form_vs_caepipe": UNMATCHED,
+                                          "closed_form_vs_caepipe_cause": PRINT_SECTION_NOT_READ}
+                    if total is not None:
+                        row["closed_form"]["closed_form_vs_swbpipe"] = "agree" if _close(value, total, unit) \
+                            else "disagree"
+                rows.append(row)
     # A parser error (a refused section or row) is never silent: one unmatched row each, so the counts show it.
     for item in (parsed_caepipe or {}).get("diagnostics") or []:
         if isinstance(item, Mapping) and item.get("severity") == "error":
@@ -516,6 +758,8 @@ def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result
         per_case = summary["by_case"].setdefault(row["case"], {})
         per_case[row["classification"]] = per_case.get(row["classification"], 0) + 1
     summary["unmatched_for_resolution"] = _resolution_counts(rows, [case for case, _, _ in compared])
+    summary["zero_against_zero"] = {name: sum(1 for row in rows if "zero_against_zero" in row
+                                              and row["classification"] == name) for name in (WITHIN, FINDING)}
     summary["quantities"] = _quantity_counts(rows, [case for case, _, _ in compared], not_compared)
     summary["integer_digit_count_witness"] = {
         "basis": ("for each shorter nonzero token a section's established resolution covers: whether the section has "
