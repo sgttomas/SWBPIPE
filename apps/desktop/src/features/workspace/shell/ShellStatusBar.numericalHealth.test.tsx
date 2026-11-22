@@ -10,7 +10,7 @@ import type { WorkspaceSession } from "../workspaceSession";
 const hold = {
   headline: "Numerical health: 1 sensitive",
   shortHeadline: "Numerical health: sensitive",
-  outputSentence: "Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while 1 load case(s) are not checks passed; results tables, CSV export and, for an exact-route result, the rendered report carry each case's standing."
+  outputSentence: "Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while 1 load case(s) are sensitive, quality unresolved, solve failed or not assessed; results tables, CSV export and, for an exact-route result, the rendered report carry each case's standing."
 };
 function session(numericalHealthHold: typeof hold | null): WorkspaceSession {
   return {

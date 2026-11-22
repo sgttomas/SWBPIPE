@@ -10,6 +10,7 @@ import { agentDetailFilter } from './resultDetail';
 import type { OperationBatch } from './operationBatchService';
 import { validateOperationBatch } from './operationBatchService';
 import { overlayMayShowRow, type ResultOverlayStanding } from '../features/results/numericalHealth';
+import type { IntegrityBound } from '../features/results/resultReader';
 import { rowCaseKey } from '../features/results/resultsNavigator';
 import { canonicalJsonString } from './hashService';
 import { applierDisplayNumber, nodeDeletionSummary, pipeDeletionSummary, supportDeletionSummary } from '../features/model-tree/removalIntents';
@@ -154,6 +155,12 @@ function boundedIds(ids:readonly unknown[]):{count:number;ids:string[]}{
   const size=byteLength(JSON.stringify(id));if(entries+size+arrayFrame(listed.length+1)>ID_LIST_BYTES)break;entries+=size;listed.push(id);
  }
  return {count:ids.length,ids:listed};
+}
+/** Release exit criterion 18: a results read's standing carries the reader verdict's
+ * `integrity_bound` as one of its checks, `integrity_bound:{status}:{reason}`, in the catalog's
+ * existing `checks` strings. None when no reader verdict was read (the values are then withheld). */
+export function integrityBoundChecks(bound:IntegrityBound|null|undefined):string[]{
+ return bound?[`integrity_bound:${bound.status}:${bound.reason}`]:[];
 }
 /** A refusal's findings in the catalog's bounds: code, severity, message and affected
  * references, at most 16 and within an encoded-byte budget; listing stops at the first that
@@ -630,6 +637,6 @@ export class EmbeddedAgentSession {
    values.push(value);
   }
   const end=offset+values.length;
-  return this.result(call,'ok','Permitted bounded source-unit values; withheld values have no substitute number.',{runHandle:handle,runId:run.receipt.runId,evaluatedModelHash:run.basis.modelHash,values,nextCursor:this.cursor(call,end,end<total,handle),standing:{route:result.producer?.semantic_contract_id??'unavailable',health:run.receipt.health,checks:snap.standing?.eligible?['numerical_view_eligible']:['numerical_view_withheld']}},{kind:'run',handle,runId:run.receipt.runId,basis:run.basis,status:'completed',nativeJobId:run.receipt.jobId,...(ordinals?{ordinals:ordinals.slice(0,values.length)}:{})});
+  return this.result(call,'ok','Permitted bounded source-unit values; withheld values have no substitute number.',{runHandle:handle,runId:run.receipt.runId,evaluatedModelHash:run.basis.modelHash,values,nextCursor:this.cursor(call,end,end<total,handle),standing:{route:result.producer?.semantic_contract_id??'unavailable',health:run.receipt.health,checks:[snap.standing?.eligible?'numerical_view_eligible':'numerical_view_withheld',...integrityBoundChecks(snap.standing?.integrityBound)]}},{kind:'run',handle,runId:run.receipt.runId,basis:run.basis,status:'completed',nativeJobId:run.receipt.jobId,...(ordinals?{ordinals:ordinals.slice(0,values.length)}:{})});
  }
 }
