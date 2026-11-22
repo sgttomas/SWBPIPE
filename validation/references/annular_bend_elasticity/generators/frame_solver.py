@@ -48,7 +48,7 @@ Options of `solve` (keyword only; the command line takes the same names with das
 
 Supported models (anything else is refused with ValueError, never solved approximately)
   - pressure-free models only: a model with a pressure_contract, a load case with any member naming pressure (such
-    as its pressure regions), a load category naming pressure, or any pressure setting (such as pressure
+    as its pressure regions) or a condition_use entry naming pressure, a load category naming pressure, or any pressure setting (such as pressure
     elongation) in model_settings is refused;
   - every material states shear_modulus explicitly (G is never derived from poisson_ratio);
   - supports: family "anchor", "rigid", "guide", "stop", "restraint" or none, each holding its listed
@@ -56,8 +56,10 @@ Supported models (anything else is refused with ValueError, never solved approxi
     such as "line_stop", are refused;
   - load categories: concentrated_force, concentrated_moment, weight, uniform_load and thermal. Others, such as
     imposed_displacement, are refused;
-  - an arc's section compliance must be positive definite on its active terms: a factor must be positive, and
-    with the curved bar's coupling k_in must exceed the bound the coupling sets (for "c", (r_g / R)^2).
+  - an arc's section compliance must be positive definite on its active terms: the factors must be finite and
+    positive, and with the curved bar's coupling k_in must exceed the bound the coupling sets (for "c",
+    (r_g / R)^2); a compliance given must be finite, exactly symmetric and 6 x 6, with every zero-diagonal row
+    and column entirely zero.
 
 Output: {"units", "straight_theory", "arc", "cases": {case id: {"reactions": {support id: {"node", "Fx", "Fy",
 "Fz", "Mx", "My", "Mz"}}, "displacements": {node id: {"ux", "uy", "uz", "rx", "ry", "rz"}},
@@ -266,18 +268,37 @@ class Arc:
         self._admissible()
 
     def _admissible(self):
-        """Refuses a section compliance that is not positive definite on its active (nonzero-diagonal) terms."""
+        """Refuses a section compliance that is not positive definite on its active terms. For the arc's own law
+        the active terms are the formulation's (all six with shear, else N, T, M_r and M_n), and both factors must be
+        finite and positive. A compliance given must be a finite, exactly symmetric 6 x 6 matrix whose zero-diagonal
+        rows and columns are entirely zero, positive definite on the rest."""
+        if self.C_user is not None:
+            C = self.C_user
+            if C.shape != (6, 6) or not np.all(np.isfinite(C)) or not np.array_equal(C, C.T):
+                raise ValueError("the section compliance given must be a finite, exactly symmetric 6 x 6 matrix")
+            act = [i for i in range(6) if C[i, i] != 0.0]
+            rest = [i for i in range(6) if i not in act]
+            if not act or np.any(C[rest, :] != 0.0) or np.any(C[:, rest] != 0.0):
+                raise ValueError("the section compliance given has a zero diagonal term with a nonzero coupling, or "
+                                 "no nonzero term")
+            try:
+                np.linalg.cholesky(C[np.ix_(act, act)])
+            except np.linalg.LinAlgError:
+                raise ValueError("the section compliance given is not positive definite") from None
+            return
+        if not (math.isfinite(self.k_in) and math.isfinite(self.k_out) and self.k_in > 0 and self.k_out > 0):
+            raise ValueError(f"flexibility factors must be finite and positive: k_in = {self.k_in:g}, "
+                             f"k_out = {self.k_out:g}")
         C = self.section_compliance()
-        act = [i for i in range(6) if C[i, i] != 0.0]
+        act = [0, 3, 4, 5] if self.shear == "off" else list(range(6))
+        sub = C[np.ix_(act, act)]
+        if not np.all(np.isfinite(sub)):
+            raise ValueError(f"arc (shear {self.shear}, curved bar {self.curved}): section compliance not finite")
         try:
-            np.linalg.cholesky(C[np.ix_(act, act)])
+            np.linalg.cholesky(sub)
             return
         except np.linalg.LinAlgError:
             pass
-        if self.C_user is not None:
-            raise ValueError("the section compliance given is not positive definite")
-        if not (self.k_in > 0 and self.k_out > 0):
-            raise ValueError(f"flexibility factors must be positive: k_in = {self.k_in:g}, k_out = {self.k_out:g}")
         # only C[5, 5] depends on k_in, with slope s; positive definiteness needs C55 > C05^2 / C00
         s = self.sec
         slope = 1 / (s.E * s.A * s.neutral_offset(self.R) * self.R) if self.curved == "a" else 1 / (s.E * s.I)
@@ -441,11 +462,14 @@ def refuse_unsupported(model):
         for k in lc:
             if "pressure" in k:
                 raise ValueError(f"load case {lc['id']}: {k}: pressure is not supported")
+        for k in (lc.get("condition_use") or {}):
+            if "pressure" in k:
+                raise ValueError(f"load case {lc['id']}: condition_use.{k}: pressure is not supported")
         for ld in lc["primitive_loads"]:
             if "pressure" in ld["category"] or ld["category"] not in LOAD_CATEGORIES:
                 raise ValueError(f"load case {lc['id']}: load category {ld['category']!r} not supported")
     for m in model["materials"]:
-        if "shear_modulus" not in m:
+        if m.get("shear_modulus") is None:
             raise ValueError(f"material {m['id']}: shear_modulus must be given (G is not derived from poisson_ratio)")
     for s in model.get("supports", []):
         if s.get("family") not in (*RIGID_FAMILIES, "spring") and "stiffness6" not in s:

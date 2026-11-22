@@ -934,7 +934,7 @@ def sensitivity(base, perturbed):
 
 
 def tolerance(sens):
-    return lambda path, b: max(RTOL * abs(b), ATOL, SAFETY * sens.get(path, math.inf))
+    return lambda path, b: max(RTOL * abs(b), ATOL, SAFETY * sens[path])
 
 
 def limit_problems(lim, tag):
@@ -1068,7 +1068,7 @@ def main(argv):
     if argv[1:] not in ([], ["--check"], ["--write"]):
         raise SystemExit("usage: annular_reference.py [--check | --write]")
     (inputs, fig, lim, compliance, paths, read), perturbed = build_all()
-    fig, lim, compliance = rounded(fig), rounded(lim), rounded(compliance)
+    inputs, fig, lim, compliance = rounded(inputs), rounded(fig), rounded(lim), rounded(compliance)
     problems = []
     if len(read) != len(paths) or not read:
         problems.append(f"model documents matching {MODELS_GLOB}: {len(paths)} found, {len(read)} read")
