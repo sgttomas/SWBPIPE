@@ -200,4 +200,6 @@ checks:
 - apps/desktop/src/features/diagnostics/DiagnosticsPanel.native.supplied.test.tsx
 - apps/desktop/src/features/diagnostics/DiagnosticsPanel.filterRequest.test.tsx
 - apps/desktop/src/features/diagnostics/issueItems.test.tsx
+- apps/desktop/src/features/diagnostics/issueItems.round2.test.tsx
+- apps/desktop/src/features/diagnostics/issueCounts.test.tsx
 - apps/desktop/src/features/solve/SolvePanel.diagnosticsRow.test.tsx

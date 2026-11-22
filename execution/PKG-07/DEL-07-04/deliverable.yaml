@@ -97,6 +97,12 @@ code_paths:
 - apps/desktop/src/services/ruleCheckService.ts
 # The missing-data panel of the Issues home, and the blocker count behind the Issues badge.
 - apps/desktop/src/features/missing-data/**
+# How a finding's fields are presented: its class where supplied, and each absent field named as
+# not supplied once the finding is opened (an Issues entry, its opened reports, a one-report
+# item's fields, and the Solve panel's withheld findings).
+- apps/desktop/src/features/diagnostics/IssueItemView.tsx
+- apps/desktop/src/features/diagnostics/issueItems.ts
+- apps/desktop/src/features/solve/SolveWithheldNotice.tsx
 # A reference module with its own contract test; the desktop does not call it.
 - core/gui/warnings/**
 # The boundary helper the GUI reference modules of DEL-07-03, DEL-07-04, DEL-07-05, DEL-07-07 and
@@ -111,3 +117,4 @@ checks:
 # AC-001 in the desktop session: the Solve command withheld on a missing solve-required value.
 - apps/desktop/src/features/workspace/solveWithheld.session.test.tsx
 - apps/desktop/e2e/gui-workflow-validation.spec.ts
+- apps/desktop/src/features/missing-data/MissingDataBlockingPanel.test.tsx
