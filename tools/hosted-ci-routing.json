@@ -270,7 +270,7 @@
       "core/reporting/report_package/Cargo.toml": "a5a8d9a25627a726bc541f093057e05a67ace07ff7dddf56a98f441c1e1923a3",
       "core/reporting/report_renderer/Cargo.toml": "bf10e7fd524d99128bd60438abd8fe22c0ea029628b17cfd884451acad129802",
       "core/reporting/report_sections/Cargo.toml": "44acb66312edbc9bfd77aa2980a898511ac34de67fba0fc773b70007a3aad0f1",
-      "core/reporting/result_export/Cargo.toml": "304e9bbff14851cf734c3faf78e4431ade95d649bee1cce4d5614e47b8dafca1",
+      "core/reporting/result_export/Cargo.toml": "8c1d83bbc3212cedf7877355d65e7d5dcd23b28490c9aa8f00b953c056cf7336",
       "core/rules/completeness_checker/Cargo.toml": "95cf7430d70fffc65a984a6841980f2c65f12000e28004da89efc092f1152737",
       "core/rules/expression_evaluator/Cargo.toml": "e407cc7c71142212a0f518856e33c826b1a2ceaeeaf0fc96ba6d50dc3f49fa6b",
       "core/rules/rule_check_runner/Cargo.toml": "b433d3eec2112c518f51ac9f83cfdc6469fef33cdaa9e1020bd8b814e5e15c85",
@@ -2365,7 +2365,7 @@
         ]
       },
       "core/reporting/result_export/tests/retained_precision_carriers.rs": {
-        "sha256": "85c3109fcd13771236944ebad3c80ab840937b121313ee5bc54619f11bba0699",
+        "sha256": "00139f647d7661b1b777fb2e244458b5f5f96ecf32b10d7f194a2ff9e54c6cea",
         "source_trees": [
           "core/reporting/result_export/Cargo.toml"
         ],
@@ -2867,6 +2867,11 @@
               "core/reporting/report_standing/src/lib.rs",
               "core/reporting/report_standing/src/reader_readability.rs",
               "core/reporting/report_standing/src/report_standing.rs",
+              "core/reporting/result_document_stream/src/canonical.rs",
+              "core/reporting/result_document_stream/src/emit.rs",
+              "core/reporting/result_document_stream/src/header.rs",
+              "core/reporting/result_document_stream/src/lib.rs",
+              "core/reporting/result_document_stream/src/rows.rs",
               "core/reporting/result_export/src/along_direction_evidence.rs",
               "core/reporting/result_export/src/arc_evidence.rs",
               "core/reporting/result_export/src/arc_marker_tests.rs",
@@ -4798,6 +4803,7 @@
               "core/reporting/report_renderer/Cargo.toml",
               "core/reporting/report_sections/Cargo.toml",
               "core/reporting/report_standing/Cargo.toml",
+              "core/reporting/result_document_stream/Cargo.toml",
               "core/reporting/result_export/Cargo.toml",
               "core/rules/completeness_checker/Cargo.toml",
               "core/rules/expression_evaluator/Cargo.toml",
