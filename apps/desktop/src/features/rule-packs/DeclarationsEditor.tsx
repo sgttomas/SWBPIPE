@@ -308,6 +308,22 @@ export function setValueSlots(
   return { ...document, value_slots: slots };
 }
 
+/**
+ * How a reference names each declaration: by its entered name, falling back
+ * to its identifier where no name was entered, and with the identifier beside
+ * a name two declarations share, so different declarations never look the same.
+ */
+export function distinctNames(ids: readonly string[], names?: Record<string, string>): Record<string, string> {
+  const named = ids.map((id) => names?.[id] || id);
+  const shown: Record<string, string> = {};
+  ids.forEach((id, index) => {
+    const name = named[index];
+    const shared = named.filter((other) => other === name).length > 1;
+    shown[id] = shared && name !== id ? `${name} (${id})` : name;
+  });
+  return shown;
+}
+
 // ---------------------------------------------------------------------------
 // Field primitives
 // ---------------------------------------------------------------------------
@@ -1190,6 +1206,16 @@ export function LoadCaseCategoriesEditor({
   const loadCaseIds = readRequiredLoadCaseIds(document);
   const categoryIds = readStressCategoryIds(document);
   const basisOptions = modelBasisOptions(model);
+  // Each load case by its name, with its identifier beside a name two share.
+  const loadCaseNames = distinctNames(
+    loadCaseIds,
+    Object.fromEntries(
+      rawLoadCases
+        .map((entry) => asObject(entry))
+        .filter((entry): entry is Record<string, unknown> => entry !== null)
+        .map((entry) => [asString(entry.required_load_case_id) ?? "", asString(entry.name) ?? ""])
+    )
+  );
 
   const patchItem = (items: unknown[], index: number, patch: Record<string, unknown>) =>
     items.map((entry, position) => (position === index ? { ...(asObject(entry) ?? {}), ...patch } : entry));
@@ -1506,10 +1532,7 @@ export function LoadCaseCategoriesEditor({
               >
                 <span className="rule-pack-node-label">{fieldWord("required_load_case_refs")}</span>
                 {loadCaseIds.map((loadCaseId) => {
-                  const loadCase = asObject(
-                    rawLoadCases.find((candidate) => asObject(candidate)?.required_load_case_id === loadCaseId)
-                  );
-                  const name = asString(loadCase?.name);
+                  const name = loadCaseNames[loadCaseId];
                   return (
                     <label className="rule-pack-node-field" key={loadCaseId}>
                       <input
@@ -1520,7 +1543,7 @@ export function LoadCaseCategoriesEditor({
                         title={disabled ? disabledReason : !categoryId ? "Give the category an identifier first." : undefined}
                         onChange={(event) => toggleMapping(categoryId, loadCaseId, event.target.checked)}
                       />
-                      <span>{name || loadCaseId}</span>
+                      <span title={loadCaseId}>{name}</span>
                     </label>
                   );
                 })}

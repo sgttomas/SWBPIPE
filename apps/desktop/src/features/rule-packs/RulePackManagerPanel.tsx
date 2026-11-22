@@ -938,8 +938,10 @@ export function faultsOf(validation: RulePackDocumentValidation, document: RuleP
     .map((finding) => ({ message: finding.message, code: finding.code, subject: finding.subject, part: part(finding.subject) }));
   for (const check of validation.unit_check?.checks ?? []) {
     for (const finding of check.findings) {
+      // On the part its path names (a formula's expression, a check's limit),
+      // else on the check it was found in.
       if (finding.severity === "blocking") {
-        faults.push({ message: finding.message, code: finding.code, subject: check.check_id, part: "checks" });
+        faults.push({ message: finding.message, code: finding.code, subject: check.check_id, part: part(finding.path) ?? "checks" });
       }
     }
   }

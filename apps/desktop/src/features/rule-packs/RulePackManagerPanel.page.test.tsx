@@ -62,9 +62,8 @@ import {
 // and text below is invented.
 
 const backend = vi.hoisted(() => ({
+  // The store: the list returns the entries of the project it is asked for.
   entries: [] as LocalRulePackIndexEntry[],
-  // Per project, when a test needs more than one; else `entries`.
-  entriesByProject: null as Record<string, LocalRulePackIndexEntry[]> | null,
   listCalls: 0,
   listProjects: [] as Array<string | null>,
   // The next list reads that fail, in order.
@@ -87,7 +86,7 @@ vi.mock("../../services/rulePackService", async (importOriginal) => {
         backend.listFailures -= 1;
         throw new Error("invented store failure");
       }
-      const entries = backend.entriesByProject ? backend.entriesByProject[projectId ?? ""] ?? [] : backend.entries;
+      const entries = backend.entries.filter((entry) => projectId !== null && entry.project_id === projectId);
       return { route: "tauri_backend", entries };
     }),
     openLocalRulePack: vi.fn(async () => ({ route: "tauri_backend", envelope: backend.openEnvelope })),
@@ -194,7 +193,6 @@ function words(tokens: readonly string[], table: Words): string[] {
 
 beforeEach(() => {
   backend.entries = [savedEntry];
-  backend.entriesByProject = null;
   backend.listProjects = [];
   backend.listFailures = 0;
   backend.releaseSave = null;
@@ -517,10 +515,7 @@ describe("the list shows one project's packs only", () => {
   });
 
   it("drops a list read that a save in project A finishes after the page moved to project B", async () => {
-    backend.entriesByProject = {
-      "project:invented-page": [savedEntry],
-      "project:invented-other": [otherEntry]
-    };
+    backend.entries = [savedEntry, otherEntry];
     const { rerender } = render(<RulePackManagerPanel model={modelFor("project:invented-page")} />);
     await screen.findByTestId("rule-pack-entry-invented_saved_pack");
     fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
@@ -577,7 +572,9 @@ describe("the count of faults agrees with the parts", () => {
     const words = await screen.findByTestId("rule-pack-validation-words");
     expect(words.textContent).toContain("1 thing to fix");
     expect(words.textContent).not.toContain(PAGE_WORDS.noFaults);
-    expect(screen.getByTestId("rule-pack-part-fault-checks").textContent).toBe("operand units differ");
+    // A unit finding of a check's formula goes on the formula's line, where it can be repaired.
+    expect(screen.getByTestId("rule-pack-part-fault-formula").textContent).toBe("operand units differ");
+    expect(screen.queryByTestId("rule-pack-part-fault-checks")).toBeNull();
     expect(faultsOf(backend.validation, null)).toHaveLength(1);
   });
 
@@ -649,6 +646,34 @@ describe("references never make two declarations look the same", () => {
     expect(bindableVariables(collectRulePackVariables(buildDraftRulePackDocument())).map((v) => v.id)).toEqual([
       "user_required_input_1"
     ]);
+  });
+});
+
+describe("load cases and categories that share a name", () => {
+  it("names them apart where a category maps load cases and where a check picks its category", () => {
+    render(<RulePackManagerPanel model={modelStub} />);
+    fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
+    const loadCases = openPart("loadCases");
+    fireEvent.click(within(loadCases).getByTestId("rule-pack-load-case-add"));
+    within(loadCases)
+      .getAllByTestId("rule-pack-load-case-name")
+      .forEach((field) => fireEvent.change(field, { target: { value: "Sustained" } }));
+    const categories = openPart("categories");
+    fireEvent.click(within(categories).getByTestId("rule-pack-category-add"));
+    within(categories)
+      .getAllByTestId("rule-pack-category-name")
+      .forEach((field) => fireEvent.change(field, { target: { value: "Primary" } }));
+
+    const mapping = within(categories).getAllByTestId("rule-pack-category-mapping")[0];
+    const labels = Array.from(mapping.querySelectorAll("label span")).map((node) => node.textContent ?? "");
+    expect(labels.length).toBeGreaterThan(1);
+    expect(new Set(labels).size).toBe(labels.length);
+    labels.forEach((label) => expect(label).toMatch(/^Sustained \(.+\)$/));
+
+    const checks = openPart("checks");
+    const picked = optionTexts("rule-pack-check-category-ref", checks).filter((text) => text.startsWith("Primary"));
+    expect(picked.length).toBeGreaterThan(1);
+    expect(new Set(picked).size).toBe(picked.length);
   });
 });
 

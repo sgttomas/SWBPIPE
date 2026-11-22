@@ -15,6 +15,7 @@ import {
   EnumSelect,
   Field,
   TextField,
+  distinctNames,
   readRequiredInputIds,
   readStressCategoryIds,
   readValueSlotIds,
@@ -286,20 +287,9 @@ function RefSelect({
   );
 }
 
-/**
- * How a reference picker names each option: by its declared name, falling back
- * to its identifier where no name was entered, and with the identifier beside
- * a name two options share, so different declarations never look the same.
- */
+/** How a reference picker names each option (see `distinctNames`). */
 export function referenceNames(options: readonly string[], labels?: Record<string, string>): Record<string, string> {
-  const named = options.map((option) => labels?.[option] || option);
-  const shown: Record<string, string> = {};
-  options.forEach((option, index) => {
-    const name = named[index];
-    const shared = named.filter((other) => other === name).length > 1;
-    shown[option] = shared && name !== option ? `${name} (${option})` : name;
-  });
-  return shown;
+  return distinctNames(options, labels);
 }
 
 function ResultStatusToggles({
