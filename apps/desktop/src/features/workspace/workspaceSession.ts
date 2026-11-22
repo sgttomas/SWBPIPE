@@ -1342,6 +1342,7 @@ export function useWorkspaceSession() {
 
   async function handleInspectBundledReference() {
     if (!model) return;
+    let retentionNotice: { message: string; details: string | null } | null = null;
     if (result || analysisRun || historicalRun?.designation === "historical_saved_run"
       || !retainedReferencePersistence(model)) {
       const basis = {
@@ -1355,7 +1356,10 @@ export function useWorkspaceSession() {
       if (currentModel.current !== model || projectSessionGenerationRef.current !== basis.generation
         || modelRevision.current !== basis.revision || resultBasisRef.current.sequence !== basis.resultSequence
         || analysisBasisRef.current.sequence !== basis.runSequence || solveRunGate.current.current() !== basis.solve) return;
-      if (retained.message) setProjectMessage(retained.message, retained.details ?? null);
+      if (retained.message) {
+        setProjectMessage(retained.message, retained.details ?? null);
+        retentionNotice = { message: retained.message, details: retained.details ?? null };
+      }
       referencePersistence.current = {
         model, generation: basis.generation, modelContent: checkedJsonText(model),
         // A restored run is retained by its handle (its rows are native, never cloned); the
@@ -1381,7 +1385,7 @@ export function useWorkspaceSession() {
     try {
       const reference = await loadBundledMechanicsReference(solverMode);
       if (!solveRunGate.current.isCurrent(referenceGeneration)) return;
-      setHistoricalRun(buildBundledReferenceContext(reference));
+      setHistoricalRun(buildBundledReferenceContext(reference, retentionNotice));
       setActiveSection("results");
     } finally {
       solveRunGate.current.finish(referenceGeneration);

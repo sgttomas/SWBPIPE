@@ -168,7 +168,7 @@ describe("a native result's first paint in the app", () => {
     expect(mechanics.nativeHeld()).toHaveLength(1);
   }, 90_000);
 
-  it("reference inspection on an oversized run record opens the reference and keeps the code in the project strip's Details", async () => {
+  it("reference inspection on an oversized run record opens the visible Results notice, keeps Details on Project, and keeps code in storage JSON", async () => {
     await installPreviewReplay();
     const preview = nativeResult.nativeRunPreview;
     vi.spyOn(nativeResult, "nativeRunPreview").mockImplementation((run) => ({ ...preview(run), record_bytes: RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1 }));
@@ -176,14 +176,37 @@ describe("a native result's first paint in the app", () => {
     await screen.findByTestId("workspace-toolbar");
     await solve();
     fireEvent.click(within(screen.getByTestId("workspace-section-solve")).getByRole("button", { name: "Inspect bundled reference" }));
-    expect(await screen.findByTestId("historical-run-context")).toHaveTextContent("Bundled reference");
+    const referencePanel = await screen.findByTestId("historical-run-context");
+    expect(referencePanel).toHaveTextContent("Bundled reference");
+    const resultsSection = screen.getByTestId("workspace-section-results");
+    expect(resultsSection).not.toHaveClass("inactive");
+    expect(resultsSection).toContainElement(referencePanel);
     const refusal = new nativeResult.FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES, "", "record");
     const words = nativeResult.fullResultRefusalWords(refusal, "keeping the current solve while inspecting the reference");
+    const expectedLine = `The current solve's result is not retained. ${words.fact}`;
+    const visibleNotice = within(referencePanel).getByTestId("reference-retention-notice");
+    expect(visibleNotice).toHaveAttribute("role", "status");
+    expect(visibleNotice).toHaveTextContent(expectedLine);
+    expect(visibleNotice.textContent).not.toMatch(/RESULT-DETAIL|bytes|webview|native/i);
+    const visibleDetails = within(referencePanel).getByTestId("reference-retention-details") as HTMLDetailsElement;
+    expect(visibleDetails.open).toBe(false);
+    expect(visibleDetails.querySelector("summary")?.textContent).toBe("Details");
+    expect(visibleDetails.querySelector("p")?.textContent).toBe(words.details);
+
+    nativeMenuCommand("view.section.project");
+    expect(screen.getByTestId("workspace-section-results")).toHaveClass("inactive");
     const message = screen.getByTestId("local-project-message");
-    expect(message).toHaveTextContent(`The current solve's result is not retained. ${words.fact}`);
-    expect(message.textContent).not.toMatch(/RESULT-DETAIL|bytes|webview|native/i);
     const strip = message.closest("details") as HTMLDetailsElement;
+    expect(strip.closest(".shell-project-strip")).not.toHaveClass("inactive");
+    expect(message).toHaveTextContent(expectedLine);
+    expect(message.textContent).not.toMatch(/RESULT-DETAIL|bytes|webview|native/i);
     expect(strip.open).toBe(false);
     expect(within(strip).getByTestId("local-project-message-details")).toHaveTextContent(words.details);
+
+    const exportIntent = await screen.findByTestId("project-storage-export-link-local-private-intent");
+    fireEvent.click(exportIntent);
+    const auditHref = screen.getByTestId("project-storage-export-link").getAttribute("href") ?? "";
+    const audit = JSON.parse(decodeURIComponent(auditHref.split(",", 2)[1])) as { project_message: string };
+    expect(audit.project_message).toBe(`${expectedLine} ${words.details}`);
   }, 90_000);
 });

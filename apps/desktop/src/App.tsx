@@ -1239,6 +1239,7 @@ function AppSession() {
                 projectSummary={projectSummary}
                 projectIndex={projectIndex}
                 projectMessage={projectMessage}
+                projectMessageDetails={projectMessageDetails}
                 projectOperation={projectOperation}
                 editorIntents={editorIntents}
                 proposal={proposal}

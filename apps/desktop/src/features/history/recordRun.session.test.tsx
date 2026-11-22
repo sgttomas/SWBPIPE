@@ -34,6 +34,7 @@ import {
 import type { ModelStateSummary } from "../../services/modelStateService";
 import { savedStatesSentence } from "../project-storage/storedProjectConflict";
 import { ResultsPanel } from "../results/ResultsPanel";
+import { NO_MODEL_STATES_LISTED } from "./useModelStateHistory";
 import { useWorkspaceSession, type WorkspaceSession } from "../workspace/workspaceSession";
 import type { LocalProjectEnvelope, PreviewModel } from "../../types";
 
@@ -434,6 +435,55 @@ describe("Compare… of the current run with a recorded run, for a run record ab
     expect(history(state).runComparison).toBeNull();
     // A subsequent history message clears the stale size-refusal Details.
     await act(async () => { await history(state).compareRuns(CURRENT_RUN_ID, CURRENT_RUN_ID); });
+    expect(history(state).historyMessageDetails).toBeNull();
+  });
+
+  it("clears a compareRuns size refusal and Details when switching to another project and does not resurrect them on return", async () => {
+    const { state, store } = await session();
+    await solve(state);
+    await act(async () => { await history(state).recordRun({ labels: LABELS, snapshotName: "After solve" }); });
+    await waitFor(() => expect(history(state).runs).toHaveLength(1));
+    const projectAId = state().model.model!.project.id;
+    const preview = nativeResult.nativeRunPreview;
+    vi.spyOn(nativeResult, "nativeRunPreview").mockImplementation((run) => ({ ...preview(run), record_bytes: RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1 }));
+    await act(async () => { await history(state).compareRuns(CURRENT_RUN_ID, history(state).runs![0].recording_id); });
+    expect(history(state).historyMessage).toMatch(/^Not compared: This run record is too large/);
+    expect(history(state).historyMessageDetails).toContain("RESULT-DETAIL-WEBVIEW-LIMIT");
+
+    const projectBEnvelopes = new Map<string, LocalProjectEnvelope>();
+    const forward = invokeMock.getMockImplementation()!;
+    invokeMock.mockImplementation(async (command: string, args: Json, options?: unknown) => {
+      if (command === "create_local_project") {
+        const envelope = {
+          summary: { project_id: args.model.project.id, project_name: args.model.project.name, message: "Created" },
+          model: args.model, editor_intents: [], proposal: null, selected_review_target: null,
+          mechanics_result: null, analysis_run: null, model_hash: args.modelHash,
+          project_envelope_hash: args.projectEnvelopeHash, model_document_version: null
+        } as unknown as LocalProjectEnvelope;
+        projectBEnvelopes.set(args.model.project.id, envelope);
+        return structuredClone(envelope);
+      }
+      if (command === "open_local_project" && projectBEnvelopes.has(args.projectId)) {
+        return structuredClone(projectBEnvelopes.get(args.projectId)!);
+      }
+      return forward(command, args, options);
+    });
+
+    // Switching to Project B clears Project A's refusal line and Details across both the immediate render and list refresh.
+    await act(async () => { await state().project.handleCreateBlankProject(); });
+    const projectBId = state().model.model!.project.id;
+    expect(projectBId).not.toBe(projectAId);
+    expect(history(state).historyMessage).toBe(NO_MODEL_STATES_LISTED);
+    expect(history(state).historyMessageDetails).toBeNull();
+    await waitFor(() => expect(history(state).states).toEqual([]));
+    expect(history(state).historyMessage).toBe(NO_MODEL_STATES_LISTED);
+    expect(history(state).historyMessageDetails).toBeNull();
+
+    // Returning to Project A does not resurrect Project A's prior refusal or Details.
+    expect(store.savedEnvelopes.at(-1)!.model.project.id).toBe(projectAId);
+    await act(async () => { await state().project.handleOpenProject(projectAId); });
+    await waitFor(() => expect(state().model.model!.project.id).toBe(projectAId));
+    expect(history(state).historyMessage).toBe(NO_MODEL_STATES_LISTED);
     expect(history(state).historyMessageDetails).toBeNull();
   });
 });

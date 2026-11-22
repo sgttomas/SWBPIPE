@@ -228,15 +228,16 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
   // naming the state Record Run ties the run to.
   const [solvedModelHash, setSolvedModelHash] = useState<{ manifest: unknown; hash: string | null } | null>(null);
   const [statesProjectId, setStatesProjectId] = useState<string | null>(null);
-  const [historyStatus, setHistoryStatus] = useState<{ message: string; details: string | null }>({
+  const [historyStatus, setHistoryStatus] = useState<{ projectId: string | null; message: string; details: string | null }>({
+    projectId: null,
     message: NO_MODEL_STATES_LISTED,
     details: null
   });
-  const historyMessage = historyStatus.message;
-  const historyMessageDetails = historyStatus.details;
   const setHistoryMessage = useCallback(
     (next: string | ((prev: string) => string), details: string | null = null) => {
+      const ownerProjectId = depsRef.current.currentModel.current?.project.id ?? depsRef.current.model?.project.id ?? null;
       setHistoryStatus((prev) => ({
+        projectId: ownerProjectId,
         message: typeof next === "function" ? next(prev.message) : next,
         details: typeof next === "function" ? prev.details : details
       }));
@@ -256,6 +257,9 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
   depsRef.current = deps;
 
   const projectId = deps.model?.project.id ?? null;
+  const historyStatusCurrent = historyStatus.projectId === null || historyStatus.projectId === projectId;
+  const historyMessage = historyStatusCurrent ? historyStatus.message : NO_MODEL_STATES_LISTED;
+  const historyMessageDetails = historyStatusCurrent ? historyStatus.details : null;
   const basisStateId = basis && basis.generation === deps.projectSessionGeneration && basis.projectId === projectId ? basis.stateId : null;
 
   async function refreshStates(forProjectId: string | null = depsRef.current.currentModel.current?.project.id ?? null) {
@@ -287,6 +291,18 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
       setHistoryOperation("list_failed");
     }
   }
+
+  const previousProjectIdRef = useRef<string | null>(projectId);
+  useEffect(() => {
+    if (previousProjectIdRef.current !== null && previousProjectIdRef.current !== projectId) {
+      setHistoryStatus((prev) =>
+        prev.projectId !== null && prev.projectId !== projectId
+          ? { projectId: null, message: NO_MODEL_STATES_LISTED, details: null }
+          : prev
+      );
+    }
+    previousProjectIdRef.current = projectId;
+  }, [projectId]);
 
   useEffect(() => {
     void refreshStates(projectId);
