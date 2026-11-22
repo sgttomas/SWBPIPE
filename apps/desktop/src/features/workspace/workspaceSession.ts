@@ -93,10 +93,12 @@ import type { BlankProjectKind, BlankProjectUnitsRequest } from "../project-unit
 import { MODEL_DOCUMENT_FILE_SOURCE, checkNativeOutcome, modelFileRefusalMessage, modelFileWarningSuffix, type ModelDocumentSource } from "../../services/modelDocumentFile";
 import { checkModelLibraryRefs, modelLibraryRefs } from "../../services/libraryImportService";
 import {
+  beginLibraryRefCheck,
   currentLibraryRefFindings,
   libraryRefDiagnostics,
-  publishLibraryRefFindings,
+  publishLibraryRefFindingsIfCurrent,
   publishedLibraryRefFindings,
+  setActiveLibraryRefProject,
   subscribeLibraryRefFindings,
   type LibraryRefFindingsState
 } from "../library/libraryRefFindings";
@@ -291,13 +293,17 @@ import { useReportSourceSequence, useSequencedState } from "./reportSourceSequen
 import { useReportOutputOutcomes } from "../report/reportOutputOutcomes";
 
 /** W-13 §3.5 / W-17 §2.7: the model's library references checked against the
- * local store at open and load. Warnings only; the recorded versions stand. */
+ * local store at open and load. Warnings only; the recorded versions stand. A check
+ * that answers after a later check began, or after the project changed, publishes
+ * nothing and adds no warning. */
 async function libraryReferenceWarnings(model: PreviewModel): Promise<string> {
-  publishLibraryRefFindings(model.project.id, []);
+  const projectId = model.project.id;
+  const sequence = beginLibraryRefCheck(projectId);
+  publishLibraryRefFindingsIfCurrent(projectId, sequence, []);
   try {
-    const checked = await checkModelLibraryRefs(model.project.id, modelLibraryRefs(model));
+    const checked = await checkModelLibraryRefs(projectId, modelLibraryRefs(model));
     if (checked.route !== "tauri_backend" || checked.findings.length === 0) return "";
-    publishLibraryRefFindings(model.project.id, checked.findings);
+    if (!publishLibraryRefFindingsIfCurrent(projectId, sequence, checked.findings)) return "";
     return modelFileWarningSuffix(checked.findings.map((finding) => ({ code: finding.code, path: finding.entity_ref, message: finding.message })));
   } catch (error) {
     return ` Library references were not checked: ${String(error)}.`;
@@ -960,7 +966,7 @@ export function useWorkspaceSession() {
     Promise.all([loadPreviewModel(), loadDesignKnowledge(), getLocalStorageCapability()]).then(
       ([loadedModel, loadedKnowledge, loadedStorageCapability]) => {
         if (!active) return;
-        advanceProjectSession();
+        advanceProjectSession(loadedModel.project.id);
         commitModel(loadedModel);
         const generation = projectSessionGenerationRef.current;
         const revision = uiModelRevisionRef.current;
@@ -1173,7 +1179,10 @@ export function useWorkspaceSession() {
     );
   }
 
-  function advanceProjectSession(): void {
+  /** A new project session for the project `nextProjectId`. A library-reference
+   * check still in flight for the session it replaces publishes nothing. */
+  function advanceProjectSession(nextProjectId: string): void {
+    setActiveLibraryRefProject(nextProjectId);
     viewportViewCommandRef.current?.({ type: "cancel-box-selection" });
     invalidateReportPackageComputedState();
     const nextGeneration = ++projectSessionGenerationRef.current;
@@ -3158,7 +3167,7 @@ export function useWorkspaceSession() {
       ruleRevisionGate.current.invalidate();
       setModelHashIntegrity(null);
       setProjectEnvelopeHashIntegrity(null);
-      advanceProjectSession();
+      advanceProjectSession(created.model.project.id);
       recordPersistenceObservation(created, returnedHash, returnedEnvelopeHash, "create", projectSessionGenerationRef.current, ++persistedWriteObservation.current, verifiedBlankResponse, blankModel.project.id);
       // A successful New Blank starts the first-open shell context. Failed or
       // superseded creates never reach this commit boundary or change chrome.
@@ -3266,7 +3275,7 @@ export function useWorkspaceSession() {
       ruleRevisionGate.current.invalidate();
       setModelHashIntegrity(null);
       setProjectEnvelopeHashIntegrity(null);
-      advanceProjectSession();
+      advanceProjectSession(opened.model.project.id);
       commitModel(opened.model);
       recordStoredBase(opened);
       const openedGeneration = projectSessionGenerationRef.current;
@@ -3407,7 +3416,7 @@ export function useWorkspaceSession() {
       ruleRevisionGate.current.invalidate();
       setModelHashIntegrity(null);
       setProjectEnvelopeHashIntegrity(null);
-      advanceProjectSession();
+      advanceProjectSession(document.project.id);
       commitModel(document);
       storedBaseRef.current = null;
       unopenedStoredRun.current = null;
@@ -5096,7 +5105,7 @@ export function useWorkspaceSession() {
     ruleRevisionGate.current.invalidate();
     setModelHashIntegrity(null);
     setProjectEnvelopeHashIntegrity(null);
-    advanceProjectSession();
+    advanceProjectSession(opened.model.project.id);
     commitModel(opened.model);
     savedBasisSequence.current += 1;
     setSavedModelBasis({ generation: projectSessionGenerationRef.current, revision: uiModelRevisionRef.current, hash: snapshotHash.value, source: "open" });

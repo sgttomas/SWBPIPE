@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Library, ShieldAlert } from "lucide-react";
 import type { PreviewModel } from "../../types";
 import {
@@ -29,7 +29,7 @@ import {
 import type { OperationBatch } from "../../services/operationBatchService";
 import type { EntityRef } from "../../types";
 import { LibraryApplySection, type LibraryApplyTarget } from "./LibraryApplySection";
-import { currentLibraryRefFindings, publishLibraryRefFindings, usePublishedLibraryRefFindings } from "./libraryRefFindings";
+import { beginLibraryRefCheck, currentLibraryRefFindings, publishLibraryRefFindingsIfCurrent, usePublishedLibraryRefFindings } from "./libraryRefFindings";
 
 // Private Library Manager (PRD §13 / §14.6 / §14.1 "Library manager"). Phase C3
 // GUI slice (TP-C3-LIBGUI-001), replicating the C2 Rule-Pack Manager pattern:
@@ -251,6 +251,12 @@ export function LibraryManagerPanel({
   const [inFlight, setInFlight] = useState(false);
 
   const projectId = model?.project.id ?? null;
+  // A list refresh belongs to the project it started in and is overtaken by a later
+  // refresh: one that answers after the project changed, after a later refresh began
+  // or after the panel closed changes nothing here, and its reference check publishes
+  // only while it is the store's latest check of the open project.
+  const refreshProject = useRef<{ projectId: string | null; open: boolean }>({ projectId, open: true });
+  const latestRefresh = useRef(0);
   const draftReason = !draft ? NO_DRAFT_REASON : inFlight ? BUSY_REASON : undefined;
   const componentSpec = COMPONENT_FIELD_SPECS[componentFieldDraft.fieldKind];
   const componentUnitBasis = describeUnitBasis(
@@ -278,10 +284,12 @@ export function LibraryManagerPanel({
   // draft is intentionally preserved (it is authored, not bound to a project
   // until saved).
   useEffect(() => {
+    refreshProject.current = { projectId, open: true };
     setEntries([]);
     setOpened(null);
     setRefFindings([]);
     setListStatus("Local library list not refreshed for this project yet.");
+    return () => { refreshProject.current = { projectId, open: false }; };
   }, [projectId]);
 
   useEffect(() => {
@@ -466,30 +474,40 @@ export function LibraryManagerPanel({
   }
 
   async function handleRefreshList() {
+    const targetProjectId = projectId;
+    const targetModel = model;
+    const refresh = ++latestRefresh.current;
+    const sequence = targetModel ? beginLibraryRefCheck(targetModel.project.id) : null;
+    const stillCurrent = () => refresh === latestRefresh.current
+      && refreshProject.current.open && refreshProject.current.projectId === targetProjectId;
     setInFlight(true);
     try {
-      const route = await listLocalLibraries(projectId);
+      const route = await listLocalLibraries(targetProjectId);
+      if (!stillCurrent()) return;
       if (route.route === "unavailable_browser_preview") {
         setListStatus(route.diagnostic);
         setEntries([]);
         return;
       }
       setEntries(route.entries);
-      if (model) {
-        const checked = await checkModelLibraryRefs(model.project.id, modelLibraryRefs(model));
+      if (targetModel && sequence !== null) {
+        const checked = await checkModelLibraryRefs(targetModel.project.id, modelLibraryRefs(targetModel));
+        if (!stillCurrent()) return;
         const findings = checked.route === "tauri_backend" ? checked.findings : [];
         setRefFindings(findings);
-        publishLibraryRefFindings(model.project.id, findings);
+        publishLibraryRefFindingsIfCurrent(targetModel.project.id, sequence, findings);
       }
       setListStatus(
         `Local store listed ${route.entries.length} library(ies)` +
-          (projectId ? ` for ${projectId}.` : " across all local projects.")
+          (targetProjectId ? ` for ${targetProjectId}.` : " across all local projects.")
       );
     } catch (error) {
+      if (!stillCurrent()) return;
       setEntries([]);
       setListStatus(`LIBRARY-IMPORT-BACKEND-ERROR (list): ${String(error)}`);
     } finally {
-      setInFlight(false);
+      // An overtaken refresh leaves the busy state to the refresh that overtook it.
+      if (refresh === latestRefresh.current) setInFlight(false);
     }
   }
 
