@@ -3,6 +3,7 @@ import { Ban, Download } from "lucide-react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import type { Diagnostic, MechanicsResult, PreviewModel } from "../../types";
 import { presentedResultDiagnostics } from "../results/suppliedDiagnostics";
+import { SOLVER_MESSAGES_HEADING } from "../results/integrityStatus";
 
 type GuiWarningClass =
   | "SOLVE_BLOCKING"
@@ -33,6 +34,9 @@ type MissingDataWarning = {
 
 export function MissingDataBlockingPanel({ model, result }: { model: PreviewModel; result: SessionResult | null }) {
   const packet = buildMissingDataBlockingPacket({ model, result });
+  // The heading sentence over the list while it lists one of the result's own diagnostics: every
+  // nonlinear diagnostic of the result is listed (`buildWarnings`), whatever a model warning's id.
+  const listsSolverMessage = (result?.diagnostics ?? []).some((item) => item.code.startsWith("NONLINEAR_"));
 
   return (
     <section
@@ -97,6 +101,7 @@ export function MissingDataBlockingPanel({ model, result }: { model: PreviewMode
         />
       </div>
       <div className="operation-record-list" data-testid="missing-data-warnings">
+        {listsSolverMessage ? <p className="muted" data-testid="missing-data-solver-messages-heading">{SOLVER_MESSAGES_HEADING}</p> : null}
         {packet.warnings.map((warning) => (
           <article
             className="operation-record"

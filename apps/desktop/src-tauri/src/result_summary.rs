@@ -45,7 +45,9 @@
 //!   header check, the copy's reservation and the copy; everything else in a
 //!   blocking task.
 //! - **Residuals, unpriced** (for slice 7's measurement): the
-//!   numerical health's working memory; the tables' and the value table's
+//!   numerical health's working memory; the support-state confirmations'
+//!   reader standing, readability and standing record (`support_confirmations`,
+//!   read from the parsed source and model in place); the tables' and the value table's
 //!   `Value`s and the header text (bounded by entities × sets, not rows); the
 //!   ids the intensified-bending rows name and their rows' ordinals; and
 //!   the returned response buffer and Tauri's copies during delivery after
@@ -131,7 +133,15 @@ pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Resu
     let job_id: String = args.decode("jobId")?;
     let model_json: String = args.decode("modelJson")?;
     let standing: Option<StandingArg> = args.decode("standing")?;
+    // Release exit criterion 18: `"confirmations"` reads the model for the support-state
+    // confirmations only (a restored run); absent, it is S's model for every table.
+    let model_use: Option<String> = args.decode("modelUse")?;
     drop(args);
+    let confirmations_only = match model_use.as_deref() {
+        None => false,
+        Some("confirmations") => true,
+        Some(_) => return Err(CommandError::Command(format!("{SUMMARY_READ_FAILED}: modelUse is not \"confirmations\""))),
+    };
     let held = registry.held_result(&job_id)?;
     let texts = [("source", Some(held.text())), ("model", Some(model_json.as_str()))];
     let bounds = native_verdict::diagnostic_phase(call, "source_prescan", held.text().len() as u64, || native_verdict::prescan_in_order(&registry, &texts))?;
@@ -161,7 +171,9 @@ pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Resu
         // The diagnostics presentation facts of this share's bytes (`diagnostics_presentation`),
         // from S's own parse, under its current tables, with the share's cache.
         let presentation = diagnostics_presentation::facts(held.text(), &source, held.recorded_table(), Some(held.presentation()));
-        build(&job_id, &source, &model, standing.as_ref(), &health, held.recorded_table(), &presentation, |bytes| registry.acquire_result_parse(bytes))
+        let no_model = Value::Null;
+        let tables_model = if confirmations_only { &no_model } else { &model };
+        build_with_models(&job_id, &source, tables_model, &model, standing.as_ref(), &health, held.recorded_table(), &presentation, |bytes| registry.acquire_result_parse(bytes))
     })?;
     native_verdict::diagnostic_phase(call, "source_drop", 0, || { drop((written, source, model, reading, held, lease)); Ok::<_, CommandError<String>>(()) })?;
     Ok(response)
@@ -256,6 +268,40 @@ fn envelope(source: &Value) -> (Value, Value, Value) {
     (Value::Object(carried), json!(omitted), Value::Array(counts))
 }
 
+/// Each load case's support-state confirmation outcome and its quoted detail,
+/// `[{case_id, outcome, detail}]` (`detail`: the solver's reason for
+/// `not_established_detail_quoted`, null otherwise), for the desktop's support-state line
+/// (release exit criterion 18). It is given exactly where the browser path gives one
+/// (`reader_report_standing_json`, `standaloneNumericalHealth`): today's reader standing
+/// (`reader_verdict::standing`, with the confirmations model and no invocation), its
+/// readability (`reader_readability::readability`), and, only for a result that standing reads
+/// as readable and solved, the standing record derived under it
+/// (`report_standing::historical_standing_record`, `cases[].confirmation`). As on the browser path,
+/// the table a restored run is held under does not decide: today's reader does, so a run recorded
+/// under an older table that today's reader reads has its confirmations, and one it refuses (a run
+/// recorded before RT-A4) has none. None (the header then has no `support_confirmations` member,
+/// which the desktop reads as null and states as not read here) for a result today's reader does
+/// not read or whose mechanics are not solved, and a record the reader refuses; and none with no
+/// model (a null model: a restored run's plain read, whose tables are read with no model), for
+/// which the reader is not run. It reads the parsed source and model in place, inside the summary's build,
+/// under the parse lease that covers the source; its working memory is unpriced, as the
+/// numerical health's is.
+fn support_confirmations(source: &Value, model: &Value) -> Option<Value> {
+    use open_pipe_stress_report_standing::{reader_readability, report_standing};
+    if model.is_null() {
+        return None;
+    }
+    let standing = rv::standing(source, Some(model), None);
+    let readability = reader_readability::readability(source, &standing);
+    if readability["readable"] != true || readability["solved"] != true {
+        return None;
+    }
+    let record = report_standing::historical_standing_record(source, model, &standing).ok()?;
+    Some(Value::Array(
+        record["cases"].as_array()?.iter().map(|case| json!({"case_id": case["case_id"], "outcome": case["confirmation"]["outcome"], "detail": case["confirmation"]["detail"]})).collect(),
+    ))
+}
+
 /// S's bytes for a parsed source and model, the caller's standing and the
 /// numerical health, after `reserve` admits the response's exact length
 /// (whose guard is returned with them).
@@ -275,6 +321,25 @@ pub(crate) fn build<R, E>(
     presentation: &Value,
     reserve: impl FnOnce(u64) -> Result<R, E>,
 ) -> Result<(Vec<u8>, R), E> {
+    build_with_models(job_id, source, model, model, standing, health, recorded, presentation, reserve)
+}
+
+/// [`build`] with the support-state confirmations read under their own model:
+/// a restored run's S (`modelUse: "confirmations"`) reads every table with no
+/// model and its confirmations with the saved model it is read with (release
+/// exit criterion 18), so the support-state line shows on a reopened result.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn build_with_models<R, E>(
+    job_id: &str,
+    source: &Value,
+    model: &Value,
+    confirmations_model: &Value,
+    standing: Option<&Standing>,
+    health: &Value,
+    recorded: Option<RecordedTable>,
+    presentation: &Value,
+    reserve: impl FnOnce(u64) -> Result<R, E>,
+) -> Result<(Vec<u8>, R), E> {
     let rows = tables::rows(source);
     let cases = tables::support_load_cases(model, source);
     let overlay_cases = tables::overlay_cases(model, source);
@@ -288,7 +353,7 @@ pub(crate) fn build<R, E>(
         let mut seen = std::collections::HashSet::new();
         rows.iter().map(|row| row.get("unit")).filter(|unit| seen.insert(tables::js_key(*unit))).map(|unit| unit.cloned().unwrap_or(Value::Null)).collect()
     };
-    let header = json!({
+    let mut header = json!({
         "document_kind": DOCUMENT_KIND,
         "version": VERSION,
         "job_id": job_id,
@@ -329,6 +394,12 @@ pub(crate) fn build<R, E>(
         "planes": planes,
         "planes_bytes": planes_bytes,
     });
+    // Release exit criterion 18: present only where the reader's record gives the confirmations; absent
+    // otherwise (no standing, no model, a run today's reader does not read), so a read without them is
+    // byte for byte what it was before they were added. The desktop reads an absent member as null.
+    if let Some(confirmations) = standing.and_then(|_| support_confirmations(source, confirmations_model)) {
+        header.as_object_mut().expect("S's header is an object").insert("support_confirmations".into(), confirmations);
+    }
     let header = serde_json::to_vec(&header).expect("S serializes");
     let len = result_planes::response_len(header.len(), planes_bytes);
     let guard = reserve(len as u64)?;

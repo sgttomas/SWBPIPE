@@ -2006,6 +2006,9 @@ fn run_with_context(
         );
     }
     let mut rich_model: Option<Value> = None;
+    // Rows for what a rich edit writes beyond its own field: pressure activation's
+    // removal of the pressure-free shear selection it carries into the contract.
+    let mut carried_diffs: Vec<DiffPreviewRow> = Vec::new();
     if let Some(expected_kind) = rich_kind {
         if change_kind != expected_kind {
             checker.schema_blocked = true;
@@ -2084,6 +2087,20 @@ fn run_with_context(
                         checker.reference_state = "passed";
                         checker.unit_state = "passed";
                         checker.before_state = "passed";
+                        if object_type == "Model" && field_path == "pressure_profile" && !edit.writes.is_empty() {
+                            if let Some(stated) = pressure_authoring::stated_free_shear_model(model) {
+                                carried_diffs.push(DiffPreviewRow {
+                                    entity_ref: target_ref.clone(),
+                                    object_type: "Project".into(),
+                                    field_path: "model_settings.shear_model".into(),
+                                    before: canonical_json(stated),
+                                    after: "not_present".into(),
+                                    unit: "none".into(),
+                                    dimension: "dimensionless".into(),
+                                    change_kind: model_settings_authoring::CLEAR.into(),
+                                });
+                            }
+                        }
                         for warning in edit.warnings {
                             checker.push(
                                 "OP-RICH-NOT-SOLVE-READY",
@@ -2571,6 +2588,7 @@ fn run_with_context(
 
     if !blocking {
         diff_preview.extend(section_diffs);
+        diff_preview.extend(carried_diffs);
         // W-13 §3.2: deleting a pipe also removes it from its line.
         if let Some(pipe_id) = &deleted_pipe {
             diff_preview.extend(model_data_authoring::remove_pipe_from_lines(&mut model.clone(), pipe_id));

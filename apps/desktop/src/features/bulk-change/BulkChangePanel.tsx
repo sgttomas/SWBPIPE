@@ -23,7 +23,7 @@ type Props = {
   model: PreviewModel;
   /** The ordered selection the change acts on. */
   scope: readonly EntityRef[];
-  onQueueBatch: (batch: OperationBatch) => void | Promise<void>;
+  onQueueBatch: (batch: OperationBatch) => void | Promise<unknown>;
   busy?: boolean;
   /** Each new value moves focus to the panel ("Change selected…"). */
   focusRequest?: number;

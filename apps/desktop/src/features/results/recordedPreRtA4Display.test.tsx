@@ -28,6 +28,8 @@ import { buildResultInterpretation } from "./resultInterpretation";
 import { RunComparisonView } from "../comparison/RunComparisonView";
 import { compareRunInputs, flattenRunResult, resultSemanticIdentity } from "../comparison/runComparison";
 import { recordedRunSide, type RunComparisonSide } from "../comparison/runComparisonSides";
+/** Release exit criterion 18: every reader verdict states the integrity bound not verified. */
+const NOT_VERIFIED_BOUND = { status: "not_verified", reason: "inverse_norm_bound_not_verified" };
 
 const saved: string[] = [];
 vi.mock("../result-export/csvSave", () => ({
@@ -303,7 +305,7 @@ describe("a recorded comparison of two pre-RT-A4 runs under the same table shows
     const standing = recordedResultStanding(source, binding, model);
     if (pressure2Base(source)) {
       // RT-L2 (DEL-04-07 REQ-009): refused by name; nothing of it is compared.
-      expect(standing).toEqual({ contract: "unsupported", status: "needs_recompute", eligible: false, findings: [PRESSURE_2_RETIRED_TEXT] });
+      expect(standing).toEqual({ contract: "unsupported", status: "needs_recompute", eligible: false, findings: [PRESSURE_2_RETIRED_TEXT], integrity_bound: NOT_VERIFIED_BOUND });
       return;
     }
     const input = { rows: flattenRunResult(source, binding), standing, semantic_identity: resultSemanticIdentity(source, binding), context: {}, diagnostics: [] } as never;
