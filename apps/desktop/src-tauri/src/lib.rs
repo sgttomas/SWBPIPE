@@ -140,7 +140,7 @@ async fn save_report_package(
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError<report_package_save::SaveCommandError>> {
     // Before the route is known, only the ingress layer refuses.
-    let (request, mut lease) = decode_report_package_save(&registry, invoke.body(), invoke.headers())?;
+    let (mut request, mut lease) = decode_report_package_save(&registry, invoke.body(), invoke.headers())?;
     // The lease is held through the growth, admission (which may grow it,
     // W-18b route 010), the save dialog, the write, the route's one exit and
     // the response, except after a worker panic: its unwind drops the lease
@@ -149,7 +149,7 @@ async fn save_report_package(
     // (`report_package_save::SaveRoute::exit`): route 010's refusals bounded,
     // whatever stage refused, and route 009's unchanged.
     let route = report_package_save::SaveRoute::of(&request);
-    let (outcome, lease) = match grow_report_package_save_lease(&registry, &request, &mut lease) {
+    let (outcome, lease) = match grow_report_package_save_lease(&registry, &mut request, &mut lease) {
         Ok(()) => save_report_package_decoded(app, request, lease, registry.inner().clone()).await,
         Err(error) => (Err(error), Some(lease)),
     };
@@ -178,12 +178,28 @@ fn decode_report_package_save(
 /// route-aware (`report_package_save::ingress_lease_bytes`; W-18b, DEL-08-01
 /// Design `report-user-release.md` §2.5, "The outer command"): route 010
 /// refuses the exact texts before they are priced.
+///
+/// Route 009's optional run record (DEL-08-01 REQ-023) never refuses the
+/// save: the raw body, record included, is admitted and capped as before,
+/// but if the growth is refused while the request holds a record, the record
+/// is dropped (admission then records the entry as not checked), the lease
+/// shrinks by the share the raw ingress priced for its decoded text, never
+/// below what the request's remaining texts hold, and the growth is asked
+/// again; only that refusal refuses the save.
 fn grow_report_package_save_lease(
     registry: &SolveJobRegistry,
-    request: &report_package_save::ReportPackageSaveRequest,
+    request: &mut report_package_save::ReportPackageSaveRequest,
     lease: &mut memory_pool::Lease,
 ) -> Result<(), CommandError<ReportPackageSaveCommandError>> {
     let growth = report_package_save::ingress_lease_bytes(request).map_err(CommandError::Command)?;
+    let refusal = match lease.grow_to(lease.bytes().saturating_add(growth)) {
+        Ok(()) => return Ok(()),
+        Err(refusal) => refusal,
+    };
+    let Some(share) = request.drop_route_009_record_for_memory() else {
+        return Err(CommandError::Ingress(registry.refuse(refusal)));
+    };
+    lease.shrink_to(lease.bytes().saturating_sub(share).max(request.texts_bytes()));
     lease.grow_to(lease.bytes().saturating_add(growth)).map_err(|refusal| CommandError::Ingress(registry.refuse(refusal)))
 }
 
@@ -196,8 +212,8 @@ fn admit_report_package_save(
     body: &tauri::ipc::InvokeBody,
     headers: &tauri::http::HeaderMap,
 ) -> Result<(report_package_save::ReportPackageSaveRequest, memory_pool::Lease), CommandError<ReportPackageSaveCommandError>> {
-    let (request, mut lease) = decode_report_package_save(registry, body, headers)?;
-    grow_report_package_save_lease(registry, &request, &mut lease)?;
+    let (mut request, mut lease) = decode_report_package_save(registry, body, headers)?;
+    grow_report_package_save_lease(registry, &mut request, &mut lease)?;
     Ok((request, lease))
 }
 
@@ -11488,9 +11504,9 @@ mod tests {
                     let invoke_body = tauri::ipc::InvokeBody::Raw(body.to_vec());
                     let (mut args, mut lease) =
                         command_ingress::admit_body(&registry, &invoke_body, &current, "save_report_package", ArgsDecoding::Moved).unwrap();
-                    let request = report_package_save::save_report_package_args(&mut args).unwrap();
+                    let mut request = report_package_save::save_report_package_args(&mut args).unwrap();
                     drop(args);
-                    grow_report_package_save_lease(&registry, &request, &mut lease).unwrap_or_else(|error| panic!("{label}: growth refused: {error:?}"));
+                    grow_report_package_save_lease(&registry, &mut request, &mut lease).unwrap_or_else(|error| panic!("{label}: growth refused: {error:?}"));
                     let mut picks = 0usize;
                     let receipt = {
                         let mut session = report_package_save::UserReleaseSession { registry: &registry, lease: &mut lease };

@@ -48,10 +48,12 @@
 //! entries. No project save writes held entries: the page calls
 //! [`keep_held_saved_package_entries`] after its own successful first save of
 //! the project, with the project id and its token, and that writes that
-//! holder's entries, in order, in one transaction. A package save that
-//! presents the token for a project the store holds writes that holder's
-//! earlier entries first, in the same transaction. An entry that cannot be
-//! written stays held with its reason, and the command can be called again.
+//! holder's entries, in order, in one transaction, and retires the token. A
+//! package save that presents a token the session holds is held with that
+//! holder's other entries, whether or not the store holds the project (another
+//! document of the same id may have created it), so only the page's call
+//! writes them. An entry that cannot be written stays held with its reason,
+//! and the command can be called again.
 //!
 //! Held entries live in this process's memory only: no recovery record, file
 //! or store holds them, so they end with the desktop and nothing reconstructs
@@ -61,7 +63,10 @@
 //!
 //! The commands are admitted through the store's argument ingress with a
 //! capped raw body and meter what they read and reply
-//! ([`crate::stored_read`]), as the run and state commands do.
+//! ([`crate::stored_read`]), as the run and state commands do. The held
+//! entries a list or a write copies, and the write's reply, are reserved under
+//! the session's lock before they are copied, and the write's before it opens
+//! its transaction, so no refusal for memory follows its commit.
 //!
 //! Not built here (deferred by Agent 0): matching an entry's basis across the
 //! project's recorded runs; the embedded agent's read.
@@ -83,7 +88,9 @@ use tauri::{AppHandle, Manager};
 /// `saved_package_entries_no_replace` refuses an `INSERT` that meets an
 /// existing entry of the project on either key (`entry_id` or `sequence`),
 /// before conflict resolution, so `INSERT OR REPLACE` cannot overwrite one.
-/// Deleting the project row cascades to its entries.
+/// The table has no rowid (`WITHOUT ROWID`), so no statement can name a row
+/// by an implicit key the triggers do not see. Deleting the project row
+/// cascades to its entries.
 pub(crate) const STORE_V15_SAVED_PACKAGE_ENTRIES_SQL: &str = "
 CREATE TABLE IF NOT EXISTS saved_package_entries(
   project_id TEXT NOT NULL, entry_id TEXT NOT NULL, sequence INTEGER NOT NULL,
@@ -95,7 +102,7 @@ CREATE TABLE IF NOT EXISTS saved_package_entries(
   model_hash TEXT NOT NULL, received_result_sha256 TEXT NOT NULL,
   run_id TEXT NOT NULL, run_record_sha256 TEXT NOT NULL,
   PRIMARY KEY(project_id, entry_id), UNIQUE(project_id, sequence),
-  FOREIGN KEY(project_id) REFERENCES local_projects(project_id) ON DELETE CASCADE);
+  FOREIGN KEY(project_id) REFERENCES local_projects(project_id) ON DELETE CASCADE) WITHOUT ROWID;
 CREATE TRIGGER IF NOT EXISTS saved_package_entries_immutable BEFORE UPDATE ON saved_package_entries
   BEGIN SELECT RAISE(ABORT, 'SAVED-PACKAGE-ENTRY-IMMUTABLE'); END;
 CREATE TRIGGER IF NOT EXISTS saved_package_entries_no_replace BEFORE INSERT ON saved_package_entries
@@ -104,10 +111,12 @@ CREATE TRIGGER IF NOT EXISTS saved_package_entries_no_replace BEFORE INSERT ON s
   BEGIN SELECT RAISE(ABORT, 'SAVED-PACKAGE-ENTRY-IMMUTABLE'); END;
 ";
 
+/// A failed v15 step, by a code and a fixed sentence: SQLite's own text is
+/// not passed on (its transaction is rolled back whole).
+pub(crate) const MIGRATION_FAILED: &str = "SAVED-PACKAGE-ENTRIES-MIGRATION-FAILED: the saved-package entries table could not be created.";
+
 pub(crate) fn migrate_v15_saved_package_entries(connection: &Connection) -> Result<(), String> {
-    connection
-        .execute_batch(STORE_V15_SAVED_PACKAGE_ENTRIES_SQL)
-        .map_err(|error| error.to_string())
+    connection.execute_batch(STORE_V15_SAVED_PACKAGE_ENTRIES_SQL).map_err(|_| MIGRATION_FAILED.to_string())
 }
 
 pub(crate) const ENTRY_KEPT: &str = "SAVED-PACKAGE-ENTRY-KEPT";
@@ -237,6 +246,11 @@ impl SavedPackageEntryOutcome {
 
     fn held(entry_id: String, holder: String, message: &str) -> Self {
         Self { status: "held".to_string(), code: ENTRY_HELD_BY_SESSION.to_string(), entry_id, message: message.to_string(), holder: Some(holder) }
+    }
+
+    /// A held entry that the keep command could not write, with `problem`.
+    fn still_held(entry_id: String, holder: &str, problem: EntryProblem) -> Self {
+        Self { status: "held".to_string(), code: problem.code.to_string(), entry_id, message: problem.message.to_string(), holder: Some(holder.to_string()) }
     }
 
     pub(crate) fn not_applicable() -> Self {
@@ -533,6 +547,41 @@ impl Held {
     fn release(&mut self, project_id: &str, holder: &str) {
         self.entries.retain(|entry| !entry.of(project_id, holder));
     }
+
+    /// The holder's entries were written: its token is retired, so a later
+    /// save presenting it is kept as one presenting none.
+    fn retire(&mut self, project_id: &str, holder: &str) {
+        self.holders.retain(|(project, token)| !(project == project_id && token == holder));
+    }
+
+    /// How many entries the holder holds, and their texts' bytes.
+    fn measure(&self, project_id: &str, holder: &str) -> (u64, u64) {
+        self.entries
+            .iter()
+            .filter(|entry| entry.of(project_id, holder))
+            .fold((0, 0), |(count, bytes), entry| (count + 1, bytes.saturating_add(held_text_bytes(entry))))
+    }
+}
+
+/// The bytes of a held entry's texts: its own, its published package's and
+/// its basis's (the basis is held twice: in the entry and in the package).
+/// The file name counts three bytes for each of its own, the most a lossy
+/// conversion makes of one.
+fn held_text_bytes(entry: &HeldEntry) -> u64 {
+    let published = &entry.published;
+    let basis = |basis: &SavedPackageBasis| -> u64 {
+        [&basis.model_hash, &basis.received_result_sha256, &basis.run_id, &basis.run_record_sha256].iter().map(|text| text.len() as u64).sum()
+    };
+    let package_basis = match &published.basis {
+        EntryBasis::Bound(bound) => basis(bound),
+        _ => 0,
+    };
+    let texts: u64 = [&entry.holder, &entry.entry_id, &published.project_id, &published.package_identity_sha256, &published.container_sha256, &published.saved_at, &published.export_context]
+        .iter()
+        .map(|text| text.len() as u64)
+        .sum();
+    let file_name = published.location.file_name().map_or(0, |name| name.len() as u64).saturating_mul(3);
+    stored_read::total(&[texts, published.location.as_os_str().len() as u64, file_name, basis(&entry.basis), package_basis])
 }
 
 /// The entries the native session holds, in the order kept, each under its
@@ -555,11 +604,17 @@ impl SessionHeldEntries {
         self.lock().entries.iter().find(|entry| entry.of(project_id, holder) && entry.entry_id == entry_id).cloned()
     }
 
-    fn views(&self, project_id: &str, holder: Option<&str>) -> Vec<SavedPackageEntry> {
+    /// The holder's entries as listed, reserved in `memory` under the lock
+    /// before any is copied.
+    fn views(&self, project_id: &str, holder: Option<&str>, memory: &dyn ReadMemory) -> Result<Metered<Vec<SavedPackageEntry>>, String> {
         let Some(holder) = holder else {
-            return Vec::new();
+            return Ok(Metered::new(Vec::new()));
         };
-        self.lock().entries.iter().filter(|entry| entry.of(project_id, holder)).map(held_entry_view).collect()
+        let held = self.lock();
+        let (count, text_bytes) = held.measure(project_id, holder);
+        let reservation = memory.reserve("the session's held saved-package entries", listed_bytes(count, text_bytes))?;
+        let views = held.entries.iter().filter(|entry| entry.of(project_id, holder)).map(held_entry_view).collect();
+        Ok(Metered::new(views).holding(reservation))
     }
 
     fn remove(&self, project_id: &str, holder: Option<&str>, entry_id: &str) -> bool {
@@ -576,19 +631,20 @@ impl SessionHeldEntries {
 const HELD_BEFORE_FIRST_SAVE: &str =
     "The package was saved. Its entry is not yet kept with the project: the session holds it until the project is first saved, and it is lost if the desktop ends before then.";
 const HELD_WITH_EARLIER: &str =
-    "The package was saved. Its entry is held by the session with this document's earlier entries, which could not yet be written to the project; they are written together at the next save that presents this holder, or when the page writes its held entries.";
+    "The package was saved. Its entry is held by the session with this document's earlier entries, which could not yet be written to the project; they are written together when the page writes its held entries.";
 
 /// Keeps a published package's entry (REQ-023 "Entry", "Before the first
 /// project save"). `holder` is the token the page presents, if any; a token
-/// the session did not mint for this project is not joined.
+/// the session did not mint for this project, or has retired, is not joined.
 ///
-/// - If the store holds the project, the holder's earlier held entries and
-///   this one are written in one transaction, in order, and this one is
-///   kept. If that write fails and earlier entries are held, all stay held
-///   with the failure as their reason.
-/// - If the store does not hold the project, the session holds the entry
-///   under the presented holder, or under a token minted now, which the
-///   outcome returns.
+/// - With a token the session holds, the entry is held under it with the
+///   holder's other entries, whether or not the store holds the project:
+///   another document of the same id may have created it, and only the
+///   page's call after its own first save writes the holder's entries
+///   ([`keep_held_entries`]). Nothing is written here.
+/// - Otherwise, if the store holds the project, the entry is written and
+///   kept; if it does not, the session holds the entry under a token minted
+///   now, which the outcome returns.
 pub(crate) fn keep_or_hold(path: &Path, session: &SessionHeldEntries, holder: Option<&str>, published: &PublishedPackage) -> SavedPackageEntryOutcome {
     let basis = match entry_basis(published) {
         Ok(basis) => basis.clone(),
@@ -599,43 +655,23 @@ pub(crate) fn keep_or_hold(path: &Path, session: &SessionHeldEntries, holder: Op
     };
     let project_id = published.project_id.as_str();
     let mut held = session.lock();
-    let holder = holder.filter(|token| held.minted(project_id, token)).map(str::to_string);
-    let earlier = holder.as_deref().map(|token| held.of(project_id, token)).unwrap_or_default();
-    let mut rows: Vec<(&str, &PublishedPackage, &SavedPackageBasis)> =
-        earlier.iter().map(|entry| (entry.entry_id.as_str(), &entry.published, &entry.basis)).collect();
-    rows.push((&entry_id, published, &basis));
-    let outcome = write_entries(path, project_id, &rows);
-    drop(rows);
-    match (outcome, holder) {
-        (Ok(Kept::Written), holder) => {
-            if let Some(token) = holder {
-                held.release(project_id, &token);
-            }
-            SavedPackageEntryOutcome::kept(entry_id)
-        }
-        (Ok(Kept::ProjectNotStored), holder) => {
-            let token = match holder.or_else(fresh_holder) {
-                Some(token) => token,
-                None => return not_kept_failure(),
+    if let Some(token) = holder.filter(|token| held.minted(project_id, token)).map(str::to_string) {
+        let earlier_unwritten = held.entries.iter().any(|entry| entry.of(project_id, &token) && entry.write_failure.is_some());
+        held.entries.push(HeldEntry { holder: token.clone(), entry_id: entry_id.clone(), published: published.clone(), basis, write_failure: None });
+        let message = if earlier_unwritten { HELD_WITH_EARLIER } else { HELD_BEFORE_FIRST_SAVE };
+        return SavedPackageEntryOutcome::held(entry_id, token, message);
+    }
+    match write_entries(path, project_id, &[(&entry_id, published, &basis)]) {
+        Ok(Kept::Written) => SavedPackageEntryOutcome::kept(entry_id),
+        Ok(Kept::ProjectNotStored) => {
+            let Some(token) = fresh_holder() else {
+                return not_kept_failure();
             };
-            if !held.minted(project_id, &token) {
-                held.holders.push((project_id.to_string(), token.clone()));
-            }
+            held.holders.push((project_id.to_string(), token.clone()));
             held.entries.push(HeldEntry { holder: token.clone(), entry_id: entry_id.clone(), published: published.clone(), basis, write_failure: None });
             SavedPackageEntryOutcome::held(entry_id, token, HELD_BEFORE_FIRST_SAVE)
         }
-        (Err(WriteFailed), Some(token)) if !earlier.is_empty() => {
-            held.mark(project_id, &token, STORE_FAILED);
-            held.entries.push(HeldEntry {
-                holder: token.clone(),
-                entry_id: entry_id.clone(),
-                published: published.clone(),
-                basis,
-                write_failure: Some(STORE_FAILED),
-            });
-            SavedPackageEntryOutcome::held(entry_id, token, HELD_WITH_EARLIER)
-        }
-        (Err(WriteFailed), _) => not_kept_failure(),
+        Err(WriteFailed) => not_kept_failure(),
     }
 }
 
@@ -653,14 +689,63 @@ pub(crate) fn keep_or_hold_in(
     }
 }
 
+/// The bytes the keep command's reply can serialize to for the holder's
+/// entries: its frame, and for each entry its id in the longest of the
+/// outcomes it can have (kept, or still held with either problem).
+fn keep_reply_bytes(held: &Held, project_id: &str, holder: &str) -> Result<u64, String> {
+    let outcomes = [
+        SavedPackageEntryOutcome::kept(String::new()),
+        SavedPackageEntryOutcome::still_held(String::new(), holder, STORE_FAILED),
+        SavedPackageEntryOutcome::still_held(String::new(), holder, PROJECT_NOT_STORED),
+    ];
+    let mut outcome = 0;
+    for candidate in &outcomes {
+        // Less the empty id's two quotes, which the entry's own id replaces.
+        outcome = outcome.max(stored_read::serialized_length(candidate)?.saturating_sub(2));
+    }
+    let mut bytes = stored_read::serialized_length(&HeldEntriesWrite { project_id: project_id.to_string(), entries: Vec::new() })?;
+    for entry in held.entries.iter().filter(|entry| entry.of(project_id, holder)) {
+        // The outcome, its id and the comma before the next.
+        bytes = stored_read::total(&[bytes, outcome, stored_read::serialized_length(&entry.entry_id)?, 1]);
+    }
+    Ok(bytes)
+}
+
+/// The keep command's working space for `count` entries with `text_bytes` of
+/// texts and a reply of `reply_bytes`: the copies of the entries and their
+/// texts, the rows naming them, the outcomes (whose texts the reply bounds),
+/// and the store's connection and statements.
+fn keep_work_bytes(count: u64, text_bytes: u64, reply_bytes: u64) -> u64 {
+    let items = (std::mem::size_of::<HeldEntry>() + std::mem::size_of::<SavedPackageEntryOutcome>() + std::mem::size_of::<(&str, &PublishedPackage, &SavedPackageBasis)>()) as u64;
+    stored_read::total(&[
+        stored_read::string_list_bytes(count.saturating_mul(20), text_bytes.saturating_add(reply_bytes)),
+        count.saturating_mul(items).saturating_mul(2),
+        stored_read::READ_OVERHEAD_BYTES,
+    ])
+}
+
 /// Writes the holder's held entries for `project_id` into the store, in the
-/// order kept, in one transaction, and answers for each. Written entries
-/// leave the session once the commit returns; if the store cannot be found
-/// or written, or does not hold the project, they stay held, each with that
-/// reason, and this can be called again. Nothing is written for another
-/// project or another holder.
-pub(crate) fn keep_held_entries(store: Result<PathBuf, String>, session: &SessionHeldEntries, project_id: &str, holder: &str) -> HeldEntriesWrite {
+/// order kept, in one transaction, and answers for each. Its working space
+/// and its reply are reserved in `memory` under the session's lock before
+/// any entry is copied or the transaction is opened: a refusal writes
+/// nothing and leaves every entry held. Written entries leave the session
+/// once the commit returns, and the holder's token is retired; if the store
+/// cannot be found or written, or does not hold the project, they stay held,
+/// each with that reason, and this can be called again. Nothing is written
+/// for another project or another holder. The reply holds its reservations
+/// ([`respond_reserved`]).
+pub(crate) fn keep_held_entries(
+    store: Result<PathBuf, String>,
+    session: &SessionHeldEntries,
+    project_id: &str,
+    holder: &str,
+    memory: &dyn ReadMemory,
+) -> Result<Metered<HeldEntriesWrite>, String> {
     let mut held = session.lock();
+    let (count, text_bytes) = held.measure(project_id, holder);
+    let reply_bytes = keep_reply_bytes(&held, project_id, holder)?;
+    let work = memory.reserve("writing the session's held saved-package entries", keep_work_bytes(count, text_bytes, reply_bytes))?;
+    let reply = memory.reserve("the response to keep_held_saved_package_entries", stored_read::exact_text_bytes(reply_bytes))?;
     let pending = held.of(project_id, holder);
     let written = if pending.is_empty() {
         Ok(Kept::Written)
@@ -681,20 +766,17 @@ pub(crate) fn keep_held_entries(store: Result<PathBuf, String>, session: &Sessio
         .iter()
         .map(|entry| match problem {
             None => SavedPackageEntryOutcome::kept(entry.entry_id.clone()),
-            Some(problem) => SavedPackageEntryOutcome {
-                status: "held".to_string(),
-                code: problem.code.to_string(),
-                entry_id: entry.entry_id.clone(),
-                message: problem.message.to_string(),
-                holder: Some(holder.to_string()),
-            },
+            Some(problem) => SavedPackageEntryOutcome::still_held(entry.entry_id.clone(), holder, problem),
         })
         .collect();
     match problem {
-        None => held.release(project_id, holder),
+        None => {
+            held.release(project_id, holder);
+            held.retire(project_id, holder);
+        }
         Some(problem) => held.mark(project_id, holder, problem),
     }
-    HeldEntriesWrite { project_id: project_id.to_string(), entries }
+    Ok(Metered::new(HeldEntriesWrite { project_id: project_id.to_string(), entries }).holding(work).holding(reply))
 }
 
 fn held_entry_view(entry: &HeldEntry) -> SavedPackageEntry {
@@ -719,24 +801,6 @@ fn held_entry_view(entry: &HeldEntry) -> SavedPackageEntry {
 const ENTRY_VIEW_BYTES: u64 = std::mem::size_of::<SavedPackageEntry>() as u64;
 /// The listed entry's text members.
 const ENTRY_TEXT_COLUMNS: u64 = 10;
-
-fn view_text_bytes(entry: &SavedPackageEntry) -> u64 {
-    [
-        &entry.entry_id,
-        &entry.package_identity_sha256,
-        &entry.container_sha256,
-        &entry.file_name,
-        &entry.saved_at,
-        &entry.export_context,
-        &entry.basis.model_hash,
-        &entry.basis.received_result_sha256,
-        &entry.basis.run_id,
-        &entry.basis.run_record_sha256,
-    ]
-    .iter()
-    .map(|text| text.len() as u64)
-    .sum()
-}
 
 /// What a list of `count` entries with `text_bytes` of texts holds: the
 /// strings ([`stored_read::string_list_bytes`]) and the entries in a growing
@@ -785,12 +849,28 @@ fn memory_or_store(error: String) -> ReadStop {
     if error.starts_with(stored_read::STORE_READ_MEMORY_UNAVAILABLE) { ReadStop::Memory(error) } else { ReadStop::Store }
 }
 
+/// The largest stored keyed row of the entries' table, in bytes, measured
+/// without SQLite loading a value, as
+/// [`stored_read::admit_sqlite_working_set`] measures the history tables,
+/// which do not include the entries: a search of the table may materialize
+/// another project's key.
+const ENTRY_KEYED_ROW_SQL: &str =
+    "SELECT COALESCE(MAX(COALESCE(octet_length(project_id), 0) + COALESCE(octet_length(entry_id), 0)), 0) FROM saved_package_entries NOT INDEXED";
+
+/// Reserves SQLite's working set for the entries' keys on `connection`, its
+/// transaction, before a statement of it searches the table.
+fn admit_entry_keys(connection: &Connection, memory: &dyn ReadMemory) -> Result<stored_read::ReadReservation, String> {
+    let largest: i64 = connection.query_row(ENTRY_KEYED_ROW_SQL, [], |row| row.get(0)).map_err(|error| stored_read::sql_error(&error))?;
+    stored_read::reserve_sqlite_value(memory, &format!("SQLite's working set for the saved-package entries (their largest keyed row holds {largest} bytes)"), largest)
+}
+
 /// The project's stored entries, unchanged and in the order kept, read in
 /// one read transaction and reserved in `memory` before they are loaded.
 fn stored_entries(path: &Path, project_id: &str, memory: &dyn ReadMemory) -> Result<Metered<Vec<SavedPackageEntry>>, ReadStop> {
     let mut connection = stored_read::open_store(path).map_err(|_| ReadStop::Store)?;
     let transaction = stored_read::read_transaction(&mut connection).map_err(|_| ReadStop::Store)?;
     let sqlite = stored_read::admit_sqlite_working_set(&transaction, memory).map_err(memory_or_store)?;
+    let keys = admit_entry_keys(&transaction, memory).map_err(memory_or_store)?;
     let (count, text_bytes): (i64, i64) = transaction
         .query_row(
             &format!("SELECT COUNT(*), COALESCE(SUM({ENTRY_TEXT_LENGTH}), 0) FROM saved_package_entries WHERE project_id = ?1"),
@@ -811,11 +891,12 @@ fn stored_entries(path: &Path, project_id: &str, memory: &dyn ReadMemory) -> Res
         .map_err(|_| ReadStop::Store)?;
     drop(statement);
     drop(transaction);
-    Ok(Metered::new(entries).holding(reservation).holding(sqlite))
+    Ok(Metered::new(entries).holding(reservation).holding(keys).holding(sqlite))
 }
 
 /// The project's report list (REQ-023; R5 of review round 1): the held
-/// entries of `holder` are read first, then the store, so an entry being
+/// entries of `holder` are read first (reserved before they are copied),
+/// then the store, so an entry being
 /// written while the list runs is seen held or stored, never neither (a write
 /// holds the session's lock from before its commit until the entries leave
 /// the session). An entry seen both ways is listed once, as stored. Stored
@@ -828,12 +909,7 @@ pub(crate) fn list_entries(
     holder: Option<&str>,
     memory: &dyn ReadMemory,
 ) -> Result<Metered<SavedPackageList>, String> {
-    let held = session.views(project_id, holder);
-    let held_reservation = memory.reserve(
-        "the session's held saved-package entries",
-        listed_bytes(held.len() as u64, held.iter().map(view_text_bytes).sum()),
-    )?;
-    let held = Metered::new(held).holding(held_reservation);
+    let held = session.views(project_id, holder, memory)?;
     #[cfg(test)]
     tests::hooks::between_list_reads();
     let stored = match store {
@@ -862,6 +938,7 @@ fn entry_location(path: &Path, project_id: &str, entry_id: &str, memory: &dyn Re
         ReadStop::Store => store_failed(),
     };
     let _sqlite = stored_read::admit_sqlite_working_set(&transaction, memory).map_err(|error| stopped(memory_or_store(error)))?;
+    let _keys = admit_entry_keys(&transaction, memory).map_err(|error| stopped(memory_or_store(error)))?;
     let length: Option<i64> = transaction
         .query_row(
             "SELECT octet_length(location) + octet_length(container_sha256) FROM saved_package_entries WHERE project_id = ?1 AND entry_id = ?2",
@@ -1069,12 +1146,29 @@ pub(crate) fn keep_held_saved_package_entries_args(
     args: &mut command_ingress::Args,
     store: impl FnOnce() -> Result<PathBuf, String>,
     session: &SessionHeldEntries,
+    memory: &dyn ReadMemory,
 ) -> Result<Metered<HeldEntriesWrite>, CommandError> {
     let project_id: String = args.decode("projectId")?;
     let holder: String = args.decode("holder")?;
-    std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| keep_held_entries(store(), session, &project_id, &holder)))
-        .map(Metered::new)
-        .map_err(|_| CommandError::Command(KEEP_HELD_INCOMPLETE.to_string()))
+    std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| keep_held_entries(store(), session, &project_id, &holder, memory)))
+        .map_err(|_| CommandError::Command(KEEP_HELD_INCOMPLETE.to_string()))?
+        .map_err(|error| CommandError::Command(stored_read::capped(error)))
+}
+
+/// The keep command's reply, serialized within the reservation
+/// [`keep_held_entries`] made for it before it wrote (the pricing of
+/// [`stored_read::respond_metered`]: a buffer of the reply's exact length), so
+/// nothing after the commit is refused for memory.
+pub(crate) fn respond_reserved(outcome: Result<Metered<HeldEntriesWrite>, CommandError>) -> Result<tauri::ipc::Response, CommandError> {
+    let metered = outcome?;
+    let length = stored_read::serialized_length(metered.get()).map_err(CommandError::Response)?;
+    let length = usize::try_from(length).map_err(|_| CommandError::Response("STORE-READ: a length does not fit this platform".to_string()))?;
+    let mut buffer = Vec::with_capacity(length);
+    serde_json::to_writer(&mut buffer, metered.get()).map_err(|error| CommandError::Response(stored_read::json_error(&error)))?;
+    let text = String::from_utf8(buffer).map_err(|_| CommandError::Response("STORE-READ: a serialized text is not UTF-8".to_string()))?;
+    let response = tauri::ipc::Response::new(text);
+    drop(metered);
+    Ok(response)
 }
 
 /// The project's report list: its stored entries in the order kept, without
@@ -1143,11 +1237,7 @@ pub fn keep_held_saved_package_entries(
     let (mut args, lease) =
         command_ingress::admit_within(&registry, &invoke, "keep_held_saved_package_entries", ArgsDecoding::Moved, ENTRY_COMMAND_MAX_ARGS_BYTES)?;
     let memory = PoolReadMemory::new(&registry, &lease);
-    stored_read::respond_metered(
-        &memory,
-        "keep_held_saved_package_entries",
-        keep_held_saved_package_entries_args(&mut args, || crate::app_store_path(&app), &session),
-    )
+    respond_reserved(keep_held_saved_package_entries_args(&mut args, || crate::app_store_path(&app), &session, &memory))
 }
 
 #[cfg(test)]

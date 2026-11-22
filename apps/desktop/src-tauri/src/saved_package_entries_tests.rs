@@ -19,6 +19,11 @@ pub(crate) fn listed(path: &Path, session: &SessionHeldEntries, project_id: &str
 }
 
 /// The project's stored entries, as a caller with no holder lists them.
+/// The keep call as the command makes it, unmetered.
+pub(crate) fn keep_held(store: Result<PathBuf, String>, session: &SessionHeldEntries, project_id: &str, holder: &str) -> HeldEntriesWrite {
+    keep_held_entries(store, session, project_id, holder, &UnmeteredReadMemory).unwrap().into_unreserved().unwrap()
+}
+
 pub(crate) fn stored(path: &Path, project_id: &str) -> Vec<SavedPackageEntry> {
     listed(path, &SessionHeldEntries::default(), project_id, None).entries
 }
@@ -100,7 +105,8 @@ pub(crate) fn write_project(path: &Path, project_id: &str, model: &serde_json::V
     .unwrap();
 }
 
-/// Every table's rows, in rowid order, as SQLite holds them.
+/// Every table's rows as SQLite holds them, in rowid order; the entries'
+/// table, which has no rowid, in each project's order kept.
 pub(crate) fn dump(path: &Path) -> BTreeMap<String, Vec<Vec<SqlValue>>> {
     let connection = Connection::open(path).unwrap();
     let mut names = connection.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name").unwrap();
@@ -108,7 +114,8 @@ pub(crate) fn dump(path: &Path) -> BTreeMap<String, Vec<Vec<SqlValue>>> {
     names
         .into_iter()
         .map(|name| {
-            let mut statement = connection.prepare(&format!("SELECT * FROM \"{name}\" ORDER BY rowid")).unwrap();
+            let order = if name == "saved_package_entries" { "project_id, sequence" } else { "rowid" };
+            let mut statement = connection.prepare(&format!("SELECT * FROM \"{name}\" ORDER BY {order}")).unwrap();
             let columns = statement.column_count();
             let rows = statement
                 .query_map([], |row| (0..columns).map(|index| row.get::<_, SqlValue>(index)).collect::<Result<Vec<_>, _>>())
@@ -720,7 +727,7 @@ fn vector_project_store(label: &str) -> (PathBuf, PathBuf, Route009) {
 fn a_local_private_save_with_a_verified_run_record_keeps_its_entry_with_that_basis() {
     let _lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
     let (dir, path, basis) = vector_project_store("009-verified");
-    let admitted = admit_009(basis.args(Some(canonical(&basis.run_record)))).unwrap();
+    let admitted = admit_009(basis.bound_args(&basis.run_record)).unwrap();
     let receipt = save_009(admitted, &dir, &path, &SessionHeldEntries::default());
     assert_eq!(receipt.outcome, "saved");
     assert_eq!((receipt.saved_package_entry.status.as_str(), receipt.saved_package_entry.code.as_str()), ("kept", ENTRY_KEPT), "{:?}", receipt.saved_package_entry);
@@ -891,7 +898,7 @@ fn the_first_project_save_writes_the_held_entries_in_the_order_saved() {
     // entry; the page then writes its holder's.
     crate::create_project_in_store(path.clone(), current_model(), None, None, None, None, None, None, None, None).unwrap();
     assert!(entry_rows(&path).is_empty(), "the project save writes no held entry");
-    assert_eq!(all_kept(&keep_held_entries(Ok(path.clone()), &session, PROJECT, &holder)), [one.clone(), two.clone()]);
+    assert_eq!(all_kept(&keep_held(Ok(path.clone()), &session, PROJECT, &holder)), [one.clone(), two.clone()]);
     let list = listed(&path, &session, PROJECT, Some(&holder));
     assert_eq!(list.entries.iter().map(|entry| (entry.entry_id.clone(), entry.sequence, entry.kept)).collect::<Vec<_>>(),
         [(one.clone(), 1, "kept_with_project"), (two.clone(), 2, "kept_with_project")]);
@@ -907,7 +914,7 @@ fn the_first_project_save_writes_the_held_entries_in_the_order_saved() {
     let order: Vec<(String, i64)> = stored(&path, PROJECT).into_iter().map(|entry| (entry.entry_id, entry.sequence)).collect();
     assert_eq!(order, [(one, 1), (two, 2), (third, 3), (fourth, 4)], "the order across held and later stored entries is kept");
     // Writing again writes nothing more.
-    assert!(keep_held_entries(Ok(path.clone()), &session, PROJECT, &holder).entries.is_empty());
+    assert!(keep_held(Ok(path.clone()), &session, PROJECT, &holder).entries.is_empty());
     assert_eq!(entry_rows(&path).len(), 4);
 }
 
@@ -918,7 +925,7 @@ fn a_held_entry_that_cannot_be_written_stays_held_with_its_reason_and_the_projec
     let (id, holder) = held(&keep_or_hold(&path, &session, None, &package));
     crate::create_project_in_store(path.clone(), current_model(), None, None, None, None, None, None, None, None).unwrap();
     fault::arm(Some(format!("invented fault writing {}", package.location.display())));
-    let write = keep_held_entries(Ok(path.clone()), &session, PROJECT, &holder);
+    let write = keep_held(Ok(path.clone()), &session, PROJECT, &holder);
     fault::arm(None);
     assert_eq!(write.entries.len(), 1);
     let outcome = &write.entries[0];
@@ -930,11 +937,14 @@ fn a_held_entry_that_cannot_be_written_stays_held_with_its_reason_and_the_projec
     let entry = &list.entries[0];
     assert_eq!((entry.entry_id.as_str(), entry.kept), (id.as_str(), "held_by_session"));
     assert_eq!(entry.write_failure, Some(STORE_FAILED), "its reason is a code and a fixed sentence");
-    // The command can be called again; the next package save presenting the
-    // token also writes the held entry first, then its own, in order.
-    let next = kept(&keep_or_hold(&path, &session, Some(&holder), &published(PROJECT, &dir.join("next.opsproj"), b"next", true, 2)));
+    // The next package save presenting the token is held with it, and says
+    // so; the command, called again, writes both, in order.
+    let next = keep_or_hold(&path, &session, Some(&holder), &published(PROJECT, &dir.join("next.opsproj"), b"next", true, 2));
+    assert_eq!((next.status.as_str(), next.holder.as_deref(), next.message.as_str()), ("held", Some(holder.as_str()), HELD_WITH_EARLIER));
+    assert!(stored(&path, PROJECT).is_empty(), "a package save writes no held entry");
+    assert_eq!(all_kept(&keep_held(Ok(path.clone()), &session, PROJECT, &holder)), [id.clone(), next.entry_id.clone()]);
     let order: Vec<(String, i64)> = stored(&path, PROJECT).into_iter().map(|entry| (entry.entry_id, entry.sequence)).collect();
-    assert_eq!(order, [(id, 1), (next, 2)]);
+    assert_eq!(order, [(id, 1), (next.entry_id, 2)]);
 }
 
 #[test]
@@ -946,12 +956,12 @@ fn held_entries_stay_with_their_own_project_when_another_is_opened_or_created() 
     // holder's entries, and this holder's only for this project.
     let other = json!({ "schema_version": open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION, "project": { "id": "project:another", "name": "Another" } });
     write_project(&path, "project:another", &other);
-    assert!(keep_held_entries(Ok(path.clone()), &session, "project:another", &holder).entries.is_empty());
+    assert!(keep_held(Ok(path.clone()), &session, "project:another", &holder).entries.is_empty());
     assert!(stored(&path, "project:another").is_empty(), "nothing is written into another project");
     assert_eq!(listed(&path, &session, PROJECT, Some(&holder)).entries[0].kept, "held_by_session");
     // Returning to the project and saving it, its page writes the entry.
     write_project(&path, PROJECT, &invented_model());
-    assert_eq!(all_kept(&keep_held_entries(Ok(path.clone()), &session, PROJECT, &holder)), [id.clone()]);
+    assert_eq!(all_kept(&keep_held(Ok(path.clone()), &session, PROJECT, &holder)), [id.clone()]);
     assert_eq!(stored(&path, PROJECT)[0].entry_id, id);
 }
 
@@ -987,7 +997,7 @@ fn a_session_that_ends_before_the_first_save_loses_its_held_entry_and_recovery_d
     let restarted = SessionHeldEntries::default();
     // Recovery: the recovered document is saved as the project's first save.
     crate::create_project_in_store(path.clone(), model, None, None, None, None, None, None, None, None).unwrap();
-    assert!(keep_held_entries(Ok(path.clone()), &restarted, project, &holder).entries.is_empty());
+    assert!(keep_held(Ok(path.clone()), &restarted, project, &holder).entries.is_empty());
     assert!(listed(&path, &restarted, project, Some(&holder)).entries.is_empty(), "nothing reconstructs the entry");
     assert!(package.location.exists(), "the saved file is a file the project does not list");
 }
@@ -1021,7 +1031,7 @@ fn a_renamed_record_with_its_checksum_recomputed_does_not_verify_on_route_009() 
     assert_eq!(dump(&path), before, "nothing was written");
 }
 
-/// R2: route 009 applies Record Run's status checks, not route 010's
+/// R2: route 009 applies the solve builder's status rule, not route 010's
 /// no-aggregate rule, so the record of a model with rule packs, whose status
 /// carries the rule-check aggregate the builder writes, still verifies.
 #[test]
@@ -1034,7 +1044,7 @@ fn a_record_with_the_rule_check_aggregate_verifies_on_route_009() {
         statuses.sort();
         run["analysis_status"] = json!(statuses);
     });
-    let receipt = save_009(admit_009(basis.args(Some(canonical(&record)))).unwrap(), &dir, &path, &SessionHeldEntries::default());
+    let receipt = save_009(admit_009(basis.bound_args(&record)).unwrap(), &dir, &path, &SessionHeldEntries::default());
     assert_eq!(receipt.saved_package_entry.code, ENTRY_KEPT, "{:?}", receipt.saved_package_entry);
 }
 
@@ -1128,7 +1138,7 @@ fn a_second_document_of_the_same_id_neither_sees_nor_inherits_the_first_ones_hel
     assert_ne!(minted, invented);
     // The second document's first save, then its call: only its own entry.
     crate::create_project_in_store(path.clone(), current_model(), None, None, None, None, None, None, None, None).unwrap();
-    assert_eq!(all_kept(&keep_held_entries(Ok(path.clone()), &session, PROJECT, &second_holder)), [second_id.clone()]);
+    assert_eq!(all_kept(&keep_held(Ok(path.clone()), &session, PROJECT, &second_holder)), [second_id.clone()]);
     assert_eq!(ids(&stored(&path, PROJECT)), [second_id]);
     let first_view = listed(&path, &session, PROJECT, Some(&first_holder)).entries;
     assert_eq!(first_view.iter().map(|entry| (entry.entry_id.clone(), entry.kept)).last(), Some((first_id, "held_by_session")));
@@ -1151,8 +1161,8 @@ fn no_project_save_writes_a_held_entry_and_the_call_writes_only_its_own_project_
     write_project(&path, "project:unrelated", &json!({ "project": { "id": "project:unrelated", "name": "Unrelated" } }));
     assert!(entry_rows(&path).is_empty(), "no project save wrote the held entry");
     // The call for another project, or with another holder, writes nothing.
-    assert!(keep_held_entries(Ok(path.clone()), &session, "project:unrelated", &holder).entries.is_empty());
-    assert!(keep_held_entries(Ok(path.clone()), &session, PROJECT, "saved-package-holder:another").entries.is_empty());
+    assert!(keep_held(Ok(path.clone()), &session, "project:unrelated", &holder).entries.is_empty());
+    assert!(keep_held(Ok(path.clone()), &session, PROJECT, "saved-package-holder:another").entries.is_empty());
     assert!(entry_rows(&path).is_empty());
     assert_eq!(ids(&listed(&path, &session, PROJECT, Some(&holder)).entries), [id]);
 }
@@ -1252,7 +1262,7 @@ fn a_list_while_its_entry_is_written_sees_it_once() {
     {
         let (path, session, holder) = (path.clone(), Arc::clone(&session), holder.clone());
         hooks::arm_between_list_reads(move || {
-            all_kept(&keep_held_entries(Ok(path), &session, PROJECT, &holder));
+            all_kept(&keep_held(Ok(path), &session, PROJECT, &holder));
         });
     }
     let list = listed(&path, &session, PROJECT, Some(&holder));
@@ -1276,7 +1286,7 @@ fn lists_during_a_concurrent_write_never_omit_the_entry() {
         write_project(&path, &project, &invented_model());
         let writer = {
             let (path, session, project, holder) = (path.clone(), Arc::clone(&session), project.clone(), holder.clone());
-            std::thread::spawn(move || keep_held_entries(Ok(path), &session, &project, &holder))
+            std::thread::spawn(move || keep_held(Ok(path), &session, &project, &holder))
         };
         loop {
             let entries = listed(&path, &session, &project, Some(&holder)).entries;
@@ -1308,7 +1318,7 @@ fn a_shared_write_failure_withholds_every_location() {
     held(&keep_or_hold(&path, &session, Some(&holder), &second));
     write_project(&path, PROJECT, &invented_model());
     fault::arm(Some(format!("disk I/O error near {}", first.location.display())));
-    let write = keep_held_entries(Ok(path.clone()), &session, PROJECT, &holder);
+    let write = keep_held(Ok(path.clone()), &session, PROJECT, &holder);
     fault::arm(None);
     let list = listed(&path, &session, PROJECT, Some(&holder));
     assert_eq!(list.entries.len(), 2);
@@ -1339,7 +1349,7 @@ fn a_store_failure_while_writing_or_listing_held_entries_is_stated_by_code() {
     let (dir, path, package) = unsaved("r7-store");
     let session = SessionHeldEntries::default();
     let (id, holder) = held(&keep_or_hold(&path, &session, None, &package));
-    let write = keep_held_entries(Err(format!("no store near {}", dir.display())), &session, PROJECT, &holder);
+    let write = keep_held(Err(format!("no store near {}", dir.display())), &session, PROJECT, &holder);
     assert_eq!(write.entries.iter().map(|outcome| (outcome.entry_id.clone(), outcome.code.clone())).collect::<Vec<_>>(), [(id.clone(), ENTRY_STORE_FAILED.to_string())]);
     let broken = dir.join("not-a-store");
     std::fs::create_dir_all(&broken).unwrap();
@@ -1358,8 +1368,9 @@ fn a_save_into_a_stored_project_with_earlier_unwritten_entries_says_so() {
     let (_, holder) = held(&keep_or_hold(&path, &session, None, &package));
     write_project(&path, PROJECT, &invented_model());
     fault::arm(Some("disk I/O error".to_string()));
-    let outcome = keep_or_hold(&path, &session, Some(&holder), &published(PROJECT, &dir.join("next.opsproj"), b"next", true, 2));
+    keep_held(Ok(path.clone()), &session, PROJECT, &holder);
     fault::arm(None);
+    let outcome = keep_or_hold(&path, &session, Some(&holder), &published(PROJECT, &dir.join("next.opsproj"), b"next", true, 2));
     assert_eq!((outcome.status.as_str(), outcome.holder.as_deref()), ("held", Some(holder.as_str())));
     assert_eq!(outcome.message, HELD_WITH_EARLIER);
     assert!(!outcome.message.contains("first saved"), "{outcome:?}");
@@ -1371,9 +1382,342 @@ fn a_panic_while_writing_held_entries_is_a_fixed_reply() {
     let registry = crate::command_ingress::test_support::registry(crate::memory_pool::test_host::ScriptedHost::normal());
     let body = json!({ "projectId": PROJECT, "holder": "saved-package-holder:invented" });
     let (mut args, _lease) = crate::command_ingress::test_support::admit_json(&registry, "keep_held_saved_package_entries", ArgsDecoding::Moved, &body).unwrap();
-    let outcome = keep_held_saved_package_entries_args(&mut args, || -> Result<PathBuf, String> { panic!("invented failure") }, &SessionHeldEntries::default());
+    let outcome = keep_held_saved_package_entries_args(&mut args, || -> Result<PathBuf, String> { panic!("invented failure") }, &SessionHeldEntries::default(), &UnmeteredReadMemory);
     match outcome {
         Err(CommandError::Command(message)) => assert_eq!(message, KEEP_HELD_INCOMPLETE),
         other => panic!("{other:?}"),
+    }
+}
+
+// --- Review round 2 ----------------------------------------------------------
+
+/// The analysis-record checksum a package's result document carries: its
+/// `run_hashes` entry that names the run as an `AnalysisRun`.
+fn package_record_checksum(request: &serde_json::Value) -> String {
+    request["result_documents"][0]["result_envelope"]["reproducibility"]["run_hashes"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|hash| hash["payload_ref"]["ref_type"] == "AnalysisRun")
+        .unwrap()["value"]
+        .as_str()
+        .unwrap()
+        .to_string()
+}
+
+/// A run record's own checksum.
+fn record_checksum(record: &serde_json::Value) -> String {
+    record["analysis_run"]["hashes"].as_array().unwrap().iter().find(|hash| hash["payload_scope"] == "analysis_run_record").unwrap()["value"]
+        .as_str()
+        .unwrap()
+        .to_string()
+}
+
+/// `request` as the desktop exports it from the run `record` records: every
+/// occurrence of the shared builder's invented record checksum names
+/// `record`'s instead, and the result document's derivative hash is
+/// recomputed (and replaced wherever the request repeats it).
+fn bound_request(request: &serde_json::Value, record: &serde_json::Value) -> serde_json::Value {
+    use open_pipe_stress_result_export::derivative::{checksum, reference};
+    let text = canonical(request).replace(&package_record_checksum(request), &record_checksum(record));
+    let mut request: serde_json::Value = serde_json::from_str(&text).unwrap();
+    let document = &mut request["result_documents"][0];
+    let earlier = document["result_envelope"]["reproducibility"]["derivative_hash"]["value"].as_str().unwrap().to_string();
+    let envelope_id = document["result_envelope"]["envelope_id"].as_str().unwrap().to_string();
+    document["result_envelope"]["reproducibility"].as_object_mut().unwrap().remove("derivative_hash");
+    let hash = checksum(document, "derivative_document_excludes_own_hash", reference("derivative_document", &envelope_id)).unwrap();
+    let now = hash["value"].as_str().unwrap().to_string();
+    document["result_envelope"]["reproducibility"]["derivative_hash"] = hash;
+    serde_json::from_str(&canonical(&request).replace(&earlier, &now)).unwrap()
+}
+
+impl Route009 {
+    /// The arguments of a save of the package exported from the run `record`
+    /// records, with that record.
+    fn bound_args(&self, record: &serde_json::Value) -> crate::report_package_save::ReportPackageSaveRequest {
+        let request = bound_request(&self.request, record);
+        let mut args = crate::report_package_save::test_support::save_request_with(&request, &self.model, &self.manifest);
+        args.analysis_run_text = Some(canonical(record));
+        args
+    }
+}
+
+/// Round 2 (Fix 1): a run record that verifies against the package's source,
+/// input manifest and producer but is not the package's own analysis record
+/// (the record checksum its result document carries) keeps no entry; the
+/// package is saved. Bound to it, the same record keeps its entry.
+#[test]
+fn a_run_record_that_is_not_the_packages_own_keeps_no_entry() {
+    let _lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
+    let (dir, path, basis) = vector_project_store("r3-not-own");
+    assert_ne!(package_record_checksum(&basis.request), record_checksum(&basis.run_record), "the builder's invented record is another record");
+    let before = dump(&path);
+    let receipt = save_009(admit_009(basis.args(Some(canonical(&basis.run_record)))).unwrap(), &dir, &path, &SessionHeldEntries::default());
+    assert_eq!(receipt.outcome, "saved");
+    let outcome = &receipt.saved_package_entry;
+    assert_eq!((outcome.status.as_str(), outcome.code.as_str()), ("not_kept", ENTRY_RUN_RECORD_UNVERIFIED), "{outcome:?}");
+    assert_eq!(dump(&path), before, "nothing was written");
+    let receipt = save_009(admit_009(basis.bound_args(&basis.run_record)).unwrap(), &dir, &path, &SessionHeldEntries::default());
+    assert_eq!(receipt.saved_package_entry.code, ENTRY_KEPT, "{:?}", receipt.saved_package_entry);
+}
+
+/// Round 2 (Fix 1): on route 009 the record's analysis status is the
+/// builder's for its source (`HUMAN_REVIEW_REQUIRED`, the source's mechanics
+/// status and one rule status, each once, sorted); an empty status, or one
+/// that is not that, keeps no entry.
+#[test]
+fn a_route_009_record_whose_status_is_not_the_builders_keeps_no_entry() {
+    let _lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
+    let (dir, path, basis) = vector_project_store("r3-status");
+    let before = dump(&path);
+    let statuses: Vec<String> = basis.run_record["analysis_run"]["analysis_status"].as_array().unwrap().iter().map(|status| status.as_str().unwrap().to_string()).collect();
+    let rules = ["RULE_INPUTS_INCOMPLETE", "USER_RULE_CHECKED", "USER_RULE_FAILED"];
+    let without_rule: Vec<String> = statuses.iter().filter(|status| !rules.contains(&status.as_str())).cloned().collect();
+    let mut two_rules = statuses.clone();
+    two_rules.push(rules.iter().find(|rule| !statuses.iter().any(|status| status == *rule)).unwrap().to_string());
+    two_rules.sort();
+    let other_mechanics: Vec<String> = {
+        let mut other: Vec<String> = statuses
+            .iter()
+            .map(|status| match status.as_str() {
+                "MECHANICS_SOLVED" => "MODEL_INCOMPLETE".to_string(),
+                "MODEL_INCOMPLETE" => "MECHANICS_SOLVED".to_string(),
+                _ => status.clone(),
+            })
+            .collect();
+        other.sort();
+        other
+    };
+    assert_ne!(other_mechanics, statuses);
+    for (label, status) in [("empty", json!([])), ("without a rule status", json!(without_rule)), ("with two rule statuses", json!(two_rules)), ("with another mechanics status", json!(other_mechanics))] {
+        let record = rehashed(&basis.run_record, |run| run["analysis_status"] = status.clone());
+        let receipt = save_009(admit_009(basis.bound_args(&record)).unwrap_or_else(|code| panic!("{label}: refused {code}")), &dir, &path, &SessionHeldEntries::default());
+        assert_eq!(receipt.outcome, "saved", "{label}");
+        assert_eq!(receipt.saved_package_entry.code, ENTRY_RUN_RECORD_UNVERIFIED, "{label}: {:?}", receipt.saved_package_entry);
+    }
+    assert_eq!(dump(&path), before, "nothing was written");
+}
+
+/// Round 2 (Fix 2): an entry held under a token stays held under it when
+/// another document creates the project: the holder's next package save is
+/// held with it, nothing is written into the store, and a caller without the
+/// token sees neither. Only the page's call writes them.
+#[test]
+fn held_entries_stay_held_under_their_token_when_another_document_creates_the_project() {
+    let (dir, path, package) = unsaved("r3-same-id-created");
+    let session = SessionHeldEntries::default();
+    let (first, token) = held(&keep_or_hold(&path, &session, None, &package));
+    // Document B creates the project row.
+    crate::create_project_in_store(path.clone(), current_model(), None, None, None, None, None, None, None, None).unwrap();
+    // Document A exports a second package with its token.
+    let second = keep_or_hold(&path, &session, Some(&token), &published(PROJECT, &dir.join("second.opsproj"), b"second", true, 2));
+    assert_eq!((second.status.as_str(), second.holder.as_deref()), ("held", Some(token.as_str())), "{second:?}");
+    assert!(entry_rows(&path).is_empty(), "nothing was written into the store");
+    assert_eq!(ids(&listed(&path, &session, PROJECT, Some(&token)).entries), [first.clone(), second.entry_id.clone()]);
+    assert!(listed(&path, &session, PROJECT, None).entries.is_empty(), "without the token a caller sees neither");
+    // Document A's page, after its own first save, writes both, in order; its
+    // token is then retired, so its later saves are kept directly.
+    assert_eq!(all_kept(&keep_held(Ok(path.clone()), &session, PROJECT, &token)), [first.clone(), second.entry_id.clone()]);
+    let third = kept(&keep_or_hold(&path, &session, Some(&token), &published(PROJECT, &dir.join("third.opsproj"), b"third", true, 3)));
+    assert_eq!(ids(&stored(&path, PROJECT)), [first, second.entry_id, third]);
+}
+
+/// The keep command as the desktop runs it, after its ingress.
+fn keep_command(
+    args: &mut command_ingress::Args,
+    path: &Path,
+    session: &SessionHeldEntries,
+    memory: &dyn ReadMemory,
+) -> Result<tauri::ipc::Response, CommandError> {
+    respond_reserved(keep_held_saved_package_entries_args(args, || Ok(path.to_path_buf()), session, memory))
+}
+
+/// Round 2 (Fix 3): keeping many held entries reserves its working space and
+/// its reply before it writes: under a budget that cannot hold them it is
+/// refused with nothing written and every entry still held under its holder;
+/// a retry with enough writes them all, in order.
+#[test]
+fn keeping_many_held_entries_is_refused_before_it_writes_and_a_retry_writes_them_all() {
+    use crate::command_ingress::test_support::{admit_json, registry};
+    let (dir, path, first) = unsaved("r3-keep-budget");
+    let session = SessionHeldEntries::default();
+    let (one, holder) = held(&keep_or_hold(&path, &session, None, &first));
+    let mut expected = vec![one];
+    for n in 2..=200u8 {
+        let package = published(PROJECT, &dir.join(format!("p{n}.opsproj")), b"p", true, n);
+        expected.push(held(&keep_or_hold(&path, &session, Some(&holder), &package)).0);
+    }
+    write_project(&path, PROJECT, &invented_model());
+    let registry = registry(crate::memory_pool::test_host::ScriptedHost::normal());
+    let (pool_bytes, budget) = registry.pool().settings();
+    let body = json!({ "projectId": PROJECT, "holder": holder });
+    {
+        let (mut args, lease) = admit_json(&registry, "keep_held_saved_package_entries", ArgsDecoding::Moved, &body).unwrap();
+        registry.configure_pool(pool_bytes, lease.bytes() + 16 * 1024, false).unwrap();
+        let memory = PoolReadMemory::new(&registry, &lease);
+        match keep_command(&mut args, &path, &session, &memory) {
+            Err(CommandError::Command(refusal)) => assert!(refusal.starts_with(stored_read::STORE_READ_MEMORY_UNAVAILABLE), "{refusal}"),
+            Err(other) => panic!("refused otherwise: {other:?}"),
+            Ok(_) => panic!("admitted within the tight budget"),
+        }
+    }
+    assert!(entry_rows(&path).is_empty(), "nothing was written");
+    let list = listed(&path, &session, PROJECT, Some(&holder));
+    assert_eq!(ids(&list.entries), expected, "every entry is still held under its holder");
+    assert!(list.entries.iter().all(|entry| entry.kept == "held_by_session"));
+    registry.configure_pool(pool_bytes, budget, false).unwrap();
+    let (mut args, lease) = admit_json(&registry, "keep_held_saved_package_entries", ArgsDecoding::Moved, &body).unwrap();
+    let memory = PoolReadMemory::new(&registry, &lease);
+    assert!(keep_command(&mut args, &path, &session, &memory).is_ok());
+    assert_eq!(ids(&stored(&path, PROJECT)), expected, "a retry writes them all, in order");
+}
+
+/// A memory that refuses every reservation.
+struct Refusing;
+
+impl ReadMemory for Refusing {
+    fn reserve(&self, what: &str, bytes: u64) -> Result<stored_read::ReadReservation, String> {
+        Err(format!("{}: {what} needs {bytes} bytes (invented refusal)", stored_read::STORE_READ_MEMORY_UNAVAILABLE))
+    }
+}
+
+/// Round 2 (Fix 3): a list whose held entries cannot be reserved is refused
+/// before it copies them.
+#[test]
+fn a_list_is_refused_before_it_copies_the_held_entries() {
+    let (dir, path, mut first) = unsaved("r3-list-budget");
+    let large = "c".repeat(1 << 20);
+    first.export_context = large.clone();
+    let session = SessionHeldEntries::default();
+    let (_, holder) = held(&keep_or_hold(&path, &session, None, &first));
+    for n in 2..=16u8 {
+        let mut package = published(PROJECT, &dir.join(format!("p{n}.opsproj")), b"p", true, n);
+        package.export_context = large.clone();
+        held(&keep_or_hold(&path, &session, Some(&holder), &package));
+    }
+    let (refused, measured) = crate::ingress::counting::measure(|| list_entries(Ok(path.clone()), &session, PROJECT, Some(&holder), &Refusing).map(drop));
+    assert!(refused.unwrap_err().starts_with(stored_read::STORE_READ_MEMORY_UNAVAILABLE));
+    assert!(measured.peak_requested < 1 << 20, "the refused list allocated {} bytes at its peak", measured.peak_requested);
+}
+
+/// Round 2 (Fix 4): through the command's raw ingress, the body's own caps
+/// stand, and a route-009 record whose growth the budget cannot hold after
+/// the body is dropped, its decoded share released: the save goes on, and
+/// its entry is not checked.
+#[test]
+fn a_route_009_record_that_does_not_fit_after_raw_ingress_is_dropped_and_the_save_goes_on() {
+    use crate::command_ingress::test_support::{headers, registry};
+    let _lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
+    let basis = route_009();
+    let args = basis.bound_args(&basis.run_record);
+    let record_text = args.analysis_run_text.clone().unwrap();
+    let mut raw = crate::report_package_save::test_support::args_body(&args);
+    raw["analysisRunCanonicalText"] = json!(record_text);
+    let body = tauri::ipc::InvokeBody::Raw(serde_json::to_vec(&raw).unwrap());
+    let headers = headers(Some(crate::command_ingress::INGRESS_ARGS_JSON_V1));
+    let registry = registry(crate::memory_pool::test_host::ScriptedHost::normal());
+    let (pool_bytes, _) = registry.pool().settings();
+    let body_lease = crate::decode_report_package_save(&registry, &body, &headers).unwrap().1.bytes();
+    let growth = crate::report_package_save::ingress_lease_bytes(&args).unwrap();
+    let share = crate::ingress::allocation_envelope(record_text.len() as u64).unwrap();
+    assert!(growth > share, "the save's growth is above the record's share");
+    // The body's own cap: a budget below its lease refuses it.
+    registry.configure_pool(pool_bytes, body_lease - 1, false).unwrap();
+    assert!(matches!(crate::admit_report_package_save(&registry, &body, &headers), Err(CommandError::Ingress(_))));
+    // A budget that holds the body and the save's growth only once the
+    // record's decoded share is released.
+    let tight = body_lease + growth - share / 2;
+    registry.configure_pool(pool_bytes, tight, false).unwrap();
+    let (request, mut lease) = crate::admit_report_package_save(&registry, &body, &headers).unwrap_or_else(|error| panic!("the save was refused for its optional record: {error:?}"));
+    assert!(request.analysis_run_text.is_none(), "the record was dropped");
+    assert!(lease.bytes() <= tight);
+    let admitted = {
+        let mut session = crate::report_package_save::UserReleaseSession { registry: &registry, lease: &mut lease };
+        crate::report_package_save::admit_report_package_session(request, &software(), &mut no_store, &no_custody, Some(&mut session))
+            .unwrap_or_else(|refusal| panic!("admission refused: {refusal:?}"))
+    };
+    assert_eq!(admitted.entry_basis, EntryBasis::NotChecked);
+}
+
+/// Round 2 (Fix 5): a failed v15 step says so by a fixed code and sentence,
+/// never SQLite's own text.
+#[test]
+fn a_failed_v15_step_is_stated_by_a_fixed_code_and_sentence() {
+    let dir = scratch("r3-migration-text");
+    let path = dir.join("read-only.sqlite3");
+    Connection::open(&path).unwrap().execute_batch("CREATE TABLE marker(x);").unwrap();
+    let read_only = Connection::open_with_flags(&path, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY).unwrap();
+    let error = migrate_v15_saved_package_entries(&read_only).unwrap_err();
+    assert_eq!(error, "SAVED-PACKAGE-ENTRIES-MIGRATION-FAILED: the saved-package entries table could not be created.");
+    assert_eq!(error, MIGRATION_FAILED);
+}
+
+/// Round 2 (Fix 6): the table has no rowid, so an `INSERT OR REPLACE` that
+/// names an entry's rowid cannot overwrite it.
+#[test]
+fn a_replace_naming_an_entrys_rowid_cannot_overwrite_it() {
+    let (dir, path) = store_with_project("r3-rowid");
+    kept(&keep_or_hold(&path, &SessionHeldEntries::default(), None, &published(PROJECT, &dir.join("p.opsproj"), b"p", true, 1)));
+    let before = stored(&path, PROJECT);
+    let connection = Connection::open(&path).unwrap();
+    let replaced = connection.execute(
+        "INSERT OR REPLACE INTO saved_package_entries (rowid, project_id, entry_id, sequence, package_identity_sha256, container_sha256,
+           container_byte_count, file_name, location, saved_at, export_context, durability_confirmed,
+           model_hash, received_result_sha256, run_id, run_record_sha256)
+         SELECT rowid, project_id, 'saved-package:another', sequence + 1, package_identity_sha256, 'replaced', container_byte_count, file_name,
+           location, saved_at, export_context, durability_confirmed, model_hash, received_result_sha256, run_id, run_record_sha256
+         FROM saved_package_entries",
+        [],
+    );
+    drop(connection);
+    assert!(replaced.is_err(), "a replace by rowid was admitted");
+    assert_eq!(stored(&path, PROJECT), before, "the entry is as it was");
+}
+
+/// Round 2 (advisory): a list and a state check reserve SQLite's working set
+/// for the entries' keys, measured over every project's, before they search
+/// the table: a store holding an oversized entry id of another project is
+/// priced before SQLite can load it.
+#[test]
+fn reads_of_the_entries_reserve_the_working_set_of_their_largest_key() {
+    let (dir, path) = store_with_project("r3-keys");
+    let location = dir.join("p.opsproj");
+    std::fs::write(&location, b"p").unwrap();
+    let id = kept(&keep_or_hold(&path, &SessionHeldEntries::default(), None, &published(PROJECT, &location, b"p", true, 1)));
+    // Another project's row with a large entry id, written past the store's own paths.
+    let large = "e".repeat(1 << 20);
+    let other = json!({ "schema_version": open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION, "project": { "id": "project:other", "name": "Other" } });
+    write_project(&path, "project:other", &other);
+    let connection = Connection::open(&path).unwrap();
+    connection
+        .execute(
+            "INSERT INTO saved_package_entries SELECT 'project:other', ?1, 1, package_identity_sha256, container_sha256, container_byte_count, file_name,
+               location, saved_at, export_context, durability_confirmed, model_hash, received_result_sha256, run_id, run_record_sha256
+             FROM saved_package_entries WHERE project_id = ?2",
+            rusqlite::params![large, PROJECT],
+        )
+        .unwrap();
+    drop(connection);
+    let session = SessionHeldEntries::default();
+    let key = ("project:other".len() + large.len()) as u64 * stored_read::SQLITE_WORKING_SET_FACTOR;
+    for (label, read) in [
+        ("list", Box::new(|memory: &Recording| list_entries(Ok(path.clone()), &session, PROJECT, None, memory).map(drop)) as Box<dyn Fn(&Recording) -> Result<(), String>>),
+        ("check", Box::new(|memory: &Recording| check_entry(Ok(path.clone()), &session, PROJECT, None, &id, memory).map(drop))),
+    ] {
+        let memory = Recording::default();
+        read(&memory).unwrap();
+        let reserved = memory.0.borrow();
+        assert!(reserved.iter().any(|(what, bytes)| what.contains("saved-package entries (their largest keyed row") && *bytes == key), "{label}: {reserved:?}");
+    }
+}
+
+/// A memory that admits every reservation and records it.
+#[derive(Default)]
+struct Recording(RefCell<Vec<(String, u64)>>);
+
+impl ReadMemory for Recording {
+    fn reserve(&self, what: &str, bytes: u64) -> Result<stored_read::ReadReservation, String> {
+        self.0.borrow_mut().push((what.to_string(), bytes));
+        UnmeteredReadMemory.reserve(what, bytes)
     }
 }

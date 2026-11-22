@@ -1580,8 +1580,8 @@ fn after_a_user_released_save_the_project_is_unchanged_but_for_its_one_entry() {
 #[test]
 fn a_user_released_save_before_the_first_project_save_is_held_until_that_save_writes_it() {
     use crate::saved_package_entries::tests::{entry_rows, others, scratch, store_in, write_project};
-    use crate::saved_package_entries::tests::listed;
-    use crate::saved_package_entries::{keep_held_entries, SessionHeldEntries, ENTRY_HELD_BY_SESSION};
+    use crate::saved_package_entries::tests::{keep_held, listed};
+    use crate::saved_package_entries::{SessionHeldEntries, ENTRY_HELD_BY_SESSION};
     let _lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
     let basis = basis();
     let project_id = basis.model["project"]["id"].as_str().unwrap();
@@ -1614,7 +1614,7 @@ fn a_user_released_save_before_the_first_project_save_is_held_until_that_save_wr
     // that entry.
     write_project(&store, project_id, &basis.model);
     assert!(entry_rows(&store).is_empty(), "the project save writes no held entry");
-    let written = keep_held_entries(Ok(store.clone()), &session, project_id, &holder);
+    let written = keep_held(Ok(store.clone()), &session, project_id, &holder);
     assert_eq!(written.entries.iter().map(|entry| (entry.entry_id.as_str(), entry.status.as_str())).collect::<Vec<_>>(), [(outcome.entry_id.as_str(), "kept")]);
     assert_eq!(entry_rows(&store).len(), 1);
     let kept = listed(&store, &session, project_id, Some(&holder)).entries;

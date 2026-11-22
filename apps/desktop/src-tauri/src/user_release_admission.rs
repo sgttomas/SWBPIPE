@@ -465,6 +465,27 @@ fn expected_statuses(source: &Value) -> Option<Value> {
     Some(json!(statuses))
 }
 
+/// The rule statuses the solve builder writes (`analysisRunCompatibility.ts`
+/// `RULE_STATUSES`): the effective rule status is the rule-check aggregate's,
+/// else the source's own, else `RULE_INPUTS_INCOMPLETE`, and is one of these.
+const RULE_STATUSES: [&str; 3] = ["RULE_INPUTS_INCOMPLETE", "USER_RULE_CHECKED", "USER_RULE_FAILED"];
+
+/// Whether `statuses` is an analysis status the solve builder writes for
+/// `source` (`buildAnalysisRunV03`): `HUMAN_REVIEW_REQUIRED`, the source's
+/// mechanics status and one effective rule status ([`RULE_STATUSES`]), each
+/// once, sorted. An empty or absent status is not.
+fn builder_statuses(source: &Value, statuses: Option<&Value>) -> bool {
+    let Some(mechanics) = source.pointer("/status/mechanics").and_then(Value::as_str) else {
+        return false;
+    };
+    RULE_STATUSES.iter().any(|rule| {
+        let mut expected: Vec<&str> = vec!["HUMAN_REVIEW_REQUIRED", mechanics, rule];
+        expected.sort_unstable();
+        expected.dedup();
+        statuses == Some(&json!(expected))
+    })
+}
+
 fn builder_boundary() -> Value {
     json!({
         "human_review_required": true,
@@ -484,9 +505,10 @@ pub(crate) enum RunRecordStatus {
     /// `S`'s own rule status, with no rule-check aggregate (step 5 refuses
     /// every model with a rule-pack reference).
     SolvesOwn,
-    /// Route 009: Record Run's own checks only, so that the record of a model
-    /// with rule packs, whose status carries the rule-check aggregate the
-    /// builder writes (`analysisRunCompatibility.ts`), still verifies.
+    /// Route 009: the status the solve builder writes for `S`
+    /// (`HUMAN_REVIEW_REQUIRED`, `S`'s mechanics status and one rule status,
+    /// `S`'s own or the rule-check aggregate's; `analysisRunCompatibility.ts`),
+    /// so that the record of a model with rule packs still verifies.
     RecordRun,
 }
 
@@ -518,10 +540,18 @@ pub(crate) fn verify_run_record(
         return Err(unbound("the run was recorded before rule-pack resolution"));
     }
     let run = &run_record["analysis_run"];
-    if status == RunRecordStatus::SolvesOwn && expected_statuses(source).as_ref() != run.get("analysis_status") {
-        return Err(unbound(
-            "the run record's analysis status is not the solve's own (HUMAN_REVIEW_REQUIRED, its mechanics status and its own rule status, with no rule-check aggregate)",
-        ));
+    match status {
+        RunRecordStatus::SolvesOwn if expected_statuses(source).as_ref() != run.get("analysis_status") => {
+            return Err(unbound(
+                "the run record's analysis status is not the solve's own (HUMAN_REVIEW_REQUIRED, its mechanics status and its own rule status, with no rule-check aggregate)",
+            ));
+        }
+        RunRecordStatus::RecordRun if !builder_statuses(source, run.get("analysis_status")) => {
+            return Err(unbound(
+                "the run record's analysis status is not the solve builder's (HUMAN_REVIEW_REQUIRED, its source's mechanics status and one rule status, each once, sorted)",
+            ));
+        }
+        _ => {}
     }
     let run_id = run.get("run_id").and_then(Value::as_str).unwrap_or_default();
     let builder_members = [

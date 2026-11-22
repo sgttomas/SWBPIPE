@@ -273,6 +273,44 @@ pub struct ReportPackageSaveRequest {
     /// (`savedPackageEntryHolder`), from an earlier held save of the same
     /// document session (DEL-08-01 REQ-023 "Before the first project save").
     pub saved_package_entry_holder: Option<String>,
+    /// Route 009: a run record was given and dropped after the raw ingress,
+    /// the save's growth not fitting its budget with it
+    /// ([`Self::drop_route_009_record_for_memory`]); the entry is then not
+    /// checked ([`EntryBasis::NotChecked`]). Never decoded from the arguments.
+    pub analysis_run_dropped_for_memory: bool,
+}
+
+impl ReportPackageSaveRequest {
+    /// Drops route 009's optional run record for memory (DEL-08-01 REQ-023:
+    /// the record never refuses the save) and returns the bytes the raw
+    /// ingress priced for its decoded text (the prescan's allocation envelope
+    /// of its length), which the caller releases; `None` on route 010 or with
+    /// no record. Admission then records [`EntryBasis::NotChecked`].
+    pub(crate) fn drop_route_009_record_for_memory(&mut self) -> Option<u64> {
+        if SaveRoute::of(self) != SaveRoute::LocalPrivate {
+            return None;
+        }
+        let text = self.analysis_run_text.take()?;
+        self.analysis_run_dropped_for_memory = true;
+        Some(crate::ingress::allocation_envelope(text.len() as u64).unwrap_or(0))
+    }
+
+    /// The bytes the request's decoded texts still hold, priced as the
+    /// prescan prices each (its allocation envelope).
+    pub(crate) fn texts_bytes(&self) -> u64 {
+        [
+            Some(&self.request_text),
+            Some(&self.model_text),
+            Some(&self.input_manifest_text),
+            self.exact_result_text.as_ref(),
+            self.exact_intake_text.as_ref(),
+            self.analysis_run_text.as_ref(),
+            self.saved_package_entry_holder.as_ref(),
+        ]
+        .into_iter()
+        .flatten()
+        .fold(0u64, |bytes, text| bytes.saturating_add(crate::ingress::allocation_envelope(text.len() as u64).unwrap_or(u64::MAX)))
+    }
 }
 
 /// The custody lookup of the native source binding: the registry's
@@ -299,6 +337,7 @@ pub(crate) fn save_report_package_args(args: &mut Args) -> Result<ReportPackageS
         exact_intake_text: args.decode("exactIntakeText")?,
         analysis_run_text: args.decode("analysisRunCanonicalText")?,
         saved_package_entry_holder: args.decode("savedPackageEntryHolder")?,
+        analysis_run_dropped_for_memory: false,
     })
 }
 
@@ -598,8 +637,8 @@ fn analysis_run_text_of(analysis_run_text: Option<&str>) -> Result<&str, ReportP
 
 /// Route 009's run record, checked natively for the package's
 /// saved-package entry with route 010's verification
-/// ([`user_release_native::verify_run_record`], with Record Run's status
-/// rule; DEL-08-01 REQ-023 "Basis"). The record is optional to the save, so
+/// ([`user_release_native::verify_run_record`], with the solve builder's
+/// status rule; DEL-08-01 REQ-023 "Basis"). The record is optional to the save, so
 /// nothing here refuses or fails it:
 /// - an absent record is [`EntryBasis::NoRunRecord`];
 /// - a text above [`MAX_ANALYSIS_RUN_TEXT_BYTES`], or one the
@@ -610,8 +649,10 @@ fn analysis_run_text_of(analysis_run_text: Option<&str>) -> Result<&str, ReportP
 ///   refuses it, or refuses a reservation of the check, the record is
 ///   [`EntryBasis::NotChecked`] and the package is saved exactly as without
 ///   it;
-/// - a record that is not canonical or does not verify is
-///   [`EntryBasis::Unverified`].
+/// - a record that is not canonical or does not verify, or whose recomputed
+///   hash is not the package's own analysis-record checksum (`run_hashes`,
+///   the entry naming its run as an `AnalysisRun`, as
+///   `report_package::bindings` reads it), is [`EntryBasis::Unverified`].
 ///
 /// The basis is the model text's SHA-256 and the verified record's run id,
 /// the record hash the verification recomputed, and its received-result
@@ -620,6 +661,7 @@ fn route_009_entry_basis(
     text: String,
     project_id: &str,
     source: &Value,
+    run_hashes: Option<&Value>,
     input_manifest: &Value,
     input_manifest_hex: &str,
     model_hex: &str,
@@ -644,12 +686,18 @@ fn route_009_entry_basis(
             user_release_native::RunRecordStatus::RecordRun,
             memory,
         ) {
-            Ok(run_record_sha256) => EntryBasis::Bound(SavedPackageBasis {
-                model_hash: model_hex.to_string(),
-                received_result_sha256: received_result_checksum(&record),
-                run_id: text_at(&record, "/analysis_run/run_id").unwrap_or_default().to_string(),
-                run_record_sha256,
-            }),
+            Ok(run_record_sha256) => {
+                let run_id = text_at(&record, "/analysis_run/run_id").unwrap_or_default();
+                if package_record_checksum(run_hashes, run_id) != Some(run_record_sha256.as_str()) {
+                    return EntryBasis::Unverified;
+                }
+                EntryBasis::Bound(SavedPackageBasis {
+                    model_hash: model_hex.to_string(),
+                    received_result_sha256: received_result_checksum(&record),
+                    run_id: run_id.to_string(),
+                    run_record_sha256,
+                })
+            }
             Err(error) if error.contains(crate::stored_read::STORE_READ_MEMORY_UNAVAILABLE) => EntryBasis::NotChecked,
             Err(_) => EntryBasis::Unverified,
         }
@@ -664,6 +712,24 @@ fn route_009_entry_basis(
         }
         None => verify(&crate::stored_read::UnmeteredReadMemory),
     }
+}
+
+/// The analysis-record checksum a package's result document carries for
+/// `run_id`: the value of its `run_hashes` entry whose `payload_ref` is
+/// exactly `{ref_type: "AnalysisRun", ref_id: run_id}`.
+fn package_record_checksum<'a>(run_hashes: Option<&'a Value>, run_id: &str) -> Option<&'a str> {
+    run_hashes?
+        .as_array()?
+        .iter()
+        .find(|hash| {
+            hash.get("payload_ref").and_then(Value::as_object).is_some_and(|reference| {
+                reference.len() == 2
+                    && reference.get("ref_type").and_then(Value::as_str) == Some("AnalysisRun")
+                    && reference.get("ref_id").and_then(Value::as_str) == Some(run_id)
+            })
+        })?
+        .get("value")?
+        .as_str()
 }
 
 /// A checked run record's received-result checksum value.
@@ -1559,6 +1625,7 @@ fn admit_both_routes(
         exact_intake_text,
         analysis_run_text,
         saved_package_entry_holder: _,
+        analysis_run_dropped_for_memory,
     } = request;
     validate_report_package_save_evidence(&screening, local_first.as_ref())?;
     let user_release_route = screening.route_id == REPORT_PACKAGE_USER_RELEASE_ROUTE_ID;
@@ -1717,8 +1784,10 @@ fn admit_both_routes(
             let basis = match (&route_009_manifest, analysis_run_text) {
                 (Some(manifest), Some(text)) => {
                     let source = request_value.pointer("/source_results/0").unwrap_or(&Value::Null);
-                    route_009_entry_basis(text, &project_id, source, manifest, &input_manifest_hex, &model_hex, session)
+                    let run_hashes = request_value.pointer("/result_documents/0/result_envelope/reproducibility/run_hashes");
+                    route_009_entry_basis(text, &project_id, source, run_hashes, manifest, &input_manifest_hex, &model_hex, session)
                 }
+                _ if analysis_run_dropped_for_memory => EntryBasis::NotChecked,
                 _ => EntryBasis::NoRunRecord,
             };
             drop(route_009_manifest);
@@ -2232,6 +2301,7 @@ pub(crate) mod test_support {
             exact_intake_text: None,
             analysis_run_text: None,
             saved_package_entry_holder: None,
+            analysis_run_dropped_for_memory: false,
         }
     }
 
