@@ -42,6 +42,7 @@ import { OUTPUT_SURFACES, PRESSURE_2_OUTPUT_REFUSAL, surfaceOutputRefusal, surfa
 import { N_LOAD_REFERENCE_RULE_CHECK } from "../results/loadReferenceDisclosure";
 import { loadReferenceOutputRefusal } from "../results/loadReferenceOutputAvailability";
 import { ResultsPanel } from "../results/ResultsPanel";
+import { numericalQualityStatusText } from "../results/integrityStatus";
 import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
 import { SolvePanel } from "../solve/SolvePanel";
 import { buildCurrentResultExport, resultSchemaVersion } from "../result-export/resultExportAdapter";
@@ -176,16 +177,18 @@ async function expectPythonShapedRecord(record: AnalysisRunEnvelope, result: Mec
   expect(await verifyAnalysisRunRecord(record)).toBe("match");
   await expect(validateAnalysisRunV03(record, result, modelLoadBasisRefs(model))).resolves.toBeUndefined();
 }
-/** The session's native result shows in the results panel: its standing, and its first row by a
- * native page (the C2 copy is the oracle); the known-semantic notices render on the copy. */
-async function expectViewable(result: NativeResult, analysisRun: WorkspaceSession["results"]["analysisRun"], model: PreviewModel, copy: MechanicsResult) {
+/** The session's native result shows in the results panel with the health the session hands it (as
+ * App.tsx does): its standing, and its first row by a native page (the C2 copy is the oracle); the
+ * known-semantic notices render on the copy. */
+async function expectViewable(result: NativeResult, analysisRun: WorkspaceSession["results"]["analysisRun"], model: PreviewModel, copy: MechanicsResult, health: WorkspaceSession["results"]["numericalHealth"]) {
   const dispatch = readerDispatch(result, model);
   expect(dispatch.route).toBe("pressure");
   const standing = numericalResultStanding(result, model);
   expect({ eligible: standing.eligible, findings: standing.findings }).toStrictEqual({ eligible: dispatch.standing.eligible, findings: [...dispatch.standing.findings] });
   // Each view is unmounted alone: the session (its native custody) stays held.
-  const panel = render(<ResultsPanel result={result} knowledge={null} analysisRun={analysisRun} selectedResultId={null} onSelectResult={vi.fn()} />);
-  expect(screen.getByTestId("numerical-result-standing")).toHaveTextContent(`Numerical integrity: ${result.numerical_quality!.status}.`);
+  expect(health).not.toBeNull();
+  const panel = render(<ResultsPanel result={result} knowledge={null} analysisRun={analysisRun} selectedResultId={null} onSelectResult={vi.fn()} numericalHealth={health} />);
+  expect(screen.getByTestId("numerical-result-standing")).toHaveTextContent(`Numerical health: ${numericalQualityStatusText(result.numerical_quality!.status)}.`);
   expect(screen.getByTestId("numerical-result-standing")).not.toHaveTextContent("Unsupported numerical contract");
   expect(await screen.findByTestId(`result-row-${copy.results[0].id}`)).toBeInTheDocument();
   panel.unmount();
@@ -217,7 +220,7 @@ describe("an exact (pressure-2) session solve", () => {
     const full = await c2Full(hook.current);
     await expectPythonShapedRecord(full.analysisRun, full.result, state.model);
     expect(Object.hasOwn(state.result.contract_evidence as object, "load_reference_states")).toBe(false);
-    await expectViewable(state.result, state.analysisRun, state.model, full.result);
+    await expectViewable(state.result, state.analysisRun, state.model, full.result, hook.current.results.numericalHealth);
   });
 
   it.each(["sparse_interactive", "dense_scrutiny"] as Mode[])("%s with the load/reference-state group: completes, its record matches Python's carrier, the resolved-state block shows it, and it is Current (epoch 8)", async mode => {
@@ -230,7 +233,7 @@ describe("an exact (pressure-2) session solve", () => {
     expect(full.analysisRun.analysis_run.result_refs.map(({ provenance: _, ...ref }) => ref)).toStrictEqual(python.analysis_run.result_refs.map(({ provenance: _, ...ref }) => ref));
     // The record header the session holds carries the same checksum.
     expect(state.analysisRun.analysis_run.hashes.find(h => h.payload_scope === "received_result")).toStrictEqual(python.analysis_run.hashes.find(h => h.payload_scope === "received_result"));
-    await expectViewable(state.result, state.analysisRun, state.model, full.result);
+    await expectViewable(state.result, state.analysisRun, state.model, full.result, hook.current.results.numericalHealth);
     const { solveJob, solverMode, running } = hook.current.results;
     render(<SolvePanel analysisRun={state.analysisRun} model={state.model} result={state.result} running={running} solveJob={solveJob}
       solverMode={solverMode} onCancel={() => {}} onRun={() => {}} onSolverModeChange={() => {}} />);

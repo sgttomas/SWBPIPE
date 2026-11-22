@@ -113,6 +113,13 @@ export type NativeCustody = Readonly<{
    * never binds a standing (`binding.standing` stays null). Null for a solve, and for a retained
    * route, whose panel shows no health indicator (`routeHealth`). */
   historicalStanding?: Readonly<{ eligible: boolean; findings: readonly string[] }> | null;
+  /** Release exit criterion 18: what a restored run's S says of its support-state confirmations.
+   * `"read"`: S was read with the saved model for them (`support_confirmations` is the reader's
+   * record, or null where none could be derived); `"no_nonlinear_support"`: the saved model is known
+   * to have none, so no case has a line; `"not_read"`: the confirmation read was not made or failed,
+   * or no model was available, so every case states that its record could not be read. Absent for a
+   * solve, whose S is read with its own model. */
+  supportConfirmations?: "read" | "no_nonlinear_support" | "not_read";
 }>;
 
 const NATIVE = Symbol("swbpipe.nativeResult");
@@ -405,11 +412,13 @@ export function readNativeValidation(jobId: string, reader: ReaderName, request:
     })));
 }
 
-/** S for the model text and standing, cached by both (`null`: no standing). */
-export function readNativeSummary(jobId: string, modelText: string, standing: NativeBinding["standing"]): Promise<ResultSummary> {
+/** S for the model text and standing, cached by both (`null`: no standing). `modelUse`
+ * "confirmations" (a restored run, release exit criterion 18): the model is read for S's support-state
+ * confirmations only, and every table is read with no model. */
+export function readNativeSummary(jobId: string, modelText: string, standing: NativeBinding["standing"], modelUse?: "confirmations"): Promise<ResultSummary> {
   const standingArg = standing ? { eligible: standing.eligible, findings: [...standing.findings] } : null;
-  return cached(jobId, keyOf("summary", modelText, JSON.stringify(standingArg)), async () => {
-    const delivered = await bytesInvoke(NATIVE_SUMMARY_COMMAND, { jobId, modelJson: modelText, standing: standingArg });
+  return cached(jobId, keyOf("summary", modelText, JSON.stringify(standingArg), modelUse ?? null), async () => {
+    const delivered = await bytesInvoke(NATIVE_SUMMARY_COMMAND, { jobId, modelJson: modelText, standing: standingArg, ...(modelUse ? { modelUse } : {}) });
     if (typeof delivered === "string") throw new Error("RESULT-SUMMARY-MALFORMED: a text response where bytes were expected");
     return decodeResultSummary(delivered);
   });
