@@ -55,7 +55,7 @@
      "affected_refs": [
       "project:blank-local-20261030t000000z"
      ],
-     "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted."
+     "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads or engineering values were inserted. Its one stated setting is shear deformation in straight members, included (Timoshenko), which the person can change."
     }
    ]
   }

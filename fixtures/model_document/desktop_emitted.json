@@ -53,7 +53,7 @@
             "affected_refs": [
               "project:blank-local-20260101t000000z"
             ],
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted."
+            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads or engineering values were inserted. Its one stated setting is shear deformation in straight members, included (Timoshenko), which the person can change."
           }
         ]
       }
@@ -111,7 +111,7 @@
             "affected_refs": [
               "project:blank-local-20260101t000000z"
             ],
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted."
+            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads or engineering values were inserted. Its one stated setting is shear deformation in straight members, included (Timoshenko), which the person can change."
           }
         ]
       }
@@ -139,7 +139,7 @@
             ],
             "code": "BLANK_PROJECT_AUTHORING_TARGET",
             "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
+            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads or engineering values were inserted. Its one stated setting is shear deformation in straight members, included (Timoshenko), which the person can change.",
             "severity": "blocking",
             "source": "apps/desktop/src/services/projectService.ts"
           }
@@ -225,7 +225,7 @@
             ],
             "code": "BLANK_PROJECT_AUTHORING_TARGET",
             "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
+            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads or engineering values were inserted. Its one stated setting is shear deformation in straight members, included (Timoshenko), which the person can change.",
             "severity": "blocking",
             "source": "apps/desktop/src/services/projectService.ts"
           }
@@ -329,7 +329,7 @@
             ],
             "code": "BLANK_PROJECT_AUTHORING_TARGET",
             "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
+            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads or engineering values were inserted. Its one stated setting is shear deformation in straight members, included (Timoshenko), which the person can change.",
             "severity": "blocking",
             "source": "apps/desktop/src/services/projectService.ts"
           }
@@ -450,7 +450,7 @@
             ],
             "code": "BLANK_PROJECT_AUTHORING_TARGET",
             "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
+            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads or engineering values were inserted. Its one stated setting is shear deformation in straight members, included (Timoshenko), which the person can change.",
             "severity": "blocking",
             "source": "apps/desktop/src/services/projectService.ts"
           }
@@ -618,7 +618,7 @@
             ],
             "code": "BLANK_PROJECT_AUTHORING_TARGET",
             "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
+            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads or engineering values were inserted. Its one stated setting is shear deformation in straight members, included (Timoshenko), which the person can change.",
             "severity": "blocking",
             "source": "apps/desktop/src/services/projectService.ts"
           }
@@ -798,7 +798,7 @@
             ],
             "code": "BLANK_PROJECT_AUTHORING_TARGET",
             "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
+            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads or engineering values were inserted. Its one stated setting is shear deformation in straight members, included (Timoshenko), which the person can change.",
             "severity": "blocking",
             "source": "apps/desktop/src/services/projectService.ts"
           }
@@ -1016,7 +1016,7 @@
             ],
             "code": "BLANK_PROJECT_AUTHORING_TARGET",
             "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
+            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads or engineering values were inserted. Its one stated setting is shear deformation in straight members, included (Timoshenko), which the person can change.",
             "severity": "blocking",
             "source": "apps/desktop/src/services/projectService.ts"
           }
@@ -1234,7 +1234,7 @@
             ],
             "code": "BLANK_PROJECT_AUTHORING_TARGET",
             "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
+            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads or engineering values were inserted. Its one stated setting is shear deformation in straight members, included (Timoshenko), which the person can change.",
             "severity": "blocking",
             "source": "apps/desktop/src/services/projectService.ts"
           }
@@ -1457,7 +1457,7 @@
             ],
             "code": "BLANK_PROJECT_AUTHORING_TARGET",
             "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
+            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads or engineering values were inserted. Its one stated setting is shear deformation in straight members, included (Timoshenko), which the person can change.",
             "severity": "blocking",
             "source": "apps/desktop/src/services/projectService.ts"
           }
@@ -1687,7 +1687,7 @@
             ],
             "code": "BLANK_PROJECT_AUTHORING_TARGET",
             "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
+            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads or engineering values were inserted. Its one stated setting is shear deformation in straight members, included (Timoshenko), which the person can change.",
             "severity": "blocking",
             "source": "apps/desktop/src/services/projectService.ts"
           }
@@ -1935,7 +1935,7 @@
             ],
             "code": "BLANK_PROJECT_AUTHORING_TARGET",
             "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
+            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads or engineering values were inserted. Its one stated setting is shear deformation in straight members, included (Timoshenko), which the person can change.",
             "severity": "blocking",
             "source": "apps/desktop/src/services/projectService.ts"
           }
@@ -2194,7 +2194,7 @@
             ],
             "code": "BLANK_PROJECT_AUTHORING_TARGET",
             "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
+            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads or engineering values were inserted. Its one stated setting is shear deformation in straight members, included (Timoshenko), which the person can change.",
             "severity": "blocking",
             "source": "apps/desktop/src/services/projectService.ts"
           }
@@ -2483,7 +2483,7 @@
             ],
             "code": "BLANK_PROJECT_AUTHORING_TARGET",
             "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
+            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads or engineering values were inserted. Its one stated setting is shear deformation in straight members, included (Timoshenko), which the person can change.",
             "severity": "blocking",
             "source": "apps/desktop/src/services/projectService.ts"
           }
@@ -2781,7 +2781,7 @@
             ],
             "code": "BLANK_PROJECT_AUTHORING_TARGET",
             "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
+            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads or engineering values were inserted. Its one stated setting is shear deformation in straight members, included (Timoshenko), which the person can change.",
             "severity": "blocking",
             "source": "apps/desktop/src/services/projectService.ts"
           }
@@ -3097,7 +3097,7 @@
             ],
             "code": "BLANK_PROJECT_AUTHORING_TARGET",
             "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
+            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads or engineering values were inserted. Its one stated setting is shear deformation in straight members, included (Timoshenko), which the person can change.",
             "severity": "blocking",
             "source": "apps/desktop/src/services/projectService.ts"
           }
@@ -3490,7 +3490,7 @@
             ],
             "code": "BLANK_PROJECT_AUTHORING_TARGET",
             "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
+            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads or engineering values were inserted. Its one stated setting is shear deformation in straight members, included (Timoshenko), which the person can change.",
             "severity": "blocking",
             "source": "apps/desktop/src/services/projectService.ts"
           }

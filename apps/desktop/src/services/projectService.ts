@@ -432,6 +432,9 @@ export const US_CUSTOMARY_PROJECT_UNITS: Readonly<ProjectUnitMap> = Object.freez
   length: "in", force: "lbf", moment: "lbf*in", pressure: "psi", stress: "psi", temperature: "degF", angle: "deg"
 });
 
+/** The blank's one diagnostic. It names the one engineering setting a blank states, its shear model. */
+export const BLANK_PROJECT_MESSAGE =
+  "Blank local model document is intentionally incomplete; no fixture entities, hidden loads or engineering values were inserted. Its one stated setting is shear deformation in straight members, included (Timoshenko), which the person can change.";
 /** The shear model a new pressure-free document states (owner D-6). */
 export const NEW_DOCUMENT_SHEAR_MODEL = "timoshenko_annulus_energy_v1";
 
@@ -486,8 +489,7 @@ export function buildBlankLocalModelDocument(
         severity: "blocking",
         source: "apps/desktop/src/services/projectService.ts",
         affected_refs: [projectId],
-        message:
-          "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted."
+        message: BLANK_PROJECT_MESSAGE
       }
     ]
   };
