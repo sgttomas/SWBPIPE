@@ -307,6 +307,42 @@
       },
       "provenance": "invented generated-identity binding input; not library, catalogue or code data"
      }
+    },
+    {
+     "id": "WIND-TIE",
+     "primitive_loads": [],
+     "pressure_regions": [],
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data",
+     "equivalent_static": {
+      "wind": {
+       "pressure": {
+        "value": 850.0,
+        "unit": "Pa"
+       },
+       "shape_factor": {
+        "value": 0.7,
+        "unit": "1"
+       },
+       "direction": "global_z",
+       "exposed_pipe_refs": [
+        "pipe:a-b"
+       ],
+       "exposed_spans": [
+        {
+         "pipe_ref": "pipe:b-c",
+         "start_fraction": {
+          "value": 0.0004892349243164062,
+          "unit": "1"
+         },
+         "end_fraction": {
+          "value": 1.0,
+          "unit": "1"
+         }
+        }
+       ]
+      },
+      "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+     }
     }
    ],
    "combinations": []
@@ -1049,6 +1085,25 @@
       },
       "provenance": "invented generated-identity binding input; not library, catalogue or code data"
      }
+    },
+    {
+     "id": "SEISMIC-ZERO",
+     "primitive_loads": [],
+     "pressure_regions": [],
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data",
+     "equivalent_static": {
+      "seismic": {
+       "gravity_acceleration": {
+        "value": 9.80665,
+        "unit": "m/s^2"
+       },
+       "g_factor_x": {
+        "value": 0.0,
+        "unit": "1"
+       }
+      },
+      "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+     }
     }
    ],
    "combinations": []
@@ -1338,6 +1393,29 @@
    ]
   },
   {
+   "model": "frame",
+   "load_case_id": "WIND-TIE",
+   "what": "an extent starting at 513/1048576, exactly halfway between its two shortest decimals: Rust writes the larger, 0.0004892349243164063",
+   "generated_load_ids": [
+    "WIND-TIE:generated:wind:global-z:element-0",
+    "WIND-TIE:generated:wind:global-z:element-1:extent-0.0004892349243164063-1"
+   ]
+  },
+  {
+   "model": "components",
+   "load_case_id": "SEISMIC-ZERO",
+   "what": "a zero g-factor is an entered axis: the same identities as SEISMIC-X, every term zero",
+   "generated_load_ids": [
+    "SEISMIC-ZERO:generated:seismic:global-x:element-0",
+    "SEISMIC-ZERO:generated:seismic:global-x:component:12:component:v0:force",
+    "SEISMIC-ZERO:generated:seismic:global-x:component:12:component:v0:moment:z",
+    "SEISMIC-ZERO:generated:seismic:global-x:component:12:component:v1:force",
+    "SEISMIC-ZERO:generated:seismic:global-x:component:12:component:v2:force",
+    "SEISMIC-ZERO:generated:seismic:global-x:component:12:component:v2:moment:y",
+    "SEISMIC-ZERO:generated:seismic:global-x:component:12:component:v2:moment:z"
+   ]
+  },
+  {
    "model": "converted",
    "load_case_id": "SEISMIC-XY",
    "what": "a centre-of-gravity coordinate that converts to zero metres is a zero coordinate: the component is eligible, and only the moments with a nonzero lever after conversion are formed (along x, levers (0, r_z, -r_y) are zero: the force alone; along y, (-r_z, 0, r_x): the moment about z)",
@@ -1402,6 +1480,10 @@
   {
    "value": 5e-324,
    "display": "0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005"
+  },
+  {
+   "value": 0.0004892349243164062,
+   "display": "0.0004892349243164063"
   }
  ]
 }

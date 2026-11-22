@@ -53,7 +53,8 @@ def _source(model, records):
         entry = {"load_case_id": case["id"], "pipe_materials": members}
         if case["id"] in records:
             entry["equivalent_static"] = {"generated_load_ids": records[case["id"]]}
-            seismic = case["equivalent_static"].get("seismic")
+            generation = case.get("equivalent_static")
+            seismic = generation.get("seismic") if isinstance(generation, dict) else None
             components = _expected_component_forces(model, case["id"], seismic) if seismic else []
             if components:
                 entry["equivalent_static"]["component_forces"] = components
@@ -75,3 +76,48 @@ def test_the_model_checks_bind_the_record_to_the_model(name):
         missing = {key: value for key, value in records.items() if key != case_id}
         with pytest.raises(Refused, match="SOURCE_PHYSICS_MODEL_GENERATION_RECORD"):
             physics_model_checks(_source(model, missing), model)
+
+
+@pytest.mark.parametrize("form", ["not-an-object", [], True], ids=["text", "list", "boolean"])
+def test_a_generation_in_another_form_than_an_object_is_refused(form):
+    """Round 1 review of pull request 479: a model case whose generation is neither absent, null nor an object is no
+    generation the product solves; a record bound to it is refused, never left unchecked."""
+    model = deepcopy(FIXTURE["models"]["frame"])
+    model.pop("pressure_contract")
+    records = {item["load_case_id"]: item["generated_load_ids"] for item in FIXTURE["cases"] if item["model"] == "frame"}
+    source = _source(model, records)
+    physics_model_checks(source, model)
+    model["load_cases"][0]["equivalent_static"] = form
+    with pytest.raises(Refused, match="SOURCE_PHYSICS_EQUIVALENT_STATIC_GENERATED_MODEL_MISMATCH"):
+        physics_model_checks(source, model)
+
+
+def test_a_member_two_components_map_is_refused():
+    """Round 1 review of pull request 479: two rigid-family components mapping one member is a conflict the product
+    refuses (RIGID_COMPONENT_MAPPING_CONFLICT), so no solved record of the model exists; the reader refuses it rather
+    than read the member as one no component replaces."""
+    model = deepcopy(FIXTURE["models"]["components"])
+    model.pop("pressure_contract")
+    records = {item["load_case_id"]: item["generated_load_ids"] for item in FIXTURE["cases"] if item["model"] == "components"}
+    source = _source(model, records)
+    physics_model_checks(source, model)
+    second = deepcopy(model["components"][1])
+    second["id"] = "component:second-on-b-c"
+    second["node"] = model["components"][0]["node"]
+    second["geometry"]["rigid_pipe_ref"] = model["components"][0]["geometry"]["rigid_pipe_ref"]
+    model["components"].append(second)
+    with pytest.raises(Refused, match="SOURCE_PHYSICS_EQUIVALENT_STATIC_COMPONENT_MODEL_MISMATCH"):
+        physics_model_checks(source, model)
+
+
+def test_a_record_on_a_case_that_does_not_generate_is_refused_by_its_presence():
+    """Round 1 review of pull request 479: a forged generation record without component entries on a case whose
+    model case does not generate is refused by its presence (issue 452 decision 6), before its contents are read."""
+    model = deepcopy(FIXTURE["models"]["frame"])
+    model.pop("pressure_contract")
+    model["load_cases"].append({"id": "PLAIN", "primitive_loads": []})
+    records = {item["load_case_id"]: item["generated_load_ids"] for item in FIXTURE["cases"] if item["model"] == "frame"}
+    physics_model_checks(_source(model, records), model)
+    forged = dict(records, PLAIN=["PLAIN:generated:seismic:global-x:element-0"])
+    with pytest.raises(Refused, match="SOURCE_PHYSICS_MODEL_GENERATION_RECORD"):
+        physics_model_checks(_source(model, forged), model)

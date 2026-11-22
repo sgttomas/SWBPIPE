@@ -81,8 +81,10 @@ DEPENDENCIES = {
     # conversion to metres (was 23bdcae8...); then every solved case is compared, a range failure in the model is
     # refused, and each component id is the one its entry's fields form (was 9755ee4c...); then DEL-05-01 REQ-008
     # (issue 452): each solved case's generated identities are formed from the model and compared with its record
-    # (was ba32c38d...).
-    MODULE: '6c74931e06ad34f0b0614eb8e2183d090070afcc30d24b5756c5557d3395c30d',
+    # (was ba32c38d...); then every case's component values are compared before the identities (was 4dcdea88...);
+    # then a generation stated in another form than an object, and a member two rigid-family components map, are
+    # refused (was 6c74931e...).
+    MODULE: '4a133fc54dff2148bdc43191b64a051813150d3ee56055700b8304792b1b25a9',
     TABLE: TABLE_SHA256,
     # The units authority: then DEL-04-09 I3a's mass_length_per_rotation family (kg*m/rad, lb*in/rad, lb*ft/rad),
     # an addition only; every existing unit, dimension and conversion is unchanged (was 5a412c57...); then the

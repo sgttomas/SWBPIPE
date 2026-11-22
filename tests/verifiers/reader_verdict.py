@@ -292,11 +292,20 @@ def _model_section_bound(section: Any, segments: list[Any]) -> bool:
 
 def rust_f64_display(value: float) -> str:
     """Rust's `Display` of a binary64: the shortest decimal that reads back to the same value, written without an
-    exponent; a whole number without a point, and a negative zero as "-0"."""
-    from decimal import Decimal
+    exponent; a whole number without a point, and a negative zero as "-0". Of the decimals of that shortest length,
+    Rust writes the one nearest the exact binary value and, at an exact tie, the larger in magnitude, where Python's
+    ``repr`` takes the even one (513/1048576 is written 0.0004892349243164063, not ...062): the digit count is
+    ``repr``'s, the digits are the exact value rounded half away from zero."""
+    from decimal import ROUND_HALF_UP, Decimal
+    value = float(value)
     if value == 0:
         return "-0" if math.copysign(1.0, value) < 0 else "0"
-    text = format(Decimal(repr(float(value))), "f")
+    shortest = Decimal(repr(value))
+    count = len(shortest.normalize().as_tuple().digits)
+    exact = Decimal(value)
+    nearest = exact.quantize(Decimal(1).scaleb(exact.adjusted() - count + 1), rounding=ROUND_HALF_UP)
+    chosen = nearest if float(nearest) == value else shortest
+    text = format(chosen, "f")
     return text.rstrip("0").rstrip(".") if "." in text else text
 
 
@@ -338,7 +347,9 @@ def _eligible_components(model: Mapping[str, Any]) -> list:
     """Rust `physics_evidence::eligible_components`: REQ-015's eligible rigid-family components, in model order,
     with their weight and centre of gravity in SI. Each coordinate is read after the document's ordinary conversion
     to metres, as the solve converts it before generation reads it: a coordinate that converts to zero is a zero
-    coordinate there, and no moment term uses it."""
+    coordinate there, and no moment term uses it. A member that more than one rigid-family component maps is a
+    conflict the product refuses (``RIGID_COMPONENT_MAPPING_CONFLICT``), so no solved record of the model exists:
+    refused, rather than read as a member no component replaces."""
     from .units import to_canonical
     components = [c for c in _items(model.get("components")) if isinstance(c, Mapping)]
     pipes = [p for p in _items(model.get("pipe_segments")) if isinstance(p, Mapping)]
@@ -358,8 +369,10 @@ def _eligible_components(model: Mapping[str, Any]) -> list:
     eligible = []
     for component in rigid:
         ref = mapped(component)
-        if ref is None or not selected(ref) or mappings[ref] > 1:
+        if ref is None or not selected(ref):
             continue
+        if mappings[ref] > 1:
+            raise Refused("SOURCE_PHYSICS_EQUIVALENT_STATIC_COMPONENT_MODEL_MISMATCH")
         interface = component.get("mechanics_interface")
         if not isinstance(interface, Mapping) or interface.get("solver_consumption") != "mechanics_geometry_only":
             continue
@@ -547,11 +560,15 @@ def physics_model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) ->
     # after the component values are compared (as in Rust).
     if model.get("load_cases") is not None and (source.get("status") or {}).get("mechanics") == "MECHANICS_SOLVED":
         for authored in _items(model["load_cases"]):
-            if not isinstance(authored, Mapping) or not isinstance(authored.get("equivalent_static"), Mapping):
+            # A generation that is absent or null forms nothing; one present in another form than an object is no
+            # generation the product solves, so a record bound to it is refused rather than left unchecked.
+            if not isinstance(authored, Mapping) or authored.get("equivalent_static") is None:
                 continue
             case = next((c for c in cases if isinstance(c, Mapping) and c.get("load_case_id") == authored.get("id")), None)
             if case is None:
                 continue
+            if not isinstance(authored["equivalent_static"], Mapping):
+                raise Refused("SOURCE_PHYSICS_EQUIVALENT_STATIC_GENERATED_MODEL_MISMATCH")
             record = case.get("equivalent_static")
             if not isinstance(record, Mapping) or record.get("generated_load_ids") != expected_generated_load_ids(model, authored):
                 raise Refused("SOURCE_PHYSICS_EQUIVALENT_STATIC_GENERATED_MODEL_MISMATCH")

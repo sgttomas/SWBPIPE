@@ -263,11 +263,15 @@ pub(crate) fn equivalent_static_model_binding(source: &Value, model: &Value) -> 
     // after every case's component values are compared, so that a component
     // entry the model does not form is refused by its value check first.
     for case in model["load_cases"].as_array().map(Vec::as_slice).unwrap_or(&[]) {
-        if !case["equivalent_static"].is_object() {
+        // A generation that is absent or null forms nothing; one present in
+        // another form than an object is no generation the product solves,
+        // so a record bound to it is refused rather than left unchecked.
+        if case["equivalent_static"].is_null() {
             continue;
         }
         let Some(evidence) = cases.iter().find(|c| c["load_case_id"] == case["id"]) else { continue };
-        let expected = expected_generated_load_ids(model, case).into_iter().map(Value::String).collect::<Vec<_>>();
+        require(case["equivalent_static"].is_object(), "EQUIVALENT_STATIC_GENERATED_MODEL_MISMATCH")?;
+        let expected = expected_generated_load_ids(model, case)?.into_iter().map(Value::String).collect::<Vec<_>>();
         require(evidence["equivalent_static"]["generated_load_ids"] == Value::Array(expected), "EQUIVALENT_STATIC_GENERATED_MODEL_MISMATCH")?;
     }
     Ok(())
@@ -313,9 +317,9 @@ fn connector_replaced(model: &Value) -> HashSet<&str> {
 /// its order (`…:element-<index>:extent-<start>-<end>`, the fractions written
 /// as binary64 shortest decimals). It states identities, kinds, members and
 /// extents, never magnitudes: no record carries one.
-pub fn expected_generated_load_ids(model: &Value, case: &Value) -> Vec<String> {
+pub fn expected_generated_load_ids(model: &Value, case: &Value) -> Result<Vec<String>, String> {
     use open_pipe_stress_units::Dimension;
-    let Some(case_id) = case["id"].as_str() else { return Vec::new() };
+    let Some(case_id) = case["id"].as_str() else { return Ok(Vec::new()) };
     let generation = &case["equivalent_static"];
     let pipes = model["pipe_segments"].as_array().map(Vec::as_slice).unwrap_or(&[]);
     let index_of = |pipe: &Value| pipes.iter().position(|p| p["id"] == *pipe);
@@ -325,7 +329,7 @@ pub fn expected_generated_load_ids(model: &Value, case: &Value) -> Vec<String> {
             .filter(|&axis| seismic.get(&format!("g_factor_{}", AXIS_LETTERS[axis])).and_then(|q| model_quantity(q, Dimension::Dimensionless)).is_some())
             .collect();
         let connector = connector_replaced(model);
-        let eligible = eligible_components(model);
+        let eligible = eligible_components(model)?;
         let component_replaced: HashSet<&str> = eligible.iter().filter_map(|(c, _, _)| c["geometry"]["rigid_pipe_ref"].as_str()).collect();
         for &axis in &axes {
             for (index, pipe) in pipes.iter().enumerate() {
@@ -367,13 +371,16 @@ pub fn expected_generated_load_ids(model: &Value, case: &Value) -> Vec<String> {
             }
         }
     }
-    ids
+    Ok(ids)
 }
 
 /// REQ-015's eligible rigid-family components with their weight and centre
 /// of gravity in SI, in model order (the dispositions of
-/// `equivalent_static_model_binding`'s documentation).
-fn eligible_components(model: &Value) -> Vec<(&Value, f64, [f64; 3])> {
+/// `equivalent_static_model_binding`'s documentation). A member that more
+/// than one rigid-family component maps is a conflict the product refuses
+/// (`RIGID_COMPONENT_MAPPING_CONFLICT`), so no solved record of the model
+/// exists: refused, rather than read as a member no component replaces.
+fn eligible_components(model: &Value) -> Result<Vec<(&Value, f64, [f64; 3])>, String> {
     use open_pipe_stress_units::Dimension;
     let quantity = model_quantity;
     let components = model["components"].as_array().map(Vec::as_slice).unwrap_or(&[]);
@@ -393,9 +400,7 @@ fn eligible_components(model: &Value) -> Vec<(&Value, f64, [f64; 3])> {
     let mut eligible = Vec::new();
     for c in components.iter().filter(|c| rigid(c)) {
         let Some(pipe_ref) = mapped(c).filter(|p| selected(p)) else { continue };
-        if mappings[pipe_ref] > 1 {
-            continue;
-        }
+        require(mappings[pipe_ref] == 1, "EQUIVALENT_STATIC_COMPONENT_MODEL_MISMATCH")?;
         let consumption = c["mechanics_interface"]["solver_consumption"].as_str();
         if consumption == Some("not_solver_consumed") || consumption != Some("mechanics_geometry_only") {
             continue;
@@ -421,14 +426,14 @@ fn eligible_components(model: &Value) -> Vec<(&Value, f64, [f64; 3])> {
         }
         eligible.push((c, weight, [r[0], r[1], r[2]]));
     }
-    eligible
+    Ok(eligible)
 }
 
 fn expected_component_forces(model: &Value, case_id: &str, seismic: &serde_json::Map<String, Value>) -> Result<Vec<Value>, String> {
     use open_pipe_stress_units::Dimension;
     let (axes_names, labels, letters) = (SEISMIC_AXES, AXIS_LABELS, AXIS_LETTERS);
     let bits = |v: f64| format!("{:016x}", v.to_bits());
-    let eligible = eligible_components(model);
+    let eligible = eligible_components(model)?;
     let mut entries = Vec::new();
     for axis in 0..3 {
         let Some(k) = seismic.get(&format!("g_factor_{}", letters[axis])).and_then(|q| model_quantity(q, Dimension::Dimensionless)) else { continue };
