@@ -658,6 +658,11 @@ class HostedCITests(unittest.TestCase):
             hosted_ci.compiled_crate_inputs.cache_clear()
             _, compile_reads = hosted_ci.compiled_crate_inputs(project, ('core/eng/Cargo.toml',), False, 'engine')
             self.assertIn('fixtures/later.json', compile_reads)
+            # A module the override's tree names but that does not exist cannot be resolved.
+            (crate / 'lib/root.rs').write_text('mod part;\nmod missing;')
+            hosted_ci.compiled_crate_inputs.cache_clear()
+            with self.assertRaisesRegex(ValueError, 'module missing'):
+                hosted_ci.compiled_crate_inputs(project, ('core/eng/Cargo.toml',), False, 'engine')
             hosted_ci.compiled_crate_inputs.cache_clear()
             hosted_ci.declared_compiled_reads.cache_clear()
 

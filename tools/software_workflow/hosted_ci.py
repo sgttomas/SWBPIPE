@@ -159,6 +159,10 @@ def wasm_engine_inputs(root: Path) -> tuple[frozenset[str], frozenset[str]]:
     return compiled_crate_inputs(root, WASM_ENGINE_CRATES, False, "wasm engine")
 
 
+# An out-of-line module declaration, with any `#[path]` attribute just before it.
+MOD_DECLARATION = re.compile(r"((?:#\s*\[[^\]]*\]\s*)*)(?:pub(?:\s*\([^)]*\))?\s+)?\bmod\s+(\w+)\s*;")
+
+
 @functools.lru_cache(maxsize=None)
 def compiled_crate_inputs(root: Path, roots: tuple[str, ...], root_dev: bool,
                           label: str) -> tuple[frozenset[str], frozenset[str]]:
@@ -198,23 +202,34 @@ def compiled_crate_inputs(root: Path, roots: tuple[str, ...], root_dev: bool,
     for manifest in closure:
         crate = project / manifest.parent
         sources = sorted((crate / "src").rglob("*.rs")) + [p for p in [crate / "build.rs"] if p.is_file()]
-        # A `[lib] path` or `[package] build` override compiles from elsewhere: the Rust its
-        # module tree can reach counts, every file under its directory (at the crate root,
-        # the root's files and its directories other than src/, target/ and the crate's own
-        # tests, benches and examples, which src/ and other targets cover).
+        # A `[lib] path` or `[package] build` override compiles from elsewhere: its file and the
+        # module tree its `mod` declarations reach (src/ is read whole above).
         data = tomllib.loads((project / manifest).read_text())
+        roots = []
         for declared in (data.get("lib", {}).get("path"), data.get("package", {}).get("build")):
             if isinstance(declared, str):
                 target = (crate / declared).resolve()
                 if not target.is_relative_to(project) or not target.is_file():
                     raise ValueError(f"Unresolved {label} target: " + str(target))
-                if target.parent == crate.resolve():
-                    sources += sorted(crate.glob("*.rs")) + sorted(
-                        p for sub in sorted(crate.iterdir())
-                        if sub.is_dir() and sub.name not in {"src", "target", "tests", "benches", "examples", ".git"}
-                        for p in sub.rglob("*.rs"))
-                else:
-                    sources += sorted(target.parent.rglob("*.rs"))
+                if not target.is_relative_to((crate / "src").resolve()):
+                    roots.append(target)
+        modules = set()
+        while roots:
+            module_file = roots.pop()
+            if module_file in modules:
+                continue
+            modules.add(module_file)
+            sources.append(module_file)
+            code = module.RUST_STRING.sub(lambda m: " " * len(m.group()), module.rust_source(module_file.read_text()))
+            for match in MOD_DECLARATION.finditer(code):
+                if re.search(r"#\s*\[\s*path\s*=", match.group(1)):
+                    continue  # a `#[path]` module is a compile read, followed below
+                name = match.group(2)
+                directories = {module_file.parent, module_file.parent / module_file.stem}
+                found = [c for d in directories for c in (d / f"{name}.rs", d / name / "mod.rs") if c.is_file()]
+                if not found:
+                    raise ValueError(f"Unresolved {label} module {name} in " + module_file.relative_to(project).as_posix())
+                roots.extend(found)
         seen = set()
         while sources:
             source = sources.pop()
