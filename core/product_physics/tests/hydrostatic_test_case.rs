@@ -767,6 +767,17 @@ fn each_refusal_is_raised_by_name_with_no_result() {
             && d["affected_refs"].as_array().unwrap().contains(&load_id)), "{mode:?}: the override is named: {:?}", codes(&out));
         assert!(!codes(&out).iter().any(|c| c.starts_with("LOAD_CASE_TEST_SELF_WEIGHT_MISSING")), "{mode:?}: invalid, not missing");
     }
+    // The override as the case's only self-weight: the case carries a
+    // self-weight, one the contents cannot enter, so it is refused as invalid
+    // and never as missing.
+    let mut sole = overridden.clone();
+    sole["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().truncate(1);
+    assert_eq!(sole["load_cases"][0]["primitive_loads"][0]["id"], load_id);
+    refused(&sole, "LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID", "a test case whose only self-weight is a manual override");
+    for mode in MODES {
+        let out = run(&sole, mode);
+        assert!(!codes(&out).iter().any(|c| c.starts_with("LOAD_CASE_TEST_SELF_WEIGHT_MISSING")), "{mode:?}: invalid, not missing: {:?}", codes(&out));
+    }
 
     // A test case that states no pressure region: refused by name. Absent, the
     // list is refused for every exact case; a region at zero pressure is a

@@ -34,8 +34,11 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 pub const LOAD_CASE_TEST_CONDITION_PRESSURE_FREE: &str = "LOAD_CASE_TEST_CONDITION_PRESSURE_FREE";
 /// A test case that selects no contents density (`condition_use.contents_density`).
 pub const LOAD_CASE_TEST_CONTENTS_UNSELECTED: &str = "LOAD_CASE_TEST_CONTENTS_UNSELECTED";
-/// A test case that selects contents but carries no generated self-weight for
-/// them to enter: the self-weight is yet to be generated. Authoring stages it.
+/// A test case that selects contents but carries no self-weight load at all of
+/// a self-weight method (generated, legacy or manual override): the self-weight
+/// is yet to be generated. Authoring stages it. A case carrying only loads the
+/// contents cannot enter is refused by
+/// [`LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID`] instead.
 pub const LOAD_CASE_TEST_SELF_WEIGHT_MISSING: &str = "LOAD_CASE_TEST_SELF_WEIGHT_MISSING";
 /// The test case carries a self-weight load its contents cannot enter (a
 /// manual override, a legacy-method load, or one generated for another case
@@ -366,7 +369,10 @@ pub(crate) fn judge(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) -> 
         // enter must be listed; otherwise the mark would state a weight the
         // case does not apply.
         let ledger = case.analysis_state.value().map(|state| &state.load_sources);
-        let mut unlisted = 0;
+        // Each self-weight load the case carries that the contents cannot enter;
+        // with one, the case is refused by name for it, never as one with no
+        // self-weight.
+        let mut rejected = 0;
         let mut entering = Vec::new();
         for load in &case.primitive_loads {
             let Some(found) = evidence(load) else { continue };
@@ -375,6 +381,7 @@ pub(crate) fn judge(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) -> 
                 diagnostics.push(case_diag(id, &format!("contents-self-weight:{}", stable_suffix(&load.id)), LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID,
                     format!("hydrostatic test case `{id}` carries self-weight load `{}` by method `{method}`, whose magnitude the test contents cannot enter; generate the case's self-weight again so that the contents enter once, so nothing is solved", load.id),
                     vec![id.to_string(), load.id.clone()]));
+                rejected += 1;
                 continue;
             }
             if method != GENERATED_METHOD {
@@ -388,10 +395,11 @@ pub(crate) fn judge(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) -> 
                 diagnostics.push(case_diag(id, &format!("contents-self-weight:{}", stable_suffix(&load.id)), LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID,
                     format!("hydrostatic test case `{id}` carries self-weight load `{}`, which was generated for another case or target; the test contents enter only this case's own generated self-weight, so nothing is solved", load.id),
                     vec![id.to_string(), load.id.clone()]));
+                rejected += 1;
                 continue;
             }
             if ledger.is_some_and(|sources| !sources.iter().any(|source| source.source_ref == load.id)) {
-                unlisted += 1;
+                rejected += 1;
                 diagnostics.push(case_diag(id, &format!("contents-unlisted:{}", stable_suffix(&load.id)), LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID,
                     format!("hydrostatic test case `{id}` selects contents `{key}` for its generated self-weight `{}`, which its analysis_state.load_sources does not list; the case would apply none of that self-weight while its result stated the contents' weight, so nothing is solved", load.id),
                     vec![id.to_string(), load.id.clone()]));
@@ -399,7 +407,7 @@ pub(crate) fn judge(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) -> 
             }
             entering.push((load, pipe, found));
         }
-        if entering.is_empty() && unlisted == 0 {
+        if entering.is_empty() && rejected == 0 {
             diagnostics.push(case_diag(id, "self-weight-missing", LOAD_CASE_TEST_SELF_WEIGHT_MISSING,
                 format!("hydrostatic test case `{id}` selects contents `{key}` but carries no generated self-weight for them to enter; contents are a mass input of the self-weight calculation and are never a load of their own, so nothing is solved"),
                 vec![id.to_string(), key.clone()]));

@@ -315,6 +315,13 @@ fn a_missing_self_weight_is_staged_and_one_the_contents_cannot_enter_blocks() {
         "decision": "preserve_modified_generated_load", "source_model_hash": claim(&weighed)["value"]}).to_string());
     let outcome = refused(&overridden, &set_use(&overridden, "HT", &contents), "LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID");
     assert!(!records(&outcome).iter().any(|(code, _)| code == "LOAD_CASE_TEST_SELF_WEIGHT_MISSING"), "{:?}", records(&outcome));
+
+    // The override as the case's only self-weight: blocked as invalid, with
+    // no staged warning that the self-weight is missing.
+    let mut sole = overridden.clone();
+    sole["load_cases"][1]["primitive_loads"].as_array_mut().unwrap().truncate(1);
+    let outcome = refused(&sole, &set_use(&sole, "HT", &contents), "LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID");
+    assert!(!records(&outcome).iter().any(|(code, _)| code == "LOAD_CASE_TEST_SELF_WEIGHT_MISSING"), "{:?}", records(&outcome));
 }
 
 /// The pressure-free route: a test condition is not authored; one the document
