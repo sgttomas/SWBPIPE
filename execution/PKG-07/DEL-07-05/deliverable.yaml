@@ -151,6 +151,8 @@ checks:
 - apps/desktop/src/features/results/KnownSemanticNotices.test.tsx
 - apps/desktop/src/features/results/PhysicsSourceEvidencePanel.test.tsx
 - tests/test_results_viewer_contract.py
+- apps/desktop/src/features/results/solverChecksSurfaces.test.tsx
+- apps/desktop/src/features/results/numericalHealthText.test.ts
 - apps/desktop/src/features/viewport/deformationOverlay.test.ts
 - apps/desktop/src/features/viewport/viewportRotationGlyph.test.ts
 - apps/desktop/src/features/viewport/PipeViewport.rotation.test.tsx
@@ -177,6 +179,7 @@ checks:
 - apps/desktop/src/features/viewport/PipeViewport.elementAxes.test.tsx
 - apps/desktop/src/features/results/supportLoadSummary.test.ts
 - apps/desktop/src/features/results/SupportLoadSummaryPanel.test.tsx
+- apps/desktop/src/features/results/sectionRotationNote.test.tsx
 - apps/desktop/src/features/results/StressRatioTablePanel.test.tsx
 - apps/desktop/src/features/results/stressRatioTable.test.ts
 - apps/desktop/src/features/results/StressRatioTablePanel.derivation.test.tsx

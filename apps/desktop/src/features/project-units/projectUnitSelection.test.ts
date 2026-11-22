@@ -48,8 +48,14 @@ describe("blank builders take a project unit map", () => {
     const blank = buildBlankLocalModelDocument(AT);
     expect(blank.project.units).toEqual({ length: "m", force: "N", moment: "N*m", pressure: "Pa", stress: "Pa", temperature: "degC", angle: "rad" });
     expect(buildBlankLocalModelDocument(AT, SI_PROJECT_UNITS)).toEqual(blank);
+    // The blank states its shear model (timoshenko_annulus_energy_v1), and its diagnostic says so; the
+    // historical controls predate that record, that message and angle, so they are given the former ones.
+    expect(blank.model_settings).toEqual({ shear_model: "timoshenko_annulus_energy_v1" });
     const withoutAngle = structuredClone(blank);
     delete withoutAngle.project.units.angle;
+    delete withoutAngle.model_settings;
+    for (const diagnostic of withoutAngle.diagnostics)
+      diagnostic.message = "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.";
     // S1 changes only the current model token; the frozen 0.8.0 control
     // still reproduces the preceding pin.
     expect(await canonicalSha256Hex({ ...withoutAngle, schema_version: "0.8.0" })).toBe(SIX_KEY_BLANK_SHA256);

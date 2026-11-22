@@ -609,6 +609,7 @@ export function useWorkspaceSession() {
     currentSolvedResult,
     renderableSolvedResult,
     numericallyEligible,
+    integrityBound,
     numericalHealth,
     numericalHealthHold,
     analysisRun, setAnalysisRun,
@@ -2018,11 +2019,13 @@ export function useWorkspaceSession() {
     return () => { retained.status = event.type === "withdrawn" ? "withdrawn" : "unknown"; };
   }), [sessionEvents]);
 
-  async function handleQueueOperationBatch(batch: OperationBatch, options: { importContext?: ImportContext; precondition?: BatchPrecondition } = {}): Promise<void> {
-    await registerOperationBatch(batch, {
+  /** Whether the batch was registered for review (false where registration refused it). */
+  async function handleQueueOperationBatch(batch: OperationBatch, options: { importContext?: ImportContext; precondition?: BatchPrecondition } = {}): Promise<boolean> {
+    const registered = await registerOperationBatch(batch, {
       ...(options.importContext ? { importContext: options.importContext } : {}),
       ...(options.precondition ? { precondition: options.precondition } : {})
     });
+    return registered !== null;
   }
 
   /** Requeue a stored record with its author re-derived host-side (DEL-16-03).
@@ -5198,7 +5201,7 @@ export function useWorkspaceSession() {
     // they differ from the first load on and the agent could never start.)
     snapshot: () => ({ model: currentModel.current, hash: currentHashOwned && modelHashOwner.current?.modelRevision === modelRevision.current && projectSessionGeneration === projectSessionGenerationRef.current ? modelHash : null,
       revision: modelRevision.current, generation: projectSessionGenerationRef.current,
-      result: currentSolvedResultRef.current, standing: { eligible: numericallyEligible, health: numericalHealth } }),
+      result: currentSolvedResultRef.current, standing: { eligible: numericallyEligible, health: numericalHealth, integrityBound } }),
     register: (batch, context) => registerOperationBatch(batch, { agentContext: context }),
     proposal: (key) => agentProposalStandingRef.current.get(key) ?? null,
     solve: (mode) => handleRunWithAgentReceipt(mode ?? solverMode, mode !== undefined),

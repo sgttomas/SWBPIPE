@@ -4494,12 +4494,6 @@ body { min-width: 760px; min-height: 540px; }
   font-weight: 600;
   white-space: normal;
 }
-.numerical-health-green {
-  color: var(--text-primary);
-  border-color: var(--cat-3);
-  box-shadow: inset 3px 0 0 var(--cat-3);
-  background: var(--surface-panel);
-}
 .numerical-health-red {
   color: var(--status-failedInk);
   border-color: var(--issue-blocking);

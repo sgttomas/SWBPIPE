@@ -361,7 +361,7 @@ describe("the reference system entered from blank through the desktop's authorin
     // Step profile: Pressure profile (typed UI): exact_pressure_v3, Euler–Bernoulli.
     const projectForms = page.openProjectForms();
     change(projectForms(), "Pressure profile", "exact_pressure_v3");
-    change(projectForms(), "Shear model", "euler_bernoulli");
+    change(projectForms(), "Shear deformation in straight members", "euler_bernoulli");
     click(projectForms(), "Queue pressure profile");
     await applyQueuedIntent("step profile");
     expect(model().pressure_contract).toEqual(reference.pressure_contract);

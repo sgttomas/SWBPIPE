@@ -266,11 +266,11 @@ test("blank load/reference model: author support motion, a thermal state and a m
   const loadsPage = await openWorkspaceSection(page, "loads");
   await openLoadsDisclosure(loadsPage, "load-case-section-pressure");
   const regions = loadsPage.getByRole("region", { name: "Case pressure regions", exact: true });
-  await expect(regions).toContainText("No pressure-region declaration has been applied.");
-  await regions.getByRole("button", { name: "Queue explicit empty pressure regions", exact: true }).click();
+  await expect(regions).toContainText("This case has not been given pressure regions.");
+  await regions.getByRole("button", { name: "Queue no pressure regions for this case", exact: true }).click();
   await applyQueued(page);
   await openWorkspaceSection(page, "loads");
-  await expect(regions).toContainText("0 applied regions.");
+  await expect(regions).toContainText("This case has no pressure regions.");
   const solvableHash = await modelHash(page);
   expect(solvableHash).not.toBe(afterHash);
 

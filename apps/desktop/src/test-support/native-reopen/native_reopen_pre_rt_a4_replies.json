@@ -415,6 +415,10 @@
                 "REQUESTED_NUMERICAL_BASIS_UNAVAILABLE",
                 "NUMERICAL_CASE_COVERAGE_INCOMPLETE"
               ],
+              "integrity_bound": {
+                "reason": "inverse_norm_bound_not_verified",
+                "status": "not_verified"
+              },
               "route": "preview_physics",
               "status": "needs_recompute",
               "token": "needs_recompute"
@@ -486,6 +490,10 @@
               "REQUESTED_NUMERICAL_BASIS_UNAVAILABLE",
               "NUMERICAL_CASE_COVERAGE_INCOMPLETE"
             ],
+            "integrity_bound": {
+              "reason": "inverse_norm_bound_not_verified",
+              "status": "not_verified"
+            },
             "route": "preview_physics",
             "status": "needs_recompute",
             "token": "unsupported"
