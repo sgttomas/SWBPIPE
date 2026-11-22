@@ -531,7 +531,7 @@ pub(super) fn physical_source_built(
         let mut scratch = Vec::new();
         let loads = crate::build_load_case_primitive_loads(model, case, &mut scratch);
         if crate::has_blocking(&scratch)
-            || evidence["equivalent_static"] != crate::exact_equivalent_static_record(case, &loads)
+            || evidence["equivalent_static"] != crate::exact_equivalent_static_record(model, case, &loads)
         {
             return Err(bad("physical equivalent-static generation binding"));
         }
