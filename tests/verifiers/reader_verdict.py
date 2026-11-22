@@ -343,6 +343,25 @@ def _connector_replaced(model: Mapping[str, Any]) -> set:
     return replaced
 
 
+def _rigid_mapping_shared(model: Mapping[str, Any]) -> bool:
+    """Rust `physics_evidence::rigid_mapping_shared`: whether more than one rigid-family component maps one member
+    of the model; every such component with a nonblank mapped member that names a member of the model counts,
+    before any connector replacement is read."""
+    pipes = [p.get("id") for p in _items(model.get("pipe_segments")) if isinstance(p, Mapping)]
+    seen: set = set()
+    for component in _items(model.get("components")):
+        if not isinstance(component, Mapping) or component.get("kind") not in _RIGID_KINDS:
+            continue
+        geometry = component.get("geometry")
+        ref = geometry.get("rigid_pipe_ref") if isinstance(geometry, Mapping) else None
+        if not isinstance(ref, str) or not ref.strip() or ref not in pipes:
+            continue
+        if ref in seen:
+            return True
+        seen.add(ref)
+    return False
+
+
 def _eligible_components(model: Mapping[str, Any]) -> list:
     """Rust `physics_evidence::eligible_components`: REQ-015's eligible rigid-family components, in model order,
     with their weight and centre of gravity in SI. Each coordinate is read after the document's ordinary conversion
@@ -445,6 +464,11 @@ def equivalent_static_component_checks(source: Mapping[str, Any], model: Mapping
     component forces, decision 3 of issue 450)."""
     if (source.get("status") or {}).get("mechanics") != "MECHANICS_SOLVED":
         return
+    # The product refuses a member that more than one rigid-family component maps on every document, whatever its
+    # cases generate and whether an objective connector replaces the member (RIGID_COMPONENT_MAPPING_CONFLICT), so
+    # no solved record of such a model exists.
+    if _rigid_mapping_shared(model):
+        raise Refused("SOURCE_PHYSICS_EQUIVALENT_STATIC_COMPONENT_MODEL_MISMATCH")
     evidence = source.get("contract_evidence") or {}
     cases = _items(evidence.get("exact_cases") if isinstance(evidence, Mapping) else None)
     for case in _items(model.get("load_cases")):

@@ -83,8 +83,9 @@ DEPENDENCIES = {
     # (issue 452): each solved case's generated identities are formed from the model and compared with its record
     # (was ba32c38d...); then every case's component values are compared before the identities (was 4dcdea88...);
     # then a generation stated in another form than an object, and a member two rigid-family components map, are
-    # refused (was 6c74931e...).
-    MODULE: '4a133fc54dff2148bdc43191b64a051813150d3ee56055700b8304792b1b25a9',
+    # refused (was 6c74931e...); then a member two rigid-family components map is refused at document level, on
+    # every solved document and before connector replacement is read (was 4a133fc5...).
+    MODULE: '499bb30c0cddec0281cf21b3264da9a2fae3ef934f3a93948458e78d7bdb31aa',
     TABLE: TABLE_SHA256,
     # The units authority: then DEL-04-09 I3a's mass_length_per_rotation family (kg*m/rad, lb*in/rad, lb*ft/rad),
     # an addition only; every existing unit, dimension and conversion is unchanged (was 5a412c57...); then the

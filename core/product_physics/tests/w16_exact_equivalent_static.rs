@@ -1140,6 +1140,53 @@ fn every_synthesized_identity_of_another_case_is_compared() {
     }
 }
 
+/// Round 2 review of pull request 479, the phase boundary: a generation that
+/// formation refuses never reaches load preparation. A stored nodal force
+/// whose dimension is not a moment's, on a rotation, is reported by load
+/// preparation (LOAD_INPUT_INVALID) when nothing else refuses the case. Beside
+/// (a) a listed stored primitive of the same case under a generated identity
+/// (EQUIVALENT_STATIC_GENERATED_ID_COLLISION) or (b) the wind direction
+/// `GLOBAL_Y` (EQUIVALENT_STATIC_INPUT_INVALID), the case is refused by that
+/// finding alone: the loads were not prepared, so LOAD_INPUT_INVALID is absent.
+#[test]
+fn a_generation_refused_at_formation_never_reaches_load_preparation() {
+    let unprepared = json!({"id": "load:unprepared", "category": "concentrated_force", "target": {"type": "node", "node": "node:b"},
+        "direction": "rotation_x", "magnitude": qv(10.0, "N"), "dimension": "force", "provenance": PROV});
+    let codes_of = |wire: &Value, mode| codes(&run(wire, mode));
+    let generated = format!("{CASE}:generated:seismic:global-y:element-0");
+    let (_, plain) = reference_request(&case_ref("W16C-SEISMIC-EX-EB"));
+    let ledger = |stored: Vec<Value>| {
+        let mut wire = load_state_document_of(&plain);
+        let case = &mut wire["model"]["load_cases"][0];
+        case["analysis_state"]["load_sources"] =
+            json!(stored.iter().map(|load| json!({"source_ref": load["id"], "factor": 1.0})).collect::<Vec<_>>());
+        case["primitive_loads"] = json!(stored);
+        wire
+    };
+    let wind_case = |direction: &str| {
+        let mut generation = wind(&["pipe:a-b"], vec![]);
+        generation["wind"]["direction"] = json!(direction);
+        cantilever(Route::Exact, EULER_BERNOULLI, vec![case(CASE, Some(generation), vec![unprepared.clone()])])
+    };
+    for mode in MODES {
+        for (what, wire) in [("load-state", ledger(vec![unprepared.clone()])), ("wind global_y", wind_case("global_y"))] {
+            let found = codes_of(&wire, mode);
+            assert!(found.iter().any(|c| c == "LOAD_INPUT_INVALID"), "{what} {mode:?}: preparation reports the load: {found:?}");
+        }
+    }
+    let collided = ledger(vec![distributed(&generated, "pipe:a-b", "global_z", 250.0), unprepared.clone()]);
+    for (what, wire, code) in [
+        ("a listed same-case collision", collided, "EQUIVALENT_STATIC_GENERATED_ID_COLLISION"),
+        ("wind GLOBAL_Y", wind_case("GLOBAL_Y"), "EQUIVALENT_STATIC_INPUT_INVALID"),
+    ] {
+        refused(&wire, code, what);
+        for mode in MODES {
+            let found = codes_of(&wire, mode);
+            assert!(!found.iter().any(|c| c == "LOAD_INPUT_INVALID"), "{what} {mode:?}: loads were prepared: {found:?}");
+        }
+    }
+}
+
 /// Round 1 review of pull request 479: the wind direction is exactly one of
 /// the model schema's tokens (`global_x`, `global_y`, `global_z`), from which
 /// both readers form the generated identities. An upper-case spelling is
@@ -1316,6 +1363,38 @@ fn the_reader_refuses_a_malformed_generation_and_a_conflicted_model() {
             Err("SOURCE_PHYSICS_EQUIVALENT_STATIC_COMPONENT_MODEL_MISMATCH".to_string()), "{mode:?} conflicted");
         assert!(run(&json!({"model": conflicted, "materials": []}), mode)["diagnostics"].as_array().unwrap()
             .iter().any(|d| d["code"] == "RIGID_COMPONENT_MAPPING_CONFLICT"), "{mode:?}: the product refuses the conflicted model");
+    }
+}
+
+/// Round 2 review of pull request 479: the product refuses a member that two
+/// rigid-family components map on every document
+/// (RIGID_COMPONENT_MAPPING_CONFLICT), whatever its cases generate and whether
+/// an objective connector replaces the member, so the model-bound reader
+/// refuses such a model at document level: on a wind-only document (the frame
+/// model with only WIND-TIE) and on the member the expansion joint replaces.
+#[test]
+fn the_reader_refuses_a_shared_rigid_mapping_on_every_document() {
+    use open_pipe_stress_result_export::reader_verdict;
+    let doc: Value = serde_json::from_str(IDENTITIES).unwrap();
+    let valve = |id: &str, model: &Value| {
+        let pipe = model["pipe_segments"].as_array().unwrap().iter().find(|p| p["id"] == "pipe:b-c").unwrap();
+        json!({"id": id, "kind": "valve", "node": pipe["to"],
+            "geometry": {"rigid_pipe_ref": "pipe:b-c", "weight": qv(2350.0, "N"), "center_of_gravity": {"x": 0.0, "y": 0.0, "z": 0.0, "unit": "m"}},
+            "mechanics_interface": {"solver_consumption": "mechanics_geometry_only"}, "provenance": PROV})
+    };
+    let mut wind_only = doc["models"]["frame"].clone();
+    wind_only["load_cases"] = json!(wind_only["load_cases"].as_array().unwrap().iter().filter(|c| c["id"] == "WIND-TIE").cloned().collect::<Vec<_>>());
+    for (what, model) in [("wind-only", wind_only), ("connector-replaced", doc["models"]["connector"].clone())] {
+        for mode in MODES {
+            let out = solved(&json!({"model": model, "materials": []}), Route::Exact, mode, what);
+            reader_verdict::physics_model_checks(&out, &model).unwrap();
+            let mut shared = model.clone();
+            let mut components = shared["components"].as_array().cloned().unwrap_or_default();
+            components.extend([valve("component:first-on-b-c", &model), valve("component:second-on-b-c", &model)]);
+            shared["components"] = json!(components);
+            assert_eq!(reader_verdict::physics_model_checks(&out, &shared),
+                Err("SOURCE_PHYSICS_EQUIVALENT_STATIC_COMPONENT_MODEL_MISMATCH".to_string()), "{what} {mode:?}");
+        }
     }
 }
 

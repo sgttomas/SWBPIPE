@@ -243,6 +243,11 @@ pub(crate) fn equivalent_static_model_binding(source: &Value, model: &Value) -> 
     if source["status"]["mechanics"] != "MECHANICS_SOLVED" {
         return Ok(());
     }
+    // The product refuses a member that more than one rigid-family component
+    // maps on every document, whatever its cases generate and whether an
+    // objective connector replaces the member (`RIGID_COMPONENT_MAPPING_CONFLICT`,
+    // `rigid_component::conflicts`), so no solved record of such a model exists.
+    require(!rigid_mapping_shared(model), "EQUIVALENT_STATIC_COMPONENT_MODEL_MISMATCH")?;
     let cases = source["contract_evidence"]["exact_cases"].as_array().map(Vec::as_slice).unwrap_or(&[]);
     for case in model["load_cases"].as_array().map(Vec::as_slice).unwrap_or(&[]) {
         let Some(evidence) = cases.iter().find(|c| c["load_case_id"] == case["id"]) else { continue };
@@ -289,6 +294,23 @@ fn model_quantity(q: &Value, dimension: open_pipe_stress_units::Dimension) -> Op
         q["unit"] = json!("1");
     }
     crate::physics_source::normalized_quantity(&q, dimension).ok()
+}
+
+/// Whether more than one rigid-family component maps one member of the model:
+/// every component of the family with a nonblank mapped member that names a
+/// member of the model counts, before any connector replacement is read.
+fn rigid_mapping_shared(model: &Value) -> bool {
+    let pipes = model["pipe_segments"].as_array().map(Vec::as_slice).unwrap_or(&[]);
+    let mut mapped: HashSet<&str> = HashSet::new();
+    model["components"]
+        .as_array()
+        .map(Vec::as_slice)
+        .unwrap_or(&[])
+        .iter()
+        .filter(|c| matches!(c["kind"].as_str(), Some("valve" | "flange" | "reducer" | "rigid" | "specialty")))
+        .filter_map(|c| c["geometry"]["rigid_pipe_ref"].as_str().filter(|p| !p.trim().is_empty()))
+        .filter(|p| pipes.iter().any(|pipe| pipe["id"] == *p))
+        .any(|p| !mapped.insert(p))
 }
 
 /// The members an objective connector replaces.

@@ -110,6 +110,35 @@ def test_a_member_two_components_map_is_refused():
         physics_model_checks(source, model)
 
 
+def _valve(component_id, model, pipe_ref):
+    pipe = next(p for p in model["pipe_segments"] if p["id"] == pipe_ref)
+    return {"id": component_id, "kind": "valve", "node": pipe["to"],
+            "geometry": {"rigid_pipe_ref": pipe_ref, "weight": {"value": 2350.0, "unit": "N"},
+                         "center_of_gravity": {"x": 0.0, "y": 0.0, "z": 0.0, "unit": "m"}},
+            "mechanics_interface": {"solver_consumption": "mechanics_geometry_only"}, "provenance": "invented"}
+
+
+@pytest.mark.parametrize("name,cases", [("frame", ["WIND-TIE"]), ("connector", None)], ids=["wind-only", "connector-replaced"])
+def test_a_member_two_components_map_is_refused_on_every_document(name, cases):
+    """Round 2 review of pull request 479: the product refuses a member that two rigid-family components map on every
+    document (RIGID_COMPONENT_MAPPING_CONFLICT), whatever its cases generate and whether a connector replaces the
+    member, so the reader refuses it at document level: on a wind-only document, and on the member the expansion
+    joint replaces."""
+    model = deepcopy(FIXTURE["models"][name])
+    model.pop("pressure_contract")
+    if cases is not None:
+        model["load_cases"] = [case for case in model["load_cases"] if case["id"] in cases]
+    records = {item["load_case_id"]: item["generated_load_ids"] for item in FIXTURE["cases"]
+               if item["model"] == name and any(case["id"] == item["load_case_id"] for case in model["load_cases"])}
+    source = _source(model, records)
+    physics_model_checks(source, model)
+    shared = deepcopy(model)
+    shared["components"] = list(shared.get("components", [])) + [_valve("component:first-on-b-c", model, "pipe:b-c"),
+                                                                   _valve("component:second-on-b-c", model, "pipe:b-c")]
+    with pytest.raises(Refused, match="SOURCE_PHYSICS_EQUIVALENT_STATIC_COMPONENT_MODEL_MISMATCH"):
+        physics_model_checks(source, shared)
+
+
 def test_a_record_on_a_case_that_does_not_generate_is_refused_by_its_presence():
     """Round 1 review of pull request 479: a forged generation record without component entries on a case whose
     model case does not generate is refused by its presence (issue 452 decision 6), before its contents are read."""
