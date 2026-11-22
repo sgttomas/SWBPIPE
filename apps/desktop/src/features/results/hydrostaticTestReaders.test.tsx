@@ -76,7 +76,7 @@ describe("a solved hydrostatic test case through the desktop's readers", () => {
       expect(report.standing.findings.filter(ABOUT_THE_TEST)).toEqual([]);
 
       expect(standing.eligible).toBe(true);
-      for (const purpose of ["result-export", "report-render"] as const) {
+      for (const purpose of ["result-export", "report"] as const) {
         const admission = await admitExactReportSource({ model, result, analysisRun, inputManifest, purpose });
         expect(admission.binding.semantic_contract_id).toBe((result as Json).producer.semantic_contract_id);
       }
