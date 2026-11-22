@@ -93,6 +93,8 @@ code_paths:
 - fixtures/diagnostics/solve_input_missing_codes.json
 - apps/desktop/src/features/diagnostics/solveInputMissingCodes.ts
 - apps/desktop/src/features/diagnostics/missingData.session.test.tsx
+# The desktop session that runs the automatic and requested checks and gates Solve on them.
+- apps/desktop/src/features/workspace/workspaceSession.ts
 checks:
 - core/solver/diagnostics/src/lib.rs
 - core/product_physics/tests/topology_checks_runtime.rs

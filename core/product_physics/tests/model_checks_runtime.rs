@@ -564,3 +564,49 @@ fn a_load_state_case_is_generated_on_its_effective_case() {
     }
 }
 
+
+/// A preview-route cantilever whose concentrated force targets its pipe passes
+/// the checks before formation and the load generation, and its solve blocks
+/// after formation, where the load application refuses the force. Beside it,
+/// an empty case named `case_id` draws the non-blocking warning that it
+/// applies no action.
+fn force_on_the_pipe_with_an_empty_case(case_id: &str) -> Value {
+    let mut wire = cantilever();
+    wire["model"]["load_cases"][0]["primitive_loads"][0]["target"] = json!({"type": "element", "pipe": "pipe:a-b"});
+    wire["model"]["load_cases"].as_array_mut().unwrap().push(json!({"id": case_id, "primitive_loads": [], "provenance": "checks"}));
+    wire
+}
+
+/// REQ-013's exception, in both modes: blocked after its checks and load
+/// generation, the preview-route solve keeps a non-blocking finding that names
+/// no result field for field, and omits one whose affected references name a
+/// result, since it publishes no result rows.
+#[test]
+fn a_solve_blocked_after_formation_omits_only_a_warning_that_names_a_result() {
+    for (case_id, kept) in [("case:empty", true), ("result:empty", false)] {
+        let wire = force_on_the_pipe_with_an_empty_case(case_id);
+        let (before, generation) = solve_inputs(&wire);
+        assert!(generation.is_empty(), "{case_id}: {generation:#?}");
+        assert!(!before.iter().any(is_blocking), "{case_id}: {before:#?}");
+        let empty: Vec<Value> = before.iter().filter(|d| d["code"] == "LOAD_CASE_APPLIES_NO_ACTION").cloned().collect();
+        assert_eq!(empty.len(), 1, "{case_id}: {before:#?}");
+        assert_eq!(empty[0]["severity"], "warning");
+        assert_eq!(empty[0]["affected_refs"], json!([case_id]));
+        for mode in MODES {
+            let solve = envelope(&wire, mode);
+            assert_eq!(solve["status"]["mechanics"], "MODEL_INCOMPLETE", "{case_id} ({mode:?})");
+            let published = solve["diagnostics"].as_array().cloned().unwrap_or_default();
+            let codes: Vec<&str> = published.iter().map(|d| d["code"].as_str().unwrap()).collect();
+            if kept {
+                let found: Vec<Value> = published.iter().filter(|d| d["code"] == "LOAD_CASE_APPLIES_NO_ACTION").cloned().collect();
+                same_fields(&format!("{case_id} ({mode:?})"), &empty, &found);
+                assert_eq!(codes, ["LOAD_CASE_APPLIES_NO_ACTION", "LOAD_CATEGORY_PREVIEW_MAPPED", "LOAD_INPUT_INVALID"], "{case_id} ({mode:?})\n{published:#?}");
+            } else {
+                assert_eq!(codes, ["LOAD_CATEGORY_PREVIEW_MAPPED", "LOAD_INPUT_INVALID"], "{case_id} ({mode:?})\n{published:#?}");
+            }
+            let invalid = published.iter().find(|d| d["code"] == "LOAD_INPUT_INVALID").unwrap();
+            assert!(is_blocking(invalid), "{invalid:#}");
+            assert_eq!(invalid["affected_refs"], json!(["load:f", "case:f"]), "{case_id} ({mode:?})");
+        }
+    }
+}

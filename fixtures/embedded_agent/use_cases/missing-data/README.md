@@ -118,7 +118,7 @@ The members:
   job runs on it. The final one must be completed,
   `held`, readable through its handle, matched by the host for both model and
   result, and bound to `final_model_text`.
-- `findings_shown`: the Diagnostics list before any solve, while Solve is withheld. Each finding gives
+- `findings_shown`: the Model checks list in the Issues drawer before any solve, while Solve is withheld. Each finding gives
   `finding_id`, `entity_ref`, `field_path` and `blocks_solve`, as the harness
   read them from the finding. The product supplies the entity and the field
   leaf in `affected_refs`.
