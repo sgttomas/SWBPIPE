@@ -112,7 +112,7 @@ describe("UserReleaseDialog", () => {
     expect(terms).toHaveTextContent("in the report sections you chose; every result row is still listed with its checksum.");
     expect(terms).toHaveTextContent("any model-input tables");
     expect(terms).toHaveTextContent(
-      "It needs a result solved in this session: a pressure-free (preview-physics-2) result, or an exact pressure route (pressure-3 or pressure-source-1) result whose mechanics are solved. The report states that result's numerical standing, whatever it is."
+      "It needs a result solved in this session: a pressure-free Euler–Bernoulli (preview-physics-2) result, or a pressure-free Timoshenko (preview-physics-timoshenko-1) or exact pressure route (pressure-3 or pressure-source-1) result whose mechanics are solved. The report states that result's numerical standing, whatever it is."
     );
     expect(terms).toHaveTextContent("Nothing is remembered: your next report is local private unless you choose this again.");
   });

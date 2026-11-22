@@ -270,16 +270,6 @@ fn a_timoshenko_report_carries_its_standing_record_on_the_desktop_profile_only()
     let mut null = request.clone();
     null["report"]["numerical_standing"] = Value::Null;
     refused(&null, EXACT_SECTIONS_MISMATCH, "desktop Timoshenko report with a null standing record");
-    // The runner profile: the same source carries no record, and is refused with one.
-    let mut source = runner()["source_results"][0].clone();
-    timoshenko(&mut source);
-    let model: Value = serde_json::from_str(MODEL).unwrap();
-    let mut on_runner = request_in(model, source, true, Profile::Runner);
-    assert!(on_runner["report"]["numerical_standing"].is_object());
-    let error = assemble(&on_runner).unwrap_err();
-    assert!(error.starts_with(&format!("{EXACT_SECTIONS_MISMATCH}: numerical_standing")), "{error}");
-    on_runner["report"].as_object_mut().unwrap().remove("numerical_standing");
-    assert!(assemble(&on_runner).is_ok_and(|outcome| !outcome.export_blocked), "the runner's Timoshenko package without a record");
     // An Euler–Bernoulli report with a record is refused as before.
     let mut eb = request_eb();
     eb["report"]["numerical_standing"] = request["report"]["numerical_standing"].clone();

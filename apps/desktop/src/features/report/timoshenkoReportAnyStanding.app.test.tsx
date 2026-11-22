@@ -200,7 +200,8 @@ async function expectFourPackageRequests(app: Awaited<ReturnType<typeof mountApp
   const expectReport = (request: Json) => {
     expect(request.report.numerical_standing, app.why()).toEqual(record);
     expect("pf_timoshenko" in request.report).toBe(false);
-    expect(request.report.report_sections.limitations.map((item: Json) => item.limitation_id.split(":").slice(-2).join(":"))).toEqual(["technical-preview", "pf-timoshenko:1"]);
+    const runId = request.source_results[0].run_id;
+    expect(request.report.report_sections.limitations.map((item: Json) => item.limitation_id)).toEqual([`limitation:${runId}:technical-preview`, `limitation:${runId}:pf-timoshenko:1`]);
     expect(request.source_results[0].producer.semantic_contract_id).toBe(PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID);
   };
   fireEvent.click(within(panel()).getByTestId("report-package-private-intent"));

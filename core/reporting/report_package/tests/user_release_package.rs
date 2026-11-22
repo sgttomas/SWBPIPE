@@ -879,10 +879,12 @@ fn the_derivation_and_the_producer_refuse_a_record_version_by_name() {
 // --- The pressure-free Timoshenko record 1.3.0 (DEL-08-01 REQ-024) ---------
 
 /// The desktop's Timoshenko vectors (`userReleasePfTimoshenko.parity.test.ts`): the product's own
-/// eligible Timoshenko results, their shareable request (record 1.3.0) and their local-private request.
-const PF_TIMOSHENKO_VECTORS: [(&str, &str); 2] = [
+/// Timoshenko results (two eligible, and the sensitive torsion one, which is not), their shareable
+/// request (record 1.3.0) and their local-private request.
+const PF_TIMOSHENKO_VECTORS: [(&str, &str); 3] = [
     ("straight_sparse", include_str!("../../../../fixtures/reports/invented/user_release_pf_timoshenko/straight_sparse.json")),
     ("arc_sparse", include_str!("../../../../fixtures/reports/invented/user_release_pf_timoshenko/arc_sparse.json")),
+    ("sensitive_torsion", include_str!("../../../../fixtures/reports/invented/user_release_pf_timoshenko/sensitive_torsion.json")),
 ];
 
 struct PfVector {
@@ -949,7 +951,7 @@ const STANDING_LINE_WORDS: &str = "Numerical health, as the solver reports it:";
 fn a_pressure_free_timoshenko_result_is_shared_with_record_1_3_0_and_states_its_standing() {
     for x in pf_vectors() {
         let derived = derive(&x.basis(&x.record)).unwrap_or_else(|error| panic!("{}: {error}", x.name)).request;
-        assert_eq!(canonical_json(&derived).unwrap(), canonical_json(&x.v["request"]).unwrap(), "{}: the derivation is the desktop's request", x.name);
+        assert_eq!(canonical_json(&derived), canonical_json(&x.v["request"]), "{}: the derivation is the desktop's request", x.name);
         assert!(derived["report"]["numerical_standing"].is_object(), "{}", x.name);
         assert!(derived["report"].get("pf_timoshenko").is_none(), "{}", x.name);
         let outcome = x.assemble(derived.clone(), &x.record).unwrap_or_else(|error| panic!("{}: {error}", x.name));

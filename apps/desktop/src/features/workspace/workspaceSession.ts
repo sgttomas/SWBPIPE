@@ -4336,7 +4336,7 @@ export function useWorkspaceSession() {
       projectName: basis.model.project.name,
       modelDocumentSha256,
       runId: basis.result.run_id,
-      statesStanding: takesReportAdmission(basis.result),
+      statesStanding: takesReportAdmission(basis.result as MechanicsResult),
       frameStatements: frame.ok ? frame.statements : [],
       refusal: modelRefusal
         ? { kind: "library_or_rule_pack", reason: modelRefusal }

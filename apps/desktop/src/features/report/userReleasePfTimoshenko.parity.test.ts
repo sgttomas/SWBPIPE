@@ -10,9 +10,12 @@
 // Each request carries the standing record the reader derives and the identity's limitation 0
 // entry, and neither carries the rendered report's `pf_timoshenko` section (a package binds no
 // custody) or the delivered texts. The results are the product's own committed Timoshenko
-// envelopes for their frozen requests (`core/product_physics/tests/pf_timoshenko_envelopes.rs`
-// keeps them current), solved through the unit solve-job transport; the model adds only the
-// display members the desktop shell needs (a project name, `status: "preview_only"`). Unit
+// envelopes (`core/product_physics/tests/pf_timoshenko_envelopes.rs` keeps them current): two
+// eligible ones for their frozen requests, and the sensitive torsion one, which is solved and
+// readable and not eligible; each is solved through the unit solve-job transport, and the model
+// adds only the display members the desktop shell needs (a project name, each load case's label
+// where it has none and `status: "preview_only"`, a component list where it has none) and, for a
+// model document, the Timoshenko shear model it was solved with. Unit
 // transport replay of committed producer bytes; NOT a native UI qualification witness. The
 // record is invented; nothing here records a user release or implies acceptance, issuance or
 // lifecycle standing.
@@ -49,27 +52,43 @@ const SOFTWARE = { name: desktopAppConfig.productName, version: desktopAppConfig
 
 afterEach(() => { invokeMock.mockReset(); resetSessionResultCustodyForTests(); delete (window as Json).__TAURI_INTERNALS__; });
 
-/** Each vector: the producer's bytes and the frozen request whose model they were solved for. */
-const SHAPES: { shape: string; raw: string; request: string; reason: string }[] = [
+/** Each vector: the producer's bytes, the frozen request or model document whose model they were
+ * solved for (with `shearModel` selected where given), and each load case's health (null: every
+ * case checks passed). */
+const SHAPES: { shape: string; raw: string; request: string; shearModel?: string; reason: string; health: string[] | null }[] = [
   {
     shape: "straight_sparse",
     raw: "fixtures/results/preview_physics_timoshenko_straight_sparse.json",
     request: "validation/references/pf_timoshenko/requests/PFT-SB-L1-CM0-TIMOSHENKO.request.json",
-    reason: "the product's eligible Timoshenko result with straight members only"
+    reason: "the product's eligible Timoshenko result with straight members only",
+    health: null
   },
   {
     shape: "arc_sparse",
     raw: "fixtures/results/preview_physics_timoshenko_arc_sparse.json",
     request: "validation/references/pf_timoshenko/requests/PFT-ARC-TIP-TIMOSHENKO.request.json",
-    reason: "the product's eligible Timoshenko result with a realized arc (PF_TIMOSHENKO_REALIZED_ARCS_EULER_BERNOULLI)"
+    reason: "the product's eligible Timoshenko result with a realized arc (PF_TIMOSHENKO_REALIZED_ARCS_EULER_BERNOULLI)",
+    health: null
+  },
+  {
+    shape: "sensitive_torsion",
+    raw: "fixtures/results/preview_physics_timoshenko_sensitive_torsion_sparse.json",
+    request: "fixtures/product_preview/numerical_sensitive_torsion_model.json",
+    shearModel: "timoshenko_annulus_energy_v1",
+    reason: "the product's solved, readable Timoshenko result whose standing is not eligible: its one load case sensitive",
+    health: ["sensitive"]
   }
 ];
 
-for (const { shape, raw, request: requestPath, reason } of SHAPES) {
+for (const { shape, raw, request: requestPath, shearModel, reason, health } of SHAPES) {
   it(`the ${shape} Timoshenko result's shareable and local-private requests carry its standing record`, async () => {
-    const model = structuredClone(load(requestPath).model) as Json;
+    const document = load(requestPath);
+    const model = structuredClone(document.model ?? document) as Json;
+    if (shearModel) model.model_settings = { ...(model.model_settings ?? {}), shear_model: shearModel };
     model.project.name = model.project.id;
-    for (const loadCase of model.load_cases) loadCase.status = "preview_only";
+    // The report's load case summary states each case's label, which the native report reads.
+    for (const loadCase of model.load_cases) Object.assign(loadCase, { label: loadCase.label ?? loadCase.id, status: "preview_only" });
+    if (model.components === undefined) model.components = [];
     const bytes = readFileSync(path.join(root, raw), "utf8");
     (window as Json).__TAURI_INTERNALS__ = {};
     invokeMock.mockImplementation(createSolveJobTransport(() => bytes, { jobIdPrefix: `invented-pf-timoshenko-release-${shape}` }).invoke);
@@ -83,6 +102,8 @@ for (const { shape, raw, request: requestPath, reason } of SHAPES) {
     }, active_rule_packs: [], external_assets: [] });
     const analysisRun = await buildAnalysisRunPreview(result, { inputManifest });
     const admission = await admitExactReportSource({ model, result, analysisRun, inputManifest, purpose: "report" });
+    const healths = (admission.numericalStanding as Json).cases.map((c: Json) => c.health);
+    expect(healths).toEqual(health ?? healths.map(() => "checks_passed"));
     const userRelease = await userReleaseRecord({ model, result, inputManifest, document: admission.document, userReleasedAt: INVENTED_USER_RELEASED_AT });
     expect(userRelease.record_version).toBe(USER_RELEASE_PF_TIMOSHENKO_RECORD_VERSION);
     const request = await assembleUserReleasedReportPackageRequest({ model, result, analysisRun, inputManifest, userRelease });

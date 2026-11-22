@@ -65,6 +65,7 @@ function witnessModel(): PreviewModel {
   model.model_settings = { shear_model: "timoshenko_annulus_energy_v1" };
   if (typeof model.project.name !== "string") model.project.name = model.project.id;
   for (const loadCase of model.load_cases) if (loadCase.status === undefined) loadCase.status = "preview_only";
+  if (model.components === undefined) model.components = [];
   return model as PreviewModel;
 }
 
@@ -143,7 +144,8 @@ describe("the package request's refusal of a pressure-free result that is not el
     const refusal = await buildReportPackageRequest(input).then(() => null, (error: unknown) => error);
     expect(refusal).toBeInstanceOf(Error);
     expect(refusal).not.toBeInstanceOf(ReportPackageStandingRefusal);
-    console.info(`blocked Timoshenko package refusal: ${(refusal as Error).message}`);
+    // A refusal led by its code, not the standing words a person reads for a solved result.
+    expect((refusal as Error).message).toMatch(/^[A-Z][A-Z0-9_-]*(:|$)/);
   });
 
   it("keeps the bare code for a pressure-free Euler–Bernoulli result that is not eligible", async () => {

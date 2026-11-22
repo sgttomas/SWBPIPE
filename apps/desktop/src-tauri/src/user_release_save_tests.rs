@@ -1527,9 +1527,10 @@ fn route_010_binds_model_input_tables_to_its_model() {
 // (`userReleasePfTimoshenko.parity.test.ts`) over the product's own results.
 // ---------------------------------------------------------------------------
 
-const PF_TIMOSHENKO_VECTORS: [(&str, &str); 2] = [
+const PF_TIMOSHENKO_VECTORS: [(&str, &str); 3] = [
     ("straight_sparse", include_str!("../../../../fixtures/reports/invented/user_release_pf_timoshenko/straight_sparse.json")),
     ("arc_sparse", include_str!("../../../../fixtures/reports/invented/user_release_pf_timoshenko/arc_sparse.json")),
+    ("sensitive_torsion", include_str!("../../../../fixtures/reports/invented/user_release_pf_timoshenko/sensitive_torsion.json")),
 ];
 
 fn pf_user_released_args(vector: &Value, request: &Value) -> ReportPackageSaveRequest {
@@ -1557,6 +1558,12 @@ fn pf_saved(admitted: crate::report_package_save::AdmittedReportPackage, label: 
     (read, html)
 }
 
+/// A health other than the request's first load case's, so that the altered record differs from
+/// the derivation's whatever the result's standing.
+fn pf_other_health(request: &Value) -> Value {
+    json!(if request["report"]["numerical_standing"]["cases"][0]["health"] == "sensitive" { "checks_passed" } else { "sensitive" })
+}
+
 /// The words of the standing line the request's standing record gives, as the package's frame
 /// states it.
 fn pf_standing_line(request: &Value) -> String {
@@ -1582,7 +1589,7 @@ fn both_saves_of_a_pressure_free_timoshenko_result_state_its_standing() {
         assert!(html.contains(&pf_standing_line(&local)), "{name}: the local package states the standing line");
         assert!(html.contains(&limitation), "{name}: the local package states limitation 0");
         let mut altered = local.clone();
-        altered["report"]["numerical_standing"]["cases"][0]["health"] = json!("sensitive");
+        altered["report"]["numerical_standing"]["cases"][0]["health"] = pf_other_health(&local);
         let error = crate::report_package_save::admit_report_package_in(save_request_with(&altered, &v["model"], &v["input_manifest"]), &software(), &mut no_store, &crate::report_package_save::no_custody).err().expect("refused");
         assert_eq!(error.code, crate::exact_source_binding::SECTIONS_MISMATCH, "{name}: {}", error.message);
         assert!(error.message.ends_with(": numerical_standing"), "{name}: {}", error.message);
@@ -1601,7 +1608,7 @@ fn both_saves_of_a_pressure_free_timoshenko_result_state_its_standing() {
         assert!(html.contains(&limitation), "{name}: the shareable package states limitation 0");
         assert!(html.contains("USER-RELEASED REPORT"), "{name}");
         let mut altered = shared.clone();
-        altered["report"]["numerical_standing"]["cases"][0]["health"] = json!("sensitive");
+        altered["report"]["numerical_standing"]["cases"][0]["health"] = pf_other_health(&shared);
         let (path, message) = refused(pf_user_released_args(&v, &altered), &registry, crate::exact_source_binding::SECTIONS_MISMATCH);
         assert_eq!(path, "/request/report/numerical_standing", "{name}: {message}");
         // REQ-019, Admission: a session that holds no attested solve of this model and result

@@ -596,6 +596,21 @@
       "source_sha256": "c31df3ef36484e3d63319690d0a3d54279809ef1db82b186d2aeb6daedd10f93"
     },
     {
+      "command": "read_preview_mechanics_job_verdict",
+      "key": "0ca6f76fb58eba04d791523c1626bba47540f1b0acde4f115ac0119765edd883",
+      "reply": {
+        "body": "json",
+        "ok": true,
+        "value": {
+          "document_kind": "swbpipe.desktop.report_frame_statements",
+          "frame_statements": [],
+          "job_id": "$JOB",
+          "version": 1
+        }
+      },
+      "source_sha256": "c7c81b22681e41f5ef35b74b5dc3c2d8f587b399917dfe23b5e78cafc59409fa"
+    },
+    {
       "command": "query_preview_mechanics_job_rows",
       "key": "0cb77d55ef7d0c1087239cd5e49d21625316b27d92072c49093137b03a1cc7b8",
       "reply": {
@@ -9351,6 +9366,21 @@
         "ok": true
       },
       "source_sha256": "153391d4b548410b31593bb5193bdf484cc7b4d97f799d61c2a2732cf4e3fdad"
+    },
+    {
+      "command": "read_preview_mechanics_job_verdict",
+      "key": "bee3c8b59457e89931991cb8b2202341fe840c210e76bb07561966cf63e3282e",
+      "reply": {
+        "body": "json",
+        "ok": true,
+        "value": {
+          "document_kind": "swbpipe.desktop.report_frame_statements",
+          "frame_statements": [],
+          "job_id": "$JOB",
+          "version": 1
+        }
+      },
+      "source_sha256": "cf4943f6469b8647e8dd934a71bf10eae0dc0257f23dc75ea99e2f4f4f0d3284"
     },
     {
       "command": "query_preview_mechanics_job_rows",
