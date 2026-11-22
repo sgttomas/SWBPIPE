@@ -25,7 +25,6 @@ import {
   HardDrive,
   Play,
   Save,
-  Sparkles,
   X
 } from "lucide-react";
 import { AgentStrip } from "./features/workspace/shell/AgentStrip";
@@ -239,7 +238,6 @@ function AppSession() {
     handleInspectBundledReference,
     handleCancelRun,
     handleRuleCheckAggregate,
-    handleProposal,
     handleSelectResult,
     handleSelectDiagnostic,
     handleSaveReportPackage,
@@ -620,7 +618,6 @@ function AppSession() {
             <EmbeddedAgentPanel session={session.agent} active={activeSection === "operations" && operationTab === "agent"} onReview={() => {setActiveSection("operations");setOperationTab("review");}} />
             <AgentWorkbenchPanel
               appliedOperationCount={appliedOperations.length}
-              mechanicsReady={Boolean(result)}
               model={model}
               proposal={proposal}
               queuedIntentCount={editorIntents.length}
@@ -629,7 +626,6 @@ function AppSession() {
               selectedReviewTarget={selectedReviewTarget}
               statusText={r3ExitJourneyStatus({ result, ruleCheckAggregate, projectSummary })}
               reviewActive={activeSection === "operations" && operationTab === "review"}
-              onGenerateProposal={handleProposal}
               onOpenOperations={() => { setActiveSection("operations"); setOperationTab("review"); }}
               onOpenResults={() => setActiveSection("results")}
               onRunMechanics={handleRun}
@@ -740,9 +736,7 @@ function AppSession() {
                   />
                   <AgentProposalPanel
                     proposal={proposal}
-                    mechanicsReady={Boolean(result)}
                     selectedReviewTarget={selectedReviewTarget}
-                    onLoad={handleProposal}
                   />
                 </div>
               </section>
@@ -1598,7 +1592,6 @@ function MenuBar({
 
 function AgentWorkbenchPanel({
   appliedOperationCount,
-  mechanicsReady,
   model,
   proposal,
   queuedIntentCount,
@@ -1607,13 +1600,11 @@ function AgentWorkbenchPanel({
   selectedReviewTarget,
   statusText,
   reviewActive,
-  onGenerateProposal,
   onOpenOperations,
   onOpenResults,
   onRunMechanics
 }: {
   appliedOperationCount: number;
-  mechanicsReady: boolean;
   model: PreviewModel;
   proposal: AgentProposal | null;
   queuedIntentCount: number;
@@ -1622,7 +1613,6 @@ function AgentWorkbenchPanel({
   selectedReviewTarget: SelectedReviewTarget | null;
   statusText: string;
   reviewActive: boolean;
-  onGenerateProposal: () => void;
   onOpenOperations: () => void;
   onOpenResults: () => void;
   onRunMechanics: () => void;
@@ -1655,16 +1645,6 @@ function AgentWorkbenchPanel({
         <button type="button" data-testid="agent-run-mechanics" onClick={onRunMechanics} disabled={running}>
           <Play size={15} aria-hidden="true" />
           Run
-        </button>
-        <button
-          type="button"
-          data-testid="agent-generate-proposal"
-          onClick={onGenerateProposal}
-          disabled={!mechanicsReady}
-          title={mechanicsReady ? undefined : "Run mechanics before generating a review proposal."}
-        >
-          <Sparkles size={15} aria-hidden="true" />
-          Propose
         </button>
         <button type="button" data-testid="agent-open-operations" aria-pressed={reviewActive} onClick={onOpenOperations}>
           <ClipboardCheck size={15} aria-hidden="true" />

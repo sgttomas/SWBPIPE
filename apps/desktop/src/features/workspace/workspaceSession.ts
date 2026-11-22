@@ -33,7 +33,6 @@ import {
   loadDesignKnowledge,
   loadBundledMechanicsReference,
   loadPreviewModel,
-  loadSampleProposal,
   hasNativeMechanicsInvocation,
   discardPreviewMechanicsJobResult,
   disposeDeliveredMechanicsResult,
@@ -1943,11 +1942,6 @@ export function useWorkspaceSession() {
     } else {
       setSolveJob(cancelledWithoutBackendSolveJob(active.job));
     }
-  }
-
-  async function handleProposal() {
-    // The sample proposal reads full rows (a C2 consumer): a native result's bounded full copy.
-    setProposal(await loadSampleProposal(result && isNativeResult(result) ? (await loadC2Full(result, { record: false })).result : result, selectedReviewTarget));
   }
 
   function handleQueueEditorIntent(intent: EditorOperationIntent) {
@@ -5931,7 +5925,6 @@ export function useWorkspaceSession() {
       handleInspectBundledReference,
       handleCancelRun,
       handleRuleCheckAggregate,
-      handleProposal,
       handleSelectResult,
       handleSelectDiagnostic,
       handleSaveReportPackage,
