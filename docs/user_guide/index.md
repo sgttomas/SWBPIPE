@@ -764,6 +764,15 @@ to CSV.
   SWBPIPE does not verify that bound, so every sized result, the panel and each
   CSV row state `integrity_bound` as `not_verified`
   (`inverse_norm_bound_not_verified`, LIM-026).
+- **Each derived solve.** The derived-solves table and its CSV show each solve's
+  standing (`solver_checks_passed`, or the non-passing token its disclosure names)
+  and its support-state confirmation: the solver's report of whether the converged
+  support state was established, with the solver's quoted reason where it gives one,
+  or not applicable for a solve without nonlinear supports. An established state is
+  the solver's report, not an independently verified confirmation. The desktop shows
+  and exports nothing of a result whose bound, standing or confirmation is outside
+  these values or disagrees with its disclosures; it says the result could not be
+  displayed.
 - **Standings.** The desktop shows the product reader's standings for the document it
   shows: closure, binding, arithmetic consistent with the published positions and
   derivation. None of them states that the mechanics are verified.

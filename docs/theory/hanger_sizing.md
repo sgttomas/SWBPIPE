@@ -239,6 +239,17 @@ case's displacement correction, its warning is carried by the solve's label with
 product's message unchanged (`DISPLACEMENT_CORRECTION_UNAVAILABLE`). Neither refuses
 the request; the sized values inherit that solve's standing.
 
+Every derived solve states its standing positively as `solver_standing`, the same
+token its integrity disclosure carries when it has one, and beside its nonlinear
+supports' states its `support_state_confirmation`: what the solver's integrity record
+of that solve's case says of the converged support state, read from the producer's
+fixed text by the rule the report standing uses. A solve with nonlinear supports
+reads `solver_reported_established`, `not_attempted_reason_not_recorded`,
+`not_established_detail_quoted` (with the solver's one reason quoted as `detail`) or
+`no_confirmation_record`; a solve without any reads `not_applicable`. An established
+state is the solver's report and rests on the same unverified bound; it is not an
+independently verified confirmation.
+
 ### Variable spring loads
 
 For a variable record of rate k:
