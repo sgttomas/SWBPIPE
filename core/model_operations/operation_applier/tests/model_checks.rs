@@ -173,6 +173,12 @@ fn held_hydrostatic_test_pre_solve_checks_match_the_solve() {
 
     let mut mixed_five_doc_six_replaced = twin.clone();
     mixed_five_doc_six_replaced["supports"] = held_five_doc_six_replaced["supports"].clone();
+    for case in mixed_five_doc_six_replaced["load_cases"].as_array_mut().unwrap() {
+        case["analysis_state"]["support_states"]
+            .as_array_mut()
+            .unwrap()
+            .retain(|state| matches!(state["support_ref"].as_str(), Some("support:a" | "support:e" | "support:c")));
+    }
 
     let mut held_under_restrained_bad_basis = held_under_restrained.clone();
     held_under_restrained_bad_basis["load_cases"][0]["modulus_basis_ref"] = json!("missing-point");
