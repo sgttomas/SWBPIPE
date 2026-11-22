@@ -24,7 +24,9 @@ function inventedModel(): PreviewModel {
 
 function mount(model = inventedModel()) {
   const queue = vi.fn<(intent: EditorOperationIntent) => void>();
-  const props: ComponentProps<typeof PropertyInspector> = { model, selection: { type: "node", id: "node:A" }, onQueueIntent: queue };
+  // The New support form is opened as Insert > Support opens it.
+  const selection = { type: "node", id: "node:A" } as const;
+  const props: ComponentProps<typeof PropertyInspector> = { model, selection, onQueueIntent: queue, taskRequest: { sequence: 1, target: selection, view: "properties", focusTestId: "create-support-id" } };
   render(<DisplayUnitsProvider initialPreference="SI"><PropertyInspector {...props} /></DisplayUnitsProvider>);
   return { model, queue };
 }

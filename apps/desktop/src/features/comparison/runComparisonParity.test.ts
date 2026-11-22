@@ -81,7 +81,7 @@ const PAIRS: Array<{ name: string; left: string; right: string; description: str
   { name: "sparse_against_edited", left: "sparse", right: "edited", description: "Deltas, a unit change (the row reads under no signature, so it is unmapped), rows on one side only, an identity difference, a repeated id and context changes." }
 ];
 
-const ELIGIBLE = { eligible: true, status: "integrity_checked" as const, contract: "preview_physics" as const, findings: [] };
+const ELIGIBLE = { eligible: true, status: "solver_checks_passed" as const, contract: "preview_physics" as const, findings: [] };
 const IDENTITY = { route: "preview_physics", contract_id: "openpipestress.result_semantics/0.3.0/preview-physics-2", contract_sha256: null };
 
 function input(run: GoldenRun): RunComparisonInput {

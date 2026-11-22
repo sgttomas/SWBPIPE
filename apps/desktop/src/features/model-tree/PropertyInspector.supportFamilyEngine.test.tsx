@@ -19,7 +19,8 @@ async function emitted(choose: (() => void) | null) {
   const model = await loadPreviewModel();
   const node = model.nodes[0].id;
   const queue = vi.fn<(intent: EditorOperationIntent) => void>();
-  render(<DisplayUnitsProvider initialPreference="SI"><PropertyInspector model={model} selection={{ type: "node", id: node }} onQueueIntent={queue} /></DisplayUnitsProvider>);
+  // The New support form is opened as Insert > Support opens it.
+  render(<DisplayUnitsProvider initialPreference="SI"><PropertyInspector model={model} selection={{ type: "node", id: node }} onQueueIntent={queue} taskRequest={{ sequence: 1, target: { type: "node", id: node }, view: "properties", focusTestId: "create-support-id" }} /></DisplayUnitsProvider>);
   for (const dof of ["RX", "RY", "RZ"]) fireEvent.click(screen.getByTestId(`create-support-restraint-${dof}`));
   choose?.();
   fireEvent.click(screen.getByTestId("queue-create-support-intent"));

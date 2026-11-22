@@ -604,6 +604,20 @@ def _verdict(label: str | None, system: str | None, tokens: list[Mapping[str, An
     return {"resolution": _to_output(float(Fraction(1, 10 ** decimals)), label)}
 
 
+def candidate_resolution(label: str | None, system: str | None) -> float | None:
+    """One printed unit at the candidate places for a unit label (PRINTED_DECIMALS), in the parser's output unit, or
+    None when the label has none. A candidate, not an established resolution: the comparison uses it only under its
+    zero-against-zero rule (benchmark.ZERO_AGAINST_ZERO), which states it."""
+    decimals = PRINTED_DECIMALS.get((system, label)) if label is not None else None
+    return None if decimals is None else _to_output(float(Fraction(1, 10 ** decimals)), label)
+
+
+def printed_zero(entry: Mapping[str, Any]) -> bool:
+    """Whether every printed token of a value is a fixed-point zero (a blank token is not a printed zero)."""
+    tokens = entry.get("tokens") or []
+    return bool(tokens) and all(token.get("form") == "fixed" and not token.get("nonzero") for token in tokens)
+
+
 def resolve_section(entries: list[Mapping[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, int]]:
     """The section rule over the printed entries of one section (each {"label", "system", "tokens"}): per printed
     unit, the resolution is established only when the most places any nonzero fixed-point token shows equal the

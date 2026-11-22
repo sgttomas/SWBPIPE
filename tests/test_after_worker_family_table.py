@@ -250,3 +250,159 @@ def test_the_registered_selection_covers_every_cited_file():
     assert set(CITED) <= paths
     assert {"tools/after_worker_family/**", "apps/desktop/src/test-support/after-worker/**",
             "tests/test_after_worker_family_table.py", "software-workflow.json"} <= paths
+
+
+def _top_level_parts(arguments: str) -> list[str]:
+    """`a, f(b, c), d ?? null` as ["a", "f(b, c)", "d ?? null"]."""
+    parts, depth, current = [], 0, ""
+    for char in arguments:
+        if char in "([{":
+            depth += 1
+        elif char in ")]}":
+            depth -= 1
+        if char == "," and depth == 0:
+            parts.append(current.strip())
+            current = ""
+        else:
+            current += char
+    return parts + [current.strip()]
+
+
+def _one(pattern: str, text: str, where: str) -> str:
+    import re
+
+    found = re.findall(pattern, text)
+    assert len(found) == 1, f"{where}: expected exactly one match of {pattern!r}, found {len(found)}"
+    return found[0]
+
+
+def _closing(text: str, opening: int) -> int:
+    """The index of the bracket that closes the one at `opening`, skipping string and template literals and
+    comments; -1 where it is not closed."""
+    pairs = {"(": ")", "[": "]", "{": "}"}
+    stack, index = [], opening
+    while index < len(text):
+        char = text[index]
+        if char in "\"'`":
+            index += 1
+            while index < len(text) and text[index] != char:
+                index += 2 if text[index] == "\\" else 1
+        elif text.startswith("//", index):
+            index = text.find("\n", index)
+            if index < 0:
+                return -1
+        elif text.startswith("/*", index):
+            index = text.find("*/", index)
+            if index < 0:
+                return -1
+            index += 1
+        elif char in pairs:
+            stack.append(pairs[char])
+        elif char in ")]}":
+            if not stack or stack.pop() != char:
+                return -1
+            if not stack:
+                return index
+        index += 1
+    return -1
+
+
+def _summary_key_findings(web: str, judge: str, preview: str) -> list[str]:
+    """What makes the row "readNativeVerdict and readNativeSummary (their cache keys)" untrue for a fresh
+    reading, or empty. The web's summary key has a fourth part, `modelUse ?? null`; the judge judges the
+    fresh reading (readNativeFreshResult, previewService.ts) and restates the key with `null` there. That
+    holds only while (a) `modelUse` has no default, so passing none keys null; (b) every call of
+    readNativeSummary in previewService.ts, found by matching its brackets, passes exactly three arguments,
+    and every occurrence of the name there is its import or such a call, so no call escapes the count; and
+    (c) the web's key, with null for the model use, is the judge's part by part, and the two `keyOf` bodies
+    are equal."""
+    import re
+
+    findings: list[str] = []
+    name = "readNativeSummary"
+    signature = re.search(r"export function readNativeSummary\(", web)
+    if not signature:
+        return ["nativeResult.ts: readNativeSummary's declaration is not found"]
+    close = _closing(web, signature.end() - 1)
+    parameters = _top_level_parts(web[signature.end():close]) if close > 0 else []
+    model_use = [part for part in parameters if re.match(r"modelUse\b", part)]
+    if len(model_use) != 1:
+        findings.append(f"nativeResult.ts: readNativeSummary's parameters {parameters} name no single modelUse")
+    elif "=" in re.sub(r"=>", "", model_use[0]):
+        findings.append(f"nativeResult.ts: readNativeSummary's modelUse has a default ({model_use[0]!r}): a call that passes none no longer keys null")
+
+    occurrences = [m.start() for m in re.finditer(rf"\b{name}\b", preview)]
+    imports = [m.start() for m in re.finditer(r"import\s*\{[^}]*\}\s*from\s*\"[^\"]+\";", preview) if name in m.group(0)]
+    imported = [at for at in occurrences if any(start <= at < preview.index(";", start) for start in imports)]
+    calls = []
+    for at in occurrences:
+        if at in imported:
+            continue
+        after = re.match(r"\s*\(", preview[at + len(name):])
+        if not after:
+            findings.append(f"previewService.ts: {name} at offset {at} is neither its import nor a call: a reading through it escapes the count")
+            continue
+        opening = at + len(name) + after.end() - 1
+        closing = _closing(preview, opening)
+        if closing < 0:
+            findings.append(f"previewService.ts: the call of {name} at offset {at} is not closed")
+            continue
+        calls.append(_top_level_parts(preview[opening + 1:closing]))
+    if not calls:
+        findings.append("previewService.ts no longer reads the summary: the row's fresh reading is gone")
+    if len(calls) != len(occurrences) - len(imported):
+        findings.append(f"previewService.ts: {len(calls)} call(s) of {name} found, of {len(occurrences) - len(imported)} occurrence(s) of the name used as a call")
+    for call in calls:
+        if len(call) != 3:
+            findings.append(f"previewService.ts: a fresh reading passes {len(call)} argument(s) to {name} ({call}): the judge's key, whose fourth part is null, no longer equals the web's there")
+
+    web_key = re.findall(r'cached\(jobId, keyOf\("summary", (.*)\), async \(\) => \{', web)
+    judge_key = re.findall(r'const key = keyOf\("summary", (.*)\);', judge)
+    if len(web_key) != 1 or len(judge_key) != 1:
+        findings.append("the web's or the judge's summary key is not found once")
+    else:
+        # The web names the standing it sends `standingArg`, the judge `standing`, each built as
+        # {eligible, findings} of the verdict's standing.
+        fresh = [{"modelUse ?? null": "null"}.get(part, part).replace("standingArg", "standing") for part in _top_level_parts(web_key[0])]
+        judged = _top_level_parts(judge_key[0])
+        if fresh != judged:
+            findings.append(f"the web's summary key for a fresh reading is keyOf(\"summary\", {', '.join(fresh)}) and the judge restates keyOf(\"summary\", {', '.join(judged)}): bring the judge's restatement into line, or narrow the row")
+    body = r"const keyOf = (\(\.\.\.parts: readonly \(string \| null \| undefined\)\[\]\) => .*);"
+    if re.findall(body, web) != re.findall(body, judge) or len(re.findall(body, web)) != 1:
+        findings.append("the judge's restated keyOf is not the web's")
+    return findings
+
+
+def _summary_key_sources() -> tuple[str, str, str]:
+    return tuple((PROJECT / rel).read_text(encoding="utf-8") for rel in (f"{WEB}/{family.NATIVE_RESULT}", JUDGE, f"{WEB}/{family.PREVIEW}"))
+
+
+def test_the_judges_summary_key_is_the_webs_for_a_fresh_reading():
+    """The committed web, judge and fresh reading: nothing makes the row's "equal" untrue."""
+    assert _summary_key_findings(*_summary_key_sources()) == []
+
+
+_FRESH_CALL = "readNativeSummary(jobId, summaryModelText, { eligible: standing.eligible, findings: standing.findings })"
+_SUMMARY_KEY_CONTROLS = {
+    "a default on modelUse": ("web", 'modelUse?: "confirmations")', 'modelUse: "confirmations" | null = "confirmations")', "has a default"),
+    # A flat pattern finds no call with a nested call in it: the site vanished and the other satisfied it.
+    "a nested-call fourth argument on one site": ("preview", None, ', pick(use("confirmations")))', "passes 4 argument(s)"),
+    "a fourth argument on one site": ("preview", None, ', "confirmations")', "passes 4 argument(s)"),
+}
+
+
+@pytest.mark.parametrize("control", sorted(_SUMMARY_KEY_CONTROLS))
+def test_the_summary_key_check_fails_its_controls(control):
+    """Each control changes what is keyed without changing a string the old flat comparison read."""
+    web, judge, preview = _summary_key_sources()
+    which, old, new, expected = _SUMMARY_KEY_CONTROLS[control]
+    if which == "web":
+        assert web.count(old) == 1
+        web = web.replace(old, new)
+    else:
+        # The last fresh-reading call site only; the other stays as committed.
+        assert preview.count(_FRESH_CALL) >= 2, "the control needs two fresh-reading call sites"
+        at = preview.rindex(_FRESH_CALL)
+        preview = preview[:at] + _FRESH_CALL[:-1] + new + preview[at + len(_FRESH_CALL):]
+    findings = _summary_key_findings(web, judge, preview)
+    assert any(expected in finding for finding in findings), findings

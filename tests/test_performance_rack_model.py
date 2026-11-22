@@ -402,7 +402,9 @@ SOLVE_SIZES = {"linear-ex": 46, "nonlinear-ex": 128, "nonlinear-pf": 128, "basel
 EXPECTED_WARNINGS = {
     # The realized bends carry the complete directional SIF pair, so the product raises no
     # BEND_USER_MODIFIER_INPUT_MISSING for them.
-    "linear-ex": {"HIGH_DISPLACEMENT_REVIEW", "RULE_CHECK_INPUTS_MISSING"},
+    # DEL-05-01 REQ-008: the rack's three seismic cases (load:RK-EQX, load:RK-EQY, load:RK-EQZ) enter their weight as
+    # authored weight loads, so each raises one seismic model-check finding naming them.
+    "linear-ex": {"HIGH_DISPLACEMENT_REVIEW", "RULE_CHECK_INPUTS_MISSING", "EQUIVALENT_STATIC_SEISMIC_WEIGHT_LOAD_ENTERED"},
     "baseline-one-case-ex": {"HIGH_DISPLACEMENT_REVIEW", "RULE_CHECK_INPUTS_MISSING"},
     # The nonlinear OPE case has gap supports: R1's unqualified branch, no confirmation until R-3 (pressure-contract.md
     # "Nonlinear supports on EX", Standings; the same on the pressure-free route).

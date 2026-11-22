@@ -248,18 +248,24 @@ PRESSURE_RUN_SERIES = {
 }
 # The correspondence the pressure-elongation-on run tests; stated so that it is never assumed.
 PRESSURE_HYPOTHESIS = {
-    "statement": ("HYPOTHESIS, which the pressure-elongation-on series tests and does not assume: the target "
-                  "program's Bourdon effect switch, with Bourdon in the sustained load cases, corresponds on straight "
-                  "pipe to SWBPIPE's pressure elongation, the closed-end free pressure strain (1 - 2 nu) p A_i/(E A_s), "
-                  "applied in case:sustained. Nothing about the target program is stated beyond the format facts of "
-                  "its OPPRES record."),
+    "statement": ("HYPOTHESIS, which the pressure-elongation-on series tests and does not assume: with Bourdon selected "
+                  "in the sustained case, the change on closed straight pipe follows SWBPIPE's free pressure strain "
+                  "(1 - 2 nu) p A_i/(E A_s). A second hypothesis uses the classical thin-wall strain "
+                  "(1 - 2 nu) p D_m/(4 t E). SWBPIPE applies its pressure strain to the members of the selected region, "
+                  "including realized arcs. The straight-only and thin-wall alternatives are comparison hypotheses. "
+                  "The OPPRES fields are documented in the cited Import MBF source."),
     "format_source": OPPRES_SOURCE,
     "oppres_fields": OPPRES_FIELDS,
-    "refuted_by": ("on the closed straights P1 and P2, the target program's change between the pressure-default and "
-                   "pressure-elongation-on runs differs, beyond the screening profile, from the closed forms' change: "
-                   "each anchor's axial reaction changing by (1 - 2 nu) p A_i (P1), or the free end's axial "
-                   "displacement changing by (1 - 2 nu) p A_i L/(E A_s) (P2); or its axial results there do not "
-                   "change at all"),
+    "refuted_by": ("each hypothesis is judged separately across P1 and P2, on the change between the pressure-default "
+                   "and pressure-elongation-on runs. For the thick-wall hypothesis eps = (1 - 2 nu) p A_i/(E A_s); for "
+                   "the thin-wall hypothesis eps = (1 - 2 nu) p D_m/(4 t E). Each predicts changes of +E A_s eps and "
+                   "-E A_s eps in the P1 start and end anchor reactions, and an outward free-end movement eps L in P2. "
+                   "A required change outside the screening profile, including no measurable change where one is "
+                   "predicted beyond that profile, refutes that hypothesis. Each hypothesis's outcome is recorded. "
+                   "The comparison code records, per run, each basis's application and its row comparisons, in that "
+                   "run's `stated_bases.json`. The judgment across runs, over P1 and P2 for each of the two "
+                   "hypotheses, is recorded in the full record of screening and triage, formed from those per-run "
+                   "outputs."),
 }
 
 

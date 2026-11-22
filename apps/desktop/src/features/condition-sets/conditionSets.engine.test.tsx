@@ -417,11 +417,29 @@ describe("the load manager's Conditions control", () => {
     expect(await screen.findByTestId("condition-resolution-preview-status")).toHaveTextContent("Resolved by the engine.");
     const records = within(screen.getByTestId("condition-resolution-preview-records")).getAllByRole("row").slice(1);
     expect(records.map((row) => within(row).getAllByRole("cell").map((cell) => cell.textContent))).toEqual(
-      ["P1", "P2", "P3"].map((pipe) => [pipe, "thermal", "130 K", "global_z", "temperature_change"])
+      ["P1", "P2", "P3"].map((pipe) => [pipe, "thermal", "130 K", "—", "temperature_change"])
     );
     // The desktop computed none of these: they are the engine's own records.
     const engine = await previewOperatingConditions(model);
     expect(engine.cases[0].generated_primitive_loads.map((record) => record.magnitude)).toEqual([{ value: 130, unit: "K" }, { value: 130, unit: "K" }, { value: 130, unit: "K" }]);
+  });
+
+  it("shows a generated force's direction and a dash for a generated temperature load", async () => {
+    let model = corpusBase("s3a_09"); // every pipe carries cs:a (OPE1 150 degC, -50 N/m global_z)
+    const list: EditorOperationIntent[] = [];
+    const view = render(<ConditionUseControl model={model} onQueueIntent={(intent) => list.push(intent)} loadCase={model.load_cases.find((item) => item.id === "SUS")!} />);
+    fireEvent.change(screen.getByTestId("load-condition-use-temperature"), { target: { value: "OPE1" } });
+    fireEvent.click(screen.getByTestId("load-condition-use-added-weight"));
+    fireEvent.click(screen.getByTestId("load-condition-use-queue"));
+    model = await apply(model, await queuedAt(list, 1));
+    view.rerender(<ConditionUseControl model={model} onQueueIntent={(intent) => list.push(intent)} loadCase={model.load_cases.find((item) => item.id === "SUS")!} />);
+    expect(await screen.findByTestId("condition-resolution-preview-status")).toHaveTextContent("Resolved by the engine.");
+    const rows = within(screen.getByTestId("condition-resolution-preview-records")).getAllByRole("row").slice(1)
+      .map((row) => within(row).getAllByRole("cell").map((cell) => cell.textContent));
+    // Cells: pipe, category, magnitude, direction, dimension.
+    expect(new Set(rows.filter((cells) => cells[4] === "temperature_change").map((cells) => cells[3]))).toEqual(new Set(["—"]));
+    expect(new Set(rows.filter((cells) => cells[4] === "force_per_length").map((cells) => cells[3]))).toEqual(new Set(["global_z"]));
+    expect(rows.filter((cells) => cells[4] === "force_per_length")).toHaveLength(3);
   });
 });
 
