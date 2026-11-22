@@ -695,7 +695,7 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await expect(page.getByTestId("rendered-report-unit-basis")).toHaveCount(0);
   await expect(page.getByTestId("report-package-private-intent")).not.toBeChecked();
   await expect(page.getByTestId("report-package-save")).toBeDisabled();
-  await expect(page.getByTestId("report-package-save")).toHaveAttribute("title", /current mechanics result/);
+  await expect(page.getByTestId("report-package-save")).toHaveAttribute("title", "No current result. Solve the model first.");
   await page.getByTestId("report-package-private-intent").check();
   await expect(page.getByTestId("report-package-save")).toBeDisabled();
   await expect(page.getByTestId("report-package-save-status")).toHaveCount(0);
