@@ -20,6 +20,7 @@ export function ProjectStorageAuditPanel({
   projectSummary,
   projectIndex,
   projectMessage,
+  projectMessageDetails = null,
   projectOperation,
   editorIntents,
   proposal,
@@ -32,6 +33,7 @@ export function ProjectStorageAuditPanel({
   projectSummary: LocalProjectSummary | null;
   projectIndex: LocalProjectIndexEntry[] | null;
   projectMessage: string;
+  projectMessageDetails?: string | null;
   projectOperation: string;
   editorIntents: EditorOperationIntent[];
   proposal: AgentProposal | null;
@@ -47,6 +49,7 @@ export function ProjectStorageAuditPanel({
     projectSummary,
     projectIndex,
     projectMessage,
+    projectMessageDetails,
     projectOperation,
     editorIntents,
     proposal, modelHashIntegrity, projectEnvelopeHashIntegrity
@@ -176,6 +179,7 @@ function buildProjectStorageAuditPacket({
   projectSummary,
   projectIndex,
   projectMessage,
+  projectMessageDetails = null,
   projectOperation,
   editorIntents,
   proposal,
@@ -187,6 +191,7 @@ function buildProjectStorageAuditPacket({
   projectSummary: LocalProjectSummary | null;
   projectIndex: LocalProjectIndexEntry[] | null;
   projectMessage: string;
+  projectMessageDetails?: string | null;
   projectOperation: string;
   editorIntents: EditorOperationIntent[];
   proposal: AgentProposal | null;
@@ -249,7 +254,7 @@ function buildProjectStorageAuditPacket({
     project_index: projectIndex ?? [],
     project_index_refs: (projectIndex ?? []).map((entry) => entry.project_id),
     unit_policy_evidence: unitPolicyEvidence,
-    project_message: projectMessage,
+    project_message: projectMessageDetails ? `${projectMessage} ${projectMessageDetails}` : projectMessage,
     editor_intent_refs: editorIntents.map((intent) => intent.operation_id),
     proposal_refs: proposal ? [proposal.proposal_id] : [],
     editor_operation_statuses: unique(editorIntents.map((intent) => intent.validation.application_status)),

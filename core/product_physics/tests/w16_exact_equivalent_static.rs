@@ -17,16 +17,19 @@
 //! source controls (the raw re-formation with an allowance and with an
 //! authored zero, the prefix lookalike and the authored/generated collision);
 //! the mixed source-recovery envelope; W-15 body rows (the scale multiplies
-//! stiffness, not mass); every PF code on EX, the load-state refusal
-//! (including a case not listed in the group and an authored null group), the
-//! retained refusal; and the record's absence without generation. The
+//! stiffness, not mass); every PF code on EX; generation on a
+//! load/reference-state document (bitwise parity with the plain document, the
+//! listed, unlisted and synthesized identity collisions, and a case that
+//! commits whole or not at all); the retained refusal; and the record's
+//! absence without generation. The
 //! combination of a seismic case with a pressure case waits for slice b.
 //!
 //! Criterion (DEC-024/DEC-026, unchanged): |obs - exp| <= 1e-9 |exp|; an
 //! exactly zero expectation uses 1e-9 times the case's frozen zero scale of its
 //! family.
+use open_pipe_stress_product_physics::self_weight::{generate_self_weight_operations, SelfWeightGravity, SelfWeightRequest};
 use open_pipe_stress_product_physics::{
-    run_linear_static_preview_value_with_mode, run_linear_static_preview_value_with_retained_direct, PreviewSolverMode,
+    run_linear_static_preview_value_with_mode, PreviewModel, run_linear_static_preview_value_with_retained_direct, PreviewSolverMode,
     RetainedByteLimit,
 };
 use serde_json::{json, Value};
@@ -40,6 +43,8 @@ const SUMS: &str = include_str!("../../../validation/references/w16_exact_equiva
 const W16T_REFERENCES: &str = include_str!("../../../validation/references/w16_timoshenko_partial_wind/references.json");
 const ARC_SKETCHES: &str = include_str!("../../../validation/references/t4_i7/u2_document_sketches.json");
 const SOURCE_MIXED: &str = include_str!("../../../fixtures/product_preview/pressure_source/physics_source/mixed.request.json");
+const IDENTITIES: &str = include_str!("../../reporting/result_export/tests/fixtures/generated_identities.json");
+const LOAD_STATE_SOURCE_MIXED: &str = include_str!("../../../fixtures/product_preview/pressure_source/load_reference_source/mixed.request.json");
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 const RELATIVE: f64 = 1.0e-9;
 const PROV: &str = "w16c invented benchmark input; not library, component, material-catalog or code data";
@@ -802,6 +807,70 @@ fn every_preview_route_code_applies_unchanged_on_the_exact_route() {
     }
 }
 
+/// A row's identity and its value's bits, for a bitwise comparison of two
+/// envelopes of the same case.
+fn row_bits(out: &Value) -> Vec<(String, u64)> {
+    let mut keyed = rows(out).iter().map(|row| {
+        (format!("{}|{}|{}|{}", row["kind"], row["entity_ref"], row["basis_ref"]["ref_id"], row["metadata"]),
+            row["value"].as_f64().unwrap_or_else(|| panic!("row value {row}")).to_bits())
+    }).collect::<Vec<_>>();
+    keyed.sort();
+    keyed
+}
+
+/// Every published row whole (its kind, entity, basis, metadata, unit and
+/// value, the value by its bits), sorted.
+fn whole_rows(out: &Value) -> Vec<String> {
+    let mut rows = rows(out).iter().map(|row| {
+        let mut row = row.clone();
+        let bits = row["value"].as_f64().unwrap_or_else(|| panic!("row value {row}")).to_bits();
+        row["value"] = json!(format!("{bits:016x}"));
+        serde_json::to_string(&row).unwrap()
+    }).collect::<Vec<_>>();
+    rows.sort();
+    rows
+}
+
+/// The standing of a solved envelope: its status and its numerical quality,
+/// with each case's.
+fn standing(out: &Value) -> Value {
+    json!({"status": out["status"], "numerical_quality": out["numerical_quality"]})
+}
+
+/// DEL-05-01 REQ-008 and AC-007; decisions 1 and 2 (iv) of issue 452: on a
+/// load/reference-state document a case's generation is admitted, formed on
+/// the effective case by the same generator, identities and mass basis as on
+/// the plain exact document, at factor 1. On the same resolved generation
+/// inputs (here: an explicit base material selection, no thermal state, the
+/// anchor active, an empty ledger) every published row equals the plain
+/// document's whole (identity, unit and value, bit for bit), the envelope's
+/// standing is the same, in both solver modes and for seismic, full-span
+/// and partial-span wind, Euler-Bernoulli and Timoshenko, and the exact case
+/// names the same generated ids and mass method. A generation-only case whose
+/// ledger selects no stored primitive reaches assembly (decision 2 (i)).
+#[test]
+fn load_state_documents_generate_as_the_plain_document_does() {
+    for name in ["W16C-SEISMIC-EX-EB", "W16C-SEISMIC-EX-TIMOSHENKO", "W16C-WIND-FULL-EX-EB", "W16C-WIND-FULL-EX-TIMOSHENKO", "W16C-WIND-PARTIAL-EX-EB"] {
+        let reference = case_ref(name);
+        let (route, plain) = reference_request(&reference);
+        assert_eq!(route, Route::Exact);
+        let load_state = load_state_document_of(&plain);
+        for mode in MODES {
+            let what = format!("{name} {mode:?}");
+            let p = solved(&plain, route, mode, &format!("{what} plain"));
+            let l = solved(&load_state, route, mode, &format!("{what} load state"));
+            checks_passed(&l, &what);
+            assert_eq!(whole_rows(&l), whole_rows(&p), "{what}: every row equal whole, bit for bit");
+            assert_eq!(standing(&l), standing(&p), "{what}: the same standing");
+            assert_eq!(exact_case(&l, CASE)["equivalent_static"], exact_case(&p, CASE)["equivalent_static"], "{what}");
+            assert!(!exact_case(&l, CASE)["equivalent_static"]["generated_load_ids"].as_array().unwrap().is_empty(), "{what}");
+            // The reference rows hold on the load/reference-state document too.
+            let (count, _, _) = compare(&l, &reference, CASE, &what, |_| true);
+            assert!(count > 0, "{what}");
+        }
+    }
+}
+
 /// A seismic refusal before the generator runs stops the case's
 /// equivalent-static generation, so its wind inputs are not processed, while
 /// a refusal the generator itself makes by finding lets the case's wind
@@ -842,44 +911,824 @@ fn an_early_seismic_refusal_stops_the_case_and_a_generator_finding_does_not() {
     }
 }
 
-/// The exact cantilever with the load/reference-state group: `case:w16c` in
-/// the group with generation, and `case:unlisted` without a state record.
-fn load_state_document(listed: bool, unlisted: bool) -> Value {
-    let mut cases = vec![];
+/// `wire`'s single case moved into the load/reference-state group: the
+/// explicit base material selection, no thermal state, the anchor active and
+/// an empty declared ledger, so the resolved generation inputs are the plain
+/// document's.
+fn load_state_document_of(wire: &Value) -> Value {
+    let mut wire = wire.clone();
+    let model = &mut wire["model"];
+    let pipes = model["pipe_segments"].as_array().unwrap().iter().map(|p| p["id"].clone()).collect::<Vec<_>>();
+    let material = model["materials"][0]["id"].clone();
     let state = json!({"contract": "openpipestress.load_reference_state/1.0.0", "reference_configuration_ref": "reference:installed",
-        "element_states": [{"pipe_ref": "pipe:a-b", "material_selection": {"kind": "explicit_base_properties", "material_ref": "material:w16c",
+        "element_states": pipes.iter().map(|pipe| json!({"pipe_ref": pipe, "material_selection": {"kind": "explicit_base_properties", "material_ref": material,
             "applicability_reference": "invented analytical basis declared applicable to this member"},
-            "thermal_state": {"kind": "unchanged_reference", "provenance": PROV}}],
+            "thermal_state": {"kind": "unchanged_reference", "provenance": PROV}})).collect::<Vec<_>>(),
         "support_states": [{"support_ref": "support:a", "participation": {"kind": "active_model_device"}}],
         "load_sources": [], "history": {"kind": "independent_equilibrium"}, "provenance": PROV});
-    let mut first = case(CASE, listed.then(seismic), vec![]);
-    first["analysis_state"] = state;
-    cases.push(first);
-    if unlisted {
-        cases.push(case("case:unlisted", Some(seismic()), vec![]));
+    for case in model["load_cases"].as_array_mut().unwrap() {
+        case["analysis_state"] = state.clone();
     }
-    let mut wire = cantilever(Route::Exact, EULER_BERNOULLI, cases);
-    wire["model"]["reference_configurations"] = json!([{"id": "reference:installed", "label": "Installed reference", "geometry_ref": {"kind": "authored_model_geometry"},
-        "member_references": [{"pipe_ref": "pipe:a-b", "basis": {"kind": "direct_strain_reference"}, "fit": {"kind": "none"}, "provenance": PROV}], "provenance": PROV}]);
+    model["reference_configurations"] = json!([{"id": "reference:installed", "label": "Installed reference", "geometry_ref": {"kind": "authored_model_geometry"},
+        "member_references": pipes.iter().map(|pipe| json!({"pipe_ref": pipe, "basis": {"kind": "direct_strain_reference"}, "fit": {"kind": "none"}, "provenance": PROV})).collect::<Vec<_>>(),
+        "provenance": PROV}]);
     wire
 }
 
-/// a load/reference-state document refuses every authored case's
-/// generation by name, a case without a state record included, and so does a
-/// document whose group is an authored null.
+/// Decision 2 (ii) of issue 452 and its open question: a generated identity
+/// that equals a stored primitive's identity in the same case is refused by
+/// EQUIVALENT_STATIC_GENERATED_ID_COLLISION before the case's loads are
+/// assembled, whether the stored primitive is listed in the ledger or not,
+/// and so is a generated identity equal to an identity the case's resolved
+/// record synthesizes. The refusal publishes no rows. A stored primitive
+/// whose id merely resembles the generated prefix stays an excluded source,
+/// and the case solves with its rows unchanged.
 #[test]
-fn load_state_documents_refuse_generation_for_every_case() {
-    let found = refused(&load_state_document(true, false), "EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED", "listed case");
-    assert_eq!(found.len(), 1);
-    assert_eq!(found[0]["affected_refs"], json!([CASE, "equivalent_static"]));
-    let found = refused(&load_state_document(false, true), "EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED", "unlisted case");
-    assert_eq!(found[0]["affected_refs"], json!(["case:unlisted", "equivalent_static"]));
-    let found = refused(&load_state_document(true, true), "EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED", "both");
-    assert_eq!(found.len(), 2);
-    let mut null_group = cantilever(Route::Exact, EULER_BERNOULLI, vec![case(CASE, Some(seismic()), vec![])]);
-    null_group["model"]["reference_configurations"] = Value::Null;
-    let found = refused(&null_group, "EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED", "authored null group");
-    assert_eq!(found.len(), 1);
+fn load_state_generated_identity_collisions_are_refused() {
+    let (_, plain) = reference_request(&case_ref("W16C-SEISMIC-EX-EB"));
+    let generated = format!("{CASE}:generated:seismic:global-y:element-0");
+    let with_stored = |listed: bool| {
+        let mut wire = load_state_document_of(&plain);
+        let case = &mut wire["model"]["load_cases"][0];
+        case["primitive_loads"] = json!([distributed(&generated, "pipe:a-b", "global_z", 250.0)]);
+        if listed {
+            case["analysis_state"]["load_sources"] = json!([{"source_ref": generated, "factor": 1.0}]);
+        }
+        wire
+    };
+    for listed in [false, true] {
+        let found = refused(&with_stored(listed), "EQUIVALENT_STATIC_GENERATED_ID_COLLISION", &format!("listed {listed}"));
+        assert_eq!(found.len(), 1, "listed {listed}: one finding");
+        assert_eq!(found[0]["affected_refs"], json!([CASE, generated]));
+        let message = found[0]["message"].as_str().unwrap();
+        assert!(message.contains(&generated), "{message}");
+        if !listed {
+            assert!(message.contains("not listed in analysis_state.load_sources"), "{message}");
+        }
+    }
+    // A synthesized identity: a case named `member_state` generates
+    // `member_state:generated:...`; a pipe of that id makes the record's
+    // `member_state:<pipe>` identity equal to the generated one.
+    let mut synthesized = load_state_document_of(&plain);
+    let model = &mut synthesized["model"];
+    let pipe_id = "generated:seismic:global-y:element-0";
+    let renamed = serde_json::to_string(&*model).unwrap().replace("\"pipe:a-b\"", &format!("\"{pipe_id}\"")).replace(&format!("\"{CASE}\""), "\"member_state\"");
+    *model = serde_json::from_str(&renamed).unwrap();
+    let found = refused(&synthesized, "EQUIVALENT_STATIC_GENERATED_ID_COLLISION", "synthesized");
+    assert_eq!(found[0]["affected_refs"], json!(["member_state", format!("member_state:{pipe_id}")]));
+    assert!(found[0]["message"].as_str().unwrap().contains("synthesized identity"), "{}", found[0]["message"]);
+    // A lookalike (not the generated id) is excluded and changes nothing.
+    let mut lookalike = load_state_document_of(&plain);
+    lookalike["model"]["load_cases"][0]["primitive_loads"] = json!([distributed(&format!("{CASE}:generated:seismic:global-y:element-9"), "pipe:a-b", "global_z", 250.0)]);
+    for mode in MODES {
+        let base = solved(&load_state_document_of(&plain), Route::Exact, mode, "base");
+        let out = solved(&lookalike, Route::Exact, mode, "lookalike");
+        assert!(codes(&out).iter().any(|c| c == "LOAD_STATE_SOURCE_EXCLUDED"));
+        assert_eq!(row_bits(&out), row_bits(&base));
+    }
+}
+
+/// Item 3 of issue 452's first review round (SWBPIPE's Agent 0): the identity
+/// domain is the whole document, on plain and load/reference-state documents
+/// alike. A generated identity equal to a stored primitive of another case,
+/// a primitive a lowering adds to that case included, or to an identity
+/// another case generates, is refused by
+/// EQUIVALENT_STATIC_GENERATED_ID_COLLISION before assembly, in both modes,
+/// naming both cases. Before this rule each of these documents solved.
+#[test]
+fn generated_identities_are_refused_document_wide() {
+    const OTHER: &str = "case:other";
+    let generated = format!("{CASE}:generated:seismic:global-y:element-0");
+    let expect = |found: &[Value], cases: &[&str], id: &str, what: &str| {
+        let refs = found.iter().filter(|d| d["affected_refs"].as_array().unwrap().contains(&json!(id))).collect::<Vec<_>>();
+        assert!(!refs.is_empty(), "{what}: a finding names {id}: {found:?}");
+        for case in cases {
+            assert!(refs.iter().any(|d| d["message"].as_str().unwrap().contains(case)), "{what}: a message names {case}: {refs:?}");
+        }
+    };
+    // A stored primitive of another case, which generates nothing.
+    for route in [Route::Exact, Route::Preview] {
+        let wire = cantilever(route, EULER_BERNOULLI, vec![case(CASE, Some(seismic()), vec![]),
+            case(OTHER, None, vec![distributed(&generated, "pipe:a-b", "global_z", 250.0)])]);
+        let found = refused(&wire, "EQUIVALENT_STATIC_GENERATED_ID_COLLISION", &format!("{route:?} stored in another case"));
+        assert_eq!(found.len(), 1, "{route:?}: {found:?}");
+        assert_eq!(found[0]["affected_refs"], json!([CASE, generated]));
+        expect(&found, &[CASE, OTHER], &generated, "stored in another case");
+        if route == Route::Exact {
+            // Its load/reference-state twin, the other case's primitive listed in its ledger.
+            let mut twin = load_state_document_of(&wire);
+            twin["model"]["load_cases"][1]["analysis_state"]["load_sources"] = json!([{"source_ref": generated, "factor": 1.0}]);
+            let found = refused(&twin, "EQUIVALENT_STATIC_GENERATED_ID_COLLISION", "load-state twin, stored in another case");
+            assert_eq!(found.len(), 1, "{found:?}");
+            expect(&found, &[CASE, OTHER], &generated, "load-state twin");
+        }
+    }
+    // A primitive that a lowering adds to another case: operating-condition
+    // added weight on the pressure-free route (condition use is refused on
+    // EX) appends `load:condition-added-weight:<len>:<case>:<len>:<pipe>`.
+    // With a pipe and a generating case named for it, that is the generating
+    // case's identity for the pipe's element.
+    let pipe_id = "generated:seismic:global-y:element-0";
+    let generating = format!("load:condition-added-weight:{}:{OTHER}:{}", OTHER.len(), pipe_id.len());
+    let lowered_id = format!("{generating}:{pipe_id}");
+    let mut lowered = cantilever(Route::Preview, EULER_BERNOULLI, vec![case(&generating, Some(seismic()), vec![]), case(OTHER, None, vec![])]);
+    let model = &mut lowered["model"];
+    let renamed = serde_json::to_string(&*model).unwrap().replace("\"pipe:a-b\"", &format!("\"{pipe_id}\""));
+    *model = serde_json::from_str(&renamed).unwrap();
+    model["pipe_segments"][0]["condition_set_ref"] = json!("cs");
+    model["condition_sets"] = json!([{"id": "cs", "provenance": PROV, "installation_temperature": qv(20.0, "degC"),
+        "conditions": [{"key": "OPE1", "temperature": qv(20.0, "degC")}], "added_weight": {"magnitude": qv(-1.0, "N/m"), "direction": "global_z"}}]);
+    model["load_cases"][1]["condition_use"] = json!({"added_weight": true});
+    let mut unused = lowered.clone();
+    unused["model"]["load_cases"][1].as_object_mut().unwrap().remove("condition_use");
+    for mode in MODES {
+        solved(&unused, Route::Preview, mode, "without the added weight, nothing collides");
+    }
+    let found = refused(&lowered, "EQUIVALENT_STATIC_GENERATED_ID_COLLISION", "added by lowering to another case");
+    assert_eq!(found.len(), 1, "{found:?}");
+    expect(&found, &[&generating, OTHER], &lowered_id, "added by lowering");
+    // Two generating cases whose generated identities coincide: a component
+    // identity carries its component's id, so case B's item for component
+    // `valve:c:generated:...` equals case X's item for `valve:d` when X is B's
+    // identity cut where that component id begins. Each case's solve meets
+    // the coincidence; the solve stops at the first blocked case, so in
+    // either order the first case is refused. The second pair names B and
+    // the component's head with the marker's word at their ends, so markers
+    // in the identity share a colon (`…:generated:generated:…`).
+    for ((b, head), (route, x_first)) in [("case:b", "valve:c"), ("case:b:generated", "valve:c:generated")].into_iter().flat_map(|names| {
+        [(Route::Exact, false), (Route::Exact, true), (Route::Preview, false), (Route::Preview, true)].map(|order| (names, order))
+    }) {
+        let name2 = "valve:d";
+        let name = format!("{head}:generated:seismic:global-y:component:{}:{name2}", name2.len());
+        let x = format!("{b}:generated:seismic:global-y:component:{}:{head}", name.len());
+        let shared = format!("{x}:generated:seismic:global-y:component:{}:{name2}:force", name2.len());
+        assert_eq!(shared, format!("{b}:generated:seismic:global-y:component:{}:{name}:force", name.len()));
+        let span = length() / 3.0;
+        let mut wire = document(route, EULER_BERNOULLI,
+            vec![node("node:a", 0.0), node("node:b", span), node("node:c", 2.0 * span), node("node:d", 3.0 * span)],
+            vec![pipe("pipe:a-b", "node:a", "node:b", route), pipe("pipe:b-c", "node:b", "node:c", route), pipe("pipe:c-d", "node:c", "node:d", route)],
+            if x_first { vec![case(&x, Some(seismic()), vec![]), case(b, Some(seismic()), vec![])] } else { vec![case(b, Some(seismic()), vec![]), case(&x, Some(seismic()), vec![])] });
+        let valve = |id: &str, node: &str, replaced: &str| json!({"id": id, "kind": "valve", "node": node,
+            "geometry": {"rigid_pipe_ref": replaced, "weight": qv(2350.0, "N"), "center_of_gravity": {"x": 0.0, "y": 0.0, "z": 0.0, "unit": "m"}},
+            "mechanics_interface": {"solver_consumption": "mechanics_geometry_only"}, "provenance": PROV});
+        wire["model"]["components"] = json!([valve(&name, "node:c", "pipe:b-c"), valve(name2, "node:d", "pipe:c-d")]);
+        let what = format!("{route:?} two generating cases {b} and {head}, {} first", if x_first { "X" } else { "B" });
+        let found = refused(&wire, "EQUIVALENT_STATIC_GENERATED_ID_COLLISION", &what);
+        expect(&found, &[b, &x], &shared, &what);
+        let named = found.iter().map(|d| d["affected_refs"][0].as_str().unwrap().to_string()).collect::<Vec<_>>();
+        assert_eq!(named, vec![if x_first { x.clone() } else { b.to_string() }], "{route:?}: the first case is refused");
+        // Renaming the second component removes the coincidence.
+        let renamed = serde_json::to_string(&wire).unwrap().replace(&format!("\"{name2}\""), "\"valve:e\"");
+        let renamed: Value = serde_json::from_str(&renamed).unwrap();
+        for mode in MODES {
+            let out = run(&renamed, mode);
+            assert!(!codes(&out).iter().any(|c| c == "EQUIVALENT_STATIC_GENERATED_ID_COLLISION"), "{route:?} renamed: {:?}", blocking(&out));
+        }
+    }
+}
+
+/// Round 1 review of pull request 479: on a load/reference-state document a
+/// generated identity equal to the identity another case's record
+/// synthesizes for one of its pressure regions (`pressure_region:<region
+/// id>`) is refused by EQUIVALENT_STATIC_GENERATED_ID_COLLISION, naming both
+/// cases. The generating case is named `pressure_region` and the other case's
+/// region `generated:seismic:global-y:element-0`; renaming the region removes
+/// the coincidence.
+#[test]
+fn a_generated_identity_equal_to_another_cases_region_identity_is_refused() {
+    let (_, plain) = reference_request(&case_ref("W16C-SEISMIC-EX-EB"));
+    let base = load_state_document_of(&plain);
+    let renamed = serde_json::to_string(&base).unwrap().replace(&format!("\"{CASE}\""), "\"pressure_region\"");
+    let mut wire: Value = serde_json::from_str(&renamed).unwrap();
+    let region_id = "generated:seismic:global-y:element-0";
+    let generated = format!("pressure_region:{region_id}");
+    let model = &mut wire["model"];
+    let pipes = model["pipe_segments"].as_array().unwrap().iter().map(|p| p["id"].clone()).collect::<Vec<_>>();
+    let mut other = model["load_cases"][0].clone();
+    other["id"] = json!("case:other");
+    other.as_object_mut().unwrap().remove("equivalent_static");
+    other["primitive_loads"] = json!([]);
+    let terminal = |node: &str| json!({"node_ref": node, "closure_transfer": "transfers_to_wall", "provenance": PROV});
+    other["pressure_regions"] = json!([{"id": region_id, "member_pipe_ids": pipes, "pressure_basis": "internal_differential_zero_external_v1",
+        "pressure": qv(1.5e6, "Pa"), "terminals": [terminal("node:a"), terminal("node:b")], "provenance": PROV}]);
+    model["load_cases"].as_array_mut().unwrap().push(other);
+    let found = refused(&wire, "EQUIVALENT_STATIC_GENERATED_ID_COLLISION", "another case's region identity");
+    let named = found.iter().filter(|d| d["affected_refs"] == json!(["pressure_region", generated])).collect::<Vec<_>>();
+    assert_eq!(named.len(), 1, "{found:?}");
+    for case in ["pressure_region", "case:other"] {
+        assert!(named[0]["message"].as_str().unwrap().contains(case), "{}", named[0]["message"]);
+    }
+    let mut apart = wire.clone();
+    apart["model"]["load_cases"][1]["pressure_regions"][0]["id"] = json!("region:other");
+    for mode in MODES {
+        let out = run(&apart, mode);
+        assert!(!codes(&out).iter().any(|c| c == "EQUIVALENT_STATIC_GENERATED_ID_COLLISION"), "renamed region: {:?}", blocking(&out));
+    }
+}
+
+/// The cross-case scan compares a generated identity with every identity
+/// another case's record synthesizes, read from that case's resolved record.
+/// - `member_state:<pipe>`: every case states every pipe, so the generating
+///   case's own record synthesizes it too. With a second case beside it, the
+///   generating case is refused with one finding.
+/// - `support_state:<support>:<DOF>`: the identity ends in an upper-case DOF,
+///   which no generated identity does. A case named `support_state` whose
+///   rigid component `foo:UX` generates
+///   `support_state:generated:seismic:global-y:component:6:foo:UX:force` sits
+///   beside a case whose support `generated:seismic:global-y:component:6:foo`
+///   moves on UX, so that case's record synthesizes the generated identity
+///   without its `:force` tail. The two stay apart and the document solves.
+#[test]
+fn every_synthesized_identity_of_another_case_is_compared() {
+    let (_, plain) = reference_request(&case_ref("W16C-SEISMIC-EX-EB"));
+    let pipe_id = "generated:seismic:global-y:element-0";
+    let text = serde_json::to_string(&load_state_document_of(&plain)).unwrap()
+        .replace("\"pipe:a-b\"", &format!("\"{pipe_id}\"")).replace(&format!("\"{CASE}\""), "\"member_state\"");
+    let mut wire: Value = serde_json::from_str(&text).unwrap();
+    let mut other = wire["model"]["load_cases"][0].clone();
+    other["id"] = json!("case:other");
+    other.as_object_mut().unwrap().remove("equivalent_static");
+    wire["model"]["load_cases"].as_array_mut().unwrap().push(other);
+    let found = refused(&wire, "EQUIVALENT_STATIC_GENERATED_ID_COLLISION", "member_state beside another case");
+    assert_eq!(found.len(), 1, "one finding: {found:?}");
+    assert_eq!(found[0]["affected_refs"], json!(["member_state", format!("member_state:{pipe_id}")]));
+
+    let component = "foo:UX";
+    let support = format!("generated:seismic:global-y:component:{}:foo", component.len());
+    let generated = format!("support_state:generated:seismic:global-y:component:{}:{component}:force", component.len());
+    let synthesized = format!("support_state:{support}:UX");
+    assert_eq!(format!("{synthesized}:force"), generated);
+    let span = length() / 3.0;
+    let mut wire = document(Route::Exact, EULER_BERNOULLI,
+        vec![node("node:a", 0.0), node("node:b", span), node("node:c", 2.0 * span), node("node:d", 3.0 * span)],
+        vec![pipe("pipe:a-b", "node:a", "node:b", Route::Exact), pipe("pipe:b-c", "node:b", "node:c", Route::Exact), pipe("pipe:c-d", "node:c", "node:d", Route::Exact)],
+        vec![case("support_state", Some(seismic()), vec![]), case("case:other", None, vec![])]);
+    wire["model"]["components"] = json!([{"id": component, "kind": "valve", "node": "node:c",
+        "geometry": {"rigid_pipe_ref": "pipe:b-c", "weight": qv(2350.0, "N"), "center_of_gravity": {"x": 0.0, "y": 0.0, "z": 0.0, "unit": "m"}},
+        "mechanics_interface": {"solver_consumption": "mechanics_geometry_only"}, "provenance": PROV}]);
+    let text = serde_json::to_string(&load_state_document_of(&wire)).unwrap().replace("\"support:a\"", &format!("\"{support}\""));
+    let mut wire: Value = serde_json::from_str(&text).unwrap();
+    wire["model"]["load_cases"][1]["analysis_state"]["support_states"][0]["boundary_motion"] =
+        json!([{"dof": "UX", "value": qv(1.0, "mm"), "meaning": "absolute_reference_displacement"}]);
+    for mode in MODES {
+        let out = solved(&wire, Route::Exact, mode, "support_state lookalike");
+        let records = out["contract_evidence"]["load_reference_states"].as_array().unwrap();
+        let ids = |case: &str| records.iter().find(|r| r["load_case_id"] == case).unwrap()["contributions"].as_array().unwrap()
+            .iter().map(|c| c["source_id"].as_str().unwrap().to_string()).collect::<Vec<_>>();
+        assert!(ids("support_state").contains(&generated), "{mode:?}: {:?}", ids("support_state"));
+        assert!(ids("case:other").contains(&synthesized), "{mode:?}: {:?}", ids("case:other"));
+    }
+}
+
+/// Rounds 2 and 3 of the review of pull request 479, the phase boundary: a
+/// generation that formation refuses never reaches load preparation. A stored
+/// nodal force whose dimension is not a moment's, on a rotation, is reported
+/// by load preparation (LOAD_INPUT_INVALID) when nothing else refuses the
+/// case; each pair below first shows that on its control document. Its
+/// refused document differs only in the generation, which formation refuses
+/// by one of its EQUIVALENT_STATIC_* blockers: (a) a stored primitive of the
+/// same case under a generated identity (EQUIVALENT_STATIC_GENERATED_ID_COLLISION),
+/// listed on a load-state document and on a plain one; (b) the wind direction
+/// `GLOBAL_Y` (EQUIVALENT_STATIC_INPUT_INVALID), on a plain and a load-state
+/// document; (c) valid seismic inputs beside a wind input without its shape
+/// factor (EQUIVALENT_STATIC_INPUT_MISSING); (d) a rigid component's seismic
+/// force that rounds to zero (EQUIVALENT_STATIC_COMPONENT_RANGE_INVALID); and
+/// (e) valid seismic inputs beside wind marked on a connector-replaced span
+/// (EQUIVALENT_STATIC_WIND_SPAN_REPLACED). The case is refused by that finding
+/// alone: the loads, the seismic loads that did form among them, were not
+/// prepared, so LOAD_INPUT_INVALID is absent, in both modes.
+#[test]
+fn a_generation_refused_at_formation_never_reaches_load_preparation() {
+    let unprepared = json!({"id": "load:unprepared", "category": "concentrated_force", "target": {"type": "node", "node": "node:b"},
+        "direction": "rotation_x", "magnitude": qv(10.0, "N"), "dimension": "force", "provenance": PROV});
+    let generated = format!("{CASE}:generated:seismic:global-y:element-0");
+    // A load/reference-state document whose ledger lists every stored load.
+    let listed = |wire: &Value| {
+        let mut wire = load_state_document_of(wire);
+        for case in wire["model"]["load_cases"].as_array_mut().unwrap() {
+            let sources = case["primitive_loads"].as_array().unwrap().iter()
+                .map(|load| json!({"source_ref": load["id"], "factor": 1.0})).collect::<Vec<_>>();
+            case["analysis_state"]["load_sources"] = json!(sources);
+        }
+        wire
+    };
+    let seismic_and_wind = |wind_input: Value| {
+        let mut generation = seismic();
+        generation["wind"] = wind_input["wind"].clone();
+        generation
+    };
+    let wind_case = |direction: &str| {
+        let mut generation = wind(&["pipe:a-b"], vec![]);
+        generation["wind"]["direction"] = json!(direction);
+        cantilever(Route::Exact, EULER_BERNOULLI, vec![case(CASE, Some(generation), vec![unprepared.clone()])])
+    };
+    let seismic_case = |stored: Vec<Value>| cantilever(Route::Exact, EULER_BERNOULLI, vec![case(CASE, Some(seismic()), stored)]);
+    let without_shape_factor = {
+        let mut input = wind(&["pipe:a-b"], vec![]);
+        input["wind"].as_object_mut().unwrap().remove("shape_factor");
+        input
+    };
+    let missing = |shape_factor: bool| {
+        let input = if shape_factor { wind(&["pipe:a-b"], vec![]) } else { without_shape_factor.clone() };
+        cantilever(Route::Exact, EULER_BERNOULLI, vec![case(CASE, Some(seismic_and_wind(input)), vec![unprepared.clone()])])
+    };
+    let component = |weight: f64| {
+        let span = length() / 3.0;
+        let mut generation = seismic();
+        generation["seismic"]["g_factor_x"] = qv(1.0e-30, "1");
+        let mut wire = document(Route::Exact, EULER_BERNOULLI,
+            vec![node("node:a", 0.0), node("node:b", span), node("node:c", 2.0 * span), node("node:d", 3.0 * span)],
+            vec![pipe("pipe:a-b", "node:a", "node:b", Route::Exact), pipe("pipe:b-c", "node:b", "node:c", Route::Exact), pipe("pipe:c-d", "node:c", "node:d", Route::Exact)],
+            vec![case(CASE, Some(generation), vec![unprepared.clone()])]);
+        wire["model"]["components"] = json!([{"id": "component:valve", "kind": "valve", "node": "node:c",
+            "geometry": {"rigid_pipe_ref": "pipe:b-c", "weight": qv(weight, "N"), "center_of_gravity": {"x": 0.0, "y": 0.12, "z": 0.0, "unit": "m"}},
+            "mechanics_interface": {"solver_consumption": "mechanics_geometry_only"}, "provenance": PROV}]);
+        wire
+    };
+    let replaced = |exposed: &str| with_replaced_tail(vec![case(CASE, Some(seismic_and_wind(wind(&[exposed], vec![]))), vec![unprepared.clone()])]);
+    let collided = vec![distributed(&generated, "pipe:a-b", "global_z", 250.0), unprepared.clone()];
+    let pairs = [
+        ("a listed same-case collision", listed(&seismic_case(vec![unprepared.clone()])), listed(&seismic_case(collided.clone())), "EQUIVALENT_STATIC_GENERATED_ID_COLLISION"),
+        ("a plain same-case collision", seismic_case(vec![unprepared.clone()]), seismic_case(collided), "EQUIVALENT_STATIC_GENERATED_ID_COLLISION"),
+        ("wind GLOBAL_Y", wind_case("global_y"), wind_case("GLOBAL_Y"), "EQUIVALENT_STATIC_INPUT_INVALID"),
+        ("load-state wind GLOBAL_Y", listed(&wind_case("global_y")), listed(&wind_case("GLOBAL_Y")), "EQUIVALENT_STATIC_INPUT_INVALID"),
+        ("seismic beside wind without a shape factor", missing(true), missing(false), "EQUIVALENT_STATIC_INPUT_MISSING"),
+        ("load-state seismic beside wind without a shape factor", listed(&missing(true)), listed(&missing(false)), "EQUIVALENT_STATIC_INPUT_MISSING"),
+        ("a component force that rounds to zero", component(2350.0), component(1.0e-300), "EQUIVALENT_STATIC_COMPONENT_RANGE_INVALID"),
+        ("seismic beside wind on a replaced span", replaced("pipe:a-b"), replaced("pipe:b-c"), "EQUIVALENT_STATIC_WIND_SPAN_REPLACED"),
+    ];
+    for (what, control, wire, code) in pairs {
+        for mode in MODES {
+            let found = codes(&run(&control, mode));
+            assert!(found.iter().any(|c| c == "LOAD_INPUT_INVALID"), "{what} control {mode:?}: preparation reports the load: {found:?}");
+            assert!(!found.iter().any(|c| c.starts_with("EQUIVALENT_STATIC_")), "{what} control {mode:?}: the generation forms: {found:?}");
+        }
+        refused(&wire, code, what);
+        for mode in MODES {
+            let found = codes(&run(&wire, mode));
+            assert!(!found.iter().any(|c| c == "LOAD_INPUT_INVALID"), "{what} {mode:?}: loads were prepared: {found:?}");
+        }
+    }
+}
+
+/// Round 1 review of pull request 479: the wind direction is exactly one of
+/// the model schema's tokens (`global_x`, `global_y`, `global_z`), from which
+/// both readers form the generated identities. An upper-case spelling is
+/// refused by EQUIVALENT_STATIC_INPUT_INVALID on the wind direction, on a
+/// plain and a load/reference-state document, in both modes.
+#[test]
+fn an_upper_case_wind_direction_is_refused() {
+    let mut generation = wind(&["pipe:a-b"], vec![]);
+    generation["wind"]["direction"] = json!("GLOBAL_Y");
+    let plain = cantilever(Route::Exact, EULER_BERNOULLI, vec![case(CASE, Some(generation), vec![])]);
+    for (what, wire) in [("plain", plain.clone()), ("load-state", load_state_document_of(&plain))] {
+        let found = refused(&wire, "EQUIVALENT_STATIC_INPUT_INVALID", &format!("{what} GLOBAL_Y"));
+        assert!(found.iter().any(|d| d["affected_refs"] == json!([CASE, "wind.direction"])), "{what}: {found:?}");
+    }
+}
+
+/// Decision 5 of issue 452: a declared operating comparison stays refused on
+/// the exact route when its operands generate. A result-state subtraction
+/// that declares `difference_basis` over two generating cases of a
+/// load/reference-state document is refused by name
+/// (LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED), with no rows; the
+/// same subtraction without the declaration publishes its rows.
+#[test]
+fn a_declared_difference_over_generating_load_state_cases_is_refused() {
+    let (_, plain) = reference_request(&case_ref("W16C-SEISMIC-EX-EB"));
+    let mut wire = load_state_document_of(&plain);
+    let mut second = wire["model"]["load_cases"][0].clone();
+    second["id"] = json!("case:w16c-operating");
+    second["equivalent_static"]["seismic"]["g_factor_y"] = qv(2.0 * input("/seismic/g_factor_y"), "1");
+    wire["model"]["load_cases"].as_array_mut().unwrap().push(second);
+    let subtraction = json!({"id": "combination:difference", "basis": "result_state_subtraction", "minuend_id": "case:w16c-operating",
+        "subtrahend_id": CASE, "provenance": PROV});
+    let mut declared = wire.clone();
+    let mut with_basis = subtraction.clone();
+    with_basis["difference_basis"] = json!("operating_minus_sustained");
+    declared["model"]["combinations"] = json!([with_basis]);
+    let found = refused(&declared, "LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED", "declared difference over generating cases");
+    assert_eq!(found[0]["affected_refs"], json!(["combination:difference"]));
+    let mut undeclared = wire.clone();
+    undeclared["model"]["combinations"] = json!([subtraction]);
+    for mode in MODES {
+        let out = solved(&undeclared, Route::Exact, mode, "the undeclared subtraction");
+        assert!(rows(&out).iter().any(|r| r["basis_ref"]["ref_type"] == "combination" && r["basis_ref"]["ref_id"] == "combination:difference"), "{mode:?}");
+    }
+}
+
+/// A load/reference-state document whose generating cases mix an authored
+/// analysis_state with a missing or a null one is refused by name, whole:
+/// every case of the group states its analysis_state
+/// (LOAD_STATE_ANALYSIS_STATE_REQUIRED), and an explicit null is authored
+/// presence, not absence (LOAD_STATE_EXPLICIT_NULL_UNSUPPORTED). Generation
+/// does not stand in for the missing state, and nothing is published.
+#[test]
+fn a_generating_case_without_its_analysis_state_is_refused_by_name() {
+    let (_, plain) = reference_request(&case_ref("W16C-SEISMIC-EX-EB"));
+    let mut wire = load_state_document_of(&plain);
+    let mut second = wire["model"]["load_cases"][0].clone();
+    second["id"] = json!("case:w16c-second");
+    wire["model"]["load_cases"].as_array_mut().unwrap().push(second);
+    for mode in MODES {
+        solved(&wire, Route::Exact, mode, "both cases state their analysis_state");
+    }
+    for (what, code, edit) in [
+        ("missing", "LOAD_STATE_ANALYSIS_STATE_REQUIRED", None),
+        ("null", "LOAD_STATE_EXPLICIT_NULL_UNSUPPORTED", Some(Value::Null)),
+    ] {
+        let mut mixed = wire.clone();
+        let case = mixed["model"]["load_cases"][1].as_object_mut().unwrap();
+        match edit {
+            None => { case.remove("analysis_state"); }
+            Some(value) => { case.insert("analysis_state".into(), value); }
+        }
+        let found = refused(&mixed, code, &format!("a generating case with its analysis_state {what}"));
+        assert!(found.iter().all(|d| d["affected_refs"].to_string().contains("case:w16c-second")), "{what}: names the case; {found:?}");
+        for mode in MODES {
+            let out = run(&mixed, mode);
+            assert!(out["contract_evidence"]["load_reference_states"].as_array().is_none_or(Vec::is_empty), "{what} {mode:?}: no record");
+            assert!(out["contract_evidence"]["exact_cases"].as_array().is_none_or(Vec::is_empty), "{what} {mode:?}: no generation record");
+        }
+    }
+}
+
+/// Item 1 of issue 452's first review round: the model-bound reader
+/// rederives from the model which generated loads a solved case has (kind,
+/// axis, member and extent, in order), and compares them with the case's
+/// record; it does not rederive magnitudes. The shared fixture
+/// (`generated_identities.json`) states each case's identities, written from
+/// the generator's grammar. They cover:
+/// - each seismic axis;
+/// - a connector-replaced member;
+/// - component-replaced members with zero, one and two moments;
+/// - a centre-of-gravity coordinate that converts to zero metres, a zero
+///   coordinate after conversion: the component is eligible and forms only
+///   the moments with a nonzero lever;
+/// - whole-span wind in marking order;
+/// - partial extents whose fractions are whole numbers, short decimals and
+///   long ones, and one exactly halfway between its two shortest decimals
+///   (513/1048576, which Rust writes 0.0004892349243164063);
+/// - a zero g-factor, an entered axis whose terms are all zero.
+/// The generator forms exactly those identities in both modes, the Rust
+/// reader rederives them, and the reader admits the solved envelope and
+/// refuses it with two identities swapped or one missing. Rust's Display of
+/// each fixture fraction is the string the Python reader must reproduce
+/// (`tests/test_generated_identity_reader.py`).
+#[test]
+fn the_reader_rederives_the_generated_identities_the_generator_forms() {
+    use open_pipe_stress_result_export::{expected_generated_load_ids, reader_verdict};
+    let doc: Value = serde_json::from_str(IDENTITIES).unwrap();
+    for fraction in doc["fractions"].as_array().unwrap() {
+        assert_eq!(format!("{}", fraction["value"].as_f64().unwrap()), fraction["display"].as_str().unwrap(), "{fraction}");
+    }
+    let cases = doc["cases"].as_array().unwrap();
+    assert_eq!(cases.len(), 8);
+    for item in cases {
+        let model = &doc["models"][item["model"].as_str().unwrap()];
+        let id = item["load_case_id"].as_str().unwrap();
+        let what = format!("{} {id}", item["model"]);
+        let case = model["load_cases"].as_array().unwrap().iter().find(|c| c["id"] == id).unwrap();
+        let expected = &item["generated_load_ids"];
+        assert!(!expected.as_array().unwrap().is_empty());
+        assert_eq!(&json!(expected_generated_load_ids(model, case).unwrap()), expected, "{what}: the reader's identities");
+        for mode in MODES {
+            let out = solved(&json!({"model": model, "materials": []}), Route::Exact, mode, &what);
+            let record = &exact_case(&out, id)["equivalent_static"];
+            assert_eq!(&record["generated_load_ids"], expected, "{what} {mode:?}: the generator's identities");
+            reader_verdict::physics_model_checks(&out, model).unwrap_or_else(|e| panic!("{what} {mode:?}: the reader admits it: {e}"));
+            let index = out["contract_evidence"]["exact_cases"].as_array().unwrap().iter().position(|c| c["load_case_id"] == id).unwrap();
+            for (how, edit) in [
+                ("two swapped", &(|ids: &mut Vec<Value>| ids.swap(0, 1)) as &dyn Fn(&mut Vec<Value>)),
+                ("one missing", &|ids: &mut Vec<Value>| { ids.pop(); }),
+            ] {
+                let mut forged = out.clone();
+                edit(forged["contract_evidence"]["exact_cases"][index]["equivalent_static"]["generated_load_ids"].as_array_mut().unwrap());
+                assert_eq!(reader_verdict::physics_model_checks(&forged, model), Err("SOURCE_PHYSICS_EQUIVALENT_STATIC_GENERATED_MODEL_MISMATCH".to_string()), "{what} {mode:?}: {how}");
+            }
+        }
+    }
+}
+
+/// Round 1 review of pull request 479: the model-bound reader checks the
+/// model's generation as the product reads it. A solved envelope bound to a
+/// model whose case states its generation in another form than an object
+/// (text, a list or a boolean) is refused with
+/// SOURCE_PHYSICS_EQUIVALENT_STATIC_GENERATED_MODEL_MISMATCH, never left
+/// unchecked. One bound to a model in which two rigid-family components map
+/// the same member, a conflict the product refuses
+/// (RIGID_COMPONENT_MAPPING_CONFLICT), is refused with
+/// SOURCE_PHYSICS_EQUIVALENT_STATIC_COMPONENT_MODEL_MISMATCH, never read as a
+/// member no component replaces.
+#[test]
+fn the_reader_refuses_a_malformed_generation_and_a_conflicted_model() {
+    use open_pipe_stress_result_export::reader_verdict;
+    let doc: Value = serde_json::from_str(IDENTITIES).unwrap();
+    for mode in MODES {
+        let frame = &doc["models"]["frame"];
+        let out = solved(&json!({"model": frame, "materials": []}), Route::Exact, mode, "frame");
+        reader_verdict::physics_model_checks(&out, frame).unwrap();
+        for form in [json!("not-an-object"), json!([]), json!(true)] {
+            let mut forged = frame.clone();
+            forged["load_cases"][0]["equivalent_static"] = form.clone();
+            assert_eq!(reader_verdict::physics_model_checks(&out, &forged),
+                Err("SOURCE_PHYSICS_EQUIVALENT_STATIC_GENERATED_MODEL_MISMATCH".to_string()), "{mode:?} {form}");
+        }
+        let components = &doc["models"]["components"];
+        let out = solved(&json!({"model": components, "materials": []}), Route::Exact, mode, "components");
+        reader_verdict::physics_model_checks(&out, components).unwrap();
+        let mut conflicted = components.clone();
+        let mut second = conflicted["components"][1].clone();
+        second["id"] = json!("component:second-on-b-c");
+        second["geometry"]["rigid_pipe_ref"] = conflicted["components"][0]["geometry"]["rigid_pipe_ref"].clone();
+        second["node"] = conflicted["components"][0]["node"].clone();
+        conflicted["components"].as_array_mut().unwrap().push(second);
+        assert_eq!(reader_verdict::physics_model_checks(&out, &conflicted),
+            Err("SOURCE_PHYSICS_EQUIVALENT_STATIC_COMPONENT_MODEL_MISMATCH".to_string()), "{mode:?} conflicted");
+        assert!(run(&json!({"model": conflicted, "materials": []}), mode)["diagnostics"].as_array().unwrap()
+            .iter().any(|d| d["code"] == "RIGID_COMPONENT_MAPPING_CONFLICT"), "{mode:?}: the product refuses the conflicted model");
+    }
+}
+
+/// Round 2 review of pull request 479: the product refuses a member that two
+/// rigid-family components map on every document
+/// (RIGID_COMPONENT_MAPPING_CONFLICT), whatever its cases generate and whether
+/// an objective connector replaces the member, so the model-bound reader
+/// refuses such a model at document level: on a wind-only document (the frame
+/// model with only WIND-TIE) and on the member the expansion joint replaces.
+#[test]
+fn the_reader_refuses_a_shared_rigid_mapping_on_every_document() {
+    use open_pipe_stress_result_export::reader_verdict;
+    let doc: Value = serde_json::from_str(IDENTITIES).unwrap();
+    let valve = |id: &str, model: &Value| {
+        let pipe = model["pipe_segments"].as_array().unwrap().iter().find(|p| p["id"] == "pipe:b-c").unwrap();
+        json!({"id": id, "kind": "valve", "node": pipe["to"],
+            "geometry": {"rigid_pipe_ref": "pipe:b-c", "weight": qv(2350.0, "N"), "center_of_gravity": {"x": 0.0, "y": 0.0, "z": 0.0, "unit": "m"}},
+            "mechanics_interface": {"solver_consumption": "mechanics_geometry_only"}, "provenance": PROV})
+    };
+    let mut wind_only = doc["models"]["frame"].clone();
+    wind_only["load_cases"] = json!(wind_only["load_cases"].as_array().unwrap().iter().filter(|c| c["id"] == "WIND-TIE").cloned().collect::<Vec<_>>());
+    for (what, model) in [("wind-only", wind_only), ("connector-replaced", doc["models"]["connector"].clone())] {
+        for mode in MODES {
+            let out = solved(&json!({"model": model, "materials": []}), Route::Exact, mode, what);
+            reader_verdict::physics_model_checks(&out, &model).unwrap();
+            let mut shared = model.clone();
+            let mut components = shared["components"].as_array().cloned().unwrap_or_default();
+            components.extend([valve("component:first-on-b-c", &model), valve("component:second-on-b-c", &model)]);
+            shared["components"] = json!(components);
+            assert_eq!(reader_verdict::physics_model_checks(&out, &shared),
+                Err("SOURCE_PHYSICS_EQUIVALENT_STATIC_COMPONENT_MODEL_MISMATCH".to_string()), "{what} {mode:?}");
+        }
+    }
+}
+
+/// Round 1 review of pull request 479: a zero g-factor on a
+/// load/reference-state document is an entered axis. The case solves in both
+/// modes; its record names the identities the reader rederives, each entering
+/// the case's record of load sources once at factor 1; and the model-bound
+/// reader admits the envelope.
+#[test]
+fn a_zero_g_factor_on_a_load_state_document_generates_its_identities() {
+    use open_pipe_stress_result_export::{expected_generated_load_ids, reader_verdict};
+    let (_, plain) = reference_request(&case_ref("W16C-SEISMIC-EX-EB"));
+    let mut wire = load_state_document_of(&plain);
+    wire["model"]["load_cases"][0]["equivalent_static"]["seismic"]["g_factor_y"] = qv(0.0, "1");
+    let model = wire["model"].clone();
+    let expected = json!(expected_generated_load_ids(&model, &model["load_cases"][0]).unwrap());
+    assert!(!expected.as_array().unwrap().is_empty());
+    for mode in MODES {
+        let out = solved(&wire, Route::Exact, mode, "zero g-factor");
+        assert_eq!(exact_case(&out, CASE)["equivalent_static"]["generated_load_ids"], expected, "{mode:?}");
+        let record = out["contract_evidence"]["load_reference_states"].as_array().unwrap().iter().find(|r| r["load_case_id"] == CASE).unwrap();
+        let generated = record["contributions"].as_array().unwrap().iter().filter(|c| c["owner_kind"] == "generated_equivalent_static").collect::<Vec<_>>();
+        assert_eq!(json!(generated.iter().map(|c| c["source_id"].clone()).collect::<Vec<_>>()), expected, "{mode:?}");
+        assert!(generated.iter().all(|c| c["factor"] == json!(1.0)), "{mode:?}");
+        reader_verdict::physics_model_checks(&out, &model).unwrap_or_else(|e| panic!("{mode:?}: {e}"));
+    }
+}
+
+/// Decision 2 (vi) of issue 452: a generated case commits whole or not at
+/// all. Valid seismic inputs beside invalid wind inputs refuse the case: no
+/// row, no generated record and no load-state record is published.
+#[test]
+fn load_state_generated_case_commits_whole_or_not_at_all() {
+    let (_, plain) = reference_request(&case_ref("W16C-SEISMIC-EX-EB"));
+    let mut wire = load_state_document_of(&plain);
+    let generation = &mut wire["model"]["load_cases"][0]["equivalent_static"];
+    generation["wind"] = wind(&["pipe:a-b"], vec![])["wind"].clone();
+    generation["wind"]["shape_factor"] = Value::Null;
+    generation["wind"].as_object_mut().unwrap().remove("shape_factor");
+    refused(&wire, "EQUIVALENT_STATIC_INPUT_MISSING", "seismic valid, wind missing its shape factor");
+    for mode in MODES {
+        let out = run(&wire, mode);
+        assert!(out["contract_evidence"]["exact_cases"].as_array().is_none_or(Vec::is_empty), "{mode:?}");
+        assert!(out["contract_evidence"]["load_reference_states"].as_array().is_none_or(Vec::is_empty), "{mode:?}");
+    }
+}
+
+/// Decision 2 (v) of issue 452, named: a hydrostatic test case elsewhere in a
+/// load/reference-state document does not put its contents density into a
+/// seismic case. The document carries the seismic case and a test case built
+/// as the hydrostatic test branch admits one: its own generated self-weight
+/// (listed in its ledger), its own pressure region, the test condition, and a
+/// contents density from an operating condition. That density (1337.25
+/// kg/m^3) is one the model holds nowhere else, so a leak into the seismic
+/// case's mass would move its rows; the section's own contents density is the
+/// reference's. Without the test marking the case is an ordinary pressurised
+/// weight case, which solves here and leaves the seismic rows unchanged. With
+/// it, the exact route on this branch refuses the test case whole
+/// (LOAD_CASE_TEST_CONDITION_UNSUPPORTED, and the condition use with
+/// LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED), so the test admits only those
+/// two codes and no other blocking finding. Once the test case is admitted
+/// the document solves, and then the seismic case's every row must equal, bit
+/// for bit, the same document without the test case. On a head that admits
+/// the test case, the refused arm and its two codes are removed and the
+/// document must solve. Until pull request 478 lifts
+/// LOAD_CASE_TEST_CONDITION_UNSUPPORTED on the exact route, the solved arm
+/// below is unreachable here, and only the refused arm runs.
+#[test]
+fn a_hydrostatic_test_case_does_not_put_its_contents_into_a_seismic_case() {
+    let (_, plain) = reference_request(&case_ref("W16C-SEISMIC-EX-EB"));
+    let twin = load_state_document_of(&plain);
+    let mut with_test = twin.clone();
+    const TEST_DENSITY: f64 = 1337.25;
+    let model = &mut with_test["model"];
+    for key in ["material_density", "contents_density", "insulation_density"] {
+        let held = &model["pipe_segments"][0]["section"][key];
+        assert!(held.is_null() || held["value"].as_f64() != Some(TEST_DENSITY), "{key}: the test density must be one the model does not hold");
+    }
+    model["condition_sets"] = json!([{"id": "cs:line", "provenance": PROV,
+        "conditions": [{"key": "HYDRO", "contents_density": qv(TEST_DENSITY, "kg/m^3")}]}]);
+    model["pipe_segments"][0]["condition_set_ref"] = json!("cs:line");
+    // The test case as the hydrostatic test branch admits it, in its order
+    // (`hydrostatic_four_span_journey.rs` there): (1) the case and its
+    // generated self-weight from the product's self-weight plan over every
+    // pipe, its loads listed in the case's ledger at factor 1; (2) its own
+    // pressure region over every pipe, both ends closed with the cap thrust
+    // carried by the wall; (3) the hydrostatic test condition; (4) the
+    // contents selection of HYDRO, held by the set every weighted pipe carries.
+    const TEST: &str = "case:hydrotest";
+    let pipes = model["pipe_segments"].as_array().unwrap().iter().map(|p| p["id"].as_str().unwrap().to_string()).collect::<Vec<_>>();
+    let mut source = model.clone();
+    source["load_cases"] = json!([]);
+    let digest: String = Sha256::digest(serde_json::to_string(&source).unwrap().as_bytes()).iter().map(|b| format!("{b:02x}")).collect();
+    let request = SelfWeightRequest {
+        case_id: TEST.into(), label: "Hydrostatic test".into(), pipe_refs: pipes.clone(),
+        gravity: SelfWeightGravity { value: -9.80665, unit: "m/s^2".into(), axis: "global_z".into() },
+        provenance: PROV.into(), source_model_hash: format!("sha256:{digest}"),
+    };
+    let typed: PreviewModel = serde_json::from_value(source).expect("model parses");
+    let plan = generate_self_weight_operations(&typed, &request).unwrap_or_else(|d| panic!("self-weight plan refused: {d:?}"));
+    let weights: Vec<Value> = plan.changes[1..].iter().map(|c| serde_json::from_str(&c.after).unwrap()).collect();
+    assert_eq!(weights.len(), pipes.len(), "one generated weight per pipe");
+    let mut test_case: Value = serde_json::from_str(&plan.changes[0].after).unwrap();
+    test_case["id"] = json!(TEST);
+    test_case["primitive_loads"] = json!(weights);
+    test_case["provenance"] = json!(PROV);
+    let mut state = model["load_cases"][0]["analysis_state"].clone();
+    state["load_sources"] = json!(weights.iter().map(|w| json!({"source_ref": w["id"], "factor": 1.0})).collect::<Vec<_>>());
+    test_case["analysis_state"] = state;
+    let terminal = |node: &str| json!({"node_ref": node, "closure_transfer": "transfers_to_wall", "provenance": PROV});
+    test_case["pressure_regions"] = json!([{"id": format!("region:{TEST}"), "member_pipe_ids": pipes,
+        "pressure_basis": "internal_differential_zero_external_v1", "pressure": qv(1.5e6, "Pa"),
+        "terminals": [terminal("node:a"), terminal("node:b")], "provenance": PROV}]);
+    test_case["test_condition"] = json!({"kind": "hydrostatic", "held_supports": "none"});
+    test_case["condition_use"] = json!({"contents_density": "HYDRO"});
+    model["load_cases"].as_array_mut().unwrap().push(test_case);
+    let seismic = |out: &Value| row_bits(out).into_iter().filter(|(key, _)| key.contains(&format!("\"{CASE}\""))).collect::<Vec<_>>();
+    // Steps (1) and (2) alone are an ordinary pressurised weight case, which
+    // solves here beside the seismic case and leaves its rows unchanged.
+    let mut unmarked = with_test.clone();
+    for key in ["test_condition", "condition_use"] {
+        unmarked["model"]["load_cases"][1].as_object_mut().unwrap().remove(key);
+    }
+    for mode in MODES {
+        let twin_out = solved(&twin, Route::Exact, mode, "twin");
+        let out = solved(&unmarked, Route::Exact, mode, "the test case without its marking");
+        assert!(rows(&out).iter().any(|r| r["basis_ref"]["ref_id"] == TEST), "{mode:?}: the weight case publishes rows");
+        assert!(!seismic(&twin_out).is_empty());
+        assert_eq!(seismic(&out), seismic(&twin_out), "{mode:?}: an ordinary case beside the seismic case changes none of its rows");
+    }
+    const PENDING: [&str; 2] = ["LOAD_CASE_TEST_CONDITION_UNSUPPORTED", "LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED"];
+    for mode in MODES {
+        let out = run(&with_test, mode);
+        if out["status"]["mechanics"] == "MECHANICS_SOLVED" {
+            let twin_out = solved(&twin, Route::Exact, mode, "twin");
+            assert!(!seismic(&twin_out).is_empty());
+            assert_eq!(seismic(&out), seismic(&twin_out), "{mode:?}: the seismic case is independent of the test case's contents");
+        } else {
+            let blocking = out["diagnostics"].as_array().unwrap().iter().filter(|d| d["severity"] == "blocking").collect::<Vec<_>>();
+            assert!(!blocking.is_empty() && blocking.iter().all(|d| PENDING.iter().any(|code| d["code"] == *code)),
+                "{mode:?}: only the pending test-case refusals; {:?}", codes(&out));
+            assert!(blocking.iter().any(|d| d["code"] == PENDING[0]), "{mode:?}");
+        }
+    }
+}
+
+/// DEL-04-07 REQ-011 and issue 452 decisions 3 and 6: on a
+/// load/reference-state document each generated source enters the case's
+/// record of load sources (`load_reference_states[].contributions`) once, as
+/// the fifth kind of contribution, with its identity and factor 1, in the
+/// order of the exact case's generation record. The pressure reader admits
+/// the producer's record and refuses each tamper by name; the model-bound
+/// checks refuse a generating case whose generation record is missing, and a
+/// generation record on a case the model does not generate. A case without
+/// generation adds no such entry.
+#[test]
+fn the_readers_bind_the_load_state_record_of_generated_sources() {
+    use open_pipe_stress_result_export::{reader_verdict, semantic_contract};
+    let (_, plain) = reference_request(&case_ref("W16C-WIND-PARTIAL-EX-EB"));
+    let mut wire = load_state_document_of(&plain);
+    let mut quiet = wire["model"]["load_cases"][0].clone();
+    quiet["id"] = json!("case:quiet");
+    quiet.as_object_mut().unwrap().remove("equivalent_static");
+    quiet["primitive_loads"] = json!([distributed("load:quiet", "pipe:a-b", "global_z", 10.0)]);
+    quiet["analysis_state"]["load_sources"] = json!([{"source_ref": "load:quiet", "factor": 1.0}]);
+    wire["model"]["load_cases"].as_array_mut().unwrap().push(quiet);
+    for mode in MODES {
+        let out = solved(&wire, Route::Exact, mode, "record base");
+        semantic_contract::validate_pressure_evidence(&out).expect("the pressure reader admits the producer's record");
+        reader_verdict::physics_model_checks(&out, &wire["model"]).expect("the model-bound checks admit it");
+        let records = out["contract_evidence"]["load_reference_states"].as_array().unwrap();
+        let generating = records.iter().position(|r| r["load_case_id"] == CASE).unwrap();
+        let generated = records[generating]["contributions"].as_array().unwrap().iter()
+            .filter(|c| c["owner_kind"] == "generated_equivalent_static").cloned().collect::<Vec<_>>();
+        let ids = exact_case(&out, CASE)["equivalent_static"]["generated_load_ids"].clone();
+        assert_eq!(json!(generated.iter().map(|c| c["source_id"].clone()).collect::<Vec<_>>()), ids, "{mode:?}: once each, in generation order");
+        assert_eq!(generated.len(), 1);
+        assert_eq!(generated[0], json!({"source_id": ids[0], "owner_kind": "generated_equivalent_static", "classification": "generated_applied",
+            "factor": 1.0, "generation_kind": "wind"}));
+        let quiet = records.iter().find(|r| r["load_case_id"] == "case:quiet").unwrap();
+        assert!(!quiet["contributions"].as_array().unwrap().iter().any(|c| c["owner_kind"] == "generated_equivalent_static"), "no entry without generation");
+        let last = records[generating]["contributions"].as_array().unwrap().len() - 1;
+        let tamper = |edit: &dyn Fn(&mut Value)| {
+            let mut forged = out.clone();
+            edit(&mut forged["contract_evidence"]["load_reference_states"][generating]["contributions"]);
+            semantic_contract::validate_pressure_evidence(&forged).expect_err("a tampered record is refused")
+        };
+        for (what, code, edit) in [
+            ("omitted", "GENERATED_CONTRIBUTION_COVERAGE", &(|c: &mut Value| { c.as_array_mut().unwrap().pop(); }) as &dyn Fn(&mut Value)),
+            ("doubled", "CONTRIBUTION_DUPLICATE", &|c: &mut Value| { let entry = c[last].clone(); c.as_array_mut().unwrap().push(entry); }),
+            ("factor 2", "CONTRIBUTION_FACTOR", &|c: &mut Value| c[last]["factor"] = json!(2.0)),
+            ("unknown kind", "CONTRIBUTION_GENERATION_KIND", &|c: &mut Value| c[last]["generation_kind"] = json!("snow")),
+            ("other kind", "GENERATED_CONTRIBUTION_BINDING", &|c: &mut Value| c[last]["generation_kind"] = json!("seismic")),
+            ("foreign identity", "GENERATED_CONTRIBUTION_COVERAGE", &|c: &mut Value| c[last]["source_id"] = json!(format!("{CASE}:generated:wind:global-z:element-7"))),
+            ("extra key", "CONTRIBUTION_SHAPE", &|c: &mut Value| c[last]["extra"] = json!(1)),
+        ] {
+            let error = tamper(edit);
+            assert!(error.contains(code), "{mode:?} {what}: {error}");
+        }
+        // An entry on the case without generation is refused.
+        let mut forged = out.clone();
+        let quiet_index = records.iter().position(|r| r["load_case_id"] == "case:quiet").unwrap();
+        forged["contract_evidence"]["load_reference_states"][quiet_index]["contributions"].as_array_mut().unwrap().push(generated[0].clone());
+        let error = semantic_contract::validate_pressure_evidence(&forged).expect_err("an entry without generation");
+        assert!(error.contains("GENERATED_CONTRIBUTION"), "{mode:?}: {error}");
+        // Decision 6: absence never reads as "generated nothing".
+        let mut stripped = out.clone();
+        let exact_index = out["contract_evidence"]["exact_cases"].as_array().unwrap().iter().position(|c| c["load_case_id"] == CASE).unwrap();
+        stripped["contract_evidence"]["exact_cases"][exact_index].as_object_mut().unwrap().remove("equivalent_static");
+        stripped["contract_evidence"]["load_reference_states"][generating]["contributions"].as_array_mut().unwrap().pop();
+        assert_eq!(reader_verdict::physics_model_checks(&stripped, &wire["model"]), Err("SOURCE_PHYSICS_MODEL_GENERATION_RECORD".to_string()), "{mode:?}");
+        let mut extra = wire["model"].clone();
+        extra["load_cases"][0].as_object_mut().unwrap().remove("equivalent_static");
+        assert_eq!(reader_verdict::physics_model_checks(&out, &extra), Err("SOURCE_PHYSICS_MODEL_GENERATION_RECORD".to_string()), "{mode:?}");
+    }
+}
+
+/// DEL-04-07 REQ-011 on pressure-source-1: a generating case beside a
+/// source-selected case of a load/reference-state document is an ordinary
+/// companion; its record of load sources, generated entries included, is
+/// re-formed from the captured model by the companion binding, and the
+/// source reader admits the envelope. A forged generated entry is refused.
+#[test]
+fn the_companion_binding_reforms_the_generated_sources_of_a_load_state_case() {
+    use open_pipe_stress_result_export::physics_source;
+    let mut source: Value = serde_json::from_str(LOAD_STATE_SOURCE_MIXED).unwrap();
+    let pipe = source["model"]["pipe_segments"][0]["id"].clone();
+    source["model"]["pipe_segments"][0]["section"]["material_density"] = qv(7850.0, "kg/m^3");
+    let mut seismic_case = source["model"]["load_cases"][1].clone();
+    seismic_case["id"] = json!("case:seismic");
+    seismic_case["pressure_regions"] = json!([]);
+    seismic_case["primitive_loads"] = json!([]);
+    seismic_case["analysis_state"]["load_sources"] = json!([]);
+    seismic_case["equivalent_static"] = seismic();
+    source["model"]["load_cases"].as_array_mut().unwrap().push(seismic_case);
+    for mode in MODES {
+        let envelope = run(&source, mode);
+        assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}: {:?}", blocking(&envelope));
+        assert_eq!(envelope["producer"]["semantic_contract_id"], SOURCE_SEMANTICS, "{mode:?}");
+        let records = envelope["contract_evidence"]["load_reference_states"].as_array().unwrap();
+        let index = records.iter().position(|r| r["load_case_id"] == "case:seismic").unwrap();
+        let generated = records[index]["contributions"].as_array().unwrap().iter().filter(|c| c["owner_kind"] == "generated_equivalent_static").count();
+        assert_eq!(generated, 1, "{mode:?}: one seismic load on {pipe}");
+        physics_source::validate(&envelope, None).unwrap_or_else(|e| panic!("{mode:?}: the source reader admits the generating companion: {e}"));
+        let mut forged = envelope.clone();
+        let at = records[index]["contributions"].as_array().unwrap().iter().position(|c| c["owner_kind"] == "generated_equivalent_static").unwrap();
+        forged["contract_evidence"]["load_reference_states"][index]["contributions"][at]["factor"] = json!(2.0);
+        assert_eq!(physics_source::validate(&forged, None), Err("SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR".to_string()),
+            "{mode:?}: a generated entry is at factor 1, so a forged factor is refused by its factor");
+    }
 }
 
 /// the retained sub-route keeps declining generation; the ordinary

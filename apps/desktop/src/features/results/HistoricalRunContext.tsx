@@ -3,7 +3,7 @@ import { recordedReaderDispatch, sourceContract } from "./resultReader";
 import { numericalResultStanding, recordedResultStanding } from "./resultStanding";
 import { recordedPreRtA4RecordBinding, recordedTableLabel, type RecordedBinding } from "../../services/recordedPreRtA4";
 import { validateRetainedPrecision, validateRetainedPrecisionRecorded } from "./retainedPrecisionReader";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { AnalysisRunEnvelope, LocalProjectEnvelope, MechanicsResult, ModelHashEvidence, ProjectEnvelopeHashEvidence, PreviewModel } from "../../types";
 import { canonicalSha256Hex, canonicalSha256HexCheckedV1, computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
 import type { AnalysisRunRead } from "../../services/analysisRunService";
@@ -56,6 +56,9 @@ export type HistoricalRunContext = {
    * current standing, and never merged into `findings`. A refused recorded read is a check's
    * finding instead. Empty when `recordedTableRead` is null. */
   historicalReaderFindings: string[];
+  /** When inspecting the bundled reference could not retain the current solve's result/record
+   * (e.g. above the webview's 64 MiB limit), the person-readable notice and its closed Details. */
+  retentionNotice?: { message: string; details: string | null } | null;
   runId: string;
   /** The identity of this run's view (issue 588): the key its panel's transient view state (page,
    * kind filter, navigator entity, selected row) is held under. The engine publishes one fixed
@@ -430,7 +433,10 @@ function restoredScopes(found: RestoredRun["findings"]): Pick<HistoricalRunConte
 }
 
 /** A bundled example has its own model context and no current run evidence. */
-export function buildBundledReferenceContext(reference: BundledMechanicsReference): HistoricalRunContext {
+export function buildBundledReferenceContext(
+  reference: BundledMechanicsReference,
+  retentionNotice: { message: string; details: string | null } | null = null
+): HistoricalRunContext {
   return {
     designation: "bundled_reference", referenceModel: reference.model, readModel: reference.model,
     referenceProvenance: reference.provenance,
@@ -440,6 +446,7 @@ export function buildBundledReferenceContext(reference: BundledMechanicsReferenc
     findings: ["BUNDLED_REFERENCE_ONLY", "NO_CURRENT_MODEL_INVOCATION"],
     checkFindings: ["BUNDLED_REFERENCE_ONLY", "NO_CURRENT_MODEL_INVOCATION"],
     recordedTableRead: null, historicalReaderFindings: [],
+    ...(retentionNotice ? { retentionNotice } : {}),
     runId: reference.source.run_id,
     viewKey: runViewKey(["bundled-reference", reference.provenance?.fixture_ref]),
   };
@@ -448,12 +455,26 @@ export function buildBundledReferenceContext(reference: BundledMechanicsReferenc
 export function HistoricalRunPanel({ context }: { context: HistoricalRunContext }) {
   // Held with this run's view identity, as the results panel's page is: another run selects nothing.
   const [selected, setSelected] = useState<{ viewKey: string; id: string | null }>({ viewKey: context.viewKey, id: null });
+  const retentionNoticeRef = useRef<HTMLParagraphElement | null>(null);
   const selectedResultId = selected.viewKey === context.viewKey ? selected.id : null;
   const setSelectedResultId = (id: string) => setSelected({ viewKey: context.viewKey, id });
   const isReference = context.designation === "bundled_reference";
+  useEffect(() => {
+    if (isReference && context.retentionNotice) {
+      retentionNoticeRef.current?.focus();
+    }
+  }, [isReference, context.retentionNotice]);
   const title = isReference ? "Bundled reference — not a solve for the current model" : "Historical saved run";
   return <section className="panel" aria-label={title} data-testid="historical-run-context">
     <div className="panel-title">{title}</div>
+    {isReference && context.retentionNotice ? (
+      <>
+        <p ref={retentionNoticeRef} tabIndex={-1} role="status" data-testid="reference-retention-notice" className="result-refusal">{context.retentionNotice.message}</p>
+        {context.retentionNotice.details ? (
+          <details data-testid="reference-retention-details"><summary>Details</summary><p>{context.retentionNotice.details}</p></details>
+        ) : null}
+      </>
+    ) : null}
     {isReference ? <>
       <p>{context.referenceProvenance?.notice}</p>
       <p>Reference model: {context.referenceModel?.project.id}; retained run: {context.runId}. The current model and its edit history are unchanged.</p>

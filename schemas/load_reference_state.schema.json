@@ -1679,6 +1679,39 @@
               "type": "null"
             }
           }
+        },
+        {
+          "description": "DEL-04-07 REQ-011: a static-equivalent load the case's equivalent_static generation formed, once, with its identity (in the exact case's generated_load_ids, in that order) and factor 1. Cross-binding is executable reader validation.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "owner_kind",
+            "source_id",
+            "classification",
+            "factor",
+            "generation_kind"
+          ],
+          "properties": {
+            "owner_kind": {
+              "const": "generated_equivalent_static"
+            },
+            "source_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "classification": {
+              "const": "generated_applied"
+            },
+            "factor": {
+              "const": 1
+            },
+            "generation_kind": {
+              "enum": [
+                "seismic",
+                "wind"
+              ]
+            }
+          }
         }
       ]
     },

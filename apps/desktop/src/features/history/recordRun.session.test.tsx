@@ -34,6 +34,7 @@ import {
 import type { ModelStateSummary } from "../../services/modelStateService";
 import { savedStatesSentence } from "../project-storage/storedProjectConflict";
 import { ResultsPanel } from "../results/ResultsPanel";
+import { NO_MODEL_STATES_LISTED } from "./useModelStateHistory";
 import { useWorkspaceSession, type WorkspaceSession } from "../workspace/workspaceSession";
 import type { LocalProjectEnvelope, PreviewModel } from "../../types";
 
@@ -422,11 +423,89 @@ describe("Compare… of the current run with a recorded run, for a run record ab
     await act(async () => { compared = await history(state).compareRuns(CURRENT_RUN_ID, history(state).runs![0].recording_id); });
     expect(compared).toBe(false);
     expect(history(state).historyOperation).toBe("compare_runs_failed");
-    // Said as the other C2 consumers say it (`describeFullResultRefused`): no class name, no key=value form.
+    // Said as the other C2 consumers say it (`describeFullResultRefused`) without codes or bytes on the line,
+    // and with the code and exact sizes carried separately in `historyMessageDetails`.
     const refusal = new nativeResult.FullResultRefused(nativeResult.RESULT_DETAIL_WEBVIEW_LIMIT, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES, "", "record");
+    const words = nativeResult.fullResultRefusalWords(refusal, "the comparison");
+    expect(history(state).historyMessage).toBe(`Not compared: ${words.fact} ${words.stillWorks} ${words.advice}`);
     expect(history(state).historyMessage).toBe(`Not compared: ${nativeResult.describeFullResultRefused(refusal, "the comparison")}`);
-    expect(history(state).historyMessage).not.toMatch(/FullResultRefused|Error:|record_bytes=|limit_bytes=/);
+    expect(history(state).historyMessageDetails).toBe(words.details);
+    expect(history(state).historyMessage).not.toMatch(/RESULT-DETAIL|webview|native|bytes|FullResultRefused|Error:|record_bytes=|limit_bytes=/i);
     expect(copies()).toBe(0);
     expect(history(state).runComparison).toBeNull();
+    // A subsequent history message clears the stale size-refusal Details.
+    await act(async () => { await history(state).compareRuns(CURRENT_RUN_ID, CURRENT_RUN_ID); });
+    expect(history(state).historyMessageDetails).toBeNull();
+  });
+
+  it("clears a compareRuns size refusal and Details when switching to another project and does not resurrect them on return", async () => {
+    const { state, store } = await session();
+    await solve(state);
+    await act(async () => { await history(state).recordRun({ labels: LABELS, snapshotName: "After solve" }); });
+    await waitFor(() => expect(history(state).runs).toHaveLength(1));
+    const projectAId = state().model.model!.project.id;
+    const preview = nativeResult.nativeRunPreview;
+    vi.spyOn(nativeResult, "nativeRunPreview").mockImplementation((run) => ({ ...preview(run), record_bytes: RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1 }));
+    await act(async () => { await history(state).compareRuns(CURRENT_RUN_ID, history(state).runs![0].recording_id); });
+    expect(history(state).historyMessage).toMatch(/^Not compared: This run record is too large/);
+    expect(history(state).historyMessageDetails).toContain("RESULT-DETAIL-WEBVIEW-LIMIT");
+
+    const projectBEnvelopes = new Map<string, LocalProjectEnvelope>();
+    const forward = invokeMock.getMockImplementation()!;
+    invokeMock.mockImplementation(async (command: string, args: Json, options?: unknown) => {
+      if (command === "create_local_project") {
+        const envelope = {
+          summary: { project_id: args.model.project.id, project_name: args.model.project.name, message: "Created" },
+          model: args.model, editor_intents: [], proposal: null, selected_review_target: null,
+          mechanics_result: null, analysis_run: null, model_hash: args.modelHash,
+          project_envelope_hash: args.projectEnvelopeHash, model_document_version: null
+        } as unknown as LocalProjectEnvelope;
+        projectBEnvelopes.set(args.model.project.id, envelope);
+        return structuredClone(envelope);
+      }
+      if (command === "open_local_project" && projectBEnvelopes.has(args.projectId)) {
+        return structuredClone(projectBEnvelopes.get(args.projectId)!);
+      }
+      return forward(command, args, options);
+    });
+
+    // Switching to Project B clears Project A's refusal line and Details across both the immediate render and list refresh.
+    await act(async () => { await state().project.handleCreateBlankProject(); });
+    const projectBId = state().model.model!.project.id;
+    expect(projectBId).not.toBe(projectAId);
+    expect(history(state).historyMessage).toBe(NO_MODEL_STATES_LISTED);
+    expect(history(state).historyMessageDetails).toBeNull();
+    await waitFor(() => expect(history(state).states).toEqual([]));
+    expect(history(state).historyMessage).toBe(NO_MODEL_STATES_LISTED);
+    expect(history(state).historyMessageDetails).toBeNull();
+
+    // Returning to Project A does not resurrect Project A's prior refusal or Details.
+    expect(store.savedEnvelopes.at(-1)!.model.project.id).toBe(projectAId);
+    await act(async () => { await state().project.handleOpenProject(projectAId); });
+    await waitFor(() => expect(state().model.model!.project.id).toBe(projectAId));
+    expect(history(state).historyMessage).toBe(NO_MODEL_STATES_LISTED);
+    expect(history(state).historyMessageDetails).toBeNull();
+  });
+
+  it("clears a compareRuns size refusal and Details when reopening the same project directly", async () => {
+    const { state } = await session();
+    await solve(state);
+    await act(async () => { await history(state).recordRun({ labels: LABELS, snapshotName: "After solve" }); });
+    await waitFor(() => expect(history(state).runs).toHaveLength(1));
+    const projectId = state().model.model!.project.id;
+    const preview = nativeResult.nativeRunPreview;
+    vi.spyOn(nativeResult, "nativeRunPreview").mockImplementation((run) => ({ ...preview(run), record_bytes: RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1 }));
+    await act(async () => { await history(state).compareRuns(CURRENT_RUN_ID, history(state).runs![0].recording_id); });
+    expect(history(state).historyMessage).toMatch(/^Not compared: This run record is too large/);
+    expect(history(state).historyMessageDetails).toContain("RESULT-DETAIL-WEBVIEW-LIMIT");
+
+    const generationBefore = state().model.projectSessionGeneration;
+    await act(async () => { await state().project.handleOpenProject(projectId); });
+    expect(state().model.projectSessionGeneration).toBeGreaterThan(generationBefore);
+    expect(history(state).historyMessage).toBe(NO_MODEL_STATES_LISTED);
+    expect(history(state).historyMessageDetails).toBeNull();
+    await waitFor(() => expect(history(state).runs).toHaveLength(1));
+    expect(history(state).historyMessage).toBe(NO_MODEL_STATES_LISTED);
+    expect(history(state).historyMessageDetails).toBeNull();
   });
 });

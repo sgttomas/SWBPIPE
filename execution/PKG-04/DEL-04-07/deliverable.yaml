@@ -339,6 +339,11 @@ checks:
 - core/product_physics/src/case_state/temperature.rs
 - core/product_physics/src/case_state/temperature/canonical_decimal.rs
 - core/product_physics/tests/load_reference_state_runtime_extension.rs
+# REQ-011's record of generated load sources on a load and reference-state document, and its
+# reader bindings; the product test of the two frozen generation packages solves on that document.
+- core/product_physics/tests/w16_exact_equivalent_static.rs
+- core/product_physics/tests/exact_load_state_generated_references.rs
+- tests/test_generated_identity_reader.py
 - core/product_physics/tests/model_settings_pressure_elongation.rs
 - core/product_physics/tests/pressure_elongation_switch.rs
 - core/product_physics/tests/pressure_elongation_on_path.rs

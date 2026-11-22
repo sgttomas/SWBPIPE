@@ -3,7 +3,7 @@
 // in the store unopened, those members are not what the store holds, so they leave the line and
 // it says so in words. The summary is the native open's reply for a refused stored run
 // (`native_reopen_replies.json`). All data are invented.
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -46,5 +46,34 @@ describe("the Project snapshot line (#547)", () => {
     const line = snapshotLine(opened);
     expect(line).toContain("persisted_mechanics_results=1; persisted_analysis_runs=1; persisted_analysis_run_ref=run:preview-linear-static-001; copied_external_files=false");
     expect(line).not.toContain(STORED_RUN_NOT_OPENED);
+  });
+});
+
+describe("Local storage JSON export project_message", () => {
+  it("appends projectMessageDetails to project_message when set and keeps projectMessage unchanged when null", () => {
+    const { rerender } = render(
+      <ProjectStorageAuditPanel
+        model={MODEL} storageCapability={null} projectSummary={REFUSED_OPEN_SUMMARY} projectIndex={null}
+        projectMessage="The current solve's result is not retained. This run record is too large."
+        projectMessageDetails="RESULT-DETAIL-WEBVIEW-LIMIT: run record 67108865 bytes; limit 67108864 bytes."
+        projectOperation="open_by_id" editorIntents={[]} proposal={null}
+      />
+    );
+    fireEvent.click(screen.getByTestId("project-storage-export-link-local-private-intent"));
+    const withDetails = JSON.parse(decodeURIComponent(screen.getByTestId("project-storage-export-link").getAttribute("href")!.split(",", 2)[1])) as { project_message: string };
+    expect(withDetails.project_message).toBe(
+      "The current solve's result is not retained. This run record is too large. RESULT-DETAIL-WEBVIEW-LIMIT: run record 67108865 bytes; limit 67108864 bytes."
+    );
+
+    rerender(
+      <ProjectStorageAuditPanel
+        model={MODEL} storageCapability={null} projectSummary={REFUSED_OPEN_SUMMARY} projectIndex={null}
+        projectMessage="Opened local SQLite project snapshot."
+        projectMessageDetails={null}
+        projectOperation="open_by_id" editorIntents={[]} proposal={null}
+      />
+    );
+    const plain = JSON.parse(decodeURIComponent(screen.getByTestId("project-storage-export-link").getAttribute("href")!.split(",", 2)[1])) as { project_message: string };
+    expect(plain.project_message).toBe("Opened local SQLite project snapshot.");
   });
 });

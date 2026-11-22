@@ -78,8 +78,8 @@ import {
   loadDesignKnowledge,
   loadBundledMechanicsReference,
   hasNativeMechanicsInvocation,
-  loadSampleProposal,
 } from "./services/previewService";
+import { storedSampleProposal } from "./test/storedSampleProposal";
 import { canonicalSha256Hex, canonicalSha256HexCheckedV1, computeModelHash, computeProjectEnvelopeHash } from "./services/hashService";
 import { buildCurrentSessionInputManifest } from "./services/inputManifestService";
 import { getLocalStorageCapability } from "./services/projectService";
@@ -1128,6 +1128,8 @@ describe("SWBPIPE desktop preview", () => {
     expect(within(operationsSection).getByTestId("agent-proposal-summary")).toHaveTextContent(
       "review_only_local_preview",
     );
+    // The preview's sample proposal buttons are gone (issue 512): nothing here makes a proposal.
+    expect(within(operationsSection).queryByTestId("agent-generate-proposal")).toBeNull();
 
     fireEvent.click(within(operationsSection).getByTestId("operation-tab-details"));
     const drawer = screen.getByTestId("review-apply-drawer");
@@ -7268,7 +7270,7 @@ describe("SWBPIPE desktop preview", () => {
   it("round trips preserved historical review proposal operations through local save and open", async () => {
     const basis = await referenceAnalysis();
     const target = { target_type: "result" as const, id: "result:stress:pipe-P-120:end-j:torsional-shear" };
-    const proposal = await loadSampleProposal(basis.result, target);
+    const proposal = await storedSampleProposal(basis.result, target);
     const opened = inventedOpenEnvelope(basis.model);
     opened.model = structuredClone(basis.model);
     opened.summary.project_id = basis.model.project.id;
@@ -7314,7 +7316,9 @@ describe("SWBPIPE desktop preview", () => {
     openWorkspaceSection("operations");
     fireEvent.click(screen.getByTestId("operation-tab-details"));
     fireEvent.click(screen.getByTestId("review-apply-drawer-toggle"));
-    expect(screen.getByRole("button", { name: /Generate review proposal/i })).toBeDisabled();
+    // A proposal the project carries is shown; nothing in the desktop makes one.
+    expect(screen.queryByRole("button", { name: /Generate review proposal/i })).toBeNull();
+    expect(screen.queryByTestId("agent-generate-proposal")).toBeNull();
     let proposalPanel = await screen.findByLabelText("Agentic proposal");
     expect(
       await within(proposalPanel).findByText(
@@ -8943,10 +8947,10 @@ describe("SWBPIPE desktop preview", () => {
     ).toBeInTheDocument();
 
     const target = { target_type: "diagnostic" as const, id: selectedId };
-    const preservedProposal = await loadSampleProposal(source, target);
+    const preservedProposal = await storedSampleProposal(source, target);
     view.unmount();
-    render(<AgentProposalPanel proposal={preservedProposal} mechanicsReady={false} selectedReviewTarget={target} onLoad={vi.fn()} />);
-    expect(screen.getByRole("button", { name: /Generate review proposal/i })).toBeDisabled();
+    render(<AgentProposalPanel proposal={preservedProposal} selectedReviewTarget={target} />);
+    expect(screen.queryByRole("button", { name: /Generate review proposal/i })).toBeNull();
     const proposal = await screen.findByLabelText("Agentic proposal");
     expect(
       await within(proposal).findByText("proposal:physics-diagnostic-review"),

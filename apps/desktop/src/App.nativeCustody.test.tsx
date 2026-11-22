@@ -18,6 +18,19 @@ import * as previewService from "./services/previewService";
 import * as nativeResult from "./services/nativeResult";
 import { RESULT_DETAIL_WEBVIEW_LIMIT_BYTES } from "./services/nativeResult";
 import { loadDesignKnowledge } from "./services/previewService";
+
+/** A gate's size refusal on screen: the words the refusal function gives for one of `features`
+ * (parts 1 to 3), and the code with the exact sizes behind the Details that follows it. */
+function expectSizeRefusal(shown: HTMLElement, payload: "result" | "record", features: readonly string[]) {
+  const refusal = new nativeResult.FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES, "", payload);
+  expect(features.map((feature) => nativeResult.describeFullResultRefused(refusal, feature))).toContain(shown.textContent);
+  const details = shown.nextElementSibling as HTMLDetailsElement;
+  expect(details.tagName).toBe("DETAILS");
+  expect(details.open).toBe(false);
+  expect(details.querySelector("summary")?.textContent).toBe("Details");
+  expect(details.querySelector("p")?.textContent).toBe(nativeResult.fullResultRefusalWords(refusal, features[0]).details);
+}
+const REPORT_GATES = ["the rendered report", "the report"] as const;
 import { createNativeMechanicsReplay, REPLAY_COMMANDS } from "./test/nativeMechanicsReplay";
 
 afterEach(() => {
@@ -131,10 +144,7 @@ describe("a native result's first paint in the app", () => {
     nativeMenuCommand("view.section.report");
     const reportSection = screen.getByTestId("workspace-section-report");
     const refusals = await within(reportSection).findAllByTestId("c2-result-refused");
-    for (const refusal of refusals) {
-      expect(refusal).toHaveTextContent(`RESULT-DETAIL-WEBVIEW-LIMIT: This run record is ${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1} bytes`);
-      expect(refusal).toHaveTextContent(`above the ${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES} bytes (64 MiB) the webview can hold whole`);
-    }
+    for (const refusal of refusals) expectSizeRefusal(refusal, "record", REPORT_GATES);
     expect(within(reportSection).queryByTestId("report-panel")).toBeNull();
     expect(fullRecordBuilds).not.toHaveBeenCalled();
     expect(sent("read_preview_mechanics_job_rows_all")).toBe(1);
@@ -151,10 +161,69 @@ describe("a native result's first paint in the app", () => {
     await solve();
     const solveSection = screen.getByTestId("workspace-section-solve");
     fireEvent.click(within(solveSection).getByTestId("c2-result-load"));
-    expect(await within(solveSection).findByTestId("c2-result-refused")).toHaveTextContent(`RESULT-DETAIL-WEBVIEW-LIMIT: This result is ${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1} bytes`);
+    expectSizeRefusal(await within(solveSection).findByTestId("c2-result-refused"), "result", ["rule checks"]);
     nativeMenuCommand("view.section.report");
     const refusals = await within(screen.getByTestId("workspace-section-report")).findAllByTestId("c2-result-refused");
-    for (const refusal of refusals) expect(refusal).toHaveTextContent(`RESULT-DETAIL-WEBVIEW-LIMIT: This result is ${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1} bytes`);
+    for (const refusal of refusals) expectSizeRefusal(refusal, "result", REPORT_GATES);
     expect(mechanics.nativeHeld()).toHaveLength(1);
+  }, 90_000);
+
+  it("reference inspection on an oversized run record opens the visible Results notice, keeps Details on Project, and keeps code in storage JSON", async () => {
+    await installPreviewReplay();
+    const preview = nativeResult.nativeRunPreview;
+    vi.spyOn(nativeResult, "nativeRunPreview").mockImplementation((run) => ({ ...preview(run), record_bytes: RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1 }));
+    render(<App />);
+    await screen.findByTestId("workspace-toolbar");
+    await solve();
+    fireEvent.click(within(screen.getByTestId("workspace-section-solve")).getByRole("button", { name: "Inspect bundled reference" }));
+    const referencePanel = await screen.findByTestId("historical-run-context");
+    expect(referencePanel).toHaveTextContent("Bundled reference");
+    const resultsSection = screen.getByTestId("workspace-section-results");
+    expect(resultsSection).not.toHaveClass("inactive");
+    expect(resultsSection).toContainElement(referencePanel);
+    const refusal = new nativeResult.FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES, "", "record");
+    const words = nativeResult.fullResultRefusalWords(refusal, "keeping the current solve while inspecting the reference");
+    const expectedLine = `The current solve's result is not retained. ${words.fact}`;
+    const visibleNotice = within(referencePanel).getByTestId("reference-retention-notice");
+    expect(visibleNotice).toHaveAttribute("role", "status");
+    expect(visibleNotice).toHaveAttribute("tabindex", "-1");
+    expect(visibleNotice).toHaveFocus();
+    expect(visibleNotice).toHaveTextContent(expectedLine);
+    expect(visibleNotice.textContent).not.toMatch(/RESULT-DETAIL|bytes|webview|native/i);
+    const visibleDetails = within(referencePanel).getByTestId("reference-retention-details") as HTMLDetailsElement;
+    expect(visibleDetails.open).toBe(false);
+    expect(visibleDetails.querySelector("summary")?.textContent).toBe("Details");
+    expect(visibleDetails.querySelector("p")?.textContent).toBe(words.details);
+
+    // Repeating reference inspection from Results keeps the retention notice, its Details, and focus announcement.
+    fireEvent.click(within(resultsSection).getByRole("button", { name: "Inspect bundled reference" }));
+    await waitFor(() => expect(within(resultsSection).getByTestId("historical-run-context")).not.toBe(referencePanel));
+    const repeatPanel = within(resultsSection).getByTestId("historical-run-context");
+    const repeatNotice = within(repeatPanel).getByTestId("reference-retention-notice");
+    expect(repeatNotice).toHaveFocus();
+    expect(repeatNotice).toHaveTextContent(expectedLine);
+    const repeatDetails = within(repeatPanel).getByTestId("reference-retention-details") as HTMLDetailsElement;
+    expect(repeatDetails.open).toBe(false);
+    expect(repeatDetails.querySelector("p")?.textContent).toBe(words.details);
+
+    nativeMenuCommand("view.section.project");
+    expect(screen.getByTestId("workspace-section-results")).toHaveClass("inactive");
+    const message = screen.getByTestId("local-project-message");
+    const strip = message.closest("details") as HTMLDetailsElement;
+    expect(strip.closest(".shell-project-strip")).not.toHaveClass("inactive");
+    expect(message).toHaveTextContent(expectedLine);
+    expect(message.textContent).not.toMatch(/RESULT-DETAIL|bytes|webview|native/i);
+    expect(strip.open).toBe(false);
+    expect(within(strip).getByTestId("local-project-message-details")).toHaveTextContent(words.details);
+
+    const storageRecord = await screen.findByTestId("project-storage-record") as HTMLDetailsElement;
+    expect(storageRecord.open).toBe(false);
+    fireEvent.click(within(storageRecord).getByText("Storage record", { selector: "summary" }));
+    expect(storageRecord.open).toBe(true);
+    const exportIntent = within(storageRecord).getByTestId("project-storage-export-link-local-private-intent");
+    fireEvent.click(exportIntent);
+    const auditHref = within(storageRecord).getByTestId("project-storage-export-link").getAttribute("href") ?? "";
+    const audit = JSON.parse(decodeURIComponent(auditHref.split(",", 2)[1])) as { project_message: string };
+    expect(audit.project_message).toBe(`${expectedLine} ${words.details}`);
   }, 90_000);
 });
