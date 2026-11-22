@@ -525,13 +525,18 @@ def select_paths(paths: list[str], profile: dict, root: Path = ROOT,
         numerical = numerical_plan(root, paths, profile)
         selected = numerical["classification"] == "full-fallback" or bool(numerical["manifests"])
         selection["modes"]["piping-numerical"] = "full" if selected else "not-applicable"
+        # Crates a stale runtime-read declaration adds (`stale-runtime-read`) are selected
+        # for no changed path, so they alone do not start the Python job.
+        by_path = numerical["classification"] == "full-fallback" or any(
+            "path" in reason and "manifest" in reason for reason in numerical["reasons"])
         if selected:
             checks.add("piping-numerical")
+        else:
+            checks.discard("piping-numerical")
+        if by_path:
             # A source consumed by Rust may occur in a records/desktop path rule.
             checks.add("piping-python")
             selection["modes"]["piping-python"] = "full"
-        else:
-            checks.discard("piping-numerical")
         selection["piping_numerical_selection"] = numerical
         selection["checks"] = sorted(checks)
     if selection["modes"]["piping-python"] != "full":

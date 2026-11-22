@@ -35,11 +35,38 @@ import hosted_ci
 from software_workflow_common import load_profile
 
 
+COMMITTED_READS = load_profile(ROOT / 'tools/hosted-ci-routing.json')[1]['piping_runtime_reads']
+INDEX = ci.runtime_read_index
+
+
+def declared_index(project, manifests, declarations=None):
+    """`runtime_read_index`, reading this repository's committed declarations as refreshed.
+
+    Committed fingerprints go stale between refreshes by design, and selection widens for them
+    (docs/CI_STRATEGY.md); the tests of that are on built trees. The routing tests of this tree
+    check what its declarations select, so a committed declaration's staleness is left out, while
+    a declaration a test alters (or whose caller digests it alters) keeps its own."""
+    resources, stale, derived = INDEX(project, manifests, declarations)
+    if Path(project).resolve() == ROOT.resolve():
+        reads = COMMITTED_READS if declarations is None else declarations
+        stale = {source: entry for source, entry in stale.items()
+                 if reads['reads'].get(source) != COMMITTED_READS['reads'].get(source)
+                 or any(reads['source_trees'].get(m.as_posix()) != COMMITTED_READS['source_trees'].get(m.as_posix())
+                        for m in entry['manifests'])}
+    return resources, stale, derived
+
+
+@pytest.fixture(autouse=True)
+def committed_reads_as_refreshed(monkeypatch):
+    monkeypatch.setattr(ci, 'runtime_read_index', declared_index)
+    monkeypatch.setattr(hosted_ci, 'numerical_module', lambda root: ci)
+
+
 @cache
 def real_graph():
     project = MODULE.parents[2]
     manifests = ci.readiness.discover_cargo_manifests(project)
-    return ci.runtime_read_index(project, manifests), ci.cargo_dependencies(project, manifests)
+    return declared_index(project, manifests), ci.cargo_dependencies(project, manifests)
 
 
 @cache

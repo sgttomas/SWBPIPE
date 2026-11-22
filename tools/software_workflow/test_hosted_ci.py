@@ -59,6 +59,16 @@ def shared_numerical_module(root):
         if key not in SOURCE_READS:
             SOURCE_READS[key] = scan(project, manifests, declarations)
         resources, stale, derived = SOURCE_READS[key]
+        if resolved == SOURCE_ROOT.resolve():
+            # Committed fingerprints go stale between refreshes by design (tests/test_ci_numerical.py
+            # tests the widening on built trees); these tests check what the declarations select, so a
+            # committed declaration's staleness is left out, and one a test alters keeps its own.
+            committed = PROFILE['piping_runtime_reads']
+            reads = committed if declarations is None else declarations
+            stale = {source: entry for source, entry in stale.items()
+                     if reads['reads'].get(source) != committed['reads'].get(source)
+                     or any(reads['source_trees'].get(Path(m).as_posix()) != committed['source_trees'].get(Path(m).as_posix())
+                            for m in entry['manifests'])}
         return ({path: set(readers) for path, readers in resources.items()},
                 {source: {'manifests': set(entry['manifests']), 'reasons': list(entry['reasons'])}
                  for source, entry in stale.items()}, copy.deepcopy(derived))
