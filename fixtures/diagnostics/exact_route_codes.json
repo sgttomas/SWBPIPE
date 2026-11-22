@@ -6928,7 +6928,7 @@
     "held support `{}` cannot be replaced by a rigid restraint: {reason}"
    ],
    "classification": "input_error",
-   "reason": "A support held by a hydrostatic test case has no determinable acted degree of freedom or position (no stiffness DOF or restraint, not exactly one translational restraint for a constant-effort support, an unknown node, or a skewed line of action) (DEL-04-07/REQ-011).",
+   "reason": "A support held by a hydrostatic test case cannot be replaced by a rigid restraint on the degree of freedom it acts on: it has no determinable acted degree of freedom or position (no stiffness DOF or restraint, not exactly one translational restraint for a constant-effort support, an unknown node, or a skewed line of action), or its record also carries an action the replacement would drop (a nonlinear action on the same record, or a second restrained degree of freedom) (DEL-04-07/REQ-011).",
    "unsure": false,
    "candidates": null,
    "named_by": null,

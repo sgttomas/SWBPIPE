@@ -321,8 +321,9 @@ const GENERATED_SELF_WEIGHT_METHOD: &str = "pipe_mass_per_length_times_explicit_
 /// carries: not a snubber, and a `spring`, or a support whose hanger type (the
 /// hanger's non-blank `hanger_type`, otherwise its family, trimmed) is
 /// `variable_spring_hanger`, `spring_hanger` or `constant_effort_support`. A
-/// held record that also carries a `nonlinear` member is one the solve refuses
-/// (`LOAD_CASE_TEST_HELD_SUPPORT_UNFORMED`), so it is never left out of the set.
+/// held record that also carries another action is one the solve refuses
+/// (`LOAD_CASE_TEST_HELD_SUPPORT_UNFORMED`; [`held_record_carries_another_action`]),
+/// so it is never left out of the set.
 fn held_family(support: &Value) -> bool {
     let family = support["family"].as_str();
     let hanger_type = support["hanger"]["hanger_type"]
@@ -333,6 +334,55 @@ fn held_family(support: &Value) -> bool {
     family != Some("snubber")
         && (family == Some("spring")
             || matches!(hanger_type, Some("variable_spring_hanger" | "spring_hanger" | "constant_effort_support")))
+}
+
+/// A frame degree of freedom token as the solve reads it (`parse_dof`), named
+/// in upper case; `None` for any other text.
+fn frame_dof(token: &str) -> Option<&'static str> {
+    match token {
+        "UX" | "Ux" | "ux" => Some("UX"),
+        "UY" | "Uy" | "uy" => Some("UY"),
+        "UZ" | "Uz" | "uz" => Some("UZ"),
+        "RX" | "Rx" | "rx" => Some("RX"),
+        "RY" | "Ry" | "ry" => Some("RY"),
+        "RZ" | "Rz" | "rz" => Some("RZ"),
+        _ => None,
+    }
+}
+
+/// Whether a record of a held family ([`held_family`]) carries an action its
+/// rigid replacement would drop, the two reasons the solve refuses a held
+/// record by `LOAD_CASE_TEST_HELD_SUPPORT_UNFORMED` (`hydrostatic::held_set`):
+/// a `nonlinear` member, or a restraint on a frame degree of freedom other than
+/// the one it acts on. The acted degree of freedom is the solve's: for a
+/// constant-effort support its one translational restraint, otherwise the
+/// stiffness degree of freedom (the record's, then its hanger's) or else its
+/// first restraint. A record whose acted degree of freedom the solve cannot
+/// determine is refused by the solve for that reason, not this one.
+fn held_record_carries_another_action(support: &Value) -> bool {
+    if !support["nonlinear"].is_null() {
+        return true;
+    }
+    let raw: Vec<&str> = support["restraints"].as_array().map(Vec::as_slice).unwrap_or(&[]).iter().filter_map(Value::as_str).collect();
+    let hanger_type = support["hanger"]["hanger_type"]
+        .as_str()
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .or_else(|| support["family"].as_str().map(str::trim));
+    let acted = if hanger_type == Some("constant_effort_support") {
+        let Some(dofs) = raw.iter().map(|token| frame_dof(token)).collect::<Option<Vec<_>>>() else { return false };
+        match dofs.iter().filter(|dof| dof.starts_with('U')).collect::<Vec<_>>().as_slice() {
+            [dof] => **dof,
+            _ => return false,
+        }
+    } else {
+        let token = support["stiffness"]["dof"].as_str()
+            .or_else(|| support["hanger"]["stiffness"]["dof"].as_str())
+            .or_else(|| raw.first().copied());
+        let Some(dof) = token.and_then(frame_dof) else { return false };
+        dof
+    };
+    raw.iter().filter_map(|token| frame_dof(token)).any(|dof| dof != acted)
 }
 
 /// The supports the model's load case `case` holds (DEL-05-01 REQ-014): when
@@ -394,11 +444,12 @@ fn test_condition_model_binding(source: &Value, model: &Value) -> Result<(), Str
         if mark["kind"] != test["kind"] || mark["held_supports"] != test["held_supports"] {
             return fail(PRESENCE);
         }
-        // A held record that also carries a nonlinear action is refused by the
+        // A held record that also carries a nonlinear action, or restrains a
+        // degree of freedom besides the one it acts on, is refused by the
         // solve, so no mark of a case holding it can be published.
         let supports = model["supports"].as_array().map(Vec::as_slice).unwrap_or(&[]);
         if mark["held_supports"] == "springs_and_constant_effort"
-            && supports.iter().any(|support| held_family(support) && !support["nonlinear"].is_null())
+            && supports.iter().any(|support| held_family(support) && held_record_carries_another_action(support))
         {
             return fail(HELD);
         }

@@ -946,6 +946,46 @@ def _held_family(support: Any) -> bool:
             and (family == "spring" or hanger_type in ("variable_spring_hanger", "spring_hanger", "constant_effort_support")))
 
 
+_FRAME_DOFS = {token: name for name in ("UX", "UY", "UZ", "RX", "RY", "RZ")
+               for token in (name, name[0] + name[1].lower(), name.lower())}
+
+
+def _held_record_carries_another_action(support: Any) -> bool:
+    """Rust `reader_verdict::held_record_carries_another_action`: whether a record of a held family carries an action
+    its rigid replacement would drop, the two reasons the solve refuses a held record by
+    LOAD_CASE_TEST_HELD_SUPPORT_UNFORMED: a nonlinear member, or a restraint on a frame degree of freedom other than
+    the one it acts on (for a constant-effort support its one translational restraint, otherwise the stiffness degree
+    of freedom, the record's then its hanger's, or else its first restraint). A record whose acted degree of freedom
+    the solve cannot determine is refused by the solve for that reason, not this one."""
+    if not isinstance(support, Mapping):
+        return False
+    if support.get("nonlinear") is not None:
+        return True
+    restraints = support.get("restraints") if isinstance(support.get("restraints"), list) else []
+    raw = [token for token in restraints if isinstance(token, str)]
+    family = support.get("family") if isinstance(support.get("family"), str) else None
+    hanger = support.get("hanger") if isinstance(support.get("hanger"), Mapping) else {}
+    declared = hanger.get("hanger_type")
+    hanger_type = declared.strip() if isinstance(declared, str) and declared.strip() else (family.strip() if family is not None else None)
+    if hanger_type == "constant_effort_support":
+        if any(token not in _FRAME_DOFS for token in raw):
+            return False
+        translational = [_FRAME_DOFS[token] for token in raw if _FRAME_DOFS[token].startswith("U")]
+        if len(translational) != 1:
+            return False
+        acted = translational[0]
+    else:
+        stiffness = support.get("stiffness") if isinstance(support.get("stiffness"), Mapping) else {}
+        hanger_stiffness = hanger.get("stiffness") if isinstance(hanger.get("stiffness"), Mapping) else {}
+        token = next((t for t in (stiffness.get("dof"), hanger_stiffness.get("dof")) if isinstance(t, str)), None)
+        if token is None and raw:
+            token = raw[0]
+        if token not in _FRAME_DOFS:
+            return False
+        acted = _FRAME_DOFS[token]
+    return any(_FRAME_DOFS[token] != acted for token in raw if token in _FRAME_DOFS)
+
+
 def held_supports(model: Mapping[str, Any], case: Any) -> list[str]:
     """Rust `reader_verdict::held_supports`: the supports the model's case holds, sorted, when its test condition chooses
     springs_and_constant_effort; otherwise none. The one statement of the held set for the model-bound readers (the
