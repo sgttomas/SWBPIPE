@@ -75,10 +75,14 @@ DEPENDENCIES = {
     # compared as re-formed text (was 528855d4...); then the one-view reader (Way H B2): the direct pass reads one
     # view built from the received document (direct_view) in place of two whole copies, and the combination pass reads
     # the received document, whose certificate member it never reads; the views' values, verdicts and refusals are
-    # unchanged (direct_view_tests.rs holds them against the former functions; was bc69008c...); then DEL-05-01 REQ-014:
-    # an exact case admits its optional hydrostatic test mark, `test_condition`, checked closed as the result schema
-    # declares it (was 75980cb5...).
-    MODULE: '900ec1819431d396cbad652de488c8f007a8e7b7988fa6fef34166e101f49cdb',
+    # unchanged (direct_view_tests.rs holds them against the former functions; was bc69008c...); then DEL-05-01: the
+    # equivalent_static record's optional component_forces, closed by shape, and the model-bound recomputation of its
+    # entries (was 75980cb5...); then the model-bound check reads the centre of gravity after the document's ordinary
+    # conversion to metres (was 23bdcae8...); then every solved case is compared, a range failure in the model is
+    # refused, and each component id is the one its entry's fields form (was 9755ee4c...); then DEL-05-01 REQ-014: an
+    # exact case admits its optional hydrostatic test mark, `test_condition`, checked closed as the result schema
+    # declares it (was ba32c38d...).
+    MODULE: '8e0022cfe7983d2e116617ef7ffa4ffdf5eecbbee199d6bf745162cbbf72b6e0',
     TABLE: TABLE_SHA256,
     # The units authority: then DEL-04-09 I3a's mass_length_per_rotation family (kg*m/rad, lb*in/rad, lb*ft/rad),
     # an addition only; every existing unit, dimension and conversion is unchanged (was 5a412c57...); then the

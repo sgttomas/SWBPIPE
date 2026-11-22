@@ -275,7 +275,10 @@ def _prepass(source: Mapping[str, Any], raw: bool, method: str) -> None:
         # DEL-05-01 REQ-014: a hydrostatic test case adds its mark, never on the joined composite (its
         # shape is the physics pass's).
         test_case = not joined and isinstance(case, Mapping) and "test_condition" in case
-        _require(_keys(case, case_keys + (["test_condition"] if test_case else [])), "CASE_SHAPE")
+        # DEL-05-01 REQ-008: a generating case adds its `equivalent_static`
+        # record (checked by the physics pass).
+        generating = isinstance(case, Mapping) and "equivalent_static" in case
+        _require(_keys(case, case_keys + (["test_condition"] if test_case else []) + (["equivalent_static"] if generating else [])), "CASE_SHAPE")
         case_id = _text(case["load_case_id"])
         _require(all(known != case_id for known, _ in cases), "CASE_DUPLICATE")
         _require(_eq(case["material_basis"], MATERIAL_BASIS), "MATERIAL_BASIS")

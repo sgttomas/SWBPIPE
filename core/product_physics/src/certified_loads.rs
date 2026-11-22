@@ -510,12 +510,21 @@ pub(super) fn spring_base_motion(ledger: &mut LoadLedger, springs: &[SpringEntry
 
 /// Factored nodal values are formed products, while unscaled authored nodal
 /// loads remain exact input terms under the normalized-input contract.
+/// DEL-05-01: a generated seismic component force or moment is an exact
+/// input term too, the stored value the rule gives, as the self-weight
+/// plan's component wrench is. It is bound to its operands here: the rule
+/// recomputed from the plan's converted operands
+/// (`seismic_component::rule_value`) must equal the prepared value bit for
+/// bit, or the term is not pushed and the case is refused by name
+/// (`EQUIVALENT_STATIC_COMPONENT_VALUE_MISMATCH`) before its ledger is
+/// finished.
 pub(super) fn nodal(
     ledger: &mut LoadLedger,
     model: &PreviewModel,
     application: &LoadApplication,
     case_id: &str,
     node_count: usize,
+    diagnostics: &mut Vec<crate::Diagnostic>,
 ) {
     for (ordinal, load) in application.nodal_loads.iter().enumerate() {
         if load.global_dof >= 6 * node_count {
@@ -549,6 +558,14 @@ pub(super) fn nodal(
                 ),
             );
         } else {
+            if let Some(rule) = crate::seismic_component::rule_value(model, case_id, &load.load_id) {
+                if let Some(refusal) = crate::seismic_component::value_mismatch(case_id, &load.load_id, load.value, &rule) {
+                    // The mismatched value is not pushed: the case is refused
+                    // before its ledger is finished (`solve_prepared_load_case`).
+                    diagnostics.push(refusal);
+                    continue;
+                }
+            }
             ledger.push(&load.load_id, load.global_dof, load.value);
         }
     }

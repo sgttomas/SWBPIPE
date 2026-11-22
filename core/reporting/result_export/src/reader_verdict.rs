@@ -283,6 +283,10 @@ pub fn physics_model_checks(source: &Value, model: &Value) -> Result<(), String>
     if model.get("nodes").is_some_and(|v| !v.is_null()) && model.get("pipe_segments").is_some_and(|v| !v.is_null()) {
         crate::physics_evidence::exception_model_binding(source, model)?;
     }
+    // DEL-05-01 (issue 450 item 4): each component force entry, recomputed from the model.
+    if model.get("load_cases").is_some_and(|v| !v.is_null()) {
+        crate::physics_evidence::equivalent_static_model_binding(source, model)?;
+    }
     if model.get("supports").is_some_and(|v| !v.is_null()) {
         let supports = ids(&model["supports"], "id");
         for row in source["results"].as_array().map(Vec::as_slice).unwrap_or(&[]) {

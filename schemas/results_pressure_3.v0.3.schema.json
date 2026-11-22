@@ -1636,6 +1636,111 @@
             "type": "string",
             "minLength": 1
           }
+        },
+        "component_forces": {
+          "description": "DEL-05-01 (issue 450 item 4): present only on a case that forms a rigid-family component force; absent otherwise, so every other case keeps its earlier record.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/PressureExactEquivalentStaticComponentForce"
+          }
+        }
+      }
+    },
+    "PressureExactEquivalentStaticComponentForce": {
+      "description": "DEL-05-01 (issue 450 item 4): one rigid-family component force item of a seismic case, for one entered global axis, in generation order. Every binary64 is the 16 lowercase hexadecimal digits of its bits: the g-factor, the component weight W (N), the three global centre-of-gravity offset coordinates r (m), the force fl(g-factor x W) along the axis and one moment fl(force x signed coordinate) per nonzero transverse coordinate. Each load_id is one of the record's generated_load_ids, once. The model-bound reader recomputes every value from the model.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "component_ref",
+        "node_ref",
+        "axis",
+        "g_factor",
+        "weight_N",
+        "center_of_gravity_m",
+        "force",
+        "moments"
+      ],
+      "properties": {
+        "component_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "node_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "axis": {
+          "enum": [
+            "global_x",
+            "global_y",
+            "global_z"
+          ]
+        },
+        "g_factor": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{16}$"
+        },
+        "weight_N": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{16}$"
+        },
+        "center_of_gravity_m": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{16}$"
+          }
+        },
+        "force": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "load_id",
+            "value_N"
+          ],
+          "properties": {
+            "load_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "value_N": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{16}$"
+            }
+          }
+        },
+        "moments": {
+          "type": "array",
+          "maxItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "load_id",
+              "axis",
+              "value_N_m"
+            ],
+            "properties": {
+              "load_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "axis": {
+                "enum": [
+                  "global_x",
+                  "global_y",
+                  "global_z"
+                ]
+              },
+              "value_N_m": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{16}$"
+              }
+            }
+          }
         }
       }
     },

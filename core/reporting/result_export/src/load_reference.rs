@@ -401,11 +401,15 @@ pub(crate) fn prepass(source: &Value, raw: bool, method: Method) -> Check {
         // `test_condition`, never on the joined composite; its shape is checked
         // by the physics pass (`physics_evidence::test_condition_record`).
         let test_case = !joined && case.get("test_condition").is_some();
+        // DEL-05-01 REQ-008: a generating case adds its `equivalent_static`
+        // record (checked by the physics pass).
+        let generating = case.get("equivalent_static").is_some();
         let case_keys: Vec<&str> = case_keys
             .iter()
             .copied()
             .chain(directional.then_some("intensified_measures"))
             .chain(test_case.then_some("test_condition"))
+            .chain(generating.then_some("equivalent_static"))
             .collect();
         require(keys(case, &case_keys), "CASE_SHAPE")?;
         let id = text(&case["load_case_id"])?;

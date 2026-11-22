@@ -140,7 +140,13 @@ pub(crate) const EXACT_MASS_METHOD: &str = "source_od_nominal_wall_pressure_bore
 /// exact route's D-5 mass method, and lists at least one generated primitive,
 /// each once, each in the case's generated namespace (`<case>:generated:`).
 pub(crate) fn equivalent_static_record(case_id: &str, record: &Value) -> Check {
-    require(keys(record, &["mass_method", "generated_load_ids"]), "EQUIVALENT_STATIC_SHAPE")?;
+    let components = record.get("component_forces");
+    let required: &[&str] = if components.is_some() {
+        &["mass_method", "generated_load_ids", "component_forces"]
+    } else {
+        &["mass_method", "generated_load_ids"]
+    };
+    require(keys(record, required), "EQUIVALENT_STATIC_SHAPE")?;
     require(record["mass_method"] == EXACT_MASS_METHOD, "EQUIVALENT_STATIC_MASS_METHOD")?;
     let ids = array(&record["generated_load_ids"])?;
     require(!ids.is_empty(), "EQUIVALENT_STATIC_SHAPE")?;
@@ -149,6 +155,9 @@ pub(crate) fn equivalent_static_record(case_id: &str, record: &Value) -> Check {
     for id in ids {
         let id = text(id)?;
         require(id.starts_with(&prefix) && seen.insert(id), "EQUIVALENT_STATIC_LOAD_IDS")?;
+    }
+    if let Some(components) = components {
+        equivalent_static_components(case_id, components, &seen)?;
     }
     Ok(())
 }
@@ -197,6 +206,199 @@ pub(crate) fn test_condition_record(record: &Value) -> Check {
         number(&item["applied_n_per_m"])?;
     }
     Ok(())
+}
+
+/// DEL-05-01 (issue 450 item 4): the optional `component_forces` of an
+/// `equivalent_static` record has a closed shape: a nonempty list of entries,
+/// each a component and node reference, a global axis, the factor, the
+/// weight and three offset coordinates as 16 lowercase hexadecimal digits of
+/// a binary64's bits, a force `{load_id, value_N}` and at most two moments
+/// `{load_id, axis, value_N_m}` about distinct axes other than the entry's.
+/// Every load identifier is one of the record's `generated_load_ids`, none
+/// appears twice, and each is the seismic component identifier the product
+/// forms from the entry's own fields (`seismic_component::load_id`):
+/// `<case>:generated:seismic:<global-x|y|z>:component:<byte length>:<component>:`
+/// then `force` or `moment:<x|y|z>`. Nothing is claimed about the model: the
+/// model-bound check ([`equivalent_static_model_binding`]) compares the values.
+fn equivalent_static_components(case_id: &str, components: &Value, inventory: &HashSet<&str>) -> Check {
+    const AXES: [&str; 3] = ["global_x", "global_y", "global_z"];
+    const LABELS: [&str; 3] = ["global-x", "global-y", "global-z"];
+    const LETTERS: [&str; 3] = ["x", "y", "z"];
+    let index = |a: &str| AXES.iter().position(|x| *x == a);
+    let shape = |ok: bool| require(ok, "EQUIVALENT_STATIC_COMPONENT_SHAPE");
+    let hex = |v: &Value| v.as_str().is_some_and(|s| s.len() == 16 && s.bytes().all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b)));
+    let entries = array(components)?;
+    shape(!entries.is_empty())?;
+    let mut used = HashSet::new();
+    for entry in entries {
+        shape(keys(entry, &["component_ref", "node_ref", "axis", "g_factor", "weight_N", "center_of_gravity_m", "force", "moments"]))?;
+        shape(text(&entry["component_ref"]).is_ok() && text(&entry["node_ref"]).is_ok())?;
+        let axis = entry["axis"].as_str().filter(|a| AXES.contains(a));
+        shape(axis.is_some() && hex(&entry["g_factor"]) && hex(&entry["weight_N"]))?;
+        let offset = array(&entry["center_of_gravity_m"])?;
+        shape(offset.len() == 3 && offset.iter().all(hex))?;
+        let component = text(&entry["component_ref"])?;
+        let prefix = format!("{case_id}:generated:seismic:{}:component:{}:{component}", LABELS[index(axis.unwrap()).unwrap()], component.len());
+        let force = &entry["force"];
+        shape(keys(force, &["load_id", "value_N"]) && hex(&force["value_N"]))?;
+        let force_id = text(&force["load_id"])?;
+        require(force_id == format!("{prefix}:force"), "EQUIVALENT_STATIC_COMPONENT_LOAD_IDS")?;
+        let mut ids = vec![force_id];
+        let moments = array(&entry["moments"])?;
+        shape(moments.len() <= 2)?;
+        let mut moment_axes = HashSet::new();
+        for moment in moments {
+            shape(keys(moment, &["load_id", "axis", "value_N_m"]) && hex(&moment["value_N_m"]))?;
+            let m = moment["axis"].as_str().filter(|a| AXES.contains(a) && Some(*a) != axis);
+            shape(m.is_some_and(|m| moment_axes.insert(m)))?;
+            let moment_id = text(&moment["load_id"])?;
+            require(moment_id == format!("{prefix}:moment:{}", LETTERS[index(m.unwrap()).unwrap()]), "EQUIVALENT_STATIC_COMPONENT_LOAD_IDS")?;
+            ids.push(moment_id);
+        }
+        for id in ids {
+            require(inventory.contains(id) && used.insert(id), "EQUIVALENT_STATIC_COMPONENT_LOAD_IDS")?;
+        }
+    }
+    Ok(())
+}
+
+/// DEL-05-01 (issue 450 item 4): the model-bound check of every exact case's
+/// `equivalent_static.component_forces`. From the model alone it recomputes,
+/// for each seismic case, which rigid-family components replace their
+/// member's load (REQ-015's dispositions: the members not replaced by an
+/// objective connector are selected; a member mapped more than once is a
+/// conflict, which no solved result carries; `not_solver_consumed` keeps the
+/// member load; the consumption `mechanics_geometry_only`, a member ending
+/// at the node, a finite positive weight and a finite offset are required;
+/// the offset is read after the document's ordinary conversion to metres, as
+/// the solve converts it before generation, so a coordinate that converts to
+/// zero forms no moment term),
+/// and each entry: the force fl(k × W) and each moment fl(F × ±r_j), one per
+/// nonzero transverse coordinate, compared by bits with the record in
+/// generation order. Every solved case is compared: a case that generates no
+/// component force (a wind-only case, a case without generation, a seismic
+/// case with no replacing component) has an empty expected list, so any
+/// entry it carries is refused. A missing entry, an extra one and a record
+/// without the key where the model forms an entry are refused. A result
+/// saved before the product formed component forces (decision 3 of issue
+/// 450) is so refused. A model whose required force or moment is zero or
+/// nonfinite after rounding is one the product refuses
+/// (`EQUIVALENT_STATIC_COMPONENT_RANGE_INVALID`), so no solved record of it
+/// exists, and it is refused here.
+pub(crate) fn equivalent_static_model_binding(source: &Value, model: &Value) -> Check {
+    if source["status"]["mechanics"] != "MECHANICS_SOLVED" {
+        return Ok(());
+    }
+    let cases = source["contract_evidence"]["exact_cases"].as_array().map(Vec::as_slice).unwrap_or(&[]);
+    for case in model["load_cases"].as_array().map(Vec::as_slice).unwrap_or(&[]) {
+        let Some(evidence) = cases.iter().find(|c| c["load_case_id"] == case["id"]) else { continue };
+        let case_id = text(&case["id"])?;
+        let expected = match case["equivalent_static"]["seismic"].as_object() {
+            Some(seismic) => expected_component_forces(model, case_id, seismic)?,
+            None => Vec::new(),
+        };
+        let record = &evidence["equivalent_static"];
+        match (record.get("component_forces"), expected.is_empty()) {
+            (None, true) => {}
+            (None, false) => return Err("SOURCE_PHYSICS_EQUIVALENT_STATIC_COMPONENT_RECORD_MISSING".into()),
+            (Some(received), _) => require(*received == Value::Array(expected), "EQUIVALENT_STATIC_COMPONENT_MODEL_MISMATCH")?,
+        }
+    }
+    Ok(())
+}
+
+fn expected_component_forces(model: &Value, case_id: &str, seismic: &serde_json::Map<String, Value>) -> Result<Vec<Value>, String> {
+    use open_pipe_stress_units::Dimension;
+    const AXES: [&str; 3] = ["global_x", "global_y", "global_z"];
+    const LABELS: [&str; 3] = ["global-x", "global-y", "global-z"];
+    const LETTERS: [&str; 3] = ["x", "y", "z"];
+    let bits = |v: f64| format!("{:016x}", v.to_bits());
+    let quantity = |q: &Value, dimension| {
+        let mut q = q.clone();
+        if q["unit"] == "none" {
+            q["unit"] = json!("1");
+        }
+        crate::physics_source::normalized_quantity(&q, dimension).ok()
+    };
+    let empty = Vec::new();
+    let components = model["components"].as_array().unwrap_or(&empty);
+    let pipes = model["pipe_segments"].as_array().unwrap_or(&empty);
+    let replaced: HashSet<&str> = components
+        .iter()
+        .filter(|c| c["objective_connector"]["topology"]["type"] == "replaces_span")
+        .filter_map(|c| c["objective_connector"]["topology"]["span_ref"].as_str())
+        .collect();
+    let rigid = |c: &Value| matches!(c["kind"].as_str(), Some("valve" | "flange" | "reducer" | "rigid" | "specialty"));
+    fn mapped(c: &Value) -> Option<&str> {
+        c["geometry"]["rigid_pipe_ref"].as_str().filter(|p| !p.trim().is_empty())
+    }
+    let selected = |p: &str| !replaced.contains(p) && pipes.iter().any(|pipe| pipe["id"] == p);
+    let mut mappings: HashMap<&str, usize> = HashMap::new();
+    for c in components.iter().filter(|c| rigid(c)) {
+        if let Some(p) = mapped(c).filter(|p| selected(p)) {
+            *mappings.entry(p).or_default() += 1;
+        }
+    }
+    let mut eligible = Vec::new();
+    for c in components.iter().filter(|c| rigid(c)) {
+        let Some(pipe_ref) = mapped(c).filter(|p| selected(p)) else { continue };
+        if mappings[pipe_ref] > 1 {
+            continue;
+        }
+        let consumption = c["mechanics_interface"]["solver_consumption"].as_str();
+        if consumption == Some("not_solver_consumed") || consumption != Some("mechanics_geometry_only") {
+            continue;
+        }
+        let node = &c["node"];
+        let Some(pipe) = pipes.iter().find(|p| p["id"] == pipe_ref) else { continue };
+        if pipe["from"] != *node && pipe["to"] != *node {
+            continue;
+        }
+        let weight = c["geometry"].get("weight").and_then(|w| quantity(w, Dimension::Force)).filter(|w| w.is_finite() && *w > 0.0);
+        // Each coordinate after the document's ordinary conversion to metres,
+        // which the solve applies before generation reads it (the product's
+        // `normalize_model_units`): a coordinate that converts to zero is a
+        // zero coordinate there, and no moment term uses it.
+        let cog = &c["geometry"]["center_of_gravity"];
+        let r: Option<Vec<f64>> = ["x", "y", "z"].iter().map(|k| {
+            let v = cog[*k].as_f64().filter(|v| v.is_finite())?;
+            quantity(&json!({"value": v, "unit": cog["unit"]}), Dimension::Length).filter(|n| n.is_finite())
+        }).collect();
+        let (Some(weight), Some(r)) = (weight, r) else { continue };
+        if !model["nodes"].as_array().is_some_and(|nodes| nodes.iter().any(|n| n["id"] == *node)) {
+            continue;
+        }
+        eligible.push((c, weight, [r[0], r[1], r[2]]));
+    }
+    let mut entries = Vec::new();
+    for axis in 0..3 {
+        let Some(k) = seismic.get(&format!("g_factor_{}", LETTERS[axis])).and_then(|q| quantity(q, Dimension::Dimensionless)) else { continue };
+        for &(c, w, r) in &eligible {
+            let id = c["id"].as_str().unwrap_or_default();
+            let prefix = format!("{case_id}:generated:seismic:{}:component:{}:{id}", LABELS[axis], id.len());
+            let force = k * w;
+            // The product's range check: with k nonzero, the force and every
+            // moment with a nonzero lever are required to be nonzero and
+            // finite after rounding; otherwise the case is refused.
+            let required = k != 0.0;
+            let in_range = |v: f64| !required || (v != 0.0 && v.is_finite());
+            require(in_range(force), "EQUIVALENT_STATIC_COMPONENT_RANGE")?;
+            let levers = match axis {
+                0 => [0.0, r[2], -r[1]],
+                1 => [-r[2], 0.0, r[0]],
+                _ => [r[1], -r[0], 0.0],
+            };
+            let mut moments = Vec::new();
+            for i in (0..3).filter(|&i| i != axis && levers[i] != 0.0) {
+                let value = levers[i] * force;
+                require(in_range(value), "EQUIVALENT_STATIC_COMPONENT_RANGE")?;
+                moments.push(json!({"load_id": format!("{prefix}:moment:{}", LETTERS[i]), "axis": AXES[i], "value_N_m": bits(value)}));
+            }
+            entries.push(json!({"component_ref": id, "node_ref": c["node"], "axis": AXES[axis], "g_factor": bits(k), "weight_N": bits(w),
+                "center_of_gravity_m": r.map(bits), "force": {"load_id": format!("{prefix}:force"), "value_N": bits(force)}, "moments": moments}));
+        }
+    }
+    Ok(entries)
 }
 
 fn require(ok: bool, code: &str) -> Check {
