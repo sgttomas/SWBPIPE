@@ -2531,13 +2531,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/seismic_warning.rs",
-    "line": 341,
+    "line": 353,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/seismic_warning.rs",
-     "line": 341,
+     "line": 353,
      "via": "diag()",
      "severity": "warning",
      "through": [
@@ -2564,13 +2564,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/seismic_warning.rs",
-    "line": 249,
+    "line": 268,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/seismic_warning.rs",
-     "line": 249,
+     "line": 268,
      "via": "diag()",
      "severity": "warning",
      "through": [
@@ -2579,7 +2579,7 @@
     }
    ],
    "messages": [
-    "seismic case {}: {} entered weight load{} act{} in the case as authored: {}; static-equivalent seismic generation forms its loads from the model's own mass and geometry and is not extended to entered weight loads"
+    "message"
    ],
    "classification": "disclosure",
    "reason": "A seismic case's entered weight-category load, which static-equivalent seismic generation does not include, acts in the case as authored (warning).",
@@ -16100,7 +16100,7 @@
     },
     {
      "file": "core/product_physics/src/validation/model_checks.rs",
-     "line": 70,
+     "line": 72,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -16178,7 +16178,7 @@
     },
     {
      "file": "core/product_physics/src/validation/model_checks.rs",
-     "line": 79,
+     "line": 81,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -18408,7 +18408,7 @@
     },
     {
      "file": "core/product_physics/src/validation/model_checks.rs",
-     "line": 183,
+     "line": 191,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -19928,7 +19928,7 @@
     },
     {
      "file": "core/product_physics/src/validation/model_checks.rs",
-     "line": 188,
+     "line": 196,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -19971,7 +19971,7 @@
     },
     {
      "file": "core/product_physics/src/validation/model_checks.rs",
-     "line": 160,
+     "line": 168,
      "via": "diag()",
      "severity": "blocking"
     }

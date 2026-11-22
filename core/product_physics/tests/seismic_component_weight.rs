@@ -1903,11 +1903,26 @@ fn load_state_seismic_warnings_follow_resolved_load_sources() {
         let found = findings(&out["diagnostics"], WEIGHT_LOAD_ENTERED, case_id);
         assert_eq!(found.len(), 1, "{mode:?}: {found:?}");
         assert_eq!(named(&out["diagnostics"], WEIGHT_LOAD_ENTERED, case_id), ["load:listed-weight"]);
-        assert!(found[0]["message"].as_str().unwrap().contains("1 entered weight load acts"));
-        assert!(!found[0]["message"].as_str().unwrap().contains("load:excluded-weight"));
+        let msg = found[0]["message"].as_str().unwrap();
+        assert!(msg.contains("1 entered weight load is included in the case's resolved load sources:"), "{msg}");
+        assert!(!msg.contains("as authored"), "{msg}");
+        assert!(!msg.contains("load:excluded-weight"), "{msg}");
         assert_eq!(findings(&checks, WEIGHT_LOAD_ENTERED, case_id), found);
         assert!(findings(&out["diagnostics"], GRAVITY_DIFFERS, case_id).is_empty());
         assert!(findings(&checks, GRAVITY_DIFFERS, case_id).is_empty());
+    }
+    let mut factored = mixed;
+    factored["model"]["load_cases"][0]["analysis_state"]["load_sources"][0]["factor"] = json!(-2.0);
+    let checks = model_checks(&factored);
+    for mode in MODES {
+        let out = solved(&factored, mode, "load-state factored listed weight");
+        let found = findings(&out["diagnostics"], WEIGHT_LOAD_ENTERED, case_id);
+        assert_eq!(found.len(), 1, "{mode:?}: {found:?}");
+        assert_eq!(named(&out["diagnostics"], WEIGHT_LOAD_ENTERED, case_id), ["load:listed-weight"]);
+        let msg = found[0]["message"].as_str().unwrap();
+        assert!(msg.contains("1 entered weight load is included in the case's resolved load sources:"), "{msg}");
+        assert!(!msg.contains("as authored"), "{msg}");
+        assert_eq!(findings(&checks, WEIGHT_LOAD_ENTERED, case_id), found);
     }
 
     // 2. Only an excluded weight load: neither solve nor pre-solve checks warn.
@@ -2059,6 +2074,61 @@ fn load_state_seismic_warnings_follow_resolved_load_sources() {
         for diagnostics in [&out["diagnostics"], &checks] {
             for warning in [GRAVITY_DIFFERS, WEIGHT_LOAD_ENTERED, CONDITION_WEIGHT_ADDED] {
                 assert!(findings(diagnostics, warning, case_id).is_empty(), "wind missing {mode:?} {warning}");
+            }
+        }
+    }
+}
+
+/// Round-3 review finding: on a pressure-free Timoshenko straight member,
+/// both pre-solve model checks and the solve refuse partial-span wind with
+/// `PF_TIMOSHENKO_PARTIAL_SPAN_UNSUPPORTED` before seismic warning collection,
+/// whereas whole-span wind is admitted and raises `WEIGHT_LOAD_ENTERED`.
+#[test]
+fn pf_timoshenko_partial_span_wind_refusal_suppresses_seismic_warnings() {
+    let id = "SCW-CANT-PF-SEISMIC-XYZ";
+    let case_id = format!("case:{id}");
+    let mut whole_case = case_of(reference(id), &case_id);
+    whole_case["primitive_loads"] = json!([entered_load("load:entered-weight", "weight", "AB")]);
+    whole_case["equivalent_static"]["wind"] = json!({
+        "pressure": qv(500.0, "Pa"),
+        "shape_factor": qv(0.7, "1"),
+        "direction": "global_z",
+        "exposed_pipe_refs": ["AB"],
+    });
+    let mut whole = document(Route::Pf, Model::Cant, ONE_MAPPED, vec![whole_case.clone()]);
+    whole["model"]["model_settings"] = json!({"shear_model": "timoshenko_annulus_energy_v1"});
+
+    let checks = model_checks(&whole);
+    for mode in MODES {
+        let out = solved(&whole, mode, "PF Timoshenko whole-span wind");
+        let found = findings(&out["diagnostics"], WEIGHT_LOAD_ENTERED, &case_id);
+        assert_eq!(found.len(), 1, "{mode:?}: {found:?}");
+        assert_eq!(named(&out["diagnostics"], WEIGHT_LOAD_ENTERED, &case_id), ["load:entered-weight"]);
+        assert_eq!(findings(&checks, WEIGHT_LOAD_ENTERED, &case_id), found);
+    }
+
+    let mut partial_case = whole_case;
+    let wind = partial_case["equivalent_static"]["wind"].as_object_mut().unwrap();
+    wind.remove("exposed_pipe_refs");
+    wind.insert(
+        "exposed_spans".to_string(),
+        json!([{"pipe_ref": "AB", "start_fraction": qv(0.25, "1"), "end_fraction": qv(0.75, "1")}]),
+    );
+    let mut partial = document(Route::Pf, Model::Cant, ONE_MAPPED, vec![partial_case]);
+    partial["model"]["model_settings"] = json!({"shear_model": "timoshenko_annulus_energy_v1"});
+
+    let checks = model_checks(&partial);
+    assert!(
+        checks.as_array().unwrap().iter().any(|d| d["code"] == "PF_TIMOSHENKO_PARTIAL_SPAN_UNSUPPORTED" && d["severity"] == "blocking"),
+        "model_checks must emit PF_TIMOSHENKO_PARTIAL_SPAN_UNSUPPORTED: {checks:?}"
+    );
+    for mode in MODES {
+        let out = run(&partial, mode);
+        assert_eq!(out["status"]["mechanics"], "MODEL_INCOMPLETE", "{mode:?}");
+        assert!(codes(&out).iter().any(|c| c == "PF_TIMOSHENKO_PARTIAL_SPAN_UNSUPPORTED"), "{mode:?}: {:?}", codes(&out));
+        for diagnostics in [&out["diagnostics"], &checks] {
+            for warning in [GRAVITY_DIFFERS, WEIGHT_LOAD_ENTERED, CONDITION_WEIGHT_ADDED] {
+                assert!(findings(diagnostics, warning, &case_id).is_empty(), "PF Timoshenko partial-span {mode:?} {warning}");
             }
         }
     }

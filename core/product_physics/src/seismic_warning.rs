@@ -246,10 +246,16 @@ pub(crate) fn append(
             let named: Vec<String> = weights.iter().take(MAX_NAMED_LOADS).map(|load| load.to_string()).collect();
             let mut refs = vec![case.id.clone()];
             refs.extend(named.iter().cloned());
-            diagnostics.push(diag(
-                &id(&case.id, "weight-load"),
-                WEIGHT_LOAD_ENTERED,
-                "warning",
+            let message = if resolved.is_some() {
+                format!(
+                    "seismic case {}: {} entered weight load{} {} included in the case's resolved load sources: {}; static-equivalent seismic generation forms its loads from the model's own mass and geometry and is not extended to entered weight loads",
+                    case.id,
+                    weights.len(),
+                    plural(weights.len()),
+                    if weights.len() == 1 { "is" } else { "are" },
+                    listed(named, weights.len())
+                )
+            } else {
                 format!(
                     "seismic case {}: {} entered weight load{} act{} in the case as authored: {}; static-equivalent seismic generation forms its loads from the model's own mass and geometry and is not extended to entered weight loads",
                     case.id,
@@ -257,7 +263,13 @@ pub(crate) fn append(
                     plural(weights.len()),
                     verb(weights.len()),
                     listed(named, weights.len())
-                ),
+                )
+            };
+            diagnostics.push(diag(
+                &id(&case.id, "weight-load"),
+                WEIGHT_LOAD_ENTERED,
+                "warning",
+                message,
                 refs,
             ));
         }
