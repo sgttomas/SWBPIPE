@@ -727,6 +727,7 @@ export function useWorkspaceSession() {
   } | null>(null);
   /** C1 slice 6: the project whose stored run the open refused (not admitted into native custody). */
   const unopenedStoredRun = useRef<string | null>(null);
+  const [unopenedRunSummary, setUnopenedRunSummary] = useState<import("../../types").LocalProjectSummary | null>(null);
   /** C1 slice 6: the restored runs this session holds natively (the shown historical run, and one a
    * reference inspection retains for its restore). Each is released once nothing references it. */
   const ownedRestoredRuns = useRef<Set<RestoredRun>>(new Set());
@@ -3319,6 +3320,7 @@ export function useWorkspaceSession() {
       setSelectedReviewTarget(opened.selected_review_target ?? null);
       setSolveJob(initialSolveJob());
       setProjectSummary(opened.summary);
+      setUnopenedRunSummary(refusedRun || opened.stored_result_withheld ? opened.summary : null);
       setProjectEnvelopeHash(opened.project_envelope_hash ?? null);
       setModelDocumentVersion(opened.model_document_version ?? null);
       // W-13 §5.3: the validator's warnings show at project load (blocking
@@ -5365,6 +5367,7 @@ export function useWorkspaceSession() {
       modelEdited,
       storageCapability,
       projectSummary,
+      storedRunNotOpened: unopenedRunSummary !== null && unopenedRunSummary === projectSummary,
       projectIndex,
       modelHashIntegrity,
       projectEnvelopeHash,
