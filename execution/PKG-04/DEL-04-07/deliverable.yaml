@@ -343,6 +343,7 @@ checks:
 # reader bindings; the product test of the two frozen generation packages solves on that document.
 - core/product_physics/tests/w16_exact_equivalent_static.rs
 - core/product_physics/tests/exact_load_state_generated_references.rs
+- tests/test_generated_identity_reader.py
 - core/product_physics/tests/model_settings_pressure_elongation.rs
 - core/product_physics/tests/pressure_elongation_switch.rs
 - core/product_physics/tests/pressure_elongation_on_path.rs

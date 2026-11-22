@@ -46,11 +46,16 @@ needs:
     In a load case that declares held supports, the product solve replaces each spring, variable
     spring and constant-effort support on its acted degrees of freedom by a rigid restraint at
     zero displacement from the authored geometry, applies neither its stiffness nor its force, and
-    publishes the replacement's reaction under the support's identity. On a load and
-    reference-state document it enters each generated load source in the case's ledger once, so
-    that a hydrostatic test case and static seismic cases solve in one document
-    (DEL-04-07/REQ-011).
+    publishes the replacement's reaction under the support's identity.
   when: Solving a hydrostatic test case on the exact route
+  gating: true
+- from: DEL-04-07
+  condition: >-
+    On a load and reference-state document, the case's published record of load sources enters
+    each generated wind or seismic load once, at factor 1, beside the declared ledger of stored
+    sources, which keeps meaning exactly the declared stored primitives, and both readers bind
+    each generated entry to the case's generation record (DEL-04-07/REQ-011).
+  when: Solving a generating wind or seismic case on a load and reference-state document
   gating: true
 - from: DEL-05-03
   condition: >-
@@ -177,6 +182,7 @@ checks:
 # moment to the rule's value where the certified ledger is built.
 - core/product_physics/src/seismic_component.rs
 - tests/test_seismic_component_record_reader.py
+- tests/test_generated_identity_reader.py
 - apps/desktop/src/features/self-weight-authoring/SelfWeightRefresh.test.tsx
 - apps/desktop/src/features/load-cases/primitiveLoadVocabulary.test.ts
 - apps/desktop/src/features/load-cases/LoadCaseManagerPanel.test.tsx
