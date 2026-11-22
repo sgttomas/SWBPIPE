@@ -5455,8 +5455,13 @@ fn request_close<R: tauri::Runtime>(app: &tauri::AppHandle<R>, kind: close_guard
     }
 }
 
-/// Closes or quits once the guard approved the request.
+/// Closes or quits once the guard approved the request. First the rendered
+/// report is retired and then every report view window is asked to close (the
+/// two in turn, neither lock held across the other), so that nothing of the
+/// render stays current or shown while the application ends.
 fn finish_close<R: tauri::Runtime>(app: &tauri::AppHandle<R>, kind: close_guard::CloseKind) {
+    rendered_report_routes::retire_for_shutdown();
+    report_view::shutdown();
     match (kind, app.get_webview_window("main")) {
         (close_guard::CloseKind::Window, Some(window)) => {
             if let Err(error) = window.destroy() {
@@ -6437,6 +6442,13 @@ pub fn run() {
             // the callback that exists from setup (report_view, "Closing").
             if let tauri::RunEvent::WindowEvent { label, event: tauri::WindowEvent::Destroyed, .. } = &event {
                 report_view::window_destroyed(label);
+            }
+            // An exit request (an accepted quit, or the last window gone),
+            // before the embedded host can hold the exit while it drains: the
+            // render is retired, then every view window is asked to close.
+            if let tauri::RunEvent::ExitRequested { .. } = &event {
+                rendered_report_routes::retire_for_shutdown();
+                report_view::shutdown();
             }
             #[cfg(target_os = "macos")]
             if let tauri::RunEvent::ExitRequested { api, .. } = event {

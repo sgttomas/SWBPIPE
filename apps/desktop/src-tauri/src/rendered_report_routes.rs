@@ -858,6 +858,17 @@ impl RenderCustody {
         self.begin_render(self.next_request(mark))
     }
 
+    /// An accepted close or quit: the current render, any pending request's
+    /// completion and the render tickets retire, as at a retirement, so that
+    /// nothing of the render is current while the application ends. It runs on
+    /// the main thread (the exit request) as well as off it, so it does not
+    /// wait for a print hand-off, whose print may itself be on the main thread:
+    /// a hand-off already running keeps the document it took.
+    pub(crate) fn retire_for_shutdown(&self) {
+        let mut slot = self.lock();
+        Self::retire_locked(&mut slot);
+    }
+
     /// Tests' retirement, by the panel, of the request that is active now (if any).
     #[cfg(test)]
     pub(crate) fn retire_active(&self) -> bool {
@@ -952,6 +963,13 @@ pub(crate) fn begin_render(request: RenderRequest) -> Result<RenderTicket, Strin
     crate::rendered_report_print::close_retired();
     crate::report_view::close_unshowable();
     Ok(ticket)
+}
+
+/// An accepted close or quit (`finish_close` and the exit request in
+/// `lib.rs`): retires the current render ([`RenderCustody::retire_for_shutdown`]).
+/// The view windows' shutdown follows it, with the custody mutex released.
+pub(crate) fn retire_for_shutdown() {
+    CUSTODY.retire_for_shutdown();
 }
 
 /// The report panel retires a render request it issued and no longer shows

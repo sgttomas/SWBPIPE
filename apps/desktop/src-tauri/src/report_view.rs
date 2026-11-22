@@ -64,7 +64,9 @@
 //! Serving ([`respond_between`]). A request is answered only when it comes
 //! from the webview of a window whose record is open (not closing), for
 //! exactly that record's wrapper or document address as the request delivers
-//! it (scheme, host, path and no query), while its `showable()` is true and,
+//! it (scheme, host, path and no query), compared as delivered with no
+//! spelling normalised (a dot segment is not the address it might stand
+//! for), while its `showable()` is true and,
 //! for the document, while its bytes are there; otherwise 404 with no body.
 //! The document address is served at most once per window: a reload, or a
 //! second frame, gets 404; so does a document request after the page has
@@ -197,13 +199,22 @@
 //! exists is brought forward, and `brought_forward` is answered only for a
 //! window found there and reached; one whose window does not exist is dropped
 //! (under the gate it cannot be one under construction); otherwise the record
-//! is installed with its grown lease. Then, the lock released, the window is
-//! built and acknowledged; a window that does not answer is a failed opening,
-//! its record and lease released ([`VIEW_WINDOW_FAILED`]). After the
-//! acknowledgement the record must still be open: a sweep or the main
-//! window's destruction may have retired it meanwhile, and then the window is
-//! destroyed and the opening refused, as not showable after a sweep and as a
-//! failed window after the main window's destruction.
+//! is installed with its grown lease, marked as building. Then, the lock
+//! released, the window is built: the runtime attaches the window and its
+//! webview before the build returns, and a destruction asked meanwhile can
+//! remove the webview the build is still reaching (tauri 2.11.1), so while the
+//! record is building a sweep or the shutdown marks it closing and asks no
+//! destruction. Once the build has returned the mark is cleared under the
+//! lock; a build that failed releases the record ([`VIEW_WINDOW_FAILED`]).
+//! After each step taken with the lock released (the build, the
+//! acknowledgement, a bring-forward) the record must still be open: no
+//! shutdown, present, not closing and showable. Otherwise it is marked closing
+//! (or released, if its window is gone), its window destroyed, and the
+//! opening refused, as a failed window after the shutdown and as not showable
+//! otherwise. A window that does not answer the acknowledgement is a failed
+//! opening, its record and lease released ([`VIEW_WINDOW_FAILED`]). A
+//! bring-forward restores a minimized window before focusing it, and counts
+//! only when the window answered every step.
 //!
 //! Closing. A window's life is the native render's currency: the sweep
 //! ([`close_unshowable`]), run beside every close of a retired print window
@@ -217,9 +228,13 @@
 //! with no listener registered on the window (tauri-runtime-wry 2.11.1
 //! `src/lib.rs` 4272-4292); a listener added to a window after its
 //! construction is queued (1982-1989) and can miss a destruction that comes
-//! first. The main window's destruction begins shutdown: under the records'
-//! lock a flag is set, after which nothing opens, and every view window is
-//! asked to close as at a sweep. The window is an ordinary window: not always
+//! first. The shutdown ([`shutdown_in`]) sets, in one critical section of the
+//! records' lock, the flag after which nothing opens, and marks every record
+//! closing as at a sweep; it runs when the main window's destruction is
+//! observed and, before that, when a close or quit has been accepted
+//! (`finish_close`) and when an exit is requested, before the embedded host
+//! can hold the exit while it drains: each time after the render custody's
+//! retirement ([`routes::retire_for_shutdown`]), never with its mutex held. The window is an ordinary window: not always
 //! on top, no special level. Nothing is reported to the report page when a
 //! window closes.
 //!
@@ -410,6 +425,10 @@ pub(crate) struct OpenView {
     /// Its destruction has been asked for: it is served nothing and matched by
     /// no offer, and goes when the destruction is observed.
     closing: bool,
+    /// Its window is being built: a sweep marks it closing but asks no
+    /// destruction, which the opening asks once the build has returned (module
+    /// docs, "Opening").
+    building: bool,
     /// The reservation of the serve's copies, until the page has loaded or the
     /// window's destruction is observed; the serve holds a share of it while
     /// it runs (module docs, "Memory").
@@ -547,26 +566,67 @@ pub(crate) fn open_in<W: Windows>(
     let identity = document.identity.clone();
     let (label, title) = match install_in(open, shut, windows, document, lease, label)? {
         Installed::Forward { label, title, window } => {
-            return if windows.bring_forward(&window, &title) { Ok(Opened::BroughtForward { label, title }) } else { Err(window_failed()) };
+            if !windows.bring_forward(&window, &title) {
+                return Err(window_failed());
+            }
+            // A sweep or the shutdown may have come while it was brought forward.
+            still_open_in(open, shut, windows, &label)?;
+            return Ok(Opened::BroughtForward { label, title });
         }
         Installed::New { label, title } => (label, title),
     };
-    let acknowledged = windows.build(&label, &identity, &title).is_some_and(|window| windows.acknowledge(&window));
-    if !acknowledged {
+    let built = windows.build(&label, &identity, &title);
+    // The build has returned: from here a sweep may ask the window's destruction.
+    let mut records = lock(open);
+    let at = records.iter().position(|record| record.label == label);
+    if let Some(at) = at {
+        records[at].building = false;
+    }
+    let Some(window) = built else {
+        let record = at.map(|at| records.swap_remove(at));
+        drop(records);
+        drop(record);
+        windows.destroy(&label);
+        return Err(window_failed());
+    };
+    drop(records);
+    // A sweep that came during the build marked the record and left its
+    // destruction to this point.
+    still_open_in(open, shut, windows, &label)?;
+    if !windows.acknowledge(&window) {
         windows.destroy(&label);
         drop(release_label_in(open, &label));
         return Err(window_failed());
     }
-    let records = lock(open);
-    if !records.iter().any(|record| record.label == label && !record.closing) {
-        // A sweep retired it, or the main window went, while it was built.
-        let refusal = if shut.load(Ordering::SeqCst) { window_failed() } else { not_showable() };
-        drop(records);
-        windows.destroy(&label);
-        return Err(refusal);
-    }
-    drop(records);
+    still_open_in(open, shut, windows, &label)?;
     Ok(Opened::New { label, title })
+}
+
+/// After a step taken with the records' lock released (a build, an
+/// acknowledgement, a bring-forward): under the lock, the record of `label`
+/// must still be open, with no shutdown, present, not closing and showable.
+/// Otherwise it is marked closing (or released, if its window is gone), its
+/// window's destruction is asked after the lock, and the opening is refused:
+/// a failed window after the shutdown, not showable otherwise.
+fn still_open_in<W: Windows>(open: &Mutex<Vec<OpenView>>, shut: &AtomicBool, windows: &W, label: &str) -> Result<(), ViewError> {
+    let mut records = lock(open);
+    let at = records.iter().position(|record| record.label == label);
+    let shutdown = shut.load(Ordering::SeqCst);
+    if !shutdown && at.is_some_and(|at| !records[at].closing && (records[at].showable)()) {
+        return Ok(());
+    }
+    let gone = match at {
+        Some(at) if windows.find(label).is_none() => Some(records.swap_remove(at)),
+        Some(at) => {
+            records[at].closing = true;
+            None
+        }
+        None => None,
+    };
+    drop(records);
+    drop(gone);
+    windows.destroy(label);
+    Err(if shutdown { window_failed() } else { not_showable() })
 }
 
 enum Installed<W> {
@@ -621,6 +681,7 @@ fn install_in<W: Windows>(
                 showable,
                 document_spent: false,
                 closing: false,
+                building: true,
                 lease: Some(Arc::new(lease)),
             });
             Ok(Installed::New { label, title })
@@ -665,16 +726,35 @@ pub(crate) fn release_label_in(open: &Mutex<Vec<OpenView>>, label: &str) -> Opti
 /// if its window is already gone, removed at once. Returns the labels whose
 /// destruction it asked for.
 pub(crate) fn close_unshowable_in<W: Windows>(open: &Mutex<Vec<OpenView>>, windows: &W) -> Vec<String> {
-    close_where_in(open, windows, |record| !(record.showable)())
+    close_where_in(open, None, windows, |record| !(record.showable)())
 }
 
-fn close_where_in<W: Windows>(open: &Mutex<Vec<OpenView>>, windows: &W, select: impl Fn(&OpenView) -> bool) -> Vec<String> {
+/// The shutdown (module docs, "Closing"): in one critical section of the
+/// records' lock, the flag after which nothing opens is set and every record
+/// is marked closing, as at a sweep. Returns the labels whose destruction it
+/// asked for.
+pub(crate) fn shutdown_in<W: Windows>(open: &Mutex<Vec<OpenView>>, shut: &AtomicBool, windows: &W) -> Vec<String> {
+    close_where_in(open, Some(shut), windows, |_| true)
+}
+
+/// Marks the selected records closing under one critical section (after
+/// setting `shut`, when given): a record whose window is being built is only
+/// marked (the opening asks its destruction once the build has returned), one
+/// whose window exists is marked and its destruction asked after the lock,
+/// and one whose window is gone is removed at once.
+fn close_where_in<W: Windows>(open: &Mutex<Vec<OpenView>>, shut: Option<&AtomicBool>, windows: &W, select: impl Fn(&OpenView) -> bool) -> Vec<String> {
     let mut gone = Vec::new();
     let mut asked = Vec::new();
     let mut records = lock(open);
+    if let Some(shut) = shut {
+        shut.store(true, Ordering::SeqCst);
+    }
     let mut at = 0;
     while at < records.len() {
         if records[at].closing || !select(&records[at]) {
+            at += 1;
+        } else if records[at].building {
+            records[at].closing = true;
             at += 1;
         } else if windows.find(&records[at].label).is_some() {
             records[at].closing = true;
@@ -698,11 +778,7 @@ fn close_where_in<W: Windows>(open: &Mutex<Vec<OpenView>>, windows: &W, select: 
 /// whose destruction it asked for.
 pub(crate) fn window_destroyed_in<W: Windows>(open: &Mutex<Vec<OpenView>>, shut: &AtomicBool, windows: &W, label: &str) -> Vec<String> {
     if label == "main" {
-        {
-            let _records = lock(open);
-            shut.store(true, Ordering::SeqCst);
-        }
-        return close_where_in(open, windows, |_| true);
+        return shutdown_in(open, shut, windows);
     }
     if label.starts_with(LABEL_PREFIX) {
         drop(release_label_in(open, label));
@@ -737,16 +813,17 @@ enum Selected {
 /// `address` (module docs, "Serving"). For the document, its share and a
 /// share of the reservation are taken here and the record marked as spent.
 fn select_in(open: &Mutex<Vec<OpenView>>, webview_label: &str, address: &str) -> Selected {
-    let Ok(address) = tauri::Url::parse(address) else { return Selected::Nothing };
     let mut records = lock(open);
     let Some(record) = records.iter_mut().find(|record| record.label == webview_label) else { return Selected::Nothing };
     if record.closing || !(record.showable)() {
         return Selected::Nothing;
     }
-    if record.identity.wrapper_address().as_ref() == Some(&address) {
+    // The delivered address as it is: no spelling of it is normalised to an
+    // address it might stand for.
+    if record.identity.wrapper_address().as_ref().map(|address| address.as_str()) == Some(address) {
         return Selected::Wrapper(WrapperParts { identity: record.identity.clone(), title: record.title.clone(), words: record.words.clone(), details: record.details.clone() });
     }
-    if record.identity.document_address().as_ref() == Some(&address) && !record.document_spent {
+    if record.identity.document_address().as_ref().map(|address| address.as_str()) == Some(address) && !record.document_spent {
         if let Some(document) = record.document.share() {
             record.document_spent = true;
             return Selected::Document(record.identity.clone(), document, record.lease.clone());
@@ -947,12 +1024,9 @@ impl Windows for RuntimeWindows {
     }
 
     fn bring_forward(&self, window: &Self::Window, title: &str) -> bool {
-        if window.title().is_err() {
-            return false;
-        }
-        let _ = window.set_title(title);
-        let _ = window.set_focus();
-        true
+        // The getter first (only a window in the runtime's map answers it), then each
+        // step's own answer; a minimized window is restored before it is focused.
+        window.title().is_ok() && window.unminimize().is_ok() && window.set_title(title).is_ok() && window.set_focus().is_ok()
     }
 
     fn destroy(&self, label: &str) {
@@ -998,7 +1072,15 @@ pub(crate) fn close_unshowable() -> Vec<String> {
 /// their labels; each record goes when its destruction is observed.
 #[cfg_attr(not(feature = "native-smoke"), allow(dead_code))]
 pub(crate) fn close_all() -> Vec<String> {
-    close_where_in(&OPEN, &RuntimeWindows::current(), |_| true)
+    close_where_in(&OPEN, None, &RuntimeWindows::current(), |_| true)
+}
+
+/// An accepted close or quit (`finish_close` and the exit request in
+/// `lib.rs`, after the render custody's retirement and never with its mutex
+/// held): nothing opens from here, and every view window is asked to close.
+/// Returns the labels whose destruction it asked for.
+pub(crate) fn shutdown() -> Vec<String> {
+    shutdown_in(&OPEN, &SHUT, &RuntimeWindows::current())
 }
 
 /// The current render's offer (DEL-08-01 REQ-022): named by its canonical
@@ -1109,13 +1191,17 @@ mod tests {
     }
 
     /// A model of the runtime: the window registry (`find`), the runtime's own window map (what
-    /// answers the acknowledgement and a bring-forward), the destructions asked for, and a hook
-    /// called at the build and at the acknowledgement.
+    /// answers the acknowledgement and a bring-forward), the destructions asked for (and those
+    /// asked while a build was running), and a hook called at the build (after the window is
+    /// attached, as the runtime attaches it before its construction finishes), at the
+    /// acknowledgement and at a bring-forward.
     #[derive(Default)]
     struct Model {
         registry: Mutex<BTreeSet<String>>,
         runtime: Mutex<BTreeSet<String>>,
         destroy_asked: Mutex<Vec<String>>,
+        building: AtomicBool,
+        destroyed_while_building: Mutex<Vec<String>>,
         /// The runtime never creates what is built (its creation is queued and fails).
         creation_fails: AtomicBool,
         hook: Mutex<Option<Arc<dyn Fn(&str) + Send + Sync>>>,
@@ -1142,11 +1228,13 @@ mod tests {
             lock(&self.registry).contains(label).then(|| label.to_string())
         }
         fn build(&self, label: &str, _: &ViewIdentity, _: &str) -> Option<String> {
-            self.at("build");
+            self.building.store(true, Ordering::SeqCst);
             lock(&self.registry).insert(label.to_string());
             if !self.creation_fails.load(Ordering::SeqCst) {
                 lock(&self.runtime).insert(label.to_string());
             }
+            self.at("build");
+            self.building.store(false, Ordering::SeqCst);
             Some(label.to_string())
         }
         fn acknowledge(&self, window: &String) -> bool {
@@ -1154,9 +1242,13 @@ mod tests {
             lock(&self.runtime).contains(window)
         }
         fn bring_forward(&self, window: &String, _: &str) -> bool {
+            self.at("bring_forward");
             lock(&self.runtime).contains(window)
         }
         fn destroy(&self, label: &str) {
+            if self.building.load(Ordering::SeqCst) {
+                lock(&self.destroyed_while_building).push(label.to_string());
+            }
             lock(&self.destroy_asked).push(label.to_string());
         }
     }
@@ -2394,5 +2486,184 @@ mod tests {
         assert_refused(respond_in(&open, "report-view-1", &request_address(&request(format!("{wrapper}?q=1")))));
         // What keeps the window to its two addresses, fragment and all, is the navigation rule.
         assert!(!navigation_allowed(&identity(), &tauri::Url::parse(&format!("{wrapper}#part")).unwrap()));
+    }
+
+    // ---- Round 3 repairs.
+
+    /// Installs `hook` on `model`, holding the model weakly (the hook lives in the model).
+    fn hook_on(model: &Arc<Model>, hook: impl Fn(&str, &Model) + Send + Sync + 'static) {
+        let weak = Arc::downgrade(model);
+        *lock(&model.hook) = Some(Arc::new(move |point: &str| hook(point, &weak.upgrade().unwrap())));
+    }
+
+    /// Repair 1: a sweep while the window is built (attached by the runtime, its construction
+    /// not finished) asks no destruction until the build has returned; then the opening destroys
+    /// the window and refuses, and no reservation is left once the destruction is observed.
+    #[test]
+    fn a_sweep_during_the_build_destroys_nothing_until_the_build_returns() {
+        let pool = routes::test_pool();
+        let custody = rendered(&pool);
+        let open = Arc::new(Mutex::new(Vec::new()));
+        let model = Arc::new(Model::default());
+        {
+            let (open, custody) = (Arc::clone(&open), Arc::clone(&custody));
+            hook_on(&model, move |point, model| {
+                if point == "build" {
+                    assert!(custody.retire_active());
+                    let _ = close_unshowable_in(&open, model);
+                }
+            });
+        }
+        let lease_pool = routes::test_pool();
+        let outcome = open_in(&open, &Mutex::new(()), &AtomicBool::new(false), &*model, offer(&custody), command_lease(&lease_pool), label("report-view-1"));
+        assert_eq!(*lock(&model.destroyed_while_building), Vec::<String>::new(), "no destruction while the build runs");
+        assert_eq!(outcome.as_ref().err().map(|refusal| refusal.code.as_str()), Some(VIEW_NOT_SHOWABLE), "{outcome:?}");
+        assert_eq!(*lock(&model.destroy_asked), vec!["report-view-1".to_string()], "asked once the build has returned");
+        model.destroyed(&open, "report-view-1");
+        assert!(lock(&open).is_empty());
+        assert_eq!(lease_pool.reserved_total(), 0);
+    }
+
+    /// Repair 2 (a): a sweep while a window is brought forward refuses the opening; it is not
+    /// answered as brought forward.
+    #[test]
+    fn a_sweep_during_a_bring_forward_refuses_the_opening() {
+        let pool = routes::test_pool();
+        let custody = rendered(&pool);
+        let open = Arc::new(Mutex::new(Vec::new()));
+        let model = Arc::new(Model::default());
+        let gate = Mutex::new(());
+        open_with(&open, &gate, &model, offer(&custody), command_lease(&routes::test_pool()), "report-view-1").unwrap();
+        {
+            let (open, custody) = (Arc::clone(&open), Arc::clone(&custody));
+            hook_on(&model, move |point, model| {
+                if point == "bring_forward" {
+                    assert!(custody.retire_active());
+                    let _ = close_unshowable_in(&open, model);
+                }
+            });
+        }
+        let outcome = open_with(&open, &gate, &model, offer(&custody), command_lease(&routes::test_pool()), "report-view-2");
+        assert_eq!(outcome.as_ref().err().map(|refusal| refusal.code.as_str()), Some(VIEW_NOT_SHOWABLE), "{outcome:?}");
+    }
+
+    /// Repair 2 (b): the runtime's bring-forward restores a minimized window before focusing it,
+    /// and answers true only when the getter and every step answered.
+    #[test]
+    fn a_bring_forward_unminimizes_and_answers_only_when_every_step_answers() {
+        let text = source_file("report_view.rs");
+        assert!(production(&text).contains(
+            "    fn bring_forward(&self, window: &Self::Window, title: &str) -> bool {\n        // The getter first (only a window in the runtime's map answers it), then each\n        // step's own answer; a minimized window is restored before it is focused.\n        window.title().is_ok() && window.unminimize().is_ok() && window.set_title(title).is_ok() && window.set_focus().is_ok()\n    }"
+        ));
+    }
+
+    /// Repair 3 (a): a shutdown before the check after the acknowledgement, with the record not
+    /// yet marked, refuses as a failed window and destroys the window.
+    #[test]
+    fn a_shutdown_before_the_check_after_acknowledgement_refuses_and_destroys() {
+        let pool = routes::test_pool();
+        let custody = rendered(&pool);
+        let open = Arc::new(Mutex::new(Vec::new()));
+        let shut = Arc::new(AtomicBool::new(false));
+        let model = Arc::new(Model::default());
+        {
+            let shut = Arc::clone(&shut);
+            hook_on(&model, move |point, _| {
+                if point == "acknowledge" {
+                    shut.store(true, Ordering::SeqCst);
+                }
+            });
+        }
+        let lease_pool = routes::test_pool();
+        let outcome = open_in(&open, &Mutex::new(()), &shut, &*model, offer(&custody), command_lease(&lease_pool), label("report-view-1"));
+        assert_eq!(outcome.as_ref().err().map(|refusal| refusal.code.as_str()), Some(VIEW_WINDOW_FAILED), "{outcome:?}");
+        assert!(lock(&model.destroy_asked).contains(&"report-view-1".to_string()));
+        model.destroyed(&open, "report-view-1");
+        assert_eq!(lease_pool.reserved_total(), 0);
+    }
+
+    /// Repair 3 (b): an offer that stops being showable during the acknowledgement, before any
+    /// sweep, refuses as not showable; the record is marked closing (nothing is served from it
+    /// even if the answer came back) and the window destroyed.
+    #[test]
+    fn an_offer_unshowable_after_acknowledgement_refuses_marks_closing_and_destroys() {
+        let pool = routes::test_pool();
+        let custody = rendered(&pool);
+        let open = Mutex::new(Vec::new());
+        let model = Arc::new(Model::default());
+        let current = Arc::new(AtomicBool::new(true));
+        let mut document = offer(&custody);
+        document.showable = {
+            let current = Arc::clone(&current);
+            Arc::new(move || current.load(Ordering::SeqCst))
+        };
+        {
+            let current = Arc::clone(&current);
+            hook_on(&model, move |point, _| {
+                if point == "acknowledge" {
+                    current.store(false, Ordering::SeqCst);
+                }
+            });
+        }
+        let outcome = open_with(&open, &Mutex::new(()), &model, document, command_lease(&routes::test_pool()), "report-view-1");
+        assert_eq!(outcome.as_ref().err().map(|refusal| refusal.code.as_str()), Some(VIEW_NOT_SHOWABLE), "{outcome:?}");
+        assert!(lock(&model.destroy_asked).contains(&"report-view-1".to_string()));
+        current.store(true, Ordering::SeqCst);
+        assert_refused(respond_at(&open, "report-view-1", &identity().wrapper_path()));
+        assert!(lock(&open).iter().all(|record| record.closing));
+    }
+
+    /// Repair 4: an accepted close or quit retires the render and then closes every view window,
+    /// in that order and with neither lock held across the other, before the window is destroyed
+    /// or the application exits, and at the start of an exit request, before the embedded host
+    /// can hold the exit while it drains.
+    #[test]
+    fn an_accepted_close_or_quit_retires_the_render_and_closes_the_views_first() {
+        let lib = source_file("lib.rs");
+        let finish = &lib[lib.find("fn finish_close<R: tauri::Runtime>").expect("finish_close")..];
+        assert!(finish.contains(") {\n    rendered_report_routes::retire_for_shutdown();\n    report_view::shutdown();\n    match (kind, app.get_webview_window(\"main\")) {"), "finish_close");
+        let run = &lib[lib.find(".run(|app, event| {").expect("the run callback")..];
+        let wired = "if let tauri::RunEvent::ExitRequested { .. } = &event {\n                rendered_report_routes::retire_for_shutdown();\n                report_view::shutdown();\n            }";
+        let at = run.find(wired).expect("the exit request retires and closes");
+        assert!(at < run.find("Host>().shutdown(app)").expect("the embedded host's drain"));
+    }
+
+    /// Repair 4, the behaviour: the shutdown sequence retires the render (nothing of it is admitted
+    /// any more), then in one critical section sets the flag and marks every open record closing
+    /// with its window's destruction asked; nothing is served and nothing opens afterwards.
+    #[test]
+    fn the_shutdown_sequence_retires_the_render_and_closes_every_view_window() {
+        let pool = routes::test_pool();
+        let custody = rendered(&pool);
+        let open = Mutex::new(Vec::new());
+        let shut = AtomicBool::new(false);
+        let model = Model::default();
+        let lease_pool = routes::test_pool();
+        open_in(&open, &Mutex::new(()), &shut, &model, offer(&custody), command_lease(&lease_pool), label("report-view-1")).unwrap();
+        custody.retire_for_shutdown();
+        assert!(custody.admit_view(&sha256_hex(HTML.as_bytes()), FIRST).is_err(), "nothing of the render is admitted");
+        assert_eq!(shutdown_in(&open, &shut, &model), vec!["report-view-1".to_string()]);
+        assert!(shut.load(Ordering::SeqCst));
+        assert!(lock(&open).iter().all(|record| record.closing));
+        assert_refused(respond_at(&open, "report-view-1", &identity().wrapper_path()));
+        let refusal = open_in(&open, &Mutex::new(()), &shut, &model, offer(&rendered(&pool)), command_lease(&routes::test_pool()), || panic!("nothing opens after the shutdown")).unwrap_err();
+        assert_eq!(refusal.code, VIEW_WINDOW_FAILED);
+        model.destroyed(&open, "report-view-1");
+        assert_eq!(lease_pool.reserved_total(), 0);
+    }
+
+    /// Repair 5: the delivered address is matched as it is: a dot-segment spelling of the
+    /// document's address is not the document's, is refused, and spends nothing, so the document
+    /// is still served at its own address.
+    #[test]
+    fn a_dot_segment_address_is_not_the_documents_and_spends_nothing() {
+        let pool = routes::test_pool();
+        let custody = rendered(&pool);
+        let open = Mutex::new(Vec::new());
+        opened(&open, offer(&custody), &routes::test_pool(), "report-view-1");
+        let id = identity();
+        let dotted = format!("{SCHEME}://{HOST}/{kind}/../{kind}/{sha}/document", kind = id.kind, sha = id.sha256_hex);
+        assert_refused(respond_in(&open, "report-view-1", &dotted));
+        assert_eq!(respond_at(&open, "report-view-1", &id.document_path()).status(), 200, "the document is still unspent");
     }
 }
