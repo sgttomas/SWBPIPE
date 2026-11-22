@@ -389,6 +389,37 @@ def test_received_states_bind_case_order_and_requested_mode(name, mutate, code):
     assert refusal.value.code == code
 
 
+_GENERATION = {"mass_method": "source_od_nominal_wall_pressure_bore_areas/v1",
+               "generated_load_ids": ["case:ordinary-pressure:generated:seismic:global-x:element-0"]}
+
+
+@pytest.mark.parametrize("index,member,code", [
+    # DEL-05-01: an ordinary companion that generates carries its equivalent_static record on the resolved
+    # exact case, as on the ordinary pressure-source evidence; admitted only there, and its content checked.
+    (1, {"equivalent_static": _GENERATION}, "accept"),
+    (1, {"extra": 1}, "SOURCE_LOAD_REFERENCE_CASE_SHAPE"),
+    (1, {"equivalent_static": {**_GENERATION, "generated_load_ids": ["other:generated:x"]}},
+     "SOURCE_PHYSICS_EVIDENCE_INVALID: equivalent_static load ids"),
+    (0, {"equivalent_static": {**_GENERATION, "generated_load_ids": ["case:generated:x"]}},
+     "PHYSICS_SOURCE_SOURCE_EQUIVALENT_STATIC"),
+])
+def test_a_resolved_ordinary_companion_carries_its_generation_record(index, member, code):
+    from core.analysis_runs import rust_reader
+    raw = actual("mixed-sparse")
+    assert [c.get("recovery_method") for c in raw["contract_evidence"]["exact_cases"]] == [
+        "retained_source_blocks_exact_v1", "ordinary_sparse_structural_v1"]
+    doc = deepcopy(raw)
+    doc["contract_evidence"]["exact_cases"][index].update(member)
+    forged = apply(doc, [{"op": "reseal", "physical": "joined", "publication": True, "receipt": True}])
+    assert outcome(lambda: validate_physics_source(deepcopy(forged))) == code
+    assert outcome(lambda: validate_transport_metadata(metadata(forged))) == code
+    if code == "accept":
+        rust_reader.validate("pressure-source", forged)
+    else:
+        with pytest.raises(rust_reader.ReaderRefusal):
+            rust_reader.validate("pressure-source", forged)
+
+
 def test_zzz_write_parity_log():
     """Evidence only: the per-case outcomes for the return record."""
     folder = os.environ.get("LOAD_REFERENCE_SOURCE_PARITY_OUT")

@@ -1479,9 +1479,12 @@ HAND_SERIES_TEXT = (
     "bottom. Each capture is compared with SWBPIPE's solve of that case, each comparison stating SWBPIPE's numerical "
     "standing; cpb-h-01's comparison also names its input constant_support_load until an independently justified "
     "one-parameter series supplies the evidence REQ-019 requires for it")
-# What a hand-entry run's comparison waits for: the print comes back from the window, which no route yet compares.
-WINDOW_PRINT_WAIT = ("a comparison route for a print returned from the program's window: the benchmark command compares "
-                     "only prints its own batch round trip collects")
+# What a hand-entry run's screening waits for: AC-002 and VER-002 met for runs made at the program's window. Until
+# then the window print route compares its print offline, and the run is not counted among the screened runs.
+WINDOW_PRINT_WAIT = ("AC-002 and VER-002 met for runs made at the program's window: code that writes a run record "
+                     "with the operator's check and the saved model. Until then, the window print route "
+                     "(tools/caepipe_correlation/window_capture.py) compares the print offline, states what a window "
+                     "capture cannot prove, and does not count the run among the screened runs of exit criterion 11")
 
 
 def _emit(document: dict[str, Any], files: dict[str, str], entries: list[dict], *, runs) -> None:

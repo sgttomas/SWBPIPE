@@ -56,6 +56,11 @@ export type ResultSummaryHeader = Readonly<{
   row_count: number;
   units: readonly Json[];
   numerical_health: Json;
+  /** Each load case's support-state confirmation outcome and its quoted detail (the solver's reason,
+   * for `not_established_detail_quoted`; null otherwise) from the reader's standing record. Absent
+   * where the native summary gives none (no model, or a result the reader does not read as readable
+   * and solved); an absent member reads as null. */
+  support_confirmations?: readonly Readonly<{ case_id: string; outcome: string; detail?: string | null }>[] | null;
   standing: Readonly<{ eligible: boolean; health_view: boolean }> | null;
   tables: Readonly<Record<string, Json>>;
   display: Readonly<{ rows: number; source_refs: number }>;

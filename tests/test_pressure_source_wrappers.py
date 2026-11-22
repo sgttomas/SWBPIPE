@@ -23,6 +23,7 @@ CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
 CONTRACT_SHA256 = "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9"
 assert CONTRACT_SHA256 == c.PRESSURE_SOURCE_CONTRACT_SHA256
 BINDING = {"id": CONTRACT_ID, "sha256": CONTRACT_SHA256}
+INTEGRITY_BOUND = rust_reader.INTEGRITY_BOUND
 
 
 def record_test_text(value):
@@ -56,7 +57,7 @@ def controlled_rust(monkeypatch):
     outcomes = {
         "dispatch": {"ok": True, "route": "pressure_source", "binding": deepcopy(BINDING), "error": None,
                      "standing": {"route": "pressure_source", "token": "needs_recompute", "status": "needs_recompute", "eligible": False,
-                                  "findings": ["SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED"]}},
+                                  "findings": ["SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED"], "integrity_bound": deepcopy(INTEGRITY_BOUND)}},
         "pressure-source": {"ok": True, "eligible": False, "findings": []},
         "pressure-source-transport": {"ok": True},
         "standing": {"ok": True, "token": "needs_recompute", "reason": "LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE_IN_T1"},
@@ -128,7 +129,7 @@ def test_pressure_dispatch_refusal_never_selects_a_reader(controlled_rust):
     outcomes["dispatch"] = {"ok": False, "route": "unsupported", "binding": None,
                             "error": {"code": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED", "detail": None},
                             "standing": {"route": "unsupported", "token": "unsupported", "status": "needs_recompute", "eligible": False,
-                                         "findings": ["SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"]}}
+                                         "findings": ["SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"], "integrity_bound": deepcopy(INTEGRITY_BOUND)}}
     with pytest.raises(ValueError, match="SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"):
         build_record(invented_source())
     assert [reader for reader, _ in calls] == ["dispatch"]

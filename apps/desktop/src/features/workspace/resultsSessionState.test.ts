@@ -202,7 +202,7 @@ it("keeps admission as the full conjunction and reads the indicator beside it", 
   act(() => { result.current.setResult(source); result.current.setInputManifest(manifest); result.current.setAnalysisRun(analysis); });
   expect(currentRequirementsExceptNumericalEligibility({ result: source, analysisRun: analysis, inputManifest: manifest })).toBe(true);
   expect(result.current.currentSolvedResult).toBe(source);
-  expect(result.current.numericalHealth?.headline).toBe("Numerical health: checks passed");
+  expect(result.current.numericalHealth?.headline).toBe("Numerical health: solver checks found no problem");
   expect(result.current.numericalHealthHold).toBeNull();
 
   // Even an indicator claiming a verdict-only red case changes neither Current nor the hold.
@@ -240,10 +240,27 @@ it("holds a real verdict-only generic result: every other Current requirement me
   expect(result.current.numericalHealthHold).toEqual({
     headline: "Numerical health: 1 sensitive",
     shortHeadline: "Numerical health: sensitive",
-    outputSentence: "Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while 1 load case(s) are not checks passed; results tables, CSV export and, for an exact-route result, the rendered report carry each case's standing."
+    outputSentence: "Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while 1 load case(s) are sensitive, quality unresolved, solve failed or not assessed; results tables, CSV export and, for an exact-route result, the rendered report carry each case's standing."
   });
-  expect(result.current.numericalHealth?.outputSentence).toBe("Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while 1 load case(s) are not checks passed; results tables, CSV export and, for an exact-route result, the rendered report carry each case's standing.");
+  expect(result.current.numericalHealth?.outputSentence).toBe("Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while 1 load case(s) are sensitive, quality unresolved, solve failed or not assessed; results tables, CSV export and, for an exact-route result, the rendered report carry each case's standing.");
   // A later edit of the record removes the hold: another requirement now fails.
   act(() => result.current.setAnalysisRun({ ...analysis, schema_version: "0.2.0" } as typeof analysis));
   expect(result.current.numericalHealthHold).toBeNull();
+});
+
+// The indicator never reads better than the document's own status: a solved document whose status is
+// sensitive while every case passed (the reader's NUMERICAL_AGGREGATE_CONTRADICTION) states sensitive
+// on the session's header and short form; each case keeps its own record's state.
+it("states the worse of the document's status and its cases on the session's indicator", () => {
+  const source = JSON.parse(readFileSync(resolve(__dirname, "../../../../../fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json"), "utf8")) as MechanicsResult;
+  source.numerical_quality = { ...source.numerical_quality!, status: "sensitive" };
+  const { result } = renderHook(() => useResultsSessionState());
+  act(() => result.current.setResult(source));
+  const health = result.current.numericalHealth;
+  expect(health).not.toBeNull();
+  expect(health!.cases.length).toBeGreaterThan(0);
+  expect(health!.cases.every((c) => c.state === "checks_passed")).toBe(true);
+  expect(health!.headline).toBe("Numerical health: sensitive");
+  expect(health!.shortHeadline).toBe("Numerical health: sensitive");
+  expect(health!.badge).toBe("red");
 });

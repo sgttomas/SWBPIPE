@@ -141,8 +141,10 @@ code_paths:
 - apps/desktop/src/features/comparison/**
 # The state and run browser. useModelStateHistory.ts is shared with DEL-14-01.
 - apps/desktop/src/features/history/**
-# The design-knowledge panel. The record it shows is DEL-13-01's.
+# The design-knowledge panel. The record it shows is DEL-13-01's. designKnowledge.ts decides which
+# model a loaded knowledge document is shown, counted and carried for.
 - apps/desktop/src/features/knowledge/**
+- apps/desktop/src/services/designKnowledge.ts
 # The review and apply interaction and the ledger panel. OperationLedgerPanel.tsx is shared with
 # DEL-16-03 and DEL-16-04, which own the record it shows. The batch review panel
 # (apps/desktop/src/features/toolkit/BatchReviewPanel.tsx) is listed by DEL-07-02 for the move of
@@ -168,6 +170,7 @@ code_paths:
 checks:
 - apps/desktop/src/App.test.tsx
 - apps/desktop/src/features/workspace/exactCurrentPanels.test.tsx
+- apps/desktop/src/services/designKnowledge.test.tsx
 - apps/desktop/src/features/workspace/currentResultUnitPolicy.test.tsx
 - apps/desktop/src/features/history/modelStateHistory.session.test.tsx
 - apps/desktop/src/features/history/HistoryPanel.runs.test.tsx

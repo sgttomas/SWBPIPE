@@ -166,7 +166,7 @@ describe.each(CASES)("an eligible pressure-2 %s Current result reaches the Curre
     comparisonView.unmount();
 
     // KnowledgePanel: computed records from the result's diagnostics; no download.
-    const knowledgeView = render(<KnowledgePanel knowledge={session.model.knowledge} result={result} />);
+    const knowledgeView = render(<KnowledgePanel knowledge={session.model.knowledge} model={model} result={result} />);
     expect(within(knowledgeView.container).getByTestId("knowledge-panel")).toBeTruthy();
     expect(knowledgeView.container.querySelectorAll("a[download], a[href^='data:']")).toHaveLength(0);
     knowledgeView.unmount();

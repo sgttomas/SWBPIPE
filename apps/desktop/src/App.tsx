@@ -1,6 +1,6 @@
 import { C2ResultGate } from "./features/results/C2ResultGate";
 import type { SessionResult } from "./services/nativeResult";
-import { reportPackageUnavailableReason } from "./features/report/reportPackageRequest";
+import { reportPackageSourceUnavailableReason } from "./features/report/reportPackageRequest";
 import { CompactSelectScope } from "./features/workspace/CompactSelect";
 import { HangerSelectionPanel } from "./features/hanger-selection";
 import { HangerSizingForm } from "./features/hanger-sizing";
@@ -64,6 +64,7 @@ import { DesignWorkspacePanel } from "./features/design-workspace/DesignWorkspac
 import { DiffPreviewPanel } from "./features/diff-preview/DiffPreviewPanel";
 import { EditorContractPanel } from "./features/editor-contract/EditorContractPanel";
 import { KnowledgePanel } from "./features/knowledge/KnowledgePanel";
+import { designKnowledgeDiagnostics } from "./services/designKnowledge";
 import { LibraryManagerPanel } from "./features/library/LibraryManagerPanel";
 import { LoadCaseManagerPanel } from "./features/load-cases/LoadCaseManagerPanel";
 import { LocalFeaHandoffPanel } from "./features/local-fea-handoff/LocalFeaHandoffPanel";
@@ -248,8 +249,12 @@ function AppSession() {
   // Save Report Package… (DEL-08-01 Design `report-package-current-results.md` §2.1):
   // enablement is synchronous, the output policy's route gate plus the presence
   // checks below. The builder's own refusals (admission, rule-check binding, rule
-  // packs) are shown in the report panel's status line after an attempt.
-  const reportPackageUnavailable = reportPackageUnavailableReason(currentSolvedResult);
+  // packs) are shown in the report panel's status line after an attempt. Its source is
+  // the rendered report's (DEL-08-01 REQ-024, "Package and user release"): Current, or an
+  // exact-route result the rendered report takes whatever its numerical standing. A
+  // pressure-free Timoshenko result the rendered report takes that is not Current is not
+  // offered a package (LIM-016), and the panel says why.
+  const reportPackageUnavailable = reportPackageSourceUnavailableReason(renderableSolvedResult, currentSolvedResult);
   // The viewport's result overlays read the same standing and numerical health view as the results panel.
   const viewportResultStanding = useMemo(() => ({ eligible: numericallyEligible, health: numericalHealth }), [numericallyEligible, numericalHealth]);
   const {
@@ -294,6 +299,7 @@ function AppSession() {
   const {
     storageCapability,
     projectSummary,
+    storedRunNotOpened,
     projectIndex,
     modelHashIntegrity,
     projectEnvelopeHash,
@@ -437,7 +443,7 @@ function AppSession() {
           openMenu={openMenu}
           projectBusy={projectBusy}
           modelDocumentSaveReady={model !== null && !projectBusy}
-          reportPackageReady={!reportPackageUnavailable && Boolean(currentSolvedResult && analysisRun && inputManifest) && !running && !reportPackageBusy}
+          reportPackageReady={!reportPackageUnavailable && Boolean(renderableSolvedResult && analysisRun && inputManifest) && !running && !reportPackageBusy}
           running={running}
           solveWithheld={solveGate.kind === "withheld" ? solveWithheldReason(solveGate) : null}
           treeCollapsed={treeCollapsed}
@@ -469,7 +475,8 @@ function AppSession() {
             })}
           />
       </ShellToolbar>
-      <ReportOutputStatus outcomes={reportOutput.outcomes} entries={reportOutput.entries} currentSequence={reportOutput.sequence} />
+      <ReportOutputStatus outcomes={reportOutput.outcomes} entries={reportOutput.entries} currentSequence={reportOutput.sequence}
+        currentProjectId={model?.project.id ?? null} />
 
       <div className="shell-body">
         <StageRail issueCount={issueCount} />
@@ -758,6 +765,7 @@ function AppSession() {
                 operationBusy={operationBusy}
                 getPreparationEpoch={getPreparationEpoch}
                 onQueueIntent={handleQueueEditorIntent}
+                onQueueBatch={handleQueueOperationBatch}
                 onSelect={handleSelectEntity}
                 selection={selection}
               />
@@ -905,10 +913,11 @@ function AppSession() {
               <DormantSection page="report" active={activeSection === "report"} sessionGeneration={projectSessionGeneration}>
               <Fragment key={`report:${dormantOutputBasis}`}>
               <ComparisonPackageNotice packaged={packagedWithinRun} dropped={droppedWithinRunBases} testId="report-comparison-package-notice" />
-              {/* DEL-08-01 REQ-017, REQ-024: the rendered report's own source (a readable exact-route
-                  result whatever its standing); its package save stays on currentSolvedResult. */}
+              {/* DEL-08-01 REQ-017, REQ-024: the rendered report's own source (a readable exact-route or
+                  pressure-free Timoshenko result whatever its standing), which its package save and user
+                  release also take on the exact route. */}
               <C2ResultGate result={renderableSolvedResult} analysisRun={analysisRun} feature="the rendered report"
-                withheld={reportPackageRoute ? <ReportPackageSaveStatus route={reportPackageRoute} announce /> : null}>
+                withheld={reportPackageRoute ? <ReportPackageSaveStatus route={reportPackageRoute} /> : null}>
                 {(full) => (
                   <RenderedReportPanel
                     model={model}
@@ -925,7 +934,6 @@ function AppSession() {
                     packageRedaction={reportPackageRedaction}
                     packageRoute={reportPackageRoute}
                     onPackagePrivateIntentChange={setReportPackagePrivateIntent}
-                    packageNeedsCurrent={currentSolvedResult === null}
                     restoredRun={historicalRun?.designation === "historical_saved_run" && !running}
                     onSaveReportPackage={reportPackageUnavailable ? undefined : () => void handleSaveReportPackage()}
                     onSaveShareableReportPackage={reportPackageUnavailable ? undefined : () => void requestSaveShareableReportPackage()}
@@ -1211,7 +1219,7 @@ function AppSession() {
                   </>
                 )}
               </C2ResultGate>
-              <KnowledgePanel knowledge={knowledge} result={currentSolvedResult} />
+              <KnowledgePanel knowledge={knowledge} model={model} result={currentSolvedResult} />
               </DormantSection>) : null}
             </section>
 
@@ -1233,6 +1241,7 @@ function AppSession() {
                 proposal={proposal}
                 modelHashIntegrity={modelHashIntegrity}
                 projectEnvelopeHashIntegrity={projectEnvelopeHashIntegrity}
+                storedRunNotOpened={storedRunNotOpened}
               />
               <HistoryPanel />
               <ProjectValidationPanel
@@ -1789,7 +1798,7 @@ function StatusPill({ label, value, testId, summaryText }: {
   );
 }
 
-function issueCountFor(
+export function issueCountFor(
   model: PreviewModel,
   knowledge: DesignKnowledge | null,
   result: SessionResult | null,
@@ -1801,7 +1810,7 @@ function issueCountFor(
   );
   return (
     model.diagnostics.length +
-    (knowledge?.diagnostics.length ?? 0) +
+    designKnowledgeDiagnostics(knowledge, model).length +
     (result?.diagnostics.length ?? 0) +
     operationDiagnosticCount +
     countMissingDataBlockers({ model, result })

@@ -103,7 +103,7 @@ function scenario(group: Group, route: typeof SOURCE_ROUTES[number] = "pressure_
   const verdict = (findings: string[]) => ({
     ok: true, route, binding: { id: binding.id, sha256: binding.sha256 }, error: null,
     standing: { route, token: eligible && findings.length === 0 ? "numerically_eligible" : "needs_recompute",
-      status: eligible && findings.length === 0 ? "integrity_checked" : "needs_recompute", eligible: eligible && findings.length === 0, findings },
+      status: eligible && findings.length === 0 ? "solver_checks_passed" : "needs_recompute", eligible: eligible && findings.length === 0, findings },
   });
   const plan = {
     unbound: verdict([SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED]),

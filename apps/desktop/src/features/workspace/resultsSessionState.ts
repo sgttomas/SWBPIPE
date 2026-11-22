@@ -1,10 +1,12 @@
 import type { ReportComposition } from "../report/reportComposition";
-import { currentSemanticContract } from "../results/resultReader";
-import { numericalResultStanding, type NumericalStanding } from "../results/resultStanding";
+import { currentSemanticContract, readerDispatch } from "../results/resultReader";
+import { numericalResultStanding, reportStanding, type NumericalStanding } from "../results/resultStanding";
+import { nativeSupportStates, recoveredCaseIds, supportStatesFor } from "../results/integrityStatus";
 import { numericalHealthHold, numericalHealthView, readNumericalHealth, type NumericalHealthHold } from "../results/numericalHealth";
 import { isFreshSemanticResult } from "../results/knownSemanticLimitations";
-import { isExactReportSource } from "../report/exactReportSections";
-import { renderableReportSource } from "../report/renderableReportSource";
+import { takesReportAdmission } from "../report/exactReportAdmission";
+import { renderableReportSource, STANDING_FINDINGS } from "../report/renderableReportSource";
+import { packageStandingGround as standingGroundOf, type PackageStandingGround } from "../report/reportPackageRequest";
 import { useMemo, useRef, useState } from "react";
 import { useSequencedState } from "./reportSourceSequence";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
@@ -120,31 +122,51 @@ export function useResultsSessionState(advanceReportSource?: () => number) {
   let standing: NumericalStanding | null = null;
   if (native) {
     standing = native.binding.standing && manifestModelText === native.binding.standingModelText
-      ? { contract: native.verdict.standing.route, status: native.verdict.standing.status, eligible: native.binding.standing.eligible, findings: [...native.binding.standing.findings] }
+      ? { contract: native.verdict.standing.route, status: native.verdict.standing.status, eligible: native.binding.standing.eligible, findings: [...native.binding.standing.findings], integrity_bound: native.verdict.standing.integrity_bound }
       : null;
   } else {
     try { standing = result ? numericalResultStanding(result as MechanicsResult, manifestModel) : null; }
     catch { /* Malformed retained carriers remain inspectable, never Current. */ }
   }
   const numericallyEligible = !!standing?.eligible;
+  // Release exit criterion 18: the reader verdict's `integrity_bound` for the held result, also where
+  // no standing is bound (a verdict states it on every route).
+  const integrityBound = useMemo(() => {
+    if (standing) return standing.integrity_bound;
+    if (!result) return null;
+    if (native) return native.verdict.standing.integrity_bound ?? null;
+    try { return readerDispatch(result as MechanicsResult).standing.integrity_bound ?? null; } catch { return null; }
+  }, [standing, result, native]);
   const otherCurrentRequirementsHold = currentRequirementsExceptNumericalEligibility({ result, analysisRun, inputManifest });
   // T0R: Current only for the static fresh-identity set with Current standing;
   // other identities stay readable, never Current.
   const currentSolvedResult = result && otherCurrentRequirementsHold && numericallyEligible ? result : null;
   // DEL-08-01 REQ-017, REQ-024: the rendered report (and its print view) also takes an
-  // exact-route result that meets every other Current requirement, whose mechanics are
-  // solved and whose standing names only standing findings, whatever that standing is: a
-  // candidate, which the build step and the native host each read in full before any
-  // render (`renderableReportSource`). Every other output, the report package included,
-  // keeps `currentSolvedResult`.
+  // exact-route or pressure-free Timoshenko result (the two whose render the native host
+  // binds to the delivered result, `takesReportAdmission`) that meets every other Current
+  // requirement, whose mechanics are solved and whose standing names only standing findings,
+  // whatever that standing is: a candidate, which the build step and the native host each
+  // read in full before any render (`renderableReportSource`). The report package and the
+  // user release take this same source (DEL-08-01 REQ-024, "Package and user release"); on
+  // the pressure-free routes they carry `currentSolvedResult` alone and refuse any other
+  // (`reportPackageSourceUnavailableReason`). Every other output keeps `currentSolvedResult`.
   const renderableSolvedResult = renderableReportSource({
     current: currentSolvedResult,
     result,
     otherCurrentRequirementsHold,
-    exactRoute: result !== null && isExactReportSource(result as MechanicsResult),
+    boundRoute: result !== null && takesReportAdmission(result as MechanicsResult),
     mechanicsSolved: result?.status?.mechanics === "MECHANICS_SOLVED",
     standing
   });
+  // DEL-08-01 REQ-024, LIM-016: why a solved result that meets every other Current requirement,
+  // and whose findings all state its standing, is not numerically eligible ("health" or
+  // "record", `packageStandingGround`); null for every other result, an eligible one included.
+  // The package refusals' words follow it; it admits nothing.
+  const packageStandingGround: PackageStandingGround | null = result && !numericallyEligible && otherCurrentRequirementsHold
+    && result.status?.mechanics === "MECHANICS_SOLVED" && standing !== null && standing.findings.length > 0
+    && standing.findings.every((finding) => STANDING_FINDINGS.includes(finding))
+    ? standingGroundOf(result as Pick<MechanicsResult, "numerical_quality">)
+    : null;
   // DEL-07-05 numerical health: the Rust indicator for this result with the reader's
   // findings from the standing above. Presentation only; it reads nothing back into
   // Current standing or any output gate.
@@ -159,9 +181,26 @@ export function useResultsSessionState(advanceReportSource?: () => number) {
     [result, native, standingFindingsKey]
   );
   const verdictHold = numericalHealthHold({ isCurrent: currentSolvedResult !== null, otherCurrentRequirementsHold, health: numericalHealth });
+  // Release exit criterion 18: each nonlinear case's support-state line, from the reader's standing
+  // record (a native result's summary carries it, read natively with the bound model). Fail closed:
+  // no line only where the manifest's model is known to have no nonlinear support or the record gives
+  // the case an outcome that takes none; with no model, or no record read, every case says its
+  // confirmation record could not be read.
+  const supportStates = useMemo(() => {
+    if (!result || standingFindingsKey === null) return undefined;
+    if (native) return nativeSupportStates(native.summary.header.support_confirmations, native.supportConfirmations, manifestModel ?? null);
+    return supportStatesFor(manifestModel ?? null, () => {
+      if (!manifestModel) return null;
+      const reading = reportStanding(result as MechanicsResult, manifestModel);
+      return reading.readability.readable && reading.readability.solved ? reading.numerical_standing : null;
+    });
+  }, [result, native, manifestModel, standingFindingsKey]);
+  // The pressure-source route's cases whose values come from the producer's recovery (the method the
+  // result records for each case); an ordinary companion's do not.
+  const recoveredCases = useMemo(() => recoveredCaseIds(result as MechanicsResult | null), [result]);
   const numericalHealthPresentation = useMemo(
-    () => numericalHealthView(numericalHealth, { eligible: numericallyEligible, verdictHold }),
-    [numericalHealth, numericallyEligible, verdictHold]
+    () => numericalHealthView(numericalHealth, { eligible: numericallyEligible, verdictHold, supportStates, recoveredCases, documentStatus: (result as MechanicsResult | null)?.numerical_quality?.status }),
+    [numericalHealth, numericallyEligible, verdictHold, supportStates, recoveredCases, result]
   );
   const numericalHealthHoldView: NumericalHealthHold | null = verdictHold && numericalHealthPresentation
     ? { headline: numericalHealthPresentation.headline, shortHeadline: numericalHealthPresentation.shortHeadline, outputSentence: numericalHealthPresentation.outputSentence }
@@ -264,9 +303,14 @@ export function useResultsSessionState(advanceReportSource?: () => number) {
     currentSolvedResult,
     /** The result the rendered report takes (see above); never an input to any other output. */
     renderableSolvedResult,
+    /** Why `result`, solved and current in every other respect, is not numerically eligible, for
+     * the package refusals' words; null otherwise. */
+    packageStandingGround,
     /** The reader's numerical standing of `result` (`standing.eligible`), for the viewport's
      * result overlays; it admits nothing by itself. */
     numericallyEligible,
+    /** The reader verdict's `integrity_bound` for `result` (not verified on every verdict in v1.0). */
+    integrityBound,
     numericalHealth: numericalHealthPresentation,
     numericalHealthHold: numericalHealthHoldView,
     analysisRun, setAnalysisRun,
