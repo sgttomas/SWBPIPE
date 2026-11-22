@@ -205,15 +205,14 @@
 //! remove the webview the build is still reaching (tauri 2.11.1), so while the
 //! record is building a sweep or the shutdown marks it closing and asks no
 //! destruction. Once the build has returned the mark is cleared under the
-//! lock; a build that failed releases the record ([`VIEW_WINDOW_FAILED`]).
-//! After each step taken with the lock released (the build, the
-//! acknowledgement, a bring-forward) the record must still be open: no
-//! shutdown, present, not closing and showable. Otherwise it is marked closing
-//! (or released, if its window is gone), its window destroyed, and the
-//! opening refused, as a failed window after the shutdown and as not showable
-//! otherwise. A window that does not answer the acknowledgement is a failed
-//! opening, its record and lease released ([`VIEW_WINDOW_FAILED`]). A
-//! bring-forward restores a minimized window before focusing it, and counts
+//! lock; a build that failed, or a window that does not answer the
+//! acknowledgement, releases the record and its lease before asking the
+//! window's destruction ([`VIEW_WINDOW_FAILED`]). After the acknowledgement
+//! and after a bring-forward, the record must still be open: no shutdown,
+//! present, not closing and showable. Otherwise it is marked closing (or
+//! released, if its window is gone), its window destroyed, and the opening
+//! refused, as a failed window after the shutdown and as not showable
+//! otherwise. A bring-forward restores a minimized window before focusing it, and counts
 //! only when the window answered every step.
 //!
 //! Closing. A window's life is the native render's currency: the sweep
@@ -590,20 +589,18 @@ pub(crate) fn open_in<W: Windows>(
         return Err(window_failed());
     };
     drop(records);
-    // A sweep that came during the build marked the record and left its
-    // destruction to this point.
-    still_open_in(open, shut, windows, &label)?;
     if !windows.acknowledge(&window) {
-        windows.destroy(&label);
         drop(release_label_in(open, &label));
+        windows.destroy(&label);
         return Err(window_failed());
     }
+    // A sweep or the shutdown may have come during the build or the acknowledgement.
     still_open_in(open, shut, windows, &label)?;
     Ok(Opened::New { label, title })
 }
 
-/// After a step taken with the records' lock released (a build, an
-/// acknowledgement, a bring-forward): under the lock, the record of `label`
+/// After a step taken with the records' lock released (an acknowledgement, a
+/// bring-forward): under the lock, the record of `label`
 /// must still be open, with no shutdown, present, not closing and showable.
 /// Otherwise it is marked closing (or released, if its window is gone), its
 /// window's destruction is asked after the lock, and the opening is refused:
@@ -1246,6 +1243,7 @@ mod tests {
             lock(&self.runtime).contains(window)
         }
         fn destroy(&self, label: &str) {
+            self.at("destroy");
             if self.building.load(Ordering::SeqCst) {
                 lock(&self.destroyed_while_building).push(label.to_string());
             }
@@ -2665,5 +2663,76 @@ mod tests {
         let dotted = format!("{SCHEME}://{HOST}/{kind}/../{kind}/{sha}/document", kind = id.kind, sha = id.sha256_hex);
         assert_refused(respond_in(&open, "report-view-1", &dotted));
         assert_eq!(respond_at(&open, "report-view-1", &id.document_path()).status(), 200, "the document is still unspent");
+    }
+
+    /// Repair 1 follow-up (a): a sweep or shutdown while native creation fails during build does not
+    /// leave a closing record or its reservation pinned waiting for a `Destroyed` event that cannot arrive.
+    #[test]
+    fn a_sweep_or_shutdown_during_a_failed_native_creation_leaves_no_reservation() {
+        for shutdown in [false, true] {
+            let pool = routes::test_pool();
+            let custody = rendered(&pool);
+            let open = Arc::new(Mutex::new(Vec::new()));
+            let shut = Arc::new(AtomicBool::new(false));
+            let model = Arc::new(Model::default());
+            model.creation_fails.store(true, Ordering::SeqCst);
+            {
+                let (open, custody, shut) = (Arc::clone(&open), Arc::clone(&custody), Arc::clone(&shut));
+                hook_on(&model, move |point, model| {
+                    if point == "build" {
+                        if shutdown {
+                            let _ = shutdown_in(&open, &shut, model);
+                        } else {
+                            assert!(custody.retire_active());
+                            let _ = close_unshowable_in(&open, model);
+                        }
+                    }
+                });
+            }
+            let lease_pool = routes::test_pool();
+            let outcome = open_in(&open, &Mutex::new(()), &shut, &*model, offer(&custody), command_lease(&lease_pool), label("report-view-1"));
+            assert_eq!(*lock(&model.destroyed_while_building), Vec::<String>::new(), "shutdown={shutdown}");
+            assert_eq!(lease_pool.reserved_total(), 0, "shutdown={shutdown}: no orphan reservation");
+            assert!(lock(&open).is_empty(), "shutdown={shutdown}: no orphan closing record");
+            assert_eq!(outcome.as_ref().err().map(|refusal| refusal.code.as_str()), Some(VIEW_WINDOW_FAILED), "shutdown={shutdown}: {outcome:?}");
+        }
+    }
+
+    /// Repair 1 follow-up (b): when acknowledgement fails, the record and its lease are released before
+    /// the asynchronous destruction request is issued, so nothing can still be selected or reserved meanwhile.
+    #[test]
+    fn a_failed_acknowledgement_revokes_the_record_before_asking_destruction() {
+        let pool = routes::test_pool();
+        let custody = rendered(&pool);
+        let open = Arc::new(Mutex::new(Vec::new()));
+        let lease_pool = Arc::new(routes::test_pool());
+        let model = Arc::new(Model::default());
+        model.creation_fails.store(true, Ordering::SeqCst);
+        let status_at_destroy = Arc::new(Mutex::new(None));
+        let empty_at_destroy = Arc::new(Mutex::new(None));
+        let reserved_at_destroy = Arc::new(Mutex::new(None));
+        {
+            let (open, lease_pool, status_at_destroy, empty_at_destroy, reserved_at_destroy) = (
+                Arc::clone(&open),
+                Arc::clone(&lease_pool),
+                Arc::clone(&status_at_destroy),
+                Arc::clone(&empty_at_destroy),
+                Arc::clone(&reserved_at_destroy),
+            );
+            hook_on(&model, move |point, _| {
+                if point == "destroy" {
+                    *lock(&status_at_destroy) = Some(respond_at(&open, "report-view-1", &identity().wrapper_path()).status().as_u16());
+                    *lock(&empty_at_destroy) = Some(lock(&open).is_empty());
+                    *lock(&reserved_at_destroy) = Some(lease_pool.reserved_total());
+                }
+            });
+        }
+        let outcome = open_in(&open, &Mutex::new(()), &AtomicBool::new(false), &*model, offer(&custody), command_lease(&lease_pool), label("report-view-1"));
+        assert_eq!(outcome.as_ref().err().map(|refusal| refusal.code.as_str()), Some(VIEW_WINDOW_FAILED), "{outcome:?}");
+        assert_eq!(*lock(&status_at_destroy), Some(404));
+        assert_eq!(*lock(&empty_at_destroy), Some(true));
+        assert_eq!(*lock(&reserved_at_destroy), Some(0));
+        assert!(lock(&open).is_empty());
+        assert_eq!(lease_pool.reserved_total(), 0);
     }
 }
