@@ -615,10 +615,10 @@ supports RS-LO1, RS-FR1 and RS-G1 overlaid on the fixture in tests only
 the exact route admits them: the combined test overlay solves with no blocking finding in either solver mode. In
 RS-SUS, RS-OPE and RS-SAM that overlay is published unqualified, numerical quality `unresolved` with
 `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED`, because a published case of a solve with a gap support is never
-qualified or confirmed, and its report package is refused (LIM-017 and LIM-016 in
-[`docs/RELEASE_LIMITATIONS_v1.0.md`](../../docs/RELEASE_LIMITATIONS_v1.0.md)), and its rendered report states its standing. Removing
+qualified or confirmed, and its rendered report, its report package and its user release state its standing (LIM-017 in
+[`docs/RELEASE_LIMITATIONS_v1.0.md`](../../docs/RELEASE_LIMITATIONS_v1.0.md)). Removing
 RS-G1 does not restore eligibility: the same overlay without RS-G1 publishes RS-SUS, RS-OPE and RS-SAM
-`NUMERICAL_INTEGRITY_SENSITIVE`, and its report package is refused too (LIM-017), and its rendered report states its standing. Both overlays use
+`NUMERICAL_INTEGRITY_SENSITIVE`, and its rendered report, its report package and its user release state that standing too (LIM-017). Both overlays use
 the interim linear RS-FR1V. With RS-FR1's intended one-way normal source, they solve and are
 not confirmed: the confirmation admits only a base restraint as a derived normal's source, so
 without RS-G1 RS-SUS, RS-OPE and RS-SAM are each `NUMERICAL_INTEGRITY_SENSITIVE` with that named reason.
