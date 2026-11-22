@@ -107,16 +107,22 @@ function reportedStatuses(statuses: readonly string[]): string[] {
   return [...solver, ...registered.filter((status) => !solver.includes(status))];
 }
 
+/** The closed line's plain words for a Solver status other than solved. A registered label
+ * stands only in Details, with its authority domain and token. */
+const NOT_SOLVED_WORDS: Readonly<Record<string, string>> = { MODEL_INCOMPLETE: "Not solved: the model is incomplete" };
+
 /**
- * The completed line's first word, from the mechanics (Solver) status the job reports: "Solved"
- * for MECHANICS_SOLVED; the registry's own label, which is plain, for any other Solver status
- * (MODEL_INCOMPLETE: "Model incomplete"), with the way on to the findings; the job's state word
- * where it reports no Solver status, claiming nothing.
+ * The completed line's outcome, in plain words, from the mechanics (Solver) status the job
+ * reports: "Solved" for MECHANICS_SOLVED; "Not solved: the model is incomplete" for
+ * MODEL_INCOMPLETE ("Not solved" for any other Solver status), with the way on to the findings;
+ * the job's state word where it reports no Solver status, claiming nothing.
  */
 export function completedWord(statuses: readonly string[]): { word: string; solved: boolean; unsolved: boolean } {
   const solver = statuses.map(registeredStatusLabel).find((row) => row?.domain === "Solver" && row.kind === "status") ?? null;
   if (solver === null) return { word: STATE_LABELS.completed, solved: false, unsolved: false };
-  return solver.token === "MECHANICS_SOLVED" ? { word: "Solved", solved: true, unsolved: false } : { word: solver.label, solved: false, unsolved: true };
+  return solver.token === "MECHANICS_SOLVED"
+    ? { word: "Solved", solved: true, unsolved: false }
+    : { word: NOT_SOLVED_WORDS[solver.token] ?? "Not solved", solved: false, unsolved: true };
 }
 
 /** The states the job reported, in order, each once where it repeats. */
@@ -265,7 +271,8 @@ export function SolveProgressPanel({
   const elapsed = startedAt === null ? null : formatElapsed((endedAt ?? Date.now()) - startedAt);
   const took = elapsed === null || endedAt === null ? null
     : outcome?.solved || (completed && !outcome?.unsolved) ? ` in ${elapsed}`
-      : completed || state === "cancelled" || state === "failed" ? ` after ${elapsed}` : null;
+      : outcome?.unsolved ? ` (${elapsed} elapsed)`
+        : completed || state === "cancelled" || state === "failed" ? ` after ${elapsed}` : null;
   const tone = state === "failed" || state === "refused" ? "error" : state === "completed" ? "done" : state === "cancelled" ? "stopped" : "active";
   // A mechanics status other than solved: what to do, as a control with its count where one can be read.
   const blocking = outcome?.unsolved && blockingFindings !== null && blockingFindings > 0 && onShowBlocking ? blockingFindings : null;
@@ -311,7 +318,6 @@ export function SolveProgressPanel({
           {poolRefusal ? null : state === "cancelled" || completed || (queueReason && (state === "queued" || state === "cancelling")) || tooLarge || state === "failed" ? "." : null}
           {state === "cancelled" ? <span> No result was published.</span> : null}
           {earlierResultCleared ? <span data-testid="solve-progress-earlier-cleared"> The earlier result was cleared when this run started.</span> : null}
-          {completed && outcome?.unsolved ? <span data-testid="solve-progress-not-solved"> Nothing was solved.</span> : null}
           {completed && !outcome?.unsolved ? (
             <span>
               {" "}<span data-testid="solve-progress-completed">{plural(completed.result_row_count, "result row", "result rows")}.</span>
@@ -355,7 +361,8 @@ export function SolveProgressPanel({
               {state === "cancelling" ? "Cancelling" : "Stop"}
             </button>
           ) : null}
-          {state === "completed" && onOpenResults && !resultsShown ? (
+          {/* Nothing to open where nothing was solved. */}
+          {state === "completed" && !outcome?.unsolved && onOpenResults && !resultsShown ? (
             <button className="primary-action" data-testid="solve-progress-open-results" onClick={onOpenResults} type="button">
               Open results
               <ArrowRight size={14} aria-hidden="true" />

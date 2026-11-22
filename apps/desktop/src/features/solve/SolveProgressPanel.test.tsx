@@ -389,8 +389,13 @@ describe("the status line's outcome and its actions", () => {
     const onShowIssue = vi.fn();
     const view = render(line(initialSolveJob(), false, { onShowIssue }));
     view.rerender(line(initialSolveJob(), true, { onShowIssue }));
-    view.rerender(line(completedWith(["MODEL_INCOMPLETE", "HUMAN_REVIEW_REQUIRED"]), false, { onShowIssue }));
-    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Model incomplete after \d+:\d\d\. Nothing was solved\.$/);
+    view.rerender(line(completedWith(["MODEL_INCOMPLETE", "HUMAN_REVIEW_REQUIRED"]), false, { onShowIssue, onOpenResults: () => {} }));
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Not solved: the model is incomplete \(\d+:\d\d elapsed\)\.$/);
+    expect(screen.getByTestId("solve-progress-panel").querySelector(".solve-status-main")!.textContent).not.toMatch(/MODEL_INCOMPLETE|Model incomplete|Nothing was solved/);
+    // Details carries the registered label with its authority domain and token.
+    expect(screen.getByTestId("solve-progress-statuses")).toHaveTextContent("Solver · Model incomplete (MODEL_INCOMPLETE)");
+    // Nothing was solved, so there is nothing to open, though the application offers the route.
+    expect(screen.queryByTestId("solve-progress-open-results")).toBeNull();
     fireEvent.click(screen.getByTestId("solve-progress-show-issue"));
     expect(onShowIssue).toHaveBeenCalledTimes(1);
     // A completed job that reports no mechanics status claims nothing: the job's own state word.
@@ -558,7 +563,8 @@ describe("a solve that ends with the model incomplete (the missing-data use case
     const items = groupIssues({ model: useCaseModel, diagnostics: findings, diagnosticOrigins: ["solve", "solve"] });
     const count = solveBlockingItems(items).length;
     expect(count).toBe(2);
-    const props = { onCancel: () => {}, blockingFindings: count, onShowBlocking, onShowIssue: () => {} };
+    // Open results is passed, as the application always passes it, so its absence below is the rule's.
+    const props = { onCancel: () => {}, blockingFindings: count, onShowBlocking, onShowIssue: () => {}, onOpenResults: () => {} };
     const view = render(<SolveProgressPanel solveJob={initialSolveJob()} running={false} {...props} />);
     view.rerender(<SolveProgressPanel solveJob={initialSolveJob()} running {...props} />);
     const running = progressSolveJob(startSolveJob(useCaseModel, receipt), status({ state: "running" }));
@@ -567,7 +573,9 @@ describe("a solve that ends with the model incomplete (the missing-data use case
       { analysis_run: { run_id: "analysis-run:invented-missing-data", analysis_status: ["MODEL_INCOMPLETE"] } } as unknown as AnalysisRunEnvelope);
     view.rerender(<SolveProgressPanel solveJob={done} running={false} {...props} />);
     const line = screen.getByTestId("solve-progress-state");
-    expect(line).toHaveTextContent(/^Model incomplete after \d+:\d\d\. Nothing was solved\.$/);
+    expect(line).toHaveTextContent(/^Not solved: the model is incomplete \(\d+:\d\d elapsed\)\.$/);
+    // The closed line is plain words: no token and no registered label without its domain and token.
+    expect(screen.getByTestId("solve-progress-panel").querySelector(".solve-status-main")!.textContent).not.toMatch(/MODEL_INCOMPLETE|Model incomplete/);
     // The line itself (its words and its controls), not Details, which keeps the job's own report.
     expect(screen.getByTestId("solve-progress-panel").querySelector(".solve-status-main")!.textContent).not.toMatch(/Completed|result rows?/);
     expect(screen.queryByTestId("solve-progress-show-issue")).toBeNull();
