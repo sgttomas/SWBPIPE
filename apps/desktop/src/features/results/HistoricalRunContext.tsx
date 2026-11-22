@@ -3,7 +3,7 @@ import { recordedReaderDispatch, sourceContract } from "./resultReader";
 import { numericalResultStanding, recordedResultStanding } from "./resultStanding";
 import { recordedPreRtA4RecordBinding, recordedTableLabel, type RecordedBinding } from "../../services/recordedPreRtA4";
 import { validateRetainedPrecision, validateRetainedPrecisionRecorded } from "./retainedPrecisionReader";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { AnalysisRunEnvelope, LocalProjectEnvelope, MechanicsResult, ModelHashEvidence, ProjectEnvelopeHashEvidence, PreviewModel } from "../../types";
 import { canonicalSha256Hex, canonicalSha256HexCheckedV1, computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
 import type { AnalysisRunRead } from "../../services/analysisRunService";
@@ -455,15 +455,21 @@ export function buildBundledReferenceContext(
 export function HistoricalRunPanel({ context }: { context: HistoricalRunContext }) {
   // Held with this run's view identity, as the results panel's page is: another run selects nothing.
   const [selected, setSelected] = useState<{ viewKey: string; id: string | null }>({ viewKey: context.viewKey, id: null });
+  const retentionNoticeRef = useRef<HTMLParagraphElement | null>(null);
   const selectedResultId = selected.viewKey === context.viewKey ? selected.id : null;
   const setSelectedResultId = (id: string) => setSelected({ viewKey: context.viewKey, id });
   const isReference = context.designation === "bundled_reference";
+  useEffect(() => {
+    if (isReference && context.retentionNotice) {
+      retentionNoticeRef.current?.focus();
+    }
+  }, [isReference, context.retentionNotice]);
   const title = isReference ? "Bundled reference — not a solve for the current model" : "Historical saved run";
   return <section className="panel" aria-label={title} data-testid="historical-run-context">
     <div className="panel-title">{title}</div>
     {isReference && context.retentionNotice ? (
       <>
-        <p role="status" data-testid="reference-retention-notice" className="result-refusal">{context.retentionNotice.message}</p>
+        <p ref={retentionNoticeRef} tabIndex={-1} role="status" data-testid="reference-retention-notice" className="result-refusal">{context.retentionNotice.message}</p>
         {context.retentionNotice.details ? (
           <details data-testid="reference-retention-details"><summary>Details</summary><p>{context.retentionNotice.details}</p></details>
         ) : null}

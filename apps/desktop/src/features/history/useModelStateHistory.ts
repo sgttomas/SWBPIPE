@@ -228,16 +228,19 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
   // naming the state Record Run ties the run to.
   const [solvedModelHash, setSolvedModelHash] = useState<{ manifest: unknown; hash: string | null } | null>(null);
   const [statesProjectId, setStatesProjectId] = useState<string | null>(null);
-  const [historyStatus, setHistoryStatus] = useState<{ projectId: string | null; message: string; details: string | null }>({
+  const [historyStatus, setHistoryStatus] = useState<{ projectId: string | null; generation: number | null; message: string; details: string | null }>({
     projectId: null,
+    generation: null,
     message: NO_MODEL_STATES_LISTED,
     details: null
   });
   const setHistoryMessage = useCallback(
     (next: string | ((prev: string) => string), details: string | null = null) => {
       const ownerProjectId = depsRef.current.currentModel.current?.project.id ?? depsRef.current.model?.project.id ?? null;
+      const ownerGeneration = depsRef.current.projectSessionGenerationRef.current;
       setHistoryStatus((prev) => ({
         projectId: ownerProjectId,
+        generation: ownerGeneration,
         message: typeof next === "function" ? next(prev.message) : next,
         details: typeof next === "function" ? prev.details : details
       }));
@@ -257,7 +260,9 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
   depsRef.current = deps;
 
   const projectId = deps.model?.project.id ?? null;
-  const historyStatusCurrent = historyStatus.projectId === null || historyStatus.projectId === projectId;
+  const historyStatusCurrent =
+    (historyStatus.projectId === null || historyStatus.projectId === projectId) &&
+    (historyStatus.generation === null || historyStatus.generation === deps.projectSessionGeneration);
   const historyMessage = historyStatusCurrent ? historyStatus.message : NO_MODEL_STATES_LISTED;
   const historyMessageDetails = historyStatusCurrent ? historyStatus.details : null;
   const basisStateId = basis && basis.generation === deps.projectSessionGeneration && basis.projectId === projectId ? basis.stateId : null;
@@ -292,17 +297,25 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     }
   }
 
-  const previousProjectIdRef = useRef<string | null>(projectId);
+  const previousSessionRef = useRef<{ projectId: string | null; generation: number }>({
+    projectId,
+    generation: deps.projectSessionGeneration
+  });
   useEffect(() => {
-    if (previousProjectIdRef.current !== null && previousProjectIdRef.current !== projectId) {
+    const prevSession = previousSessionRef.current;
+    if (
+      (prevSession.projectId !== null && prevSession.projectId !== projectId) ||
+      prevSession.generation !== deps.projectSessionGeneration
+    ) {
       setHistoryStatus((prev) =>
-        prev.projectId !== null && prev.projectId !== projectId
-          ? { projectId: null, message: NO_MODEL_STATES_LISTED, details: null }
+        (prev.projectId !== null && prev.projectId !== projectId) ||
+        (prev.generation !== null && prev.generation !== deps.projectSessionGeneration)
+          ? { projectId: null, generation: null, message: NO_MODEL_STATES_LISTED, details: null }
           : prev
       );
     }
-    previousProjectIdRef.current = projectId;
-  }, [projectId]);
+    previousSessionRef.current = { projectId, generation: deps.projectSessionGeneration };
+  }, [projectId, deps.projectSessionGeneration]);
 
   useEffect(() => {
     void refreshStates(projectId);

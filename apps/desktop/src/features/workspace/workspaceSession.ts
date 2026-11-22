@@ -744,6 +744,7 @@ export function useWorkspaceSession() {
     history: HistoricalRunContext | null;
     result: MechanicsResult | null;
     analysisRun: AnalysisRunEnvelope | null;
+    retentionNotice: { message: string; details: string | null } | null;
   } | null>(null);
   /** C1 slice 6: the project whose stored run the open refused (not admitted into native custody). */
   const unopenedStoredRun = useRef<string | null>(null);
@@ -1342,9 +1343,12 @@ export function useWorkspaceSession() {
 
   async function handleInspectBundledReference() {
     if (!model) return;
-    let retentionNotice: { message: string; details: string | null } | null = null;
+    const existingPersistence = retainedReferencePersistence(model);
+    let retentionNotice: { message: string; details: string | null } | null = existingPersistence?.retentionNotice
+      ? { ...existingPersistence.retentionNotice }
+      : null;
     if (result || analysisRun || historicalRun?.designation === "historical_saved_run"
-      || !retainedReferencePersistence(model)) {
+      || !existingPersistence) {
       const basis = {
         generation: projectSessionGenerationRef.current, revision: modelRevision.current,
         resultSequence: resultBasisRef.current.sequence, runSequence: analysisBasisRef.current.sequence,
@@ -1356,9 +1360,9 @@ export function useWorkspaceSession() {
       if (currentModel.current !== model || projectSessionGenerationRef.current !== basis.generation
         || modelRevision.current !== basis.revision || resultBasisRef.current.sequence !== basis.resultSequence
         || analysisBasisRef.current.sequence !== basis.runSequence || solveRunGate.current.current() !== basis.solve) return;
+      retentionNotice = retained.message ? { message: retained.message, details: retained.details ?? null } : null;
       if (retained.message) {
         setProjectMessage(retained.message, retained.details ?? null);
-        retentionNotice = { message: retained.message, details: retained.details ?? null };
       }
       referencePersistence.current = {
         model, generation: basis.generation, modelContent: checkedJsonText(model),
@@ -1366,6 +1370,7 @@ export function useWorkspaceSession() {
         // reference switch makes it no current result.
         history: historicalRun?.designation === "historical_saved_run" ? (historicalRun.restored ? historicalRun : structuredClone(historicalRun)) : null,
         result: retained.result, analysisRun: retained.analysisRun,
+        retentionNotice,
       };
     }
     // Retire any pending backend publication before loading the separate example.

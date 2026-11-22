@@ -486,4 +486,26 @@ describe("Compare… of the current run with a recorded run, for a run record ab
     expect(history(state).historyMessage).toBe(NO_MODEL_STATES_LISTED);
     expect(history(state).historyMessageDetails).toBeNull();
   });
+
+  it("clears a compareRuns size refusal and Details when reopening the same project directly", async () => {
+    const { state } = await session();
+    await solve(state);
+    await act(async () => { await history(state).recordRun({ labels: LABELS, snapshotName: "After solve" }); });
+    await waitFor(() => expect(history(state).runs).toHaveLength(1));
+    const projectId = state().model.model!.project.id;
+    const preview = nativeResult.nativeRunPreview;
+    vi.spyOn(nativeResult, "nativeRunPreview").mockImplementation((run) => ({ ...preview(run), record_bytes: RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1 }));
+    await act(async () => { await history(state).compareRuns(CURRENT_RUN_ID, history(state).runs![0].recording_id); });
+    expect(history(state).historyMessage).toMatch(/^Not compared: This run record is too large/);
+    expect(history(state).historyMessageDetails).toContain("RESULT-DETAIL-WEBVIEW-LIMIT");
+
+    const generationBefore = state().model.projectSessionGeneration;
+    await act(async () => { await state().project.handleOpenProject(projectId); });
+    expect(state().model.projectSessionGeneration).toBeGreaterThan(generationBefore);
+    expect(history(state).historyMessage).toBe(NO_MODEL_STATES_LISTED);
+    expect(history(state).historyMessageDetails).toBeNull();
+    await waitFor(() => expect(history(state).runs).toHaveLength(1));
+    expect(history(state).historyMessage).toBe(NO_MODEL_STATES_LISTED);
+    expect(history(state).historyMessageDetails).toBeNull();
+  });
 });

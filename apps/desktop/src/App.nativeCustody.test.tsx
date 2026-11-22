@@ -186,12 +186,25 @@ describe("a native result's first paint in the app", () => {
     const expectedLine = `The current solve's result is not retained. ${words.fact}`;
     const visibleNotice = within(referencePanel).getByTestId("reference-retention-notice");
     expect(visibleNotice).toHaveAttribute("role", "status");
+    expect(visibleNotice).toHaveAttribute("tabindex", "-1");
+    expect(visibleNotice).toHaveFocus();
     expect(visibleNotice).toHaveTextContent(expectedLine);
     expect(visibleNotice.textContent).not.toMatch(/RESULT-DETAIL|bytes|webview|native/i);
     const visibleDetails = within(referencePanel).getByTestId("reference-retention-details") as HTMLDetailsElement;
     expect(visibleDetails.open).toBe(false);
     expect(visibleDetails.querySelector("summary")?.textContent).toBe("Details");
     expect(visibleDetails.querySelector("p")?.textContent).toBe(words.details);
+
+    // Repeating reference inspection from Results keeps the retention notice, its Details, and focus announcement.
+    fireEvent.click(within(resultsSection).getByRole("button", { name: "Inspect bundled reference" }));
+    await waitFor(() => expect(within(resultsSection).getByTestId("historical-run-context")).not.toBe(referencePanel));
+    const repeatPanel = within(resultsSection).getByTestId("historical-run-context");
+    const repeatNotice = within(repeatPanel).getByTestId("reference-retention-notice");
+    expect(repeatNotice).toHaveFocus();
+    expect(repeatNotice).toHaveTextContent(expectedLine);
+    const repeatDetails = within(repeatPanel).getByTestId("reference-retention-details") as HTMLDetailsElement;
+    expect(repeatDetails.open).toBe(false);
+    expect(repeatDetails.querySelector("p")?.textContent).toBe(words.details);
 
     nativeMenuCommand("view.section.project");
     expect(screen.getByTestId("workspace-section-results")).toHaveClass("inactive");
