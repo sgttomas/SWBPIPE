@@ -8,8 +8,10 @@ import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 import type { DesignKnowledge, Diagnostic, MechanicsResult, PreviewModel } from "../../types";
 import { DiagnosticsPanel } from "./DiagnosticsPanel";
-import { countItemsBySeverity, diagnosticsListOf, groupIssues, type IssueItem } from "./issueItems";
-import { LONG_MESSAGE_CHARACTERS, NO_OWN_DETAIL_REASON } from "./IssueItemView";
+import { countItemsBySeverity, diagnosticsListOf, groupIssues, issueSummary, type IssueItem } from "./issueItems";
+import { IssueItemView, LONG_MESSAGE_CHARACTERS, NO_OWN_DETAIL_REASON } from "./IssueItemView";
+import { IssuesHome } from "../../App";
+import { loadPreviewModel } from "../../services/previewService";
 import type { ModelCheckFinding } from "./modelChecks";
 import { ModelChecksPanel } from "./ModelChecksPanel";
 import { SOLVER_MESSAGES_HEADING } from "../results/integrityStatus";
@@ -68,6 +70,29 @@ describe("R1: an opened group's rows mark what tells them apart, only where it i
     ]);
     // The excerpt is cut from the producer's message, which is shown whole.
     expect(messages[1]).toHaveTextContent("invented hanger support:H-1: its cold load (hanger.cold_load) is not applied as preload");
+  });
+
+  it("the same six where the solve's reports are shown as supplied, unverified text and one message is long: each row still marks only its load", () => {
+    const code = "INVENTED_HANGER_LOAD_NOT_PRELOAD";
+    const rest = "; results treat the hanger as a linear spring from zero load, whose force is its stiffness times the displacement at its degree of freedom, and the entered load remains review evidence only";
+    const load = (name: string, id: string) => report({ id, code, message: `invented variable spring hanger support:H-1: its ${name} load (hanger.${name}_load) is not applied as preload${rest}` });
+    const loads = ["installed", "cold", "hot"];
+    const solve = loads.map((name) => load(name, `solve-${name}`));
+    const wrapped = solve.map((diagnostic) => ({ ...diagnostic, message: `Supplied diagnostic text, unverified (not a combination certificate statement): "${diagnostic.message}"` }));
+    expect(load("installed", "x").message.length).toBeGreaterThan(LONG_MESSAGE_CHARACTERS);
+    const checks = loads.map((name) => checked(load(name, `check-${name}`)));
+    const items = groupIssues({ model, modelChecks: checks, diagnostics: solve, shownDiagnostics: wrapped, diagnosticOrigins: ["solve", "solve", "solve"] });
+    expect(items).toHaveLength(1);
+    expect(items[0].differences).toEqual(["installed load (hanger.installed_load)", "cold load (hanger.cold_load)", "hot load (hanger.hot_load)"]);
+    render(<ModelChecksPanel model={model} run={run(checks)} items={items} onRun={() => {}} onSelectEntity={() => {}} onSelectDiagnostic={() => {}} />);
+    const rows = within(openReports(screen.getByTestId(`issue-group-${code}`))).getAllByTestId(`issue-member-${code}`);
+    expect(rows).toHaveLength(6);
+    // Every row, the long one and the three shown as supplied text included, marks its load and nothing more.
+    expect(rows.map((row) => within(row.querySelector(".issue-message") as HTMLElement).getByTestId("issue-member-difference").textContent)).toEqual([
+      "installed load (hanger.installed_load)", "cold load (hanger.cold_load)", "hot load (hanger.hot_load)",
+      "installed load (hanger.installed_load)", "cold load (hanger.cold_load)", "hot load (hanger.hot_load)"
+    ]);
+    expect(rows[3].querySelector(".issue-message")).toHaveTextContent(/^Supplied diagnostic text, unverified/);
   });
 
   it("an item whose only source of one distinct message is supplied, unverified text shows no excerpt", () => {
@@ -353,3 +378,143 @@ describe("the solver's messages: the result's diagnostics, and only those, bring
   });
 });
 
+
+describe("a one-report item whose report opens no detail of its own opens its fields on its row", () => {
+  const twoSupports = { ...model, supports: [{ id: "support:H-1", label: "Invented hanger one" }, { id: "support:H-2", label: "Invented hanger two" }] } as unknown as PreviewModel;
+  const fieldsOf = (entry: HTMLElement) => {
+    const toggle = within(entry).getByTestId("issue-fields-toggle");
+    const fields = within(entry).getByTestId("issue-fields");
+    expect(fields.hidden).toBe(true);
+    expect(toggle).toHaveTextContent(/^Details$/);
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    expect(fields.hidden).toBe(false);
+    return fields;
+  };
+
+  it("two diagnostics with no identifier sharing a code on two objects: each opens its own remediation, provenance, Not supplied line and object", () => {
+    const code = "INVENTED_SHARED_CODE";
+    const first: Diagnostic = { code, severity: "warning", message: "invented finding on the first hanger", affected_refs: ["support:H-1"], remediation: "Invented remediation one.", provenance: "invented provenance one" };
+    const second: Diagnostic = { code, severity: "warning", message: "invented finding on the second hanger", affected_refs: ["support:H-2"], source: "invented_source" };
+    const items = groupIssues({ model: twoSupports, diagnostics: [first, second] });
+    expect(items).toHaveLength(2);
+    const onSelectEntity = vi.fn();
+    render(<DiagnosticsPanel model={twoSupports} knowledge={null} result={null} selectedDiagnosticId={null} onSelectDiagnostic={() => {}} onSelectEntity={onSelectEntity} items={items} />);
+    const entries = screen.getAllByTestId(`diagnostic-${code}`).map((row) => row.closest(".issue-entry") as HTMLElement);
+    expect(entries).toHaveLength(2);
+    // Neither row opens a detail of its own: two reports share the code and neither has an identifier.
+    for (const entry of entries) expect(within(entry).getByTestId(`diagnostic-${code}`)).toHaveAttribute("aria-disabled", "true");
+
+    const one = fieldsOf(entries[0]);
+    expect(one).toHaveTextContent(NO_OWN_DETAIL_REASON);
+    expect(one).toHaveTextContent("Remediation: Invented remediation one.");
+    expect(one).toHaveTextContent("Provenance: invented provenance one");
+    expect(within(one).getByTestId("issue-member-not-supplied")).toHaveTextContent(/^Not supplied: class, source$/);
+    fireEvent.click(within(one).getByTestId("issue-fields-select"));
+    expect(onSelectEntity).toHaveBeenLastCalledWith(expect.objectContaining({ id: "support:H-1" }));
+
+    const two = fieldsOf(entries[1]);
+    expect(two).toHaveTextContent("Source: invented_source");
+    expect(two).not.toHaveTextContent("Remediation:");
+    expect(within(two).getByTestId("issue-member-not-supplied")).toHaveTextContent(/^Not supplied: class, remediation, provenance$/);
+    fireEvent.click(within(two).getByTestId("issue-fields-select"));
+    expect(onSelectEntity).toHaveBeenLastCalledWith(expect.objectContaining({ id: "support:H-2" }));
+  });
+
+  it("a diagnostic that opens its own detail has no fields control: its detail shows them", () => {
+    const own: Diagnostic = { id: "own", code: "INVENTED_OWN_DETAIL", severity: "warning", message: "invented finding with its own detail", affected_refs: ["support:H-1"] };
+    render(<DiagnosticsPanel model={model} knowledge={null} result={null} selectedDiagnosticId={null} onSelectDiagnostic={() => {}} items={groupIssues({ model, diagnostics: [own] })} />);
+    expect(screen.queryByTestId("issue-fields-toggle")).toBeNull();
+  });
+
+  it("a one-report Model checks item opens its remediation and Not supplied line; its row already selects its object", () => {
+    const finding = checked(report({ id: "check-one", code: "INVENTED_CHECK_ONLY", remediation: "Invented check remediation." }));
+    const items = groupIssues({ model, modelChecks: [finding] });
+    const onSelectEntity = vi.fn();
+    render(<ModelChecksPanel model={model} run={run([finding])} items={items} onRun={() => {}} onSelectEntity={onSelectEntity} />);
+    const entry = screen.getByTestId("model-check-INVENTED_CHECK_ONLY").closest(".issue-entry") as HTMLElement;
+    const fields = fieldsOf(entry);
+    expect(fields).toHaveTextContent("Remediation: Invented check remediation.");
+    expect(fields).not.toHaveTextContent(NO_OWN_DETAIL_REASON);
+    expect(within(fields).getByTestId("issue-member-not-supplied")).toHaveTextContent(/^Not supplied: class, source, provenance$/);
+    expect(within(fields).queryByTestId("issue-fields-select")).toBeNull();
+    fireEvent.click(screen.getByTestId("model-check-INVENTED_CHECK_ONLY"));
+    expect(onSelectEntity).toHaveBeenCalledWith({ type: "support", id: "support:H-1" });
+  });
+
+  it("a one-report Operation diagnostics item opens its fields, its Not supplied line and its object to select", () => {
+    const operation: Diagnostic = { id: "op-one", code: "INVENTED_OPERATION", severity: "warning", message: "invented operation finding", affected_refs: ["support:H-1"], provenance: "invented operation provenance" };
+    const [item] = groupIssues({ model, operations: [operation] });
+    const onSelectEntity = vi.fn();
+    render(<IssueItemView item={item} onSelectEntity={onSelectEntity} main={(body) => <article className="issue-row diagnostic">{body}</article>} />);
+    const fields = fieldsOf(screen.getByTestId("issue-meta").closest(".issue-entry") as HTMLElement);
+    expect(fields).toHaveTextContent("Provenance: invented operation provenance");
+    expect(fields).not.toHaveTextContent(NO_OWN_DETAIL_REASON);
+    expect(within(fields).getByTestId("issue-member-not-supplied")).toHaveTextContent(/^Not supplied: class, source, remediation$/);
+    fireEvent.click(within(fields).getByTestId("issue-fields-select"));
+    expect(onSelectEntity).toHaveBeenCalledWith(expect.objectContaining({ id: "support:H-1" }));
+  });
+});
+
+describe("the drawer: the solver-messages heading stands above every solver message, wherever its item is listed (LIM-026)", () => {
+  const heads = (testId: string) => screen.getAllByTestId(testId);
+  const before = (a: Element, b: Element) => (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+
+  it("a solver message joined to a model-check finding: one heading, above the Model checks list, and none again in Diagnostics", async () => {
+    const base = await loadPreviewModel();
+    const support = base.supports[0].id;
+    const shared: Diagnostic = { id: "invented-joined", code: "INVENTED_JOINED", severity: "warning", message: "invented joined finding", affected_refs: [support] };
+    const finding: ModelCheckFinding = { key: "check-joined", group: "solve", entity: { type: "support", id: support }, diagnostic: { ...shared, id: "check-joined" } };
+    const another: Diagnostic = { id: "invented-listed", code: "INVENTED_LISTED", severity: "info", message: "invented listed solve finding", affected_refs: [support] };
+    const issues = issueSummary({ model: base, modelChecks: [finding], diagnostics: [shared, another], diagnosticOrigins: ["solve", "solve"], missingInputs: 0 });
+    render(<IssuesHome issues={issues} model={base} knowledge={null} result={null} selectedDiagnosticId={null} onClose={() => {}} onSelectDiagnostic={() => {}} modelCheckRun={{ ...run([finding]), model: base }} />);
+    const headings = heads("diagnostic-list-solver-messages-heading");
+    expect(headings).toHaveLength(1);
+    expect(headings[0]).toHaveTextContent(SOLVER_MESSAGES_HEADING);
+    // Above the Model checks list and every solver message, in Model checks and in Diagnostics.
+    expect(before(headings[0], screen.getByTestId("model-checks-panel"))).toBe(true);
+    expect(before(headings[0], screen.getByTestId("issue-group-INVENTED_JOINED"))).toBe(true);
+    expect(before(headings[0], screen.getByTestId("diagnostic-INVENTED_LISTED"))).toBe(true);
+    expect(within(screen.getByTestId("diagnostics-panel")).queryByTestId("diagnostic-list-solver-messages-heading")).toBeNull();
+  });
+
+  it("every solver message moved under Model checks: the heading still stands, above them", async () => {
+    const base = await loadPreviewModel();
+    const support = base.supports[0].id;
+    const shared: Diagnostic = { id: "invented-only", code: "INVENTED_ONLY_JOINED", severity: "warning", message: "invented only joined finding", affected_refs: [support] };
+    const finding: ModelCheckFinding = { key: "check-only", group: "solve", entity: { type: "support", id: support }, diagnostic: { ...shared, id: "check-only" } };
+    const issues = issueSummary({ model: base, modelChecks: [finding], diagnostics: [shared], diagnosticOrigins: ["solve"], missingInputs: 0 });
+    render(<IssuesHome issues={issues} model={base} knowledge={null} result={null} selectedDiagnosticId={null} onClose={() => {}} onSelectDiagnostic={() => {}} modelCheckRun={{ ...run([finding]), model: base }} />);
+    const headings = heads("diagnostic-list-solver-messages-heading");
+    expect(headings).toHaveLength(1);
+    expect(before(headings[0], screen.getByTestId("issue-group-INVENTED_ONLY_JOINED"))).toBe(true);
+  });
+
+  it("solver messages only under Diagnostics: the Diagnostics list heads itself, once", async () => {
+    const base = await loadPreviewModel();
+    const solveOnly: Diagnostic = { id: "invented-solve-only", code: "INVENTED_SOLVE_ONLY", severity: "info", message: "invented solve-only finding", affected_refs: [base.supports[0].id] };
+    const issues = issueSummary({ model: base, diagnostics: [solveOnly], diagnosticOrigins: ["solve"], missingInputs: 0 });
+    render(<IssuesHome issues={issues} model={base} knowledge={null} result={null} selectedDiagnosticId={null} onClose={() => {}} onSelectDiagnostic={() => {}} />);
+    const headings = heads("diagnostic-list-solver-messages-heading");
+    expect(headings).toHaveLength(1);
+    expect(within(screen.getByTestId("diagnostics-panel")).getByTestId("diagnostic-list-solver-messages-heading")).toBe(headings[0]);
+  });
+});
+
+describe("the line's Rule inputs missing opens the drawer at the rule-input entries", () => {
+  it("brings the first rule-input entry into view and gives it focus, not the Missing data panel as a whole", async () => {
+    const base = await loadPreviewModel();
+    const model = { ...base, analysis_status: { ...base.analysis_status, mechanics: "MODEL_INCOMPLETE", rule_check: "RULE_INPUTS_INCOMPLETE" } };
+    const issues = issueSummary({ model, missingInputs: 0 });
+    const onTargetShown = vi.fn();
+    render(<IssuesHome issues={issues} model={model} knowledge={null} result={null} selectedDiagnosticId={null} onClose={() => {}} onSelectDiagnostic={() => {}}
+      target={{ kind: "missing-data", sequence: 1 }} onTargetShown={onTargetShown} />);
+    const focused = document.activeElement as HTMLElement;
+    expect(focused).toHaveAttribute("data-warning-class", "RULE_CHECK_BLOCKING");
+    // The first of the rule-input entries the line's count counts; the mechanics entry, which also
+    // blocks the rule check, is not where the control leads.
+    expect(focused).toBe(screen.getByTestId("missing-data-panel").querySelector('[data-warning-class="RULE_CHECK_BLOCKING"]'));
+    expect(focused).not.toBe(screen.getByTestId("missing-data-warning-solve-required-physical-inputs"));
+    expect(onTargetShown).toHaveBeenCalledTimes(1);
+  });
+});

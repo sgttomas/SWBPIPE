@@ -7,7 +7,7 @@ import { ResultQuantity } from "../toolkit/ResultQuantity";
 import { AlertTriangle, Search, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { DiagnosticFilterRequest } from "./diagnosticFilterRequest";
-import type { DesignKnowledge, DiagnosticInterpretation, MechanicsResult, PreviewModel } from "../../types";
+import type { DesignKnowledge, DiagnosticInterpretation, EntityRef, MechanicsResult, PreviewModel } from "../../types";
 import { buildDiagnosticInterpretation } from "../results/resultInterpretation";
 import { usePublishedLibraryRefFindings } from "../library/libraryRefFindings";
 import { presentedResultDiagnostics } from "../results/suppliedDiagnostics";
@@ -26,7 +26,9 @@ export function DiagnosticsPanel({
   onSelectDiagnostic,
   items: givenItems,
   allItems = null,
-  onPinnedChange
+  onPinnedChange,
+  onSelectEntity,
+  solverMessagesHeadedAbove = false
 }: {
   model: PreviewModel;
   knowledge: DesignKnowledge | null;
@@ -45,6 +47,11 @@ export function DiagnosticsPanel({
   /** Told the diagnostic this list shows as requested (null when none), so the drawer shows that
    * report's item once: here, and not again in the list that otherwise holds it. */
   onPinnedChange?: (diagnosticId: string | null) => void;
+  /** Selects the object a report names, for a report whose row opens no detail of its own. */
+  onSelectEntity?: (entity: EntityRef) => void;
+  /** The drawer heads its lists with the solver-messages sentence, above an earlier list that holds
+   * a solver message, so this list does not head itself again. */
+  solverMessagesHeadedAbove?: boolean;
 }) {
   const [filterText, setFilterText] = useState(filterRequest?.diagnosticId ?? "");
   // The requested id, matched exactly while the filter text is that id.
@@ -114,7 +121,7 @@ export function DiagnosticsPanel({
       {nativeLinked.error ? <p role="status" data-testid="diagnostic-linked-results-refused">{nativeLinked.error}</p> : null}
       <DiagnosticDetail interpretation={interpretation} result={result} solverMessage={selectedIsSolverMessage} />
       <div className="diagnostic-list">
-        {listsSolverMessage ? <p className="muted" data-testid="diagnostic-list-solver-messages-heading">{SOLVER_MESSAGES_HEADING}</p> : null}
+        {listsSolverMessage && !solverMessagesHeadedAbove ? <p className="muted" data-testid="diagnostic-list-solver-messages-heading">{SOLVER_MESSAGES_HEADING}</p> : null}
         {filteredItems.length > 0 ? (
           filteredItems.map((item) => {
             const lead = pinned !== null ? item.members.find(isRequested) ?? item.lead : item.lead;
@@ -127,6 +134,7 @@ export function DiagnosticsPanel({
                 lead={lead}
                 selectedDiagnosticId={selectedDiagnosticId}
                 onSelectDiagnostic={onSelectDiagnostic}
+                onSelectEntity={onSelectEntity}
                 main={(body) => (
                   <button
                     aria-disabled={opens ? undefined : true}

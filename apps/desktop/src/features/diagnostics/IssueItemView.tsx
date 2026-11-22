@@ -58,9 +58,16 @@ export function IssueItemView({
 }) {
   const [membersOpen, setMembersOpen] = useState(false);
   const membersId = useId();
+  const [fieldsOpen, setFieldsOpen] = useState(false);
+  const fieldsId = useId();
   const grouped = item.members.length > 1;
   const shown = grouped ? lead : item.members[0];
   const long = useLongMessage(shown.shown.message);
+  // A one-report item whose report opens no detail of its own (a model-check finding, an operation's
+  // report, a diagnostic whose code another report shares with no identifier) opens its fields here:
+  // what its producer supplied, what it did not, and its object to select where the row does not.
+  const ownFields = !grouped && !(shown.source === "diagnostics" && shown.ownDetail);
+  const selectable = ownFields && shown.source !== "model-checks" && item.entity !== null && onSelectEntity !== undefined;
   const origins = [...new Set(item.members.map((member) => member.origin))];
   return (
     <div className={grouped ? `issue-entry issue-group ${item.severity}` : "issue-entry"} data-item-key={item.key} data-testid={grouped ? `issue-group-${item.code}` : undefined}>
@@ -90,8 +97,34 @@ export function IssueItemView({
           </>
         ) : null}
         {long.control ? <>{" "}·{" "}{long.control}</> : null}
+        {ownFields ? (
+          <>
+            {" "}·{" "}
+            <button
+              aria-controls={fieldsId}
+              aria-expanded={fieldsOpen}
+              className="issue-inline-control"
+              data-testid="issue-fields-toggle"
+              onClick={() => setFieldsOpen((open) => !open)}
+              type="button"
+            >
+              Details
+            </button>
+          </>
+        ) : null}
       </p>
       {long.full}
+      {ownFields ? (
+        <div className="issue-fields" data-testid="issue-fields" hidden={!fieldsOpen} id={fieldsId}>
+          <NoDetailFields diagnostic={shown.diagnostic} reason={shown.source === "diagnostics"} />
+          <NotSupplied diagnostic={shown.diagnostic} />
+          {selectable && item.entity ? (
+            <button className="issue-inline-control issue-fields-select" data-testid="issue-fields-select" onClick={() => { if (item.entity) onSelectEntity?.(item.entity); }} type="button">
+              Select {item.objectLabel ?? item.entity.id}
+            </button>
+          ) : null}
+        </div>
+      ) : null}
       {grouped ? (
         <ol className="issue-group-members" data-testid="issue-group-members" hidden={!membersOpen} id={membersId}>
           {item.members.map((member, index) => (
@@ -227,14 +260,15 @@ function NotSupplied({ diagnostic }: { diagnostic: Diagnostic }) {
   return absent.length > 0 ? <small className="issue-member-not-supplied" data-testid="issue-member-not-supplied">Not supplied: {absent.join(", ")}</small> : null;
 }
 
-/** Where a report cannot open its own detail, the supplied fields that detail would show, on its
- * row; the fields not supplied are named once, on the row's "Not supplied" line. */
-function NoDetailFields({ diagnostic }: { diagnostic: Diagnostic }) {
+/** Where a report opens no detail of its own, the supplied fields a detail would show, with the
+ * reason where it is a diagnostic that cannot; the fields not supplied are named once, on the
+ * "Not supplied" line. */
+function NoDetailFields({ diagnostic, reason = true }: { diagnostic: Diagnostic; reason?: boolean }) {
   const provenance = typeof diagnostic.provenance === "string" ? diagnostic.provenance : diagnostic.provenance ? JSON.stringify(diagnostic.provenance) : null;
   const affected = (diagnostic.affected_refs ?? []).join("; ");
   return (
     <span className="issue-member-fields" data-testid="issue-member-no-detail">
-      <small>{NO_OWN_DETAIL_REASON}</small>
+      {reason ? <small>{NO_OWN_DETAIL_REASON}</small> : null}
       {diagnostic.source ? <small>Source: {diagnostic.source}</small> : null}
       {affected ? <small>Affected: {affected}</small> : null}
       {diagnostic.remediation ? <small>Remediation: {diagnostic.remediation}</small> : null}

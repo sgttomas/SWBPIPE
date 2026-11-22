@@ -66,9 +66,10 @@ import { KnowledgePanel } from "./features/knowledge/KnowledgePanel";
 import { LibraryManagerPanel } from "./features/library/LibraryManagerPanel";
 import { LoadCaseManagerPanel } from "./features/load-cases/LoadCaseManagerPanel";
 import { LocalFeaHandoffPanel } from "./features/local-fea-handoff/LocalFeaHandoffPanel";
-import { countRuleInputsMissing, MissingDataBlockingPanel } from "./features/missing-data/MissingDataBlockingPanel";
+import { countRuleInputsMissing, MissingDataBlockingPanel, RULE_INPUT_WARNING_CLASS } from "./features/missing-data/MissingDataBlockingPanel";
 import { itemsAt, solveBlockingItems, useIssueSummary, type IssueItem, type IssueSummary } from "./features/diagnostics/issueItems";
 import { IssueItemView, ShownUnderDiagnostics } from "./features/diagnostics/IssueItemView";
+import { SOLVER_MESSAGES_HEADING } from "./features/results/integrityStatus";
 import { professionalStatusToken, ruleCheckStatusToken, statusDisplay } from "./features/workspace/statusLabels";
 import { entityRefFromKey, setSelectionFocus } from "./features/workspace/selectionState";
 import { solveProofStatus, type SolveProofEvidence } from "./features/workspace/solveProof";
@@ -1734,7 +1735,7 @@ function AgentFocusFact({ label, value, testId }: { label: string; value: string
 /** Where the status line asks the Issues drawer to open: at its Missing data entries, or at one item. */
 type IssuesTarget = { kind: "missing-data"; sequence: number } | { kind: "item"; key: string; sequence: number };
 
-function IssuesHome({
+export function IssuesHome({
   issues,
   solveJob = null,
   model,
@@ -1776,8 +1777,10 @@ function IssuesHome({
   const drawerRef = useRef<HTMLElement>(null);
   useEffect(() => {
     if (target === null) return;
+    // Missing data: its first rule-input entry, which the line's count counts; else the panel.
     const found = target.kind === "missing-data"
-      ? drawerRef.current?.querySelector<HTMLElement>('[data-testid="missing-data-panel"]')
+      ? drawerRef.current?.querySelector<HTMLElement>(`[data-testid="missing-data-panel"] [data-warning-class="${RULE_INPUT_WARNING_CLASS}"]`)
+        ?? drawerRef.current?.querySelector<HTMLElement>('[data-testid="missing-data-panel"]')
       : [...(drawerRef.current?.querySelectorAll<HTMLElement>("[data-item-key]") ?? [])].find((entry) => entry.dataset.itemKey === target.key);
     found?.scrollIntoView?.({ block: "start" });
     (target.kind === "item" ? found?.querySelector<HTMLElement>("button") ?? found : found)?.focus();
@@ -1785,6 +1788,10 @@ function IssuesHome({
   }, [target, onTargetShown]);
   const operationItems = itemsAt(issues, "operation");
   const diagnosticItems = itemsAt(issues, "diagnostics");
+  // A solver message can be listed under Model checks or Operation diagnostics, where it joins the
+  // same finding (LIM-026). Then the drawer heads its lists with the sentence once, above them all,
+  // and the Diagnostics list does not repeat it; otherwise the Diagnostics list heads itself.
+  const solverMessageAbove = [...checkItems, ...operationItems].some((item) => item.members.some((member) => member.origin === "solve"));
   // A diagnostic shown as requested in the Diagnostics list is shown there once; the list that
   // otherwise holds its item says where it is.
   const [requestedDiagnosticId, setRequestedDiagnosticId] = useState<string | null>(null);
@@ -1815,6 +1822,7 @@ function IssuesHome({
         ))}
       </ul>
       {issues.solve && solveJob ? <SolveIssueItem solveJob={solveJob} /> : null}
+      {solverMessageAbove ? <p className="muted issues-solver-messages-heading" data-testid="diagnostic-list-solver-messages-heading">{SOLVER_MESSAGES_HEADING}</p> : null}
       <ModelChecksPanel model={model} run={modelCheckRun} busy={modelCheckBusy} onRun={onRunModelChecks} onSelectEntity={onSelectEntity} onSelectDiagnostic={onSelectDiagnostic} items={checkItems} shownElsewhere={shownUnderDiagnostics} />
       {operationItems.length > 0 ? (
         <section className="panel issues-operation-list" aria-label="Operation diagnostics">
@@ -1830,6 +1838,7 @@ function IssuesHome({
               item={item}
               selectedDiagnosticId={selectedDiagnosticId}
               onSelectDiagnostic={onSelectDiagnostic}
+              onSelectEntity={onSelectEntity}
               main={(body) => (
                 <article className={`issue-row diagnostic ${item.severity}`}>
                   {body}
@@ -1849,6 +1858,8 @@ function IssuesHome({
         filterRequest={diagnosticFilterRequest}
         onSelectDiagnostic={onSelectDiagnostic}
         onPinnedChange={setRequestedDiagnosticId}
+        onSelectEntity={onSelectEntity}
+        solverMessagesHeadedAbove={solverMessageAbove}
       />
       <MissingDataBlockingPanel model={model} result={result} />
     </aside>

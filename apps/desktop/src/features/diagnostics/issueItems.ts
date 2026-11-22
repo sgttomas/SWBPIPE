@@ -273,7 +273,7 @@ export function groupIssues(inputs: IssueInputs): IssueItem[] {
       group: home === "model-checks" && firstCheck ? firstCheck.group : null,
       members,
       lead,
-      differences: excerptsAllowed(members) ? messageDifferences(members.map((member) => member.shown.message)) : []
+      differences: excerptsAllowed(members) ? messageDifferences(members.map((member) => member.diagnostic.message)) : []
     };
   });
 }

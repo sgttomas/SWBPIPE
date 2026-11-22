@@ -128,7 +128,7 @@ export function MissingDataBlockingPanel({ model, result }: { model: PreviewMode
 
 function MissingDataEntry({ warning }: { warning: MissingDataWarning }) {
   return (
-    <article className="operation-record" data-testid={`missing-data-warning-${safeFileToken(warning.warning_id)}`}>
+    <article className="operation-record" data-testid={`missing-data-warning-${safeFileToken(warning.warning_id)}`} data-warning-class={warning.warning_class} tabIndex={-1}>
       <strong>{warning.warning_class}</strong>
       <small>
         {warning.severity}; solve_blocking=
@@ -158,9 +158,15 @@ export function countMissingDataBlockers(args: { model: PreviewModel; result: Se
   return buildMissingDataBlockingPacket(args).summary.blocking_warning_count;
 }
 
-/** How many Missing data entries say a rule input is missing: the ones that block the rule check. */
+/** The class of the Missing data entries that say a rule input is missing. */
+export const RULE_INPUT_WARNING_CLASS = "RULE_CHECK_BLOCKING";
+
+/** How many Missing data entries say a rule input is missing: the rule-check entries that block the
+ * rule check. A missing mechanics input also blocks the rule check, but it is not a rule input, so
+ * it is not counted here. */
 export function countRuleInputsMissing(args: { model: PreviewModel; result: SessionResult | null }): number {
-  return buildMissingDataBlockingPacket(args).summary.rule_check_blocking_count;
+  return buildMissingDataBlockingPacket(args).warnings
+    .filter((warning) => warning.warning_class === RULE_INPUT_WARNING_CLASS && warning.blocks_rule_check).length;
 }
 
 export function buildMissingDataBlockingPacket({ model, result }: { model: PreviewModel; result: SessionResult | null }) {

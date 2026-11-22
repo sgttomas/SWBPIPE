@@ -4667,6 +4667,10 @@ body { min-width: 760px; min-height: 540px; }
 .issue-member[aria-disabled="true"] { cursor: default; }
 .issue-member-not-supplied, .issue-member-fields small { display: block; padding-inline-start: 20px; font-size: var(--type-size-caption); color: var(--ui-muted); }
 .issue-member-fields { display: block; }
+/* A one-report item's fields, opened by its Details control. */
+.issue-fields { margin: var(--space-1) 0 0; }
+.issue-fields[hidden] { display: none; }
+.issue-fields-select { display: block; margin-inline-start: 20px; font-size: var(--type-size-caption); }
 /* An Operation diagnostics entry is a report (class "diagnostic") but not a control. */
 article.issue-row.diagnostic { cursor: default; }
 .issue-shown-elsewhere { margin: var(--space-2) 0; font-size: var(--type-size-chip); }
