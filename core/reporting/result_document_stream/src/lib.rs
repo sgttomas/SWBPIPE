@@ -27,9 +27,14 @@
 //!   at most 64 KiB (65,536 bytes).
 //! - One `RowFact` is kept per source row (its disposition, place, class and two digests),
 //!   so this part grows with the number of rows, not with their size.
-//! - Otherwise what is held at once is bounded by one item: the one row entry being derived
-//!   and handed over, the largest ordinary member of the header (held as a value), and the
-//!   sorted member names of one object being written.
+//! - During emission, what is otherwise held at once is bounded by the one row entry being
+//!   derived and handed over, the header's own values, and the sorted member-name vectors of
+//!   the open objects along the current recursion path.
+//! - During construction (`DocumentSource::new`), temporary allocations also include the row-id
+//!   set and optional validated-class map during the row sweep, individual row and target
+//!   canonical texts checksummed by `result_export::derivative::checksum`, and the full
+//!   canonical text of `model` and any supplied `request` allocated inside
+//!   `result_export::derivative::checksum`.
 //!
 //! The six row lists are `result_envelope.result_sets[0].values`, `review_evidence`,
 //! `row_accounting`, `row_disclosures`, `source_annotations` and
