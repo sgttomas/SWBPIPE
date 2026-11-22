@@ -241,6 +241,10 @@ async fn save_report_package_decoded(
     })
 }
 
+/// The file type the report package saves' chooser names: the file is a
+/// report package, not the project's portable package (issue 509).
+const REPORT_PACKAGE_FILE_TYPE: &str = "SWBPIPE Report Package";
+
 fn choose_report_package_save_path(app: &AppHandle, file_name: &str) -> Option<Result<PathBuf, String>> {
     #[cfg(feature = "native-smoke")]
     if let Some(path) = native_smoke::take_chosen_path(app, "choose_report_package_save_path") {
@@ -249,7 +253,7 @@ fn choose_report_package_save_path(app: &AppHandle, file_name: &str) -> Option<R
     app.dialog()
         .file()
         .set_file_name(file_name)
-        .add_filter("SWBPIPE Project Package", &["opsproj"])
+        .add_filter(REPORT_PACKAGE_FILE_TYPE, &["opsproj"])
         .blocking_save_file()
         .map(|selected| selected.into_path().map_err(|error| error.to_string()))
 }

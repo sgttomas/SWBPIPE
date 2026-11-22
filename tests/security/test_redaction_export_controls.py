@@ -1634,6 +1634,222 @@ def test_existing_contexts_keep_an_unlabelled_value_undecided_as_today():
         assert result.payload == {"project_ref": {"data": "INVENTED_RAW_VALUE"}}
 
 
+
+# Explicit blocking statements at depth (DEL-12-02 AC-003): the corpus's `statement_cases`,
+# expanded and run identically by `redactionExportControls.test.ts` and the Rust mirror's
+# test module.  Expected values are the corpus's, written from the decision order.
+
+STATEMENT_MARK = "@statement"
+STEP_1_TO_8_REASONS = {
+    "PROFESSIONAL_BOUNDARY_BLOCKED",
+    "CLOUD_OR_NETWORK_REFERENCE_BLOCKED",
+    "DIRECT_SQL_ACCESS_BLOCKED",
+    "STORAGE_BYPASS_BLOCKED",
+    "SECRET_MATERIAL_BLOCKED",
+    "PAYLOAD_METADATA_ONLY_REQUIRED",
+    "PROTECTED_CONTENT_BLOCKED",
+}
+FINDING_CLASS_OF_REASON = {
+    "PROFESSIONAL_BOUNDARY_BLOCKED": "PROFESSIONAL_BOUNDARY_WARNING",
+    "CLOUD_OR_NETWORK_REFERENCE_BLOCKED": "STORAGE_BOUNDARY_WARNING",
+    "DIRECT_SQL_ACCESS_BLOCKED": "STORAGE_BOUNDARY_WARNING",
+    "STORAGE_BYPASS_BLOCKED": "STORAGE_BOUNDARY_WARNING",
+    "SECRET_MATERIAL_BLOCKED": "PRIVATE_DATA_WARNING",
+    "PAYLOAD_METADATA_ONLY_REQUIRED": "STORAGE_BOUNDARY_WARNING",
+    "PROTECTED_CONTENT_BLOCKED": "IP_BOUNDARY_WARNING",
+}
+ROUTE_KEY = "__route_key__"
+
+
+def with_statement(value, members):
+    """The position's payload with the member named ``@statement`` replaced by ``members``."""
+
+    if isinstance(value, dict):
+        output = {}
+        for key, item in value.items():
+            if key == STATEMENT_MARK:
+                output.update(copy.deepcopy(members))
+            else:
+                output[key] = with_statement(item, members)
+        return output
+    if isinstance(value, list):
+        return [with_statement(item, members) for item in value]
+    return value
+
+
+def expanded_statement_cases():
+    """(case id, payload, {entry: expected}) for every statement at every position, every
+    non-statement at the positions that give the whole decision list, and the named cases."""
+
+    spec = load_json(PARITY_FIXTURE_PATH)["statement_cases"]
+    cases = []
+    for position in spec["positions"]:
+        for statement in spec["statements"]:
+            expected = {
+                "statement_decisions": [
+                    [
+                        path.replace("{statement_path}", position["statement_path"]),
+                        reason.replace("{reason}", statement["reason"]),
+                    ]
+                    for path, reason in position["statement_decisions"]
+                ]
+            }
+            cases.append(
+                (
+                    f"{position['name']}/{statement['name']}",
+                    with_statement(position["payload"], statement["members"]),
+                    {"route": expected, "walk": expected},
+                )
+            )
+        if "expected_decisions" in position:
+            for other in spec["non_statements"]:
+                expected = {"statement_decisions": [], "expected_decisions": position["expected_decisions"]}
+                cases.append(
+                    (
+                        f"{position['name']}/{other['name']}",
+                        with_statement(position["payload"], other["members"]),
+                        {"route": expected, "walk": expected},
+                    )
+                )
+    for named in spec["named_cases"]:
+        cases.append((named["case_id"], named["payload"], {"route": named["route"], "walk": named["walk"]}))
+    return spec, cases
+
+
+def statement_run(entry, payload, context, intent, route_id):
+    if entry == "route":
+        return control_route_export(
+            payload, route_id=route_id, export_context=context, explicit_local_private_intent=intent
+        )
+    return redact_export_payload(payload, export_context=context, explicit_local_private_intent=intent)
+
+
+def test_statement_cases_cover_every_statement_reason_and_position():
+    spec, cases = expanded_statement_cases()
+    assert {statement["reason"] for statement in spec["statements"]} == STEP_1_TO_8_REASONS
+    assert len(spec["positions"]) == 8 and len(spec["statements"]) == 16
+    assert len(cases) == 8 * 16 + 2 * 14 + 6
+
+
+def test_explicit_statements_block_at_every_position_in_every_setting():
+    spec, cases = expanded_statement_cases()
+    carried = spec["carried_text"]
+    failures = []
+    for case_id, payload, by_entry in cases:
+        for context, intent in spec["settings"]:
+            for entry, expected in by_entry.items():
+                source = copy.deepcopy(payload)
+                result = statement_run(entry, payload, context, intent, spec["route_id"])
+                where = (case_id, entry, context, intent)
+                assert payload == source, where
+                decided = [
+                    (decision.path.replace(ROUTE_KEY, ""), decision.action, decision.reason_code)
+                    for decision in result.decisions
+                ]
+                statement_decisions = [
+                    [path, reason]
+                    for path, action, reason in decided
+                    if action == "block_export" and reason in STEP_1_TO_8_REASONS
+                ]
+                if statement_decisions != expected["statement_decisions"]:
+                    failures.append((where, statement_decisions))
+                    continue
+                if "expected_decisions" in expected:
+                    assert [list(decision) for decision in decided] == expected["expected_decisions"], where
+                for path, reason in expected["statement_decisions"]:
+                    matching = [
+                        finding
+                        for finding in result.findings
+                        if finding.path.replace(ROUTE_KEY, "") == path and finding.code == reason
+                    ]
+                    assert len(matching) == 1, where
+                    assert matching[0].severity == "BLOCKING", where
+                    assert matching[0].class_ == FINDING_CLASS_OF_REASON[reason], where
+                if expected["statement_decisions"]:
+                    assert result.blocked, where
+                    if entry == "route":
+                        assert result.payload is None, where
+                for record in [*result.decisions, *result.findings]:
+                    assert carried not in json.dumps(record.__dict__, default=str), where
+    assert failures == []
+
+
+def test_paired_control_locates_the_block_at_the_provenance_not_the_record():
+    spec = load_json(PARITY_FIXTURE_PATH)["statement_cases"]
+    named = {case["case_id"]: case for case in spec["named_cases"]}
+    ordinary = named["paired-control-ordinary-provenance-keeps-the-item-decision"]["payload"]
+    blocking = named["paired-control-blocking-provenance-is-decided-at-the-provenance"]["payload"]
+    assert {key: value for key, value in ordinary["record"].items() if key != "provenance"} == {
+        key: value for key, value in blocking["record"].items() if key != "provenance"
+    }
+    for entry in ("route", "walk"):
+        for context, intent in spec["settings"]:
+            kept = statement_run(entry, ordinary, context, intent, spec["route_id"])
+            refused = statement_run(entry, blocking, context, intent, spec["route_id"])
+            # Route admission alone withholds local_private without intent; no decision blocks.
+            assert kept.findings == ()
+            assert not any(decision.action == "block_export" for decision in kept.decisions)
+            assert refused.blocked
+            assert [(finding.path.replace(ROUTE_KEY, ""), finding.code) for finding in refused.findings] == [
+                ("$.record.provenance", "PROTECTED_CONTENT_BLOCKED")
+            ]
+            assert [decision.path.replace(ROUTE_KEY, "") for decision in refused.decisions if decision.action == "block_export"] == [
+                "$.record.provenance"
+            ]
+
+
+def raw_expected(side, context, intent, key="decisions"):
+    """The whole list a raw case gives for a setting: ``{key}``, else its local_private forms."""
+
+    if context == "local_private" and not intent:
+        return side.get(f"{key}_local_private_without_intent", side.get(f"{key}_local_private", side[key]))
+    if context == "local_private":
+        return side.get(f"{key}_local_private", side[key])
+    return side[key]
+
+
+def test_raw_statement_cases_give_whole_decision_lists_at_raw_paths():
+    """The corpus's ``raw_cases``: each payload as it stands, in every setting, with paths as
+    each entry writes them.  Both entries' decision lists are whole and compared without regard
+    to order; every block has exactly one blocking finding at its path; where given, the labels
+    on a decision and the controlled payload of an admitted export are asserted too."""
+
+    spec = load_json(PARITY_FIXTURE_PATH)["statement_cases"]
+    assert len(spec["raw_cases"]) >= 47
+    failures = []
+    for case in spec["raw_cases"]:
+        for context, intent in spec["settings"]:
+            for entry in ("route", "walk"):
+                payload = copy.deepcopy(case["payload"])
+                result = statement_run(entry, payload, context, intent, spec["route_id"])
+                where = (case["case_id"], entry, context, intent)
+                assert payload == case["payload"], where
+                side = case[entry]
+                decided = sorted([decision.path, decision.action, decision.reason_code] for decision in result.decisions)
+                if decided != sorted(raw_expected(side, context, intent)):
+                    failures.append((where, decided))
+                    continue
+                blocks = sorted([path, reason] for path, action, reason in decided if action == "block_export")
+                findings = sorted([finding.path, finding.code] for finding in result.findings if finding.severity == "BLOCKING")
+                assert findings == blocks, where
+                for path, privacy, redistribution, review in side.get("labels", []):
+                    assert [
+                        [decision.privacy_classification, decision.redistribution_status, decision.review_status]
+                        for decision in result.decisions
+                        if decision.path == path
+                    ] == [[privacy, redistribution, review]], where
+                if blocks:
+                    assert result.blocked, where
+                    if entry == "route":
+                        assert result.payload is None, where
+                elif entry == "route" and "payload" in side:
+                    # Admitted, except where AC-004 blocks local_private without the wrapper's intent.
+                    withheld = context == "local_private" and not intent
+                    assert result.blocked is withheld, where
+                    assert result.payload == (None if withheld else side["payload"]), where
+    assert failures == []
+
+
 if __name__ == "__main__":
     test_schema_is_strict_and_traceable()
     test_schema_vocabularies_cover_required_controls()

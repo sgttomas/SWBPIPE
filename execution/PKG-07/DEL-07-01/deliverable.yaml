@@ -85,6 +85,8 @@ checks:
 - apps/desktop/src/features/viewport/viewportRouting.test.ts
 - apps/desktop/src/features/viewport/viewportSelection.test.ts
 - apps/desktop/src/features/viewport/viewportVisibility.test.ts
+- apps/desktop/src/features/viewport/ViewportOverflowBar.test.tsx
+- apps/desktop/src/features/viewport/viewportLabelLayout.test.ts
 - apps/desktop/src/features/viewport/PipeViewport.contextMenu.test.tsx
 - apps/desktop/src/features/toolkit/ToolkitPalette.test.tsx
 - apps/desktop/src/features/geometry-tools/GeometryToolsPanel.test.tsx

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type AnchorHTMLAttributes, type ReactNode } from "react";
 import {
   controlRouteExport,
+  RECOGNIZED_PRIVACY_CLASSIFICATIONS,
   type RedactionExportContext
 } from "./redactionExportControls";
 
@@ -234,7 +235,7 @@ export function ControlledExportLink({ href, children, nativeCurrentBinding, val
             {controlled.decisions
               .map(
                 (decision) =>
-                  `path=${decision.path}; classification=${decision.privacy_classification}; action=${decision.action}; reason=${decision.reason_code}`
+                  `path=${decision.path}; classification=${displayedClassification(decision.privacy_classification)}; action=${decision.action}; reason=${decision.reason_code}`
               )
               .join("\n")}
           </pre>
@@ -278,6 +279,12 @@ export function ControlledExportLink({ href, children, nativeCurrentBinding, val
       )}
     </div>
   );
+}
+
+/** A decision's classification as Details shows it: a label the rule recognises, else one fixed
+ * word, so that no supplied label text reaches the display. */
+function displayedClassification(label: string): string {
+  return RECOGNIZED_PRIVACY_CLASSIFICATIONS.has(label) ? label : "unrecognized";
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {

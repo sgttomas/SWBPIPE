@@ -296,6 +296,7 @@ function AppSession() {
   const {
     storageCapability,
     projectSummary,
+    storedRunNotOpened,
     projectIndex,
     modelHashIntegrity,
     projectEnvelopeHash,
@@ -1234,6 +1235,7 @@ function AppSession() {
                 proposal={proposal}
                 modelHashIntegrity={modelHashIntegrity}
                 projectEnvelopeHashIntegrity={projectEnvelopeHashIntegrity}
+                storedRunNotOpened={storedRunNotOpened}
               />
               <HistoryPanel />
               <ProjectValidationPanel
