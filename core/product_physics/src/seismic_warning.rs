@@ -29,10 +29,12 @@
 //!   exact, of the two magnitudes after the document's ordinary unit
 //!   conversion; the finding prints both as entered. Only fresh
 //!   component-weight primitives are read: an overridden component weight
-//!   gives no known gravity, and a case whose component weights are all
-//!   overridden has no gravity finding, which is not agreement. The
-//!   primitives read are the case's own when it has any, otherwise those of
-//!   every case of the document.
+//!   gives no known gravity. So where no fresh applicable component weight
+//!   exists anywhere in the document for a generated component, there is no
+//!   gravity finding, which is not agreement; a fresh applicable component
+//!   weight elsewhere in the document is still compared. The primitives read
+//!   are the case's own when it has any, otherwise those of every case of
+//!   the document.
 //!
 //! None of the three is raised for a case whose seismic generation the
 //! generator refuses ([`admitted`]): such a case generates no seismic load.
