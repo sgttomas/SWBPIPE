@@ -2006,34 +2006,35 @@ fn t15_curved_uniform_load_is_certified() {
     }
 }
 
-/// T15g (T4-RV15 F-1; DESIGN_R01's MU9 row): a generated (`<case>:generated:`)
-/// uniform load on T15's arc carries the γ₅ formation term. Each loaded arc
-/// row's bound equals the exact sum of its certified terms'
-/// `operand_bound(true)` and exceeds the sum of their `operand_bound(false)`,
-/// so PP passes `generated` through to the certificate's operand bound.
-#[test]
-fn t15g_generated_arc_load_carries_the_gamma5_operand_bound() {
-    let source = "case:generated:t15g";
-    let intensity = [0.0, 0.0, 0.3];
+/// The loaded rows of T15's arc under `loads` in a case with `generation`,
+/// each with the exact sums of its certified terms' `operand_bound(true)` and
+/// `operand_bound(false)` for the certificate of `intensity` (one term per
+/// arc DOF), and the case's generated identities in the generator's order.
+fn t15g_rows(generation: Option<Value>, loads: Vec<Value>, intensity: [f64; 3], source: Option<&str>) -> (Vec<(usize, f64, f64, f64)>, Vec<String>) {
     let mut model = preview_model("curved-generated");
     model["materials"] = json!([material()]);
-    curved_body(
-        &mut model,
-        "c",
-        0.0,
-        vec![uniform(source, "cbend", "global_z", 0.3)],
-    );
+    curved_body(&mut model, "c", 0.0, loads);
+    if let Some(generation) = generation {
+        model["load_cases"][0]["equivalent_static"] = generation;
+    }
     let request = request_of(model);
+    let prepared = prepared(&request);
+    let case = &prepared.model.load_cases[0];
+    let generated = build_load_case_primitive_loads(&prepared.model, case, &mut Vec::new())
+        .into_iter()
+        .filter(|load| is_generated_equivalent_static_load(case, &load.load_id, None))
+        .map(|load| load.load_id)
+        .collect::<Vec<_>>();
+    let source = source.map(str::to_string).unwrap_or_else(|| generated.first().cloned().unwrap_or_default());
     let (formation, _) = arc_formation(&request);
     let certified = certify_curved_uniform_load(&formation, intensity).unwrap();
     let dof_map = element_dof_map(formation.node_i, formation.node_j);
     let view = guard_view(&request, 0);
-    let rows = arc_rows(&view, source);
+    let rows = arc_rows(&view, &source);
     assert_eq!(rows.len(), ELEMENT_DOF, "every arc DOF carries the load");
-    for row in rows {
-        assert_eq!(row.formed_sources, [source], "row {} carries only this load", row.dof);
+    let rows = rows.into_iter().map(|row| {
+        assert_eq!(row.formed_sources, [source.as_str()], "row {} carries only this load", row.dof);
         assert!(row.cannot_bound_sources.is_empty(), "{row:?}");
-        // Σ over the row's certified terms, exactly (one term per arc DOF).
         let mut generated = ExactAccumulator::new();
         let mut ordinary = ExactAccumulator::new();
         for (local, &global) in dof_map.iter().enumerate() {
@@ -2042,15 +2043,51 @@ fn t15g_generated_arc_load_carries_the_gamma5_operand_bound() {
                 ordinary.add(certified.terms[local].operand_bound(false)).unwrap();
             }
         }
-        let generated = generated.round().unwrap();
-        let ordinary = ordinary.round().unwrap();
-        assert!(
-            generated.is_finite() && generated > ordinary,
-            "row {}: {generated} vs {ordinary}",
-            row.dof
-        );
-        assert_eq!(row.bound, generated, "row {}: the generated operand bound", row.dof);
-        assert!(row.bound > ordinary, "row {}", row.dof);
+        (row.dof, row.bound, generated.round().unwrap(), ordinary.round().unwrap())
+    }).collect();
+    (rows, generated)
+}
+
+/// T15g (T4-RV15 F-1; DESIGN_R01's MU9 row): a generated uniform load on
+/// T15's arc carries the γ₅ formation term. The case generates full-span
+/// wind over the arc (`w = pressure * shape_factor * exposed_diameter`, the
+/// exposed diameter the uninsulated outside diameter); the certificate's
+/// intensity is formed here from those inputs. Each loaded arc row's bound
+/// equals the exact sum of its certified terms' `operand_bound(true)` and
+/// exceeds the sum of their `operand_bound(false)`, so PP passes `generated`
+/// through to the certificate's operand bound. The pressure-free route
+/// publishes no generation record, so the generated identity is the one the
+/// case's generation forms, and it is the arc rows' only source.
+#[test]
+fn t15g_generated_arc_load_carries_the_gamma5_operand_bound() {
+    let (pressure, shape_factor, outside_diameter) = (300.0, 0.7, 0.168);
+    let wind = json!({"wind": {"pressure": {"value": pressure, "unit": "Pa"}, "shape_factor": {"value": shape_factor, "unit": "1"},
+        "direction": "global_z", "exposed_pipe_refs": ["cbend"], "exposed_spans": []}, "provenance": INVENTED});
+    let intensity = [0.0, 0.0, pressure * shape_factor * outside_diameter];
+    let (rows, generated) = t15g_rows(Some(wind), vec![], intensity, None);
+    assert_eq!(generated, ["case:generated:wind:global-z:element-0"]);
+    for (dof, bound, generated, ordinary) in rows {
+        assert!(generated.is_finite() && generated > ordinary, "row {dof}: {generated} vs {ordinary}");
+        assert_eq!(bound, generated, "row {dof}: the generated operand bound");
+        assert!(bound > ordinary, "row {dof}");
+    }
+}
+
+/// T15g's discrimination (issue 452 decision 10, at this producer): a stored
+/// primitive whose identity resembles the generated prefix, in a case that
+/// generates nothing, is authored. Each loaded arc row's bound equals the
+/// exact sum of its certified terms' `operand_bound(false)`, below the sum of
+/// their `operand_bound(true)`.
+#[test]
+fn t15g_an_authored_lookalike_carries_the_authored_operand_bound() {
+    let source = "case:generated:t15g";
+    let intensity = [0.0, 0.0, 0.3];
+    let (rows, generated) = t15g_rows(None, vec![uniform(source, "cbend", "global_z", 0.3)], intensity, Some(source));
+    assert!(generated.is_empty(), "a case without generation generates nothing");
+    for (dof, bound, generated, ordinary) in rows {
+        assert!(generated.is_finite() && generated > ordinary, "row {dof}: {generated} vs {ordinary}");
+        assert_eq!(bound, ordinary, "row {dof}: the authored operand bound");
+        assert!(bound < generated, "row {dof}");
     }
 }
 

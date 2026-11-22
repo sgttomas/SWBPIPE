@@ -1183,8 +1183,12 @@ pub(crate) fn resolve_case(
     // if its loads had been solved, so it is refused by name. An action is an
     // included stored primitive, a boundary motion, a pressure region, a
     // member state with nonzero eigenstrain, or a model-level preload. A
-    // case already refused for another reason is not judged here.
+    // case already refused for another reason is not judged here. A case's
+    // static-equivalent generation is an action too: it is formed beside the
+    // declared ledger in the case's solve, so a generation-only case whose
+    // ledger selects no stored primitive reaches assembly (DEL-05-01 REQ-008).
     let applies_action = !effective_case.primitive_loads.is_empty()
+        || case.equivalent_static.is_some()
         || !prescribed.is_empty()
         || !ground_motion.is_empty()
         || !spring_base.is_empty()

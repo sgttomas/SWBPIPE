@@ -391,6 +391,12 @@ def test_received_states_bind_case_order_and_requested_mode(name, mutate, code):
 
 _GENERATION = {"mass_method": "source_od_nominal_wall_pressure_bore_areas/v1",
                "generated_load_ids": ["case:ordinary-pressure:generated:seismic:global-x:element-0"]}
+_ZERO = "0000000000000000"
+_COMPONENT_FORCE = {"component_ref": "valve", "node_ref": "node", "axis": "global_x", "g_factor": "3fd3333333333333",
+                    "weight_N": "40a25c0000000000", "center_of_gravity_m": [_ZERO, _ZERO, _ZERO],
+                    "force": {"load_id": "case:ordinary-pressure:generated:seismic:global-x:component:5:valve:force",
+                              "value_N": _ZERO},
+                    "moments": []}
 
 
 @pytest.mark.parametrize("index,member,code", [
@@ -398,9 +404,15 @@ _GENERATION = {"mass_method": "source_od_nominal_wall_pressure_bore_areas/v1",
     # exact case, as on the ordinary pressure-source evidence; admitted only there, and its content checked.
     (1, {"equivalent_static": _GENERATION}, "accept"),
     (1, {"extra": 1}, "SOURCE_LOAD_REFERENCE_CASE_SHAPE"),
+    # Issue 452 (DEL-04-07 REQ-011): the forged id also enters the case's record of load sources, whose binding
+    # (each generated entry in its case's `<case>:generated:<kind>:` namespace) refuses another case's id first.
     (1, {"equivalent_static": {**_GENERATION, "generated_load_ids": ["other:generated:x"]}},
-     "SOURCE_PHYSICS_EVIDENCE_INVALID: equivalent_static load ids"),
-    (0, {"equivalent_static": {**_GENERATION, "generated_load_ids": ["case:generated:x"]}},
+     "SOURCE_LOAD_REFERENCE_GENERATED_CONTRIBUTION_BINDING"),
+    # A record that the schema admits and the record of load sources binds is judged by its own content: a
+    # component force whose well-formed identity is not among the record's generated ids.
+    (1, {"equivalent_static": {**_GENERATION, "component_forces": [_COMPONENT_FORCE]}},
+     "SOURCE_PHYSICS_EVIDENCE_INVALID: equivalent_static component load ids"),
+    (0, {"equivalent_static": {**_GENERATION, "generated_load_ids": ["case:generated:seismic:x"]}},
      "PHYSICS_SOURCE_SOURCE_EQUIVALENT_STATIC"),
 ])
 def test_a_resolved_ordinary_companion_carries_its_generation_record(index, member, code):
@@ -410,6 +422,13 @@ def test_a_resolved_ordinary_companion_carries_its_generation_record(index, memb
         "retained_source_blocks_exact_v1", "ordinary_sparse_structural_v1"]
     doc = deepcopy(raw)
     doc["contract_evidence"]["exact_cases"][index].update(member)
+    # Issue 452 (DEL-04-07 REQ-011): a case that generates enters each generated load once in its record of load
+    # sources, so the forged generation record comes with those entries and the readers judge the record itself.
+    record = doc["contract_evidence"]["load_reference_states"][index]
+    assert record["load_case_id"] == doc["contract_evidence"]["exact_cases"][index]["load_case_id"]
+    for load_id in member.get("equivalent_static", {}).get("generated_load_ids", []):
+        record["contributions"].append({"source_id": load_id, "owner_kind": "generated_equivalent_static",
+                                        "classification": "generated_applied", "factor": 1.0, "generation_kind": "seismic"})
     forged = apply(doc, [{"op": "reseal", "physical": "joined", "publication": True, "receipt": True}])
     assert outcome(lambda: validate_physics_source(deepcopy(forged))) == code
     assert outcome(lambda: validate_transport_metadata(metadata(forged))) == code
