@@ -69,11 +69,10 @@ The redaction walk (`redactExportPayload` / `redact_export_payload`) refuses
 `USER_RELEASE_ROUTE_REQUIRED` after the context and user-release intent checks
 and before any walk. The walk decides a value-bearing object as a whole and
 keeps an unlabelled value, so in that context it would let a labelled object
-hide a restricted descendant (a nested marker, protected or quarantined
-content, or a non-project private class) and would leave a private object's
-other members unredacted. The classification of one item
+hide a descendant of a non-project private class and would leave a private
+object's other members unredacted. The classification of one item
 (`classifyExportItem` / `classify_export_item`) still decides an item by the
-rule above, and the five existing contexts' walk is unchanged.
+rule above.
 
 ## Protected Classes
 
@@ -175,15 +174,18 @@ The route projector deep-copies the source, assigns explicit metadata to each
 value-bearing leaf, removes top-level and nested `local_private_intent`,
 `explicit_local_private_intent`, and `user_intent`, and supplies only the
 route's fixed context and wrapper-owned intent. Source-carried intent therefore
-cannot grant export authority. The projector materializes only the controlled
-copy and preserves the source object byte/deep-equal.
+cannot grant export authority. Its removal exempts nothing: the route reads
+blocking statements (Input Contract, "Statements at any depth") from the input
+as received, so an object inside a removed intent member that states one blocks
+the export like any other (DEL-12-02 AC-004). The projector materializes only
+the controlled copy and preserves the source object byte/deep-equal.
 
 User-release intent comes only from the wrapper's argument
 (`explicitUserReleaseIntent` / `explicit_user_release_intent`), never from the
 payload. The strip list above is unchanged: a payload member named
 `user_release_intent` or `explicit_user_release_intent` grants nothing, so it is
 not stripped, and in every existing context and route it is raw content,
-preserved byte for byte. The user-release route `DREP-PACKAGE-USER-RELEASE-010`
+decided like any other member. The user-release route `DREP-PACKAGE-USER-RELEASE-010`
 has its own projector (`controlUserReleasedReportPackageRequest`), the only
 payload entry for `user_released_report`; the redaction walk refuses the
 context (above). The generic route exporter
@@ -288,6 +290,136 @@ was decided right after the payload check and so returned `redact_value` ahead
 of the protected, quarantined/rejected, intent and user-release blocks; for
 example `concrete_path_present: true` downgraded a `protected_suspected` block.
 
+**Statements at any depth.** A blocking statement is what steps 1-8 read
+from an object's own explicit members: a `professional_claim` other than
+absent, null or `false`; a blocking flag (below) that is set, other than
+`concrete_path_present`; a `privacy_classification` or `redistribution_status`
+of `protected_suspected`; a `review_status` of `quarantined` or `rejected`.
+`concrete_path_present` is not a statement: a concrete path is step 10, which
+redacts, and it is read only on an item the classifier decides. Nor is a member
+named in the payload, secret, path, cloud or SQL detail sets: it too is read only
+on an item the classifier decides. Steps 1-10 remain the item classifier's
+order; the statement reading applies steps 1-8 only, to the object's own
+members. The generic route exporter and the redaction walk read every object of
+their input for statements, through every member and every array index: an
+object with no `value` member or whose `value` is an object or an array, an
+object in an array, an array of arrays included, an object beneath an item
+decided whole or beneath a value record, a `provenance` object as an object of
+its own, an object beneath an object that carries a statement, and an object
+inside a payload intent member that the route removes (Final-Sink Route
+Binding). A `__proto__` member of parsed input is an ordinary own member, and
+the objects beneath it are read like any other. An object that carries a
+statement is decided `block_export` at its own path, with the reason of the
+first of steps 1-8 it states and a blocking finding that names that path, so
+the export is blocked, except as the paragraphs below provide: a label the
+item's fallback takes is decided at the item; an object the walk already
+blocked keeps the walk's one decision; and on a route the reserved-name refusal
+comes first.
+
+When no blocking statement applies, the item rules above decide the
+classification. A label settles only its own kind: a public privacy label on an
+item leaves an absent or null redistribution label to the fallback, and the
+reverse. No label sets aside a blocking statement on a descendant, so a record
+labelled public whose `provenance` states `protected_suspected` blocks, once.
+Where the record states a label of that kind itself, it blocks at the
+provenance object. Where it states only the other kind, it blocks at the record
+when the record is classified as an item, so that the fallback takes the
+provenance's label (`{"value": 1, "privacy_classification": "public_metadata",
+"provenance": {"redistribution_status": "protected_suspected"}}` blocks at the
+record), and at the provenance object when it is not: the route exporter
+classifies as an item only a record it keeps whole or a value record (both
+below), and the same record without its `value` is neither, so it blocks at the
+record in the redaction walk and at its provenance on the route. The fallback
+reads the
+item's provenance for an absent or null privacy or redistribution label, and for
+an absent, null, `unknown` or non-string review status: a present
+`review_status: "unknown"` still gives way to the provenance's, so
+`{"value": "v", "review_status": "unknown", "provenance": {"review_status":
+"quarantined"}}` blocks at the item. The fallback takes labels only. A blocking
+flag or a professional claim on the provenance is never the item's; it stays at
+the provenance object and is decided there, by the route exporter and by the
+redaction walk alike. Where the fallback takes a provenance's blocking label as
+the item's own label, the contract already makes it the item's statement: the
+item's decision reports it, located at the item, and the provenance object
+takes no second decision for that label. In TypeScript and Python, whose
+decisions record the item's labels, the label then appears as the item's
+privacy, redistribution or review in the item's decision even where an earlier
+step gives that decision its reason, as a professional claim on the item does;
+the Rust mirror records only each decision's path, action and reason.
+A blocking label on the provenance that the fallback did not take, because the
+item states a label of that kind itself, is decided at the provenance object. So
+the same blocking label in a provenance is located at the item when the
+classifier takes that label for the item, as it does for a stated review status
+of `unknown`, and at the provenance object when it does not. A record beneath an
+item decided whole is not classified as an item of its own, so a blocking label
+on its provenance is decided at that provenance object, in the redaction walk as
+on the route. The
+route exporter keeps whole as one item only a record with a scalar `value` and
+a scalar label on it or its provenance; it decides a record with a scalar
+`value` and other metadata but no scalar label as a value record (below), as one
+item first and, unless that blocks, member by member; any other record it
+projects member by member. On the route, a statement in the provenance of a
+record it does not keep whole is therefore located at the provenance object, and
+so is one in the provenance of a record inside a payload intent member, which
+the route removes before projection and so never keeps whole, whatever its shape
+(`{"record": {"user_intent": {"value": "v", "provenance":
+{"privacy_classification": "protected_suspected"}}}}` blocks at `user_intent`'s
+provenance); the redaction walk decides such a record as an item unless it lies
+beneath an item decided whole, and its provenance fallback then locates a label
+it takes at the record.
+
+These decisions come after the walk's own. An object the walk already decided
+`block_export` takes no second decision, and its decision keeps the walk's
+reason, which may come from a check that is not a statement, such as a member
+name of the secret set. Each implementation recognizes that object, and the
+provenance whose label its item's fallback took, by its place in the input (its
+sequence of member names and array indices), never by its written path, so two
+distinct objects are never taken for one. Each implementation derives what the
+fallback took from the classification it made of that item, and reads
+statements with the classifier's own flag and claim readings. On a route the
+reserved-name refusal (below) comes first: an input that carries a reserved
+name is blocked whole by it, before projection and before any statement is
+read, so the route's decisions are the refusal's alone; the redaction walk has
+no such refusal and reads the statements. The route exporter returns no payload
+when it blocks. The redaction walk still returns its redacted copy with
+`blocked`, as for any other block. The test-only Rust mirror has the route
+exporter's walk only. `classifyExportItem` / `classify_export_item` decide one
+item and do not screen the objects beneath it for statements. Their reads
+beneath the item are their own: the provenance, through the fallback for labels
+and for an own `__proto__` member, which bars a public basis there as on the
+item (below), so a decision that would have been an inclusion becomes the
+unknown-label decision; and the intent flags in the item's `export_policy`
+(Flags, below). The corpus's `statement_cases`
+hold these cases for all three suites.
+
+**Paths and order.** A decision's path is written as the walk writes it: `$`,
+then `.` and the member name for each member and `[index]` for each array
+element. On a route, in the path of a decision made after projection, each
+member name carries the projector's key prefix unless it
+is a member of a record with the item shape (a scalar `value` and a scalar label
+on it or its provenance) or lies beneath one. The reserved-name refusal is made
+before projection and writes each path as the input has it, with no prefix
+added. The shape decides it also for a
+record inside a removed payload intent member, which the projector never sees:
+`{"record": {"user_intent": {"value": "v", "privacy_classification":
+"public_metadata", "redistribution_status": "public_permissive", "note":
+{"professional_claim": true}}}}` blocks at
+`$.__route_key__record.__route_key__user_intent.note`. The Rust mirror writes no
+prefix. A
+member name is written as it is, so a name that holds a dot or brackets can give
+two distinct objects one written path (`{"a": {"b": ...}, "a.b": ...}`); each
+still has its own decision. Decisions follow each implementation's member
+order: Python's is the document's; JavaScript lists array-index member names
+first (canonical integers below 2^32 − 1, so `4294967294` is one and
+`4294967295` is not), in ascending order, then the others in document order;
+the Rust mirror lists members in sorted order. The reserved-name refusal sorts
+its own paths. On the route projection the three share, they give the same
+decisions by path (the mirror's without the prefix), action and reason, each as
+many times: two distinct objects can share a written path and a reason, and both
+decisions are present. The order, and the decisions' sequential identifiers, can
+differ. The TypeScript route exporter's structural projection for the format
+route `DOTH-FORMAT-003` has no counterpart in the Rust mirror.
+
 **Labels.** A `privacy_classification` or `redistribution_status` that is
 neither a string nor null (an array, object, number or boolean) is a stated
 label that matches no class: it is not unknown, safe, private or protected, and
@@ -352,8 +484,12 @@ or restrict a record by accident". The rule applies in each place that reads lab
 - *User-release screen* (TypeScript only). The member reads as a stated
   unknown label, so the object blocks by step 13 and no descendant inherits a
   label past it.
-- *Not affected.* `export_policy` carries no labels; only its intent keys are
-  read. The runners' `control_local_private` reads no labels.
+- *Not affected.* The classifier of an item takes no label from the item's
+  `export_policy`; of that object's members it reads only the intent keys. As
+  an object of the input, `export_policy` is read like any other: for
+  statements (Statements at any depth) and, where it is itself projected or
+  classified, for the labels it states of its own. The runners'
+  `control_local_private` reads no labels.
 
 In TypeScript the plain-data gate (below) runs before the rule. It refuses a
 non-enumerable member, so the member the rule reads is always an own,
@@ -363,7 +499,10 @@ parsed JSON, but neither has non-enumerable keys, so a `__proto__` key is
 always visible there.
 
 This is deliberately stricter than Python's previous reading, which took the
-key as an ordinary member. On the same reasoning, the route exporter blocks
+key as an ordinary member. A `__proto__` member is not removed for its name:
+it stays in the payload unless redaction replaces a member that contains it,
+and its leaves are labelled like any other. On the same reasoning, the route
+exporter blocks
 the whole export, in all three implementations, when its input carries any of
 its internal names. These are a member named with the `__route_key__` prefix,
 `_route_projected_leaf` or `_route_value_record`, at any depth. The block is
@@ -371,8 +510,7 @@ one `block_export` decision per such member, with reason
 `EXPORT_INPUT_RESERVED_NAME`, naming the member's path and never its value
 (HELP_HUMAN ruling, 2026-10-28: "fail closed on reserved internal names, in
 all three implementations. ... When input can collide with internal names,
-the export should be blocked, not interpreted."). The member itself is kept in the payload, and its
-leaves are labelled like any other.
+the export should be blocked, not interpreted.").
 
 **Value records.** The route projector decides whether a `{value, ...}` record
 with a scalar `value` is one item or a record whose members it labels by path.
