@@ -6,13 +6,15 @@ import { BLANK_SOLVE_FINDINGS, blankSession, checkRun, DEMO_LEADING_CHECK_FINDIN
 /** The count as it reads from the rows themselves. */
 function recount(list: IssueList) {
   const tier = (value: string) => list.rows.filter((row) => row.tier === value).length;
-  return { toFix: tier("fix"), warnings: tier("warning"), notes: tier("note"), total: list.rows.length };
+  return { toFix: tier("solve"), modelValidity: tier("modelValidity"), ruleCheck: tier("ruleCheck"), warnings: tier("warning"), notes: tier("note"), total: list.rows.length };
 }
+
+const KINDS = ["solve", "modelValidity", "ruleCheck", "warning", "note"];
 
 describe("buildIssueList: the blank model", () => {
   it("lists the solve's three findings first, each with the act that repairs it, and counts 3 to fix", () => {
     const list = buildIssueList(blankSession());
-    const fix = list.rows.filter((row) => row.tier === "fix");
+    const fix = list.rows.filter((row) => row.tier === "solve");
     expect(fix.map((row) => row.code)).toEqual(["NODE_INPUT_MISSING", "PIPE_INPUT_MISSING", "LOAD_INPUT_MISSING"]);
     expect(list.rows.slice(0, 3)).toEqual(fix);
     expect(fix.map((row) => row.act)).toEqual([
@@ -20,12 +22,18 @@ describe("buildIssueList: the blank model", () => {
       { command: "insert.pipe", label: "Add a pipe" },
       { command: "insert.load", label: "Add a load" }
     ]);
-    expect(fix.map((row) => row.message)).toEqual(BLANK_SOLVE_FINDINGS.map((item) => item.message));
+    expect(fix.map((row) => row.message)).toEqual([
+      "The model needs at least two nodes before it can be solved.",
+      "The model needs at least one pipe segment before it can be solved.",
+      "The model needs at least one load before it can be solved; no hidden loads are applied."
+    ]);
+    // The engine's own words stay on each row's entry.
+    expect(fix.map((row) => row.sources[0]!.diagnostic.message)).toEqual(BLANK_SOLVE_FINDINGS.map((item) => item.message));
     // They name a collection, not an entity a person could select.
     expect(fix.every((row) => row.entity === null)).toBe(true);
     const count = countIssues(list);
     expect(count.toFix).toBe(3);
-    expect(issueCountLine(count)).toBe("3 to fix before Run");
+    expect(issueCountLine(count)).toBe("3 to fix before Run. 2 warnings, 1 note.");
   });
 
   it("does not count as to fix a blocking finding that does not withhold Run", () => {
@@ -39,7 +47,7 @@ describe("buildIssueList: the blank model", () => {
       "BLANK_PROJECT_AUTHORING_TARGET", "SUPPORT_STIFFNESS_UNRESOLVED", "RULE_CHECK_NOT_PERFORMED"
     ]);
     expect(countIssues(list)).toEqual({ ...recount(list), checked: true, notListedToFix: 0 });
-    expect(recount(list)).toEqual({ toFix: 3, warnings: 2, notes: 1, total: 6 });
+    expect(recount(list)).toEqual({ toFix: 3, modelValidity: 0, ruleCheck: 0, warnings: 2, notes: 1, total: 6 });
   });
 
   it("lists a row with no entity and no act as it stands", () => {
@@ -54,7 +62,7 @@ describe("buildIssueList: the blank model", () => {
     // Before the checks run, and after the model changes, "to fix before Run" is not known.
     for (const run of [null, checkRun({ ...session.model }, BLANK_SOLVE_FINDINGS)]) {
       const list = buildIssueList({ ...session, modelCheckRun: run });
-      expect(list.rows.some((row) => row.tier === "fix")).toBe(false);
+      expect(list.rows.some((row) => row.tier === "solve")).toBe(false);
       expect(list.checked).toBe(false);
       expect(issueCountLine(countIssues(list))).toBe("Model not checked. 2 warnings, 1 note.");
     }
@@ -64,9 +72,9 @@ describe("buildIssueList: the blank model", () => {
     const session = blankSession();
     const refused = { ...checkRun(session.model, []), solve: { kind: "refused" as const, refusal: "invented refusal text" } };
     const list = buildIssueList({ ...session, modelCheckRun: refused });
-    expect(list.rows[0]).toMatchObject({ tier: "fix", code: "", message: "invented refusal text", act: null });
+    expect(list.rows[0]).toMatchObject({ tier: "solve", code: "", message: "invented refusal text", act: null });
     const bounded = { ...checkRun(session.model, BLANK_SOLVE_FINDINGS), notShownBlockingByGroup: { solve: 2, slots: 0, library: 0 } };
-    expect(issueCountLine(countIssues(buildIssueList({ ...session, modelCheckRun: bounded })))).toBe("3 to fix before Run, and 2 more not listed");
+    expect(issueCountLine(countIssues(buildIssueList({ ...session, modelCheckRun: bounded })))).toBe("3 to fix before Run, and 2 more not listed. 2 warnings, 1 note.");
   });
 });
 
@@ -80,7 +88,7 @@ describe("buildIssueList: the demonstration solve", () => {
     expect(row.entity).toEqual({ type: "support", id: "support:SH-140" });
     expect(row.members).toEqual(["hanger.installed_load", "hanger.cold_load", "hanger.hot_load"]);
     expect(row.message).toBe(
-      "variable spring hanger support:SH-140: its installed load (hanger.installed_load), cold load (hanger.cold_load) and hot load (hanger.hot_load) is not applied as preload; results treat the hanger as a linear spring from zero load, whose force is its stiffness times the displacement at its DOF, and the entered load remains review evidence only"
+      "Variable spring hanger support:SH-140: entered installed load (hanger.installed_load), cold load (hanger.cold_load) and hot load (hanger.hot_load) — not applied as preload; treated as a linear spring from zero load (review evidence only)."
     );
     // Each load arrived twice: from the model checks and in the result.
     expect(row.sources.map((source) => source.route)).toEqual(["model-check", "result", "model-check", "result", "model-check", "result"]);
@@ -88,15 +96,17 @@ describe("buildIssueList: the demonstration solve", () => {
     expect(row.tier).toBe("warning");
   });
 
-  it("lists each fact the checks and the result both state once, in the checks' words", () => {
+  it("lists each fact the checks and the result both state once", () => {
     const session = demoSession();
     const list = buildIssueList(session);
     const bend = list.rows.filter((row) => row.code === "BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD");
     expect(bend).toHaveLength(1);
     expect(bend[0]!.sources.map((source) => source.route)).toEqual(["model-check", "result"]);
-    // The result's presented copy quotes the text as supplied; the row reads as the check states it.
+    // The result's presented copy quotes the text as supplied; the row does not read from it.
     expect(bend[0]!.sources[1]!.diagnostic.message.startsWith("Supplied diagnostic text, unverified")).toBe(true);
-    expect(bend[0]!.message).toBe(session.resultDiagnostics.find((item) => item.code === "BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD")!.message);
+    // The row reads in a plain sentence formed from the model's bend, not from the quoted copy.
+    expect(bend[0]!.message).toBe("component:C-110 is a geometry-only bend solved as a straight chord without flexibility factor k (scalar SIF is applied as equal-factor intensification). Realize the bend to apply k.");
+    expect(bend[0]!.sources[0]!.diagnostic.message).toBe(session.resultDiagnostics.find((item) => item.code === "BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD")!.message);
     // One row per fact: the result's, the model's and the knowledge's diagnostics, less the
     // leading findings the checks state again, less the two hanger loads joined to the third.
     const expected = session.resultDiagnostics.length + session.model.diagnostics.length + knowledgeDiagnostics.length - 2;
@@ -117,7 +127,7 @@ describe("buildIssueList: the demonstration solve", () => {
       ["SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED", "support:CE-120"],
       ["BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD", "component:C-110"]
     ]);
-    expect(list.rows.map((row) => row.tier)).toEqual([...list.rows.map((row) => row.tier)].sort((a, b) => ["fix", "warning", "note"].indexOf(a) - ["fix", "warning", "note"].indexOf(b)));
+    expect(list.rows.map((row) => row.tier)).toEqual([...list.rows.map((row) => row.tier)].sort((a, b) => KINDS.indexOf(a) - KINDS.indexOf(b)));
     const count = countIssues(list);
     expect(count).toEqual({ ...recount(list), checked: true, notListedToFix: 0 });
     expect(issueCountLine(count)).toBe(`Nothing to fix. ${count.warnings} warnings, ${count.notes} notes.`);
@@ -143,5 +153,77 @@ describe("the same fact by two routes", () => {
     expect(sameFact(library, { ...library, id: "another", message: "another text" })).toBe(false);
     expect(sameFact(library, { ...library, affected_refs: ["support:S-130"] })).toBe(false);
     expect(sameFact(library, { ...library, code: "ANOTHER_CODE" })).toBe(false);
+  });
+});
+
+describe("the five kinds of PRD §14.4", () => {
+  // One finding of each kind on the blank model, by the route that carries it.
+  function session() {
+    const base = blankSession();
+    const slot: Diagnostic = { id: "model-document:INVENTED_SLOT:pipes:0", code: "INVENTED_SLOT", severity: "blocking", message: "invented slot text (at pipes)", affected_refs: [], source: "invented" };
+    const ruleClass: Diagnostic = { id: "invented:rule-class", code: "INVENTED_RULE_INPUT", diagnostic_class: "RULE_CHECK_BLOCKING", severity: "blocking", message: "invented rule input text" };
+    const ruleFlag = { id: "invented:rule-flag", code: "INVENTED_RULE_FLAG", severity: "warning", message: "invented flagged text", blocks_rule_check: true } as Diagnostic;
+    const model = { ...base.model, diagnostics: [...base.model.diagnostics, ruleClass] };
+    return {
+      ...base,
+      model,
+      modelCheckRun: checkRun(model, BLANK_SOLVE_FINDINGS.slice(0, 1), [{ group: "slots", diagnostic: slot }]),
+      documentDiagnostics: [{ ...slot }],
+      knowledgeDiagnostics: [...knowledgeDiagnostics, ruleFlag]
+    };
+  }
+
+  it("puts each row in one kind, in display order, and counts each kind on its own", () => {
+    const list = buildIssueList(session());
+    expect(list.rows.map((row) => [row.tier, row.code])).toEqual([
+      ["solve", "NODE_INPUT_MISSING"],
+      // The checks' slot finding and the validator's are one fact, which blocks no solve.
+      ["modelValidity", "INVENTED_SLOT"],
+      ["ruleCheck", "INVENTED_RULE_INPUT"],
+      ["ruleCheck", "INVENTED_RULE_FLAG"],
+      ["warning", "BLANK_PROJECT_AUTHORING_TARGET"],
+      ["warning", "SUPPORT_STIFFNESS_UNRESOLVED"],
+      ["note", "RULE_CHECK_NOT_PERFORMED"]
+    ]);
+    expect(list.rows[1]!.sources.map((source) => source.route)).toEqual(["model-check", "document"]);
+    const count = countIssues(list);
+    expect(count).toEqual({ ...recount(list), checked: true, notListedToFix: 0 });
+    expect(count.toFix + count.modelValidity + count.ruleCheck + count.warnings + count.notes).toBe(count.total);
+    expect(issueCountLine(count)).toBe("1 to fix before Run. 1 model validity finding, 2 blocking the rule check, 2 warnings, 1 note.");
+  });
+
+  it("names a kind that blocks something even when nothing withholds Run", () => {
+    // The checks list nothing; the validator's blocking slot finding still stands on its own route.
+    const base = session();
+    const list = buildIssueList({ ...base, modelCheckRun: checkRun(base.model, []) });
+    expect(issueCountLine(countIssues(list))).toBe("Nothing to fix. 1 model validity finding, 2 blocking the rule check, 2 warnings, 1 note.");
+  });
+
+  it("carries the class a producer supplied, and invents none", () => {
+    const list = buildIssueList(session());
+    expect(list.rows.find((row) => row.code === "INVENTED_RULE_INPUT")!.classes).toEqual(["RULE_CHECK_BLOCKING"]);
+    expect(list.rows.find((row) => row.code === "INVENTED_RULE_FLAG")!.classes).toEqual([]);
+    expect(list.rows.find((row) => row.code === "NODE_INPUT_MISSING")!.classes).toEqual([]);
+  });
+});
+
+describe("plain sentences on the list", () => {
+  const engine = "region requires equal normalized bore; radius difference exceeds 64*epsilon*radius_scale (scale=5e-2 m); this is a representation guard, not a physical reducer allowance";
+  const bore: Diagnostic = { id: "diagnostic:pressure-runtime:invented:PRESSURE_REGION_BORE_MISMATCH", code: "PRESSURE_REGION_BORE_MISMATCH", severity: "blocking", message: engine, affected_refs: ["load:L-100", "region:R-1", "pipe:P-110"], source: "core/product_physics" };
+
+  it("shows the plain sentence and keeps the engine's message among the row's entries", () => {
+    const session = demoSession();
+    const list = buildIssueList({ model: session.model, modelCheckRun: checkRun(session.model, [bore]) });
+    const row = list.rows.find((item) => item.code === "PRESSURE_REGION_BORE_MISMATCH")!;
+    expect(row.message).toBe("pipe:P-110 has a different pressure bore from the rest of region region:R-1 of load:L-100. End the region where the bore changes.");
+    expect(row.sources.map((source) => source.diagnostic.message)).toEqual([engine]);
+    expect(row.tier).toBe("solve");
+  });
+
+  it("leaves text the result quotes as supplied in its quotation", () => {
+    const session = demoSession();
+    const quoted = { ...bore, message: `Supplied diagnostic text, unverified (not a combination certificate statement): "${engine}"` };
+    const list = buildIssueList({ model: session.model, resultDiagnostics: [bore], presentedResultDiagnostics: [quoted] });
+    expect(list.rows.find((row) => row.code === "PRESSURE_REGION_BORE_MISMATCH")!.message).toBe(quoted.message);
   });
 });

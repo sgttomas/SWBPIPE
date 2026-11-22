@@ -6,13 +6,16 @@
 // design knowledge, the result's diagnostics and the outcomes of applied operations. Some facts
 // arrive by two routes (a check finding the solve publishes again in its result; a slot finding
 // the checks and the document validator both state; a library reference both list). This module
-// makes one list of them: one row per fact, a member group as one row, ordered by what must be
-// fixed before Run, then warnings, then notes, and counts that same list. Nothing here changes a
-// finding's text in meaning or decides what blocks a solve: "fix before Run" is the Solve
+// makes one list of them: one row per fact, a member group as one row, each in one of PRD §14.4's
+// five kinds by what it blocks (the solve, model validity, the user-rule check, a warning, a note),
+// ordered by kind, and counts that same list by kind with no count adding two kinds. Nothing here
+// changes a finding's meaning or decides what blocks a solve: "fix before Run" is the Solve
 // command's own gate (`readSolveGate`: a blocking or error finding of the solve's checks on the
-// current model value, or the solve's refusal to read it).
+// current model value, or the solve's refusal to read it). Eleven exact-pressure codes read in a
+// plain sentence (`issueSentences.ts`); their engine text stays on the opened row.
 import type { Diagnostic, EntityRef, OperationOutcomeDiagnostic, PreviewModel } from "../../types";
 import type { MenuCommandId } from "../workspace/menuCommands";
+import { plainIssueSentence } from "./issueSentences";
 import { MODEL_CHECK_GROUP_LABELS, resolveModelCheckEntity, SOLVE_CHECKS_SOURCE, type ModelCheckGroupId, type ModelCheckRun } from "./modelChecks";
 
 /** The route a listed entry arrived by. */
@@ -27,8 +30,19 @@ export type IssueSource = Readonly<{
   diagnostic: Diagnostic;
 }>;
 
-/** Where a row stands: what must be fixed before Run, a warning, or a note. */
-export type IssueTier = "fix" | "warning" | "note";
+/** What a row blocks, as PRD §14.4 distinguishes findings (DEL-07-04 REQ-001), in display order:
+ * - `solve`: the Solve command's gate withholds Run (a blocking or error finding of the solve's own
+ *   checks on this model value, or the solve's refusal to read it);
+ * - `modelValidity`: any other blocking or error finding of the document validator, the model-check
+ *   slot or library groups, or the library references;
+ * - `ruleCheck`: a finding its producer marks as blocking the user-rule check (class
+ *   `RULE_CHECK_BLOCKING`, or `blocks_rule_check: true` on the record);
+ * - `warning`: any other finding that is not a note;
+ * - `note`: severity info. */
+export type IssueTier = "solve" | "modelValidity" | "ruleCheck" | "warning" | "note";
+
+/** The producer's class token on a record, that DEL-07-04 names: `RULE_CHECK_BLOCKING`. */
+export const RULE_CHECK_BLOCKING_CLASS = "RULE_CHECK_BLOCKING";
 
 /** A command the desktop already has that repairs a finding in one act. */
 export type IssueAct = Readonly<{ command: MenuCommandId; label: string }>;
@@ -46,6 +60,8 @@ export type IssueRow = Readonly<{
   code: string;
   /** The finding's own severity (the most severe its entries state). */
   severity: Diagnostic["severity"];
+  /** The classes its producers supplied (`diagnostic_class` or `class`), in order; empty where none did. */
+  classes: readonly string[];
   /** The members a group names (`hanger.installed_load`, …), in order; empty for a single fact. */
   members: readonly string[];
   /** Every entry the row stands for, in the order they arrived. */
@@ -64,8 +80,12 @@ export type IssueList = Readonly<{
   notListedToFix: number;
 }>;
 
+/** One count for each kind; the five sum to `total`. */
 export type IssueCount = Readonly<{
+  /** Rows the Solve gate withholds Run for. */
   toFix: number;
+  modelValidity: number;
+  ruleCheck: number;
   warnings: number;
   notes: number;
   total: number;
@@ -120,7 +140,7 @@ export function issueSourceLabel(source: IssueSource): string {
 }
 
 const SEVERITY_RANK: Readonly<Record<Diagnostic["severity"], number>> = { blocking: 3, error: 2, warning: 1, info: 0 };
-const TIER_RANK: Readonly<Record<IssueTier, number>> = { fix: 0, warning: 1, note: 2 };
+const TIER_RANK: Readonly<Record<IssueTier, number>> = { solve: 0, modelValidity: 1, ruleCheck: 2, warning: 3, note: 4 };
 /** The model's order: as the model tree lists it. */
 const ENTITY_TYPE_ORDER: readonly EntityRef["type"][] = ["material", "section", "node", "pipe", "support", "component", "load"];
 
@@ -203,10 +223,34 @@ function entitiesOf(model: PreviewModel, draft: Draft): EntityRef[] {
   return [...found.values()];
 }
 
+/** The class a producer supplied on a record; null where none did (never inferred). */
+function classOf(diagnostic: Diagnostic): string | null {
+  const value = diagnostic.diagnostic_class ?? diagnostic.class;
+  return typeof value === "string" && value.length > 0 ? value : null;
+}
+
+/** The producer marks the record as blocking the user-rule check: its class, or its own flag. */
+function blocksRuleCheck(diagnostic: Diagnostic): boolean {
+  return classOf(diagnostic) === RULE_CHECK_BLOCKING_CLASS || (diagnostic as { blocks_rule_check?: unknown }).blocks_rule_check === true;
+}
+
+/** The routes whose blocking findings are about the model document's validity. */
+function isValidityRoute(source: IssueSource): boolean {
+  return source.route === "document" || source.route === "library"
+    || (source.route === "model-check" && (source.group === "slots" || source.group === "library"));
+}
+
+function kindOf(draft: Draft, severity: Diagnostic["severity"]): IssueTier {
+  if (draft.entries.some((entry) => entry.withholds)) return "solve";
+  if (draft.entries.some((entry) => blocksRuleCheck(entry.raw))) return "ruleCheck";
+  if ((severity === "blocking" || severity === "error") && draft.entries.some((entry) => isValidityRoute(entry.source))) return "modelValidity";
+  return severity === "info" ? "note" : "warning";
+}
+
 function toRow(model: PreviewModel, draft: Draft, index: number): IssueRow {
   const first = representative(draft);
   const severity = draft.entries.reduce<Diagnostic["severity"]>((worst, entry) => SEVERITY_RANK[entry.raw.severity] > SEVERITY_RANK[worst] ? entry.raw.severity : worst, "info");
-  const tier: IssueTier = draft.entries.some((entry) => entry.withholds) ? "fix" : severity === "info" ? "note" : "warning";
+  const tier = kindOf(draft, severity);
   const code = first.raw.code;
   return {
     key: `${index}:${first.source.route}:${first.raw.id ?? code}`,
@@ -216,6 +260,7 @@ function toRow(model: PreviewModel, draft: Draft, index: number): IssueRow {
     entities: entitiesOf(model, draft),
     code,
     severity,
+    classes: [...new Set(draft.entries.map((entry) => classOf(entry.raw)).filter((value): value is string => value !== null))],
     members: draft.members,
     sources: draft.entries.map((entry) => entry.source),
     act: Object.hasOwn(ISSUE_ACTS, code) ? ISSUE_ACTS[code]! : null,
@@ -291,9 +336,9 @@ function entityRank(model: PreviewModel, entity: EntityRef | null): [number, num
   return [type === -1 ? ENTITY_TYPE_ORDER.length : type, list.findIndex((item) => item.id === entity.id)];
 }
 
-/** The list a person reads: one row per fact, a member group as one row, ordered by what must be
- * fixed before Run, then warnings, then notes, and within each by the entity in the model's order
- * (rows that name no entity first, in the order they arrived). */
+/** The list a person reads: one row per fact, a member group as one row, ordered by kind (what
+ * must be fixed before Run, model validity, the rule check, warnings, notes), and within each by
+ * the entity in the model's order (rows that name no entity first, in the order they arrived). */
 export function buildIssueList(inputs: IssueInputs): IssueList {
   const { entries: all, checked, notListedToFix } = entries(inputs);
   const drafts: Draft[] = [];
@@ -302,8 +347,14 @@ export function buildIssueList(inputs: IssueInputs): IssueList {
     if (same) same.entries.push(entry);
     else drafts.push({ entries: [entry], members: [], message: "" });
   }
-  // A row's sentence is its first entry's that is not the solver's presented copy, else that copy.
-  for (const draft of drafts) draft.message = representative(draft).source.diagnostic.message;
+  // A row's sentence is its first entry's that is not the solver's presented copy, else that copy;
+  // a plain sentence where one is formed from the record, except over a presented copy whose words
+  // differ from the record's (text quoted as supplied keeps its quotation).
+  for (const draft of drafts) {
+    const first = representative(draft);
+    const quoted = first.source.diagnostic.message !== first.raw.message;
+    draft.message = (quoted ? null : plainIssueSentence(inputs.model, first.raw)) ?? first.source.diagnostic.message;
+  }
   const rows = groupMembers(inputs.model, drafts).map((draft, index) => toRow(inputs.model, draft, index));
   const ranked = rows.map((row, index) => ({ row, index, entity: entityRank(inputs.model, row.entity) }));
   ranked.sort((a, b) =>
@@ -314,23 +365,31 @@ export function buildIssueList(inputs: IssueInputs): IssueList {
   return { rows: ranked.map((item) => item.row), checked, notListedToFix };
 }
 
-/** The one count of the Issues list: everything that shows a count of issues reads it. */
+/** The one count of the Issues list: everything that shows a count of issues reads it. Each kind
+ * is counted on its own; the five sum to the total. */
 export function countIssues(list: IssueList): IssueCount {
   const tier = (value: IssueTier) => list.rows.filter((row) => row.tier === value).length;
-  return { toFix: tier("fix"), warnings: tier("warning"), notes: tier("note"), total: list.rows.length, checked: list.checked, notListedToFix: list.notListedToFix };
+  return {
+    toFix: tier("solve"), modelValidity: tier("modelValidity"), ruleCheck: tier("ruleCheck"), warnings: tier("warning"), notes: tier("note"),
+    total: list.rows.length, checked: list.checked, notListedToFix: list.notListedToFix
+  };
 }
 
 const plural = (count: number, word: string) => `${count} ${word}${count === 1 ? "" : "s"}`;
 
-/** The count as one line: "3 to fix before Run", or "Nothing to fix. 2 warnings, 5 notes."; where
- * the solve's checks have not run on this model value, "Model not checked." in place of "Nothing
- * to fix.". */
+/** The count as one line, each kind present with its own number: "3 to fix before Run. 2 warnings,
+ * 1 note.", or "Nothing to fix. 1 model validity finding, 2 blocking the rule check, 5 notes.";
+ * where the solve's checks have not run on this model value, "Model not checked." in place of
+ * "Nothing to fix.". */
 export function issueCountLine(count: IssueCount): string {
-  if (count.toFix > 0 || count.notListedToFix > 0) {
-    const listed = `${count.toFix} to fix before Run`;
-    return count.notListedToFix > 0 ? `${listed}, and ${count.notListedToFix} more not listed` : listed;
-  }
-  const rest = [count.warnings > 0 ? plural(count.warnings, "warning") : null, count.notes > 0 ? plural(count.notes, "note") : null].filter(Boolean).join(", ");
-  const lead = count.checked ? "Nothing to fix." : "Model not checked.";
+  const lead = count.toFix > 0 || count.notListedToFix > 0
+    ? `${count.toFix} to fix before Run${count.notListedToFix > 0 ? `, and ${count.notListedToFix} more not listed` : ""}.`
+    : count.checked ? "Nothing to fix." : "Model not checked.";
+  const rest = [
+    count.modelValidity > 0 ? `${count.modelValidity} model validity ${count.modelValidity === 1 ? "finding" : "findings"}` : null,
+    count.ruleCheck > 0 ? `${count.ruleCheck} blocking the rule check` : null,
+    count.warnings > 0 ? plural(count.warnings, "warning") : null,
+    count.notes > 0 ? plural(count.notes, "note") : null
+  ].filter(Boolean).join(", ");
   return rest ? `${lead} ${rest}.` : lead;
 }

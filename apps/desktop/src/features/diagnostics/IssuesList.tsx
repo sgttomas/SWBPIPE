@@ -4,21 +4,25 @@ import type { MenuCommandId } from "../workspace/menuCommands";
 import { countIssues, issueCountLine, issueSourceLabel, type IssueList, type IssueRow, type IssueTier } from "./issueRows";
 import "./IssuesList.css";
 
-/** The word each row shows for where it stands. */
+/** The words each row shows for what it blocks (PRD §14.4's five kinds). */
 export const ISSUE_TIER_WORDS: Readonly<Record<IssueTier, string>> = Object.freeze({
-  fix: "Fix before Run",
+  solve: "Fix before Run",
+  modelValidity: "Model validity",
+  ruleCheck: "Blocks rule check",
   warning: "Warning",
   note: "Note"
 });
 
 /**
  * The Issues list (`buildIssueList`) with its count line (`countIssues`): one row per fact, its
- * sentence first, then each entity it names (pressing one selects it), the word for where it
- * stands, the act that repairs it where one act does, and its code. Pressing the sentence opens the
+ * sentence first, then each entity it names (pressing one selects it), the words for what it
+ * blocks, the class its producer supplied (as text, so no class is told by colour alone; DEL-07-04
+ * REQ-001 and REQ-013), the act that repairs it where one act does, and its code. Pressing the sentence opens the
  * row in place: its code, severity, class, members, the objects and references it names, where it
  * came from, its remediation and provenance (a field not supplied says so), and what else the
  * caller's detail shows for it. The solver's messages heading stands at the head of the list while
- * any row is one of the solver's own messages; the caller gives its words.
+ * any row is one of the solver's own messages, and at the head of an opened row that is one; the
+ * caller gives its words.
  */
 export function IssuesList({
   list,
@@ -89,6 +93,7 @@ export function IssuesList({
                     </button>
                   ))}
                   <span className="issue-tier" data-testid="issue-tier">{ISSUE_TIER_WORDS[row.tier]}</span>
+                  {row.classes.length > 0 ? <span className="issue-class" data-testid="issue-class">{row.classes.join(", ")}</span> : null}
                   {row.act ? (
                     <button className="issue-act" data-testid="issue-act" onClick={() => onAct(row.act!.command)} type="button">
                       {row.act.label}
@@ -96,7 +101,7 @@ export function IssuesList({
                   ) : null}
                   {row.code ? <small className="issue-code" data-testid="issue-code">{row.code}</small> : null}
                 </div>
-                {isOpen ? <IssueDetail id={detailId} row={row} extra={renderDetail?.(row)} /> : null}
+                {isOpen ? <IssueDetail id={detailId} row={row} extra={renderDetail?.(row)} solverMessagesHeading={solverMessagesHeading} /> : null}
               </li>
             );
           })}
@@ -109,7 +114,9 @@ export function IssuesList({
 /** A field the producer did not supply (DEL-07-04 REQ-004), in the present detail pane's words. */
 const NOT_SUPPLIED = "not supplied by producer";
 
-function IssueDetail({ id, row, extra }: { id: string; row: IssueRow; extra: ReactNode }) {
+/** An opened row: the solver's messages heading first where the row is one of the solver's own
+ * messages, then the finding's fields. The region carries the id the row's sentence controls. */
+function IssueDetail({ id, row, extra, solverMessagesHeading }: { id: string; row: IssueRow; extra: ReactNode; solverMessagesHeading?: string }) {
   const refs = [...new Set(row.sources.flatMap((source) => source.diagnostic.affected_refs ?? []))];
   const remediation = row.sources.map((source) => source.diagnostic.remediation).find(Boolean) ?? NOT_SUPPLIED;
   const kind = row.sources.map((source) => source.diagnostic.diagnostic_class ?? source.diagnostic.class).find(Boolean) ?? NOT_SUPPLIED;
@@ -118,7 +125,9 @@ function IssueDetail({ id, row, extra }: { id: string; row: IssueRow; extra: Rea
   // presented copy), so nothing an entry says is lost.
   const otherMessages = [...new Set(row.sources.map((source) => source.diagnostic.message))].filter((message) => message !== row.message);
   return (
-    <dl className="issue-detail" data-testid="issue-detail" id={id}>
+    <div className="issue-detail" data-testid="issue-detail" id={id}>
+      {row.solverMessage && solverMessagesHeading ? <p className="muted" data-testid="issue-detail-solver-messages-heading">{solverMessagesHeading}</p> : null}
+      <dl>
       {row.code ? <IssueLine label="Code" value={row.code} /> : null}
       <IssueLine label="Severity" value={row.severity} />
       {row.members.length > 0 ? <IssueLine label="Members" value={row.members.join(", ")} /> : null}
@@ -144,7 +153,8 @@ function IssueDetail({ id, row, extra }: { id: string; row: IssueRow; extra: Rea
       <IssueLine label="Remediation" value={remediation} />
       <IssueLine label="Provenance" value={provenance === undefined ? NOT_SUPPLIED : typeof provenance === "string" ? provenance : JSON.stringify(provenance)} />
       {extra}
-    </dl>
+      </dl>
+    </div>
   );
 }
 

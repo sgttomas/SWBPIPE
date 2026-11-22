@@ -1,6 +1,6 @@
 /* The Issues list: one row per fact on the shared tokens (tokens.css). A row's sentence leads; the
-   entity, the word for where it stands, its act and its code follow on one line; the code is last
-   and small. The edge colour repeats the word, never replaces it. */
+   entities, the words for what it blocks, the producer's class, its act and its code follow on one
+   line; the code is last and small. The edge colour repeats the words, never replaces them. */
 
 .issues-list {
   display: grid;
@@ -30,7 +30,9 @@
   background: var(--surface-panel);
 }
 
-.issue-row.fix { border-left-color: var(--issue-blocking); }
+.issue-row.solve,
+.issue-row.modelValidity,
+.issue-row.ruleCheck { border-left-color: var(--issue-blocking); }
 .issue-row.warning { border-left-color: var(--issue-warning); }
 .issue-row.note { border-left-color: var(--issue-info); }
 
@@ -53,7 +55,14 @@
 }
 
 .issue-tier { font-weight: var(--type-weight-medium); }
-.issue-row.fix .issue-tier { color: var(--issue-blocking); }
+.issue-row.solve .issue-tier,
+.issue-row.modelValidity .issue-tier,
+.issue-row.ruleCheck .issue-tier { color: var(--issue-blocking); }
+
+.issue-class {
+  color: var(--text-secondary);
+  font-size: var(--type-size-caption);
+}
 
 .issue-code {
   margin-left: auto;
@@ -63,9 +72,16 @@
 
 .issue-detail {
   display: grid;
+  gap: var(--space-2);
+  font-size: var(--type-size-caption);
+}
+
+.issue-detail p { margin: 0; }
+
+.issue-detail dl {
+  display: grid;
   gap: var(--space-1);
   margin: 0;
-  font-size: var(--type-size-caption);
 }
 
 .issue-detail dd {

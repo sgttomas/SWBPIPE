@@ -2,7 +2,8 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { IssuesList } from "./IssuesList";
 import { buildIssueList, countIssues } from "./issueRows";
-import { blankSession, demoSession } from "./issueRows.testSessions";
+import type { Diagnostic } from "../../types";
+import { blankSession, checkRun, demoSession } from "./issueRows.testSessions";
 
 // The heading's words belong to another surface (features/results/integrityStatus.ts); the list
 // shows whatever words it is given.
@@ -17,7 +18,7 @@ describe("IssuesList", () => {
     const onAct = vi.fn();
     const onSelectEntity = vi.fn();
     render(<IssuesList list={buildIssueList(blankSession())} onAct={onAct} onSelectEntity={onSelectEntity} solverMessagesHeading={HEADING} />);
-    expect(screen.getByTestId("issues-count-line")).toHaveTextContent(/^3 to fix before Run$/);
+    expect(screen.getByTestId("issues-count-line")).toHaveTextContent(/^3 to fix before Run\. 2 warnings, 1 note\.$/);
     expect(rows().map((row) => row.getAttribute("data-code"))).toEqual([
       "NODE_INPUT_MISSING", "PIPE_INPUT_MISSING", "LOAD_INPUT_MISSING",
       "BLANK_PROJECT_AUTHORING_TARGET", "SUPPORT_STIFFNESS_UNRESOLVED", "RULE_CHECK_NOT_PERFORMED"
@@ -25,7 +26,7 @@ describe("IssuesList", () => {
     const first = rows()[0]!;
     // The sentence first, then where it stands, the act, and the code last.
     const parts = Array.from(first.querySelectorAll(".issue-sentence, [data-testid]")).map((item) => item.textContent);
-    expect(parts).toEqual(["linear-static preview requires at least two explicit nodes", "Fix before Run", "Add a node", "NODE_INPUT_MISSING"]);
+    expect(parts).toEqual(["The model needs at least two nodes before it can be solved.", "Fix before Run", "Add a node", "NODE_INPUT_MISSING"]);
     // These name no entity: nothing to select.
     expect(within(first).queryByTestId("issue-entity")).toBeNull();
     expect(rows().slice(0, 3).map((row) => within(row).getByTestId("issue-act").textContent)).toEqual(["Add a node", "Add a pipe", "Add a load"]);
@@ -85,7 +86,7 @@ describe("IssuesList", () => {
     fireEvent.click(within(row).getByRole("button", { name: "Select support:SH-140" }));
     expect(onSelectEntity).toHaveBeenCalledWith({ type: "support", id: "support:SH-140" });
     expect(within(row).queryByTestId("issue-act")).toBeNull();
-    const sentence = within(row).getByRole("button", { name: /its installed load \(hanger\.installed_load\), cold load/ });
+    const sentence = within(row).getByRole("button", { name: /entered installed load \(hanger\.installed_load\), cold load \(hanger\.cold_load\) and hot load/ });
     expect(sentence).toHaveAttribute("aria-expanded", "false");
     fireEvent.click(sentence);
     expect(sentence).toHaveAttribute("aria-expanded", "true");
@@ -114,5 +115,52 @@ describe("IssuesList", () => {
     expect(document.activeElement).toBe(sentences[sentences.length - 1]);
     fireEvent.keyDown(sentences[sentences.length - 1]!, { key: "Home" });
     expect(document.activeElement).toBe(sentences[0]);
+  });
+
+  it("shows a class its producer supplied on the row, as text, and none where none was supplied", () => {
+    const base = blankSession();
+    const ruleInput: Diagnostic = { id: "invented:rule-class", code: "INVENTED_RULE_INPUT", diagnostic_class: "RULE_CHECK_BLOCKING", severity: "blocking", message: "invented rule input text" };
+    const model = { ...base.model, diagnostics: [...base.model.diagnostics, ruleInput] };
+    render(<IssuesList list={buildIssueList({ ...base, model, modelCheckRun: checkRun(model, []) })} onAct={() => {}} onSelectEntity={() => {}} />);
+    const rule = rows().find((row) => row.getAttribute("data-code") === "INVENTED_RULE_INPUT")!;
+    expect(within(rule).getByTestId("issue-tier")).toHaveTextContent("Blocks rule check");
+    expect(within(rule).getByTestId("issue-class")).toHaveTextContent("RULE_CHECK_BLOCKING");
+    const target = rows().find((row) => row.getAttribute("data-code") === "BLANK_PROJECT_AUTHORING_TARGET")!;
+    expect(within(target).queryByTestId("issue-class")).toBeNull();
+    fireEvent.click(within(target).getByRole("button", { name: /Blank local model document/ }));
+    expect(within(target).getByTestId("issue-detail")).toHaveTextContent("Classnot supplied by producer");
+    expect(screen.getByTestId("issues-count-line")).toHaveTextContent("Nothing to fix. 1 blocking the rule check, 2 warnings, 1 note.");
+  });
+
+  it("shows a plain sentence on the row and the engine's own message when opened", () => {
+    const session = demoSession();
+    const engine = "region must be one acyclic chain with the declared terminals as its only degree-one nodes";
+    const topology: Diagnostic = { id: "invented:topology", code: "PRESSURE_REGION_TOPOLOGY_INVALID", severity: "blocking", message: engine, affected_refs: ["load:L-100", "region:R-1"], source: "core/product_physics" };
+    render(<IssuesList list={buildIssueList({ model: session.model, modelCheckRun: checkRun(session.model, [topology]) })} onAct={() => {}} onSelectEntity={() => {}} />);
+    const row = rows()[0]!;
+    const sentence = within(row).getByRole("button", { name: "Region region:R-1 of load:L-100 is not one unbroken run between its two terminals." });
+    expect(row).not.toHaveTextContent(engine);
+    fireEvent.click(sentence);
+    expect(within(row).getByTestId("issue-detail")).toHaveTextContent(`Also stated as${engine}`);
+  });
+
+  it("heads an opened solver row's details with the solver's messages heading, and no other row's", () => {
+    render(<IssuesList list={buildIssueList(demoSession())} onAct={() => {}} onSelectEntity={() => {}} solverMessagesHeading={HEADING} />);
+    const hanger = rows().find((row) => row.getAttribute("data-code") === "SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD")!;
+    const sentence = within(hanger).getByRole("button", { name: /Variable spring hanger support:SH-140/ });
+    fireEvent.click(sentence);
+    const detail = within(hanger).getByTestId("issue-detail");
+    const heading = within(detail).getByTestId("issue-detail-solver-messages-heading");
+    expect(heading).toHaveTextContent(HEADING);
+    // The heading leads the region the sentence controls.
+    expect(sentence.getAttribute("aria-controls")).toBe(detail.id);
+    expect(detail.firstElementChild).toBe(heading);
+    // The model's own statement is not one of the solver's messages.
+    const own = rows().find((row) => row.getAttribute("data-code") === "RULE_INPUTS_MISSING")!;
+    fireEvent.click(within(own).getByRole("button", { name: /Rule-check inputs are intentionally absent/ }));
+    expect(within(own).getByTestId("issue-detail")).toBeInTheDocument();
+    expect(within(own).queryByTestId("issue-detail-solver-messages-heading")).toBeNull();
+    // Once above the list, once in the opened solver row.
+    expect(screen.getAllByText(HEADING)).toHaveLength(2);
   });
 });
