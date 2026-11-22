@@ -259,7 +259,9 @@ fn admitted<'a>(model: &'a PreviewModel, case: &PreviewLoadCase) -> Option<crate
     let seismic = case.equivalent_static.as_ref()?.seismic.as_ref()?;
     let mut loads = Vec::new();
     let mut refusals = Vec::new();
-    let plan = crate::append_seismic_generated_loads(model, case, seismic, &mut loads, &mut refusals)?;
+    let crate::SeismicGeneration::Generated(plan) = crate::append_seismic_generated_loads(model, case, seismic, &mut loads, &mut refusals) else {
+        return None;
+    };
     crate::refuse_generated_id_collisions(case, &loads, &mut refusals);
     refusals.is_empty().then_some(plan)
 }

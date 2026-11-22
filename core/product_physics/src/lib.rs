@@ -11284,18 +11284,33 @@ fn equivalent_static_diag_id(load_case_id: &str, suffix: &str) -> String {
     )
 }
 
-/// DEL-05-01: static-equivalent seismic generation for one case. When the
-/// case's seismic generation is admitted its loads are appended to `loads` and
-/// its component plan is returned; otherwise its refusals are pushed to
-/// `diagnostics`, nothing is appended and `None` is returned. The seismic
-/// model-check warning reads the same admission (`seismic_warning`).
+/// The outcome of a case's seismic generation
+/// ([`append_seismic_generated_loads`]).
+enum SeismicGeneration<'a> {
+    /// The seismic loads are appended; the component plan.
+    Generated(seismic_component::Plan<'a>),
+    /// The generator refused its inputs by finding; nothing is appended, and
+    /// the case's wind generation still runs.
+    Refused,
+    /// A missing input, a component-plan refusal or a missing mass refused the
+    /// case before the generator ran; nothing is appended, and the case's
+    /// equivalent-static generation stops (no wind generation, no id check).
+    Stopped,
+}
+
+/// DEL-05-01: static-equivalent seismic generation for one case. Its loads
+/// are appended to `loads` when generation is admitted; otherwise its
+/// refusals are pushed to `diagnostics` and nothing is appended. The outcome
+/// keeps the distinction the caller acts on: a refusal before the generator
+/// runs stops the case's generation, and a generator finding does not. The
+/// seismic model-check warning reads the same outcome (`seismic_warning`).
 fn append_seismic_generated_loads<'a>(
     model: &'a PreviewModel,
     load_case: &PreviewLoadCase,
     seismic: &SeismicGenerationInput,
     loads: &mut Vec<PrimitiveLoad>,
     diagnostics: &mut Vec<Diagnostic>,
-) -> Option<seismic_component::Plan<'a>> {
+) -> SeismicGeneration<'a> {
     let case_id = load_case.id.as_str();
     let exact = pressure_runtime::is_exact(model);
     let replaced = joint::replaced_span_ids(model);
@@ -11331,10 +11346,10 @@ fn append_seismic_generated_loads<'a>(
             "seismic equivalent-static generation requires a user-entered gravity_acceleration; no physical-constant default is applied",
             vec![case_id.to_string(), "gravity_acceleration".to_string()],
         ));
-        return None;
+        return SeismicGeneration::Stopped;
     };
     if inputs_missing {
-        return None;
+        return SeismicGeneration::Stopped;
     }
     // DEL-05-01 (LIM-028): the members a rigid-family component replaces
     // and its force items, by REQ-015's dispositions, before any mass is
@@ -11343,7 +11358,7 @@ fn append_seismic_generated_loads<'a>(
     let components = seismic_component::plan(model, case_id, &replaced, &seismic_component::entered_factors(load_case), &mut refusals);
     if !refusals.is_empty() {
         diagnostics.extend(refusals);
-        return None;
+        return SeismicGeneration::Stopped;
     }
     let mut masses = Vec::new();
     let mut mass_blocked = false;
@@ -11363,7 +11378,7 @@ fn append_seismic_generated_loads<'a>(
         }
     }
     if mass_blocked {
-        return None;
+        return SeismicGeneration::Stopped;
     }
     let basis = SeismicEquivalentStaticBasis {
         load_case_ref: case_id.to_string(),
@@ -11384,10 +11399,10 @@ fn append_seismic_generated_loads<'a>(
         ));
     }
     if !findings.is_empty() {
-        return None;
+        return SeismicGeneration::Refused;
     }
     loads.extend(generated);
-    Some(components)
+    SeismicGeneration::Generated(components)
 }
 
 /// Synthesize seismic/wind static-equivalent primitive loads for a load
@@ -11425,7 +11440,9 @@ fn append_equivalent_static_generated_loads(
     }
 
     if let Some(seismic) = &equivalent_static.seismic {
-        append_seismic_generated_loads(model, load_case, seismic, loads, diagnostics);
+        if let SeismicGeneration::Stopped = append_seismic_generated_loads(model, load_case, seismic, loads, diagnostics) {
+            return;
+        }
     }
 
     if let Some(wind) = &equivalent_static.wind {
