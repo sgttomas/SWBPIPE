@@ -297,22 +297,24 @@ fn current_inputs_table_and_schema_are_pinned() {
     // (each raw equals main's bytes with those texts substituted; the S6 text-only guard).
     // Pressure elongation (RT-L2): the requests name their pressurised cases explicitly; limitation[0]'s
     // pressure-3 identity and bend clause, the elongation statement and the per-case label only.
+    // Issue 452: the applied-loads limitation (S14) only, whose refusal of generated equivalent-static loads is
+    // replaced by their generation (each raw equals the committed bytes with that sentence substituted).
     for (name, digest) in [
         (
             "connected-sparse",
-            "c241b75c27859f37c5e353e3a64d70687bc388f9f46852a31ad1b7311f8c6299",
+            "2cd25462217f585e2e6bbf59073abb20107ed58b8ded42f5f43cab94bda38e3d",
         ),
         (
             "connected-dense",
-            "340c3ded0fd7f411743e5facad97954dac91a13814891a83e27db1c0572430e5",
+            "d96cf64b19868a7bdb671bf0cadd8d25765decedf09a1d947531209ad6d17e47",
         ),
         (
             "pressure-sparse",
-            "73ea7b6c5dc69a6aec16e7ee0553bc908b3b5112c5c2e3bbd0661d626ed85471",
+            "3583160b935cd77d719bbb267de9568dbe72cd4cee8792f918dc6e03137f7b75",
         ),
         (
             "pressure-dense",
-            "15ed482eeb118a816b5d0c92e67db27f3cebc503b7986c525581c34c0e032e5e",
+            "daf2f9a5c3378e65106a2836c0d1b7a67c2eee08af6d7d07b3d900580f7f3e6c",
         ),
     ] {
         assert_eq!(sha(source_text(name).as_bytes()), digest, "{name}");

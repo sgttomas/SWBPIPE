@@ -64,11 +64,13 @@ FROZEN = {
     # proven at its merge, has been retired).
     # Pressure elongation (RT-L2): the request names its pressurised cases; the raws differ only in the identity, the
     # bend clause, the elongation statement and the per-case label.
-    "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json": "c241b75c27859f37c5e353e3a64d70687bc388f9f46852a31ad1b7311f8c6299",
-    "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json": "340c3ded0fd7f411743e5facad97954dac91a13814891a83e27db1c0572430e5",
+    # Issue 452: the applied-loads limitation (S14) only, whose refusal of generated equivalent-static loads is
+    # replaced by their generation (each raw equals the committed bytes with that sentence substituted).
+    "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json": "2cd25462217f585e2e6bbf59073abb20107ed58b8ded42f5f43cab94bda38e3d",
+    "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json": "d96cf64b19868a7bdb671bf0cadd8d25765decedf09a1d947531209ad6d17e47",
     "fixtures/product_preview/pressure/load_reference/pressure.request.json": "58ac643f423b38a9ce5792e8f5f584a16c0a5bdbcb88ad6334204746deb91810",
-    "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json": "73ea7b6c5dc69a6aec16e7ee0553bc908b3b5112c5c2e3bbd0661d626ed85471",
-    "fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json": "15ed482eeb118a816b5d0c92e67db27f3cebc503b7986c525581c34c0e032e5e",
+    "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json": "3583160b935cd77d719bbb267de9568dbe72cd4cee8792f918dc6e03137f7b75",
+    "fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json": "daf2f9a5c3378e65106a2836c0d1b7a67c2eee08af6d7d07b3d900580f7f3e6c",
     "fixtures/results/semantic_contract_v0_3_pressure_3.json": PRESSURE_CONTRACT_SHA256,
     "schemas/load_reference_state.schema.json": TRANSPORT_SCHEMA_SHA256,
 }
