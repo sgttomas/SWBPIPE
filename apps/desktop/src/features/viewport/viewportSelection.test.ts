@@ -12,6 +12,8 @@ import {
   composedVisibilityHiddenKeys,
   createRenderTransform,
   displayedBoundsForEntityKeys,
+  displayedEntityKeys,
+  fitSelectionPlan,
   effectiveHiddenEntityKeys,
   formatMeasurementDisplayValue,
   hideSelectionVisibility,
@@ -231,6 +233,24 @@ describe("viewport coordinates and broad phase", () => {
     expect(visible).not.toBeNull();
     expect(visible!.max.x - visible!.min.x).toBeCloseTo(0.86);
     expect(displayedBoundsForEntityKeys(index, [pipeKey], new Set([pipeKey]), new Map([[pipeKey, 8]]))).toBeNull();
+    // The keys a fit of them frames: the hidden ones are not among them.
+    expect(displayedEntityKeys(index, [pipeKey, supportKey, componentKey], new Set([pipeKey, componentKey]), new Map([[pipeKey, 8]]))).toEqual([supportKey]);
+  });
+
+  it("plans a Fit Selection from the targets the command names, and plans nothing when none is drawn", () => {
+    const model = largeModel(3);
+    const index = buildModelIndex(model, 1, 2);
+    const a = entityKey({ type: "pipe", id: "pipe:0" });
+    const b = entityKey({ type: "pipe", id: "pipe:2" });
+    // A is selected; the row's target is B: the plan frames B and remembers B.
+    const plan = fitSelectionPlan(index, [b], new Set(), new Map());
+    expect(plan?.keys).toEqual([b]);
+    expect(plan?.bounds).toEqual(displayedBoundsForEntityKeys(index, [b], new Set(), new Map()));
+    expect(plan?.bounds).not.toEqual(displayedBoundsForEntityKeys(index, [a], new Set(), new Map()));
+    // Nothing the command names is drawn: no plan, so the camera is left alone.
+    expect(fitSelectionPlan(index, [], new Set(), new Map())).toBeNull();
+    expect(fitSelectionPlan(index, [b], new Set([b]), new Map())).toBeNull();
+    expect(fitSelectionPlan(index, [entityKey({ type: "project", id: model.project.id })], new Set(), new Map())).toBeNull();
   });
 
   it("structurally caps labels with primary, hover, selected, and diagnostics first", () => {

@@ -377,3 +377,50 @@ export async function selectCompactOption(control: Locator, value: string): Prom
   await expect(control).toHaveAttribute("aria-expanded", "false");
   await expect(control).toHaveAttribute("data-value", value);
 }
+
+/**
+ * A control of the 3D view's bar or its More menu. The bar moves its lowest-priority groups into
+ * More while it is too narrow, and More always holds Fit Visible and the Fit that the canvas's Fit
+ * is not; this opens More, as a person would, when the control is not in the bar.
+ */
+/**
+ * The view's control, from its bar or, when the bar has no room for it, from the More row, which is
+ * opened for it. With `keyboard`, More is opened by focusing it and pressing Enter, so that a mouse
+ * button held down (and the canvas's pointer capture) is left undisturbed.
+ */
+export async function viewportControl(page: Page, control: Locator, options: { keyboard?: boolean } = {}): Promise<Locator> {
+  if (await control.isVisible()) return control;
+  const menu = page.getByTestId("viewport-more-menu");
+  if (!await menu.isVisible()) {
+    const more = page.getByTestId("viewport-more");
+    if (options.keyboard) {
+      await more.focus();
+      await page.keyboard.press("Enter");
+    } else {
+      await more.click();
+    }
+  }
+  await expect(menu).toBeVisible();
+  await expect(control).toBeVisible();
+  return control;
+}
+
+/**
+ * That the 3D view offers no such control, in its bar or in its More row: a closed More renders
+ * nothing, so More is opened for the check (programmatically, so that nothing over the view stops
+ * it and no focus moves) and closed again.
+ */
+export async function expectNotOfferedByView(page: Page, control: Locator): Promise<void> {
+  const more = page.getByTestId("viewport-more");
+  const menu = page.getByTestId("viewport-more-menu");
+  const opened = await more.count() > 0 && await menu.count() === 0;
+  if (opened) {
+    await more.evaluate((button) => (button as HTMLButtonElement).click());
+    await expect(menu).toHaveCount(1);
+  }
+  await expect(control).toHaveCount(0);
+  if (opened) {
+    await more.evaluate((button) => (button as HTMLButtonElement).click());
+    await expect(menu).toHaveCount(0);
+  }
+}
