@@ -63,8 +63,8 @@ documents, one pressurised case each and twelve nonzero regions in all, none nam
 whose documents are held only (the desktop native-replay requests, the desktop analysis-run v0.3 cases, the
 pressure-source reader corpus and the two MBF parity vectors) hold them at the recorded locations, with the
 recorded pressurised cases, each named in the setting in the three solved stores, unnamed in the import parity
-vectors, and either named (the harvested elongation-on benchmark inputs) or unnamed in the writer parity vectors,
-none of the parity vectors solved. These are bounded facts about those bytes, not about the source that reads them.
+vectors, and either named (the harvested elongation-on benchmark inputs) or unnamed in the writer parity vectors.
+These are bounded facts about those bytes, not about the source that reads them.
 
 What it does not establish. The source classifications (an IN_CODE record's cases_named and expectations, a group's
 producer) and the exemptions are curated assertions supported by review at identified revisions: an independent
