@@ -10,15 +10,15 @@
   },
   "hand_entry": {
     "base_rule": "model is the WRITTEN BASE: the case's SWBPIPE model with the member's support records left out; hand_entry_model appends them to model.supports and changes nothing else",
+    "comparison": {
+      "case:sustained": "captured at the sitting and compared with SWBPIPE's solve of this case and this load case at a named commit, each comparison stating the numerical standing the product published for that solve (LIM-026)",
+      "operating": "captured at the sitting and compared with SWBPIPE's solve of this case and this load case at a named commit, each comparison stating the numerical standing the product published for that solve (LIM-026)"
+    },
     "expected_status": {
       "support:B-rest": {
         "case:sustained": "closed",
         "operating": "closed"
       }
-    },
-    "held": {
-      "case:sustained": "captured at the sitting and HELD, stored sealed, until SWBPIPE's own result for this case and this load case is published by the product as checks passed; no comparison is formed before then",
-      "operating": "captured at the sitting and HELD, stored sealed, until SWBPIPE's own result for this case and this load case is published by the product as checks passed; no comparison is formed before then"
     },
     "member": [
       {
@@ -36,7 +36,7 @@
       }
     ],
     "member_text": "a one-way vertical (resting) support at the tip",
-    "one_way_case": "a one-way support: its capture is taken at the sitting and held; whether SWBPIPE's result for it may be compared is read from the product at each solve and is recorded nowhere here.",
+    "one_way_case": "a one-way support: its capture is compared with SWBPIPE's solve, and the support state and numerical standing the product publishes at that solve are stated with the comparison; nothing here records them in advance.",
     "run": {
       "expected_print_file": "cpb-n-03--rest-closed.print.csv",
       "expected_saved_file": "cpb-n-03--rest-closed.mod",
