@@ -1009,7 +1009,7 @@ before real project use.
 
 The results-review structure should cover:
 
-- displacements and rotations;
+- displacements and rotations (a rotation is the cross-section's; in a straight member solved with shear deformation it is not the slope of the centreline);
 - forces, moments, and reactions;
 - stress components and stress summaries from open mechanics;
 - user-rule ratios or findings where a user rule pack was supplied;
@@ -1201,6 +1201,7 @@ deliverable or human governance record.
 | Protected Standards Data | Standards-body text, tables, figures, protected examples, copied code formulas, allowables, SIF/flexibility tables, and protected dimensional tables. |
 | User-Supplied Code Data | Licensed or project-specific values, formulas, allowables, SIFs, flexibility factors, load combinations, owner requirements, and interpretations entered by the user. |
 | Centerline Model | A 3D line-element representation of piping centerlines and components for global analysis. |
+| Rotation | A rotation is the cross-section's; in a straight member solved with shear deformation it is not the slope of the centreline. |
 | Rule-Pack Check | A user-defined expression or comparison applied to solver outputs and user-supplied inputs. |
 | Export Package | A deterministic, provenance-bearing downstream package or sidecar set with explicit stable ID mapping, loss reporting, privacy metadata, diagnostics, and professional-boundary notices. |
 | Diagnostic | A structured finding for missing data, units, provenance, solver state, rule readiness, IP boundary, privacy, report completeness, or unsupported behavior. |

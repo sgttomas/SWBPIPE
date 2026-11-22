@@ -174,8 +174,9 @@ import type {
 } from "../../types";
 import { defaultSelection } from "../model-workspace/modelView";
 import { intentKey } from "../operations/OperationApplyPanel";
-import { buildReportPackageRequest, reportPackageExactSubmission, userReleaseModelRefusal, userReleasedReportPackageUnavailableReason } from "../report/reportPackageRequest";
+import { buildReportPackageRequest, REPORT_PACKAGE_NO_CURRENT_RESULT, REPORT_PACKAGE_NOT_CURRENT_ELIGIBLE, reportPackageExactSubmission, reportPackageNotSavedText, ReportPackageStandingRefusal, userReleaseModelRefusal, userReleasedReportPackageUnavailableReason } from "../report/reportPackageRequest";
 import type { UserReleaseDialogRequest } from "../report/UserReleaseDialog";
+import { isExactReportSource } from "../report/exactReportSections";
 import { invokeUserReleasedReportPackageSave, prepareShareableReportPackageSave, type UserReleaseConfirmation } from "../report/userReleasedReportPackageSave";
 import { controlReportPackageRequest } from "../report/reportRedactionProjector";
 import type { ControlledRouteExport } from "../redaction-controls/redactionExportControls";
@@ -328,6 +329,7 @@ function adoptNativeSave(reply: NativeProjectSave, model: PreviewModel, editorIn
 }
 
 function formatPackageSaveError(error: unknown): string {
+  if (error instanceof ReportPackageStandingRefusal) return reportPackageNotSavedText(error);
   if (error instanceof Error) return error.message;
   if (error && typeof error === "object") {
     try {
@@ -612,6 +614,7 @@ export function useWorkspaceSession() {
     integrityBound,
     numericalHealth,
     numericalHealthHold,
+    packageStandingGround,
     analysisRun, setAnalysisRun,
     resultBasisRef,
     analysisBasisRef,
@@ -2019,11 +2022,13 @@ export function useWorkspaceSession() {
     return () => { retained.status = event.type === "withdrawn" ? "withdrawn" : "unknown"; };
   }), [sessionEvents]);
 
-  async function handleQueueOperationBatch(batch: OperationBatch, options: { importContext?: ImportContext; precondition?: BatchPrecondition } = {}): Promise<void> {
-    await registerOperationBatch(batch, {
+  /** Whether the batch was registered for review (false where registration refused it). */
+  async function handleQueueOperationBatch(batch: OperationBatch, options: { importContext?: ImportContext; precondition?: BatchPrecondition } = {}): Promise<boolean> {
+    const registered = await registerOperationBatch(batch, {
       ...(options.importContext ? { importContext: options.importContext } : {}),
       ...(options.precondition ? { precondition: options.precondition } : {})
     });
+    return registered !== null;
   }
 
   /** Requeue a stored record with its author re-derived host-side (DEL-16-03).
@@ -4188,20 +4193,21 @@ export function useWorkspaceSession() {
     setDroppedWithinRunBases(null);
   }
 
+  // DEL-08-01 REQ-024, "Package and user release": the package's source is the rendered
+  // report's (`renderableSolvedResult`): Current, or an exact-route result the rendered report
+  // takes whatever its numerical standing. A pressure-free result that is not Current has none.
+  const reportPackageSourceRef = useRef<SessionResult | null>(null);
+  reportPackageSourceRef.current = renderableSolvedResult;
   /** Why a report-package request cannot be made now, or null. The native File menu's two
    * package commands are always enabled (the native shell state carries no package enablement),
-   * and since DEL-08-01 REQ-024 the rendered report panel also shows a result that is not
-   * Current, so a request that cannot proceed says why instead of doing nothing silently. */
+   * so a request that cannot proceed says why instead of doing nothing silently. */
   function reportPackageRequestRefusal(): string | null {
     if (!model) return "Not saved: no model was open.";
     if (running) return "Not saved: a solve was running. Save the report package when it has finished.";
     if (reportPackageBusy || reportPackageBusyGenerationRef.current !== null) return "Not saved: a report package was already being saved.";
-    if (!currentSolvedResult && renderableSolvedResult) {
-      return "Not saved: report-package save needs a numerically eligible result. The rendered report states this result's numerical standing.";
-    }
-    if (!currentSolvedResult && result) return "Not saved: report-package save needs the current, numerically eligible mechanics result.";
-    if (!currentSolvedResult || !analysisRun || !inputManifest) {
-      return "Not saved: report-package save needs the current mechanics result and analysis-run record. Solve first.";
+    if (!renderableSolvedResult && result) return packageStandingGround ? reportPackageNotSavedText(new ReportPackageStandingRefusal(packageStandingGround, null)) : REPORT_PACKAGE_NOT_CURRENT_ELIGIBLE;
+    if (!renderableSolvedResult || !analysisRun || !inputManifest) {
+      return REPORT_PACKAGE_NO_CURRENT_RESULT;
     }
     return null;
   }
@@ -4209,13 +4215,13 @@ export function useWorkspaceSession() {
   async function handleSaveReportPackage() {
     const refusal = reportPackageRequestRefusal();
     if (refusal !== null) { setReportPackageRoute({ route: "not_requested", diagnostic: refusal }); return; }
-    if (!model || !currentSolvedResult || !analysisRun || !inputManifest || running || reportPackageBusy) return;
+    if (!model || !renderableSolvedResult || !analysisRun || !inputManifest || running || reportPackageBusy) return;
     const generation = ++reportPackageRequestGenerationRef.current;
     const basis = {
       projectSessionGeneration: projectSessionGenerationRef.current,
       modelRevision: uiModelRevisionRef.current,
       model,
-      result: currentSolvedResult,
+      result: renderableSolvedResult,
       inputManifest,
       analysisRun,
       comparison,
@@ -4233,7 +4239,7 @@ export function useWorkspaceSession() {
       projectSessionGenerationRef.current === basis.projectSessionGeneration &&
       uiModelRevisionRef.current === basis.modelRevision &&
       currentModel.current === basis.model &&
-      currentSolvedResultRef.current === basis.result &&
+      reportPackageSourceRef.current === basis.result &&
       currentInputManifestRef.current === basis.inputManifest &&
       analysisBasisRef.current.value === basis.analysisRun &&
       ruleCheckAggregateRef.current === basis.ruleCheckAggregate &&
@@ -4311,17 +4317,20 @@ export function useWorkspaceSession() {
     projectSessionGenerationRef.current === basis.projectSessionGeneration &&
     uiModelRevisionRef.current === basis.modelRevision &&
     currentModel.current === basis.model &&
-    currentSolvedResultRef.current === basis.result &&
+    reportPackageSourceRef.current === basis.result &&
     currentInputManifestRef.current === basis.inputManifest &&
     analysisBasisRef.current.value === basis.analysisRun &&
     reportCompositionRef.current === basis.reportComposition;
   /** Opens the user-release dialog for the current report. The dialog shows the early model
-   * check's and the route-010 cell's refusal in place of the statement. Nothing happens while
-   * another project operation or modal is open, a solve runs or a package is being saved. */
+   * check's and the route-010 cell's refusal in place of the statement, and, before the
+   * statement, the report frame's statements on the result's standing as the native host gives
+   * them (DEL-08-01 REQ-024); where those cannot be obtained it refuses in place of the
+   * statement. Nothing happens while another project operation or modal is open, a solve runs
+   * or a package is being saved. */
   async function requestSaveShareableReportPackage() {
     const refusal = reportPackageRequestRefusal() ?? (projectSessionBusy() ? "Not saved: another project operation or dialog was open." : null);
     if (refusal !== null) { setReportPackageRoute({ route: "not_requested", diagnostic: refusal }); return; }
-    if (!model || !currentSolvedResult || !analysisRun || !inputManifest || running || reportPackageBusyGenerationRef.current !== null) return;
+    if (!model || !renderableSolvedResult || !analysisRun || !inputManifest || running || reportPackageBusyGenerationRef.current !== null) return;
     if (projectSessionBusy()) return;
     // Captured before the workspace turns inert, which drops its focus.
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
@@ -4329,16 +4338,19 @@ export function useWorkspaceSession() {
       projectSessionGeneration: projectSessionGenerationRef.current,
       modelRevision: uiModelRevisionRef.current,
       model,
-      result: currentSolvedResult,
+      result: renderableSolvedResult,
       inputManifest,
       analysisRun,
       reportComposition
     };
     const modelDocumentSha256 = await canonicalSha256Hex(basis.model);
+    // The words are the renderer's, from the native host; the webview composes none.
+    const { reportFrameStatements } = await import("../report/reportFrameStatements");
+    const frame = await reportFrameStatements(basis.result);
     // Nothing is asked of a session that moved on.
     if (!userReleaseBasisCurrent(basis) || projectSessionBusy() || reportPackageBusyGenerationRef.current !== null) return;
     const modelRefusal = userReleaseModelRefusal(basis.model, basis.inputManifest);
-    const resultRefusal = userReleasedReportPackageUnavailableReason(basis.result);
+    const resultRefusal = userReleasedReportPackageUnavailableReason(basis.result, packageStandingGround);
     const close = () => { userReleaseDialogOpenRef.current = false; setUserReleaseRequest(null); };
     userReleaseDialogOpenRef.current = true;
     // A new shareable attempt begins: an earlier save's status, which may carry that save's
@@ -4350,7 +4362,13 @@ export function useWorkspaceSession() {
       projectName: basis.model.project.name,
       modelDocumentSha256,
       runId: basis.result.run_id,
-      refusal: modelRefusal ? { kind: "library_or_rule_pack", reason: modelRefusal } : resultRefusal ? { kind: "result", reason: resultRefusal } : null,
+      exactRoute: isExactReportSource(basis.result),
+      frameStatements: frame.ok ? frame.statements : [],
+      refusal: modelRefusal
+        ? { kind: "library_or_rule_pack", reason: modelRefusal }
+        : resultRefusal
+          ? { kind: "result", reason: resultRefusal }
+          : frame.ok ? null : { kind: "frame_statements", reason: frame.reason },
       opener,
       cancel: close,
       save: (confirmation) => {
@@ -4365,7 +4383,7 @@ export function useWorkspaceSession() {
     if (!userReleaseDialogOpenRef.current) return;
     userReleaseDialogOpenRef.current = false;
     setUserReleaseRequest(null);
-  }, [projectSessionGeneration, uiModelRevision, model, currentSolvedResult, inputManifest, analysisRun, reportComposition]);
+  }, [projectSessionGeneration, uiModelRevision, model, renderableSolvedResult, inputManifest, analysisRun, reportComposition]);
 
   /** The one save the dialog's confirmation starts, on route `DREP-PACKAGE-USER-RELEASE-010`.
    * Its status and evidence use the package's status line; nothing outlives the save. */

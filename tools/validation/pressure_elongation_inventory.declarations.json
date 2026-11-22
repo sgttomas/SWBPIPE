@@ -417,6 +417,26 @@
    }
   },
   {
+   "id": "report_standing_package_inputs",
+   "paths": [
+    "fixtures/reports/invented/report_standing_witnesses/pressure_3_*.package.json"
+   ],
+   "producer": {
+    "kind": "ts_test",
+    "path": "apps/desktop/src/features/report/reportStandingWitness.test.tsx",
+    "write": "its write mode (OPENPIPESTRESS_WRITE_REPORT_STANDING_RENDER_INPUTS), beside the render inputs, from request_path and raw_path",
+    "switch_plumbed": false,
+    "switch_route": "copies its model from a committed source: re-produce that source with the switch, then re-run this writer"
+   },
+   "pinned_by": [
+    "apps/desktop/src-tauri/src/report_standing_package_tests.rs"
+   ],
+   "anchor": {
+    "kind": "excluded",
+    "reason": "the model is held inside the input manifest of package-request witness inputs, beside the render inputs that hold it as intake text"
+   }
+  },
+  {
    "id": "report_standing_app_render_request",
    "paths": [
     "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive.app_render_request.json"

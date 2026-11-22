@@ -260,15 +260,15 @@
       "core/loads/self_weight_wasm/Cargo.toml": "7041b262bcf36c8b00d380e041d2375016101856a62c61551c0e8abb3d21dc7d",
       "core/loads/stress_recovery/Cargo.toml": "a8d181c7587101e60d9fcc9bc7006822f9ce77105707193933039458637198e4",
       "core/loads/user_loads/Cargo.toml": "6c0add4912f9400459da5f89cfccfe6c7419d29a6641ebff65dbb8dc0c6a3ef6",
-      "core/model_operations/operation_applier/Cargo.toml": "6bd0236cbe9287d561c1571c5a4b9f21c0aaf06f20ae27e11c432e0af4854bfc",
+      "core/model_operations/operation_applier/Cargo.toml": "808f6cc59f4285122c6f6d1d3739520e9d4735d4369f642ee7a4875bc5a1900f",
       "core/numerics/correct_norm/Cargo.toml": "57cbcd985c88d79c7ebf198d9a5d3a68fa67fe74bfd11440791be7c9a44c8844",
-      "core/product_physics/Cargo.toml": "5b6207d4f56746d8bac3023038376c063adc7d84fc982502c5a62c23d6c9193d",
+      "core/product_physics/Cargo.toml": "7cbd06803d4bea85d2d43c101d315f363bfb79ccdcd3b5fa057379285bcf9765",
       "core/reporting/audit_manifest/Cargo.toml": "b8bc4623a383ed2c22205326bc737486becd9d931bf869e1e8cf40e147f4fad7",
-      "core/reporting/pdf_emitter/Cargo.toml": "aef459ce93aa7dae801284e172f7e5b7ab958801c4716d3c8db262f8303259be",
+      "core/reporting/pdf_emitter/Cargo.toml": "bd4049b168cecd9a3faf1b09d69506c02d92e14823e00fa9e89a4a035a01e562",
       "core/reporting/protected_content_linter/Cargo.toml": "6a11912d00b5c5c502e1f3d6d3036cf60d3e163078afbc3300005fd496a756ef",
       "core/reporting/report_generator/Cargo.toml": "625a9a604bf91c108cdbd55f650788f319c27c21390ae536d660a0d640d3c81c",
-      "core/reporting/report_package/Cargo.toml": "6e53715ce3b8f36d6003476aea574dbdcb739cabd6dde9703659a00040fe5126",
-      "core/reporting/report_renderer/Cargo.toml": "3c6d46b754f23c62dd4f5f94436f74acfd58b923b09571935a01b8ab5bb88249",
+      "core/reporting/report_package/Cargo.toml": "c1159682d7d25333d418f3cbe1e5c14ba91f6c37d5a061fa533a7f3cc837a944",
+      "core/reporting/report_renderer/Cargo.toml": "08444fb6084dbe023a39fc984a58712eb8b9d09a78e9693a80ffa1cd06d8e928",
       "core/reporting/report_sections/Cargo.toml": "44acb66312edbc9bfd77aa2980a898511ac34de67fba0fc773b70007a3aad0f1",
       "core/reporting/result_export/Cargo.toml": "44eada3aa4addfecedacab679d382356f7f6db2c258895f7ba2ab6b3abe02d61",
       "core/rules/completeness_checker/Cargo.toml": "95cf7430d70fffc65a984a6841980f2c65f12000e28004da89efc092f1152737",
@@ -1614,6 +1614,7 @@
               "fixtures/results/preview_physics_tamper_vector.json",
               "fixtures/results/preview_physics_timoshenko_arc_sparse.json",
               "fixtures/results/preview_physics_timoshenko_partial_span_blocked_sparse.json",
+              "fixtures/results/preview_physics_timoshenko_sensitive_torsion_sparse.json",
               "fixtures/results/preview_physics_timoshenko_straight_sparse.json",
               "fixtures/results/preview_physics_u4b_arc_sparse.json",
               "fixtures/results/preview_physics_unicode_ids_sparse.json",
@@ -2567,6 +2568,7 @@
               "apps/desktop/src-tauri/src/model_document_save.rs",
               "apps/desktop/src-tauri/src/model_document_shape.rs",
               "apps/desktop/src-tauri/src/model_document_version.rs",
+              "apps/desktop/src-tauri/src/model_settings_persistence_tests.rs",
               "apps/desktop/src-tauri/src/model_states.rs",
               "apps/desktop/src-tauri/src/native_csv_stream.rs",
               "apps/desktop/src-tauri/src/native_csv_stream_tests.rs",
@@ -2590,6 +2592,7 @@
               "apps/desktop/src-tauri/src/report_render_pf_timoshenko_tests.rs",
               "apps/desktop/src-tauri/src/report_session_diagnostics.rs",
               "apps/desktop/src-tauri/src/report_session_diagnostics_tests.rs",
+              "apps/desktop/src-tauri/src/report_standing_package_tests.rs",
               "apps/desktop/src-tauri/src/result_detail.rs",
               "apps/desktop/src-tauri/src/result_detail_tests.rs",
               "apps/desktop/src-tauri/src/result_js_text.rs",
@@ -5434,6 +5437,7 @@
               "fixtures/reports/invented/exact_report_witness_inputs/pressure_2_connector_combinations.request.json",
               "fixtures/reports/invented/exact_report_witness_inputs/pressure_2_realized_bend-sparse_interactive.raw.json",
               "fixtures/reports/invented/exact_report_witness_inputs/pressure_2_realized_bend.request.json",
+              "fixtures/reports/invented/pf_timoshenko_not_eligible/sensitive_torsion.app_render_request.json",
               "fixtures/reports/invented/report_composition_families.json",
               "fixtures/reports/invented/report_composition_vectors.json",
               "fixtures/reports/invented/report_diagnostics_parity.json",
@@ -5451,8 +5455,12 @@
               "fixtures/reports/invented/report_standing_witnesses/coupled_friction.request.json",
               "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive-sparse_interactive.raw.json",
               "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive.app_render_request.json",
+              "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive.frame_statements.json",
+              "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive.package.json",
               "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive.render.json",
               "fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved-sparse_interactive.raw.json",
+              "fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved.frame_statements.json",
+              "fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved.package.json",
               "fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved.render.json",
               "fixtures/reports/invented/state_comparison_handoff_desktop_parity.json",
               "fixtures/reports/invented/user_release_derivation_vectors.json",
@@ -5605,6 +5613,7 @@
               "fixtures/results/preview_physics_tamper_vector.json",
               "fixtures/results/preview_physics_timoshenko_arc_sparse.json",
               "fixtures/results/preview_physics_timoshenko_partial_span_blocked_sparse.json",
+              "fixtures/results/preview_physics_timoshenko_sensitive_torsion_sparse.json",
               "fixtures/results/preview_physics_timoshenko_straight_sparse.json",
               "fixtures/results/preview_physics_u4b_arc_sparse.json",
               "fixtures/results/preview_physics_unicode_ids_sparse.json",
@@ -6199,7 +6208,7 @@
             ]
           }
         ],
-        "sha256": "c3b2e4e6f304d7258c0ce78cefabf9d951f04d75c3367eaee9d131e7673c4dca",
+        "sha256": "8ba2418ada9184eae8c837db1cc4e32b1b56e14a219476a66ef3c995fc04ac60",
         "source_trees": [
           "core/reporting/report_package/Cargo.toml"
         ]
@@ -6286,7 +6295,7 @@
         ]
       },
       "core/product_physics/tests/pf_timoshenko_envelopes.rs": {
-        "sha256": "efc34399bb2524b5e453b6b9f3d910d176fc295702f76f8b1bdd82246d68b913",
+        "sha256": "8c90cd7c078cb8d4cd029ffc6c3a0621671d6fb3d83455ce2b381edc621bb90b",
         "source_trees": [
           "core/product_physics/Cargo.toml"
         ],
@@ -6297,6 +6306,7 @@
             "files": [
               "fixtures/results/preview_physics_timoshenko_arc_sparse.json",
               "fixtures/results/preview_physics_timoshenko_partial_span_blocked_sparse.json",
+              "fixtures/results/preview_physics_timoshenko_sensitive_torsion_sparse.json",
               "fixtures/results/preview_physics_timoshenko_straight_sparse.json"
             ]
           }
@@ -6576,7 +6586,7 @@
         }
       },
       "core/reporting/report_renderer/tests/standing_statements.rs": {
-        "sha256": "19fb8d4c7d23f54063978b299cd626db522d044ed8d848eb59dace703669d015",
+        "sha256": "13f33ac362dd7aa7fdc7793e2e45673bf4dcc7e3650628cacfdb9b83f3c8671a",
         "source_trees": [
           "core/reporting/report_renderer/Cargo.toml"
         ],
@@ -6809,6 +6819,7 @@
               "fixtures/results/preview_physics_tamper_vector.json",
               "fixtures/results/preview_physics_timoshenko_arc_sparse.json",
               "fixtures/results/preview_physics_timoshenko_partial_span_blocked_sparse.json",
+              "fixtures/results/preview_physics_timoshenko_sensitive_torsion_sparse.json",
               "fixtures/results/preview_physics_timoshenko_straight_sparse.json",
               "fixtures/results/preview_physics_u4b_arc_sparse.json",
               "fixtures/results/preview_physics_unicode_ids_sparse.json",

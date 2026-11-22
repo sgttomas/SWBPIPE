@@ -57,7 +57,7 @@ export async function assembleRenderedReport(inputs: RenderedReportAssemblyInput
   // a pressure-free Timoshenko source takes the admission too.
   const exact = takesReportAdmission(result);
   const admission = exact
-    ? await admitExactReportSource({ model, result, analysisRun, inputManifest: inputManifest as CurrentSessionInputManifestEvidence, purpose: "report-render" })
+    ? await admitExactReportSource({ model, result, analysisRun, inputManifest: inputManifest as CurrentSessionInputManifestEvidence, purpose: "report" })
     : null;
   const input = await buildRenderableReportInput({
     model,
