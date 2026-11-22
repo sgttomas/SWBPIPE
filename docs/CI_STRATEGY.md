@@ -217,9 +217,13 @@ fingerprints (the reader's and anchor sources' `sha256`/`source_sha256`, each
 declaration's caller crates and their `source_trees` Rust tree digests, and each
 scan's `files` inventory) are not refreshed by ordinary changes. A declaration
 whose fingerprints differ from the tree is stale: it may now read a file it does
-not list, so its reader crate and Rust callers (and their Cargo consumers) are
-added to every selection, with a `stale-runtime-read` reason, until a refresh
-lands. A scan's files are also read from the tree, so a file it has gained is a
+not list, so its reader crate and Rust callers are added to every selection,
+with a `stale-runtime-read` reason, until a refresh lands. Their Cargo consumers
+are added too, unless the reader is a crate's own test, bench or example, which
+no other crate compiles. Crates added only this way do not start the Python job,
+and while a declaration in an engine crate's `src/` or `build.rs` is stale the
+desktop engine output cache (`tools/software_workflow/wasm_cache.py`) rebuilds
+rather than reuse. A scan's files are also read from the tree, so a file it has gained is a
 resource at once and a declared file it has lost still selects its reader.
 Staleness alone never selects every crate and fails no check. The refresh is one
 command, run as its own pull request on a schedule and at the solver freeze and
