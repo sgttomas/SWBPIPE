@@ -12092,6 +12092,10 @@
               "NUMERICAL_INTEGRITY_NOT_QUALIFIED",
               "NUMERICAL_CASE_EVIDENCE_INCOMPLETE"
             ],
+            "integrity_bound": {
+              "reason": "inverse_norm_bound_not_verified",
+              "status": "not_verified"
+            },
             "route": "preview_physics",
             "status": "needs_recompute",
             "token": "needs_recompute"
