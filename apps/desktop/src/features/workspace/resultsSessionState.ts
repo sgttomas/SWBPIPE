@@ -4,8 +4,9 @@ import { numericalResultStanding, reportStanding, type NumericalStanding } from 
 import { nativeSupportStates, recoveredCaseIds, supportStatesFor } from "../results/integrityStatus";
 import { numericalHealthHold, numericalHealthView, readNumericalHealth, type NumericalHealthHold } from "../results/numericalHealth";
 import { isFreshSemanticResult } from "../results/knownSemanticLimitations";
-import { isExactReportSource } from "../report/exactReportSections";
-import { renderableReportSource } from "../report/renderableReportSource";
+import { takesReportAdmission } from "../report/exactReportAdmission";
+import { renderableReportSource, STANDING_FINDINGS } from "../report/renderableReportSource";
+import { packageStandingGround as standingGroundOf, type PackageStandingGround } from "../report/reportPackageRequest";
 import { useMemo, useRef, useState } from "react";
 import { useSequencedState } from "./reportSourceSequence";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
@@ -141,19 +142,31 @@ export function useResultsSessionState(advanceReportSource?: () => number) {
   // other identities stay readable, never Current.
   const currentSolvedResult = result && otherCurrentRequirementsHold && numericallyEligible ? result : null;
   // DEL-08-01 REQ-017, REQ-024: the rendered report (and its print view) also takes an
-  // exact-route result that meets every other Current requirement, whose mechanics are
-  // solved and whose standing names only standing findings, whatever that standing is: a
-  // candidate, which the build step and the native host each read in full before any
-  // render (`renderableReportSource`). Every other output, the report package included,
-  // keeps `currentSolvedResult`.
+  // exact-route or pressure-free Timoshenko result (the two whose render the native host
+  // binds to the delivered result, `takesReportAdmission`) that meets every other Current
+  // requirement, whose mechanics are solved and whose standing names only standing findings,
+  // whatever that standing is: a candidate, which the build step and the native host each
+  // read in full before any render (`renderableReportSource`). The report package and the
+  // user release take this same source (DEL-08-01 REQ-024, "Package and user release"); on
+  // the pressure-free routes they carry `currentSolvedResult` alone and refuse any other
+  // (`reportPackageSourceUnavailableReason`). Every other output keeps `currentSolvedResult`.
   const renderableSolvedResult = renderableReportSource({
     current: currentSolvedResult,
     result,
     otherCurrentRequirementsHold,
-    exactRoute: result !== null && isExactReportSource(result as MechanicsResult),
+    boundRoute: result !== null && takesReportAdmission(result as MechanicsResult),
     mechanicsSolved: result?.status?.mechanics === "MECHANICS_SOLVED",
     standing
   });
+  // DEL-08-01 REQ-024, LIM-016: why a solved result that meets every other Current requirement,
+  // and whose findings all state its standing, is not numerically eligible ("health" or
+  // "record", `packageStandingGround`); null for every other result, an eligible one included.
+  // The package refusals' words follow it; it admits nothing.
+  const packageStandingGround: PackageStandingGround | null = result && !numericallyEligible && otherCurrentRequirementsHold
+    && result.status?.mechanics === "MECHANICS_SOLVED" && standing !== null && standing.findings.length > 0
+    && standing.findings.every((finding) => STANDING_FINDINGS.includes(finding))
+    ? standingGroundOf(result as Pick<MechanicsResult, "numerical_quality">)
+    : null;
   // DEL-07-05 numerical health: the Rust indicator for this result with the reader's
   // findings from the standing above. Presentation only; it reads nothing back into
   // Current standing or any output gate.
@@ -284,6 +297,9 @@ export function useResultsSessionState(advanceReportSource?: () => number) {
     currentSolvedResult,
     /** The result the rendered report takes (see above); never an input to any other output. */
     renderableSolvedResult,
+    /** Why `result`, solved and current in every other respect, is not numerically eligible, for
+     * the package refusals' words; null otherwise. */
+    packageStandingGround,
     /** The reader's numerical standing of `result` (`standing.eligible`), for the viewport's
      * result overlays; it admits nothing by itself. */
     numericallyEligible,

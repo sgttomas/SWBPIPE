@@ -64,8 +64,9 @@ export type ExactLimitationEntry = {
   statement: string;
 };
 
-/** Whether `result` names an exact-route identity (its producer identity). */
-export function isExactReportSource(result: MechanicsResult | null | undefined): boolean {
+/** Whether `result` names an exact-route identity (its producer identity). It reads the producer
+ * only, which a natively held result's handle carries with the rest of its envelope. */
+export function isExactReportSource(result: Pick<MechanicsResult, "producer"> | null | undefined): boolean {
   const id = result?.producer?.semantic_contract_id;
   return typeof id === "string" && EXACT_REPORT_CONTRACT_IDS.includes(id);
 }

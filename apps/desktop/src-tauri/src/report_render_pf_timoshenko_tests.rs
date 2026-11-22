@@ -288,3 +288,48 @@ fn a_timoshenko_report_states_health_from_its_standing_record_and_refuses_an_app
         Err(other) => panic!("{other:?}"),
     }
 }
+
+const SENSITIVE_TORSION_RAW: &str = include_str!("../../../../fixtures/results/preview_physics_timoshenko_sensitive_torsion_sparse.json");
+const APP_NOT_ELIGIBLE_RENDER_REQUEST: &str =
+    include_str!("../../../../fixtures/reports/invented/pf_timoshenko_not_eligible/sensitive_torsion.app_render_request.json");
+
+/// DEL-08-01 REQ-017, REQ-024, across the IPC boundary: the render request the desktop App sends
+/// for the product's solved pressure-free Timoshenko result that is not numerically eligible (its
+/// one load case sensitive; `timoshenkoReportAnyStanding.app.test.tsx` writes it) renders through
+/// the production render command with live custody, and the report says what a person reads of its
+/// standing: the standing line, the reader's finding and the load case's numerical health. The
+/// same request with its standing record altered refuses.
+#[test]
+fn the_app_render_request_of_a_not_eligible_timoshenko_result_states_its_standing() {
+    let file: Value = serde_json::from_str(APP_NOT_ELIGIBLE_RENDER_REQUEST).unwrap();
+    assert_eq!(file["raw_path"], json!("fixtures/results/preview_physics_timoshenko_sensitive_torsion_sparse.json"));
+    let intake = file["exact_intake_text"].as_str().unwrap().to_string();
+    let manifest = file["input_manifest_text"].as_str().unwrap().to_string();
+    let (registry, gate, job) = delivered_in_custody(ScriptedHost::normal(), intake.as_bytes(), Some(MODE), SENSITIVE_TORSION_RAW);
+    let mut input = file["input"].clone();
+    input[PF_TIMOSHENKO_SECTION]["admission"]["native_job_id"] = json!(job);
+    let case = Case { registry, _gate: gate, input: input.clone(), result: SENSITIVE_TORSION_RAW.to_string(), intake, manifest };
+    let rendered = render(&case, &input, true).unwrap_or_else(|error| panic!("{error:?}"));
+    assert_eq!(rendered["export_blocked"], json!(false), "{}", rendered["blocking_reasons"]);
+    let html = rendered["html"].as_str().unwrap();
+    let cases = input["numerical_standing"]["cases"].as_array().unwrap();
+    assert_eq!(cases.len(), 1);
+    let id = open_pipe_stress_report_renderer::escape_html(cases[0]["case_id"].as_str().unwrap());
+    for phrase in [
+        "Numerical health, as the solver reports it: 0 checks passed, 1 sensitive, 0 quality unresolved, 0 not assessed, of 1 load case.".to_string(),
+        "The product reader&#39;s findings on this result&#39;s standing:".to_string(),
+        open_pipe_stress_report_renderer::escape_html(
+            "Not every load case of this result is checks passed, so the product reader does not find it numerically eligible. (NUMERICAL_INTEGRITY_NOT_QUALIFIED)",
+        ),
+        open_pipe_stress_report_renderer::escape_html(
+            "At least one load case's record is not a checks-passed record; each load case's numerical health is stated by load case. (NUMERICAL_CASE_EVIDENCE_INCOMPLETE)",
+        ),
+        format!("<tr><td>{id}</td><td>Numerical health: sensitive</td>"),
+    ] {
+        assert!(html.contains(&phrase), "{phrase}");
+    }
+    assert!(!html.contains("integrity checked"), "never \"integrity checked\" for a result that is not checks passed");
+    let mut altered = input.clone();
+    altered["numerical_standing"]["cases"][0]["health"] = json!("checks_passed");
+    refused(&case, &altered, true, SECTIONS_MISMATCH, "standing record altered");
+}
