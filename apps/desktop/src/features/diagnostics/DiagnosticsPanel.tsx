@@ -1,6 +1,7 @@
 import { isNativeResult, nativeCustody, nativeQueryInvoke, type SessionResult } from "../../services/nativeResult";
 import { resultRowPages } from "../../services/resultDetail";
 import { nativeFailureText } from "../../services/nativeIngress";
+import { designKnowledgeDiagnostics } from "../../services/designKnowledge";
 import { useKnowledgeAxialRow } from "../knowledge/KnowledgePanel";
 import type { ReactNode } from "react";
 import { ResultQuantity } from "../toolkit/ResultQuantity";
@@ -59,7 +60,7 @@ export function DiagnosticsPanel({
     ...model.diagnostics,
     ...documentDiagnostics,
     ...libraryRefs,
-    ...(knowledge?.diagnostics ?? []),
+    ...designKnowledgeDiagnostics(knowledge, model),
     ...resultDiagnostics
   ];
   const filteredDiagnostics = useMemo(
@@ -75,7 +76,7 @@ export function DiagnosticsPanel({
   // The detail shows the first diagnostic with the selected id, the model's and the knowledge's before
   // the result's (`buildDiagnosticInterpretation`): it is the solver's only where that entry is the result's.
   const selects = (item: Diagnostic) => (item.id ?? item.code) === selectedDiagnosticId;
-  const selectedIsSolverMessage = selectedDiagnosticId !== null && !model.diagnostics.some(selects) && !(knowledge?.diagnostics ?? []).some(selects) && resultDiagnostics.some(selects);
+  const selectedIsSolverMessage = selectedDiagnosticId !== null && !model.diagnostics.some(selects) && !designKnowledgeDiagnostics(knowledge, model).some(selects) && resultDiagnostics.some(selects);
   const nativeLinked = useNativeLinkedResults(model, knowledge, result, selectedDiagnosticId);
   const axial = useKnowledgeAxialRow(result);
   const interpretation = buildDiagnosticInterpretation({ model, knowledge, result, diagnosticId: selectedDiagnosticId, nativeLinkedResults: nativeLinked.rows, knowledgeAxialRow: axial.row });
@@ -180,7 +181,7 @@ function SeverityCount({ label, value, testId }: { label: string; value: number;
 function useNativeLinkedResults(model: PreviewModel, knowledge: DesignKnowledge | null, result: SessionResult | null, diagnosticId: string | null): { rows: DiagnosticInterpretation["linked_results"] | null; error: string | null } {
   const refs = useMemo(() => {
     if (!result || !isNativeResult(result) || !diagnosticId) return null;
-    const diagnostic = [...model.diagnostics, ...(knowledge?.diagnostics ?? []), ...result.diagnostics].find((candidate) => (candidate.id ?? candidate.code) === diagnosticId);
+    const diagnostic = [...model.diagnostics, ...designKnowledgeDiagnostics(knowledge, model), ...result.diagnostics].find((candidate) => (candidate.id ?? candidate.code) === diagnosticId);
     return (diagnostic?.affected_refs ?? []).slice(0, 1000);
   }, [model, knowledge, result, diagnosticId]);
   const [read, setRead] = useState<{ of: unknown; key: string; rows: DiagnosticInterpretation["linked_results"]; error?: string } | null>(null);

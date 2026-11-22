@@ -219,10 +219,12 @@ describe("the heading above the solver's own messages", () => {
   it("the Design Knowledge panel: once, after the person's own records and directly before the first record made from a solver message; absent where none", () => {
     const source = read<{ envelope: MechanicsResult }>("fixtures/results/rt_a3_s6_c1_correction_unavailable.json").envelope;
     const knowledge = read<DesignKnowledge>("fixtures/product_preview/invented_design_knowledge.json");
+    // The person's records are listed for the model the knowledge is bound to (`designKnowledgeRecords`).
+    const bound = read<PreviewModel>(DEMO.model);
     expect(knowledge.records.length).toBeGreaterThan(0);
     const solverMessage = source.diagnostics.find((d) => d.severity === "warning" || d.severity === "blocking")!;
     expect(solverMessage).toBeDefined();
-    const { rerender } = render(<KnowledgePanel knowledge={knowledge} result={source} />);
+    const { rerender } = render(<KnowledgePanel knowledge={knowledge} model={bound} result={source} />);
     once("knowledge-solver-messages-heading");
     const heading = screen.getByTestId("knowledge-solver-messages-heading");
     // Every record the person keeps comes before it; the next element is the first solver-made record.
@@ -230,7 +232,7 @@ describe("the heading above the solver's own messages", () => {
       expect(screen.getByTestId(`knowledge-record-${record.id}`).compareDocumentPosition(heading) & Node.DOCUMENT_POSITION_FOLLOWING, record.id).toBeTruthy();
     }
     expect(heading.nextElementSibling?.getAttribute("data-testid")).toBe(`knowledge-record-knowledge:${solverMessage.id ?? solverMessage.code}`);
-    rerender(<KnowledgePanel knowledge={knowledge} result={{ ...source, diagnostics: [] }} />);
+    rerender(<KnowledgePanel knowledge={knowledge} model={bound} result={{ ...source, diagnostics: [] }} />);
     expect(screen.queryByTestId("knowledge-solver-messages-heading")).toBeNull();
   });
 

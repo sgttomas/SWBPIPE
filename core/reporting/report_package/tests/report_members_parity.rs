@@ -1,17 +1,30 @@
 //! The native producers of a report input's row-scale members
 //! (`report_package::report_members`, DEL-08-01) against report inputs the
-//! desktop's builder wrote: the five exact-route witness requests
+//! desktop's builder wrote: the six exact-route witness requests
 //! (`fixtures/reports/invented/exact_report_package_requests/`, written by
 //! `apps/desktop/src/features/report/exactReportBelowGate.test.tsx`), the two
 //! exact user-release fixtures (`fixtures/reports/invented/user_release_exact/`),
 //! the pressure-free user-release vectors
-//! (`fixtures/reports/invented/user_release_derivation_vectors.json`) and the
+//! (`fixtures/reports/invented/user_release_derivation_vectors.json`), the
 //! two standing witnesses' render inputs
-//! (`fixtures/reports/invented/report_standing_witnesses/`).
+//! (`fixtures/reports/invented/report_standing_witnesses/`) and the report
+//! members vectors (`fixtures/reports/invented/report_members_vectors/`, written
+//! by `apps/desktop/src/features/report/reportMembersVectors.test.ts`), which put
+//! builder output behind the units' and the coordinate systems' order, the
+//! trimming of coordinate systems and section-basis tokens, a coordinate system
+//! that is not text, an empty row set and the session's Diagnostics entries.
+//!
+//! Three branches cannot be produced by the desktop, so they are stated here on
+//! constructed inputs from a reading of the builder: an exact stress headline in
+//! Pa beside no row in Pa (an exact Pa headline must bind a row of the same
+//! unit), a recognised section-basis token ending in U+0085 (the builder refuses
+//! it as an unreadable basis) and, as the reason the section-basis vectors use
+//! the solver-mode row, an edited basis on an exact stress row (it must match
+//! that row's signature). Some other constructed cases stand beside the vectors
+//! where no vector was made for them, each saying so.
 //!
 //! Equality is on canonical bytes (RFC 8785): a produced member's canonical
-//! text is the committed member's. Invented data only. Standard claim fence
-//! applies (claims taxonomy per DEC-081).
+//! text is the committed member's. Invented data only.
 
 use open_pipe_stress_canonical_json::canonical_json;
 use open_pipe_stress_report_package::bindings::{check_report_diagnostics, check_report_result_refs, check_unit_display_summary};
@@ -23,7 +36,7 @@ use open_pipe_stress_report_package::user_release::{first_difference, session_pr
 use open_pipe_stress_result_export::derivative::digest;
 use serde_json::{json, Value};
 
-const WITNESS_REQUESTS: [(&str, &str); 5] = [
+const WITNESS_REQUESTS: [(&str, &str); 6] = [
     ("pressure_2_straight", include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_straight.json")),
     (
         "pressure_2_load_reference_states",
@@ -32,6 +45,10 @@ const WITNESS_REQUESTS: [(&str, &str); 5] = [
     ("pressure_2_connector", include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_connector.json")),
     ("pressure_2_realized_bend", include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_realized_bend.json")),
     ("pressure_source_1", include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_source_1.json")),
+    (
+        "pressure_2_connector_combinations",
+        include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_connector_combinations.json"),
+    ),
 ];
 const USER_RELEASE_EXACT: [(&str, &str); 2] = [
     ("user_release_exact/pressure_2_straight", include_str!("../../../../fixtures/reports/invented/user_release_exact/pressure_2_straight.json")),
@@ -57,6 +74,28 @@ const STANDING_WITNESSES: [(&str, &str, &str); 2] = [
         include_str!("../../../../fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved-sparse_interactive.raw.json"),
     ),
 ];
+/// The report members vectors (`reportMembersVectors.test.ts`): report inputs the desktop's
+/// builder wrote for invented edits of a committed result or its model, each with the
+/// delivered result bytes it was built from and the model, or where that model sits.
+const MEMBERS_VECTORS: [(&str, &str); 7] = [
+    (
+        "coordinate_systems_order_and_trim",
+        include_str!("../../../../fixtures/reports/invented/report_members_vectors/coordinate_systems_order_and_trim.json"),
+    ),
+    ("section_basis_trim", include_str!("../../../../fixtures/reports/invented/report_members_vectors/section_basis_trim.json")),
+    ("section_basis_nel_alone", include_str!("../../../../fixtures/reports/invented/report_members_vectors/section_basis_nel_alone.json")),
+    (
+        "coordinate_system_not_text",
+        include_str!("../../../../fixtures/reports/invented/report_members_vectors/coordinate_system_not_text.json"),
+    ),
+    ("empty_rows", include_str!("../../../../fixtures/reports/invented/report_members_vectors/empty_rows.json")),
+    ("exact_unknown_kind_units", include_str!("../../../../fixtures/reports/invented/report_members_vectors/exact_unknown_kind_units.json")),
+    (
+        "session_diagnostics_after_results",
+        include_str!("../../../../fixtures/reports/invented/report_members_vectors/session_diagnostics_after_results.json"),
+    ),
+];
+const EXACT_AUTHORING_MODEL: &str = include_str!("../../../../fixtures/model_operations/exact_pressure_authoring_model.json");
 const DIAGNOSTICS_VECTORS: &str = include_str!("../../../../fixtures/reports/invented/report_diagnostics_parity.json");
 
 /// One report input the desktop's builder wrote, with the model and the
@@ -72,9 +111,10 @@ fn parse(text: &str) -> Value {
     serde_json::from_str(text).unwrap()
 }
 
-/// Thirteen committed report inputs the desktop's builder wrote: five full
+/// The committed report inputs the desktop's builder wrote: six full
 /// local-private exact inputs, two minimal exact inputs, four minimal
-/// pressure-free inputs and the two standing witnesses' render inputs.
+/// pressure-free inputs, the two standing witnesses' render inputs and the
+/// report members vectors.
 fn built_reports() -> Vec<Built> {
     let mut built = Vec::new();
     for (name, text) in WITNESS_REQUESTS {
@@ -105,8 +145,31 @@ fn built_reports() -> Vec<Built> {
         let fixture = parse(render);
         built.push(Built { name: name.to_string(), model: parse(fixture["exact_intake_text"].as_str().unwrap()), source: parse(raw), report: fixture["input"].clone() });
     }
-    assert_eq!(built.len(), 13);
+    // The one model a vector names rather than carries: the exact-pressure authoring model.
+    let authoring_model = parse(EXACT_AUTHORING_MODEL);
+    for (name, text) in MEMBERS_VECTORS {
+        let fixture = parse(text);
+        assert_eq!(fixture["name"], name);
+        let model = match fixture.get("model_pointer") {
+            None => fixture["model"].clone(),
+            Some(pointer) => {
+                assert_eq!((&fixture["model_fixture"], pointer), (&json!("fixtures/model_operations/exact_pressure_authoring_model.json"), &json!("")), "{name}");
+                authoring_model.clone()
+            }
+        };
+        built.push(Built {
+            name: format!("members vector {name}"),
+            model,
+            source: parse(fixture["source_text"].as_str().unwrap()),
+            report: fixture["report"].clone(),
+        });
+    }
+    assert_eq!(built.len(), 14 + MEMBERS_VECTORS.len());
     built
+}
+
+fn members_vector(name: &str) -> Built {
+    built_reports().into_iter().find(|built| built.name == format!("members vector {name}")).unwrap_or_else(|| panic!("no members vector {name}"))
 }
 
 #[track_caller]
@@ -137,7 +200,8 @@ fn each_producer_gives_the_desktop_builders_member() {
         let Built { name, model, source, report } = &built;
         let provenance = session_provenance(model).unwrap();
         let rows = source["results"].as_array().unwrap().len();
-        assert!(rows > 0, "{name}");
+        // Every input has rows but the vector made to have none.
+        assert!(rows > 0 || name == "members vector empty_rows", "{name}");
 
         assert_canonical_eq(&Value::Array(result_rows(source).unwrap()), &report["result_rows"], &format!("{name}: result_rows"));
 
@@ -180,23 +244,37 @@ fn a_report_input_completed_natively_is_the_desktop_builders() {
     }
 }
 
-/// The session's Diagnostics entries follow the result's, in their own order.
-/// No committed builder input carries a session entry, so this is stated on an
-/// invented one.
+/// The session's Diagnostics entries follow the result's, in their own order:
+/// the builder's input for a model whose component and material have blank
+/// provenance notes carries the session's two entries after the result's. Without the
+/// result's entries the input keeps the session's as the builder wrote them, and
+/// placing puts the result's before them, giving the builder's list.
 #[test]
 fn the_sessions_diagnostics_follow_the_results() {
-    let built = built_reports().into_iter().next().unwrap();
+    let built = members_vector("session_diagnostics_after_results");
     let from_result = built.source["diagnostics"].as_array().unwrap().len();
     assert!(from_result > 0);
-    let session = json!([{"code": "INVENTED_SESSION_FIRST"}, {"code": "INVENTED_SESSION_SECOND"}]);
+    let committed = built.report["report_sections"]["diagnostics"].as_array().unwrap();
+    let session = &committed[from_result..];
+    let codes: Vec<&str> = session.iter().map(|entry| entry["code"].as_str().unwrap()).collect();
+    assert_eq!(codes, ["COMPONENT_PROVENANCE_MISSING", "MATERIAL_PROVENANCE_MISSING"]);
     let mut report = without_row_scale_members(&built);
-    assert_eq!(report["report_sections"]["diagnostics"], json!([]));
-    report["report_sections"]["diagnostics"] = session.clone();
+    assert_eq!(report["report_sections"]["diagnostics"], Value::Array(session.to_vec()));
+    place_members(&mut report, &built.model, &built.source).unwrap();
+    assert_canonical_eq(&report["report_sections"]["diagnostics"], &built.report["report_sections"]["diagnostics"], "the result's entries, then the session's");
+    check_report_diagnostics(&report, &built.source).unwrap();
+
+    // Constructed, as every entry the builder writes after the result's names an
+    // affected object: a caller's entries that carry a code only are kept as sent,
+    // in their own order, after the result's.
+    let sent = json!([{"code": "INVENTED_SESSION_FIRST"}, {"code": "INVENTED_SESSION_SECOND"}]);
+    let mut report = without_row_scale_members(&built);
+    report["report_sections"]["diagnostics"] = sent.clone();
     place_members(&mut report, &built.model, &built.source).unwrap();
     let placed = report["report_sections"]["diagnostics"].as_array().unwrap();
     assert_eq!(placed.len(), from_result + 2);
-    assert_canonical_eq(&Value::Array(placed[..from_result].to_vec()), &built.report["report_sections"]["diagnostics"], "the result's entries");
-    assert_eq!(Value::Array(placed[from_result..].to_vec()), session);
+    assert_canonical_eq(&Value::Array(placed[..from_result].to_vec()), &Value::Array(committed[..from_result].to_vec()), "the result's entries");
+    assert_eq!(Value::Array(placed[from_result..].to_vec()), sent);
     check_report_diagnostics(&report, &built.source).unwrap();
 }
 
@@ -389,56 +467,60 @@ fn an_unreadable_source_derives_nothing() {
     assert!(unit_display_summary(&json!({"project": {"units": []}}), &built.source).unwrap_err().starts_with("REPORT-PACKAGE-BINDING-MISMATCH: "));
 }
 
-/// The stored units and the coordinate systems are each listed once, in UTF-16
-/// code unit order, as the desktop's default sort gives them; a blank or `TBD`
-/// coordinate system is not one.
+/// The coordinate systems are each listed once, in UTF-16 code unit order, as
+/// the desktop's default sort gives them, and a name is kept as written unless
+/// it is blank after JavaScript's `trim` or exactly `TBD`. On the builder's input
+/// for rows naming U+1F600 (a surrogate pair, which sorts before U+FF2E though
+/// its code point is greater), U+FF2E, a no-break space, U+FEFF (blank to
+/// JavaScript's `trim`, not to Rust's), U+0085 (blank to Rust's `trim`, not to
+/// JavaScript's), padded names and `TBD`; and for a row naming the number 7,
+/// which is not one.
+///
+/// The stored units follow the same order: on the builder's input for an exact
+/// result with two rows of a kind the reader does not know, in U+1F600 and
+/// U+FF2E. An empty row set gives empty members.
 #[test]
 fn units_and_coordinate_systems_follow_the_desktops_order() {
-    let row = |id: &str, unit: &str, system: Value| json!({"id": id, "kind": "k", "value": 1, "unit": unit, "metadata": {"component": "c", "coordinate_system": system}});
-    let source = json!({"producer": {}, "summary": {}, "results": [
-        row("a", "\u{1F600}", json!("global")),
-        row("b", "\u{FF2E}", json!("\u{a0} ")),
-        row("c", "N", json!("TBD")),
-        row("d", "", json!("\u{FF2E}")),
-        row("e", "N", json!("\u{1F600}")),
-        row("f", "mm", json!(7)),
-        {"id": "g", "kind": "k", "value": 1, "unit": "mm"}
-    ]});
+    let built = members_vector("coordinate_systems_order_and_trim");
+    let expected = [" TBD ", " global ", "element_local", "global", "pipe_section", "\u{85}", "\u{1F600}", "\u{FF2E}"];
+    assert_eq!(built.report["report_context"]["result_coordinate_systems"], json!(expected));
+    assert_eq!(result_coordinate_systems(&built.source).unwrap(), expected);
+
+    let built = members_vector("coordinate_system_not_text");
+    assert_eq!(built.source["results"][0]["metadata"]["coordinate_system"], json!(7));
+    let expected = ["element_local", "global", "pipe_section"];
+    assert_eq!(built.report["report_context"]["result_coordinate_systems"], json!(expected));
+    assert_eq!(result_coordinate_systems(&built.source).unwrap(), expected);
+
+    let built = members_vector("exact_unknown_kind_units");
+    let expected = json!(["MPa", "N", "N*m", "Pa", "mm", "mode_code", "rad", "\u{1F600}", "\u{FF2E}"]);
+    assert_eq!(built.report["calculation_report"]["model_input_summary"]["unit_display_summary"]["result_units"], expected);
+    assert_eq!(unit_display_summary(&built.model, &built.source).unwrap()["result_units"], expected);
+
+    let built = members_vector("empty_rows");
+    assert_eq!(built.source["results"], json!([]));
+    assert_eq!(built.report["result_rows"], json!([]));
+    assert_eq!(result_rows(&built.source).unwrap(), Vec::<Value>::new());
+    assert_eq!(result_export_refs(&built.source, &session_provenance(&built.model).unwrap()).unwrap(), Vec::<Value>::new());
+    assert_eq!(result_coordinate_systems(&built.source).unwrap(), Vec::<String>::new());
+    assert_eq!(unit_display_summary(&built.model, &built.source).unwrap()["result_units"], json!([]));
+
+    // Constructed, as no vector was made for them: an empty unit, a null one and a
+    // missing one add none, and a unit that is not text refuses.
     let model = json!({"project": {"units": {"length": "m"}}});
-    let summary = unit_display_summary(&model, &source).unwrap();
-    // U+1F600 is the surrogate pair D83D DE00, which sorts before U+FF2E.
-    assert_eq!(summary["result_units"], json!(["N", "mm", "\u{1F600}", "\u{FF2E}"]));
-    assert_eq!(summary["model_units"], json!({"length": "m"}));
-    assert_eq!(summary["conversion_performed"], false);
-    assert_eq!(result_coordinate_systems(&source).unwrap(), ["global", "\u{1F600}", "\u{FF2E}"]);
-    // The check that binds the summary agrees with the producer on that order.
-    let report = json!({"calculation_report": {"model_input_summary": {"unit_display_summary": summary}}});
-    check_unit_display_summary(&report, &source).unwrap();
-
-    // A name is kept as written: only a name that is blank after trimming, or exactly `TBD`, is dropped.
-    let source = json!({"results": [row("a", "N", json!(" global ")), row("b", "N", json!(" TBD ")), row("c", "N", json!("\u{feff}"))]});
-    assert_eq!(result_coordinate_systems(&source).unwrap(), [" TBD ", " global "]);
-
-    // A row with no unit, or a null one, adds none; a unit that is not text refuses.
-    let source = json!({"results": [{"id": "a", "unit": null}, {"id": "b"}, {"id": "c", "unit": "N"}]});
+    let source = json!({"results": [{"id": "a", "unit": null}, {"id": "b"}, {"id": "c", "unit": "N"}, {"id": "d", "unit": ""}]});
     assert_eq!(unit_display_summary(&model, &source).unwrap()["result_units"], json!(["N"]));
     for unit in [json!(7), json!(true), json!(["N"]), json!({"unit": "N"})] {
         let error = unit_display_summary(&model, &json!({"results": [{"id": "a", "unit": unit}]})).unwrap_err();
         assert_eq!(error, "REPORT-PACKAGE-BINDING-MISMATCH: a source row's unit is not text");
     }
-
-    // No rows: empty members, and nothing displayed scaled.
-    let empty = json!({"results": [], "diagnostics": []});
-    assert_eq!(result_rows(&empty).unwrap(), Vec::<Value>::new());
-    assert_eq!(result_export_refs(&empty, &json!({})).unwrap(), Vec::<Value>::new());
-    assert_eq!(result_coordinate_systems(&empty).unwrap(), Vec::<String>::new());
-    let summary = unit_display_summary(&model, &empty).unwrap();
-    assert_eq!((&summary["result_units"], &summary["conversion_performed"]), (&json!([]), &json!(false)));
 }
 
 /// `conversion_performed` without a row stored in Pa: on an exact-route source
 /// a stress headline stored in Pa is displayed in MPa; on any other source the
-/// summary is not read.
+/// summary is not read. Constructed: the exact case cannot be produced by the
+/// desktop (an exact Pa headline must bind a row of the same unit), and no vector
+/// was made for the other.
 #[test]
 fn a_stress_headline_stored_in_pa_is_a_conversion_on_an_exact_source_only() {
     let built = built_reports().into_iter().next().unwrap();
@@ -457,16 +539,30 @@ fn a_stress_headline_stored_in_pa_is_a_conversion_on_an_exact_source_only() {
     assert_eq!(performed(&source(json!("openpipestress.result_semantics/invented"), "Pa")), false);
 }
 
-/// The section-basis token is trimmed as JavaScript trims: U+FEFF around a
-/// token is removed and U+0085 is kept, so the first names a section basis and
-/// the second names none.
+/// The section-basis token is trimmed as JavaScript trims. On the builder's
+/// input for a solver-mode row whose basis carries a token wrapped in U+FEFF
+/// (which JavaScript's `trim` removes and Rust's does not) and a token led by
+/// U+0085 (which Rust's `trim` removes and JavaScript's does not), the first
+/// names the nominal section and the second names none; and a lone token led by
+/// U+0085 names none, so its row's label carries no section basis. A recognised
+/// token that U+0085 trails cannot be produced by the desktop as a report input
+/// (the builder refuses it as an unreadable basis), so it is constructed here:
+/// the producer refuses it too.
 #[test]
 fn a_section_basis_token_is_trimmed_as_the_desktop_trims() {
+    let built = members_vector("section_basis_trim");
+    let basis = built.source["results"][0]["metadata"]["basis"].as_str().unwrap();
+    assert!(basis.ends_with(";\u{feff}section_basis=nominal_section\u{feff};\u{85}section_basis=reduced_section"), "{basis}");
+    let label = "linear_solver_mode_basis (linear_solver_mode) [nominal section]";
+    assert_eq!(built.report["result_rows"][0]["label"], label);
+    assert_eq!(result_rows(&built.source).unwrap()[0]["label"], label);
+    let built = members_vector("section_basis_nel_alone");
+    let basis = built.source["results"][0]["metadata"]["basis"].as_str().unwrap();
+    assert!(basis.ends_with(";\u{85}section_basis=nominal_section"), "{basis}");
+    let label = "linear_solver_mode_basis (linear_solver_mode)";
+    assert_eq!(built.report["result_rows"][0]["label"], label);
+    assert_eq!(result_rows(&built.source).unwrap()[0]["label"], label);
     let row = |basis: &str| json!({"results": [{"id": "a", "kind": "k", "value": 1, "unit": "N", "metadata": {"component": "c", "basis": basis}}]});
-    let label = |basis: &str| result_rows(&row(basis)).unwrap()[0]["label"].as_str().unwrap().to_string();
-    assert_eq!(label("invented; section_basis=nominal_section"), "k (c) [nominal section]");
-    assert_eq!(label("invented;\u{feff}section_basis=nominal_section\u{feff}"), "k (c) [nominal section]");
-    assert_eq!(label("invented;\u{85}section_basis=nominal_section"), "k (c)");
     assert!(result_rows(&row("section_basis=nominal_section\u{85}")).unwrap_err().contains("unreadable section basis"));
 }
 

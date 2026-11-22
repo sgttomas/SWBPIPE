@@ -3,7 +3,8 @@ import { isNativeResult, lookupNativeRows, type SessionResult } from "../../serv
 import { nativeFailureText } from "../../services/nativeIngress";
 import { QuantityReadout } from "../display-units";
 import { BookOpen } from "lucide-react";
-import type { DesignKnowledge, KnowledgeRecord, MechanicsResult } from "../../types";
+import type { DesignKnowledge, KnowledgeRecord, MechanicsResult, PreviewModel } from "../../types";
+import { designKnowledgeRecords } from "../../services/designKnowledge";
 import { presentedResultDiagnostics } from "../results/suppliedDiagnostics";
 import { SOLVER_MESSAGES_HEADING } from "../results/integrityStatus";
 
@@ -36,10 +37,12 @@ export function useKnowledgeAxialRow(result: SessionResult | null): { row: Row |
   return found && found.of === result ? { row: found.row, reading: false, refused: found.refused } : { row: null, reading: true, refused: null };
 }
 
-export function KnowledgePanel({ knowledge, result }: { knowledge: DesignKnowledge | null; result: SessionResult | null }) {
+/** The design knowledge's records are listed only for the model the knowledge is bound to
+ * (`designKnowledgeRecords`); the computed records are the result's. */
+export function KnowledgePanel({ knowledge, model, result }: { knowledge: DesignKnowledge | null; model: PreviewModel | null; result: SessionResult | null }) {
   const axial = useKnowledgeAxialRow(result);
   const computedRecords = physicsRecords(result, axial.row);
-  const records = [...(knowledge?.records ?? []), ...computedRecords];
+  const records = [...designKnowledgeRecords(knowledge, model), ...computedRecords];
   // The records made from solver messages lead the computed records (`physicsRecords`); the sentence
   // stands once, directly before the first of them, and not at all where there is none.
   const firstSolverRecord = solverMessageRecords(result).length > 0 ? computedRecords[0] : null;
@@ -75,6 +78,8 @@ export function KnowledgePanel({ knowledge, result }: { knowledge: DesignKnowled
             </Fragment>
           ))}
         </div>
+      ) : knowledge ? (
+        <p className="muted" data-testid="knowledge-none-for-model">No design knowledge records for this model.</p>
       ) : (
         <p className="muted">Loading local invented knowledge records.</p>
       )}
