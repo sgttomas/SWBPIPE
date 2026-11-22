@@ -119,6 +119,9 @@ CORPUS = Path(__file__).resolve().parents[1] / "fixtures/results/seismic_compone
 MISMATCH = "SOURCE_PHYSICS_EQUIVALENT_STATIC_COMPONENT_MODEL_MISMATCH"
 MISSING = "SOURCE_PHYSICS_EQUIVALENT_STATIC_COMPONENT_RECORD_MISSING"
 RANGE = "SOURCE_PHYSICS_EQUIVALENT_STATIC_COMPONENT_RANGE"
+# Issue 452 decision 6: a record on a case whose model case does not generate is refused by its presence, before
+# its contents are read.
+PRESENCE = "SOURCE_PHYSICS_MODEL_GENERATION_RECORD"
 
 
 def _corpus(index):
@@ -178,7 +181,7 @@ def _weight(value):
 
 @pytest.mark.parametrize("what, edit, expected", [
     ("a well-formed entry on the wind-only case", _on_wind, MISMATCH),
-    ("a well-formed entry on the case without generation", _on_plain, MISMATCH),
+    ("a well-formed entry on the case without generation", _on_plain, PRESENCE),
     ("the required record omitted (a result saved before the unit)", _omitted, MISSING),
     ("a force one bit off", _one_bit, MISMATCH),
     ("a model whose valve does not replace (zero weight)", _weight(0.0), MISMATCH),

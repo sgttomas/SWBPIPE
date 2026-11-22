@@ -135,7 +135,9 @@
    },
    "pinned_by": [
     "core/product_physics/src/rt_a3_s6_tests.rs",
-    "tests/test_rt_a3_nonlinear_reader.py"
+    "tests/test_rt_a3_nonlinear_reader.py",
+    "core/analysis/hanger_sizing/src/derived.rs",
+    "tests/test_hanger_sizing_evidence.py"
    ],
    "anchor": {
     "kind": "excluded",
@@ -434,8 +436,28 @@
     "apps/desktop/src-tauri/src/report_render_exact_tests.rs"
    ],
    "anchor": {
-     "kind": "excluded",
-     "reason": "documents held as JSON text (exact intake text) inside render inputs"
+    "kind": "excluded",
+    "reason": "documents held as JSON text (exact intake text) inside render inputs"
+   }
+  },
+  {
+   "id": "report_standing_package_inputs",
+   "paths": [
+    "fixtures/reports/invented/report_standing_witnesses/pressure_3_*.package.json"
+   ],
+   "producer": {
+    "kind": "ts_test",
+    "path": "apps/desktop/src/features/report/reportStandingWitness.test.tsx",
+    "write": "its write mode (OPENPIPESTRESS_WRITE_REPORT_STANDING_RENDER_INPUTS), beside the render inputs, from request_path and raw_path",
+    "switch_plumbed": false,
+    "switch_route": "copies its model from a committed source: re-produce that source with the switch, then re-run this writer"
+   },
+   "pinned_by": [
+    "apps/desktop/src-tauri/src/report_standing_package_tests.rs"
+   ],
+   "anchor": {
+    "kind": "excluded",
+    "reason": "the model is held inside the input manifest of package-request witness inputs, beside the render inputs that hold it as intake text"
    }
   },
   {
@@ -455,8 +477,8 @@
     "apps/desktop/src/features/report/renderedReportGate.app.test.tsx"
    ],
    "anchor": {
-     "kind": "excluded",
-     "reason": "documents held as JSON text (exact intake text) inside a render request"
+    "kind": "excluded",
+    "reason": "documents held as JSON text (exact intake text) inside a render request"
    }
   },
   {
@@ -892,6 +914,32 @@
     "kind": "excluded",
     "reason": "documents inside the retained-precision DAG storage"
    }
+  },
+  {
+   "id": "hanger_sizing_ex_pressurised",
+   "paths": [
+    "fixtures/results/hanger_sizing_input_ex_pressurised.json"
+   ],
+   "producer": {
+    "kind": "rust_test",
+    "path": "core/analysis/hanger_sizing/tests/publication.rs",
+    "write": "HANGER_SIZING_WRITE_FIXTURES=1 with the_committed_inputs_are_the_builders",
+    "switch_plumbed": false,
+    "switch_route": "ex_input uses common/model_builder.rs exs_request without a pressure-elongation setting; EXS-A frozen vertical sizing quantities are pressure independent, and the separate ex_references regression authors O1 explicitly"
+   },
+   "pinned_by": [
+    "core/analysis/hanger_sizing/tests/publication.rs",
+    "core/analysis/hanger_sizing/tests/desktop.rs",
+    "core/analysis/hanger_sizing/tests/source_admission.rs",
+    "core/analysis/hanger_sizing/tests/projection_family.rs",
+    "core/runner/headless/tests/size_hangers_cli.rs",
+    "tests/test_hanger_sizing_evidence.py",
+    "apps/desktop/src/features/results/HangerSizingPanel.test.tsx",
+    "fixtures/results/hanger_sizing_result_ex_pressurised.json (solve_request and derived_document hashes)"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   }
   }
  ],
  "derived": [
@@ -1236,6 +1284,15 @@
   },
   {
    "paths": [
+    "core/product_physics/tests/exact_load_state_generated_references.rs"
+   ],
+   "reference": "validation/references/exact_load_state_equivalent_static",
+   "expectations": "reference_file",
+   "cases_named": "some",
+   "detail": "exact_load_state_equivalent_static frozen references: STRAIGHT and FRAME built from the package and solved as load and reference-state documents in both settings; named (eqs_document with elongation on lists every pressurised case) against the package's elongation-on values, unnamed (off) against its elongation-off values; the refusal controls solve the unnamed document. The generated-interactions models carry no pressure region"
+  },
+  {
+   "paths": [
     "core/product_physics/tests/load_reference_state_runtime_extension.rs"
    ],
    "expectations": "reference_file",
@@ -1523,6 +1580,14 @@
   },
   {
    "paths": [
+    "tests/test_caepipe_stated_bases.py"
+   ],
+   "expectations": "closed_form",
+   "cases_named": "some",
+   "detail": "CAEPIPE benchmark stated-bases tests. Named: elongation-on series documents (cpb-p1-01, cpb-p1-04, cpb-p2-01, cpb-p2-03, cpb-p4-01, cpb-p5-01) solved directly and transformed by stated_bases.realize (which removes pressure_elongation and places free-strain thermal loads), judged against closed forms and product superposition. Unnamed: default-series documents (cpb-p1-01, cpb-p1-04, cpb-p2-01, cpb-p2-03, cpb-p3-01..04, cpb-p4-01, cpb-p5-01), judged against closed-end zero-reaction, open-end p A_i and thin-wall strain closed forms and product superposition"
+  },
+  {
+   "paths": [
     "tests/test_caepipe_mbf_round_trip.py"
    ],
    "expectations": "product_output",
@@ -1581,6 +1646,23 @@
    "expectations": "no_response_value",
    "cases_named": "all",
    "detail": "declared-problem study tool: re-authors J2's source requests (the pressurised one names its case) and records product runs for the O4 census; asserts no response value"
+  },
+  {
+   "paths": [
+    "core/analysis/hanger_sizing/tests/common/model_builder.rs"
+   ],
+   "expectations": "reference_file",
+   "cases_named": "some",
+   "reference": "validation/references/hanger_sizing/ex_sizing.json",
+   "detail": "exs_request builds EXS-A pressurised load/reference-state documents without a pressure-elongation setting; publication and baseline EX comparisons leave it absent, while ex_references and source_admission author selected operating cases before real sizing. Frozen comparisons concern pressure-independent vertical sizing quantities; source-admission controls assert admission only. EXS-B and exact() twins have no nonzero-pressure region."
+  },
+  {
+   "paths": [
+    "core/analysis/hanger_sizing/tests/source_admission.rs"
+   ],
+   "expectations": "product_output",
+   "cases_named": "some",
+   "detail": "Reads committed EXS-A and other sized sources, creates isolated faults and compares ordinary neutralised admission with real sizing; positive controls also compare candidates with committed product results. Selected operating cases are authored by the setting tests; other controls preserve the fixture default without a setting. No independent pressure-sensitive numerical expectation is introduced."
   },
   {
    "paths": [
@@ -1676,6 +1758,7 @@
     "core/handoff/caepipe_mbf/si_writer.py",
     "core/handoff/caepipe_mbf_engine/src/*",
     "core/handoff/caepipe_mbf_engine/tests/import_review.rs",
+    "core/handoff/caepipe_mbf_engine/tests/pressure_free_shear_model.rs",
     "core/handoff/caepipe_mbf_engine/tests/sidecar_format6.rs",
     "apps/desktop/src-tauri/src/mbf_import_tests.rs",
     "tests/caepipe_mbf_canonical.py",
@@ -1892,6 +1975,7 @@
     "core/product_physics/tests/fixtures/rf_source_method/order_four_sensitive.request.json",
     "core/product_physics/tests/fixtures/rt_a3_nonlinear/b1_loaded_inactive_reaction.json",
     "core/product_physics/tests/fixtures/silent_zero/*.request.json",
+    "core/reporting/result_export/tests/fixtures/generated_identities.json",
     "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz.request.json",
     "core/runner/headless/tests/t4_u5b_requests/MO-F.request.json",
     "core/runner/headless/tests/t4_u5b_requests/MO-T.request.json",
@@ -1967,6 +2051,12 @@
    ]
   },
   {
+   "reason": "EXS-B source is solved but contains no pressurised case: every case has an empty region list and no condition pressure use; no pressure-elongation setting applies. This is the zero-pressure data rule, not an exemption because the model is solved.",
+   "paths": [
+    "fixtures/results/hanger_sizing_input_ex_riser.json"
+   ]
+  },
+  {
    "reason": "catalog parsing and admission checks, including pressure-region operation payloads; no model document is solved",
    "paths": [
     "apps/desktop/src-tauri/src/embedded_agent/catalog.rs"
@@ -1982,6 +2072,12 @@
    "reason": "session tests of the agent's bounded record read: the committed reference system's load cases read back across pages, and invented cases that name pressure regions as a held text; no mechanics solve is performed",
    "paths": [
     "apps/desktop/src/services/embeddedAgentSession.test.ts"
+   ]
+  },
+  {
+   "reason": "the benchmark stated-bases helper: transforms caller-supplied benchmark documents (claimed by caepipe_benchmark or its test) and calls a caller-supplied solve; it owns no model or response expectation",
+   "paths": [
+    "tools/caepipe_correlation/stated_bases.py"
    ]
   }
  ],

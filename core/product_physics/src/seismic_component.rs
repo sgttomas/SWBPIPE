@@ -318,15 +318,17 @@ pub(crate) mod prepared_mutant {
 
 /// The rule's value of one generated component primitive, recomputed where
 /// the certified ledger is built: for a load the case's generation produced
-/// (`is_generated_equivalent_static_load`, the three-condition predicate)
-/// that is a component primitive of the case's own plan, by exact
-/// identifier, fl(k × W) for a force and fl(fl(k × W) × ±r_j) for a moment,
-/// from the plan's operands (the factor as entered, W normalized to N and r
-/// to m by the component's disposition), with the formula's text for a
-/// refusal. `None` for every other load.
+/// (the three-condition predicate, judged on the effective case by
+/// `is_generated_in_effective_case`: on a load and reference-state document a
+/// stored primitive the ledger lists, one a lowering appended included, is
+/// authored; issue 452 decision 10) that is a component primitive of the
+/// case's own plan, by exact identifier, fl(k × W) for a force and
+/// fl(fl(k × W) × ±r_j) for a moment, from the plan's operands (the factor as
+/// entered, W normalized to N and r to m by the component's disposition),
+/// with the formula's text for a refusal. `None` for every other load.
 pub(crate) fn rule_value(model: &PreviewModel, case_id: &str, load_id: &str) -> Option<(f64, String)> {
     let case = model.load_cases.iter().find(|case| case.id == case_id)?;
-    if !crate::is_generated_equivalent_static_load(case, load_id, Some("seismic")) {
+    if !crate::is_generated_in_effective_case(model, case, load_id, Some("seismic")) {
         return None;
     }
     let replaced = crate::joint::replaced_span_ids(model);

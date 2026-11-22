@@ -68,7 +68,7 @@ describe("swbpipe_read_records before texts are the ones the engine compares", (
     expect(sus.before.pressure_regions).toBe(await canonicalJsonString(stored.pressure_regions));
     expect(sus.before.condition_use).toBe("not_present");
     const loads = familyRecords(model, "primitive_loads");
-    expect(loads).toHaveLength(87);
+    expect(loads).toHaveLength(116); // 29 per case (spec §8.1), four cases
     const first = await read(model, "primitive_loads", String(loads[0].id));
     expect(first.record).toEqual({ load_case: "load:RS-SUS", primitive_load: (stored.primitive_loads as AnyRecord[])[0] });
     expect(first.before).toEqual({});

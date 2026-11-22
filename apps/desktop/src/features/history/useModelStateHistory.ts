@@ -6,8 +6,8 @@
 // Called only by the session
 // (`useWorkspaceSession`), which hands it the cells and handlers it needs; the
 // History panel reads the result through `useSessionHistory()`.
-import { isNativeResult } from "../../services/nativeResult";
-import { useEffect, useRef, useState } from "react";
+import { fullResultRefusalWords, FullResultRefused, isNativeResult } from "../../services/nativeResult";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { MutableRefObject } from "react";
 import {
   admitModelStateComparison,
@@ -119,6 +119,15 @@ export type LandedProjectSave = { projectId: string; base: string | null; model:
 
 export type SaveModelStateForm = { labels: StateLabels; kind: ModelStateKind };
 
+/** The history message before any operation: the panel shows it only while the list it heads
+ * is empty (a successful listing leaves the message as it was). */
+export const NO_MODEL_STATES_LISTED = "No model states listed yet.";
+
+/** Record Run's line under the snapshot name while the session does not know whether a saved state
+ * holds the solved model (its hash is not computed yet, or the project's states are not listed). The
+ * store decides: a model already saved keeps its one state under the name it was saved with. */
+export const RECORD_RUN_SNAPSHOT_NAME_NOTE = "Used only if this model is not already saved.";
+
 /** Record Run's form: the run's labels and, when no saved state holds the solved
  * model, the name of the post-solve snapshot written with it. */
 export type RecordRunForm = { labels: RunLabels; snapshotName: string | null };
@@ -219,7 +228,25 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
   // naming the state Record Run ties the run to.
   const [solvedModelHash, setSolvedModelHash] = useState<{ manifest: unknown; hash: string | null } | null>(null);
   const [statesProjectId, setStatesProjectId] = useState<string | null>(null);
-  const [historyMessage, setHistoryMessage] = useState("No model states listed yet.");
+  const [historyStatus, setHistoryStatus] = useState<{ projectId: string | null; generation: number | null; message: string; details: string | null }>({
+    projectId: null,
+    generation: null,
+    message: NO_MODEL_STATES_LISTED,
+    details: null
+  });
+  const setHistoryMessage = useCallback(
+    (next: string | ((prev: string) => string), details: string | null = null) => {
+      const ownerProjectId = depsRef.current.currentModel.current?.project.id ?? depsRef.current.model?.project.id ?? null;
+      const ownerGeneration = depsRef.current.projectSessionGenerationRef.current;
+      setHistoryStatus((prev) => ({
+        projectId: ownerProjectId,
+        generation: ownerGeneration,
+        message: typeof next === "function" ? next(prev.message) : next,
+        details: typeof next === "function" ? prev.details : details
+      }));
+    },
+    []
+  );
   const [historyOperation, setHistoryOperation] = useState("not_started");
   // W-17: the saved state the last Open State refused for lacking `project.units`,
   // which can be saved to a file as stored (`exportRefusedState`).
@@ -233,6 +260,11 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
   depsRef.current = deps;
 
   const projectId = deps.model?.project.id ?? null;
+  const historyStatusCurrent =
+    (historyStatus.projectId === null || historyStatus.projectId === projectId) &&
+    (historyStatus.generation === null || historyStatus.generation === deps.projectSessionGeneration);
+  const historyMessage = historyStatusCurrent ? historyStatus.message : NO_MODEL_STATES_LISTED;
+  const historyMessageDetails = historyStatusCurrent ? historyStatus.details : null;
   const basisStateId = basis && basis.generation === deps.projectSessionGeneration && basis.projectId === projectId ? basis.stateId : null;
 
   async function refreshStates(forProjectId: string | null = depsRef.current.currentModel.current?.project.id ?? null) {
@@ -265,6 +297,26 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     }
   }
 
+  const previousSessionRef = useRef<{ projectId: string | null; generation: number }>({
+    projectId,
+    generation: deps.projectSessionGeneration
+  });
+  useEffect(() => {
+    const prevSession = previousSessionRef.current;
+    if (
+      (prevSession.projectId !== null && prevSession.projectId !== projectId) ||
+      prevSession.generation !== deps.projectSessionGeneration
+    ) {
+      setHistoryStatus((prev) =>
+        (prev.projectId !== null && prev.projectId !== projectId) ||
+        (prev.generation !== null && prev.generation !== deps.projectSessionGeneration)
+          ? { projectId: null, generation: null, message: NO_MODEL_STATES_LISTED, details: null }
+          : prev
+      );
+    }
+    previousSessionRef.current = { projectId, generation: deps.projectSessionGeneration };
+  }, [projectId, deps.projectSessionGeneration]);
+
   useEffect(() => {
     void refreshStates(projectId);
     setRunCheck(null);
@@ -292,6 +344,10 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
   const solvedHash = recordable.run && solvedModelHash?.manifest === recordable.run.inputManifest ? solvedModelHash.hash : null;
   /** The listed state of the slot's solved model, if any: the state Record Run ties the run to. */
   const recordRunState = solvedHash ? states?.find((state) => state.model_hash === solvedHash) ?? null : null;
+  /** Whether the session knows if a listed state holds the solved model: its hash is computed and
+   * the store has listed the run's project's states. Until then the Record Run form does not say
+   * that none does; the store decides when the run is recorded. */
+  const recordRunStateKnown = Boolean(solvedHash && states && recordable.run && statesProjectId === recordable.run.result.model_ref);
 
   function begin(): symbol | null {
     const owner = depsRef.current.acquireProjectOperation();
@@ -853,7 +909,14 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
       return true;
     } catch (error) {
       if (!sameSession()) return false;
-      setHistoryMessage(`Not compared: ${error instanceof RunComparisonRefusal ? error.message : nativeFailureText(error)}`);
+      if (error instanceof FullResultRefused) {
+        // Three-part refusal on the line (History has no C2ResultGate); code and exact bytes behind Details.
+        const words = fullResultRefusalWords(error, "the comparison");
+        setHistoryMessage(`Not compared: ${words.fact} ${words.stillWorks} ${words.advice}`, words.details);
+      } else {
+        const reason = error instanceof RunComparisonRefusal ? error.message : nativeFailureText(error);
+        setHistoryMessage(`Not compared: ${reason}`);
+      }
       setHistoryOperation("compare_runs_failed");
       return false;
     } finally {
@@ -885,6 +948,7 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     /** The recordable run's transient record (its rule-pack reference diagnostics). */
     recordRunRecord: recordable.run?.analysisRun ?? null,
     recordRunState,
+    recordRunStateKnown,
     recordRun,
     editRunLabels,
     deleteRun,
@@ -892,6 +956,7 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     states: statesProjectId === projectId ? states : null,
     basisStateId,
     historyMessage,
+    historyMessageDetails,
     historyOperation,
     historyBusy,
     refreshStates,

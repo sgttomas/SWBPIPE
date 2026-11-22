@@ -543,11 +543,13 @@ fn a_load_combination_is_admitted_at_the_seam() {
 
 /// W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md`): the seam
 /// admits a case's `equivalent_static`, so the family refusal never names it.
-/// On the plain document a wind generation solves and publishes its record;
-/// on the load/reference-state document the route refuses generation by name,
-/// before the effective cases are selected.
+/// A wind generation solves and publishes its record on the plain document
+/// and, since generation is admitted there (DEL-05-01 REQ-008), on the
+/// load/reference-state document too, where it is formed on the effective
+/// case beside the declared ledger. The retired load-state refusal is never
+/// raised.
 #[test]
-fn equivalent_static_is_admitted_at_the_seam_and_refused_on_load_state_documents() {
+fn equivalent_static_is_admitted_at_the_seam_and_on_load_state_documents() {
     const LOAD_STATE: &str = "EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED";
     for base in [Base::X0, Base::Y0] {
         let [_, second] = base.cases();
@@ -557,20 +559,11 @@ fn equivalent_static_is_admitted_at_the_seam_and_refused_on_load_state_documents
             "provenance": PROVENANCE});
         for envelope in run_all(&equivalent) {
             assert!(!has_code(&envelope, FAMILY), "{:#?}", envelope["diagnostics"]);
-            match base {
-                Base::X0 => {
-                    assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{:#?}", envelope["diagnostics"]);
-                    assert!(!has_code(&envelope, LOAD_STATE));
-                    let case = envelope["contract_evidence"]["exact_cases"].as_array().unwrap().iter()
-                        .find(|c| c["load_case_id"] == second).unwrap();
-                    assert_eq!(case["equivalent_static"]["generated_load_ids"].as_array().unwrap().len(), 1);
-                }
-                Base::Y0 => {
-                    assert_v3_blocked(&envelope, base);
-                    let message = finding(&envelope, LOAD_STATE, &[second, "equivalent_static"])["message"].as_str().unwrap().to_string();
-                    assert!(message.contains("declared source ledger"), "{message}");
-                }
-            }
+            assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{base:?}: {:#?}", envelope["diagnostics"]);
+            assert!(!has_code(&envelope, LOAD_STATE));
+            let case = envelope["contract_evidence"]["exact_cases"].as_array().unwrap().iter()
+                .find(|c| c["load_case_id"] == second).unwrap();
+            assert_eq!(case["equivalent_static"]["generated_load_ids"].as_array().unwrap().len(), 1);
         }
     }
 }

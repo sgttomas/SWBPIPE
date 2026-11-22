@@ -1,9 +1,10 @@
 // W-12 S3c composition (Codex r2 on #1619): a within-run choice made in Results and
-// dropped while the user is elsewhere is named beside the package actions in Report
-// and Exports, not only in the inactive Results section. The application solves the
-// range-envelope model, the user chooses L-200 in Results and moves to Report; a model
-// document that offers no L-200 is opened and solved; the Report and Exports notices
-// name the dropped bases and the default pair the packages now carry. Solves are unit
+// dropped while the user is elsewhere is named beside the package actions in Report,
+// not only in the inactive Results section; the Exports page carries no comparison and
+// says nothing of it. The application solves the range-envelope model, the user chooses
+// L-200 in Results and moves to Report; a model document that offers no L-200 is opened
+// and solved; the Report notice names the dropped bases, and with neither fixed basis in
+// that run the local-private report package carries no comparison sentence. Solves are unit
 // transport replays of committed producer bytes (NOT a native UI qualification
 // witness). Invented data only.
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
@@ -57,7 +58,7 @@ async function solve() {
   await act(async () => { fireEvent.click(within(solveSection).getByTestId("run-mechanics-preview")); });
 }
 
-it("names a dropped choice beside the package actions in Report and Exports", async () => {
+it("names a dropped choice beside the package actions in Report, and says nothing of the comparison in Exports", async () => {
   const storage = await getLocalStorageCapability(), knowledge = await loadDesignKnowledge();
   const transport = createSolveJobTransport((sent) => {
     if (isDeepStrictEqual(sent.model, RANGE_MODEL)) return RANGE_BYTES;
@@ -83,11 +84,11 @@ it("names a dropped choice beside the package actions in Report and Exports", as
   fireEvent.click(await within(results).findByTestId("c2-result-load"));
   const left = await within(results).findByTestId("comparison-left-select") as HTMLSelectElement;
   fireEvent.change(left, { target: { value: "load:L-200" } });
-  await waitFor(() => expect(within(results).getByTestId("comparison-package-basis-text")).toHaveTextContent(`load:L-200 vs ${RANGE}`));
+  await waitFor(() => expect(within(results).getByTestId("comparison-package-basis-text")).toHaveTextContent("The local-private report package omits the comparison of load case L-200 vs combination U4B-RANGE-MAX: ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED"));
 
   // Report: the packages carry the choice.
   const report = openSection("report");
-  expect(within(report).getByTestId("report-comparison-package-notice-text")).toHaveTextContent(`load:L-200 vs ${RANGE}`);
+  expect(within(report).getByTestId("report-comparison-package-notice-text")).toHaveTextContent("The local-private report package omits the comparison of load case L-200 vs combination U4B-RANGE-MAX: ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED");
 
   // A model document that offers no L-200 replaces the model; its solve drops the choice.
   nativeMenuCommand("file.open-model");
@@ -98,9 +99,12 @@ it("names a dropped choice beside the package actions in Report and Exports", as
   const dropped = droppedNotice(["load:L-200", RANGE]);
   const reportAgain = openSection("report");
   await waitFor(() => expect(within(reportAgain).getByTestId("report-comparison-package-notice-dropped")).toHaveTextContent(dropped));
-  expect(within(reportAgain).getByTestId("report-comparison-package-notice-text")).toHaveTextContent("Packages include: load:L-100 vs combination:C-OPER-ALT.");
+  // The connected model has neither basis of the fixed pair (in its model, rows or withheld
+  // gates), so the packages carry no fixed-pair record and there is no package sentence;
+  // the dropped choice is still named (Agent 0's absent-pair rule).
+  expect(within(reportAgain).queryByTestId("report-comparison-package-notice-text")).toBeNull();
   // The Exports page says nothing of the comparison: none of the exports it offers carries it.
   const exportsSection = openSection("exports");
   expect(within(exportsSection).queryByTestId("handoff-comparison-package-notice")).toBeNull();
-  expect(exportsSection).not.toHaveTextContent("Packages include");
+  expect(exportsSection).not.toHaveTextContent("comparison of load case");
 });

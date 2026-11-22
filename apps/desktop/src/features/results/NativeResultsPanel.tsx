@@ -29,8 +29,9 @@ import { canSurfaceRevealNow } from "../workspace/surfaceReveal";
 import { useDisplayQuantityResolver, type DisplaySourceQuantity } from "../display-units";
 import { hangerPreloadStanding } from "./hangerPreload";
 import { knownSemanticNotices, PREVIEW_ALONG_DIRECTION_KIND, resultRowLabel } from "./knownSemanticLimitations";
-import { NUMERICAL_HEALTH_STATE_TEXT } from "./numericalHealthText";
-import { numericalHealthView, parseNumericalHealth, rowHealthState, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
+import { BOUNDARY_SENTENCE, NUMERICAL_HEALTH_STATE_TEXT } from "./numericalHealthText";
+import { nativeSupportStates, numericalHealthLead, ordinarySolveLead, recoveredCaseIds } from "./integrityStatus";
+import { gatedState, numericalHealthView, parseNumericalHealth, rowHealthState, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
 import { ALL_CASES, isNavigatorExcludedTarget, navigatorKeyStep, stepIndex, type NavigatorAxis, type NavigatorCase } from "./resultsNavigator";
 import { mechanicsGaps } from "./resultInterpretation";
 import type { ResultsViewRequest } from "./ResultsPanel";
@@ -49,6 +50,7 @@ import {
   ResultsNavigator,
   resultFrame,
   RowHealthBadge,
+  resultViewIdentity,
   routeHealth,
   SectionBasisHeadlines,
   type NavigatorStep,
@@ -75,6 +77,7 @@ import { displayRoute, sameContractBinding, type RowSemantics } from "./resultRe
 import { isRetainedRoute } from "./numericalResultQuality";
 import { retainedPrecisionStandingText } from "./retainedPrecisionStanding";
 import { recordedTableLabel, type RecordedBinding } from "../../services/recordedPreRtA4";
+import { RotationGroupNote } from "./sectionRotationNote";
 
 type Row = MechanicsResult["results"][number];
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -105,10 +108,11 @@ function labelsOf(rows: readonly DetailRow[], outcomes: readonly RowSemanticsOut
 /** A reopened run's own indicator, as `standaloneNumericalHealth` gives the whole-value panel one
  * when no health is passed (the historical panel): S's numerical health, read natively with the
  * restored run's standalone historical findings (`NativeCustody.historicalStanding`), presented
- * with its eligibility and no hold. Display only; none for a solve. */
-function standaloneNativeHealth(custody: NativeCustody): NumericalHealthView | null {
+ * with its eligibility and no hold, and the document's own status (`documentStatus`). Display only;
+ * none for a solve. */
+function standaloneNativeHealth(custody: NativeCustody, documentStatus: unknown): NumericalHealthView | null {
   const standing = custody.historicalStanding;
-  return standing ? numericalHealthView(parseNumericalHealth(custody.summary.header.numerical_health), { eligible: standing.eligible, verdictHold: false }) : null;
+  return standing ? numericalHealthView(parseNumericalHealth(custody.summary.header.numerical_health), { eligible: standing.eligible, verdictHold: false, supportStates: nativeSupportStates(custody.summary.header.support_confirmations, custody.supportConfirmations), recoveredCases: recoveredCaseIds({ contract_evidence: custody.summary.header.envelope?.contract_evidence }), documentStatus }) : null;
 }
 
 /** A row read under a table other than the handle's (RT-A4 §10.4): refused, never read. */
@@ -132,6 +136,7 @@ export function NativeResultsPanel({
   viewRequest = null,
   model = null,
   exportAnalysisRun = null,
+  runIdentityKey = null,
   recordedTableRead = null
 }: {
   result: NativeResult;
@@ -152,6 +157,8 @@ export function NativeResultsPanel({
   viewRequest?: ResultsViewRequest | null;
   model?: PreviewModel | null;
   exportAnalysisRun?: SessionAnalysisRun | null;
+  /** Issue 588: the run's stored identity, under which the view state is held (`resultViewIdentity`). */
+  runIdentityKey?: string | null;
 }) {
   const displayResolver = useDisplayQuantityResolver();
   const custody = nativeCustody(result);
@@ -161,31 +168,34 @@ export function NativeResultsPanel({
   const semanticsOf = (ordinals: readonly number[]): Promise<readonly RowSemanticsOutcome[]> =>
     tableAgrees ? readNativeRowSemantics(result, ordinals) : Promise.resolve(ordinals.map(() => RECORDED_TABLE_REFUSED));
   const tables = custody.summary.header.tables.results_panel as Json;
-  const runId = result.run_id;
+  // Issue 588: the page, kind filter and navigator entity are held with this view's identity (the
+  // run's stored identity, else this handle's job id), never the run id distinct runs share.
+  const viewKey = resultViewIdentity(result, runIdentityKey)!;
   const [filterText, setFilterText] = useState("");
   const [selectionOnly, setSelectionOnly] = useState(false);
   const [frameFilter, setFrameFilter] = useState<string>(ALL_FRAMES);
   const [familyFilter, setFamilyFilter] = useState<string>("all");
   const [caseFilter, setCaseFilter] = useState<string>(ALL_CASES);
   const [pageSize, setPageSize] = useState<number>(DEFAULT_RESULT_PAGE_SIZE);
-  const [pagePosition, setPagePosition] = useState<{ runId: string; index: number }>({ runId, index: 0 });
-  const pageIndex = pagePosition.runId === runId ? pagePosition.index : 0;
+  const [pagePosition, setPagePosition] = useState<{ viewKey: string; index: number }>({ viewKey, index: 0 });
+  const pageIndex = pagePosition.viewKey === viewKey ? pagePosition.index : 0;
   const setPageIndex = (next: number | ((current: number) => number)) => setPagePosition((current) => {
-    const index = current.runId === runId ? current.index : 0;
-    return { runId, index: typeof next === "function" ? next(index) : next };
+    const index = current.viewKey === viewKey ? current.index : 0;
+    return { viewKey, index: typeof next === "function" ? next(index) : next };
   });
   const [appliedRequest, setAppliedRequest] = useState<number | null>(null);
-  const [requestedKind, setKindFilter] = useState<{ runId: string; kind: string; withheld: Readonly<Record<string, string>> } | null>(null);
-  const kindFilter = requestedKind && requestedKind.runId === runId ? requestedKind : null;
-  if (viewRequest && viewRequest.serial !== appliedRequest && viewRequest.runId === runId) {
+  const [requestedKind, setKindFilter] = useState<{ viewKey: string; kind: string; withheld: Readonly<Record<string, string>> } | null>(null);
+  const kindFilter = requestedKind && requestedKind.viewKey === viewKey ? requestedKind : null;
+  // A request is admitted for the view it names, never by the shared run id.
+  if (viewRequest && viewRequest.serial !== appliedRequest && viewRequest.viewKey === viewKey) {
     setAppliedRequest(viewRequest.serial);
-    setKindFilter({ runId: viewRequest.runId, kind: viewRequest.kind, withheld: viewRequest.withheld });
+    setKindFilter({ viewKey, kind: viewRequest.kind, withheld: viewRequest.withheld });
     setFilterText("");
     setFamilyFilter("all");
     setCaseFilter(ALL_CASES);
     setFrameFilter(ALL_FRAMES);
     setSelectionOnly(false);
-    setPagePosition({ runId, index: 0 });
+    setPagePosition({ viewKey, index: 0 });
   }
   const selectionEntityId = selectedEntity && selectedEntity.type !== "project" ? selectedEntity.id : null;
   const selectionOnlyWithoutEntity = selectionOnly && selectionEntityId === null;
@@ -234,7 +244,7 @@ export function NativeResultsPanel({
   // RT-A4 §10.4: a run recorded before RT-A4 is classified under its recorded table.
   const route = displayRoute(result, recordedTableRead);
   // DEL-07-05: the historical panel passes no health; a reopened run then shows its own (review F2).
-  const ownHealth = useMemo(() => (numericalHealth === undefined ? standaloneNativeHealth(custody) : null), [numericalHealth, custody]);
+  const ownHealth = useMemo(() => (numericalHealth === undefined ? standaloneNativeHealth(custody, result.numerical_quality?.status) : null), [numericalHealth, custody, result]);
   const health = routeHealth(route, numericalHealth === undefined ? ownHealth : numericalHealth);
   // The row labels apply to preview-physics-2 and its successors (a reopened successor included).
   const labelSource = ["preview_physics", "retained_preview_physics", "retained_physics"].includes(route) ? result : null;
@@ -248,8 +258,8 @@ export function NativeResultsPanel({
     // A native handle never registers a successor (a restored run's receipt is never registered).
     : isRetainedRoute(route) ? retainedPrecisionStandingText(result as never)
     : route === "pressure_source"
-      ? `Ordinary solve: ${result.numerical_quality!.status}. Producer recovery receipt: ${String(recovery?.status ?? "unavailable")}. ${result.formulation_basis!.limitations.join(" ")} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.`
-      : `Numerical integrity: ${result.numerical_quality!.status}. ${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.`);
+      ? `${ordinarySolveLead(result, gatedState(health))} Producer recovery receipt: ${String(recovery?.status ?? "unavailable")}. ${result.formulation_basis!.limitations.join(" ")} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.`
+      : `${numericalHealthLead(result, gatedState(health))} ${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.`);
   const csvRecord = isNativeAnalysisRun(exportAnalysisRun) || exportAnalysisRun === null ? exportAnalysisRun : null;
   const exportGroup = async (title: string): Promise<CsvStreamExport> => {
     // Every row the filters admit in this group, across all pages, by bounded native pages, written
@@ -349,14 +359,14 @@ export function NativeResultsPanel({
   const selectedRow = selected?.row ?? null;
   // The navigator's support or element: the one a step chose, else the session's. A newly selected
   // result row, or a new selection, made anywhere moves it (once its row is read); a new run clears it.
-  const [tracked, setTracked] = useState(() => ({ entity: selectionEntityId, selection: selectionEntityId, resultId: null as string | null, runId }));
+  const [tracked, setTracked] = useState(() => ({ entity: selectionEntityId, selection: selectionEntityId, resultId: null as string | null, viewKey }));
   let navEntity = tracked.entity;
-  if ((tracked.selection !== selectionEntityId || tracked.resultId !== selectedResultId || tracked.runId !== runId) && !(tracked.resultId !== selectedResultId && selectedPending)) {
-    let entity = tracked.runId !== runId ? null : tracked.entity;
+  if ((tracked.selection !== selectionEntityId || tracked.resultId !== selectedResultId || tracked.viewKey !== viewKey) && !(tracked.resultId !== selectedResultId && selectedPending)) {
+    let entity = tracked.viewKey !== viewKey ? null : tracked.entity;
     if (tracked.resultId !== selectedResultId && selectedRow) entity = selectedRow.entity_ref;
     else if (tracked.selection !== selectionEntityId) entity = selectionEntityId;
     navEntity = entity;
-    setTracked({ entity, selection: selectionEntityId, resultId: selectedResultId, runId });
+    setTracked({ entity, selection: selectionEntityId, resultId: selectedResultId, viewKey });
   }
   const entityAt = navEntity === null || !navigatorRead ? -1 : navigatorRead.entities.indexOf(navEntity);
   // The current row: the selected row when it is the entity's and the filters admit it, else the
@@ -505,6 +515,8 @@ export function NativeResultsPanel({
       ) : null}
       {health ? <NumericalHealthDetail health={health} resolveCauseLocation={resolveCauseLocation} onSelectCauseLocation={onSelectCauseLocation} onShowDiagnostic={onShowDiagnostic} /> : null}
       <p data-testid="numerical-result-standing">{standingLine}{hangerPreloadStanding(result) ? ` ${hangerPreloadStanding(result)}` : null}</p>
+      {/* REQ-023: where no indicator is shown, the line standing in its place carries the boundary sentence once. */}
+      {!health && route !== "unsupported" && !isRetainedRoute(route) ? <p data-testid="numerical-health-boundary">{BOUNDARY_SENTENCE}</p> : null}
       {notices.map((notice) => <p className="muted" key={notice.id} data-testid={`results-notice-${notice.id}`}>{notice.text}</p>)}
       <SectionBasisHeadlines result={result as never} />
       {recovery?.present ? (
@@ -578,6 +590,7 @@ export function NativeResultsPanel({
         {groups.length > 0 ? groups.map((group) => (
           <section key={group.title} className="result-group" aria-label={`${group.title} results`} data-testid={`result-group-${group.title.toLowerCase()}`}>
             <h3>{group.title}</h3>
+            <RotationGroupNote group={group.title} result={result} />
             <CsvExportControl tableLabel={`${group.title} results`} testId={`result-group-${group.title.toLowerCase()}-export-csv`} stream={() => exportGroup(group.title)} />
             <table data-csv-export={resultGroupCsvKind(group.title)}>
               <thead><tr><th>ID</th><th>Entity</th><th>Location</th><th title="The coordinate frame the row's value is stated in, as the row states it">Frame</th><th>Value</th><th>Entered source</th></tr></thead>

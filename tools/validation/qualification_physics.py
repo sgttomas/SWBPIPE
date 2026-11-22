@@ -79,10 +79,15 @@ DEPENDENCIES = {
     # equivalent_static record's optional component_forces, closed by shape, and the model-bound recomputation of its
     # entries (was 75980cb5...); then the model-bound check reads the centre of gravity after the document's ordinary
     # conversion to metres (was 23bdcae8...); then every solved case is compared, a range failure in the model is
-    # refused, and each component id is the one its entry's fields form (was 9755ee4c...); then DEL-05-01 REQ-014: an
+    # refused, and each component id is the one its entry's fields form (was 9755ee4c...); then DEL-05-01 REQ-008
+    # (issue 452): each solved case's generated identities are formed from the model and compared with its record
+    # (was ba32c38d...); then every case's component values are compared before the identities (was 4dcdea88...);
+    # then a generation stated in another form than an object, and a member two rigid-family components map, are
+    # refused (was 6c74931e...); then a member two rigid-family components map is refused at document level, on
+    # every solved document and before connector replacement is read (was 4a133fc5...); then DEL-05-01 REQ-014: an
     # exact case admits its optional hydrostatic test mark, `test_condition`, checked closed as the result schema
-    # declares it (was ba32c38d...).
-    MODULE: '8e0022cfe7983d2e116617ef7ffa4ffdf5eecbbee199d6bf745162cbbf72b6e0',
+    # declares it (was 499bb30c... on main, 8e0022cf... on PR 478).
+    MODULE: '6b59e0721bac62160dc8121033fe29908c9a736d304460a79154dee8cbd1934d',
     TABLE: TABLE_SHA256,
     # The units authority: then DEL-04-09 I3a's mass_length_per_rotation family (kg*m/rad, lb*in/rad, lb*ft/rad),
     # an addition only; every existing unit, dimension and conversion is unchanged (was 5a412c57...); then the

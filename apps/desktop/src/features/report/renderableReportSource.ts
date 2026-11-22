@@ -1,10 +1,13 @@
 /** DEL-08-01 REQ-017 and REQ-024: the rendered report's source on the desktop.
  *
- * The rendered report and its print view take an exact-route result whatever its
+ * The rendered report and its print view take an exact-route or pressure-free
+ * Timoshenko result (a bound route: its render binds the delivered result) whatever its
  * numerical standing, where Current's other requirements hold, its mechanics are
- * solved and the product reader reads it. Every other output, the report package
- * included, keeps Current (`currentSolvedResult`), which also requires numerical
- * eligibility.
+ * solved and the product reader reads it. The report package and the user release
+ * take this same source (DEL-08-01 REQ-024, "Package and user release"); on the
+ * pressure-free routes they carry only a Current result (`currentSolvedResult`, which
+ * also requires numerical eligibility) and refuse any other
+ * (`reportPackageSourceUnavailableReason`). Every other output keeps Current.
  *
  * This selection is a candidate. The webview holds a native result's header and its
  * native standing, not its rows, so it judges readability from the standing's
@@ -12,7 +15,7 @@
  * closed standing-finding vocabulary, `STANDING_FINDINGS`). The reader's checks that
  * need the full result (a case record against its integrity code, duplicated
  * evidence) are made before any render: by the build step on the full copy
- * (`buildCurrentResultExport` with purpose "report-render") and by the native host
+ * (`buildCurrentResultExport` with purpose "report") and by the native host
  * (`exact_source_binding.rs` `read_delivered_source`). If either refuses, the panel
  * shows that refusal by name and no rendered report. */
 
@@ -30,7 +33,7 @@ export const STANDING_FINDINGS: readonly string[] = Object.freeze([
 ]);
 
 /** The rendered report's source: `current` (an eligible result) when there is one;
- * else `result` when it is an exact-route result, every other Current requirement
+ * else `result` when it is a bound route's result, every other Current requirement
  * holds, its mechanics are solved and its standing names only standing findings;
  * else null. `standing` is the reader's standing of `result` as the session holds it
  * (null where it has none). */
@@ -38,18 +41,20 @@ export function renderableReportSource<R>({
   current,
   result,
   otherCurrentRequirementsHold,
-  exactRoute,
+  boundRoute,
   mechanicsSolved,
   standing
 }: {
   current: R | null;
   result: R | null;
   otherCurrentRequirementsHold: boolean;
-  exactRoute: boolean;
+  /** Whether the native render binds `result` to the delivered result: an exact-route or a
+   * pressure-free Timoshenko result (`takesReportAdmission`). */
+  boundRoute: boolean;
   mechanicsSolved: boolean;
   standing: Readonly<{ findings: readonly string[] }> | null;
 }): R | null {
   if (current !== null) return current;
-  if (result === null || !otherCurrentRequirementsHold || !exactRoute || !mechanicsSolved || standing === null) return null;
+  if (result === null || !otherCurrentRequirementsHold || !boundRoute || !mechanicsSolved || standing === null) return null;
   return standing.findings.every((finding) => STANDING_FINDINGS.includes(finding)) ? result : null;
 }

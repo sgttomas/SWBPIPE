@@ -40,7 +40,7 @@ export function StageTabStrip({
           data-testid={entry.tab === "review-changes" ? "workspace-review" : `stage-tab-${entry.tab}`}
           aria-pressed={entry.tab === tab}
           title={entry.label}
-          onClick={() => onTab(entry.section)}
+          onClick={() => { onTab(entry.section); if (drawer.collapsible && !drawer.expanded) onToggle(); }}
         >
           {entry.label}
           {entry.tab === "review-changes" && pendingCount > 0 ? <span className="workspace-count">{pendingCount}</span> : null}
@@ -57,10 +57,11 @@ export function StageTabStrip({
           aria-expanded={drawer.expanded}
           aria-disabled={!drawer.collapsible || undefined}
           aria-describedby={drawer.collapsible ? undefined : "toggle-tree-reason"}
-          aria-label={drawer.expanded ? "Collapse table drawer" : "Expand table drawer"}
-          title={drawer.reason ?? (drawer.expanded ? "Collapse table drawer" : "Expand table drawer")}
+          aria-label={drawer.collapsible ? (drawer.expanded ? "Hide tree and tables" : "Show tree and tables") : "Tree and tables"}
+          title={drawer.reason ?? (drawer.expanded ? "Hide tree and tables" : "Show tree and tables")}
           onClick={() => { if (drawer.collapsible) onToggle(); }}
         >
+          {drawer.collapsible ? <span className="shell-drawer-chevron-label">{drawer.expanded ? "Hide" : "Show tree and tables"}</span> : null}
           {drawer.expanded ? <ChevronDown size={16} aria-hidden="true" /> : <ChevronUp size={16} aria-hidden="true" />}
         </button>
         {drawer.collapsible ? null : <DisabledReason id="toggle-tree-reason" text={drawer.reason ?? ""} />}

@@ -18,7 +18,14 @@ export type HangerSizingStateCode = "inactive" | "active" | "sticking" | "slidin
 export type HangerSizingLoadCategory =
   | "weight" | "distributed_force" | "pressure" | "thermal" | "hydrotest" | "wind" | "seismic"
   | "occasional" | "concentrated_force" | "concentrated_moment" | "imposed_displacement";
-export type HangerSizingDisclosureCode = "HANGER_SIZING_SUPPORT_STATE_DIFFERS" | "HANGER_SIZING_COLD_REFERENCE_STATE_DIFFERS";
+/** The two state disclosures (each at most once), then the per-solve disclosures (each at most once per
+ * solve label, naming that label): a derived solve's integrity standing other than solver_checks_passed, and the
+ * product's displacement-correction warning with its message unchanged. */
+export type HangerSizingDisclosureCode =
+  | "HANGER_SIZING_SUPPORT_STATE_DIFFERS"
+  | "HANGER_SIZING_COLD_REFERENCE_STATE_DIFFERS"
+  | "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY"
+  | "DISPLACEMENT_CORRECTION_UNAVAILABLE";
 export type HangerSizingRefusalCode =
   | "HANGER_SIZING_CANDIDATES_REQUIRED"
   | "HANGER_SIZING_CANDIDATE_DOF_SHARED"
@@ -35,7 +42,6 @@ export type HangerSizingRefusalCode =
   | "HANGER_SIZING_DERIVED_DOCUMENT_NOT_HASHABLE"
   | "HANGER_SIZING_DERIVED_SOLVE_FAILED"
   | "HANGER_SIZING_DESIGN_OPERATING_CASE_REQUIRED"
-  | "HANGER_SIZING_EXACT_ROUTE_PENDING"
   | "HANGER_SIZING_FAMILY_POLICY_REQUIRED"
   | "HANGER_SIZING_ID_COLLISION"
   | "HANGER_SIZING_INPUT_NOT_ADMITTED"
@@ -67,11 +73,17 @@ export type HangerSizingPair = readonly [number, number];
 export type HangerSizingLimitations = readonly [string, string, string, string];
 export type HangerSizingBasisStatement = readonly [string, string];
 
+/** The route the derived solves run on: the pressure-free route (a model with no `pressure_contract`) or the
+ * exact pressure route (`3.0.0/exact_pressure_v3`). */
+export type HangerSizingRoute = "pressure_free" | "exact_pressure";
+
 export type HangerSizingIdentity = {
   readonly document_kind: typeof HANGER_SIZING_DOCUMENT_KIND;
   readonly schema_version: typeof HANGER_SIZING_SCHEMA_VERSION;
   readonly semantic_contract_id: typeof HANGER_SIZING_SEMANTIC_CONTRACT_ID;
-  readonly route: "pressure_free";
+  /** A sized document states the route its solves ran on; a refused one states its solve request's route, or
+   * null when no model was read (`HangerSizingRefusedDocument`). */
+  readonly route: HangerSizingRoute | null;
   readonly limitations: HangerSizingLimitations;
   readonly basis_statement: HangerSizingBasisStatement;
 };
@@ -208,12 +220,34 @@ export type HangerSizingConstantCandidate = HangerSizingCandidateCommon & {
 };
 export type HangerSizingCandidate = HangerSizingNoFitCandidate | HangerSizingVariableCandidate | HangerSizingConstantCandidate;
 
+/** A derived solve's numerical-integrity standing, stated positively for every solve: `solver_checks_passed`
+ * is the solver's report that its own checks found nothing, not a verified bound (`integrity_bound`); each other
+ * token is also disclosed by `HANGER_SIZING_DERIVED_SOLVE_INTEGRITY` naming that solve. */
+export type HangerSizingSolverStanding = "solver_checks_passed" | "not_assessed" | "sensitive" | "unresolved" | "failed";
+
+/** What the solver's integrity record of a solve's case states of its support-state confirmation.
+ * `not_applicable` exactly when the solve publishes no nonlinear-support state. */
+export type HangerSizingConfirmationOutcome =
+  | "solver_reported_established"
+  | "not_attempted_reason_not_recorded"
+  | "not_established_detail_quoted"
+  | "no_confirmation_record"
+  | "not_applicable";
+
+/** `detail` quotes the solver's reason exactly when the outcome is `not_established_detail_quoted`; it is null
+ * otherwise (schema `SupportStateConfirmation`). */
+export type HangerSizingSupportStateConfirmation =
+  | { readonly outcome: "not_established_detail_quoted"; readonly detail: string }
+  | { readonly outcome: Exclude<HangerSizingConfirmationOutcome, "not_established_detail_quoted">; readonly detail: null };
+
 export type HangerSizingSolve = {
   readonly label: string;
   readonly case: string;
   readonly derived_document_sha256: string;
   /** Nonlinear support id to state; empty when the model has none. */
   readonly states: Readonly<Record<string, HangerSizingStateCode>>;
+  readonly solver_standing: HangerSizingSolverStanding;
+  readonly support_state_confirmation: HangerSizingSupportStateConfirmation;
 };
 
 export type HangerSizingDisclosure = {
@@ -228,8 +262,16 @@ export type HangerSizingRefusal = {
   readonly message: string;
 };
 
+/** The bound every sized result states (LIM-026, release exit criterion 18): SWBPIPE verifies no error bound
+ * for the ordinary solve's values, whatever the derived solves' standings. */
+export type HangerSizingIntegrityBound = Readonly<{
+  readonly status: "not_verified";
+  readonly reason: "inverse_norm_bound_not_verified";
+}>;
+
 export type HangerSizingResult = {
   readonly verification_standing: "unconditional" | "conditional";
+  readonly integrity_bound: HangerSizingIntegrityBound;
   readonly cases: readonly HangerSizingCase[];
   readonly candidates: readonly HangerSizingCandidate[];
   readonly solves: readonly HangerSizingSolve[];
@@ -237,6 +279,7 @@ export type HangerSizingResult = {
 };
 
 export type HangerSizingSizedDocument = HangerSizingIdentity & {
+  readonly route: HangerSizingRoute;
   readonly status: "sized";
   readonly inputs: HangerSizingSizedInputs;
   readonly result: HangerSizingResult;

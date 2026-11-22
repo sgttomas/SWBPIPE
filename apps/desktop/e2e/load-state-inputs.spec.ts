@@ -7,6 +7,7 @@ import {
   confirmProjectUnits,
   ensureInspectorExpanded,
   expectTreeEntity,
+  openStorageRecord,
   openWorkspaceSection,
   selectCompactOption,
   selectTreeEntity,
@@ -22,7 +23,7 @@ import {
 const P = "invented_wp3_ui_acceptance_input";
 
 async function modelHash(page: Page): Promise<string> {
-  await openWorkspaceSection(page, "project");
+  await openStorageRecord(page);
   const intent = page.getByTestId("project-validation-export-link-local-private-intent");
   if (!await intent.isChecked()) await intent.check();
   const link = page.getByTestId("project-validation-export-link");
@@ -74,7 +75,8 @@ test("blank load/reference model: author support motion, a thermal state and a m
   await expect(page.getByTestId("load-state-inputs")).toHaveCount(0);
 
   await openWorkspaceSection(page, "project");
-  await page.getByRole("button", { name: "Blank load/reference model", exact: true }).click();
+  await page.getByTestId("project-new").click();
+  await page.getByTestId("project-units-dialog").getByTestId("project-units-kind-load-state").check();
   await confirmProjectUnits(page);
   await expect(page.getByTestId("local-project-message")).toContainText("Created blank local load/reference-state model 0.9.0 document");
 
@@ -264,11 +266,11 @@ test("blank load/reference model: author support motion, a thermal state and a m
   const loadsPage = await openWorkspaceSection(page, "loads");
   await openLoadsDisclosure(loadsPage, "load-case-section-pressure");
   const regions = loadsPage.getByRole("region", { name: "Case pressure regions", exact: true });
-  await expect(regions).toContainText("No pressure-region declaration has been applied.");
-  await regions.getByRole("button", { name: "Queue explicit empty pressure regions", exact: true }).click();
+  await expect(regions).toContainText("This case has not been given pressure regions.");
+  await regions.getByRole("button", { name: "Queue no pressure regions for this case", exact: true }).click();
   await applyQueued(page);
   await openWorkspaceSection(page, "loads");
-  await expect(regions).toContainText("0 applied regions.");
+  await expect(regions).toContainText("This case has no pressure regions.");
   const solvableHash = await modelHash(page);
   expect(solvableHash).not.toBe(afterHash);
 

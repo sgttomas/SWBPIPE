@@ -27,13 +27,14 @@
 // of the dialog this build records, on the print window's own handle, the print document that reached the native
 // print, and the driver takes that record and closes the window. The print checks are judged from the recorded
 // document and the rendered one (`report-print-evidence.mjs`): no dialog appearance, preview composition or job
-// outcome is observed or claimed. Rendering, the derived print view, solve, the gates and the refusals run on the
-// product's code.
+// outcome is observed or claimed. Rendering, the derived print view, solve, the gates and the user-release dialog run
+// on the product's code; the dialog is cancelled, and no package is saved.
 //
 // The model is the committed coupled-friction witness request's model with the three display additions the App test
 // makes, written into the home. What the report must state is derived from the committed App render request's
 // standing record (`renderedReportGate.app.test.tsx` writes it) and the generated statement table
-// (`fixtures/reports/standing_statements.json`), never from an earlier run.
+// (`fixtures/reports/standing_statements.json`), and the frame's lines the dialog must state from the committed frame
+// statements of the same witness (`report_standing_package_tests.rs` writes them), never from an earlier run.
 //
 // A launch passes only on exit 0, no signal, no timeout, a resolved census, an observations file in the fresh
 // evidence root carrying this run's nonce, and every step reached and observed as expected. The evidence root is kept
@@ -85,6 +86,7 @@ const DIR = "fixtures/reports/invented/report_standing_witnesses";
 const REQUEST_FIXTURE = `${DIR}/coupled_friction.request.json`;
 const APP_REQUEST_FIXTURE = `${DIR}/pressure_3_coupled_friction_sensitive.app_render_request.json`;
 const STATEMENTS_FIXTURE = "fixtures/reports/standing_statements.json";
+const FRAME_FIXTURE = `${DIR}/pressure_3_coupled_friction_sensitive.frame_statements.json`;
 const DEMO_FIXTURE = "fixtures/product_preview/invented_demo_model.json";
 const MODEL_NAME = "report-standing-coupled-friction.json";
 
@@ -244,8 +246,8 @@ const expected = {
     statement("historical_confirmation", item.confirmation.outcome),
     item.integrity_code ? statement("historical_integrity_code", item.integrity_code) : null
   ]),
-  not_saved: "Not saved: report-package save needs a numerically eligible result. The rendered report states this result's numerical standing.",
-  package_title: "Not available for this result: report-package save needs a numerically eligible result. The rendered report states this result's numerical standing."
+  // DEL-08-01 REQ-024: the frame's lines the user-release dialog states, the native host's for this witness.
+  frame_lines: JSON.parse(readFileSync(path.join(project, FRAME_FIXTURE), "utf8")).frame_statements
 };
 
 const nonce = randomBytes(16).toString("hex");
@@ -260,6 +262,7 @@ function check(name, ok, detail) {
 }
 check("inputs: every expected statement is in the generated table", expected.case_statements.every((item) => typeof item === "string"), expected.case_statements);
 check("inputs: the witness record is not checks passed in every case", count("checks_passed") < n, { n, checks_passed: count("checks_passed") });
+check("inputs: the witness's frame has a line to state", Array.isArray(expected.frame_lines) && expected.frame_lines.length > 0 && expected.frame_lines.every((line) => typeof line === "string"), expected.frame_lines);
 
 // One launch.
 const env = buildLaunchEnv({
@@ -326,11 +329,15 @@ const opened = step("open-and-solve");
 check("open and solve: the model opened and the solve completed", reached("open-and-solve") && /Opened model document/.test(opened?.opened ?? "") && /state=completed/.test(opened?.solve_summary ?? ""), opened);
 const gate = step("report-gate");
 check("report: the solved result reaches the panel, Render enabled", reached("report-gate") && gate?.precondition === false && gate?.render_enabled === true, gate);
-check("report: both package buttons disabled with the reason", gate?.package_buttons?.length === 2
-  && gate.package_buttons.every((button) => button.disabled === true && button.title === expected.package_title), gate?.package_buttons);
-const refusals = step("package-refusals");
-check("package: the native menu's two package commands leave the \"Not saved\" line, with no dialog and no chooser (both lines read the same, so this run does not tell the second from the first; renderedReportGate.app.test.tsx tells them apart in a fresh session)",
-  reached("package-refusals") && refusals?.statuses?.length === 2 && refusals.statuses.every((text) => text === expected.not_saved) && refusals?.dialog === false, refusals);
+check("report: both package saves offered (enabled, no reason given)", gate?.package_buttons?.length === 2
+  && gate.package_buttons.every((button) => button.present === true && button.disabled === false && button.title === null), gate?.package_buttons);
+const packageDialog = step("package-dialog");
+check("package: the shareable command opens the user-release dialog, which states the frame's lines, the native host's for this witness, before the statement",
+  reached("package-dialog") && packageDialog?.refusal === null && JSON.stringify(packageDialog?.frame_lines) === JSON.stringify(expected.frame_lines) && packageDialog?.frame_before_statement === true,
+  packageDialog && { expected: expected.frame_lines, seen: packageDialog.frame_lines, before_statement: packageDialog.frame_before_statement, refusal: packageDialog.refusal });
+check("package: the statement is unticked and the save not offered until it is; cancelled, the dialog closes with the package line unchanged and no chooser",
+  packageDialog?.statement_present === true && packageDialog?.statement_checked === false && packageDialog?.confirm_disabled === true && packageDialog?.dialog_closed === true && packageDialog?.status_unchanged === true,
+  packageDialog && { statement_present: packageDialog.statement_present, statement_checked: packageDialog.statement_checked, confirm_disabled: packageDialog.confirm_disabled, dialog_closed: packageDialog.dialog_closed, status_unchanged: packageDialog.status_unchanged });
 const outputs = step("other-outputs");
 check("outputs: the result JSON export and the rule check are not offered", reached("other-outputs") && outputs?.result_export_empty === true && outputs?.result_export_link === false && outputs?.rule_check_disabled === true, outputs);
 const rendered = step("render");
@@ -427,7 +434,7 @@ writeFileSync(path.join(root, "summary.json"), JSON.stringify({
   uncommitted: dirty,
   app: { binary: app.binary, identity: app.identity, binding_record_sha256: bindingSha },
   engines,
-  inputs: { [REQUEST_FIXTURE]: fileSha(path.join(project, REQUEST_FIXTURE)), [APP_REQUEST_FIXTURE]: fileSha(path.join(project, APP_REQUEST_FIXTURE)), [STATEMENTS_FIXTURE]: fileSha(path.join(project, STATEMENTS_FIXTURE)), [DEMO_FIXTURE]: fileSha(path.join(project, DEMO_FIXTURE)) },
+  inputs: { [REQUEST_FIXTURE]: fileSha(path.join(project, REQUEST_FIXTURE)), [APP_REQUEST_FIXTURE]: fileSha(path.join(project, APP_REQUEST_FIXTURE)), [STATEMENTS_FIXTURE]: fileSha(path.join(project, STATEMENTS_FIXTURE)), [FRAME_FIXTURE]: fileSha(path.join(project, FRAME_FIXTURE)), [DEMO_FIXTURE]: fileSha(path.join(project, DEMO_FIXTURE)) },
   model_document: { path: modelPath, sha256: fileSha(modelPath) },
   html_save: { path: htmlSavePath, bytes: savedBytes?.length ?? null, sha256: savedSha },
   expected,

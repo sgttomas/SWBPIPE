@@ -158,6 +158,9 @@ describe("model settings: node-proximity tolerance", () => {
       </DisplayUnitsProvider>
     );
     expect(within(byId("model-settings-details")).getByText("Model settings")).toBeInTheDocument();
+    // A closed line until the person opens it.
+    expect(byId("model-settings-details")).not.toHaveAttribute("open");
+    fireEvent.click(within(byId("model-settings-details")).getByText("Model settings"));
     expect(byId("model-settings-details")).toHaveAttribute("open");
     expect(byId("model-settings-node-proximity-effective")).toHaveTextContent("5 mm (default)");
     view.rerender(

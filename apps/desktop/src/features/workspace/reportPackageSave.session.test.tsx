@@ -49,8 +49,8 @@ const RECEIPT = {
 
 let sequence = 0;
 /** A solved Current preview-physics-2 session; `save` answers `save_report_package`. */
-async function solvedSession(save: (args: Record<string, unknown>) => Promise<unknown> = async () => RECEIPT) {
-  const { model, bytes } = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" });
+async function solvedSession(save: (args: Record<string, unknown>) => Promise<unknown> = async () => RECEIPT, profile: "preview" | "pressure" = "preview") {
+  const { model, bytes } = nativeMechanicsReplayPair("sparse_interactive", { profile });
   const storage = await getLocalStorageCapability(), knowledge = await loadDesignKnowledge();
   const transport = createSolveJobTransport((request) => {
     if (!isDeepStrictEqual({ model: request.model, mode: request.mode }, { model, mode: "sparse_interactive" })) throw new Error("REPLAY_REQUEST_MISMATCH");
@@ -222,5 +222,53 @@ describe("Save Report Package… through the session (W-18 (b2))", () => {
     expect(hook.current.results.ruleCheckReportRun).toBe(second);
     expect(hook.current.results.reportPackageRoute).toBeNull();
     expect(hook.current.results.reportPackageRedaction).toBeNull();
+  });
+});
+
+describe("a save whose basis moves on mid-save (review round 2)", () => {
+  it("a rule-check record landing mid-save sends nothing, releases the package controls, and a retry proceeds", async () => {
+    // The pressure replay profile holds the native reply of the rule-check record update.
+    const { result: hook } = await solvedSession(undefined, "pressure");
+    // Hold the rule-check record's native read and every read of the save, so the record lands
+    // while the save is preparing.
+    const passThrough = invokeMock.getMockImplementation()!;
+    let releaseRecord!: () => void, releaseSave!: () => void;
+    const recordHeld = new Promise<void>((resolve) => { releaseRecord = resolve; });
+    const saveHeld = new Promise<void>((resolve) => { releaseSave = resolve; });
+    invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
+      if (command === "read_preview_mechanics_job_analysis_run_preview") await recordHeld;
+      else if (command !== "sync_native_shell_state") await saveHeld;
+      return passThrough(command, args, options);
+    });
+    const run = inventedRun("USER_RULE_CHECKED");
+    const current = hook.current;
+    let recorded!: Promise<void>;
+    act(() => {
+      recorded = current.results.handleRuleCheckAggregate("USER_RULE_CHECKED", {
+        projectSessionGeneration: current.model.projectSessionGeneration,
+        modelRevision: current.model.uiModelRevision,
+        result: current.results.currentSolvedResult,
+        inputManifest: current.results.inputManifest
+      }, run);
+    });
+    let saving!: Promise<void>;
+    act(() => { saving = hook.current.results.handleSaveReportPackage(); });
+    expect(hook.current.results.reportPackageBusy).toBe(true);
+    const runBefore = hook.current.results.analysisRun;
+    await act(async () => { releaseRecord(); await recorded; });
+    expect(hook.current.results.analysisRun === runBefore, "the rule-check record replaced the run").toBe(false);
+    await act(async () => { releaseSave(); await saving; });
+    await waitFor(() => expect(hook.current.results.reportPackageBusy).toBe(false));
+    expect(saveCalls()).toHaveLength(0);
+    // A retry is not refused as a save already in progress: it runs on the new basis to that
+    // basis's own outcome (here the invented rule check's pack is not the one the solve
+    // recorded, so the package is refused by name before any send) and releases the controls.
+    invokeMock.mockImplementation(passThrough);
+    await act(async () => { await hook.current.results.handleSaveReportPackage(); });
+    const retried = hook.current.results.reportPackageRoute as { route: string; diagnostic?: string } | null;
+    expect(retried?.diagnostic ?? "").not.toContain("already being saved");
+    expect(retried).toMatchObject({ route: "redaction_blocked", diagnostic: expect.stringContaining("REPORT-PACKAGE-RULE-PACKS-DISAGREE") });
+    expect(saveCalls()).toHaveLength(0);
+    expect(hook.current.results.reportPackageBusy).toBe(false);
   });
 });

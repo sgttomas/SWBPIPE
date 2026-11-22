@@ -163,7 +163,8 @@ fn recorded(binding: &Value, source: &Value, read: impl FnOnce() -> Value, refus
 pub fn dispatch_recorded(source: &Value, binding: &Value, model: Option<&Value>, invocation: Option<&Value>) -> Value {
     recorded(binding, source, || dispatch(source, model, invocation), |code| {
         json!({"ok": false, "route": UNSUPPORTED, "binding": Value::Null, "error": error_json(code),
-            "standing": {"route": UNSUPPORTED, "token": "unsupported", "status": "needs_recompute", "eligible": false, "findings": [code]}})
+            "standing": {"route": UNSUPPORTED, "token": "unsupported", "status": "needs_recompute", "eligible": false, "findings": [code],
+                "integrity_bound": integrity_bound()}})
     })
 }
 /// [`validate`] of a recorded statement under its recorded binding.
@@ -248,6 +249,21 @@ pub fn physics_model_checks(source: &Value, model: &Value) -> Result<(), String>
         let case_ids: Vec<&Value> = cases.iter().map(|c| &c["load_case_id"]).collect();
         if !same_set(&case_ids, &ids(&model["load_cases"], "id")) {
             return Err("SOURCE_PHYSICS_MODEL_CASE_COVERAGE".into());
+        }
+        // DEL-05-01 REQ-008 (issue 452 decision 6): a solved case whose model
+        // case generates static-equivalent loads carries its generation
+        // record, and only such a case does; an absent record never reads as
+        // "generated nothing". Which generated loads the record names (their
+        // kinds, axes, members and extents, in order) is rederived from the
+        // model below (`physics_evidence::equivalent_static_model_binding`);
+        // how large they are is not, since no record carries a magnitude.
+        for case in cases {
+            let generates = model["load_cases"].as_array().into_iter().flatten().any(|authored| {
+                authored["id"] == case["load_case_id"] && authored.get("equivalent_static").is_some_and(|v| !v.is_null())
+            });
+            if case.get("equivalent_static").is_some() != generates {
+                return Err("SOURCE_PHYSICS_MODEL_GENERATION_RECORD".into());
+            }
         }
     }
     if model.get("pipe_segments").is_some_and(|v| !v.is_null()) {
@@ -746,8 +762,24 @@ pub fn source_findings(source: &Value, invocation: &Value) -> Vec<&'static str> 
     findings
 }
 
+/// The verdict's `status` for a result the solver's own checks found nothing
+/// against. It states the solver's report, not a verified bound.
+pub const SOLVER_CHECKS_PASSED: &str = "solver_checks_passed";
+
+/// The verdict's `integrity_bound` member, the one place it is worded or
+/// constructed (release exit criterion 18, LIM-026). The solver's integrity
+/// check rests on an inverse-norm step (1,024 times an estimate of the inverse
+/// norm of the scaled stiffness matrix, taken as an upper limit on that norm)
+/// that the product verifies for no result, so in v1.0 every verdict, on every
+/// route and whether eligible or not, states the bound as not verified. The
+/// member is additive: `token`, `eligible` and every admission are unchanged,
+/// and an admission asserts no bound.
+pub fn integrity_bound() -> Value {
+    json!({"status": "not_verified", "reason": "inverse_norm_bound_not_verified"})
+}
+
 /// G1: the desktop's numerical standing, `{route, token, status, eligible,
-/// findings}`. `token` is `numerical_use_standing_with_context` with the model's
+/// findings, integrity_bound}`. `token` is `numerical_use_standing_with_context` with the model's
 /// load cases as the requested refs and the caller's invocation, unchanged.
 /// `findings` are the TypeScript standing's codes in its order: a refusal's code;
 /// a source route's validation findings (or
@@ -756,7 +788,11 @@ pub fn source_findings(source: &Value, invocation: &Value) -> Vec<&'static str> 
 /// its not-eligible reason; otherwise the evidence reader's code and the
 /// ordinary checks of `numerical_quality` against the model;
 /// then, but for the joined and successor routes, an unsolved envelope.
-/// `eligible` is no findings, and `status` is `integrity_checked` when eligible.
+/// `eligible` is no findings, and `status` is `solver_checks_passed` when
+/// eligible: an admission standing under the route's own rules (DEL-05-02
+/// Standing), which asserts no verified error bound; on the ordinary routes it
+/// says the solver reports every load case checks passed. `integrity_bound` is
+/// [`integrity_bound`], on every verdict this returns.
 ///
 /// RT-U4 (single pass): on the pressure route, pressure-2's evidence verdict is
 /// read once and given to both of its uses, the token's `for_source` and the
@@ -805,8 +841,8 @@ pub fn standing(source: &Value, model: Option<&Value>, invocation: Option<&Value
     };
     let done = |findings: Vec<String>| {
         let eligible = findings.is_empty();
-        json!({"route": route, "token": token, "status": if eligible { "integrity_checked" } else { "needs_recompute" },
-            "eligible": eligible, "findings": findings})
+        json!({"route": route, "token": token, "status": if eligible { SOLVER_CHECKS_PASSED } else { "needs_recompute" },
+            "eligible": eligible, "findings": findings, "integrity_bound": integrity_bound()})
     };
     match route {
         UNSUPPORTED => {}

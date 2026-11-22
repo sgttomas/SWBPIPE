@@ -241,6 +241,28 @@ vocabulary!(
     }
 );
 
+vocabulary!(
+    /// The status of the integrity bound, as the reader's verdict carries it
+    /// (`integrity_bound.status`; DEL-05-02, "Standing"). There is no tag for
+    /// a verified bound: the product verifies the bound for no result
+    /// (release exit criterion 18, LIM-026), and a tag is added when it can
+    /// say so.
+    IntegrityBound, "integrity_bound", {
+        /// The bound the solver's integrity check rests on is not verified.
+        NotVerified => "not_verified",
+    }
+);
+
+vocabulary!(
+    /// Why the integrity bound has its status (`integrity_bound.reason`).
+    IntegrityBoundReason, "integrity_bound_reason", {
+        /// The solver takes 1,024 times an estimate of the inverse norm of
+        /// the scaled stiffness matrix as an upper limit on it, and the
+        /// product does not verify that step (DEL-04-01/REQ-015).
+        InverseNormBoundNotVerified => "inverse_norm_bound_not_verified",
+    }
+);
+
 /// One catalogue entry: a vocabulary's name and one of its tags.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct CatalogueEntry {
@@ -266,6 +288,8 @@ pub fn catalogue() -> Vec<CatalogueEntry> {
         .chain(of(EvidenceStatus::VOCABULARY, EvidenceStatus::ALL, EvidenceStatus::as_str))
         .chain(of(Premise::VOCABULARY, Premise::ALL, Premise::as_str))
         .chain(of(NoFigureReason::VOCABULARY, NoFigureReason::ALL, NoFigureReason::as_str))
+        .chain(of(IntegrityBound::VOCABULARY, IntegrityBound::ALL, IntegrityBound::as_str))
+        .chain(of(IntegrityBoundReason::VOCABULARY, IntegrityBoundReason::ALL, IntegrityBoundReason::as_str))
         .collect()
 }
 
@@ -301,6 +325,8 @@ mod tests {
         check(EvidenceStatus::ALL, EvidenceStatus::as_str, EvidenceStatus::parse);
         check(Premise::ALL, Premise::as_str, Premise::parse);
         check(NoFigureReason::ALL, NoFigureReason::as_str, NoFigureReason::parse);
+        check(IntegrityBound::ALL, IntegrityBound::as_str, IntegrityBound::parse);
+        check(IntegrityBoundReason::ALL, IntegrityBoundReason::as_str, IntegrityBoundReason::parse);
         assert_eq!(HistoricalIntegrityCode::parse("NUMERICAL_INTEGRITY_SENSITIVE_ENOUGH"), None);
     }
 
@@ -314,6 +340,6 @@ mod tests {
             assert!(seen.insert((entry.vocabulary, entry.tag)), "{entry:?}");
         }
         let names: std::collections::BTreeSet<_> = entries.iter().map(|e| e.vocabulary).collect();
-        assert_eq!(names.len(), 11);
+        assert_eq!(names.len(), 13);
     }
 }

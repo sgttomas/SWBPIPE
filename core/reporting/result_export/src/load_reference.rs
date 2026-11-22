@@ -48,10 +48,11 @@ pub const BOUNDARY: &str = "every restrained DOF prescribed; reduced K_ff u_f = 
 pub const EIGENLOAD: &str =
     "axial E_member*A_s*total_eigenstrain assembled once and removed once in recovery";
 /// Frozen `schemas/load_reference_state.schema.json` (relayed by the manager).
-/// DEL-05-01 REQ-014: the stored primitive's two magnitudes describe a
-/// hydrostatic test case's entry (descriptions only; was b95947ea...).
+/// DEL-04-07 REQ-011 / DEL-05-01 REQ-014: a generated load source's contribution
+/// and a hydrostatic test case's stored-primitive magnitude descriptions
+/// (was 736769f8... on main, 497caa66... on PR 478, b95947ea... prior).
 pub const TRANSPORT_SCHEMA_SHA256: &str =
-    "497caa66a2682dd42b8e9fd7b8ce49d1c24ffb732131e4089c79540983f94b78";
+    "c1aae90fe9626666f9e823045225d694e6aad961612c0f3e5df1e127acca8ff9";
 const TRANSPORT_SCHEMA_BYTES: &str =
     include_str!("../../../../schemas/load_reference_state.schema.json");
 
@@ -173,6 +174,9 @@ const MEMBER_STATE_KEYS: &[&str] = &[
 ];
 const SUPPORT_STATE_KEYS: &[&str] = &["source_id", "owner_kind", "classification", "value"];
 const PRESSURE_REGION_KEYS: &[&str] = &["source_id", "owner_kind", "classification", "factor"];
+/// DEL-04-07 REQ-011: a generated static-equivalent load source, once at factor 1.
+const GENERATED_KEYS: &[&str] = &["source_id", "owner_kind", "classification", "factor", "generation_kind"];
+const GENERATION_KINDS: &[&str] = &["seismic", "wind"];
 const EXCLUDED_KEYS: &[&str] = &[
     "source_id",
     "owner_kind",
@@ -898,6 +902,28 @@ fn validate_record(
                 .collect::<HashSet<_>>(),
         "PRESSURE_CONTRIBUTION_COVERAGE",
     )?;
+    // DEL-04-07 REQ-011: each generated source once, in the order and with the
+    // identities of the exact case's generation record; none without one.
+    let generated: Vec<&Value> = contributions
+        .iter()
+        .filter(|c| c["owner_kind"] == "generated_equivalent_static")
+        .map(|c| &c["source_id"])
+        .collect();
+    let expected_generated: Vec<&Value> = match case.get("equivalent_static") {
+        Some(record) => record["generated_load_ids"].as_array().map(|ids| ids.iter().collect()).unwrap_or_default(),
+        None => Vec::new(),
+    };
+    require(
+        case.get("equivalent_static").is_none_or(|record| record["generated_load_ids"].is_array())
+            && generated == expected_generated,
+        "GENERATED_CONTRIBUTION_COVERAGE",
+    )?;
+    for id in generated {
+        let id = text(id)?;
+        let c = find(id).ok_or_else(|| code("GENERATED_CONTRIBUTION_COVERAGE"))?;
+        let kind = text(&c["generation_kind"])?;
+        require(id.starts_with(&format!("{case_id}:generated:{kind}:")), "GENERATED_CONTRIBUTION_BINDING")?;
+    }
     Ok(())
 }
 
@@ -1153,6 +1179,7 @@ fn validate_contribution(contribution: &Value, mark: Option<&Value>) -> Check {
         Some("resolved_member_state") => (MEMBER_STATE_KEYS, "eigenstrain"),
         Some("support_state") => (SUPPORT_STATE_KEYS, ""),
         Some("pressure_region") => (PRESSURE_REGION_KEYS, "pressure_eigen_and_closure"),
+        Some("generated_equivalent_static") => (GENERATED_KEYS, "generated_applied"),
         _ => return Err(code("CONTRIBUTION_KIND")),
     };
     require(keys(contribution, shape), "CONTRIBUTION_SHAPE")?;
@@ -1196,6 +1223,13 @@ fn validate_contribution(contribution: &Value, mark: Option<&Value>) -> Check {
             number(&contribution["value"]).map(|_| ())
         }
         Some("support_state") => number(&contribution["value"]).map(|_| ()),
+        Some("generated_equivalent_static") => {
+            require(contribution["factor"].as_f64() == Some(1.0), "CONTRIBUTION_FACTOR")?;
+            require(
+                GENERATION_KINDS.iter().any(|kind| contribution["generation_kind"] == *kind),
+                "CONTRIBUTION_GENERATION_KIND",
+            )
+        }
         _ => require(contribution["factor"].is_null(), "CONTRIBUTION_FACTOR"),
     }
 }

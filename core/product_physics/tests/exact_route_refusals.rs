@@ -31,6 +31,7 @@ const MODES: [PreviewSolverMode; 2] = [
 const SOURCE: &str = "core/product_physics/src/pressure_runtime.rs";
 const FAMILY: &str = "EXACT_PRESSURE_FAMILY_NOT_ADMITTED";
 const NEGATIVE: &str = "PRESSURE_REGION_PRESSURE_NEGATIVE";
+/// The retired load/reference-state refusal of generation; never raised now.
 const LOAD_STATE_EQUIVALENT_STATIC: &str = "EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED";
 const PRESSURE_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-3";
 const PROVENANCE: &str = "invented_u0_control";
@@ -262,9 +263,9 @@ fn a1_objective_connector_outside_the_exact_route_is_a_version_mismatch() {
 }
 
 /// The seam's refusals keep the route's emission order (component, support,
-/// then the per-case equivalent_static code: since W-16 slice c, the
-/// load/reference-state refusal; since W-16 slice b a combination is admitted
-/// and never named), under the current contract's codes; with the load/reference-state group, the
+/// then the per-case codes: W-16 slice c admits generation at the seam and
+/// on a load/reference-state document, and since W-16 slice b a combination is
+/// admitted and never named), under the current contract's codes; with the load/reference-state group, the
 /// support's family code precedes the load-state code that `validate_document`
 /// adds for the undeclared support, in the same batch.
 #[test]
@@ -290,20 +291,23 @@ fn a1_precedence_follows_emission_order() {
         assert!(!envelope["diagnostics"].as_array().unwrap().iter()
             .any(|d| d["code"] == FAMILY && d["affected_refs"] == json!(["support:gap"])));
 
-        // A combination beside the per-case equivalent_static code. W-16 slice
-        // c admits generation at the seam and slice b the combination; the
-        // per-case code is now the load/reference-state refusal, which only Y0
-        // (with the group) takes. On X0 nothing refuses at the seam any more
-        // (the incomplete generation input is reported past it), so only Y0
-        // is a seam case here.
-        if matches!(base, Base::Y0) {
-            let mut document = with_equivalent_static(base);
-            document["model"]["combinations"] = json!([combination(base)]);
-            let envelope = run_all(&document);
-            let case_refs = [base.equivalent_static_case(), "equivalent_static"];
+        // A combination beside a case's equivalent_static. W-16 slice c
+        // admits generation at the seam, slice b the combination, and
+        // generation is admitted on a load/reference-state document too
+        // (DEL-05-01 REQ-008): on both bases nothing refuses at the seam, and
+        // the incomplete generation input is reported past it by name. Past
+        // the seam the inspection-only integrity text is mode-specific, so
+        // each mode is read on its own.
+        let mut document = with_equivalent_static(base);
+        document["model"]["combinations"] = json!([combination(base)]);
+        for mode in MODES {
+            let envelope = serde_json::to_value(run_linear_static_preview_value_with_mode(document.clone(), mode)
+                .expect("the captured entry accepts the document")).unwrap();
             assert_blocked(&envelope, base);
             assert!(!has_code(&envelope, FAMILY));
-            position(&envelope, LOAD_STATE_EQUIVALENT_STATIC, &case_refs);
+            assert!(!has_code(&envelope, LOAD_STATE_EQUIVALENT_STATIC));
+            assert!(envelope["diagnostics"].as_array().unwrap().iter().any(|d| d["code"] == "EQUIVALENT_STATIC_INPUT_MISSING"
+                && d["affected_refs"] == json!([base.equivalent_static_case()])), "{} {mode:?}", base.equivalent_static_case());
         }
     }
 

@@ -2,15 +2,16 @@
 // states, with their labels, label editing, the record check, delete and Record Run…,
 // against a fake of the session's history slice. The flows behind these controls are
 // `recordRun.session.test.tsx`; the store's checks are the Rust tests.
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { AnalysisRunSummary } from "../../services/analysisRunService";
-import { LABELS_DO_NOT_CHANGE_RUN, RUN_RECORD_MANIFEST_UNAVAILABLE } from "../../services/analysisRunService";
+import { LABELS_DO_NOT_CHANGE_RUN, RUN_RECORD_MANIFEST_UNAVAILABLE, RUN_RECORD_NO_RUN } from "../../services/analysisRunService";
 import type { ModelStateSummary } from "../../services/modelStateService";
 import type { HistoricalRunContext } from "../results/HistoricalRunContext";
 import { WorkspaceSessionProvider } from "../workspace/WorkspaceSessionContext";
 import type { WorkspaceSession } from "../workspace/workspaceSession";
 import { HistoryPanel } from "./HistoryPanel";
+import { NO_MODEL_STATES_LISTED, RECORD_RUN_SNAPSHOT_NAME_NOTE } from "./useModelStateHistory";
 
 const PROJECT = "project:invented-history";
 const STATE: ModelStateSummary = {
@@ -27,7 +28,7 @@ const RUN: AnalysisRunSummary = {
 
 function history(overrides: Partial<WorkspaceSession["project"]["history"]> = {}) {
   return {
-    states: [STATE], runs: [RUN], runCheck: null, recordRunUnavailableReason: null, recordRunState: STATE, historyMessage: "", historyOperation: "", historyBusy: false,
+    states: [STATE], runs: [RUN], runCheck: null, recordRunUnavailableReason: null, recordRunState: STATE, recordRunStateKnown: true, historyMessage: "", historyMessageDetails: null, historyOperation: "", historyBusy: false,
     basisStateId: null, refreshStates: vi.fn(), saveState: vi.fn(), openState: vi.fn(), editLabels: vi.fn(), deleteState: vi.fn(),
     recordRun: vi.fn(async () => true), editRunLabels: vi.fn(async () => true), deleteRun: vi.fn(async () => true), checkRun: vi.fn(async () => true),
     ...overrides
@@ -105,8 +106,25 @@ describe("recorded runs in the History panel (W-12 S2)", () => {
     renderPanel(history({ recordRunUnavailableReason: RUN_RECORD_MANIFEST_UNAVAILABLE }));
     const open = screen.getByTestId("record-run-open");
     expect(open).toBeDisabled();
-    expect(open).toHaveAttribute("title", RUN_RECORD_MANIFEST_UNAVAILABLE);
-    expect(screen.getByTestId("record-run-unavailable")).toHaveTextContent(`Record Run: ${RUN_RECORD_MANIFEST_UNAVAILABLE}`);
+    // The reason is the disabled control's title, in plain words without the refusal's code;
+    // no line of the code is shown after the buttons.
+    const plain = "Re-solve to record this run (a run restored from the saved project has no input manifest).";
+    expect(open).toHaveAttribute("title", plain);
+    expect(open).toHaveAccessibleDescription(plain);
+    expect(screen.getByTestId("record-run-unavailable")).toHaveClass("visually-hidden");
+    expect(screen.getByTestId("model-history-panel")).not.toHaveTextContent(/RUN-RECORD-/);
+  });
+
+  it("Record Run… without a solve says to solve first, as its title", () => {
+    renderPanel(history({ recordRunUnavailableReason: RUN_RECORD_NO_RUN }));
+    expect(screen.getByTestId("record-run-open")).toBeDisabled();
+    expect(screen.getByTestId("record-run-open")).toHaveAttribute("title", "Solve the model to record a run.");
+  });
+
+  it("Model History says what it holds in one line, without the project's identifier", () => {
+    renderPanel(history());
+    expect(screen.getByTestId("model-history-intro")).toHaveTextContent(/^Saved snapshots of this model, each with the runs recorded against it\.$/);
+    expect(screen.getByTestId("model-history-panel")).not.toHaveTextContent(PROJECT);
   });
 
   it("Record Run… is disabled with the busy reason while another project operation runs", () => {
@@ -120,12 +138,28 @@ describe("recorded runs in the History panel (W-12 S2)", () => {
     renderPanel(slice);
     fireEvent.click(screen.getByTestId("record-run-open"));
     expect(screen.getByTestId("record-run-state")).toHaveTextContent("No saved state holds the solved model.");
+    expect(screen.queryByTestId("record-run-snapshot-name-note")).toBeNull();
     fireEvent.change(screen.getByTestId("record-run-name"), { target: { value: "Run B" } });
     expect(screen.getByTestId("record-run-submit")).toBeDisabled();
     expect(screen.getByTestId("record-run-submit")).toHaveAttribute("title", "Name the post-solve snapshot the run is recorded against.");
     fireEvent.change(screen.getByTestId("record-run-snapshot-name"), { target: { value: "After solve" } });
     fireEvent.click(screen.getByTestId("record-run-submit"));
     expect(slice.recordRun).toHaveBeenCalledWith({ labels: { run_name: "Run B", tags: [], notes: [], assumptions: [] }, snapshotName: "After solve" });
+  });
+
+  it("#545: does not say that no saved state holds the solved model while the session does not know, and says under the name when it is used", () => {
+    const slice = history({ recordRunState: null, recordRunStateKnown: false });
+    renderPanel(slice);
+    fireEvent.click(screen.getByTestId("record-run-open"));
+    expect(screen.queryByTestId("record-run-state")).toBeNull();
+    expect(screen.getByTestId("record-run-form")).not.toHaveTextContent("No saved state holds the solved model");
+    expect(RECORD_RUN_SNAPSHOT_NAME_NOTE).toBe("Used only if this model is not already saved.");
+    expect(screen.getByTestId("record-run-snapshot-name-note")).toHaveTextContent(RECORD_RUN_SNAPSHOT_NAME_NOTE);
+    // The name is still asked for: the store writes the snapshot only when no state holds the solved model.
+    fireEvent.change(screen.getByTestId("record-run-name"), { target: { value: "Run B" } });
+    fireEvent.change(screen.getByTestId("record-run-snapshot-name"), { target: { value: "Second name" } });
+    fireEvent.click(screen.getByTestId("record-run-submit"));
+    expect(slice.recordRun).toHaveBeenCalledWith({ labels: { run_name: "Run B", tags: [], notes: [], assumptions: [] }, snapshotName: "Second name" });
   });
 
   it("names the listed state the run is recorded against", () => {
@@ -137,5 +171,41 @@ describe("recorded runs in the History panel (W-12 S2)", () => {
     fireEvent.change(screen.getByTestId("record-run-name"), { target: { value: "Run C" } });
     fireEvent.click(screen.getByTestId("record-run-submit"));
     expect(slice.recordRun).toHaveBeenCalledWith({ labels: { run_name: "Run C", tags: [], notes: [], assumptions: [] }, snapshotName: null });
+  });
+});
+
+// #547: the history message before any operation says no states are listed; a listing leaves the
+// message as it was, so the panel shows it only while the list it heads is empty.
+describe("the Model History message before any operation", () => {
+  it("is not shown above a listed state, and is shown when the store lists none", () => {
+    renderPanel(history({ historyMessage: NO_MODEL_STATES_LISTED }));
+    expect(screen.getByTestId(`model-state-${STATE.state_id}`)).toBeInTheDocument();
+    expect(screen.getByTestId("model-history-message")).toHaveTextContent(/^$/);
+    expect(screen.getByTestId("model-history-panel")).not.toHaveTextContent("No model states listed yet.");
+    cleanup();
+    renderPanel(history({ historyMessage: NO_MODEL_STATES_LISTED, states: [], runs: [], unreadable: { states: [], runs: [] } }));
+    expect(screen.getByTestId("model-history-message")).toHaveTextContent("No model states listed yet.");
+    expect(screen.getByTestId("model-history-empty")).toHaveTextContent("No saved model states for this project yet.");
+  });
+
+  it("keeps an operation's message above the list", () => {
+    renderPanel(history({ historyMessage: "Labels of model state \"After solve\" saved." }));
+    expect(screen.getByTestId("model-history-message")).toHaveTextContent("Labels of model state \"After solve\" saved.");
+    expect(screen.queryByTestId("model-history-message-details")).toBeNull();
+  });
+
+  it("renders size-refusal diagnostic details closed behind Details right after the history message", () => {
+    const detailsText = "RESULT-DETAIL-WEBVIEW-LIMIT: run record 67108865 bytes; limit 67108864 bytes.";
+    renderPanel(history({
+      historyMessage: "Not compared: This run record is too large for the comparison: just over 64 MiB, and the most it can take is 64 MiB.",
+      historyMessageDetails: detailsText
+    }));
+    const message = screen.getByTestId("model-history-message");
+    const details = screen.getByTestId("model-history-message-details") as HTMLDetailsElement;
+    expect(details.tagName).toBe("DETAILS");
+    expect(details.open).toBe(false);
+    expect(details.querySelector("summary")?.textContent).toBe("Details");
+    expect(details.querySelector("p")?.textContent).toBe(detailsText);
+    expect(message.nextElementSibling).toBe(details);
   });
 });

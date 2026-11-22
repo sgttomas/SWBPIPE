@@ -10,8 +10,10 @@
 //! - the rule-pack rule ([`refuse_rule_pack_referenced`]);
 //! - the private-class rule ([`refuse_private_classes`]): a label can add a
 //!   refusal, and no label grants inclusion;
-//! - the run-record check ([`check_run_record`]): Record Run's binding checks
-//!   (`analysis_runs::check_record_for_values`) and route 010's own.
+//! - the run-record check ([`verify_run_record`], which route 009 also
+//!   uses for its saved-package entry): Record Run's binding checks
+//!   (`analysis_runs::check_record_for_values`) and the builder's own
+//!   members, with route 010's status rule.
 //!
 //! Route 010's admission (`report_package_save`, slice (r2c)) calls them;
 //! nothing here admits, renders or writes anything, and nothing here records a
@@ -463,6 +465,27 @@ fn expected_statuses(source: &Value) -> Option<Value> {
     Some(json!(statuses))
 }
 
+/// The rule statuses the solve builder writes (`analysisRunCompatibility.ts`
+/// `RULE_STATUSES`): the effective rule status is the rule-check aggregate's,
+/// else the source's own, else `RULE_INPUTS_INCOMPLETE`, and is one of these.
+const RULE_STATUSES: [&str; 3] = ["RULE_INPUTS_INCOMPLETE", "USER_RULE_CHECKED", "USER_RULE_FAILED"];
+
+/// Whether `statuses` is an analysis status the solve builder writes for
+/// `source` (`buildAnalysisRunV03`): `HUMAN_REVIEW_REQUIRED`, the source's
+/// mechanics status and one effective rule status ([`RULE_STATUSES`]), each
+/// once, sorted. An empty or absent status is not.
+fn builder_statuses(source: &Value, statuses: Option<&Value>) -> bool {
+    let Some(mechanics) = source.pointer("/status/mechanics").and_then(Value::as_str) else {
+        return false;
+    };
+    RULE_STATUSES.iter().any(|rule| {
+        let mut expected: Vec<&str> = vec!["HUMAN_REVIEW_REQUIRED", mechanics, rule];
+        expected.sort_unstable();
+        expected.dedup();
+        statuses == Some(&json!(expected))
+    })
+}
+
 fn builder_boundary() -> Value {
     json!({
         "human_review_required": true,
@@ -474,35 +497,61 @@ fn builder_boundary() -> Value {
     })
 }
 
-/// Route 010's step 8: Record Run's binding checks
-/// (`analysis_runs::check_record_for_values`) of the run record `R` against
-/// the source `S`, the input manifest `I` and its bound SHA-256, then route
-/// 010's own: the record's analysis status is exactly `HUMAN_REVIEW_REQUIRED`,
-/// `S`'s mechanics status and `S`'s own rule status (no rule-check
-/// aggregate), and its run name, unresolved TBDs and professional boundary are
-/// the builder's (`analysisRunCompatibility.ts`). Since step 5 refuses every
-/// model with a rule-pack reference, a record made before rule-pack
-/// resolution is refused too. Any failure is
-/// `REPORT-USER-RELEASE-ANALYSIS-RECORD-UNBOUND`, with Record Run's detail.
-pub(crate) fn check_run_record(
+/// The status rule a route applies to a run record's analysis status, after
+/// Record Run's own checks of it.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum RunRecordStatus {
+    /// Route 010: exactly `HUMAN_REVIEW_REQUIRED`, `S`'s mechanics status and
+    /// `S`'s own rule status, with no rule-check aggregate (step 5 refuses
+    /// every model with a rule-pack reference).
+    SolvesOwn,
+    /// Route 009: the status the solve builder writes for `S`
+    /// (`HUMAN_REVIEW_REQUIRED`, `S`'s mechanics status and one rule status,
+    /// `S`'s own or the rule-check aggregate's; `analysisRunCompatibility.ts`),
+    /// so that the record of a model with rule packs still verifies.
+    RecordRun,
+}
+
+/// The run-record verification of both save routes (route 010's step 8; the
+/// basis of a route-009 saved-package entry, DEL-08-01 REQ-023): Record Run's
+/// binding checks (`analysis_runs::check_record_for_values`) of the run
+/// record `R` against the source `S`, the input manifest `I` and its bound
+/// SHA-256; a record made before rule-pack resolution is refused; the
+/// route's status rule; and the builder's own members: the run name, the
+/// unresolved TBDs and the professional boundary are the builder's
+/// (`analysisRunCompatibility.ts`), so a record whose run name is changed and
+/// whose own checksum is recomputed does not verify. Returns the record's
+/// hash as the check recomputed it. Any failure is
+/// `REPORT-USER-RELEASE-ANALYSIS-RECORD-UNBOUND`, with Record Run's detail; a
+/// memory refusal keeps its own code inside that detail.
+pub(crate) fn verify_run_record(
     project_id: &str,
     run_record: &Value,
     source: &Value,
     input_manifest: &Value,
     input_manifest_hex: &str,
+    status: RunRecordStatus,
     memory: &dyn ReadMemory,
-) -> Result<(), String> {
+) -> Result<String, String> {
     let unbound = |detail: &str| format!("{ANALYSIS_RECORD_UNBOUND}: {detail}");
-    let not_resolved = analysis_runs::check_record_for_values(project_id, run_record, source, input_manifest, input_manifest_hex, memory)
+    let checked = analysis_runs::check_record_for_values(project_id, run_record, source, input_manifest, input_manifest_hex, memory)
         .map_err(|detail| unbound(&detail))?;
-    if not_resolved {
+    if checked.before_rule_pack_resolution {
         return Err(unbound("the run was recorded before rule-pack resolution"));
     }
     let run = &run_record["analysis_run"];
-    if expected_statuses(source).as_ref() != run.get("analysis_status") {
-        return Err(unbound(
-            "the run record's analysis status is not the solve's own (HUMAN_REVIEW_REQUIRED, its mechanics status and its own rule status, with no rule-check aggregate)",
-        ));
+    match status {
+        RunRecordStatus::SolvesOwn if expected_statuses(source).as_ref() != run.get("analysis_status") => {
+            return Err(unbound(
+                "the run record's analysis status is not the solve's own (HUMAN_REVIEW_REQUIRED, its mechanics status and its own rule status, with no rule-check aggregate)",
+            ));
+        }
+        RunRecordStatus::RecordRun if !builder_statuses(source, run.get("analysis_status")) => {
+            return Err(unbound(
+                "the run record's analysis status is not the solve builder's (HUMAN_REVIEW_REQUIRED, its source's mechanics status and one rule status, each once, sorted)",
+            ));
+        }
+        _ => {}
     }
     let run_id = run.get("run_id").and_then(Value::as_str).unwrap_or_default();
     let builder_members = [
@@ -515,7 +564,21 @@ pub(crate) fn check_run_record(
             return Err(unbound(&format!("the run record's {name} is not the solve builder's")));
         }
     }
-    Ok(())
+    Ok(checked.record_sha256)
+}
+
+/// Route 010's step 8: [`verify_run_record`] with its status rule (its
+/// tests; admission calls [`verify_run_record`] for the hash).
+#[cfg(test)]
+pub(crate) fn check_run_record(
+    project_id: &str,
+    run_record: &Value,
+    source: &Value,
+    input_manifest: &Value,
+    input_manifest_hex: &str,
+    memory: &dyn ReadMemory,
+) -> Result<(), String> {
+    verify_run_record(project_id, run_record, source, input_manifest, input_manifest_hex, RunRecordStatus::SolvesOwn, memory).map(drop)
 }
 
 #[cfg(test)]

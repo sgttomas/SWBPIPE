@@ -184,21 +184,32 @@ def held_document(path: str, record: dict) -> dict:
 
 def test_held_documents_found_in_the_repository_are_recorded_where_they_are(scanned):
     """The files whose pressurised documents only this scan reads, beside the JSON Lines subset. Each record locates a
-    document with exactly the recorded pressurised cases; each case is named, except the MBF parity vectors', which
-    are never solved."""
+    document with exactly the recorded pressurised cases; each case is named in the three solved stores, unnamed in
+    the import parity vectors, and either named (the harvested elongation-on benchmark inputs) or unnamed in the
+    writer parity vectors, neither parity store ever solved."""
     entries = {e["path"]: e for e in INV.build(scanned=scanned)["entries"]}
     for path, named in (("apps/desktop/src/test-support/native-replay/native_replay_requests.json", True),
                         ("apps/desktop/src/test-support/analysis-run-v03/analysis_run_v03_cases.json", True),
                         ("fixtures/results/pressure_source_reader_corpus.json", True),
-                        ("fixtures/caepipe_mbf/invented/parity/writer_vectors.json", False),
+                        ("fixtures/caepipe_mbf/invented/parity/writer_vectors.json", None),
                         ("fixtures/caepipe_mbf/invented/parity/import_vectors.json", False)):
         entry = entries[path]
         assert entry["held_documents"] and entry["anchor"]["kind"] == "excluded", path
+        named_count = 0
+        unnamed_count = 0
         for record in entry["held_documents"]:
             doc = held_document(path, record)
             assert PE.pressurised_case_ids(doc) == record["pressurised_load_cases"], (path, record)
             listed = ((doc.get("model_settings") or {}).get("pressure_elongation") or {}).get("operating_load_cases")
-            assert (set(record["pressurised_load_cases"]) <= set(listed or [])) is named, (path, record)
+            is_named = set(record["pressurised_load_cases"]) <= set(listed or [])
+            if named is None:
+                assert is_named or listed is None, (path, record)
+                named_count += int(is_named)
+                unnamed_count += int(listed is None)
+            else:
+                assert is_named is named, (path, record)
+        if named is None:
+            assert named_count > 0 and unnamed_count > 0, (path, named_count, unnamed_count)
 
 
 # ----------------------------------------------------------------------------- what the scan does not reconstruct

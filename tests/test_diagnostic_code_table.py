@@ -72,7 +72,9 @@ CI_READS = ('core/product_physics/src/**', 'core/solver/*/src/**', 'core/loads/*
 # (EXACT_COMBINATION_SOURCE_RECOVERY_EXCLUDED, JOINT_STIFFNESS_BASIS_UNSUPPORTED) are unsure.
 # 36 -> 37 (completeness review): kernel_refused, newly inventoried when every JSON code key became a code
 # position and its run-time value was pinned, is unsure (a witnessed mechanism is a model a user could correct).
-UNSURE_PIN = 37
+# 37 -> 39 (PR 272): CANDIDATE_MOVED and WEIGHT_SUPPORT_STATE_UNSUPPORTED each combine
+# an absent capability with malformed input; Agent 0 retained both classifications explicitly.
+UNSURE_PIN = 39
 # 52 -> 56 (review of d776be92e): LIM-003 and LIM-004 name their codes only partially, so those two count as
 # unnamed (finding F6); EXACT_COMBINATION_SOURCE_RECOVERY_EXCLUDED is reclassified an absent capability (F4);
 # HANGER_SIZING_INPUT_TOO_LARGE is newly found and classed one (F2). No refusal changed; the count was low.
@@ -81,13 +83,19 @@ UNSURE_PIN = 37
 # unsupported_block, unsupported_derived_quantity) are absent capabilities no entry names. No refusal changed.
 # 61 -> 60: MODAL_TIMOSHENKO_MASS_UNSUPPORTED is named wholly by LIM-020. No refusal changed.
 # 60 -> 59: SUPPORT_DIRECTION_SKEW_FORCE_SCALED_UNSUPPORTED is named wholly by LIM-030. No refusal changed.
-# 59 -> 58: COMBINATION_HYDROSTATIC_TEST_WITHHELD is named wholly by LIM-003, LOAD_CASE_TEST_CONDITION_PRESSURE_FREE by LIM-044; LOAD_CASE_TEST_CONDITION_UNSUPPORTED is retired. No refusal changed except the retired one, which the test case now replaces.
+# 59 -> 60 (PR 272): retire EXACT_ROUTE_PENDING (-1), add CANDIDATE_MOVED and
+# WEIGHT_SUPPORT_STATE_UNSUPPORTED (+2), each only partly named by LIM-008/009.
+# 60 -> 59 (PR 479): retire EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED; generation is admitted on a load and
+# reference-state document. A refusal was removed.
+# 59 -> 58 (PR 478): COMBINATION_HYDROSTATIC_TEST_WITHHELD is named wholly by LIM-003, LOAD_CASE_TEST_CONDITION_PRESSURE_FREE by LIM-044; LOAD_CASE_TEST_CONDITION_UNSUPPORTED is retired. No refusal changed except the retired one, which the test case now replaces.
 UNNAMED_ABSENT_CAPABILITY_PIN = 58
 # 47 -> 52 (review of d776be92e): the same four, and CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE, whose product
 # text describes its gate only partially (F7). 52 -> 57 (completeness review): the same five.
 # 57 -> 56: the same code, named wholly by LIM-020. 56 -> 55: the skew code above, named wholly by LIM-030.
-# 55 -> 54: the same three codes, for the same reasons.
-NAMED_NOWHERE_TODAY_PIN = 54
+# 55 -> 56 (PR 272): the same retirement and two partially named, double-use codes;
+# neither new code has a whole in-product statement covering both uses.
+# 56 -> 55 (PR 478): the same three codes, for the same reasons.
+NAMED_NOWHERE_TODAY_PIN = 55
 
 REFRESH = 'run `python3 tools/validation/diagnostic_codes.py --write` and classify the new records by hand'
 COVERAGE = ('whole', 'partial')

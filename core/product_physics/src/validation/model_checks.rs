@@ -7,9 +7,10 @@
 //! runs before it forms the first stiffness:
 //! - the request's closed-record and parse checks;
 //! - input validation (profile, load-state document, imposed displacements,
-//!   model inputs, support families, document kind and schema version);
-//! - applied self weight, shared sections, unit normalization and the base
-//!   material pair;
+//!   model inputs, support families, PF Timoshenko partial-span wind refusals,
+//!   document kind and schema version);
+//! - applied self weight, shared sections, unit normalization, seismic
+//!   model-check warnings, eccentric-offset refusals and the base material pair;
 //! - the per-case load-state resolution;
 //! - the model build (element formation inputs);
 //! - constant-effort consumption, the W-8 topology checks
@@ -58,7 +59,7 @@ fn pre_formation_checks(request: LinearStaticPreviewRequest) -> Vec<Diagnostic> 
     let mut diagnostics = Vec::new();
 
     // Model document 0.9.0: the solve's lowering, first, as in the solve.
-    crate::operating_conditions::lower(&mut model, &mut diagnostics);
+    let condition_added = crate::operating_conditions::lower(&mut model, &mut diagnostics);
     pressure_runtime::validate_profile(&model, &mut diagnostics);
     case_state::resolve::validate_document(&model, request_materials_supplied, &mut diagnostics);
     if imposed_motion::validate(&model, &mut diagnostics) {
@@ -66,6 +67,7 @@ fn pre_formation_checks(request: LinearStaticPreviewRequest) -> Vec<Diagnostic> 
     }
     validate_model_inputs(&model, &materials, &mut diagnostics);
     validate_support_family_tokens(&model, &mut diagnostics);
+    crate::pf_timoshenko::append_partial_span_refusals(&model, &mut diagnostics);
     if model.document_kind != "openpipestress.product_preview.model" {
         diagnostics.push(diag(
             "diagnostic:physics:document-kind",
@@ -93,6 +95,8 @@ fn pre_formation_checks(request: LinearStaticPreviewRequest) -> Vec<Diagnostic> 
     if has_blocking(&diagnostics) {
         return diagnostics;
     }
+    // DEL-05-01 REQ-008, as in the solve.
+    let seismic_entered = crate::seismic_warning::capture(&model, &condition_added);
     resolve_shared_sections(&mut model, &mut diagnostics);
     if has_blocking(&diagnostics) {
         return diagnostics;
@@ -101,8 +105,14 @@ fn pre_formation_checks(request: LinearStaticPreviewRequest) -> Vec<Diagnostic> 
     if has_blocking(&diagnostics) {
         return diagnostics;
     }
-
     let load_state = case_state::is_load_state(&model);
+    if !load_state {
+        crate::seismic_warning::append(&model, &materials, None, &seismic_entered, &mut diagnostics);
+    }
+    crate::rigid_component::append_eccentric_offset_refusals(&model, &mut diagnostics);
+    if has_blocking(&diagnostics) {
+        return diagnostics;
+    }
     if !load_state {
         pressure_material::resolve_base(&model, &mut materials, &mut diagnostics);
     }
@@ -123,6 +133,7 @@ fn pre_formation_checks(request: LinearStaticPreviewRequest) -> Vec<Diagnostic> 
         if has_blocking(&diagnostics) {
             return diagnostics;
         }
+        crate::seismic_warning::append(&model, &materials, Some(&resolved), &seismic_entered, &mut diagnostics);
         Some(resolved)
     } else {
         None

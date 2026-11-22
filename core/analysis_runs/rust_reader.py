@@ -51,6 +51,10 @@ UNSUPPORTED = "unsupported"
 # pressure-2 does not have (`transport("pressure")` is refused by name, SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED).
 ROUTE_READERS = {"preview_physics": "preview-physics", "pressure_source": "pressure-source", "pressure": "pressure"}
 STANDING_TOKENS = frozenset({"numerically_eligible", "needs_recompute", "unsupported"})
+# `reader_verdict::SOLVER_CHECKS_PASSED` and `reader_verdict::integrity_bound()`: every dispatch verdict carries the
+# bound as not verified (release exit criterion 18, LIM-026); a verdict without it is not this reader's.
+SOLVER_CHECKS_PASSED = "solver_checks_passed"
+INTEGRITY_BOUND = {"status": "not_verified", "reason": "inverse_norm_bound_not_verified"}
 # The runner's diagnostic, exit 2, for input its JSON parser refuses.
 INPUT_NOT_JSON = "openpipestress-runner: input is not JSON: "
 
@@ -171,7 +175,9 @@ def dispatch(source: Any, model: Any = None, invocation: Any = None, *, recorded
             or not (binding is None or (isinstance(binding, dict) and set(binding) == {"id", "sha256"}
                                         and all(isinstance(value, str) for value in binding.values())))
             or (binding is None) != (outcome["route"] in {"legacy", UNSUPPORTED})
-            or not isinstance(standing, dict) or set(standing) != {"route", "token", "status", "eligible", "findings"}
+            or not isinstance(standing, dict) or set(standing) != {"route", "token", "status", "eligible", "findings", "integrity_bound"}
+            or standing["status"] != (SOLVER_CHECKS_PASSED if standing["eligible"] is True else "needs_recompute")
+            or standing["integrity_bound"] != INTEGRITY_BOUND
             or standing["token"] not in STANDING_TOKENS or not isinstance(standing["eligible"], bool)
             or not isinstance(standing["findings"], list) or not all(isinstance(item, str) for item in standing["findings"])):
         raise _invalid(DISPATCH)

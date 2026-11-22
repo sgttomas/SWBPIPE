@@ -40,7 +40,7 @@ function row(id: string, value: unknown, unit = "MPa", overrides: Partial<RunRow
   return { identity: identity(id, overrides), value, unit, row_index: 0 };
 }
 
-const ELIGIBLE = { eligible: true, status: "integrity_checked" as const, contract: "preview_physics" as const, findings: [] };
+const ELIGIBLE = { eligible: true, status: "solver_checks_passed" as const, contract: "preview_physics" as const, findings: [] };
 const IDENTITY = { route: "preview_physics", contract_id: "openpipestress.result_semantics/0.3.0/preview-physics-2", contract_sha256: "ee80" };
 
 function input(rows: FlatRunRow[], overrides: Partial<RunComparisonInput> = {}): RunComparisonInput {
@@ -112,7 +112,7 @@ describe("the standing gate (conservative, whole run)", () => {
     expect(comparison.pairs[0].status).toBe("compared");
   });
 
-  it("compares no pair when either run is not integrity_checked, naming the side", () => {
+  it("compares no pair when either run is not solver_checks_passed, naming the side", () => {
     const needs = { eligible: false, status: "needs_recompute" as const, contract: "pressure_source" as const, findings: ["SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED"] };
     for (const [side, reason] of [["left", "left_run_needs_recompute"], ["right", "right_run_needs_recompute"]] as const) {
       const comparison = compareRunInputs(input(left, side === "left" ? { standing: needs } : {}), input(right, side === "right" ? { standing: needs } : {}));
@@ -147,7 +147,7 @@ describe("the standing gate (conservative, whole run)", () => {
   it("reads the standing and route of committed producer results: eligible preview runs, an unregistered pressure-source run", () => {
     const sparse = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" });
     const pressure = nativeMechanicsReplayPair("sparse_interactive", { profile: "pressure" });
-    expect(numericalResultStanding(sparse.source, sparse.model)).toMatchObject({ eligible: true, status: "integrity_checked" });
+    expect(numericalResultStanding(sparse.source, sparse.model)).toMatchObject({ eligible: true, status: "solver_checks_passed" });
     expect(resultSemanticIdentity(sparse.source)).toEqual({ route: "preview_physics", contract_id: "openpipestress.result_semantics/0.3.0/preview-physics-2", contract_sha256: expect.stringMatching(/^[0-9a-f]{64}$/) });
     expect(resultSemanticIdentity(pressure.source).route).toBe("pressure");
     // A pressure-source result nothing registered (a recorded run's) reads needs_recompute.

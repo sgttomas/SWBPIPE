@@ -12,6 +12,9 @@ use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 
 const CASES: &str = include_str!("fixtures/load_reference_mutations.json");
+/// DEL-04-07 REQ-011: the generated load source's shared cases, applied by the
+/// same harness (kept out of the base-reader corpus).
+const GENERATED_CASES: &str = include_str!("fixtures/load_reference_generated_mutations.json");
 const TABLE: &str =
     include_str!("../../../../fixtures/results/semantic_contract_v0_3_pressure_3.json");
 const PHYSICS_PREFIX: &str = "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE";
@@ -294,22 +297,24 @@ fn current_inputs_table_and_schema_are_pinned() {
     // (each raw equals main's bytes with those texts substituted; the S6 text-only guard).
     // Pressure elongation (RT-L2): the requests name their pressurised cases explicitly; limitation[0]'s
     // pressure-3 identity and bend clause, the elongation statement and the per-case label only.
+    // Issue 452: the applied-loads limitation (S14) only, whose refusal of generated equivalent-static loads is
+    // replaced by their generation (each raw equals the committed bytes with that sentence substituted).
     for (name, digest) in [
         (
             "connected-sparse",
-            "c241b75c27859f37c5e353e3a64d70687bc388f9f46852a31ad1b7311f8c6299",
+            "2cd25462217f585e2e6bbf59073abb20107ed58b8ded42f5f43cab94bda38e3d",
         ),
         (
             "connected-dense",
-            "340c3ded0fd7f411743e5facad97954dac91a13814891a83e27db1c0572430e5",
+            "d96cf64b19868a7bdb671bf0cadd8d25765decedf09a1d947531209ad6d17e47",
         ),
         (
             "pressure-sparse",
-            "73ea7b6c5dc69a6aec16e7ee0553bc908b3b5112c5c2e3bbd0661d626ed85471",
+            "3583160b935cd77d719bbb267de9568dbe72cd4cee8792f918dc6e03137f7b75",
         ),
         (
             "pressure-dense",
-            "15ed482eeb118a816b5d0c92e67db27f3cebc503b7986c525581c34c0e032e5e",
+            "daf2f9a5c3378e65106a2836c0d1b7a67c2eee08af6d7d07b3d900580f7f3e6c",
         ),
     ] {
         assert_eq!(sha(source_text(name).as_bytes()), digest, "{name}");
@@ -326,11 +331,12 @@ fn current_inputs_table_and_schema_are_pinned() {
     assert_eq!(table["formulation_profile_id"], s::PRESSURE_PROFILE);
     assert!(lr::transport_schema().is_ok());
     // B7b A5: load_reference_state.schema.json lost its v2 definitions.
-    // DEL-05-01 REQ-014: the stored primitive's two magnitudes describe a
-    // hydrostatic test case's entry (descriptions only; was b95947ea...).
+    // DEL-04-07 REQ-011 / DEL-05-01 REQ-014: a generated load source's
+    // contribution and a hydrostatic test case's entry descriptions
+    // (was 736769f8... on main, 497caa66... on PR 478, b95947ea... prior).
     assert_eq!(
         lr::TRANSPORT_SCHEMA_SHA256,
-        "497caa66a2682dd42b8e9fd7b8ce49d1c24ffb732131e4089c79540983f94b78"
+        "c1aae90fe9626666f9e823045225d694e6aad961612c0f3e5df1e127acca8ff9"
     );
     assert_eq!(
         sha(include_bytes!("../../../../schemas/load_reference_state.schema.json")),
@@ -341,10 +347,11 @@ fn current_inputs_table_and_schema_are_pinned() {
 #[test]
 fn shared_adversarial_cases_match_in_rust() {
     let cases = cases();
+    let generated: Value = serde_json::from_str(GENERATED_CASES).unwrap();
     let mut log = Vec::new();
     // Every disagreement is collected and reported together.
     let mut misses = Vec::new();
-    for case in cases["cases"].as_array().unwrap() {
+    for case in cases["cases"].as_array().unwrap().iter().chain(generated["cases"].as_array().unwrap()) {
         let id = case["id"].as_str().unwrap();
         let (doc, nonfinite) = apply(&source(case["source"].as_str().unwrap()), &case["ops"]);
         let (dispatch, validator) = if let Some(literal) = &nonfinite {

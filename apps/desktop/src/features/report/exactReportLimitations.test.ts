@@ -186,6 +186,23 @@ describe("exact-route statement table (W-11 slice (a))", () => {
     }
   });
 
+  it("issue 452: refuses a load-state result saved with the retired applied-loads limitation", async () => {
+    // An earlier build's load-state result states S14 with its last sentence refusing generated loads. The
+    // table holds only the sentence that replaced it, so the result is solved again before it is reported.
+    const generation = "The case generates equivalent-static wind and seismic loads from the same inputs and mass basis as on a plain exact-route document. Each generated load is applied at factor 1 beside the declared ledger and appears once in the case's record of load sources. A generated identity that also identifies another stored, synthesized or generated load source in the document is refused (EQUIVALENT_STATIC_GENERATED_ID_COLLISION).";
+    const retired = "Generated equivalent-static (seismic or wind) loads have no ledger class and are refused by name (EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED).";
+    const loadState = coverage.lists.filter((list) => list.load_reference_states);
+    expect(loadState.length).toBeGreaterThan(0);
+    for (const list of loadState) {
+      const at = list.limitations.findIndex((text) => text.endsWith(` ${generation}`));
+      expect(at).toBeGreaterThan(0);
+      const saved = list.limitations.map((text, index) => (index === at ? text.replace(generation, retired) : text));
+      const expected = `${REPORT_EXACT_LIMITATION_UNREGISTERED}: ${list.semantic_contract_id} publishes a limitation this report has no reviewed statement for.`;
+      await expect(exactReportStatements(list.semantic_contract_id, saved)).rejects.toThrow(expected);
+      await expect(exactReportStatements(list.semantic_contract_id, list.limitations)).resolves.toHaveLength(list.limitations.length);
+    }
+  });
+
   it("RT-L2: binds the included elongation statement and refuses the retired bend statement and a transliterated producer string", async () => {
     const included = coverage.lists.find((list) => list.pressure_elongation === "included" && list.realized_bends);
     expect(included).toBeDefined();

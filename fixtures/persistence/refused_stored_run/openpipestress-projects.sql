@@ -1,6 +1,6 @@
 -- fixtures/persistence/refused_stored_run/openpipestress-projects.sql: written by stored_custody_tests.rs from the store the product's writers make (NATIVE_WALKTHROUGH_STORE_WRITE=1 rewrites it). Invented data. Build: /usr/bin/sqlite3 <store> < this file.
 PRAGMA journal_mode = WAL;
-PRAGMA user_version = 14;
+PRAGMA user_version = 15;
 BEGIN TRANSACTION;
 CREATE TABLE local_projects (
                 project_id TEXT PRIMARY KEY,
@@ -55,6 +55,17 @@ CREATE TABLE analysis_run_labels(
   tags_json TEXT NOT NULL, notes_json TEXT NOT NULL, assumptions_json TEXT NOT NULL,
   updated_at TEXT NOT NULL, PRIMARY KEY(project_id, recording_id),
   FOREIGN KEY(project_id, recording_id) REFERENCES analysis_runs(project_id, recording_id) ON DELETE CASCADE);
+CREATE TABLE saved_package_entries(
+  project_id TEXT NOT NULL, entry_id TEXT NOT NULL, sequence INTEGER NOT NULL,
+  package_identity_sha256 TEXT NOT NULL, container_sha256 TEXT NOT NULL,
+  container_byte_count INTEGER NOT NULL CHECK (container_byte_count >= 0),
+  file_name TEXT NOT NULL, location BLOB NOT NULL, saved_at TEXT NOT NULL,
+  export_context TEXT NOT NULL,
+  durability_confirmed INTEGER NOT NULL CHECK (durability_confirmed IN (0, 1)),
+  model_hash TEXT NOT NULL, received_result_sha256 TEXT NOT NULL,
+  run_id TEXT NOT NULL, run_record_sha256 TEXT NOT NULL,
+  PRIMARY KEY(project_id, entry_id), UNIQUE(project_id, sequence),
+  FOREIGN KEY(project_id) REFERENCES local_projects(project_id) ON DELETE CASCADE) WITHOUT ROWID;
 CREATE INDEX analysis_runs_by_state ON analysis_runs(project_id, state_id);
 CREATE TRIGGER model_states_immutable BEFORE UPDATE ON model_states
   BEGIN SELECT RAISE(ABORT, 'MODEL-STATE-IMMUTABLE'); END;
@@ -68,4 +79,10 @@ CREATE TRIGGER analysis_runs_no_replace BEFORE INSERT ON analysis_runs
   WHEN EXISTS (SELECT 1 FROM analysis_runs WHERE project_id = NEW.project_id
     AND (recording_id = NEW.recording_id OR run_record_hash = NEW.run_record_hash))
   BEGIN SELECT RAISE(ABORT, 'ANALYSIS-RUN-IMMUTABLE'); END;
+CREATE TRIGGER saved_package_entries_immutable BEFORE UPDATE ON saved_package_entries
+  BEGIN SELECT RAISE(ABORT, 'SAVED-PACKAGE-ENTRY-IMMUTABLE'); END;
+CREATE TRIGGER saved_package_entries_no_replace BEFORE INSERT ON saved_package_entries
+  WHEN EXISTS (SELECT 1 FROM saved_package_entries WHERE project_id = NEW.project_id
+    AND (entry_id = NEW.entry_id OR sequence = NEW.sequence))
+  BEGIN SELECT RAISE(ABORT, 'SAVED-PACKAGE-ENTRY-IMMUTABLE'); END;
 COMMIT;

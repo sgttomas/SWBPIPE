@@ -35,10 +35,6 @@
       "statement": "Every member section declares its corrosion allowance and the contract declares its shear model. This pressure-source-1 envelope carries a selected retained-source response. The source family is straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. Other cases keep their ordinary recovery and standing."
     },
     {
-      "producer_sha256": "5d6b888ac33f7b120a90396e60ba289c22abc801678bc307aac2f8afaf3051a9",
-      "statement": "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided. Generated equivalent-static (seismic or wind) loads have no ledger class and are refused by name (EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED)."
-    },
-    {
       "producer_sha256": "8f837617c5259422681368fdf8c0b62bd9fd88359e3747f766679fb25ffbeb59",
       "statement": "Thermal and fit reference strain compose as lambda_fit*lambda_thermal-1 and enter once as an axial eigenstrain; uniform member temperature only, no gradients, finite strain, inelasticity or fit-up joints."
     },
@@ -53,6 +49,10 @@
     {
       "producer_sha256": "a61ae24cdd3c5325cf87fb20b02f682a91bbc0f57e8e5aeed0559f8f6bb862d9",
       "statement": "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly."
+    },
+    {
+      "producer_sha256": "ab9ee4629b3208263e904e82a829d3eae72be3e503ce9883602d11f651b44c9f",
+      "statement": "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided. The case generates equivalent-static wind and seismic loads from the same inputs and mass basis as on a plain exact-route document. Each generated load is applied at factor 1 beside the declared ledger and appears once in the case's record of load sources. A generated identity that also identifies another stored, synthesized or generated load source in the document is refused (EQUIVALENT_STATIC_GENERATED_ID_COLLISION)."
     },
     {
       "producer_sha256": "bacb470a7438fc92346171a3f3c16e7db73c988f4e632e97291f94107064bd37",
