@@ -55,6 +55,10 @@ from core.handoff.caepipe_external.harness import ContainmentError, contained, c
 from core.handoff.caepipe_mbf import render_caepipe_mbf_si
 from tools.caepipe_correlation import benchmark_hand_entry, benchmark_models, stated_bases
 
+# Reads its directory scans stand for, for CI selection (tools/ci/python_test_reads.py).
+# Every directory scan here inspects caller-supplied capture folders or the private exchange folder, outside the project.
+CI_READS = ()
+
 WINDOW_RECORD = "window_record.json"
 WINDOW_RECORD_KIND = "openpipestress.caepipe_benchmark.window_capture"
 STATED_BASES_RECORD = "stated_bases.json"

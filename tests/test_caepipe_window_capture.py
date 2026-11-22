@@ -16,6 +16,10 @@ from pathlib import Path
 
 import pytest
 
+# Reads its directory scans stand for, for CI selection (tools/ci/python_test_reads.py).
+# Every directory scan here inspects temporary capture or exchange folders under tmp_path, outside the project.
+CI_READS = ()
+
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
