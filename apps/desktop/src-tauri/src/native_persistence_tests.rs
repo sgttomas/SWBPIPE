@@ -3054,6 +3054,17 @@ fn a_native_save_in_place_keeps_the_stored_proposal_text_as_stored() {
         assert!(error.starts_with(crate::STORED_PROPOSAL_KEEP_REFUSED) && error.contains(expected), "{name}: {error}");
         assert_eq!(dump(&path, "local_projects", &[]), before, "{name}: every column unchanged");
     }
+    // A Replace never keeps the stored proposal: refused before the stored revision is read, so a
+    // confirmed revision that no longer matches is not reported as a moved base.
+    for confirmed in ["stale", "matching"] {
+        let (path, base) = seeded(&format!("refused-confirmed-{confirmed}.sqlite"), &job);
+        let revision = if confirmed == "matching" { base.clone() } else { json!("sha256:stale") };
+        let before = dump(&path, "local_projects", &[]);
+        let args = edited(&in_place(&job, &base, Some(json!(true)), Value::Null), |args| { args.insert("confirmedRevision".into(), revision.clone()); });
+        let error = native_save(&registry, &path, &args, &unlimited()).unwrap_err();
+        assert!(error.starts_with(crate::STORED_PROPOSAL_KEEP_REFUSED) && error.contains("cannot confirm replacing"), "{confirmed}: {error}");
+        assert_eq!(dump(&path, "local_projects", &[]), before, "{confirmed}: every column unchanged");
+    }
     let empty = dir.join("empty.sqlite");
     let error = native_save(&registry, &empty, &in_place(&job, &Value::Null, Some(json!(true)), Value::Null), &unlimited()).unwrap_err();
     assert!(error.starts_with(crate::STORED_PROPOSAL_KEEP_REFUSED) && error.contains("is not stored"), "{error}");

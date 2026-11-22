@@ -497,7 +497,9 @@ impl<'s, S: Sink> Writer<'s, S> {
                     Style::Canonical => {
                         let mut keys: Vec<&String> = Vec::with_capacity(map.len());
                         keys.extend(map.keys());
-                        keys.sort_by(|left, right| left.encode_utf16().cmp(right.encode_utf16()));
+                        // An object's keys are distinct, so the order is total and an unstable sort
+                        // gives the stable sort's bytes without a heap scratch buffer.
+                        keys.sort_unstable_by(|left, right| left.encode_utf16().cmp(right.encode_utf16()));
                         for (index, key) in keys.into_iter().enumerate() {
                             if index > 0 {
                                 self.raw(",");

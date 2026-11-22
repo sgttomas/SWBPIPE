@@ -85,6 +85,24 @@ describe("what the webview sends", () => {
   });
 });
 
+describe("a kept save's reply (issue 519 review 2)", () => {
+  it("carries no stored proposal and a well-formed envelope claim, or is refused by name", async () => {
+    (window as Json).__TAURI_INTERNALS__ = {};
+    const fields = { model: MODEL, editorIntents: [], proposal: null, selectedReviewTarget: null, modelHash: null, confirmedRevision: null, mode: "save" as const, expectedBase: "sha256:base", keepStoredProposal: true as const };
+    const saved = saveReplies[0];
+    invokeMock.mockResolvedValueOnce({ ...saved, proposal: null });
+    await expect(saveNativeLocalProject(REQUEST, fields)).resolves.toMatchObject({ proposal: null });
+    for (const bad of [{ ...saved, proposal: { proposal_id: "proposal:carried" } }, { ...saved, proposal: null, project_envelope_hash: { ...saved.project_envelope_hash, value: "not-a-sha256" } }]) {
+      invokeMock.mockResolvedValueOnce(bad);
+      await expect(saveNativeLocalProject(REQUEST, fields)).rejects.toThrow(NATIVE_PROJECT_SAVE_MALFORMED);
+    }
+    // Without the keep member the reply is read as before.
+    invokeMock.mockResolvedValueOnce({ ...saved, proposal: { proposal_id: "proposal:own" } });
+    await expect(saveNativeLocalProject(REQUEST, { ...fields, keepStoredProposal: undefined })).resolves.toMatchObject({ proposal: { proposal_id: "proposal:own" } });
+    delete (window as Json).__TAURI_INTERNALS__;
+  });
+});
+
 // C1 slice 6's save continuity: the actual re-save reply (`native_reopen_replies.json`, written by
 // `stored_custody_tests.rs`) on the restored handle the reopen returned.
 const reopen = JSON.parse(readFileSync(resolve(__dirname, "../test-support/native-reopen/native_reopen_replies.json"), "utf8")) as Json;
@@ -125,5 +143,14 @@ describe("a reopened saved run's re-save", () => {
     }
     // A fresh save's reply never carries a restored run.
     expect(() => decodeNativeProjectSave(RESAVED)).toThrow(NATIVE_PROJECT_SAVE_MALFORMED);
+  });
+
+  it("refuses a kept re-save's reply that carries a stored proposal (issue 519 review 2)", async () => {
+    const basis = { payload_sha256: RESTORED.findings.envelope_payload_hash, evidence: reopen.open.reply.value.project_envelope_hash };
+    const fields = { mode: "save" as const, model: MODEL, editorIntents: [], proposal: null, selectedReviewTarget: null, modelHash: null, confirmedRevision: null, expectedBase: "sha256:base", keepStoredProposal: true as const };
+    invokeMock.mockResolvedValueOnce({ ...RESAVED, proposal: null });
+    await expect(saveRestoredLocalProject(RESTORED, basis, fields)).resolves.toMatchObject({ proposal: null });
+    invokeMock.mockResolvedValueOnce({ ...RESAVED, proposal: { proposal_id: "proposal:carried" } });
+    await expect(saveRestoredLocalProject(RESTORED, basis, fields)).rejects.toThrow(NATIVE_PROJECT_SAVE_MALFORMED);
   });
 });

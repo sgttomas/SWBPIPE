@@ -88,6 +88,7 @@ import {
   saveLocalProject,
   saveLocalProjectKeepingStoredProposal,
   SI_PROJECT_UNITS,
+  wellFormedEnvelopeHashClaim,
   type ProjectUnitMap
 } from "../../services/projectService";
 import type { BlankProjectKind, BlankProjectUnitsRequest } from "../project-units/ProjectUnitsDialog";
@@ -1246,6 +1247,16 @@ export function useWorkspaceSession() {
   /** `computeProjectEnvelopeHash`'s evidence for a payload hash computed natively over the stored values. */
   function projectEnvelopeHashEvidence(projectModel: PreviewModel, value: string): ProjectEnvelopeHashEvidence {
     return { algorithm: "sha256", canonicalization: "rfc8785_jcs", payload_scope: "project_envelope_payload", payload_excludes: "storage_summary_and_envelope_hash_carrier_fields", payload_ref: projectModel.project.id, value, hash_status: "computed_local_preview" };
+  }
+
+  /** Issue 519: a plain kept save's returned claim may be accepted: the history's stored claim, kept as
+   * it was on an unchanged re-save, or a claim of the form the store computes for the project. Its
+   * digest is not recomputed (the kept proposal never reaches the webview). */
+  function validPlainKeptEnvelopeClaim(claim: ProjectEnvelopeHashEvidence | null, projectModel: PreviewModel, historicalClaim: ProjectEnvelopeHashEvidence | null): boolean {
+    if (!claim) return false;
+    if (historicalClaim && Object.keys({ ...claim, ...historicalClaim }).every((key) => Reflect.get(claim, key) === Reflect.get(historicalClaim, key))) return true;
+    return wellFormedEnvelopeHashClaim(claim, projectModel.project.id)
+      && Object.entries(projectEnvelopeHashEvidence(projectModel, claim.value)).every(([key, value]) => Reflect.get(claim, key) === value);
   }
 
   /** C1 slice 6's save continuity: the envelope basis a reopened saved run's history holds (the
@@ -2952,7 +2963,15 @@ export function useWorkspaceSession() {
       const writeObservation = ++persistedWriteObservation.current;
       if (!sameProjectSession()) return;
       pendingObservation = { envelope: created, ordinal: writeObservation };
-      if (created.summary.project_id === requestModel.project.id) recordStoredBase(created);
+      // Issue 519: the notice as the write found it, for its sentence. A create never keeps a stored
+      // proposal: over the open project it replaced the whole stored project (a Replace the person
+      // chose), under another id it is a copy without it. The notice ends with the write's commit,
+      // even if the session has moved on before the reply is adopted.
+      const unadmitted = unadmittedStoredProposal.current;
+      if (created.summary.project_id === requestModel.project.id) {
+        recordStoredBase(created);
+        unadmittedStoredProposal.current = null;
+      }
       // Retire the old observation while verification of rewritten bytes is pending.
       setModelHashIntegrity(null);
       setProjectEnvelopeHashIntegrity(null);
@@ -3015,11 +3034,6 @@ export function useWorkspaceSession() {
       setSelectedReviewTarget(created.selected_review_target ?? null);
       setProjectEnvelopeHash(created.project_envelope_hash ?? null);
       setModelDocumentVersion(created.model_document_version ?? null);
-      // Issue 519: a create never keeps a stored proposal; over the open project it replaced the whole
-      // stored project (a Replace the person chose), under another id it is a copy without it.
-      // The session is now the created project, which holds no stored proposal of its own.
-      const unadmitted = unadmittedStoredProposal.current;
-      if (created.summary.project_id === requestModel.project.id) unadmittedStoredProposal.current = null;
       setProjectMessage(`${created.summary.message}${writtenStoredProposalSentence(unadmitted, { projectId: requestModel.project.id, generation, kept: false, replacedWhole: true })}`);
       setProjectOperation("create");
       void autosave.afterProjectSaved(created.summary.project_id, returnedModelHash?.value ?? null);
@@ -3164,6 +3178,8 @@ export function useWorkspaceSession() {
       setModelHashIntegrity(null);
       setProjectEnvelopeHashIntegrity(null);
       advanceProjectSession();
+      // Issue 519: the blank holds no stored proposal; the open project's notice ends here.
+      unadmittedStoredProposal.current = null;
       recordPersistenceObservation(created, returnedHash, returnedEnvelopeHash, "create", projectSessionGenerationRef.current, ++persistedWriteObservation.current, verifiedBlankResponse, blankModel.project.id);
       // A successful New Blank starts the first-open shell context. Failed or
       // superseded creates never reach this commit boundary or change chrome.
@@ -3876,6 +3892,9 @@ export function useWorkspaceSession() {
         unadmitted.projectId === requestModel.project.id && unadmitted.generation === generation;
       let writes = 0;
       let kept = false;
+      // The history read from the stored envelope a browser-preview kept save wrote (no stored proposal
+      // is held: only the evidence derived from it).
+      let keptBrowserHistory: Awaited<ReturnType<typeof buildHistoricalRunContext>> | undefined;
       const keeping = (confirmedRevision: string | null) => {
         kept = keepStoredProposal && writes++ === 0 && confirmedRevision === null;
         return kept;
@@ -3908,7 +3927,10 @@ export function useWorkspaceSession() {
         }).then((reply) => adoptNativeSave(reply, requestModel, combinedContext))
         : keeping(confirmedRevision)
         ? saveLocalProjectKeepingStoredProposal(requestModel, combinedContext, selectedReviewTarget, snapshotResult,
-          snapshotAnalysisRun, snapshotModelHash, confirmedRevision, expectedBase)
+          snapshotAnalysisRun, snapshotModelHash, confirmedRevision, expectedBase, requestHistoricalRun ? {
+            basis: { payloadHash: requestHistoricalRun.envelopePayloadHash, envelopeHash: requestHistoricalRun.envelopeHash },
+            readHistory: async (storedEnvelope) => { keptBrowserHistory = await buildHistoricalRunContext(storedEnvelope); }
+          } : null)
         : saveLocalProject(
           requestModel,
           combinedContext,
@@ -3937,7 +3959,17 @@ export function useWorkspaceSession() {
       const writeObservation = ++persistedWriteObservation.current;
       if (!sameProjectSession()) return;
       pendingObservation = { envelope: saved, ordinal: writeObservation };
-      if (saved.summary.project_id === requestModel.project.id) recordStoredBase(saved);
+      // Issue 519: a kept save leaves the stored proposal in the store, so its reply carries none; one
+      // that carries a proposal is not read (the proposal never enters the session).
+      if (kept && saved.proposal != null) {
+        throw new Error("PROJECT-PERSISTENCE-RESPONSE-INTEGRITY: a save that kept the stored proposal returned a proposal; it is not read.");
+      }
+      if (saved.summary.project_id === requestModel.project.id) {
+        recordStoredBase(saved);
+        // Any write but a kept save replaced the stored proposal or wrote a copy without it: the notice
+        // ends with the write's commit, even if the session has moved on before the reply is adopted.
+        if (!kept) unadmittedStoredProposal.current = null;
+      }
       // Retire the old observation while verification of rewritten bytes is pending.
       setModelHashIntegrity(null);
       setProjectEnvelopeHashIntegrity(null);
@@ -3945,10 +3977,12 @@ export function useWorkspaceSession() {
       if (!sameProjectSession()) return;
       // A reopened saved run's re-save: the stored claim is checked against the evidence computed over
       // what was stored (as the legacy session recomputed it), which the reply names by its payload hash.
-      // A save that kept the stored proposal: the store computed the envelope hash over what it stores
-      // and returns no stored proposal (it stays in the store), so its evidence is the store's, as a
-      // native save's is.
-      const recomputedReturnedEnvelopeHash = saved.native ? (saved.native.restored ? projectEnvelopeHashEvidence(requestModel, saved.native.restored.envelope_payload_hash) : saved.native.project_envelope_hash) : kept ? saved.project_envelope_hash ?? null : await computeProjectEnvelopeHash({
+      // A plain save that kept the stored proposal (Option A): the store computed the envelope hash over
+      // what it stores and the webview never receives the kept proposal, so nothing is recomputed here
+      // (`hash_recompute_unavailable`); the reopen verifies the stored envelope whole. Its claim is
+      // checked for form only, and only to accept the reply.
+      const plainKept = !saved.native && kept;
+      const recomputedReturnedEnvelopeHash = saved.native ? (saved.native.restored ? projectEnvelopeHashEvidence(requestModel, saved.native.restored.envelope_payload_hash) : saved.native.project_envelope_hash) : plainKept ? null : await computeProjectEnvelopeHash({
         model: saved.model,
         editor_intents: saved.editor_intents,
         proposal: saved.proposal,
@@ -3959,10 +3993,14 @@ export function useWorkspaceSession() {
       });
       if (!sameProjectSession()) return;
       const responseModelChanged = returnedModelHash?.value !== actualRequestModelHash?.value;
+      // A plain kept save's claim stands in for the comparison only when it has the store's form (or is
+      // the history's stored claim, kept on an unchanged re-save); it never enters the integrity record.
+      const keptClaim = plainKept && saved.proposal == null && validPlainKeptEnvelopeClaim(saved.project_envelope_hash ?? null, requestModel, requestHistoricalRun?.envelopeHash ?? null)
+        ? saved.project_envelope_hash! : null;
       const verifiedResponse = Boolean(actualRequestModelHash && returnedModelHash &&
         saved.model.project.id === requestModel.project.id &&
         saved.summary.project_id === requestModel.project.id &&
-        persistenceHashesMatch(saved, returnedModelHash, recomputedReturnedEnvelopeHash, !responseModelChanged ? requestHistoricalRun?.modelHash ?? null : null) &&
+        persistenceHashesMatch(saved, returnedModelHash, plainKept ? keptClaim : recomputedReturnedEnvelopeHash, !responseModelChanged ? requestHistoricalRun?.modelHash ?? null : null) &&
         !responseModelChanged);
       // Backup reads the verified saved model from native storage. It runs
       // independently of save completion and autosave cleanup; failures have
@@ -3996,8 +4034,10 @@ export function useWorkspaceSession() {
         setSavedModelBasis(verifiedBasis);
       }
       if (!stillCurrent()) return;
+      // A kept save's history is read from the stored envelope as written (the browser preview's
+      // store hands it to the reader); the reply, which carries no stored proposal, would not hash.
       const returnedHistory = requestHistoricalRun
-        ? saved.native?.restored ? historyAfterRestoredSave(requestHistoricalRun, saved.native) : await buildHistoricalRunContext(saved)
+        ? saved.native?.restored ? historyAfterRestoredSave(requestHistoricalRun, saved.native) : keptBrowserHistory !== undefined ? keptBrowserHistory : await buildHistoricalRunContext(saved)
         : null;
       if (!stillCurrent()) return;
       if (requestHistoricalRun) {
@@ -4009,7 +4049,6 @@ export function useWorkspaceSession() {
       // Issue 519: a kept stored proposal stays in the store and out of the session; any other save
       // replaced it or wrote a copy that never held it, so the session no longer has one to keep.
       setProposal(kept ? null : saved.proposal ?? null);
-      if (!kept) unadmittedStoredProposal.current = null;
       setSelectedReviewTarget(saved.selected_review_target ?? null);
       setProjectEnvelopeHash(saved.project_envelope_hash ?? null);
       setModelDocumentVersion(saved.model_document_version ?? null);
@@ -5111,6 +5150,8 @@ export function useWorkspaceSession() {
     ruleRevisionGate.current.invalidate();
     setModelHashIntegrity(null);
     setProjectEnvelopeHashIntegrity(null);
+    // Issue 519: the notice carried below is only one of the session generation being replaced.
+    const priorGeneration = projectSessionGenerationRef.current;
     advanceProjectSession();
     commitModel(opened.model);
     savedBasisSequence.current += 1;
@@ -5159,7 +5200,8 @@ export function useWorkspaceSession() {
       setProjectEnvelopeHash(bound ? binding.envelopeHash : null);
       unadmitted = bound ? binding.unadmittedProposal ?? null : null;
     }
-    unadmittedStoredProposal.current = unadmitted && unadmitted.projectId === stateProject && storedBaseRef.current?.projectId === stateProject
+    unadmittedStoredProposal.current = unadmitted !== null && unadmitted.projectId === stateProject && unadmitted.generation === priorGeneration
+      && storedBaseRef.current?.projectId === stateProject
       ? { ...unadmitted, generation: projectSessionGenerationRef.current }
       : null;
     return libraryReferenceWarnings(opened.model);

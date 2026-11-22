@@ -720,12 +720,36 @@ export async function saveLocalProject(
 /** The store's refusal of a save that asks it to keep a stored proposal it cannot keep. */
 export const STORED_PROPOSAL_KEEP_REFUSED = "STORED-PROPOSAL-KEEP-REFUSED";
 
+const PERSISTENCE_RESPONSE_INTEGRITY = "PROJECT-PERSISTENCE-RESPONSE-INTEGRITY";
+
+/** Issue 519: an envelope hash claim of the form a save computes for `projectId`'s stored envelope (a
+ * SHA-256 digest with this product's evidence members). The claim's form only: a kept save's claim is
+ * over a stored proposal the webview never receives, so the digest itself is not recomputed here. */
+export function wellFormedEnvelopeHashClaim(claim: unknown, projectId: string): claim is ProjectEnvelopeHashEvidence {
+  if (typeof claim !== "object" || claim === null || Array.isArray(claim)) return false;
+  const evidence = claim as Record<string, unknown>;
+  return typeof evidence.value === "string" && /^sha256:[0-9a-f]{64}$/.test(evidence.value)
+    && evidence.algorithm === "sha256" && evidence.canonicalization === "rfc8785_jcs"
+    && evidence.payload_scope === "project_envelope_payload" && evidence.payload_excludes === "storage_summary_and_envelope_hash_carrier_fields"
+    && evidence.payload_ref === projectId && evidence.hash_status === "computed_local_preview";
+}
+
+/** What a keeping save's caller may supply for a reopened saved run's unchanged re-save on the browser
+ * preview's store (as the desktop's restored re-save keeps it): the history's stored claim and the
+ * payload hash it was opened with, and a reader of the stored envelope as written, whose result is the
+ * caller's own. The stored proposal reaches only `readHistory`; it is never returned. */
+export type KeptSaveHistory = {
+  basis: { payloadHash: string | null; envelopeHash: ProjectEnvelopeHashEvidence | null };
+  readHistory: (storedEnvelope: LocalProjectEnvelope) => Promise<void>;
+};
+
 /** Issue 519: a save in place of a stored project whose stored review proposal the open did not admit,
  * by a session holding no proposal of its own. The store keeps the stored proposal as stored (the
  * desktop store leaves its text untouched) and computes the envelope hash over what it stores, so no
- * proposal and no envelope hash are sent. The browser preview keeps the stored value itself. Neither
+ * proposal and no envelope hash are sent. The browser preview keeps the stored value itself, and an
+ * unchanged re-save of a reopened saved run keeps the history's stored claim (`historical`). Neither
  * returns the stored proposal: the returned envelope's `proposal` is null and its envelope hash is the
- * store's, computed over what it stores. */
+ * store's, computed over what it stores. A Replace (`confirmedRevision`) never keeps it and is refused. */
 export async function saveLocalProjectKeepingStoredProposal(
   model: PreviewModel,
   editorIntents: EditorOperationIntent[],
@@ -734,15 +758,19 @@ export async function saveLocalProjectKeepingStoredProposal(
   analysisRun: AnalysisRunEnvelope | null,
   modelHash: ModelHashEvidence | null,
   confirmedRevision: string | null,
-  expectedBase: string | null
+  expectedBase: string | null,
+  historical: KeptSaveHistory | null = null
 ): Promise<LocalProjectEnvelope> {
+  if (confirmedRevision !== null) {
+    throw new Error(`${STORED_PROPOSAL_KEEP_REFUSED}: a save keeping the stored proposal cannot confirm replacing the stored project; Replace does not keep the stored proposal. Nothing was saved.`);
+  }
   if (!hasTauriRuntime()) {
     await loadValidatorEngine();
     refuseUnconfirmedBrowserReplacement(model.project.id, confirmedRevision, expectedBase);
     const existing = browserPreviewStore.get(model.project.id);
     if (!existing) throw new Error(`${STORED_PROPOSAL_KEEP_REFUSED}: project \`${model.project.id}\` is not stored, so it has no stored proposal to keep; nothing was saved.`);
     const kept = existing.envelope.proposal ?? null;
-    const projectEnvelopeHash = await computeProjectEnvelopeHash({
+    const computed = await computeProjectEnvelopeHash({
       model, editor_intents: editorIntents, proposal: kept, selected_review_target: selectedReviewTarget,
       mechanics_result: mechanicsResult, analysis_run: analysisRun, model_hash: modelHash
     });
@@ -752,16 +780,23 @@ export async function saveLocalProjectKeepingStoredProposal(
       refuseUnconfirmedBrowserReplacement(model.project.id, confirmedRevision, expectedBase);
       throw new Error(`PROJECT-BASE-MOVED: project \`${model.project.id}\` changed while this save was prepared; nothing was saved, and replacing it needs the user's confirmation.`);
     }
+    // An unchanged re-save of a reopened saved run keeps the stored claim it opened with, stale or
+    // not (the historical evidence stands as stored); any other save writes the hash over what it stores.
+    const basis = historical?.basis;
+    const projectEnvelopeHash = basis?.envelopeHash && basis.payloadHash !== null && computed?.value === basis.payloadHash
+      ? structuredClone(basis.envelopeHash) : computed;
     const next = envelope(model, editorIntents, null, selectedReviewTarget, mechanicsResult, analysisRun, modelHash, projectEnvelopeHash,
       "Saved local browser-preview project snapshot without external file copies.");
     // The stored value itself, not a copy of it.
     next.proposal = kept;
     next.summary.proposal_count = proposalCount(kept);
     const returned = storeBrowserProject(next);
+    // The stored envelope as written reaches only the caller's history reader, never the reply.
+    if (historical) await historical.readHistory(cloneEnvelope(next));
     returned.proposal = null;
     return returned;
   }
-  return invokeWithIngress<LocalProjectEnvelope>("save_local_project", {
+  const saved = await invokeWithIngress<LocalProjectEnvelope>("save_local_project", {
     request: {
       project_id: model.project.id,
       project_name: model.project.name,
@@ -776,4 +811,11 @@ export async function saveLocalProjectKeepingStoredProposal(
       expected_base: expectedBase
     }
   });
+  // The store keeps the stored proposal and computes the envelope hash over what it stores: its reply
+  // carries no stored proposal and a claim of that form, or it is not read.
+  if (saved?.proposal != null) throw new Error(`${PERSISTENCE_RESPONSE_INTEGRITY}: a kept save's reply must not carry a stored proposal.`);
+  if (!wellFormedEnvelopeHashClaim(saved?.project_envelope_hash, model.project.id)) {
+    throw new Error(`${PERSISTENCE_RESPONSE_INTEGRITY}: a kept save's reply must carry the store's envelope hash for project \`${model.project.id}\`.`);
+  }
+  return saved;
 }

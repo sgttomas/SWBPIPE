@@ -879,6 +879,18 @@ fn a_resave_in_place_keeps_the_stored_proposal_text_as_stored() {
         registry.dispose_all_results();
     }
 
+    // A Replace never keeps the stored proposal: refused before the stored revision is read, so a
+    // confirmed revision that no longer matches is not reported as a moved base.
+    {
+        let (path, opened) = reopened_with("refused-confirmed.sqlite", ODD_PROPOSAL_TEXT, true);
+        let before = dump(&path, "local_projects", &[]);
+        let args = edited(&keeping(&opened, Some(json!(true)), Value::Null), |args| { args.insert("confirmedRevision".into(), json!("sha256:stale")); });
+        let error = native_resave(&registry, &path, &args, &unlimited()).unwrap_err();
+        assert!(error.starts_with(crate::STORED_PROPOSAL_KEEP_REFUSED) && error.contains("cannot confirm replacing"), "{error}");
+        assert_eq!(dump(&path, "local_projects", &[]), before, "every column unchanged");
+        registry.dispose_all_results();
+    }
+
     let (failing, opened) = reopened_with("failing.sqlite", ODD_PROPOSAL_TEXT, true);
     fail_after_project_row_update(&failing);
     let before = dump(&failing, "local_projects", &[]);

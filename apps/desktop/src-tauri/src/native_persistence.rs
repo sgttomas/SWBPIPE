@@ -789,8 +789,9 @@ fn decode_save(args: &mut command_ingress::Args) -> Result<SaveRequest, CommandE
         _ => return Err(CommandError::Command("INGRESS-ARGS-INVALID: `mode` is `create` or `save`.".into())),
     };
     let proposal = args.opt_value("proposal");
+    let confirmed_revision: Option<String> = args.decode("confirmedRevision")?;
     let keep = if args.keys().any(|key| key == "keepStoredProposal") { Some(args.value("keepStoredProposal")?) } else { None };
-    let keep_stored_proposal = crate::keep_stored_proposal("keepStoredProposal", keep, create, proposal.as_ref()).map_err(CommandError::Command)?;
+    let keep_stored_proposal = crate::keep_stored_proposal("keepStoredProposal", keep, create, proposal.as_ref(), confirmed_revision.as_deref()).map_err(CommandError::Command)?;
     Ok(SaveRequest {
         create,
         project_id: args.decode("projectId")?,
@@ -800,7 +801,7 @@ fn decode_save(args: &mut command_ingress::Args) -> Result<SaveRequest, CommandE
         proposal,
         selected_review_target: args.opt_value("selectedReviewTarget"),
         model_hash: args.opt_value("modelHash").unwrap_or(Value::Null),
-        confirmed_revision: args.decode("confirmedRevision")?,
+        confirmed_revision,
         expected_base: args.decode("expectedBase")?,
         expected: args.decode("expectedRecord")?,
         intake: args.decode("intakeText")?,

@@ -121,6 +121,12 @@ code_paths:
 - apps/desktop/src/features/workspace/storedProposalAdmission.ts
 - apps/desktop/src/features/workspace/storedProposalAdmission.test.ts
 - apps/desktop/src/features/workspace/storedProposalAdmission.session.test.tsx
+# The native saves' keeping of a stored proposal (issue 519). The files are shared with DEL-07-07 and
+# DEL-14-02, whose native persistence and restored re-save they also are.
+- apps/desktop/src-tauri/src/native_persistence.rs
+- apps/desktop/src-tauri/src/stored_save.rs
+- apps/desktop/src-tauri/src/native_persistence_tests.rs
+- apps/desktop/src-tauri/src/stored_save_tests.rs
 - apps/desktop/e2e/b3b-project-persistence.spec.ts
 checks:
 - tests/test_persistence_schema.py
@@ -144,5 +150,7 @@ checks:
 - apps/desktop/src/App.storedProposalWithoutMembers.test.tsx
 - apps/desktop/src/features/workspace/storedProposalAdmission.test.ts
 - apps/desktop/src/features/workspace/storedProposalAdmission.session.test.tsx
+- apps/desktop/src-tauri/src/native_persistence_tests.rs
+- apps/desktop/src-tauri/src/stored_save_tests.rs
 - apps/desktop/e2e/b3b-project-persistence.spec.ts
 - apps/desktop/native-smoke/evidence-journeys.mjs

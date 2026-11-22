@@ -1290,10 +1290,12 @@ pub(crate) fn upsert_project_texts(
 pub(crate) const STORED_PROPOSAL_KEEP_REFUSED: &str = "STORED-PROPOSAL-KEEP-REFUSED";
 
 /// Issue 519: a save's keep-stored-proposal member, closed: present and
-/// `true`, or absent. A save keeping the stored proposal is a save in place
-/// that carries no proposal of its own; a create has nothing stored to keep.
+/// `true`, or absent. A save keeping the stored proposal is an unconfirmed
+/// save in place that carries no proposal of its own; a create has nothing
+/// stored to keep, and a Replace (`confirmed_revision`) never keeps it, so it
+/// is refused here, before the stored revision is read.
 /// `proposal` is the request's proposal as sent (absent or `null` is none).
-pub(crate) fn keep_stored_proposal(member: &str, value: Option<Value>, create: bool, proposal: Option<&Value>) -> Result<bool, String> {
+pub(crate) fn keep_stored_proposal(member: &str, value: Option<Value>, create: bool, proposal: Option<&Value>, confirmed_revision: Option<&str>) -> Result<bool, String> {
     let kind = |value: &Value| match value {
         Value::Null => "null",
         Value::Bool(_) => "false",
@@ -1309,6 +1311,9 @@ pub(crate) fn keep_stored_proposal(member: &str, value: Option<Value>, create: b
         )),
         Some(Value::Bool(true)) if proposal.is_some_and(|proposal| !proposal.is_null()) => Err(format!(
             "{STORED_PROPOSAL_KEEP_REFUSED}: a save with `{member}` carries no proposal of its own; this one carries both. Nothing was saved."
+        )),
+        Some(Value::Bool(true)) if confirmed_revision.is_some() => Err(format!(
+            "{STORED_PROPOSAL_KEEP_REFUSED}: a save with `{member}` cannot confirm replacing the stored project; Replace does not keep the stored proposal. Nothing was saved."
         )),
         Some(Value::Bool(true)) => Ok(true),
         Some(other) => Err(format!("{STORED_PROPOSAL_KEEP_REFUSED}: `{member}` is true or absent; it was {}. Nothing was saved.", kind(&other))),
@@ -3742,7 +3747,7 @@ fn save_project_in_store(path: PathBuf, request: SaveLocalProjectRequest) -> Res
 /// proposal stays in the store) and its envelope hash the store's.
 fn save_project_in_store_keeping(path: PathBuf, request: SaveLocalProjectRequest, keep: Option<Value>, memory: &dyn stored_read::ReadMemory) -> Result<LocalProjectEnvelope, String> {
     // Refused before the store is opened; nothing is written.
-    let keep = keep_stored_proposal("keep_stored_proposal", keep, false, Some(&request.proposal))?;
+    let keep = keep_stored_proposal("keep_stored_proposal", keep, false, Some(&request.proposal), request.confirmed_revision.as_deref())?;
     if keep && !request.project_envelope_hash.is_null() {
         return Err(format!("{STORED_PROPOSAL_KEEP_REFUSED}: a save with `keep_stored_proposal` carries no envelope hash; the store computes it over what it stores. Nothing was saved."));
     }
@@ -3772,7 +3777,9 @@ fn save_project_in_store_keeping(path: PathBuf, request: SaveLocalProjectRequest
             .map(crate::analysis_run_v03_build::sort_scratch_bytes)
             .max()
             .unwrap_or(0);
-        let hashing = memory.reserve("hashing the project envelope", scratch)?;
+        let hashing = memory.reserve("hashing the project envelope", scratch).map_err(|why| {
+            format!("{STORED_PROPOSAL_KEEP_REFUSED}: project `{}`'s project envelope could not be hashed ({why}). Nothing was saved.", stored_read::shown(&request.project_id))
+        })?;
         project_envelope_hash = kept_proposal_envelope_hash(&model, &editor_intents, &kept.value, &selected_review_target, &mechanics_result, &analysis_run, &model_hash);
         drop(hashing);
         let text = |value: &Value| serde_json::to_string(value).map_err(|error| error.to_string());
@@ -9811,6 +9818,8 @@ mod tests {
             ("null", json!({}), Some(Value::Null), "it was null"),
             ("string", json!({}), Some(json!("true")), "it was a string"),
             ("number", json!({}), Some(json!(1)), "it was a number"),
+            // A Replace never keeps the stored proposal: refused before the stored revision is read.
+            ("confirmed", json!({"confirmed_revision": "stale"}), Some(json!(true)), "cannot confirm replacing"),
         ] {
             let db = seeded(&format!("refused-{name}.sqlite"));
             let before = row(&db);
@@ -9891,6 +9900,20 @@ mod tests {
             assert!(refused.starts_with(STORED_PROPOSAL_KEEP_REFUSED) && refused.contains(stored_read::STORE_READ_MEMORY_UNAVAILABLE) && refused.contains(step) && refused.contains("Nothing was saved"), "{refused}");
             assert_eq!(row(), before, "byte for byte unchanged");
         }
+        // The envelope's own hashing scratch refused after the stored proposal was read: the same
+        // refusal by name, nothing written.
+        struct RefusingStep(&'static str);
+        impl stored_read::ReadMemory for RefusingStep {
+            fn reserve(&self, what: &str, bytes: u64) -> Result<stored_read::ReadReservation, String> {
+                if what == self.0 {
+                    return Err(format!("{}: reading {what} needs {bytes} bytes, above the invented allowance; nothing more was read.", stored_read::STORE_READ_MEMORY_UNAVAILABLE));
+                }
+                stored_read::ReadMemory::reserve(&stored_read::UnmeteredReadMemory, what, bytes)
+            }
+        }
+        let refused = save_project_in_store_keeping(db.clone(), request(), Some(json!(true)), &RefusingStep("hashing the project envelope")).unwrap_err();
+        assert!(refused.starts_with(STORED_PROPOSAL_KEEP_REFUSED) && refused.contains(stored_read::STORE_READ_MEMORY_UNAVAILABLE) && refused.contains("project envelope") && refused.contains("Nothing was saved"), "{refused}");
+        assert_eq!(row(), before, "byte for byte unchanged");
         save_project_in_store_keeping(db.clone(), request(), Some(json!(true)), &Allowance(u64::MAX)).unwrap();
         let kept: String = Connection::open(&db).unwrap().query_row("SELECT proposal_json FROM local_projects", [], |row| row.get(0)).unwrap();
         assert_eq!(kept, large);

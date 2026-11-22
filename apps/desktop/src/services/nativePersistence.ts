@@ -156,15 +156,16 @@ const count = (value: unknown) => typeof value === "number" && Number.isSafeInte
 
 /** The reply as the session reads it, or `NATIVE-PROJECT-SAVE-MALFORMED`. */
 export function decodeNativeProjectSave(value: unknown): NativeProjectSave {
-  return decodeSave(value, null);
+  return decodeSave(value, null, false);
 }
 
 /** A reopened saved run's re-save reply (`restored` carries the restored run's members). */
 export function decodeRestoredProjectSave(value: unknown, restored: RestoredRun): NativeProjectSave {
-  return decodeSave(value, restored);
+  return decodeSave(value, restored, false);
 }
 
-function decodeSave(value: unknown, restored: RestoredRun | null): NativeProjectSave {
+/** `keptStoredProposal`: the request asked the store to keep the stored proposal, so the reply carries none. */
+function decodeSave(value: unknown, restored: RestoredRun | null, keptStoredProposal: boolean): NativeProjectSave {
   const fail = (detail: string): never => { throw new Error(`${NATIVE_PROJECT_SAVE_MALFORMED}: ${detail}`); };
   if (!isObject(value)) return fail("the reply is not an object");
   for (const member of ["model", "mechanics_result", "analysis_run", "editor_intents"]) {
@@ -174,6 +175,12 @@ function decodeSave(value: unknown, restored: RestoredRun | null): NativeProject
   if (!isObject(summary) || typeof summary.project_id !== "string" || typeof summary.message !== "string") fail("the summary is not a project summary");
   const envelope = value.project_envelope_hash;
   if (!(isObject(envelope) && typeof envelope.value === "string") && !(restored && envelope === null)) fail("the envelope hash is not one");
+  // Issue 519: a kept save leaves the stored proposal in the store; its reply carries none, and the
+  // envelope hash the store computed over what it stores is a SHA-256 digest.
+  if (keptStoredProposal) {
+    if (value.proposal !== null) fail("a kept save's reply must carry a null proposal");
+    if (isObject(envelope) && !/^sha256:[0-9a-f]{64}$/.test(envelope.value as string)) fail("a kept save's envelope hash is not a SHA-256 digest");
+  }
   if (typeof value.stored_model_hash !== "string" || !/^sha256:[0-9a-f]{64}$/.test(value.stored_model_hash)) fail("the stored model hash is not one");
   const result = value.result;
   if (!isObject(result)) return fail("the result outcome is missing");
@@ -220,7 +227,7 @@ export async function saveNativeLocalProject(request: NativePersistenceRequest, 
     expectedBase: fields.expectedBase,
     ...(fields.keepStoredProposal ? { keepStoredProposal: true } : {})
   });
-  return decodeNativeProjectSave(reply);
+  return decodeSave(reply, null, Boolean(fields.keepStoredProposal));
 }
 
 /** The envelope basis the session holds for a reopened saved run: the payload hash and the stored
@@ -246,7 +253,7 @@ export async function saveRestoredLocalProject(restored: RestoredRun, basis: Res
     expectedBase: fields.expectedBase,
     ...(fields.keepStoredProposal ? { keepStoredProposal: true } : {})
   });
-  return decodeRestoredProjectSave(reply, restored);
+  return decodeSave(reply, restored, Boolean(fields.keepStoredProposal));
 }
 
 /** The stored model's hash evidence, as `computeModelHash` writes it for the request's model. */

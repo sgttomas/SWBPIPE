@@ -4,15 +4,18 @@
  * preview's store, read back; the desktop's request carries the keep member and no proposal). A
  * proposal of the session's own replaces it as any save does; a copy does not carry it and says so.
  * A well-formed stored proposal opens and saves exactly as before. All data are invented. */
-import { act, renderHook, waitFor } from "@testing-library/react";
+import { act, render, renderHook, screen, waitFor } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock, { nativeReopen: "actual" }) }));
 import { useWorkspaceSession } from "./workspaceSession";
+import { buildGridOperationIntent, type GridColumn } from "./table/modelTableAdapter";
+import { ProjectValidationPanel } from "../project-validation/ProjectValidationPanel";
+import { ProjectStorageAuditPanel } from "../project-storage/ProjectStorageAuditPanel";
 import * as projectService from "../../services/projectService";
-import { createLocalProject, findLocalProject, getLocalStorageCapability, openLocalProject, saveLocalProject, saveLocalProjectKeepingStoredProposal } from "../../services/projectService";
+import { createLocalProject, findLocalProject, getLocalStorageCapability, openLocalProject, saveLocalProject, saveLocalProjectKeepingStoredProposal, STORED_PROPOSAL_KEEP_REFUSED } from "../../services/projectService";
 import * as hashService from "../../services/hashService";
 import { computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
 import { loadDesignKnowledge, loadSampleProposal } from "../../services/previewService";
@@ -106,6 +109,59 @@ async function anotherWriterSaves(projectId: string, proposal: unknown) {
   await saveLocalProject(stored.model, [], proposal as never, null, null, null, stored.model_hash, envelopeHash, existing.revision);
 }
 
+/** A kept save's envelope evidence: the kept proposal never reaches the webview, so nothing is recomputed. */
+const KEPT_AT_SAVE = { integrity_status: "hash_recompute_unavailable", recomputed_value: "unavailable", verification_source: "save" } as const;
+
+/** `name`'s first write of the kind given paused until `release`: one that confirms a Replace (its
+ * ninth argument, `confirmedRevision`), or any. `started` resolves when it is called. Every write then
+ * runs as it would. */
+function pausedOnce(name: "saveLocalProject" | "createLocalProject", which: "replace" | "any") {
+  const real = projectService[name] as (...args: unknown[]) => Promise<unknown>;
+  let release!: () => void, entered!: () => void, pausing = true;
+  const paused = new Promise<void>((resolve) => { release = resolve; });
+  const started = new Promise<void>((resolve) => { entered = resolve; });
+  vi.spyOn(projectService, name).mockImplementation((async (...args: unknown[]) => {
+    if (pausing && (which === "any" || args[8] != null)) { pausing = false; entered(); await paused; }
+    return real(...args);
+  }) as never);
+  return { release, started };
+}
+
+/** A selection change (it advances the request epoch, as any selection does). */
+function changeSelection(result: { current: ReturnType<typeof useWorkspaceSession> }) {
+  const epoch = result.current.operations.requestEpoch;
+  const nodes = result.current.model.model!.nodes;
+  act(() => { result.current.selection.handleSelectEntity({ type: "node", id: nodes[nodes.length - 1].id }); });
+  act(() => { result.current.selection.handleSelectEntity({ type: "node", id: nodes[0].id }); });
+  expect(result.current.operations.requestEpoch).not.toBe(epoch);
+}
+
+/** A model edit (a node's Y coordinate), applied as a grid cell edit is. */
+async function editModel(result: { current: ReturnType<typeof useWorkspaceSession> }) {
+  const opened = result.current.model.model!;
+  const target = opened.nodes[0];
+  const column: GridColumn = { key: "y", label: "Y", fieldPath: "position.y", objectType: "Node", changeKind: "set_field", dimension: "length", sourceNote: "entered coordinate", unit: () => opened.project.units.length, value: () => String(target.position.y) };
+  const edit = buildGridOperationIntent({ column, model: opened, row: { id: target.id, label: target.label, type: "node", raw: target, searchText: "" }, sequence: 1, value: String(target.position.y + 1.5), interaction: "cell" });
+  await act(async () => { expect(await result.current.operations.handleApplyIntent(edit)).toBe(true); });
+  expect(result.current.model.model).not.toBe(opened);
+}
+
+/** An invented saved run (enough for the open to read it as a saved run's history). */
+const savedRun = (projectId: string) => ({ run_id: "run:issue-519-invented", model_ref: projectId, status: { mechanics: "INVENTED", rule_check: "NOT_RUN" }, results: [], diagnostics: [] });
+
+/** A stored project with a saved run and `proposal`; its envelope claim is the hash over it, or a stale one. */
+async function storedWithRun(base: PreviewModel, id: string, proposal: unknown, claim: "valid" | "stale"): Promise<PreviewModel> {
+  const model = structuredClone(base);
+  model.project.id = id;
+  const modelHash = await computeModelHash(model);
+  const run = savedRun(id) as never;
+  const valid = (await computeProjectEnvelopeHash({ model, editor_intents: [], proposal: proposal as AgentProposal, selected_review_target: null, mechanics_result: run, analysis_run: null, model_hash: modelHash }))!;
+  await createLocalProject(model, [], proposal as AgentProposal, null, run, null, modelHash, claim === "valid" ? valid : { ...valid, value: `sha256:${"0".repeat(64)}` });
+  return model;
+}
+
+const envelopeMismatch = (history: unknown) => JSON.stringify(history ?? null).includes("HISTORICAL_ENVELOPE_HASH_MISMATCH");
+
 const notice = admitStoredProposal(UNADMITTED);
 if (notice.admitted) throw new Error("the invented proposal must not be admitted");
 const OPEN_SENTENCE = storedProposalSentence(notice.notice, "open");
@@ -134,7 +190,9 @@ describe("a stored proposal without its members, on the browser preview's store"
       model: stored!.model, editor_intents: stored!.editor_intents, proposal: UNADMITTED as never, selected_review_target: null,
       mechanics_result: null, analysis_run: null, model_hash: stored!.model_hash
     }));
-    expect(result.current.project.projectEnvelopeHashIntegrity).toMatchObject({ integrity_status: "verified_match", verification_source: "save" });
+    // The kept proposal stays in the store, so the webview cannot recompute the envelope hash at save:
+    // the save says so, and the reopen verifies the stored envelope whole.
+    expect(result.current.project.projectEnvelopeHashIntegrity).toMatchObject(KEPT_AT_SAVE);
     // Opened again: the same sentence, the hash verified.
     await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
     expect(result.current.project.projectMessage).toContain(OPEN_SENTENCE);
@@ -268,7 +326,7 @@ describe("a stored proposal without its members, on the browser preview's store"
       expect(result.current.project.projectEnvelopeHashIntegrity).toMatchObject({ integrity_status: "verified_match" });
       await act(async () => { await result.current.project.handleSaveProject(); });
       expect(result.current.project.projectOperation).toBe("save");
-      expect(result.current.project.projectEnvelopeHashIntegrity).toMatchObject({ integrity_status: "verified_match", verification_source: "save" });
+      expect(result.current.project.projectEnvelopeHashIntegrity).toMatchObject(KEPT_AT_SAVE);
       const stored = (await openLocalProject(model.project.id))!;
       expect(stored.proposal).toBe(value);
       expect(stored.summary.proposal_count).toBe(0);
@@ -320,6 +378,274 @@ describe("the browser preview store's keeping save (issue 519 review, repair 2)"
     const stored = (await openLocalProject(model.project.id))!;
     expect(stored.proposal).toEqual(other);
     expect(stored.project_envelope_hash).toEqual(otherHash);
+  });
+});
+
+describe("the notice at the write's commit, while the session moved on (issue 519 review 2, item 1)", () => {
+  it("is cleared by a confirmed Replace that lands after a selection change: the next save keeps nothing", async () => {
+    const { result } = await readySession();
+    const model = await storedWith(result.current.model.model!, "project:issue-519-r2-replace-inflight", UNADMITTED);
+    await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
+    await anotherWriterSaves(model.project.id, { ...UNADMITTED, proposal_id: "proposal:other-writer" });
+    const write = pausedOnce("saveLocalProject", "replace");
+    let pending!: Promise<void>;
+    act(() => { pending = result.current.project.handleSaveProject(); });
+    await waitFor(() => expect(result.current.project.replaceProjectPrompt).not.toBeNull());
+    act(() => result.current.project.replaceProjectPrompt!.choose("replace"));
+    await act(async () => { await write.started; });
+    changeSelection(result);
+    write.release();
+    await act(async () => { await pending; });
+    expect((await openLocalProject(model.project.id))!.proposal).toBeNull();
+    const keeping = vi.spyOn(projectService, "saveLocalProjectKeepingStoredProposal");
+    await act(async () => { await result.current.project.handleSaveProject(); });
+    expect(result.current.project.projectOperation).toBe("save");
+    expect(keeping).not.toHaveBeenCalled();
+    expect(result.current.project.projectMessage).not.toContain(STORED_PROPOSAL_NOT_ADMITTED);
+    expect((await openLocalProject(model.project.id))!.proposal).toBeNull();
+  });
+
+  it("is cleared by the session's own proposal written while the model was edited: the next save does not keep it", async () => {
+    const { result } = await readySession();
+    const model = await storedWith(result.current.model.model!, "project:issue-519-r2-own-inflight", UNADMITTED);
+    await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
+    await act(async () => { await result.current.results.handleProposal(); });
+    const own = result.current.results.proposal!;
+    expect(own).not.toBeNull();
+    const write = pausedOnce("saveLocalProject", "any");
+    let pending!: Promise<void>;
+    act(() => { pending = result.current.project.handleSaveProject(); });
+    await act(async () => { await write.started; });
+    // The edit discards the session's proposal and advances the request epoch while the write is paused.
+    await editModel(result);
+    expect(result.current.results.proposal).toBeNull();
+    write.release();
+    await act(async () => { await pending; });
+    expect((await openLocalProject(model.project.id))!.proposal).toEqual(own);
+    const keeping = vi.spyOn(projectService, "saveLocalProjectKeepingStoredProposal");
+    await act(async () => { await result.current.project.handleSaveProject(); });
+    expect(result.current.project.projectOperation).toBe("save");
+    expect(keeping).not.toHaveBeenCalled();
+    expect(result.current.project.projectMessage).not.toContain(STORED_PROPOSAL_NOT_ADMITTED);
+    // The discarded proposal is not kept: the save wrote the session's own (none).
+    expect((await openLocalProject(model.project.id))!.proposal).toBeNull();
+  });
+
+  it("is cleared by New Local Project's confirmed Replace that lands after a selection change", async () => {
+    const { result } = await readySession();
+    const model = await storedWith(result.current.model.model!, "project:issue-519-r2-create-inflight", UNADMITTED);
+    await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
+    const write = pausedOnce("createLocalProject", "replace");
+    let creating!: Promise<void>;
+    act(() => { creating = result.current.project.handleCreateProject(); });
+    await waitFor(() => expect(result.current.project.replaceProjectPrompt).not.toBeNull());
+    act(() => result.current.project.replaceProjectPrompt!.choose("replace"));
+    await act(async () => { await write.started; });
+    changeSelection(result);
+    write.release();
+    await act(async () => { await creating; });
+    expect((await openLocalProject(model.project.id))!.proposal).toBeNull();
+    const keeping = vi.spyOn(projectService, "saveLocalProjectKeepingStoredProposal");
+    await act(async () => { await result.current.project.handleSaveProject(); });
+    expect(result.current.project.projectOperation).toBe("save");
+    expect(keeping).not.toHaveBeenCalled();
+    expect(result.current.project.projectMessage).not.toContain(STORED_PROPOSAL_NOT_ADMITTED);
+  });
+});
+
+describe("a kept save of a reopened saved run on the browser preview's store (issue 519 review 2, item 2)", () => {
+  it("keeps a stale stored envelope claim on an unchanged save, and its finding with it", async () => {
+    const { result } = await readySession();
+    const model = await storedWithRun(result.current.model.model!, "project:issue-519-r2-stale-claim", UNADMITTED, "stale");
+    const stale = (await openLocalProject(model.project.id))!.project_envelope_hash;
+    await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
+    expect(result.current.results.historicalRun?.designation).toBe("historical_saved_run");
+    expect(envelopeMismatch(result.current.results.historicalRun)).toBe(true);
+
+    await act(async () => { await result.current.project.handleSaveProject(); });
+    expect(result.current.project.projectOperation).toBe("save");
+    expect(result.current.project.projectMessage).toContain(storedProposalSentence(notice.notice, "kept"));
+    const kept = (await openLocalProject(model.project.id))!;
+    expect(kept.proposal).toEqual(UNADMITTED);
+    expect(kept.project_envelope_hash).toEqual(stale);
+    expect(envelopeMismatch(result.current.results.historicalRun)).toBe(true);
+    expect(reachable(result.current, MARKER)).toEqual([]);
+    await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
+    expect(envelopeMismatch(result.current.results.historicalRun)).toBe(true);
+
+    // An edited save writes a claim over what is stored, and the finding is gone.
+    await editModel(result);
+    await act(async () => { await result.current.project.handleSaveProject(); });
+    expect(result.current.project.projectOperation).toBe("save");
+    const edited = (await openLocalProject(model.project.id))!;
+    expect(edited.proposal).toEqual(UNADMITTED);
+    expect(edited.project_envelope_hash).not.toEqual(stale);
+    expect(edited.project_envelope_hash).toEqual(await computeProjectEnvelopeHash({
+      model: edited.model, editor_intents: edited.editor_intents, proposal: UNADMITTED as never, selected_review_target: edited.selected_review_target ?? null,
+      mechanics_result: edited.mechanics_result, analysis_run: edited.analysis_run, model_hash: edited.model_hash
+    }));
+    expect(envelopeMismatch(result.current.results.historicalRun)).toBe(false);
+    expect(reachable(result.current, MARKER)).toEqual([]);
+  });
+
+  it("reports no envelope mismatch in the session after an unchanged save of a valid claim", async () => {
+    const { result } = await readySession();
+    const model = await storedWithRun(result.current.model.model!, "project:issue-519-r2-valid-claim", UNADMITTED, "valid");
+    await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
+    expect(result.current.results.historicalRun?.designation).toBe("historical_saved_run");
+    expect(envelopeMismatch(result.current.results.historicalRun)).toBe(false);
+    await act(async () => { await result.current.project.handleSaveProject(); });
+    expect(result.current.project.projectOperation).toBe("save");
+    expect(result.current.results.historicalRun?.designation).toBe("historical_saved_run");
+    expect(envelopeMismatch(result.current.results.historicalRun)).toBe(false);
+    expect(reachable(result.current, MARKER)).toEqual([]);
+    await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
+    expect(envelopeMismatch(result.current.results.historicalRun)).toBe(false);
+  });
+});
+
+describe("a kept save's reply (issue 519 review 2, item 3)", () => {
+  /** The keeping save's reply, as `change` makes it from the store's. */
+  function keptReplyChanged(change: (reply: Json) => Json) {
+    const real = projectService.saveLocalProjectKeepingStoredProposal;
+    vi.spyOn(projectService, "saveLocalProjectKeepingStoredProposal").mockImplementationOnce(async (...args) => change(structuredClone(await real(...args))));
+  }
+
+  it("is never verified from its own claim: a tampered digest is shown as persisted, nothing recomputed", async () => {
+    const { result } = await readySession();
+    const model = await storedWith(result.current.model.model!, "project:issue-519-r2-tampered", UNADMITTED);
+    await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
+    const tampered = `sha256:${"a".repeat(64)}`;
+    keptReplyChanged((reply) => ({ ...reply, project_envelope_hash: { ...reply.project_envelope_hash, value: tampered } }));
+    await act(async () => { await result.current.project.handleSaveProject(); });
+    expect(result.current.project.projectEnvelopeHashIntegrity).toMatchObject({ ...KEPT_AT_SAVE, persisted_value: tampered });
+  });
+
+  for (const [what, change] of [
+    ["a digest that is not one", (hash: Json) => ({ ...hash, value: "not-a-sha256" })],
+    ["another payload scope", (hash: Json) => ({ ...hash, payload_scope: "model_payload" })],
+    ["another project's reference", (hash: Json) => ({ ...hash, payload_ref: "project:another" })]
+  ] as const) {
+    it(`with ${what} is not trusted: the basis is not promoted and nothing is verified`, async () => {
+      const { result } = await readySession();
+      const model = await storedWith(result.current.model.model!, `project:issue-519-r2-malformed-${what.length}`, UNADMITTED);
+      await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
+      await editModel(result);
+      expect(result.current.project.modelEdited).toBe(true);
+      keptReplyChanged((reply) => ({ ...reply, project_envelope_hash: change(reply.project_envelope_hash) }));
+      await act(async () => { await result.current.project.handleSaveProject(); });
+      expect(result.current.project.projectEnvelopeHashIntegrity?.integrity_status).not.toBe("verified_match");
+      expect(result.current.project.projectEnvelopeHashIntegrity).toMatchObject({ recomputed_value: "unavailable", verification_source: "save" });
+      expect(result.current.project.modelEdited).toBe(true);
+    });
+  }
+
+  it("carrying a stored proposal is refused as a response integrity failure, and the proposal never enters the session", async () => {
+    const { result } = await readySession();
+    const model = await storedWith(result.current.model.model!, "project:issue-519-r2-carried", UNADMITTED);
+    await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
+    keptReplyChanged((reply) => ({ ...reply, proposal: structuredClone(UNADMITTED) }));
+    await act(async () => { await result.current.project.handleSaveProject(); });
+    expect(result.current.project.projectOperation).toBe("save_failed");
+    expect(result.current.project.projectMessage).toContain("PROJECT-PERSISTENCE-RESPONSE-INTEGRITY");
+    expect(result.current.results.proposal).toBeNull();
+    expect(result.current.project.projectEnvelopeHashIntegrity?.integrity_status).not.toBe("verified_match");
+    expect(reachable(result.current, MARKER)).toEqual([]);
+  });
+
+  it("from the desktop store is checked before the session reads it: a carried proposal or a malformed claim is refused", async () => {
+    const hook = await readySession();
+    const model = await storedWith(hook.result.current.model.model!, "project:issue-519-r2-desktop-reply", UNADMITTED);
+    const opened = (await openLocalProject(model.project.id))!;
+    const valid = (await computeProjectEnvelopeHash({ model: opened.model, editor_intents: [], proposal: UNADMITTED as never, selected_review_target: null, mechanics_result: null, analysis_run: null, model_hash: opened.model_hash }))!;
+    const replyWith = (members: Json) => ({ ...structuredClone(opened), proposal: null, project_envelope_hash: valid, ...members });
+    let reply: Json = replyWith({});
+    invokeMock.mockImplementation(async (command: string) => command === "save_local_project" ? structuredClone(reply) : null);
+    (window as Json).__TAURI_INTERNALS__ = {};
+    const save = () => saveLocalProjectKeepingStoredProposal(opened.model, [], null, null, null, opened.model_hash, null, valid.value);
+    await expect(save()).resolves.toMatchObject({ proposal: null, project_envelope_hash: valid });
+    for (const bad of [
+      { proposal: structuredClone(UNADMITTED) },
+      { project_envelope_hash: null },
+      { project_envelope_hash: { ...valid, value: "not-a-sha256" } },
+      { project_envelope_hash: { ...valid, payload_scope: "model_payload" } },
+      { project_envelope_hash: { ...valid, payload_ref: "project:another" } }
+    ]) {
+      reply = replyWith(bad);
+      await expect(save(), JSON.stringify(bad).slice(0, 60)).rejects.toThrow(/^PROJECT-PERSISTENCE-RESPONSE-INTEGRITY: /);
+    }
+  });
+
+  it("that is valid lands as a save: the basis is clean, the model hash verified, the envelope hash honestly not recomputed, and the panels read it so", async () => {
+    const { result } = await readySession();
+    const model = await storedWith(result.current.model.model!, "project:issue-519-r2-valid-reply", UNADMITTED);
+    await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
+    await editModel(result);
+    expect(result.current.project.modelEdited).toBe(true);
+    await act(async () => { await result.current.project.handleSaveProject(); });
+    const project = result.current.project;
+    expect(project.projectOperation).toBe("save");
+    expect(project.modelEdited).toBe(false);
+    expect(project.modelHashIntegrity).toMatchObject({ integrity_status: "verified_match", verification_source: "save" });
+    expect(project.projectEnvelopeHashIntegrity).toMatchObject(KEPT_AT_SAVE);
+    const shown = result.current.model.model!;
+    render(<>
+      <ProjectValidationPanel model={shown} storageCapability={project.storageCapability} projectSummary={project.projectSummary} projectOperation={project.projectOperation}
+        editorIntents={result.current.operations.editorIntents} proposal={result.current.results.proposal} modelHash={result.current.model.modelHash}
+        modelHashIntegrity={project.modelHashIntegrity} projectEnvelopeHash={project.projectEnvelopeHash} projectEnvelopeHashIntegrity={project.projectEnvelopeHashIntegrity}
+        modelDocumentVersion={project.modelDocumentVersion} />
+      <ProjectStorageAuditPanel model={shown} storageCapability={project.storageCapability} projectSummary={project.projectSummary} projectIndex={project.projectIndex}
+        projectMessage={project.projectMessage} projectOperation={project.projectOperation} editorIntents={result.current.operations.editorIntents}
+        proposal={result.current.results.proposal} modelHashIntegrity={project.modelHashIntegrity} projectEnvelopeHashIntegrity={project.projectEnvelopeHashIntegrity} />
+    </>);
+    expect(screen.getByTestId("project-validation-summary").textContent).toContain("validation=preview_current");
+    const shownText = `${screen.getByTestId("project-validation-panel").textContent}${screen.getByTestId("project-storage-panel").textContent}`;
+    expect(shownText).toContain("integrity_status=hash_recompute_unavailable");
+    expect(shownText).not.toMatch(/MISMATCH|mismatch_review_required|save_failed|Save failed/);
+  });
+});
+
+describe("a keeping save never confirms a Replace (issue 519 review 2, item 5)", () => {
+  it("is refused by name on the browser preview's store, for a stale and for the shown revision, writing nothing", async () => {
+    const hook = await readySession();
+    const model = await storedWith(hook.result.current.model.model!, "project:issue-519-r2-confirmed", UNADMITTED);
+    const opened = (await openLocalProject(model.project.id))!;
+    const shown = (await findLocalProject(model.project.id))!.revision;
+    for (const revision of ["rev", shown]) {
+      await expect(saveLocalProjectKeepingStoredProposal(opened.model, [], null, null, null, opened.model_hash, revision, opened.project_envelope_hash!.value))
+        .rejects.toThrow(new RegExp(`^${STORED_PROPOSAL_KEEP_REFUSED}: `));
+    }
+    expect((await findLocalProject(model.project.id))!.revision).toBe(shown);
+    expect((await openLocalProject(model.project.id))!).toEqual(opened);
+  });
+});
+
+describe("the notice and the session generation (issue 519 review 2, item 6)", () => {
+  it("is bound across Open State twice of the same project, and the save keeps the stored proposal", async () => {
+    const { result } = await readySession();
+    const model = await storedWith(result.current.model.model!, "project:issue-519-r2-open-state-twice", UNADMITTED);
+    await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
+    await openStateOfTheOpenProject(result);
+    await openStateOfTheOpenProject(result);
+    const keeping = vi.spyOn(projectService, "saveLocalProjectKeepingStoredProposal");
+    await act(async () => { await result.current.project.handleSaveProject(); });
+    expect(keeping).toHaveBeenCalledTimes(1);
+    expect(result.current.project.projectMessage).toContain(storedProposalSentence(notice.notice, "kept"));
+    expect((await openLocalProject(model.project.id))!.proposal).toEqual(UNADMITTED);
+  });
+
+  it("is gone after New blank: the blank's save says nothing of a stored proposal and keeps none", async () => {
+    const { result } = await readySession();
+    const model = await storedWith(result.current.model.model!, "project:issue-519-r2-blank", UNADMITTED);
+    await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
+    await act(async () => { await result.current.project.handleCreateBlankProject(); });
+    expect(result.current.project.projectOperation).toBe("create_blank");
+    expect(result.current.model.model!.project.id).not.toBe(model.project.id);
+    const keeping = vi.spyOn(projectService, "saveLocalProjectKeepingStoredProposal");
+    await act(async () => { await result.current.project.handleSaveProject(); });
+    expect(result.current.project.projectOperation).toBe("save");
+    expect(keeping).not.toHaveBeenCalled();
+    expect(result.current.project.projectMessage).not.toContain(STORED_PROPOSAL_NOT_ADMITTED);
   });
 });
 
