@@ -112,7 +112,7 @@ export function ReportPanel({
               className="report-export-link"
               data-testid="report-export-link"
               download={suggestedFileName("reportPacket")}
-              href={jsonDataHref(controlledReport.payload)}
+              href={jsonDataHref(exportPacket)}
             >
               <Download size={14} aria-hidden="true" />
               Local JSON

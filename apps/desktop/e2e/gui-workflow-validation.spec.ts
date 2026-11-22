@@ -1,4 +1,4 @@
-import { selectCompactOption } from "./workspace-driver";
+import { selectCompactOption, expectNotOfferedByView } from "./workspace-driver";
 import { expect, test, type Page, type Locator } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -242,11 +242,8 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   await expect(page.getByTestId("readiness-mechanics")).toContainText("preview run not started");
   // Slice B3: the Analyze page lies over the stage's surfaces; close it to read the canvas's status.
   await page.getByTestId("workspace-dock-close").click();
-  const resetViewportStatus = page.getByTestId("viewport-deformation-status");
-  await expect(resetViewportStatus).toBeVisible();
-  await setDisclosure(resetViewportStatus);
-  await expect(resetViewportStatus).toContainText("not started; result rows=0");
-  await setDisclosure(resetViewportStatus, false);
+  // No result: the view offers no Deformation control, so it claims no deformed shape.
+  await expectNotOfferedByView(page, page.getByTestId("viewport-deformation-status"));
   await openWorkspaceSection(page, "results");
   await expect(page.getByTestId("results-panel")).toContainText(
     "Run the bounded preview mechanics path to populate result summaries."
@@ -285,9 +282,7 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   await page.getByTestId("run-mechanics-preview").click();
   await expectBackendRefusal(page, true);
   await page.getByTestId("workspace-dock-close").click();
-  await setDisclosure(page.getByTestId("viewport-deformation-status"));
-  await expect(page.getByTestId("viewport-deformation-status")).toContainText("not started; result rows=0");
-  await setDisclosure(page.getByTestId("viewport-deformation-status"), false);
+  await expectNotOfferedByView(page, page.getByTestId("viewport-deformation-status"));
   await page.getByTestId("issues-drawer-toggle").click();
   const blockedIssues = page.getByTestId("issues-home");
   await expect(page.getByTestId("diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL")).toHaveCount(0);

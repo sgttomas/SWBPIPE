@@ -1964,7 +1964,8 @@ export async function measureCanvasPointSelection(
   fixtureProjectId: string,
   expectedVisibleLabel: string,
   selectionVisualOracle: SelectionVisualOracle,
-  causalToken: string | null = null
+  causalToken: string | null = null,
+  visibleSelection: Readonly<{ locator: Locator; text: string; testId: string }> | null = null
 ): Promise<any> {
   const probe = phase === "baseline" ? oracleProbe.baseline : oracleProbe.candidate_runtime;
   if (!probe || probe.actionability !== (phase === "baseline" ? "ACTIONABLE_IN_BASELINE_FRUSTUM" : "ACTIONABLE_IN_CANDIDATE_FRUSTUM")) {
@@ -2142,10 +2143,10 @@ export async function measureCanvasPointSelection(
     (causalMarkerEvidence?.active?.feedbackMarkers?.length === 1 && pointCaptureMatchesMarker(causalMarkerEvidence.active.feedbackMarkers[0], afterCueCapture, expectedHitRef))));
   if (phase === "candidate") await writeFile(`${postHighlightPath}.verdict.json`, `${JSON.stringify({ beforeCueCapture, afterCueCapture, pairedCue, markerCaptureBound }, null, 2)}\n`, { flag: "wx" });
   const postHighlightDigest = pngPixelDigest(await readFile(postHighlightPath), selectionVisualOracle);
-  const visibleSelectionText = phase === "baseline"
+  const visibleSelectionText = visibleSelection ? visibleSelection.text : phase === "baseline"
     ? `Selected: ${expectedHitRef.id}`
     : `Selected ${expectedHitRef.type}: ${expectedHitRef.id}; 0 queued`;
-  const visibleSelectionLocator = phase === "baseline"
+  const visibleSelectionLocator = visibleSelection ? visibleSelection.locator : phase === "baseline"
     ? page.locator(".viewport-toolbar > span").filter({ hasText: visibleSelectionText }).last()
     : page.getByTestId("command-selection-readout");
   const visibleSelectionEvidence = await captureVisibleLocatorEvidence(
@@ -2269,6 +2270,7 @@ export async function measureCanvasPointSelection(
         pointerCssPoint: point
       },
       selection: visibleSelectionEvidence,
+      ...(visibleSelection ? { selectionCapturedTestId: visibleSelection.testId } : {}),
       inspectorHeading: visibleInspectorEvidence,
       limitation: "The phase-specific source-bound selection-color increase is checked in an ROI centred on the independently projected expected primitive. At overlapping primitives the pixels alone cannot identify which typed primitive changed; exact typed selection/property evidence and independent oracle identity remain jointly required."
     },
