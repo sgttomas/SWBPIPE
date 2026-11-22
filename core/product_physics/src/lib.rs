@@ -150,7 +150,7 @@ mod topology;
 mod validation;
 mod imposed_motion; mod held_status; mod skew; // RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7) and R-6/R-7 S-K1 (DEL-04-03 `skew-restraints.md`), on this line so that no line moves.
 use validation::validate_model_inputs;
-mod rigid_component; mod seismic_component; // DEL-05-01 static-equivalent seismic component force (LIM-028), on this line so that no line moves.
+mod rigid_component; mod seismic_component; mod seismic_warning; // DEL-05-01 static-equivalent seismic component force (LIM-028) and REQ-008's seismic model-check warning, on this line so that no line moves.
 #[cfg(test)]
 mod w15_rigid_scaling_tests;
 #[cfg(test)]
@@ -3089,7 +3089,7 @@ fn run_linear_static_preview_observed_inner(
     // lowering judges the 0.9.0 members' document-level rules and S1's interim
     // refusals, then removes the members no later stage reads. Everything after it
     // is the existing pipeline applied to the lowered model.
-    operating_conditions::lower(&mut model, &mut diagnostics);
+    let condition_added = operating_conditions::lower(&mut model, &mut diagnostics);
     pressure_runtime::validate_profile(&model, &mut diagnostics);
     // RT-A3 increment 1 (D-1): the junction closures' named warnings, once.
     pressure_runtime::junction_closure_warnings(&model, &mut diagnostics);
@@ -3130,6 +3130,8 @@ fn run_linear_static_preview_observed_inner(
     if has_blocking(&diagnostics) {
         return blocked_envelope(model, diagnostics);
     }
+    // DEL-05-01 REQ-008: what the seismic warning prints as entered, and the plan's fresh primitives.
+    let seismic_entered = seismic_warning::capture(&model, &condition_added);
 
     resolve_shared_sections(&mut model, &mut diagnostics);
     if has_blocking(&diagnostics) {
@@ -3140,6 +3142,8 @@ fn run_linear_static_preview_observed_inner(
     if has_blocking(&diagnostics) {
         return blocked_envelope(model, diagnostics);
     }
+    // DEL-05-01 REQ-008: the seismic model-check warning, before formation (warnings only).
+    seismic_warning::append(&model, &seismic_entered, &mut diagnostics);
     // W-15 slice c (DEL-03-05 Design `eccentric-reducer-offset.md` §3.2): a
     // declared eccentric offset is checked against the normalized node
     // geometry, which governs. The first pass returns before any index is
@@ -11280,6 +11284,127 @@ fn equivalent_static_diag_id(load_case_id: &str, suffix: &str) -> String {
     )
 }
 
+/// The outcome of a case's seismic generation
+/// ([`append_seismic_generated_loads`]).
+enum SeismicGeneration<'a> {
+    /// The seismic loads are appended; the component plan.
+    Generated(seismic_component::Plan<'a>),
+    /// The generator refused its inputs by finding; nothing is appended, and
+    /// the case's wind generation still runs.
+    Refused,
+    /// A missing input, a component-plan refusal or a missing mass refused the
+    /// case before the generator ran; nothing is appended, and the case's
+    /// equivalent-static generation stops (no wind generation, no id check).
+    Stopped,
+}
+
+/// DEL-05-01: static-equivalent seismic generation for one case. Its loads
+/// are appended to `loads` when generation is admitted; otherwise its
+/// refusals are pushed to `diagnostics` and nothing is appended. The outcome
+/// keeps the distinction the caller acts on: a refusal before the generator
+/// runs stops the case's generation, and a generator finding does not. The
+/// seismic model-check warning reads the same outcome (`seismic_warning`).
+fn append_seismic_generated_loads<'a>(
+    model: &'a PreviewModel,
+    load_case: &PreviewLoadCase,
+    seismic: &SeismicGenerationInput,
+    loads: &mut Vec<PrimitiveLoad>,
+    diagnostics: &mut Vec<Diagnostic>,
+) -> SeismicGeneration<'a> {
+    let case_id = load_case.id.as_str();
+    let exact = pressure_runtime::is_exact(model);
+    let replaced = joint::replaced_span_ids(model);
+    let mut axis_factors = Vec::new();
+    for (direction, factor) in [
+        (LoadDirection::GlobalX, &seismic.g_factor_x),
+        (LoadDirection::GlobalY, &seismic.g_factor_y),
+        (LoadDirection::GlobalZ, &seismic.g_factor_z),
+    ] {
+        if let Some(factor) = factor {
+            axis_factors.push(EquivalentStaticAxisFactor {
+                direction,
+                g_factor: factor.value,
+            });
+        }
+    }
+    let mut inputs_missing = false;
+    if axis_factors.is_empty() {
+        diagnostics.push(diag(
+            &equivalent_static_diag_id(case_id, "seismic:g-factors"),
+            "EQUIVALENT_STATIC_INPUT_MISSING",
+            "blocking",
+            "seismic equivalent-static generation requires at least one user-entered per-axis g-factor",
+            vec![case_id.to_string()],
+        ));
+        inputs_missing = true;
+    }
+    let Some(gravity) = seismic.gravity_acceleration.as_ref().map(|q| q.value) else {
+        diagnostics.push(diag(
+            &equivalent_static_diag_id(case_id, "seismic:gravity"),
+            "EQUIVALENT_STATIC_INPUT_MISSING",
+            "blocking",
+            "seismic equivalent-static generation requires a user-entered gravity_acceleration; no physical-constant default is applied",
+            vec![case_id.to_string(), "gravity_acceleration".to_string()],
+        ));
+        return SeismicGeneration::Stopped;
+    };
+    if inputs_missing {
+        return SeismicGeneration::Stopped;
+    }
+    // DEL-05-01 (LIM-028): the members a rigid-family component replaces
+    // and its force items, by REQ-015's dispositions, before any mass is
+    // read; a range refusal blocks the case by name.
+    let mut refusals = Vec::new();
+    let components = seismic_component::plan(model, case_id, &replaced, &seismic_component::entered_factors(load_case), &mut refusals);
+    if !refusals.is_empty() {
+        diagnostics.extend(refusals);
+        return SeismicGeneration::Stopped;
+    }
+    let mut masses = Vec::new();
+    let mut mass_blocked = false;
+    for (pipe_index, pipe) in model.pipe_segments.iter().enumerate() {
+        // §3: a connector-replaced span carries no load; it is skipped
+        // before its mass is evaluated, and the surviving pipes keep
+        // their original element index. So is a component-replaced member.
+        if replaced.contains(pipe.id.as_str()) || components.replaced.contains(pipe.id.as_str()) {
+            continue;
+        }
+        match generation_mass_per_length(pipe, case_id, exact, diagnostics) {
+            Some(mass_per_length) => masses.push(ElementMassPerLength {
+                element_index: pipe_index,
+                mass_per_length,
+            }),
+            None => mass_blocked = true,
+        }
+    }
+    if mass_blocked {
+        return SeismicGeneration::Stopped;
+    }
+    let basis = SeismicEquivalentStaticBasis {
+        load_case_ref: case_id.to_string(),
+        gravity_acceleration: gravity,
+        axis_factors,
+    };
+    let (generated, findings) = generate_seismic_equivalent_static_loads_beside_components(&basis, &masses, seismic_component::primitives(&components, case_id));
+    for finding in &findings {
+        diagnostics.push(diag(
+            &equivalent_static_diag_id(
+                case_id,
+                &format!("seismic:{}", stable_suffix(&finding.load_id)),
+            ),
+            "EQUIVALENT_STATIC_INPUT_INVALID",
+            "blocking",
+            finding.message.clone(),
+            vec![case_id.to_string()],
+        ));
+    }
+    if !findings.is_empty() {
+        return SeismicGeneration::Refused;
+    }
+    loads.extend(generated);
+    SeismicGeneration::Generated(components)
+}
+
 /// Synthesize seismic/wind static-equivalent primitive loads for a load
 /// case carrying `equivalent_static` user inputs (DEC-068 item 2). Pure
 /// mechanics from user inputs and the model's own computed mass
@@ -11299,8 +11424,8 @@ fn append_equivalent_static_generated_loads(
     // route generates on its own mass basis and never on a connector-replaced
     // span; a Timoshenko partial span takes the exact Timoshenko vector
     // (W-16t, §3). Off the exact route these are false and empty, and
-    // generation is unchanged.
-    let exact = pressure_runtime::is_exact(model);
+    // generation is unchanged. Seismic generation reads both in
+    // `append_seismic_generated_loads`.
     let replaced = joint::replaced_span_ids(model);
     let generated_from = loads.len();
     if equivalent_static.seismic.is_none() && equivalent_static.wind.is_none() {
@@ -11315,92 +11440,8 @@ fn append_equivalent_static_generated_loads(
     }
 
     if let Some(seismic) = &equivalent_static.seismic {
-        let mut axis_factors = Vec::new();
-        for (direction, factor) in [
-            (LoadDirection::GlobalX, &seismic.g_factor_x),
-            (LoadDirection::GlobalY, &seismic.g_factor_y),
-            (LoadDirection::GlobalZ, &seismic.g_factor_z),
-        ] {
-            if let Some(factor) = factor {
-                axis_factors.push(EquivalentStaticAxisFactor {
-                    direction,
-                    g_factor: factor.value,
-                });
-            }
-        }
-        let mut inputs_missing = false;
-        if axis_factors.is_empty() {
-            diagnostics.push(diag(
-                &equivalent_static_diag_id(case_id, "seismic:g-factors"),
-                "EQUIVALENT_STATIC_INPUT_MISSING",
-                "blocking",
-                "seismic equivalent-static generation requires at least one user-entered per-axis g-factor",
-                vec![case_id.to_string()],
-            ));
-            inputs_missing = true;
-        }
-        let Some(gravity) = seismic.gravity_acceleration.as_ref().map(|q| q.value) else {
-            diagnostics.push(diag(
-                &equivalent_static_diag_id(case_id, "seismic:gravity"),
-                "EQUIVALENT_STATIC_INPUT_MISSING",
-                "blocking",
-                "seismic equivalent-static generation requires a user-entered gravity_acceleration; no physical-constant default is applied",
-                vec![case_id.to_string(), "gravity_acceleration".to_string()],
-            ));
+        if let SeismicGeneration::Stopped = append_seismic_generated_loads(model, load_case, seismic, loads, diagnostics) {
             return;
-        };
-        if inputs_missing {
-            return;
-        }
-        // DEL-05-01 (LIM-028): the members a rigid-family component replaces
-        // and its force items, by REQ-015's dispositions, before any mass is
-        // read; a range refusal blocks the case by name.
-        let mut refusals = Vec::new();
-        let components = seismic_component::plan(model, case_id, &replaced, &seismic_component::entered_factors(load_case), &mut refusals);
-        if !refusals.is_empty() {
-            diagnostics.extend(refusals);
-            return;
-        }
-        let mut masses = Vec::new();
-        let mut mass_blocked = false;
-        for (pipe_index, pipe) in model.pipe_segments.iter().enumerate() {
-            // §3: a connector-replaced span carries no load; it is skipped
-            // before its mass is evaluated, and the surviving pipes keep
-            // their original element index. So is a component-replaced member.
-            if replaced.contains(pipe.id.as_str()) || components.replaced.contains(pipe.id.as_str()) {
-                continue;
-            }
-            match generation_mass_per_length(pipe, case_id, exact, diagnostics) {
-                Some(mass_per_length) => masses.push(ElementMassPerLength {
-                    element_index: pipe_index,
-                    mass_per_length,
-                }),
-                None => mass_blocked = true,
-            }
-        }
-        if mass_blocked {
-            return;
-        }
-        let basis = SeismicEquivalentStaticBasis {
-            load_case_ref: case_id.to_string(),
-            gravity_acceleration: gravity,
-            axis_factors,
-        };
-        let (generated, findings) = generate_seismic_equivalent_static_loads_beside_components(&basis, &masses, seismic_component::primitives(&components, case_id));
-        for finding in &findings {
-            diagnostics.push(diag(
-                &equivalent_static_diag_id(
-                    case_id,
-                    &format!("seismic:{}", stable_suffix(&finding.load_id)),
-                ),
-                "EQUIVALENT_STATIC_INPUT_INVALID",
-                "blocking",
-                finding.message.clone(),
-                vec![case_id.to_string()],
-            ));
-        }
-        if findings.is_empty() {
-            loads.extend(generated);
         }
     }
 

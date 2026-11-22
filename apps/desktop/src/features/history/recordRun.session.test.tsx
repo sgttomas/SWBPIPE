@@ -414,7 +414,10 @@ describe("Compare… of the current run with a recorded run, for a run record ab
     await act(async () => { compared = await history(state).compareRuns(CURRENT_RUN_ID, history(state).runs![0].recording_id); });
     expect(compared).toBe(false);
     expect(history(state).historyOperation).toBe("compare_runs_failed");
-    expect(history(state).historyMessage).toContain(`RESULT-DETAIL-WEBVIEW-LIMIT (record_bytes=${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1}, limit_bytes=${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES})`);
+    // Said as the other C2 consumers say it (`describeFullResultRefused`): no class name, no key=value form.
+    const refusal = new nativeResult.FullResultRefused(nativeResult.RESULT_DETAIL_WEBVIEW_LIMIT, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES, "", "record");
+    expect(history(state).historyMessage).toBe(`Not compared: ${nativeResult.describeFullResultRefused(refusal, "the comparison")}`);
+    expect(history(state).historyMessage).not.toMatch(/FullResultRefused|Error:|record_bytes=|limit_bytes=/);
     expect(copies()).toBe(0);
     expect(history(state).runComparison).toBeNull();
   });

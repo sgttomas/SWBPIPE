@@ -34,6 +34,7 @@ import {
   type DisplacementNodeExtremes,
   type DisplacementSort
 } from "./displacementExtremes";
+import { withSectionRotationNote } from "./sectionRotationNote";
 
 export const DISPLACEMENT_EXTREMES_TITLE = "Displacement Extremes";
 export const DISPLACEMENT_EXTREMES_PAGE = 50;
@@ -243,7 +244,7 @@ export function DisplacementExtremesPanel({
               </div>
             </>
           )}
-          <small>{DISPLACEMENT_EXTREMES_BOUNDARY_TEXT}</small>
+          <small>{withSectionRotationNote(DISPLACEMENT_EXTREMES_BOUNDARY_TEXT, result)}</small>
         </>
       )}
     </section>

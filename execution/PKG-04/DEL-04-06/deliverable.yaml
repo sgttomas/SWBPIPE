@@ -89,6 +89,10 @@ code_paths:
 - core/model_operations/operation_applier/tests/model_checks.rs
 - apps/desktop/src/features/diagnostics/modelChecks*
 - apps/desktop/src/features/diagnostics/ModelChecksPanel*
+# REQ-013's seismic warning: DEL-05-01's judgement, which the solve and the on-demand checks both
+# call, and VER-004's seismic cases (DEL-05-01's files).
+- core/product_physics/src/seismic_warning.rs
+- core/product_physics/tests/seismic_component_weight.rs
 checks:
 - core/solver/diagnostics/src/lib.rs
 - core/product_physics/tests/topology_checks_runtime.rs
@@ -100,3 +104,4 @@ checks:
 - apps/desktop/src/features/diagnostics/modelChecks.test.ts
 - apps/desktop/src/features/diagnostics/ModelChecksPanel.test.tsx
 - apps/desktop/src/App.modelChecks.test.tsx
+- core/product_physics/tests/seismic_component_weight.rs

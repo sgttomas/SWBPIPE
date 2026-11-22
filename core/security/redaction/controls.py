@@ -7,7 +7,7 @@ quarantine material, transmit data, or infer sensitivity from value text.
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, replace
+from dataclasses import asdict, dataclass, field, replace
 from typing import Any
 import copy
 
@@ -283,6 +283,8 @@ def redact_export_payload(
         export_context=export_context,
         explicit_local_private_intent=explicit_local_private_intent,
         route=False,
+        statement_source=payload,
+        route_item=None,
     )
 
 
@@ -290,11 +292,17 @@ def redact_route_projection(
     projected: Any,
     *,
     export_context: str,
+    statement_source: Any,
+    route_item: Any,
     explicit_local_private_intent: bool = False,
     explicit_user_release_intent: bool = False,
 ) -> RedactionResult:
     """The redaction walk over the route projector's projection, which alone reads
-    value-record nodes (``route_control._project``)."""
+    value-record nodes (``route_control._project``).  ``statement_source`` is the
+    input as received, before its payload intent members are stripped, read for blocking
+    statements, and
+    ``route_item`` the projector's item test, which says where the projection keeps a
+    record's member names unprefixed."""
 
     if export_context not in EXPORT_CONTEXTS:
         raise ValueError(f"unsupported export_context: {export_context}")
@@ -305,26 +313,149 @@ def redact_route_projection(
         export_context=export_context,
         explicit_local_private_intent=explicit_local_private_intent,
         route=True,
+        statement_source=statement_source,
+        route_item=route_item,
     )
 
 
 def _redact(
-    payload: Any, *, export_context: str, explicit_local_private_intent: bool, route: bool
+    payload: Any,
+    *,
+    export_context: str,
+    explicit_local_private_intent: bool,
+    route: bool,
+    statement_source: Any,
+    route_item: Any,
 ) -> RedactionResult:
     decisions: list[RedactionDecision] = []
     findings: list[RedactionFinding] = []
+    reads = _StatementReads()
     redacted = _walk(
         copy.deepcopy(payload),
         path="$",
+        place="$",
         export_context=export_context,
         explicit_local_private_intent=explicit_local_private_intent,
         decisions=decisions,
         findings=findings,
+        reads=reads,
         route=route,
+    )
+    _decide_statements(
+        statement_source,
+        route_item=route_item,
+        export_context=export_context,
+        decisions=decisions,
+        findings=findings,
+        reads=reads,
     )
     if redacted is OMITTED_SENTINEL:
         redacted = None
     return RedactionResult(redacted, tuple(decisions), tuple(findings))
+
+
+def _member_place(parent: str, name: str) -> str:
+    """A node's place: the root's is ``$``; a member's is its parent's place, a dot, the
+    member name's length, a colon and the name, as the walked data writes the name; an
+    element's is its parent's place and its index in brackets.  The length makes each
+    segment's end known, so a member name holding a dot or brackets cannot read as a traversal
+    and two distinct places never share one.  Used only to compare places within one run;
+    never emitted.  Identical in redactionExportControls.ts (``memberPlace``) and the Rust
+    mirror (``member_place``)."""
+
+    return f"{parent}.{len(name)}:{name}"
+
+
+def _index_place(parent: str, index: int) -> str:
+    return f"{parent}[{index}]"
+
+
+@dataclass
+class _StatementReads:
+    """What the redaction walk records for the statement reading (``_decide_statements``), by
+    place: ``blocked``, every place whose object the walk decided ``block_export``;
+    ``fallback``, by the place of a blocked item's ``provenance`` object, the labels the item's
+    own classification took from it (``_classify_reading``)."""
+
+    blocked: set[str] = field(default_factory=set)
+    fallback: dict[str, frozenset[str]] = field(default_factory=dict)
+
+
+def _statement_reason(item: dict[str, Any], read_by_item: frozenset[str] = frozenset()) -> str | None:
+    """The reason of the first of decision-order steps 1-8 that an object's own explicit
+    members state (a professional claim, a blocking flag, a ``protected_suspected`` privacy or
+    redistribution, a ``quarantined`` or ``rejected`` review), read as the item classifier
+    reads them; no member name decides here.  ``read_by_item`` names the labels of a
+    ``provenance`` object that its item's classification already took as the item's own
+    (``_classify_reading``): they are that item's statement, decided at the item."""
+
+    def label(key: str) -> Any:
+        return None if key in read_by_item else item.get(key)
+
+    decided = _boundary_action(
+        privacy=_label(label("privacy_classification")),
+        redistribution=_label(label("redistribution_status")),
+        review_status=_review_label(label("review_status")),
+        professional_claim=_professional_claim(item),
+        contains_payload=_payload_flag(item),
+        secret_material_present=_secret_material_flag(item),
+        cloud_or_network_reference=_cloud_or_network_flag(item),
+        direct_sql_access=_direct_sql_flag(item),
+        storage_bypass=_storage_bypass_requested(item),
+    )
+    return None if decided is None else decided[1]
+
+
+def _decide_statements(
+    source: Any,
+    *,
+    route_item: Any,
+    export_context: str,
+    decisions: list[RedactionDecision],
+    findings: list[RedactionFinding],
+    reads: _StatementReads,
+) -> None:
+    """Every object at any depth of what the entry point was given that states a blocking
+    statement (``_statement_reason``) is decided ``block_export`` at its own path, after the
+    walk's decisions, in document order; iterative.  Not decided again: the object the walk
+    already blocked at that place, and a statement the item classifier took as its item's own
+    label through the provenance fallback, which the item's decision already reports.  Both
+    are known by place (``_member_place``), never by the written path, which a member name
+    holding a dot or brackets can make two places share.  The path and the place are written
+    as the walk writes them: on a route, the projector prefixes each member name of a record
+    it does not keep whole as an item (``route_item``)."""
+
+    stack: list[tuple[Any, str, str, bool]] = [(source, "$", "$", route_item is None)]
+    while stack:
+        node, at, place, whole = stack.pop()
+        if isinstance(node, dict):
+            reason = _statement_reason(node, reads.fallback.get(place, frozenset()))
+            if reason is not None and place not in reads.blocked:
+                decision = RedactionDecision(
+                    decision_id=f"REDC-DEC-{len(decisions) + 1:04d}",
+                    path=at,
+                    field_class=_string_or_unknown(node.get("field_class", "unknown")),
+                    privacy_classification=_string_or_unknown(_label(node.get("privacy_classification"))),
+                    redistribution_status=_string_or_unknown(_label(node.get("redistribution_status"))),
+                    review_status=_string_or_unknown(_review_label(node.get("review_status", "unknown"))),
+                    export_context=export_context,
+                    action="block_export",
+                    reason_code=reason,
+                    source_metadata_present=True,
+                )
+                decisions.append(decision)
+                finding = _finding_for(decision, len(findings) + 1)
+                if finding is not None:
+                    findings.append(finding)
+            members_whole = whole or route_item(node)
+            prefix = "" if members_whole else ROUTE_KEY_PREFIX
+            for key, item in reversed(list(node.items())):
+                stack.append(
+                    (item, f"{at}.{prefix}{key}", _member_place(place, f"{prefix}{key}"), members_whole)
+                )
+        elif isinstance(node, list):
+            for index in range(len(node) - 1, -1, -1):
+                stack.append((node[index], f"{at}[{index}]", _index_place(place, index), whole))
 
 
 def classify_export_item(
@@ -409,6 +540,8 @@ def _walk_value_record(
     explicit_local_private_intent: bool,
     decisions: list[RedactionDecision],
     findings: list[RedactionFinding],
+    place: str,
+    reads: _StatementReads,
     floor: RedactionDecision | None,
     inherited_omit: bool,
 ) -> Any:
@@ -423,7 +556,7 @@ def _walk_value_record(
     Rust mirror (``route_value_record_outcome``)."""
 
     item = node.item
-    item_decision, _ = _classify(
+    item_decision, _, read = _classify_reading(
         item,
         path=path,
         export_context=export_context,
@@ -433,6 +566,9 @@ def _walk_value_record(
         finding_index=len(findings) + 1,
     )
     if item_decision.action == "block_export":
+        # The projection prefixes this record's member names, its provenance's included.
+        reads.fallback[_member_place(place, f"{ROUTE_KEY_PREFIX}provenance")] = read
+        reads.blocked.add(place)
         decisions.append(item_decision)
         finding = _finding_for(item_decision, len(findings) + 1)
         if finding is not None:
@@ -453,10 +589,12 @@ def _walk_value_record(
         result = _walk(
             child,
             path=f"{path}.{key}",
+            place=_member_place(place, key),
             export_context=export_context,
             explicit_local_private_intent=explicit_local_private_intent,
             decisions=decisions,
             findings=findings,
+            reads=reads,
             route=True,
             floor=member_floor,
             omit=omit,
@@ -470,10 +608,12 @@ def _walk(
     value: Any,
     *,
     path: str,
+    place: str,
     export_context: str,
     explicit_local_private_intent: bool,
     decisions: list[RedactionDecision],
     findings: list[RedactionFinding],
+    reads: _StatementReads,
     route: bool = False,
     floor: RedactionDecision | None = None,
     omit: bool = False,
@@ -486,10 +626,12 @@ def _walk(
     result = _walk_node(
         value,
         path=path,
+        place=place,
         export_context=export_context,
         explicit_local_private_intent=explicit_local_private_intent,
         decisions=decisions,
         findings=findings,
+        reads=reads,
         route=route,
         floor=floor,
         omit=omit,
@@ -507,10 +649,12 @@ def _walk_node(
     value: Any,
     *,
     path: str,
+    place: str,
     export_context: str,
     explicit_local_private_intent: bool,
     decisions: list[RedactionDecision],
     findings: list[RedactionFinding],
+    reads: _StatementReads,
     route: bool,
     floor: RedactionDecision | None,
     omit: bool,
@@ -525,12 +669,14 @@ def _walk_node(
             explicit_local_private_intent=explicit_local_private_intent,
             decisions=decisions,
             findings=findings,
+            place=place,
+            reads=reads,
             floor=floor,
             inherited_omit=omit,
         )
     if isinstance(value, dict):
         if _is_value_bearing(value):
-            classified, _ = _classify(
+            classified, _, read = _classify_reading(
                 value,
                 path=path,
                 export_context=export_context,
@@ -539,7 +685,13 @@ def _walk_node(
                 decision_index=len(decisions) + 1,
                 finding_index=len(findings) + 1,
             )
+            if classified.action == "block_export":
+                # What this item's own classification took from its provenance as the item's
+                # labels; the statement reading does not decide those labels a second time.
+                reads.fallback[_member_place(place, "provenance")] = read
             decision = _raised_decision(classified, floor, omit)
+            if decision.action == "block_export":
+                reads.blocked.add(place)
             decisions.append(decision)
             finding = _finding_for(decision, len(findings) + 1)
             if finding is not None:
@@ -551,10 +703,12 @@ def _walk_node(
             child = _walk(
                 item,
                 path=f"{path}.{key}",
+                place=_member_place(place, key),
                 export_context=export_context,
                 explicit_local_private_intent=explicit_local_private_intent,
                 decisions=decisions,
                 findings=findings,
+                reads=reads,
                 route=route,
                 floor=floor,
                 omit=omit,
@@ -569,10 +723,12 @@ def _walk_node(
             child = _walk(
                 item,
                 path=f"{path}[{index}]",
+                place=_index_place(place, index),
                 export_context=export_context,
                 explicit_local_private_intent=explicit_local_private_intent,
                 decisions=decisions,
                 findings=findings,
+                reads=reads,
                 route=route,
                 floor=floor,
                 omit=omit,
@@ -603,6 +759,31 @@ def _classify(
     decision_index: int,
     finding_index: int,
 ) -> tuple[RedactionDecision, RedactionFinding | None]:
+    decision, finding, _read = _classify_reading(
+        item,
+        path=path,
+        export_context=export_context,
+        explicit_local_private_intent=explicit_local_private_intent,
+        explicit_user_release_intent=explicit_user_release_intent,
+        decision_index=decision_index,
+        finding_index=finding_index,
+    )
+    return decision, finding
+
+
+def _classify_reading(
+    item: dict[str, Any],
+    *,
+    path: str,
+    export_context: str,
+    explicit_local_private_intent: bool,
+    explicit_user_release_intent: bool,
+    decision_index: int,
+    finding_index: int,
+) -> tuple[RedactionDecision, RedactionFinding | None, frozenset[str]]:
+    """The item classification, and the labels it took from the item's ``provenance`` object
+    as the item's own (the fallback below)."""
+
     metadata_present = _has_explicit_metadata(item) or bool(UNSAFE_DETAIL_KEYS & set(item))
     field_class = _string_or_unknown(item.get("field_class", "unknown"))
     privacy = _label(item.get("privacy_classification"))
@@ -620,22 +801,17 @@ def _classify(
     )
 
     provenance = item.get("provenance")
+    read_from_provenance: set[str] = set()
     if isinstance(provenance, dict):
-        privacy = (
-            privacy
-            if privacy is not None
-            else _label(provenance.get("privacy_classification"))
-        )
-        redistribution = (
-            redistribution
-            if redistribution is not None
-            else _label(provenance.get("redistribution_status"))
-        )
-        review_status = (
-            review_status
-            if review_status not in {None, "unknown"}
-            else _review_label(provenance.get("review_status", "unknown"))
-        )
+        if privacy is None:
+            privacy = _label(provenance.get("privacy_classification"))
+            read_from_provenance.add("privacy_classification")
+        if redistribution is None:
+            redistribution = _label(provenance.get("redistribution_status"))
+            read_from_provenance.add("redistribution_status")
+        if review_status in {None, "unknown"}:
+            review_status = _review_label(provenance.get("review_status", "unknown"))
+            read_from_provenance.add("review_status")
 
     action, reason = _action_for(
         privacy=privacy,
@@ -666,7 +842,7 @@ def _classify(
         reason_code=reason,
         source_metadata_present=metadata_present,
     )
-    return decision, _finding_for(decision, finding_index)
+    return decision, _finding_for(decision, finding_index), frozenset(read_from_provenance)
 
 
 def _action_for(
@@ -687,22 +863,19 @@ def _action_for(
     concrete_path_present: bool,
     public_basis_barred: bool,
 ) -> tuple[str, str]:
-    if professional_claim:
-        return "block_export", "PROFESSIONAL_BOUNDARY_BLOCKED"
-    if cloud_or_network_reference:
-        return "block_export", "CLOUD_OR_NETWORK_REFERENCE_BLOCKED"
-    if direct_sql_access:
-        return "block_export", "DIRECT_SQL_ACCESS_BLOCKED"
-    if storage_bypass:
-        return "block_export", "STORAGE_BYPASS_BLOCKED"
-    if secret_material_present:
-        return "block_export", "SECRET_MATERIAL_BLOCKED"
-    if contains_payload:
-        return "block_export", "PAYLOAD_METADATA_ONLY_REQUIRED"
-    if privacy == "protected_suspected" or redistribution == "protected_suspected":
-        return "block_export", "PROTECTED_CONTENT_BLOCKED"
-    if review_status in {"quarantined", "rejected"}:
-        return "block_export", "PROTECTED_CONTENT_BLOCKED"
+    boundary = _boundary_action(
+        privacy=privacy,
+        redistribution=redistribution,
+        review_status=review_status,
+        professional_claim=professional_claim,
+        contains_payload=contains_payload,
+        secret_material_present=secret_material_present,
+        cloud_or_network_reference=cloud_or_network_reference,
+        direct_sql_access=direct_sql_access,
+        storage_bypass=storage_bypass,
+    )
+    if boundary is not None:
+        return boundary
     if export_context == USER_RELEASED_REPORT_CONTEXT:
         action, reason = _user_released_action(
             privacy=privacy,
@@ -729,6 +902,41 @@ def _action_for(
             return "block_export", "USER_RELEASE_VALUE_UNBOUND"
         return _unknown_action(export_context), "UNKNOWN_PROVENANCE_WARNING"
     return action, reason
+
+
+def _boundary_action(
+    *,
+    privacy: Any,
+    redistribution: Any,
+    review_status: Any,
+    professional_claim: bool,
+    contains_payload: bool,
+    secret_material_present: bool,
+    cloud_or_network_reference: bool,
+    direct_sql_access: bool,
+    storage_bypass: bool,
+) -> tuple[str, str] | None:
+    """Steps 1-8 of the decision order, the blocks that come first in every context; ``None``
+    when none of them decides.  Identical in redactionExportControls.ts
+    (``boundaryActionFor``)."""
+
+    if professional_claim:
+        return "block_export", "PROFESSIONAL_BOUNDARY_BLOCKED"
+    if cloud_or_network_reference:
+        return "block_export", "CLOUD_OR_NETWORK_REFERENCE_BLOCKED"
+    if direct_sql_access:
+        return "block_export", "DIRECT_SQL_ACCESS_BLOCKED"
+    if storage_bypass:
+        return "block_export", "STORAGE_BYPASS_BLOCKED"
+    if secret_material_present:
+        return "block_export", "SECRET_MATERIAL_BLOCKED"
+    if contains_payload:
+        return "block_export", "PAYLOAD_METADATA_ONLY_REQUIRED"
+    if privacy == "protected_suspected" or redistribution == "protected_suspected":
+        return "block_export", "PROTECTED_CONTENT_BLOCKED"
+    if review_status in {"quarantined", "rejected"}:
+        return "block_export", "PROTECTED_CONTENT_BLOCKED"
+    return None
 
 
 def _context_action(
@@ -911,28 +1119,41 @@ def _has_unsafe_item_detail(item: dict[str, Any]) -> bool:
     return bool(keys) and keys <= UNSAFE_DETAIL_KEYS
 
 
-def _contains_payload(item: dict[str, Any]) -> bool:
+# Each check below is the stated flag (``*_flag``), read wherever an object occurs, or a
+# member name of its set, read on the item the classifier decides.
+
+def _payload_flag(item: dict[str, Any]) -> bool:
     return _blocking_flag(item.get("contains_payload")) or _blocking_flag(
         item.get("payload_present")
-    ) or bool(PAYLOAD_DETAIL_KEYS & set(item))
+    )
+
+
+def _contains_payload(item: dict[str, Any]) -> bool:
+    return _payload_flag(item) or bool(PAYLOAD_DETAIL_KEYS & set(item))
+
+
+def _secret_material_flag(item: dict[str, Any]) -> bool:
+    return _blocking_flag(item.get("secret_material_present"))
 
 
 def _secret_material_present(item: dict[str, Any]) -> bool:
-    return _blocking_flag(item.get("secret_material_present")) or bool(
-        SECRET_MATERIAL_KEYS & set(item)
-    )
+    return _secret_material_flag(item) or bool(SECRET_MATERIAL_KEYS & set(item))
+
+
+def _cloud_or_network_flag(item: dict[str, Any]) -> bool:
+    return _blocking_flag(item.get("cloud_or_network_reference"))
 
 
 def _cloud_or_network_reference(item: dict[str, Any]) -> bool:
-    return _blocking_flag(item.get("cloud_or_network_reference")) or bool(
-        CLOUD_NETWORK_DETAIL_KEYS & set(item)
-    )
+    return _cloud_or_network_flag(item) or bool(CLOUD_NETWORK_DETAIL_KEYS & set(item))
+
+
+def _direct_sql_flag(item: dict[str, Any]) -> bool:
+    return _blocking_flag(item.get("direct_sql_access"))
 
 
 def _direct_sql_access(item: dict[str, Any]) -> bool:
-    return _blocking_flag(item.get("direct_sql_access")) or bool(
-        DIRECT_SQL_DETAIL_KEYS & set(item)
-    )
+    return _direct_sql_flag(item) or bool(DIRECT_SQL_DETAIL_KEYS & set(item))
 
 
 def _storage_bypass_requested(item: dict[str, Any]) -> bool:

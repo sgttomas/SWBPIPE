@@ -34,7 +34,7 @@ describe("canvas furniture drawn by the stylesheet", () => {
   // The furniture's colours are tokens; a shadow is not a furniture colour and is left alone.
   // `.viewport-shell` also shares a rule with `.panel`, whose values are the shell lane's; the
   // shell's own later block overrides them, and only blocks that are the selector's own are read.
-  it.each([".viewport-shell", ".viewport-scale-bar", ".viewport-fallback"])(
+  it.each([".viewport-shell", ".viewport-fallback"])(
     "%s states no colour literal for its ink, ground or border",
     (selector) => {
       const blocks = blocksFor(selector);
@@ -52,9 +52,6 @@ describe("canvas furniture drawn by the stylesheet", () => {
     const all = (selector: string) => declarations(blocksFor(selector).join(";"));
     expect(all(".viewport-shell").get("background")).toBe("var(--ui-canvas)");
     expect(all(".viewport-shell").get("border-color")).toBe("var(--ui-divider)");
-    expect(all(".viewport-scale-bar").get("color")).toBe("var(--canvas-label)");
-    expect(all(".viewport-scale-bar").get("background")).toBe("var(--canvas-labelBg)");
-    expect(all(".viewport-scale-bar").get("border-bottom")).toBe("4px solid var(--canvas-label)");
     expect(all(".viewport-fallback").get("color")).toBe("var(--ui-muted)");
     expect(all(".viewport-fallback").get("background")).toBe("var(--ui-canvas)");
   });

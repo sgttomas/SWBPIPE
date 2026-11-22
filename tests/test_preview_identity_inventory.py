@@ -38,6 +38,7 @@ DESKTOP = "apps/desktop/src/features/results/pfTimoshenkoIdentity.test.tsx"
 TABLES = "tests/test_semantic_contract_tables.py"
 PRODUCT_REFERENCES = "core/product_physics/tests/pf_timoshenko_references.rs"
 PRODUCT_RUNTIME = "core/product_physics/tests/pf_timoshenko_runtime.rs"
+STREAM_PARITY = "core/reporting/result_document_stream/tests/committed_parity.rs"
 
 # Literal sites: path -> (needles, class, reason, Timoshenko marker or None, exercised by).
 LITERAL_SITES = {
@@ -132,6 +133,8 @@ SYMBOL_GATES = {
         ("fn preview_model_checks",), BOTH, "the model checks' table by identity", "preview_physics_identity_of", RUST_READERS),
     "core/reporting/result_export/src/derivative.rs": (
         ("PREVIEW_PHYSICS_ID",), BOTH, "the allowlist that copies contract evidence", "PREVIEW_PHYSICS_TIMOSHENKO_ID", RUST_READERS),
+    "core/reporting/result_document_stream/src/header.rs": (
+        ("PREVIEW_PHYSICS_ID",), BOTH, "the allowlist that copies contract evidence", "PREVIEW_PHYSICS_TIMOSHENKO_ID", STREAM_PARITY),
     "core/handoff/stress_neutral/package.py": (
         ("SUPPORTED_METHODS", "PREVIEW_METHODS"), BOTH, "supported methods and preview evidence namespaces",
         "PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID", PY_READERS),

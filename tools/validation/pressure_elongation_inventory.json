@@ -28,11 +28,11 @@
    ".json",
    ".jsonl"
   ],
-  "files": 547,
+  "files": 549,
   "claimed_by": {
    "group": 144,
-   "in_code": 64,
-   "exemption": 339
+   "in_code": 65,
+   "exemption": 340
   }
  },
  "counts": {
@@ -69,7 +69,7 @@
   "reference_system": {
    "files": 1,
    "documents": 1,
-   "pressurised_load_cases": 3
+   "pressurised_load_cases": 4
   },
   "caepipe_benchmark": {
    "files": 22,
@@ -1537,7 +1537,8 @@
      "pressurised_load_cases": [
       "load:RS-SUS",
       "load:RS-OPE",
-      "load:RS-SAM"
+      "load:RS-SAM",
+      "load:RS-OPE-REF"
      ]
     }
    ]
@@ -6405,242 +6406,18 @@
    "documents": [],
    "held_documents": [
     {
-     "pointer": "/requests/38/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:cold-pressure",
-      "case:hot-pressure"
-     ]
-    },
-    {
      "pointer": "/requests/39/args/modelJson",
      "text_pointers": [
       ""
      ],
      "schema_version": "0.9.0",
      "pressurised_load_cases": [
-      "load:RS-SUS"
-     ]
-    },
-    {
-     "pointer": "/requests/63/args/invocationJson",
-     "text_pointers": [
-      "/request/model"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/89/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/100/args/invocationJson",
-     "text_pointers": [
-      "/request/model"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/132/args/invocationJson",
-     "text_pointers": [
-      "/request/model"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/137/args/inputManifest/canonical_bytes",
-     "text_pointers": [
-      "/model_basis/model_payload"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
       "case:cold-pressure",
       "case:hot-pressure"
      ]
     },
     {
-     "pointer": "/requests/189/args/invocationJson",
-     "text_pointers": [
-      "/request/model"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/191/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/221/args/inputManifest/canonical_bytes",
-     "text_pointers": [
-      "/model_basis/model_payload"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "load:RS-SUS"
-     ]
-    },
-    {
-     "pointer": "/requests/229/args/inputManifest/canonical_bytes",
-     "text_pointers": [
-      "/model_basis/model_payload"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:closed-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/234/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:cold-pressure",
-      "case:hot-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/267/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/267/args/invocationJson",
-     "text_pointers": [
-      "/request/model"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/299/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:closed-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/319/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:closed-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/335/args/inputManifest/canonical_bytes",
-     "text_pointers": [
-      "/model_basis/model_payload"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:cold-pressure",
-      "case:hot-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/344/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/346/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/346/args/invocationJson",
-     "text_pointers": [
-      "/request/model"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/355/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:cold-pressure",
-      "case:hot-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/367/args/invocationJson",
-     "text_pointers": [
-      "/request/model"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/425/args/invocationJson",
-     "text_pointers": [
-      "/request/model"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/434/args/modelJson",
+     "pointer": "/requests/40/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6650,9 +6427,80 @@
      ]
     },
     {
-     "pointer": "/requests/444/args/modelJson",
+     "pointer": "/requests/65/args/invocationJson",
+     "text_pointers": [
+      "/request/model"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/91/args/modelJson",
      "text_pointers": [
       ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/102/args/invocationJson",
+     "text_pointers": [
+      "/request/model"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/136/args/invocationJson",
+     "text_pointers": [
+      "/request/model"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/141/args/inputManifest/canonical_bytes",
+     "text_pointers": [
+      "/model_basis/model_payload"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:cold-pressure",
+      "case:hot-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/197/args/invocationJson",
+     "text_pointers": [
+      "/request/model"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/201/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/231/args/inputManifest/canonical_bytes",
+     "text_pointers": [
+      "/model_basis/model_payload"
      ],
      "schema_version": "0.9.0",
      "pressurised_load_cases": [
@@ -6660,37 +6508,17 @@
      ]
     },
     {
-     "pointer": "/requests/450/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/486/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/239/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
      "schema_version": "0.9.0",
      "pressurised_load_cases": [
-      "case:ordinary-pressure"
+      "case:closed-pressure"
      ]
     },
     {
-     "pointer": "/requests/529/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/533/args/modelJson",
+     "pointer": "/requests/244/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6701,17 +6529,7 @@
      ]
     },
     {
-     "pointer": "/requests/542/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:closed-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/570/args/modelJson",
+     "pointer": "/requests/279/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6721,7 +6539,7 @@
      ]
     },
     {
-     "pointer": "/requests/570/args/invocationJson",
+     "pointer": "/requests/279/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6731,7 +6549,38 @@
      ]
     },
     {
-     "pointer": "/requests/577/args/modelJson",
+     "pointer": "/requests/311/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:closed-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/331/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:closed-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/347/args/inputManifest/canonical_bytes",
+     "text_pointers": [
+      "/model_basis/model_payload"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:cold-pressure",
+      "case:hot-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/356/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6741,7 +6590,88 @@
      ]
     },
     {
-     "pointer": "/requests/582/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/358/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/358/args/invocationJson",
+     "text_pointers": [
+      "/request/model"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/367/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:cold-pressure",
+      "case:hot-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/379/args/invocationJson",
+     "text_pointers": [
+      "/request/model"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/438/args/invocationJson",
+     "text_pointers": [
+      "/request/model"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/448/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:RS-SUS"
+     ]
+    },
+    {
+     "pointer": "/requests/459/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:RS-SUS"
+     ]
+    },
+    {
+     "pointer": "/requests/466/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/503/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6751,13 +6681,74 @@
      ]
     },
     {
-     "pointer": "/requests/589/args/modelJson",
+     "pointer": "/requests/548/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/552/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:cold-pressure",
+      "case:hot-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/562/args/modelJson",
      "text_pointers": [
       ""
      ],
      "schema_version": "0.9.0",
      "pressurised_load_cases": [
       "case:closed-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/590/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/590/args/invocationJson",
+     "text_pointers": [
+      "/request/model"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/597/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/602/args/inputManifest/canonical_bytes",
+     "text_pointers": [
+      "/model_basis/model_payload"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
      ]
     },
     {
@@ -6771,7 +6762,17 @@
      ]
     },
     {
-     "pointer": "/requests/614/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/629/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:closed-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/634/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6781,7 +6782,7 @@
      ]
     },
     {
-     "pointer": "/requests/653/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/674/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6791,7 +6792,7 @@
      ]
     },
     {
-     "pointer": "/requests/672/args/modelJson",
+     "pointer": "/requests/693/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6801,7 +6802,7 @@
      ]
     },
     {
-     "pointer": "/requests/672/args/invocationJson",
+     "pointer": "/requests/693/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6811,17 +6812,7 @@
      ]
     },
     {
-     "pointer": "/requests/697/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:closed-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/702/args/modelJson",
+     "pointer": "/requests/718/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6841,7 +6832,17 @@
      ]
     },
     {
-     "pointer": "/requests/735/args/modelJson",
+     "pointer": "/requests/745/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:closed-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/758/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6852,7 +6853,7 @@
      ]
     },
     {
-     "pointer": "/requests/736/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/759/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6862,7 +6863,7 @@
      ]
     },
     {
-     "pointer": "/requests/750/args/modelJson",
+     "pointer": "/requests/774/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6872,7 +6873,7 @@
      ]
     },
     {
-     "pointer": "/requests/752/args/modelJson",
+     "pointer": "/requests/776/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6883,7 +6884,7 @@
      ]
     },
     {
-     "pointer": "/requests/770/args/modelJson",
+     "pointer": "/requests/794/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6893,7 +6894,7 @@
      ]
     },
     {
-     "pointer": "/requests/804/args/modelJson",
+     "pointer": "/requests/832/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6903,7 +6904,7 @@
      ]
     },
     {
-     "pointer": "/requests/808/args/modelJson",
+     "pointer": "/requests/836/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6913,7 +6914,7 @@
      ]
     },
     {
-     "pointer": "/requests/812/args/modelJson",
+     "pointer": "/requests/841/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6923,7 +6924,7 @@
      ]
     },
     {
-     "pointer": "/requests/862/args/modelJson",
+     "pointer": "/requests/892/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6933,7 +6934,7 @@
      ]
     },
     {
-     "pointer": "/requests/884/args/invocationJson",
+     "pointer": "/requests/914/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6943,7 +6944,7 @@
      ]
     },
     {
-     "pointer": "/requests/937/args/modelJson",
+     "pointer": "/requests/971/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6953,7 +6954,7 @@
      ]
     },
     {
-     "pointer": "/requests/946/args/modelJson",
+     "pointer": "/requests/980/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6963,7 +6964,7 @@
      ]
     },
     {
-     "pointer": "/requests/961/args/modelJson",
+     "pointer": "/requests/995/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6973,7 +6974,7 @@
      ]
     },
     {
-     "pointer": "/requests/1005/args/invocationJson",
+     "pointer": "/requests/1040/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6983,7 +6984,7 @@
      ]
     },
     {
-     "pointer": "/requests/1006/args/modelJson",
+     "pointer": "/requests/1041/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6993,7 +6994,7 @@
      ]
     },
     {
-     "pointer": "/requests/1020/args/modelJson",
+     "pointer": "/requests/1056/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -7003,7 +7004,7 @@
      ]
     },
     {
-     "pointer": "/requests/1031/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/1068/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -9494,6 +9495,14 @@
   },
   {
    "paths": [
+    "tests/test_caepipe_stated_bases.py"
+   ],
+   "expectations": "closed_form",
+   "cases_named": "some",
+   "detail": "CAEPIPE benchmark stated-bases tests. Named: elongation-on series documents (cpb-p1-01, cpb-p1-04, cpb-p2-01, cpb-p2-03, cpb-p4-01, cpb-p5-01) solved directly and transformed by stated_bases.realize (which removes pressure_elongation and places free-strain thermal loads), judged against closed forms and product superposition. Unnamed: default-series documents (cpb-p1-01, cpb-p1-04, cpb-p2-01, cpb-p2-03, cpb-p3-01..04, cpb-p4-01, cpb-p5-01), judged against closed-end zero-reaction, open-end p A_i and thin-wall strain closed forms and product superposition"
+  },
+  {
+   "paths": [
     "tests/test_caepipe_mbf_round_trip.py"
    ],
    "expectations": "product_output",
@@ -10436,6 +10445,15 @@
    ],
    "files": [
     "apps/desktop/src/services/embeddedAgentSession.test.ts"
+   ]
+  },
+  {
+   "reason": "the benchmark stated-bases helper: transforms caller-supplied benchmark documents (claimed by caepipe_benchmark or its test) and calls a caller-supplied solve; it owns no model or response expectation",
+   "paths": [
+    "tools/caepipe_correlation/stated_bases.py"
+   ],
+   "files": [
+    "tools/caepipe_correlation/stated_bases.py"
    ]
   }
  ]
