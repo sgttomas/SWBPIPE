@@ -493,7 +493,7 @@ def physics_model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) ->
 _GENERATED_SELF_WEIGHT_METHOD = "pipe_mass_per_length_times_explicit_axis_acceleration/v2"
 
 
-def _bits(value: Any) -> int | None:
+def _binary64_bits(value: Any) -> int | None:
     if type(value) not in (int, float):
         return None
     return struct.unpack("<Q", struct.pack("<d", float(value)))[0]
@@ -548,13 +548,13 @@ def _test_condition_model_binding(source: Mapping[str, Any], model: Mapping[str,
                 condition = next((c for c in listed((found_set or {}).get("conditions")) if isinstance(c, Mapping) and c.get("key") == key), None)
                 density = condition.get("contents_density") if condition is not None else None
             mass, acceleration = item.get("mass_kg_per_m"), found.get("normalized_acceleration_m_per_s2")
-            applied = _bits(float(mass) * float(acceleration)) if _bits(mass) is not None and _bits(acceleration) is not None else None
+            applied = _binary64_bits(float(mass) * float(acceleration)) if _binary64_bits(mass) is not None and _binary64_bits(acceleration) is not None else None
             stated = item.get("contents_density") if isinstance(item.get("contents_density"), Mapping) else {}
             bound = (item.get("load_id") == load.get("id") and item.get("pipe_id") == pipe
                      and set_ref is not None and item.get("condition_set_ref") == set_ref and item.get("condition_key") == key
-                     and isinstance(density, Mapping) and _bits(density.get("value")) is not None
-                     and _bits(density.get("value")) == _bits(stated.get("value")) and density.get("unit") == stated.get("unit")
-                     and applied is not None and applied == _bits(item.get("applied_n_per_m")))
+                     and isinstance(density, Mapping) and _binary64_bits(density.get("value")) is not None
+                     and _binary64_bits(density.get("value")) == _binary64_bits(stated.get("value")) and density.get("unit") == stated.get("unit")
+                     and applied is not None and applied == _binary64_bits(item.get("applied_n_per_m")))
             if not bound:
                 raise Refused("SOURCE_PHYSICS_MODEL_TEST_CONTENTS")
 
