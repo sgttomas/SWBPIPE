@@ -452,7 +452,7 @@ fn a_store_that_cannot_be_found_keeps_no_entry() {
     let dir = scratch("no-store");
     let location = dir.join("p.opsproj");
     let session = SessionHeldEntries::default();
-    let outcome = keep_or_hold_in(Err(format!("no store near {}", location.display())), &session, None, &published(PROJECT, &location, b"p", true, 1));
+    let outcome = keep_or_hold_in(|| Err(format!("no store near {}", location.display())), &session, None, &published(PROJECT, &location, b"p", true, 1));
     assert_eq!(outcome.code, ENTRY_NOT_KEPT);
     assert!(session.lock().entries.is_empty(), "nothing is held for a store that cannot be found");
     withholds_location(&outcome.message);
@@ -1751,9 +1751,33 @@ fn a_save_presenting_a_live_token_is_held_when_the_store_cannot_be_found() {
     let (dir, path, package) = unsaved("r4-token-no-store");
     let session = SessionHeldEntries::default();
     let (first, token) = held(&keep_or_hold(&path, &session, None, &package));
-    let outcome = keep_or_hold_in(Err("no store".to_string()), &session, Some(&token), &published(PROJECT, &dir.join("second.opsproj"), b"second", true, 2));
+    let outcome = keep_or_hold_in(|| Err("no store".to_string()), &session, Some(&token), &published(PROJECT, &dir.join("second.opsproj"), b"second", true, 2));
     assert_eq!((outcome.status.as_str(), outcome.holder.as_deref()), ("held", Some(token.as_str())), "{outcome:?}");
     assert_eq!(ids(&listed(&path, &session, PROJECT, Some(&token)).entries), [first, outcome.entry_id.clone()]);
+}
+
+/// Scrutiny follow-up (Finding 1): a save presenting either a matching live
+/// token or another project's live token does not invoke the store resolver.
+#[test]
+fn a_live_token_never_resolves_the_store() {
+    let (dir, path, package) = unsaved("r4-token-lazy-store");
+    let session = SessionHeldEntries::default();
+    let (first, token) = held(&keep_or_hold(&path, &session, None, &package));
+    let same = keep_or_hold_in(
+        || panic!("store resolver must not be called for a matching live token"),
+        &session,
+        Some(&token),
+        &published(PROJECT, &dir.join("second.opsproj"), b"second", true, 2),
+    );
+    assert_eq!((same.status.as_str(), same.holder.as_deref()), ("held", Some(token.as_str())), "{same:?}");
+    let foreign = keep_or_hold_in(
+        || panic!("store resolver must not be called for another project's live token"),
+        &session,
+        Some(&token),
+        &published("project:b", &dir.join("b.opsproj"), b"b", true, 3),
+    );
+    assert_eq!((foreign.status.as_str(), foreign.code.as_str(), foreign.holder.as_deref()), ("not_kept", ENTRY_NOT_KEPT, None), "{foreign:?}");
+    assert_eq!(ids(&listed(&path, &session, PROJECT, Some(&token)).entries), [first, same.entry_id]);
 }
 
 /// Round 3 (Finding 2): a keep refused for its memory marks the holder's

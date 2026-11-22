@@ -241,7 +241,7 @@ async fn save_report_package_decoded(
             let held = app.state::<saved_package_entries::SessionHeldEntries>();
             let holder = request.saved_package_entry_holder.clone();
             let mut keep = |published: &saved_package_entries::PublishedPackage| {
-                saved_package_entries::keep_or_hold_in(app_store_path(&app), &held, holder.as_deref(), published)
+                saved_package_entries::keep_or_hold_in(|| app_store_path(&app), &held, holder.as_deref(), published)
             };
             report_package_save::save_report_package_session(
                 request,

@@ -643,12 +643,12 @@ const HELD_WITH_EARLIER: &str =
 /// Keeps a published package's entry in the store at `path`
 /// ([`keep_or_hold_in`]).
 pub(crate) fn keep_or_hold(path: &Path, session: &SessionHeldEntries, holder: Option<&str>, published: &PublishedPackage) -> SavedPackageEntryOutcome {
-    keep_or_hold_in(Ok(path.to_path_buf()), session, holder, published)
+    keep_or_hold_in(|| Ok(path.to_path_buf()), session, holder, published)
 }
 
 /// Keeps a published package's entry (REQ-023 "Entry", "Before the first
 /// project save"). `holder` is the token the page presents, if any. The
-/// session's live tokens are read, under its lock, before the store:
+/// session's live tokens are read, under its lock, before the store is resolved:
 ///
 /// - With a live token the session minted for this project, the entry is
 ///   held under it with the holder's other entries, whether or not the store
@@ -663,7 +663,7 @@ pub(crate) fn keep_or_hold(path: &Path, session: &SessionHeldEntries, holder: Op
 ///   written and kept; if it does not, the session holds the entry under a
 ///   token minted now, which the outcome returns.
 pub(crate) fn keep_or_hold_in(
-    store: Result<PathBuf, String>,
+    store: impl FnOnce() -> Result<PathBuf, String>,
     session: &SessionHeldEntries,
     holder: Option<&str>,
     published: &PublishedPackage,
@@ -686,7 +686,7 @@ pub(crate) fn keep_or_hold_in(
     if holder.is_some_and(|token| held.holders.iter().any(|(_, live)| live == token)) {
         return not_kept_failure();
     }
-    let Ok(path) = store else {
+    let Ok(path) = store() else {
         return not_kept_failure();
     };
     match write_entries(&path, project_id, &[(&entry_id, published, &basis)]) {
