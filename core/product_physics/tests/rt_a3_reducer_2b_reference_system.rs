@@ -3,7 +3,11 @@
 //! DEL-03-05, the eccentric reducer offset and rigid component
 //! stiffness scaling): the RS-R1
 //! connecting path through PP's public entry, with weight, pressure, the
-//! temperature modulus state, thermal eigenstrain and boundary motion together.
+//! temperature modulus state, thermal eigenstrain and boundary motion together,
+//! in each of the fixture's four cases: RS-SUS, RS-OPE (the operating thermal
+//! state on the modulus at 210 degC), RS-SAM and RS-OPE-REF (the same thermal
+//! state on the 20 degC modulus, specification §8.1), and the combinations
+//! RS-EXP = RS-OPE-REF - RS-SUS and RS-dSAM = RS-SAM - RS-SUS.
 //!
 //! **Input.** The maintained fixture `fixtures/reference_system/reference_system.json`
 //! (read only), which holds RS-R1 and RS-CE1 (DEL-09-01 specification §10):
@@ -34,8 +38,9 @@
 //!   `validation/references/reference_system_r1_ce/` totals, with RS-R1's 300 N
 //!   in place of RS-P150's distributed weight, which equal the tranche-1
 //!   `validation/references/reference_system/` totals less RS-P150's record plus
-//!   300 N at the body midpoint (checked here); EQ-5 on RS-dSAM; RS-CE1 is one
-//!   support action among all, counted once;
+//!   300 N at the body midpoint (checked here); RS-OPE-REF carries the same
+//!   weight, as `validation/references/reference_system_ope_ref/` binds; EQ-5 on
+//!   RS-dSAM; RS-CE1 is one support action among all, counted once;
 //! - the generated W: every member intensity equals the record's section
 //!   weight per length, RS-P150 has none, and RS-R1's wrench is F = (0, 0, -300) N
 //!   with M = r x F;
@@ -44,7 +49,9 @@
 //!   (s*E, s*G on the nominal annulus, kappa_E, frame from the chord and
 //!   y_reference) times the product's displacements, less the independently
 //!   formed eigen actions: thermal s*E*A_n*alpha*dT at the case's modulus
-//!   state, the unscaled Poisson pair 2*nu*p*A_i, and the uniform weight from
+//!   state (read from the case's element states: 188.3 GPa interpolated at
+//!   210 degC in RS-OPE, the 20 degC point's 200 GPa in RS-OPE-REF), the unscaled
+//!   Poisson pair 2*nu*p*A_i, and the uniform weight from
 //!   the reference record on the neighbours only. The tolerance is an a priori
 //!   rounding bound, 1e-12 of the sum of the absolute terms. This checks the
 //!   relation, not the displacements;
@@ -55,8 +62,9 @@
 //! - body station statics, wall/effective force, stress, extreme and Lamé
 //!   relations on both section bases, and the reference-section record;
 //! - mutants of the recovery and equilibrium checks that miss by orders of
-//!   magnitude. These show that the checks discriminate. They are not
-//!   references.
+//!   magnitude: among them, RS-OPE recovered on RS-SUS's modulus, RS-OPE-REF on
+//!   RS-OPE's hot modulus, and either thermal case without its thermal strain.
+//!   These show that the checks discriminate. They are not references.
 //!
 //! Product consistency controls, which are not mathematical references, are
 //! the diagnostics against the fixture without RS-R1 solved alike and a
@@ -85,7 +93,12 @@ const R1: &str = "component:RS-R1";
 const BODY: &str = "pipe:RS-P150";
 const N: &str = "node:RS-160";
 const F: &str = "node:RS-150";
-const CASES: [&str; 3] = ["load:RS-SUS", "load:RS-OPE", "load:RS-SAM"];
+const CASES: [&str; 4] = ["load:RS-SUS", "load:RS-OPE", "load:RS-SAM", "load:RS-OPE-REF"];
+/// The cases whose integrity code the RT-S3 test below states. RS-CE1's applied
+/// load and support action, KR-03's identity, are stated in every case of
+/// `CASES`, RS-OPE-REF's from the entered load alone; RS-OPE-REF's equilibrium
+/// is checked with the others in `check_eq`.
+const STANDING_CASES: [&str; 3] = ["load:RS-SUS", "load:RS-OPE", "load:RS-SAM"];
 const SOURCE: &str = "invented user value, DEL-09-01";
 const R1_WEIGHT_N: f64 = 300.0;
 const R1_SCALE: f64 = 2.0;
@@ -515,7 +528,10 @@ enum Mutant {
     None,
     BodyUnscaled,
     PoissonScaled,
+    /// RS-OPE recovered on RS-SUS's (20 degC) modulus.
     ReferenceModulus,
+    /// RS-OPE-REF recovered on RS-OPE's (210 degC) modulus.
+    HotModulus,
     NoThermalStrain,
     BodyKeepsPipeWeight,
 }
@@ -535,6 +551,9 @@ fn recover(model: &Value, rows: &Rows, case: &str, shear: &str, m: &Member, muta
     let body = m.pipe == BODY;
     if mutant == Mutant::ReferenceModulus {
         e = member_state(model, "load:RS-SUS", m.pipe).0;
+    }
+    if mutant == Mutant::HotModulus {
+        e = member_state(model, "load:RS-OPE", m.pipe).0;
     }
     if mutant == Mutant::NoThermalStrain {
         strain = 0.0;
@@ -725,7 +744,7 @@ fn check_variant(v: &Variant, shear: &str, reducer: Reducer) {
     assert!((0..3).all(|k| (cog[k] - R1_COG[k]).abs() <= 1e-14), "the entered CoG is the body midpoint: {cog:?}");
     let transverse = sub(d, scale(run, dot(d, run)));
     assert!((transverse[2] - 0.025).abs() < 1e-15 && transverse[0] == 0.0 && transverse[1] == 0.0, "{transverse:?}");
-    assert_eq!(v.scope, vec![COMPONENT_WEIGHT_SCOPE; 3]);
+    assert_eq!(v.scope, vec![COMPONENT_WEIGHT_SCOPE; CASES.len()]);
     let wpl = |pipe: &str| {
         let section = fixture["pipe_segments"].as_array().unwrap().iter().find(|p| p["id"] == pipe).unwrap()["section_ref"].as_str().unwrap();
         weight_per_length(section)
@@ -1003,7 +1022,18 @@ fn check_evidence(model: &Value, envelope: &Value, shear: &str, label: &str) {
     }
 }
 
-const MUTANTS: [Mutant; 5] = [Mutant::BodyUnscaled, Mutant::PoissonScaled, Mutant::ReferenceModulus, Mutant::NoThermalStrain, Mutant::BodyKeepsPipeWeight];
+const MUTANTS: [Mutant; 6] = [Mutant::BodyUnscaled, Mutant::PoissonScaled, Mutant::ReferenceModulus, Mutant::HotModulus, Mutant::NoThermalStrain, Mutant::BodyKeepsPipeWeight];
+
+/// Whether a mutant departs from `case`'s own state: the modulus mutants in the
+/// one case each names, the missing strain in the two thermal cases.
+fn mutant_applies(mutant: Mutant, case: &str) -> bool {
+    match mutant {
+        Mutant::ReferenceModulus => case == "load:RS-OPE",
+        Mutant::HotModulus => case == "load:RS-OPE-REF",
+        Mutant::NoThermalStrain => matches!(case, "load:RS-OPE" | "load:RS-OPE-REF"),
+        _ => true,
+    }
+}
 
 /// One overlaid, solved configuration: every local and global check; returns
 /// the worst fraction of an allowance used per family, and the smallest miss
@@ -1036,7 +1066,7 @@ fn check_configuration(o: &Variant, envelope: &Value, shear: &str, label: &str) 
         note("body sections", check_body_sections(model, &rows, case, end_j, (recs[1].bound[2], recs[1].bound[3]), label));
         // The checks discriminate: each mutant misses by orders of magnitude.
         for mutant in MUTANTS {
-            if matches!(mutant, Mutant::ReferenceModulus | Mutant::NoThermalStrain) && case != "load:RS-OPE" {
+            if !mutant_applies(mutant, case) {
                 continue;
             }
             let rec = recover(model, &rows, case, shear, &members[1], mutant);
@@ -1060,9 +1090,11 @@ fn check_configuration(o: &Variant, envelope: &Value, shear: &str, label: &str) 
         assert!(pae > 1e3 && axis > 1e3, "{label} {case}: equilibrium does not discriminate (pAe {pae:e}, run-axis cap {axis:e})");
         weakest = weakest.min(pae.min(axis));
     }
-    // Combinations: RS-EXP = RS-OPE - RS-SUS and RS-dSAM = RS-SAM - RS-SUS on
-    // the neighbourhood's motions and end wrenches.
-    for (combination, minuend) in [("combination:RS-EXP", "load:RS-OPE"), ("combination:RS-dSAM", "load:RS-SAM")] {
+    // Combinations: RS-EXP = RS-OPE-REF - RS-SUS and RS-dSAM = RS-SAM - RS-SUS
+    // on the neighbourhood's motions and end wrenches (the combinations' algebra).
+    for (combination, minuend) in [("combination:RS-EXP", "load:RS-OPE-REF"), ("combination:RS-dSAM", "load:RS-SAM")] {
+        let record = model["combinations"].as_array().unwrap().iter().find(|c| c["id"] == combination).unwrap();
+        assert_eq!((&record["minuend_id"], &record["subtrahend_id"]), (&json!(minuend), &json!("load:RS-SUS")), "{label} {combination}");
         let mut pairs = Vec::new();
         for node in ["node:RS-140", F, N, "node:RS-170"] {
             let (c, a, b) = (rows.motion(node, combination), rows.motion(node, minuend), rows.motion(node, "load:RS-SUS"));
@@ -1110,8 +1142,8 @@ fn the_fixtures_rs_r1_forms_and_recovers_the_actual_step_on_the_full_reference_s
             assert!(scaled[0]["message"].as_str().unwrap().contains("scale 2 to mapped member pipe:RS-P150"), "{label}: {}", scaled[0]["message"]);
             // Against the fixture without RS-R1 solved alike: RS-R1 adds
             // exactly those two records, drops one preview-mapping warning per
-            // case (RS-P150's replaced distributed weight) and nothing else,
-            // and publishes the same rows.
+            // case (RS-P150's replaced distributed weight, four cases) and
+            // nothing else, and publishes the same rows.
             let base = solve(&baseline.model, mode);
             assert_eq!(base["status"]["mechanics"], "MECHANICS_SOLVED", "{label} baseline");
             let (with, without) = (code_counts(&envelope), code_counts(&base));
@@ -1123,7 +1155,7 @@ fn the_fixtures_rs_r1_forms_and_recovers_the_actual_step_on_the_full_reference_s
                 }
             }
             let expected: BTreeMap<(String, String), i64> = [
-                (("LOAD_CATEGORY_PREVIEW_MAPPED", "warning"), -3),
+                (("LOAD_CATEGORY_PREVIEW_MAPPED", "warning"), -(CASES.len() as i64)),
                 (("RIGID_COMPONENT_ECCENTRIC_OFFSET_REALIZED", "info"), 1),
                 (("RIGID_COMPONENT_STIFFNESS_SCALING_APPLIED", "info"), 1),
             ].into_iter().map(|((c, s), d)| ((c.to_string(), s.to_string()), d)).collect();
@@ -1159,7 +1191,7 @@ fn rs_r1_with_a_weight_generated_without_it_is_refused_as_stale() {
     let envelope = solve(&model, PreviewSolverMode::SparseInteractive);
     assert_ne!(envelope["status"]["mechanics"], "MECHANICS_SOLVED");
     let refused: Vec<&Value> = diagnostics(&envelope).iter().filter(|d| d["severity"] == "blocking").collect();
-    assert_eq!(refused.len(), 3, "{refused:#?}");
+    assert_eq!(refused.len(), CASES.len(), "{refused:#?}");
     for (d, case) in refused.iter().zip(CASES) {
         assert_eq!(d["code"], "SELF_WEIGHT_INPUTS_STALE", "{d}");
         let load = format!("load:self-weight:{}:{case}:{}:{BODY}", case.len(), BODY.len());
@@ -1168,21 +1200,23 @@ fn rs_r1_with_a_weight_generated_without_it_is_refused_as_stale() {
     assert!(envelope["results"].as_array().is_none_or(|r| r.is_empty()));
 }
 
-/// The six generated records of RS-R1's weight in the committed fixture, by
-/// their exact identities: in each of RS-SUS, RS-OPE and RS-SAM, its force
+/// The eight generated records of RS-R1's weight in the committed fixture, by
+/// their exact identities: in each of RS-SUS, RS-OPE, RS-SAM and RS-OPE-REF, its force
 /// along Z and its moment about X (r x F with r = (0, -0.2, 0.0125) m and
 /// F = (0, 0, -W): only M_x is nonzero). Their values are EQ-1/EQ-2's; this
 /// test is freshness only, through the public applied-self-weight check.
-const R1_RECORDS: [(&str, &str, &str); 6] = [
+const R1_RECORDS: [(&str, &str, &str); 8] = [
     ("load:RS-SUS", "force", "load:self-weight:11:load:RS-SUS:component:15:component:RS-R1:force:z"),
     ("load:RS-SUS", "moment", "load:self-weight:11:load:RS-SUS:component:15:component:RS-R1:moment:x"),
     ("load:RS-OPE", "force", "load:self-weight:11:load:RS-OPE:component:15:component:RS-R1:force:z"),
     ("load:RS-OPE", "moment", "load:self-weight:11:load:RS-OPE:component:15:component:RS-R1:moment:x"),
     ("load:RS-SAM", "force", "load:self-weight:11:load:RS-SAM:component:15:component:RS-R1:force:z"),
     ("load:RS-SAM", "moment", "load:self-weight:11:load:RS-SAM:component:15:component:RS-R1:moment:x"),
+    ("load:RS-OPE-REF", "force", "load:self-weight:15:load:RS-OPE-REF:component:15:component:RS-R1:force:z"),
+    ("load:RS-OPE-REF", "moment", "load:self-weight:15:load:RS-OPE-REF:component:15:component:RS-R1:moment:x"),
 ];
 
-/// Each of RS-R1's six records is fresh in the committed fixture, and is
+/// Each of RS-R1's eight records is fresh in the committed fixture, and is
 /// stale, with an in-place refresh and a blocking SELF_WEIGHT_INPUTS_STALE, after
 /// the smallest change of the one input its value is formed from: the force
 /// after the entered weight (300 to 301 N, F_z = -W), the moment after the
@@ -1198,7 +1232,7 @@ const R1_RECORDS: [(&str, &str, &str); 6] = [
 #[test]
 fn each_rs_r1_weight_record_is_fresh_and_its_own_input_change_stales_it() {
     let fixture = fixture();
-    // The six identities are the generator's: case, component, wrench part and axis.
+    // The eight identities are the generator's: case, component, wrench part and axis.
     for (case, part, id) in R1_RECORDS {
         assert_eq!(component_load_id(case, R1, part, if part == "force" { "z" } else { "x" }), id);
     }
@@ -1389,7 +1423,7 @@ fn rt_s3_consumed_constant_effort_is_published_on_the_no_nonlinear_reference_sys
     for mode in MODES {
         let envelope = solve(&twin, mode);
         assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "metre twin {mode:?}: {:?}", blocking(&envelope));
-        for case in CASES {
+        for case in STANDING_CASES {
             let id = format!("diagnostic:numerical-integrity:{case}");
             let integrity: Vec<_> = diagnostics(&envelope).iter().filter(|d| d["id"] == id).collect();
             assert_eq!(integrity.len(), 1);
@@ -1403,7 +1437,7 @@ fn rt_s3_consumed_constant_effort_is_published_on_the_no_nonlinear_reference_sys
         assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{label}: {:?}", blocking(&envelope));
         assert_eq!(envelope["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-3");
         assert!(with_code(&envelope, "SOURCE_BLOCK_RECOVERY_SELECTED").is_empty(), "{label}: ordinary publication");
-        for case in CASES {
+        for case in STANDING_CASES {
             let id = format!("diagnostic:numerical-integrity:{case}");
             let integrity: Vec<_> = diagnostics(&envelope).iter().filter(|d| d["id"] == id).collect();
             assert_eq!(integrity.len(), 1);

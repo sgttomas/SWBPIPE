@@ -46,7 +46,7 @@ describe("the entity commands", () => {
     // The inspector's Remove panel.
     const panelQueue = vi.fn<(intent: EditorOperationIntent) => void>();
     const panel = render(<GuardedRemoval model={model} selection={target} onQueueIntent={panelQueue} />);
-    const panelButton = screen.getByRole("button", { name: "Queue removal for review" });
+    const panelButton = screen.getByRole("button", { name: `Delete ${type}` });
     await waitFor(() => expect(panelButton).toBeEnabled());
     fireEvent.click(panelButton);
     panel.unmount();

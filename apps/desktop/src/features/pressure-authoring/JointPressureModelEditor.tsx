@@ -7,7 +7,10 @@ export function JointPressureModelEditor(props: RichFormProps) {
   const component = props.model.components.find(component => props.selection.type === "component" && component.id === props.selection.id);
   const connector = record(record(component).objective_connector);
   if (props.model.schema_version !== MODEL_SCHEMA_VERSION || !isPressureV3(props.model) || component?.kind !== "expansion_joint" || connector.version !== "1.0.0") return null;
-  return <Editor key={component.id} {...props} componentId={component.id} pressureModel={connector.pressure_model} />;
+  return <details className="inspector-details" data-testid="joint-pressure-model-details">
+    <summary>Joint pressure model</summary>
+    <Editor key={component.id} {...props} componentId={component.id} pressureModel={connector.pressure_model} />
+  </details>;
 }
 function Editor(props: RichFormProps & { componentId: string; pressureModel: unknown }) {
   const [draft, setDraft] = useState<DraftRecord>(() => clone(record(props.pressureModel)));

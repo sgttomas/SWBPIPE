@@ -29,12 +29,14 @@ describe("rigid-component quantity units (G6)", () => {
     const queue = vi.fn<(intent: EditorOperationIntent) => void>();
     const selection = { type: "node" as const, id: "node:RS-030" };
     render(<DisplayUnitsProvider initialPreference="SI">{surface === "inspector"
-      ? <PropertyInspector model={model} selection={selection} onQueueIntent={queue} />
+      // New component is opened as a person opens it: the Components command asks the inspector for it.
+      ? <PropertyInspector model={model} selection={selection} onQueueIntent={queue} taskRequest={{ sequence: 1, target: selection, view: "properties", focusTestId: "create-component-kind" }} />
       : <PipeViewport model={model} selection={selection} onSelect={() => emptySelection()} onQueueIntent={queue} armedCreationTool="component" />
     }</DisplayUnitsProvider>);
     const prefix = surface === "inspector" ? "create" : "viewport-create";
     const control = (field: string) => screen.getByTestId(`${prefix}-component-${field}`);
     const enter = (field: string, value: string) => changeFormControl(control(field), { target: { value } });
+    expect(control("kind")).toBeVisible();
     enter("kind", "flange");
     await waitFor(() => {
       if (control("end-a-size-unit").getAttribute("aria-expanded") !== "true") fireEvent.click(control("end-a-size-unit"));

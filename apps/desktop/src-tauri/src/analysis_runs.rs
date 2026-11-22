@@ -1021,8 +1021,9 @@ fn check_received(project_id: &str, transient: &Value, recomputed: &str, result_
 /// manifest fixes, the exact two-hash inventory, every row's checksum and the
 /// diagnostics. `manifest_hash_hex` is the SHA-256 of the manifest's canonical
 /// text, which the caller has bound; the result's checked SHA-256 is computed
-/// here, its texts reserved in `memory`. Returns whether the record was made
-/// before rule-pack resolution (the caller refuses that too).
+/// here, its texts reserved in `memory`. Returns the record's hash, which
+/// the check recomputed and found equal to its own checksum, and whether the
+/// record was made before rule-pack resolution (the caller refuses that too).
 pub(crate) fn check_record_for_values(
     project_id: &str,
     transient: &Value,
@@ -1030,7 +1031,7 @@ pub(crate) fn check_record_for_values(
     manifest: &Value,
     manifest_hash_hex: &str,
     memory: &dyn ReadMemory,
-) -> Result<bool, String> {
+) -> Result<CheckedRecord, String> {
     check_manifest_binding(project_id, transient, manifest, manifest_hash_hex)?;
     let recomputed = check_transient_record(project_id, transient, manifest, manifest_hash_hex, memory)?;
     let run_id = result.get("run_id").and_then(Value::as_str);
@@ -1041,7 +1042,18 @@ pub(crate) fn check_record_for_values(
     let hash_hex = stored_read::checked_sha256(memory, "the run record's result", result).map_err(|error| {
         if error.starts_with(stored_read::STORE_READ_MEMORY_UNAVAILABLE) { error } else { refused(RESULT, error) }
     })?;
-    check_record_result(project_id, transient, &recomputed, &RecordResult { result, run_id, model_ref, hash_hex: &hash_hex }, manifest, memory)
+    let before_rule_pack_resolution =
+        check_record_result(project_id, transient, &recomputed, &RecordResult { result, run_id, model_ref, hash_hex: &hash_hex }, manifest, memory)?;
+    Ok(CheckedRecord { record_sha256: recomputed, before_rule_pack_resolution })
+}
+
+/// What [`check_record_for_values`] found of a record that passed.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct CheckedRecord {
+    /// The record's hash, recomputed by the check.
+    pub(crate) record_sha256: String,
+    /// The record was made before rule-pack resolution.
+    pub(crate) before_rule_pack_resolution: bool,
 }
 
 // ---------------------------------------------------------------------------
@@ -3513,3 +3525,10 @@ pub fn delete_analysis_run(
 #[allow(unsafe_code)]
 #[path = "analysis_runs_tests.rs"]
 mod tests;
+
+/// A store with a project, saved states and recorded runs, for other
+/// modules' store tests (the saved-package entries').
+#[cfg(test)]
+pub(crate) mod test_fixtures {
+    pub(crate) use super::tests::{model, record, request, save_state, store_with_project, PROJECT, T0};
+}

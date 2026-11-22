@@ -30,7 +30,7 @@
 //! source natively before it is rendered: the named job's custody, the
 //! resubmitted result, intake and input-manifest texts against the digests
 //! the host recorded, a priced parse under the command's lease, the native
-//! reader's eligible standing, and the re-derivation of the rows, their
+//! reader's reading of a solved result (whatever its numerical standing), and the re-derivation of the rows, their
 //! references and full-precision checksums, the unit display summary, the
 //! Diagnostics, the exact limitation entries and the `exact_route` section
 //! from the delivered result with the report package's own functions
@@ -279,8 +279,8 @@ fn bind_render_admission(
     // Step 3: the lease grows by the priced parse and W M_r before any parse.
     let growth = exact_render_growth_bytes(result, intake, manifest_text).map_err(CommandError::Command)?;
     lease.grow_to(lease.bytes().saturating_add(growth)).map_err(|refusal| CommandError::Ingress(registry.refuse(refusal)))?;
-    // Steps 3-5: parse, the native standing, the result and model digests.
-    let bound = binding::read_delivered_source(admission, &digests, result, intake, binding::SourceAdmission::Render).map_err(refused)?;
+    // Steps 3-5: parse, the native reading, the result and model digests.
+    let bound = binding::read_delivered_source(admission, &digests, result, intake).map_err(refused)?;
     // The input manifest, parsed as the save parses its own: its SHA-256 is the
     // binding's, and its model is the bound model.
     let manifest = crate::report_package_save::parse_canonical("input_manifest", manifest_text)

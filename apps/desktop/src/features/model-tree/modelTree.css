@@ -10,21 +10,21 @@
 .tree-group-row .tree-group-count {
   margin-left: var(--space-3);
   padding: 0 var(--space-3);
-  border: 1px solid var(--ui-divider);
+  border: var(--border-width-hairline) solid var(--ui-divider);
   border-radius: 9px;
   color: var(--ui-muted);
   font-size: var(--type-size-caption);
   font-weight: var(--type-weight-regular);
   font-variant-numeric: tabular-nums;
-  line-height: 14px;
+  line-height: var(--type-lineHeight-caption);
 }
 
 /* The keyboard's current row (the tree's active descendant), group or entity, while
    the tree has keyboard focus. The inset outline keeps the fixed row geometry and is
    distinct from the selection's fill and accent edge. */
 .model-tree [role="tree"]:focus-visible .tree-row.focused {
-  outline: 2px solid var(--ui-focus);
-  outline-offset: -2px;
+  outline: var(--border-width-focusRing) solid var(--ui-focus);
+  outline-offset: calc(-1 * var(--border-width-focusRing));
 }
 
 /* Overview: the selected entity's identity, connections, size and material,
@@ -33,7 +33,7 @@
   gap: var(--space-2);
   margin: 0 0 var(--space-6);
   padding: var(--space-4) 0 var(--space-5);
-  border-bottom: 1px solid var(--ui-divider);
+  border-bottom: var(--border-width-hairline) solid var(--ui-divider);
   overflow: visible;
 }
 
@@ -61,14 +61,14 @@
   display: block;
   color: var(--ui-muted);
   font-size: var(--type-size-caption);
-  line-height: 14px;
+  line-height: var(--type-lineHeight-caption);
   font-variant-numeric: tabular-nums;
 }
 
 .inspector .property-reference-missing {
   color: var(--ui-warning-text);
   font-size: var(--type-size-caption);
-  line-height: 14px;
+  line-height: var(--type-lineHeight-caption);
 }
 
 /* A resolved reference that selects its entity: the name reads as a link and the exact
@@ -112,4 +112,118 @@
   margin: 0;
   color: var(--ui-muted);
   font-size: var(--type-size-caption);
+}
+
+/* A creation form a command opened (New section, material, support, component): its
+   name and a close control on one line, above the form. */
+.inspector .inspector-creation {
+  margin: 0 0 var(--space-5);
+  padding: 0 0 var(--space-4);
+  border-bottom: var(--border-width-hairline) solid var(--ui-divider);
+}
+
+.inspector .inspector-creation-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.inspector .inspector-creation-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--space-8);
+  min-height: var(--space-8);
+  padding: 0;
+}
+
+/* The selected entity's actions: closed lines, then its Delete control at the foot. */
+.inspector .inspector-actions {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0 0 var(--space-4);
+}
+
+.inspector .inspector-actions[hidden] {
+  display: none;
+}
+
+.inspector .inspector-actions > details > summary,
+.inspector .inspector-details.inspector-line > summary {
+  overflow-wrap: anywhere;
+}
+
+/* A warning that applies to the selected entity stands on its closed line, in its own words. */
+.inspector .inspector-line-warning {
+  color: var(--ui-warning-text);
+  font-weight: var(--type-weight-regular);
+}
+
+p.inspector-line-warning {
+  margin: 0;
+}
+
+/* A closed line states its current value after its name. */
+.inspector .inspector-line-value {
+  color: var(--ui-muted);
+  font-weight: var(--type-weight-regular);
+}
+
+.inspector .inspector-delete {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-1);
+  margin-block-start: var(--space-3);
+  padding-block-start: var(--space-3);
+  border-top: var(--border-width-hairline) solid var(--ui-divider);
+}
+
+.inspector .inspector-delete > button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.inspector .inspector-delete-note {
+  margin: 0;
+  color: var(--ui-muted);
+  font-size: var(--type-size-caption);
+}
+
+/* A field's label and its control keep a gap (Shared section, and every labelled select). */
+.inspector .form-field > span + * {
+  margin-block-start: var(--space-1);
+}
+
+/* A setting's controls side by side keep a gap (Queue tolerance, Reset to default). */
+.inspector .inspector-line button + button {
+  margin-inline-start: var(--space-2);
+}
+
+/* The shear deformation choice: each option on its own line, the chosen one visibly chosen. */
+.inspector .model-settings-choices {
+  display: grid;
+  gap: var(--space-2);
+  margin-block: var(--space-2);
+}
+
+.inspector .model-settings-choices > label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.inspector .model-settings-choices > label:has(input:checked) > span {
+  font-weight: var(--type-weight-semibold);
+}
+
+/* The tree says when a filter hides the selected entity, with the one control to clear it. */
+.model-tree .model-tree-selection-filtered {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  margin: var(--space-2) 0;
+  color: var(--ui-muted);
 }

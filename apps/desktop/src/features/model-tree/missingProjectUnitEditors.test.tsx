@@ -52,7 +52,9 @@ function mount(document: PreviewModel, selection: EntityRef) {
   const validate = vi.fn<(intent: EditorOperationIntent) => void>();
   render(
     <DisplayUnitsProvider initialPreference="SI">
-      <PropertyInspector model={document} selection={selection} onQueueIntent={queue} onValidateIntent={validate} onApplyIntent={vi.fn(async () => true)} />
+      <PropertyInspector model={document} selection={selection} onQueueIntent={queue} onValidateIntent={validate} onApplyIntent={vi.fn(async () => true)}
+        // The New component form is opened as the command box's Components opens it.
+        taskRequest={{ sequence: 1, target: selection, view: "properties", focusTestId: "create-component-kind" }} />
     </DisplayUnitsProvider>
   );
   return { queue, validate };

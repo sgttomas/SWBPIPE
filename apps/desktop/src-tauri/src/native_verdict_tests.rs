@@ -132,6 +132,26 @@ pub(crate) mod gate {
         }
     }
 }
+/// DEL-04-07's pool contract for [`run`]: the live bytes when it releases its
+/// leases, marked on the thread that ran it (`ingress::counting::phase_mark`), so
+/// that a test measuring `run` reads what was allocated after the release.
+pub(crate) mod released {
+    use std::cell::Cell;
+    std::thread_local! {
+        static AT: Cell<Option<i64>> = const { Cell::new(None) };
+    }
+    pub(crate) fn mark() {
+        let (live, _) = crate::ingress::counting::phase_mark();
+        AT.with(|at| at.set(Some(live)));
+    }
+    /// The live bytes at the release and the peak live bytes since it, read on
+    /// the same thread after `run` returned (inside the same measure).
+    pub(crate) fn since() -> Option<(i64, i64)> {
+        let at = AT.with(|at| at.take())?;
+        let (_, peak) = crate::ingress::counting::phase_mark();
+        Some((at, peak))
+    }
+}
 fn invalid_message(error: CommandError<String>) -> String {
     match error {
         CommandError::Ingress(SolveJobError::InvalidRequest { message }) => message,

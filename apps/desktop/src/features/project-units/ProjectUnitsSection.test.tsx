@@ -214,6 +214,9 @@ describe("project units section", () => {
       </DisplayUnitsProvider>
     );
     expect(within(byId("project-units-details")).getByText("Project units")).toBeInTheDocument();
+    // A closed line until the person opens it.
+    expect(byId("project-units-details")).not.toHaveAttribute("open");
+    fireEvent.click(within(byId("project-units-details")).getByText("Project units"));
     expect(byId("project-units-details")).toHaveAttribute("open");
     expect(byId("model-settings-details").nextElementSibling).toBe(byId("project-units-details"));
     expect(byId("project-units-section-force")).toHaveValue("N");
