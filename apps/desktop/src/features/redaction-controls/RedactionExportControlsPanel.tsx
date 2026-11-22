@@ -369,4 +369,3 @@ function fieldPolicy(fieldClass: "project" | "material" | "component") {
 function jsonDataHref(payload: unknown): string {
   return `data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(payload, null, 2))}`;
 }
-

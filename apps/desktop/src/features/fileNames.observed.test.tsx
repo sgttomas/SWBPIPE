@@ -2,6 +2,7 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import type { ReactElement } from "react";
 import { cleanup, fireEvent, render, waitFor } from "@testing-library/react";
+import ts from "typescript";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({
@@ -86,157 +87,71 @@ function sources(directory: string): string[] {
   });
 }
 
-function stripJsComments(text: string): string {
-  let out = "";
-  for (let i = 0; i < text.length; ) {
-    const ch = text[i];
-    const next = text[i + 1] ?? "";
-    if (ch === "/" && next === "/") {
-      out += "  ";
-      i += 2;
-      while (i < text.length && text[i] !== "\n") {
-        out += " ";
-        i += 1;
-      }
-    } else if (ch === "/" && next === "*") {
-      out += "  ";
-      i += 2;
-      while (i < text.length && !(text[i] === "*" && text[i + 1] === "/")) {
-        out += text[i] === "\n" ? "\n" : " ";
-        i += 1;
-      }
-      if (i < text.length) {
-        out += "  ";
-        i += 2;
-      }
-    } else if (ch === '"' || ch === "'" || ch === "`") {
-      const end = skipQuoted(text, i);
-      out += text.slice(i, end + 1);
-      i = end + 1;
-    } else {
-      out += ch;
-      i += 1;
-    }
+function parseSource(file: string, text: string): ts.SourceFile {
+  const scriptKind = file.endsWith(".ts") ? ts.ScriptKind.TS : ts.ScriptKind.TSX;
+  const sf = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, scriptKind);
+  const diagnostics = (sf as ts.SourceFile & { parseDiagnostics?: ReadonlyArray<ts.Diagnostic> }).parseDiagnostics ?? [];
+  if (diagnostics.length > 0) {
+    const first = ts.flattenDiagnosticMessageText(diagnostics[0].messageText, "\n");
+    throw new Error(`${file}: parse error: ${first}`);
   }
-  return out;
+  return sf;
 }
 
-/** Advance from the opening quote/backtick at `start` to the index of its matching closing quote/backtick. */
-function skipQuoted(text: string, start: number): number {
-  const quote = text[start];
-  let i = start + 1;
-  while (i < text.length) {
-    const ch = text[i];
-    if (ch === "\\") {
-      i += 2;
-      continue;
-    }
-    if (quote === "`" && ch === "$" && text[i + 1] === "{") {
-      i += 2;
-      let braceDepth = 1;
-      while (i < text.length && braceDepth > 0) {
-        const inner = text[i];
-        if (inner === '"' || inner === "'" || inner === "`") {
-          i = skipQuoted(text, i) + 1;
-        } else {
-          if (inner === "{") braceDepth += 1;
-          else if (inner === "}") braceDepth -= 1;
-          i += 1;
-        }
-      }
-      continue;
-    }
-    if (ch === quote) return i;
-    i += 1;
-  }
-  return text.length - 1;
-}
-
-/** Each call of `callee` in comment-stripped code, skipping string literals when locating calls and balancing parens. */
-function calls(text: string, callee: string): string[] {
-  const code = stripJsComments(text);
+/** Each call of `callee` in `text`, parsed with the TypeScript TS/TSX parser. */
+function calls(text: string, callee: string, file = "sample.tsx"): string[] {
+  const sf = parseSource(file, text);
   const found: string[] = [];
-  const token = `${callee}(`;
-  for (let i = 0; i < code.length; i += 1) {
-    const ch = code[i];
-    if (ch === '"' || ch === "'" || ch === "`") {
-      i = skipQuoted(code, i);
-      continue;
-    }
-    const prev = i === 0 ? "" : code[i - 1];
-    if (code.startsWith(token, i) && !/[A-Za-z0-9_$]/.test(prev)) {
-      let depth = 1;
-      let index = i + token.length;
-      const start = index;
-      while (index < code.length && depth > 0) {
-        const c = code[index];
-        if (c === '"' || c === "'" || c === "`") {
-          index = skipQuoted(code, index) + 1;
-          continue;
-        }
-        if (c === "(") depth += 1;
-        else if (c === ")") depth -= 1;
-        index += 1;
+  function visit(node: ts.Node) {
+    if (ts.isCallExpression(node)) {
+      const targetName = ts.isIdentifier(node.expression)
+        ? node.expression.text
+        : ts.isPropertyAccessExpression(node.expression)
+          ? node.expression.name.text
+          : null;
+      if (targetName === callee) {
+        found.push(node.arguments.map((arg) => arg.getText(sf)).join(", "));
       }
-      found.push(code.slice(start, index - 1));
     }
+    ts.forEachChild(node, visit);
   }
+  visit(sf);
   return found;
 }
 
-type DownloadSite = { kind: "jsx" | "dom" | "setAttribute"; expr: string };
+type DownloadSite = { kind: "jsx" | "dom" | "setAttribute"; expr: string; node: ts.Expression | null };
 
-/** Every JSX `download=...`, DOM `.download = ...`, and `.setAttribute("download", ...)` site in `text`. */
-function downloadSites(text: string): DownloadSite[] {
-  const code = stripJsComments(text);
+/** Every JSX `download=...`, DOM `.download = ...`/`["download"] = ...`, and `.setAttribute("download", ...)` site. */
+function downloadSites(text: string, file = "sample.tsx"): DownloadSite[] {
+  const sf = parseSource(file, text);
   const sites: DownloadSite[] = [];
-  for (let i = 0; i < code.length; i += 1) {
-    const ch = code[i];
-    if (ch === '"' || ch === "'" || ch === "`") {
-      i = skipQuoted(code, i);
-      continue;
-    }
-    const prev = i === 0 ? "" : code[i - 1];
-    if (code.startsWith("download", i) && !/[A-Za-z0-9_$]/.test(prev) && !/[A-Za-z0-9_$]/.test(code[i + 8] ?? "")) {
-      let j = i + 8;
-      while (j < code.length && /\s/.test(code[j])) j += 1;
-      if (code[j] !== "=" || code[j + 1] === "=") continue;
-      j += 1;
-      while (j < code.length && /\s/.test(code[j])) j += 1;
-      if (prev === ".") {
-        let end = j;
-        while (end < code.length && code[end] !== ";" && code[end] !== "\n") {
-          if (code[end] === '"' || code[end] === "'" || code[end] === "`") {
-            end = skipQuoted(code, end) + 1;
-            continue;
-          }
-          end += 1;
-        }
-        sites.push({ kind: "dom", expr: code.slice(j, end).trim() });
-      } else if (code[j] === '"' || code[j] === "'") {
-        const end = skipQuoted(code, j);
-        sites.push({ kind: "jsx", expr: code.slice(j, end + 1) });
-      } else if (code[j] === "{") {
-        let depth = 1;
-        let end = j + 1;
-        while (end < code.length && depth > 0) {
-          const c = code[end];
-          if (c === '"' || c === "'" || c === "`") {
-            end = skipQuoted(code, end) + 1;
-            continue;
-          }
-          if (c === "{") depth += 1;
-          else if (c === "}") depth -= 1;
-          end += 1;
-        }
-        sites.push({ kind: "jsx", expr: code.slice(j + 1, end - 1).trim() });
+  function visit(node: ts.Node) {
+    if (ts.isJsxAttribute(node) && ts.isIdentifier(node.name) && node.name.text === "download") {
+      const init = node.initializer;
+      if (!init) sites.push({ kind: "jsx", expr: "<bare>", node: null });
+      else if (ts.isStringLiteral(init)) sites.push({ kind: "jsx", expr: init.getText(sf), node: init });
+      else if (ts.isJsxExpression(init)) {
+        sites.push({ kind: "jsx", expr: init.expression ? init.expression.getText(sf) : "<empty>", node: init.expression ?? null });
+      }
+    } else if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
+      const isDownloadProp =
+        (ts.isPropertyAccessExpression(node.left) && node.left.name.text === "download") ||
+        (ts.isElementAccessExpression(node.left) && ts.isStringLiteralLike(node.left.argumentExpression) && node.left.argumentExpression.text === "download");
+      if (isDownloadProp) sites.push({ kind: "dom", expr: node.right.getText(sf), node: node.right });
+    } else if (ts.isCallExpression(node)) {
+      const callee = ts.isIdentifier(node.expression)
+        ? node.expression.text
+        : ts.isPropertyAccessExpression(node.expression)
+          ? node.expression.name.text
+          : null;
+      if (callee === "setAttribute" && node.arguments.length >= 1 && ts.isStringLiteralLike(node.arguments[0]) && node.arguments[0].text === "download") {
+        const arg = node.arguments[1] ?? null;
+        sites.push({ kind: "setAttribute", expr: arg ? arg.getText(sf) : "<missing>", node: arg });
       }
     }
+    ts.forEachChild(node, visit);
   }
-  for (const args of calls(code, "setAttribute")) {
-    const match = /^\s*(["'])download\1\s*,([\s\S]*)$/.exec(args);
-    if (match) sites.push({ kind: "setAttribute", expr: match[2].trim() });
-  }
+  visit(sf);
   return sites;
 }
 
@@ -247,11 +162,27 @@ const AUDITED_DOWNLOAD_HELPERS: ReadonlyArray<{ file: string; expr: string }> = 
 
 function downloadSitesOutOfRule(file: string, text: string, exceptions: typeof FILE_NAME_EXCEPTIONS): string[] {
   const problems: string[] = [];
-  for (const { kind, expr } of downloadSites(text)) {
-    const direct = /^suggestedFileName\(\s*(["'])([A-Za-z0-9_]+)\1(?:\s*,[\s\S]*)?\)$/.exec(expr);
-    if (direct && direct[2] in FILE_KINDS) continue;
+  for (const { kind, expr, node } of downloadSites(text, file)) {
+    let value = node;
+    while (value && ts.isParenthesizedExpression(value)) value = value.expression;
+    if (
+      value &&
+      ts.isCallExpression(value) &&
+      ts.isIdentifier(value.expression) &&
+      value.expression.text === "suggestedFileName" &&
+      value.arguments.length >= 1 &&
+      ts.isStringLiteralLike(value.arguments[0]) &&
+      value.arguments[0].text in FILE_KINDS
+    ) {
+      continue;
+    }
     if (AUDITED_DOWNLOAD_HELPERS.some((helper) => helper.file === file && helper.expr === expr)) continue;
-    const literalPrefix = /^([`"'])([\s\S]*)\1$/.exec(expr)?.[2] ?? "";
+    const literalPrefix =
+      value && ts.isStringLiteralLike(value)
+        ? value.text
+        : value && ts.isTemplateExpression(value)
+          ? value.head.text
+          : "";
     if (exceptions.some((item) => item.file === file && literalPrefix.startsWith(item.starts))) continue;
     problems.push(`${file} (${kind}): download=${expr}`);
   }
@@ -262,8 +193,8 @@ const SITES = sources(SRC)
   .map((file) => ({ file: path.relative(SRC, file).split(path.sep).join("/"), text: readFileSync(file, "utf8") }))
   .filter(({ file }) => file !== "features/fileNames.ts")
   .flatMap(({ file, text }) => [
-    ...calls(text, "suggestedFileName").map((args) => ({ file, callee: "suggestedFileName", args })),
-    ...calls(text, "fileNameOf").map((args) => ({ file, callee: "fileNameOf", args }))
+    ...calls(text, "suggestedFileName", file).map((args) => ({ file, callee: "suggestedFileName", args })),
+    ...calls(text, "fileNameOf", file).map((args) => ({ file, callee: "fileNameOf", args }))
   ]);
 
 const QUALIFIED: Readonly<Record<string, ReadonlyArray<FileKind>>> = { "features/local-fea-handoff/LocalFeaHandoffPanel.tsx": ["localFeaHandoff"] };
@@ -304,6 +235,14 @@ describe("the check's own ground", () => {
       'save.ts (dom): download="foo.json"'
     ]);
     expect(downloadSitesOutOfRule("Panel.tsx", '<a download={suggestedFileName("operationCapabilities")} />', [])).toEqual([]);
+  });
+
+  it("detects a bad download attribute and suggestedFileName after JSX prose containing an apostrophe", () => {
+    const snippet = "<><p>User's export</p><a download=\"wrong.json\" /></>";
+    expect(downloadSitesOutOfRule("Panel.tsx", snippet, [])).toEqual(['Panel.tsx (jsx): download="wrong.json"']);
+    const validSnippet = "<><p>User's export</p><a download={suggestedFileName('handoff')} /></>";
+    expect(calls(validSnippet, "suggestedFileName", "Panel.tsx")).toEqual(["'handoff'"]);
+    expect(downloadSitesOutOfRule("Panel.tsx", validSnippet, [])).toEqual([]);
   });
 });
 
@@ -390,6 +329,8 @@ type PanelEntry = readonly [
   options?: {
     prepare?: (container: HTMLElement) => void | Promise<void>;
     allowedExceptions?: ReadonlyArray<string>;
+    expectedNames?: ReadonlyArray<string>;
+    withheldControls?: ReadonlyArray<{ testId: string; expectedName: string; reason: string }>;
   }
 ];
 
@@ -455,7 +396,7 @@ describe("the names the panels show for the known project", () => {
     ["external prover", "features/external-prover/ExternalProverBoundaryPanel.tsx", () => <ExternalProverBoundaryPanel model={MODEL} result={RESULT} analysisRun={analysisRun} />, ["externalProver"]],
     ["handoff", "features/handoff/HandoffPanel.tsx", () => <HandoffPanel model={MODEL} knowledge={null} result={RESULT} analysisRun={analysisRun} comparison={null} editorIntents={[SAMPLE_INTENT]} proposal={null} selectedReviewTarget={null} />, ["handoff"]],
     ["headless runner", "features/headless-runner/HeadlessRunnerPanel.tsx", () => <HeadlessRunnerPanel model={MODEL} result={RESULT} analysisRun={analysisRun} solveJob={SOLVE_JOB} />, ["headlessRunner"]],
-    ["local FEA handoff", "features/local-fea-handoff/LocalFeaHandoffPanel.tsx", () => <LocalFeaHandoffPanel model={MODEL} result={RESULT} analysisRun={analysisRun} />, ["localFeaHandoff"]],
+    ["local FEA handoff", "features/local-fea-handoff/LocalFeaHandoffPanel.tsx", () => <LocalFeaHandoffPanel model={MODEL} result={RESULT} analysisRun={analysisRun} />, ["localFeaHandoff"], { expectedNames: ["local-fea-handoff-pipe-p-100-node-n-140.json"] }],
     ["missing data", "features/missing-data/MissingDataBlockingPanel.tsx", () => <MissingDataBlockingPanel model={MODEL} result={RESULT} />, ["missingData"]],
     ["native package", "features/native-package/NativePackagePanel.tsx", () => <NativePackagePanel analysisRun={analysisRun} editorIntents={[SAMPLE_INTENT]} model={MODEL} modelHash={null} projectSummary={null} proposal={null} result={RESULT} selectedReviewTarget={null} storageCapability={null} />, ["nativePackage"]],
     [
@@ -472,7 +413,21 @@ describe("the names the panels show for the known project", () => {
       }
     ],
     ["operation ledger", "features/operations/OperationLedgerPanel.tsx", () => <OperationLedgerPanel model={MODEL} analysisRun={analysisRun} editorIntents={[SAMPLE_INTENT]} proposal={null} selectedReviewTarget={null} onClearReviewQueue={() => undefined} />, ["operationLedger"]],
-    ["PCF export", "features/pcf-export/PcfExportPanel.tsx", () => <PcfExportPanel model={MODEL} result={RESULT} analysisRun={analysisRun} />, ["pcfPackage", "pcfText"]],
+    [
+      "PCF export",
+      "features/pcf-export/PcfExportPanel.tsx",
+      () => <PcfExportPanel model={MODEL} result={RESULT} analysisRun={analysisRun} />,
+      ["pcfPackage", "pcfText"],
+      {
+        withheldControls: [
+          {
+            testId: "pcf-text-link",
+            expectedName: "pcf.pcf",
+            reason: "DEL-12-02 DOTH-FORMAT-003 downstream_tool lossless text/plain policy withholds href (App.test.tsx:1627)"
+          }
+        ]
+      }
+    ],
     ["project storage audit", "features/project-storage/ProjectStorageAuditPanel.tsx", () => <ProjectStorageAuditPanel model={MODEL} storageCapability={null} projectSummary={null} projectIndex={null} projectMessage="" projectOperation="preview" editorIntents={[SAMPLE_INTENT]} proposal={null} />, ["storageAudit"]],
     ["project validation", "features/project-validation/ProjectValidationPanel.tsx", () => <ProjectValidationPanel model={MODEL} storageCapability={null} projectSummary={null} projectOperation="preview" editorIntents={[SAMPLE_INTENT]} proposal={null} modelHash={null} modelHashIntegrity={null} projectEnvelopeHash={null} projectEnvelopeHashIntegrity={null} modelDocumentVersion={null} />, ["projectValidation"]],
     [
@@ -501,9 +456,16 @@ describe("the names the panels show for the known project", () => {
       ["stressNeutralRows"],
       {
         prepare: async (container) => {
-          await waitFor(() => expect(container.querySelector('[data-testid="stress-neutral-csv-link"]')).not.toBeNull());
+          await waitFor(() => expect(container.querySelector('span[aria-disabled="true"][download][data-testid="stress-neutral-csv-link"]')).not.toBeNull());
         },
-        allowedExceptions: ["openpipestress-preview-stress-neutral-"]
+        allowedExceptions: ["openpipestress-preview-stress-neutral-"],
+        withheldControls: [
+          {
+            testId: "stress-neutral-csv-link",
+            expectedName: "stress-neutral-rows.csv",
+            reason: "DEL-12-02 DOTH-FORMAT-003 downstream_tool lossless text/csv policy withholds href (StressNeutralExportPanel.test.tsx:465-470)"
+          }
+        ]
       }
     ],
     ["telemetry boundary", "features/telemetry/TelemetryBoundaryPanel.tsx", () => <TelemetryBoundaryPanel model={MODEL} storageCapability={null} />, ["telemetryBoundary"]],
@@ -517,6 +479,8 @@ describe("the names the panels show for the known project", () => {
     // externalRunResultsCsv is written into JSON fields (CaepipeExternalHarnessPanel.tsx:218-219), not a download link.
     const expectedDownloadKinds = (Object.keys(FILE_KINDS) as FileKind[]).filter((key) => key !== "externalRunResultsCsv").sort();
     expect([...renderedKinds].sort()).toEqual(expectedDownloadKinds);
+    const declaredWithheldTestIds = PANELS.flatMap((entry) => entry[4]?.withheldControls?.map((item) => item.testId) ?? []).sort();
+    expect(declaredWithheldTestIds).toEqual(["pcf-text-link", "stress-neutral-csv-link"]);
   });
 
   const PANEL_CASES: ReadonlyArray<readonly [string, PanelEntry]> = PANELS.map((entry) => [entry[0], entry]);
@@ -524,14 +488,46 @@ describe("the names the panels show for the known project", () => {
   it.each(PANEL_CASES)("%s", async (_name, [, file, element, kinds, options]) => {
     const { container } = render(element());
     if (options?.prepare) await options.prepare(container);
-    const names = Array.from(container.querySelectorAll("[download]"), (item) => item.getAttribute("download") ?? "");
-    for (const kind of kinds) expect(names.some((name) => name.startsWith(FILE_KINDS[kind].kind)), kind).toBe(true);
+    for (const checkbox of container.querySelectorAll<HTMLInputElement>('input[type="checkbox"][data-testid$="-local-private-intent"]')) {
+      if (!checkbox.checked) fireEvent.click(checkbox);
+    }
+    const anchors = Array.from(container.querySelectorAll<HTMLAnchorElement>("a[href][download]"));
+    for (const anchor of anchors) {
+      expect(anchor.getAttribute("href")?.trim().length ?? 0).toBeGreaterThan(0);
+      expect(anchor.getAttribute("aria-disabled")).not.toBe("true");
+    }
     const declaredForFile = FILE_NAME_EXCEPTIONS.filter((item) => item.file === file).map((item) => item.starts);
     const allowed = options?.allowedExceptions ?? [];
     for (const prefix of allowed) expect(declaredForFile).toContain(prefix);
-    const observedNames = names.filter((name) => !allowed.some((prefix) => name.startsWith(prefix)));
-    expect(observedNames.length).toBeGreaterThan(0);
-    expect(observedNames.flatMap(outOfConvention)).toEqual([]);
+
+    const withheldSpans = Array.from(container.querySelectorAll<HTMLElement>("span[download]"))
+      .filter((span) => !allowed.some((prefix) => (span.getAttribute("download") ?? "").startsWith(prefix)));
+    for (const span of withheldSpans) {
+      expect(span.getAttribute("aria-disabled")).toBe("true");
+      expect(span.getAttribute("href")).toBeNull();
+    }
+    const expectedWithheld = options?.withheldControls ?? [];
+    const observedWithheld = withheldSpans.map((span) => ({
+      testId: span.getAttribute("data-testid") ?? "",
+      name: span.getAttribute("download") ?? ""
+    }));
+    expect(observedWithheld.sort((a, b) => a.testId.localeCompare(b.testId))).toEqual(
+      expectedWithheld
+        .map((item) => ({ testId: item.testId, name: item.expectedName }))
+        .sort((a, b) => a.testId.localeCompare(b.testId))
+    );
+
+    const names = anchors.map((item) => item.getAttribute("download") ?? "");
+    const observedActionable = names.filter((name) => !allowed.some((prefix) => name.startsWith(prefix)));
+    const allDeclaredNames = options?.expectedNames ?? kinds.map((kind) => suggestedFileName(kind));
+    const expectedActionable = [...allDeclaredNames];
+    for (const item of expectedWithheld) {
+      const index = expectedActionable.indexOf(item.expectedName);
+      expect(index).toBeGreaterThanOrEqual(0);
+      expectedActionable.splice(index, 1);
+    }
+    expect([...observedActionable].sort()).toEqual([...expectedActionable].sort());
+    expect([...observedActionable, ...observedWithheld.map((item) => item.name)].flatMap(outOfConvention)).toEqual([]);
   });
 });
 
@@ -542,7 +538,7 @@ const NOT_YET_OBSERVED: ReadonlyArray<{ file: string; starts: string; owner: str
   { file: "features/report/RenderedReportPanel.tsx", starts: "openpipestress-report-", owner: "DEL-08-01 rendered report lane (report download)" },
   { file: "features/result-export/ResultExportPanel.tsx", starts: "openpipestress-preview-results-", owner: "DEL-08-04 native result save lane (result JSON download and native check)" },
   { file: "features/stress-neutral/StressNeutralExportPanel.tsx", starts: "openpipestress-preview-stress-neutral-", owner: "DEL-08-04 native result save lane (stress-neutral JSON download and native check)" },
-  { file: "features/review-geometry/ReviewGeometryPanel.tsx", starts: "openpipestress-preview-review-geometry-", owner: "DEL-07-04 review geometry native save lane (package member and download)" },
+  { file: "features/review-geometry/ReviewGeometryPanel.tsx", starts: "openpipestress-preview-review-geometry-", owner: "DEL-17-08 (writer and package builder) and DEL-07-12 (panel presentation) review geometry lane (package member and download)" },
   { file: "features/result-export/csvTable.ts", starts: "swbpipe-", owner: "DEL-08-04 native CSV export lane (results and comparison CSV tables)" },
   { file: "features/caepipe-mbf/mbfExport.ts", starts: "swbpipe-model", owner: "DEL-17-04 CAEPIPE MBF export lane (browser helper for swbpipe-model[-<slug>].mbf)" },
   { file: "apps/desktop/src-tauri/src/rendered_report_routes.rs", starts: "openpipestress-local-private-report-", owner: "DEL-08-01 rendered report native save lane (local-private HTML chooser name)" },
