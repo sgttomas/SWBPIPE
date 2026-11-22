@@ -192,8 +192,8 @@ tests cover; it builds no frontend. It restores the main-scoped
 
 Other Python, Rust, desktop TypeScript and docs changes do not select it. An
 unreadable crate or compile read selects it, and so does a stale runtime-read
-declaration in `src/` or `build.rs` of a crate it compiles, in every selection
-until the refresh below lands.
+declaration of a source a crate it compiles builds into a library or build
+script, in every selection until the refresh below lands.
 Dispatch runs it. The selection's reasons are in the plan artifact.
 The literal scan finds fixture paths written as one path-like string or format
 template. A test that assembled a fixture path from fragments (`join` of
@@ -208,31 +208,49 @@ Literal compile reads are resolved from the source file. Dynamic runtime reads
 have explicit exact-file declarations in `piping_runtime_reads` of
 `tools/hosted-ci-routing.json`, bound to source anchors, source scans and Rust
 caller trees. Their authored fields (each declaration, its inputs, anchors,
-bases, exact files, scan rules, audits and external-read audits) are written by
-the change that adds or alters a read, and a semantic error in them selects every
-crate: a malformed shape, an unresolved filesystem API, an escaping path, a
-missing exact input file, a runtime read with no declaration, an unused or
-unknown declaration or an anchor absent from compiled source. Their derived
-fingerprints (the reader's and anchor sources' `sha256`/`source_sha256`, each
-declaration's caller crates and their `source_trees` Rust tree digests, and each
-scan's `files` inventory) are not refreshed by ordinary changes. A declaration
-whose fingerprints differ from the tree is stale: it may now read a file it does
-not list, so its reader crate and Rust callers are added to every selection,
-with a `stale-runtime-read` reason, until a refresh lands. Their Cargo consumers
-are added too, unless the reader is a crate's own test, bench or example, which
-no other crate compiles. Crates added only this way do not start the Python job,
-and while a declaration in an engine crate's `src/` or `build.rs` is stale the
-desktop engine output cache (`tools/software_workflow/wasm_cache.py`) rebuilds
-rather than reuse. A scan's files are also read from the tree, so a file it has gained is a
-resource at once and a declared file it has lost still selects its reader.
-Staleness alone never selects every crate and fails no check. The refresh is one
-command, run as its own pull request on a schedule and at the solver freeze and
-the release candidate:
+bases, exact files, scan rules, audits, external-read audits and `unread_paths`
+audits) are written by the change that adds or alters a read. Their shape is
+checked strictly, and a semantic error in them selects every crate and stops a
+refresh: an unknown or misspelt key, a malformed scan rule, a scan that finds no
+files, an unresolved filesystem API, an escaping path, a missing exact input
+file, a runtime read with no declaration, an unused or unknown declaration or an
+anchor absent from compiled source. Their derived fingerprints (the reader's and
+anchor sources' `sha256`/`source_sha256`, each declaration's caller crates and
+their `source_trees` Rust tree digests, and each scan's `files` inventory) are
+not refreshed by ordinary changes. A declaration whose fingerprints differ from
+the tree is stale: it may now read a file it does not list, so its reader crate
+and Rust callers are added to every selection, with a `stale-runtime-read`
+reason, until a refresh lands. Their Cargo consumers are added too, unless the
+reader is shown to be only a crate's own test, bench or example: under `tests/`,
+`benches/` or `examples/`, with no `[lib] path` or `[package] build` there and no
+`include!` or `#[path]` from elsewhere compiling it. A library source's callers
+are the crates that depend on it, wherever it lies. Crates added only this way
+do not start the Python job. While a declaration of a source that the desktop
+shell's path dependencies or the engine crates compile into a library or build
+script is stale (a `#[path]` or `include!` helper of a build script included),
+the desktop Rust tests run and the desktop engine output cache
+(`tools/software_workflow/wasm_cache.py`) rebuilds rather than reuse. A scan's
+files are also read from the tree, so a file it has gained is a resource at once
+and a declared file it has lost still selects its reader. Staleness alone never
+selects every crate and fails no check.
+
+The refresh is one command, run as its own pull request on a schedule and at the
+solver freeze and the release candidate:
 
 ```sh
 python3 tools/ci/numerical_ci.py --refresh-runtime-reads   # rewrites the fingerprints
 python3 tools/ci/numerical_ci.py --check-runtime-reads     # lists stale declarations; exit 1 if any
 ```
+
+It refuses to rewrite anything while a semantic error exists, and it prints each
+scan whose inventory size changes. A refresh does not clear a declaration whose
+reader or anchor source changed while that source names an existing path
+(resolved from the project, the crate or the source directory) that a change
+would not select its reader crate for and that is no declared input, scan or
+`unread_paths` entry. It keeps that declaration's source fingerprints, so it stays
+stale and widened, reports it as needing an authored input and exits 1. The
+author declares the input, or records in `unread_paths` with a reason that the
+source names the path without reading it.
 
 Missing inputs, unresolved dependencies, unknown paths and shared execution
 controls select all discovered crates. Existing numerical oracles remain

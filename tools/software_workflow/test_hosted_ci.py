@@ -608,8 +608,58 @@ class HostedCITests(unittest.TestCase):
         self.assertEqual(numerical['classification'], 'reachability')
         callers = profile['piping_runtime_reads']['reads'][source]['source_trees']
         self.assertTrue(set(callers) <= set(numerical['manifests']))
-        self.assertIn({'kind': 'stale-runtime-read', 'source': source, 'manifests': callers,
-                       'stale': ['reader source changed']}, numerical['reasons'])
+        # Other legitimate reasons (a Rust tree the edit also changed) may accompany it.
+        reason = next(r for r in numerical['reasons'] if r.get('kind') == 'stale-runtime-read' and r['source'] == source)
+        self.assertEqual(reason['manifests'], callers)
+        self.assertIn('reader source changed', reason['stale'])
+
+    def test_build_script_helpers_count_as_compiled_reads_for_desktop_rust_and_the_engine_cache(self):
+        # Review of #611, finding 3: a helper the build script compiles by #[path] is a compiled source,
+        # wherever it lies, and so is Rust code include!d into it and a `[lib] path` override's tree.
+        import hashlib
+        numerical = load_numerical_module(SOURCE_ROOT)
+        project = self.root
+        crate = project / 'core/eng'
+        (crate / 'src').mkdir(parents=True)
+        (crate / 'build_support').mkdir()
+        (project / 'fixtures').mkdir()
+        (crate / 'Cargo.toml').write_text('[package]\nname="eng"\nversion="0.1.0"\n')
+        (crate / 'Cargo.lock').write_text('version = 4\n')
+        (crate / 'src/lib.rs').write_text('pub fn value() {}')
+        (crate / 'build.rs').write_text('#[path = "build_support/stamp.rs"] mod stamp;\nfn main() { stamp::stamp(); }\n')
+        (crate / 'build_support/extra.rs').write_text('pub fn extra() {}')
+        helper = crate / 'build_support/stamp.rs'
+        helper.write_text('include!("extra.rs");\npub fn stamp() { std::fs::read("../../fixtures/stamp.json"); }\n')
+        (project / 'fixtures/stamp.json').write_text('{}')
+        (project / 'fixtures/later.json').write_text('{}')
+        local = 'core/eng/build_support/stamp.rs'
+        def declarations():
+            return {'source_trees': {'core/eng/Cargo.toml': numerical.rust_tree_digest(project.resolve(), Path('core/eng/Cargo.toml'))},
+                    'reads': {local: {'sha256': hashlib.sha256(helper.read_bytes()).hexdigest(),
+                                      'source_trees': ['core/eng/Cargo.toml'],
+                                      'inputs': [{'anchor': '../../fixtures/stamp.json', 'base': 'manifest',
+                                                  'files': ['fixtures/stamp.json']}]}}}
+        fresh = declarations()
+        with patch.object(hosted_ci, 'numerical_module', return_value=numerical):
+            reads, stale = hosted_ci.declared_compiled_reads(project, frozenset({'core/eng'}), json.dumps(fresh))
+            self.assertEqual((reads, stale), (frozenset({'fixtures/stamp.json'}), ()))
+            _, compile_reads = hosted_ci.compiled_crate_inputs(project, ('core/eng/Cargo.toml',), False, 'engine')
+            self.assertTrue({local, 'core/eng/build_support/extra.rs'} <= compile_reads)
+            # The helper gains a read: stale, so the desktop tests run and the engine cache is not reused.
+            helper.write_text(helper.read_text() + 'pub fn later() { std::fs::read("../../fixtures/later.json"); }\n')
+            hosted_ci.declared_compiled_reads.cache_clear()  # a selection run reads one checkout
+            reads, stale = hosted_ci.declared_compiled_reads(project, frozenset({'core/eng'}), json.dumps(fresh))
+            self.assertEqual(stale, (local,))
+            # A library whose `[lib] path` lies outside src/ compiles its directory's Rust.
+            (crate / 'lib').mkdir()
+            (crate / 'lib/root.rs').write_text('mod part;')
+            (crate / 'lib/part.rs').write_text('pub const LATER: &str = include_str!("../../../fixtures/later.json");')
+            (crate / 'Cargo.toml').write_text('[package]\nname="eng"\nversion="0.1.0"\n[lib]\npath="lib/root.rs"\n')
+            hosted_ci.compiled_crate_inputs.cache_clear()
+            _, compile_reads = hosted_ci.compiled_crate_inputs(project, ('core/eng/Cargo.toml',), False, 'engine')
+            self.assertIn('fixtures/later.json', compile_reads)
+            hosted_ci.compiled_crate_inputs.cache_clear()
+            hosted_ci.declared_compiled_reads.cache_clear()
 
     def test_desktop_rust_closure_is_every_path_dependency_the_crate_compiles(self):
         import tomllib

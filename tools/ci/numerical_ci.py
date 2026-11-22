@@ -127,6 +127,85 @@ def rust_tree_digest(project, manifest):
     return hashlib.sha256(json.dumps(rows).encode()).hexdigest()
 
 
+# A crate's own test, bench and example targets: no other crate compiles them.
+OWN_TARGET_DIRS = frozenset({'tests', 'benches', 'examples'})
+DECLARATION_KEYS = frozenset({'sha256', 'source_trees', 'inputs', 'external_reads', 'unread_paths'})
+INPUT_KEYS = frozenset({'anchor', 'base', 'files', 'source', 'source_sha256', 'scan', 'audit'})
+SCAN_KEYS = frozenset({'suffix', 'name', 'exclude', 'hidden'})
+
+
+def _valid_scan(scan):
+    """An authored scan rule: exactly one of a suffix or a file name, optional excluded names and hidden flag."""
+    if not isinstance(scan, dict) or not scan or set(scan) - SCAN_KEYS or ('suffix' in scan) == ('name' in scan):
+        return False
+    if 'suffix' in scan and not (isinstance(scan['suffix'], str) and len(scan['suffix']) > 1
+                                 and scan['suffix'].startswith('.') and '/' not in scan['suffix']):
+        return False
+    if 'name' in scan and not (isinstance(scan['name'], str) and scan['name'] and '/' not in scan['name']):
+        return False
+    if 'exclude' in scan and not (isinstance(scan['exclude'], list)
+                                  and all(isinstance(x, str) and x and '/' not in x for x in scan['exclude'])):
+        return False
+    return 'hidden' not in scan or isinstance(scan['hidden'], bool)
+
+
+def path_literal_targets(project, crate, source):
+    """Existing project paths that a path-like string literal in `source` names, resolved from the project, the
+    crate and the source directory. A format template names the directory before its first slot. A bare word or
+    a whole top-level directory is not a target."""
+    targets = set()
+    for match in RUST_STRING.finditer(rust_source(source.read_text())):
+        try:
+            literal = rust_literal(match.group())
+        except ValueError:
+            continue
+        if '{' in literal:
+            literal = literal[:literal.index('{')].rpartition('/')[0]
+        if '/' not in literal or '\0' in literal or '\n' in literal or len(literal) > 1024:
+            continue
+        for base in (project, crate, source.parent):
+            target = Path(os.path.normpath(base / literal))
+            try:
+                if (target.is_relative_to(project) and len(target.relative_to(project).parts) > 1
+                        and target.exists()):
+                    targets.add(target.relative_to(project).as_posix())
+            except OSError:  # a prose literal longer than a path component, for example
+                continue
+    return targets
+
+
+def _own_target_only(project, manifest, local, includers):
+    """Whether `local` is shown to be compiled only into its crate's own tests, benches or examples: it lies under
+    one of those directories, the manifest names no library or build script there, and nothing outside them
+    includes it by `include!` or `#[path]` (transitively). Anything that cannot be shown is a library source."""
+    crate = project / manifest.parent
+    def own(name):
+        path = project / name
+        return path.is_relative_to(crate) and path.relative_to(crate).parts[0] in OWN_TARGET_DIRS
+    if not own(local):
+        return False
+    try:
+        data = tomllib.loads((project / manifest).read_text())
+    except (OSError, tomllib.TOMLDecodeError):
+        return False
+    for declared in (data.get('lib', {}).get('path'), data.get('package', {}).get('build')):
+        if isinstance(declared, str):
+            parts = Path(os.path.normpath(declared)).parts
+            if not parts or parts[0] in OWN_TARGET_DIRS or parts[0] == '..' or Path(declared).is_absolute():
+                return False
+    pending, seen = [local], set()
+    while pending:
+        name = pending.pop()
+        if name in seen:
+            continue
+        seen.add(name)
+        for includer in includers.get(name, ()):
+            if not own(includer):
+                return False
+            pending.append(includer)
+    return True
+
+
 def source_read_dependencies(project, manifests, declarations=None):
     """Index exact files read by each crate; these are never Cargo edges.
 
@@ -153,8 +232,10 @@ def runtime_read_index(project, manifests, declarations=None):
     `numerical_selection` adds to every selection until `refresh_runtime_reads`
     is run. Returns (resources, stale, derived): resources maps each read path
     to its reader crates; stale maps a declaration's source to {'manifests',
-    'reasons'}; derived holds the current fingerprints and each declaration's
-    resolved files, in the shape `refresh_runtime_reads` writes.
+    'reasons', 'consumers'}; derived holds the current fingerprints, each
+    declaration's resolved files, whether a library or build script compiles
+    it ('compiled'), and, for a declaration whose reader or anchor source has
+    changed, the path literals there that select no reader ('uncovered').
     """
     project = project.resolve()
     declarations = runtime_declarations(project) if declarations is None else declarations
@@ -163,7 +244,7 @@ def runtime_read_index(project, manifests, declarations=None):
     declared_trees, declarations = declarations['source_trees'], declarations['reads']
     if not isinstance(declared_trees, dict) or not isinstance(declarations, dict):
         raise ValueError('Invalid runtime read declaration tables')
-    resources, checked, stale = {}, set(), {}
+    resources, checked, stale, includers, readers_of, narrow = {}, set(), {}, {}, {}, set()
     derived = {'source_trees': {}, 'reads': {}}
     dependencies = cargo_dependencies(project, manifests)
     tree_digests = {m.as_posix(): rust_tree_digest(project, m) for m in manifests}
@@ -213,7 +294,7 @@ def runtime_read_index(project, manifests, declarations=None):
                 if not literal or not re.match(closing, code[literal.end():]):
                     raise ValueError('Unresolved compiled Rust read in ' + local)
                 target = contained(project, source.parent / rust_literal(literal.group()))
-                add(target, manifest)
+                includers.setdefault(add(target, manifest), set()).add(local)
                 if not match.group().startswith(('include_str', 'include_bytes')):
                     if target.suffix != '.rs':
                         raise ValueError('Unresolved compiled Rust source format: ' + local)
@@ -225,19 +306,31 @@ def runtime_read_index(project, manifests, declarations=None):
                 continue
             if declaration is None:
                 raise ValueError('Missing runtime read declaration: ' + local)
-            if not isinstance(declaration, dict):
+            if not isinstance(declaration, dict) or set(declaration) - DECLARATION_KEYS:
                 raise ValueError('Malformed runtime read declaration: ' + local)
+            unread = declaration.get('unread_paths', {})
+            if not isinstance(unread, dict) or not all(isinstance(k, str) and isinstance(v, str) and v.strip()
+                                                       for k, v in unread.items()):
+                raise ValueError('Malformed unread-path audit: ' + local)
             reasons = []
             current = hashlib.sha256(source.read_bytes()).hexdigest()
             if declaration.get('sha256') != current:
                 reasons.append('reader source changed')
             callers = {manifest}
-            if source.is_relative_to(crate / 'src'):
+            readers_of.setdefault(local, set()).add(manifest)
+            def dependents(found):
                 while True:
-                    enlarged = callers | {m for m, deps in dependencies.items() if deps & callers}
-                    if enlarged == callers:
-                        break
-                    callers = enlarged
+                    enlarged = found | {m for m, deps in dependencies.items() if deps & found}
+                    if enlarged == found:
+                        return found
+                    found = enlarged
+            # A library source's callers are the crates that depend on it; a crate's own test,
+            # bench or example and its build script are called by the crate alone.
+            if source.is_relative_to(crate / 'src') or (
+                    source != crate / 'build.rs' and not _own_target_only(project, manifest, local, includers)):
+                callers = dependents(callers)
+            else:
+                narrow.add((local, manifest))
             expected_trees = {m.as_posix(): tree_digests[m.as_posix()] for m in sorted(callers)}
             if declaration.get('source_trees') != sorted(expected_trees):
                 reasons.append('caller crates changed')
@@ -255,7 +348,7 @@ def runtime_read_index(project, manifests, declarations=None):
             if not isinstance(inputs, list) or (not inputs and external is None):
                 raise ValueError('Unresolved runtime inputs: ' + local)
             for entry in inputs:
-                if not isinstance(entry, dict):
+                if not isinstance(entry, dict) or set(entry) - INPUT_KEYS:
                     raise ValueError('Malformed runtime input: ' + local)
                 entry_fingerprints = {}
                 anchor_source = source
@@ -289,16 +382,21 @@ def runtime_read_index(project, manifests, declarations=None):
                 pattern = '^' + ''.join('.*' if p.startswith('{') and p.endswith('}') else re.escape(p)
                                        for p in re.split(r'(\{[^{}]*\})', normalized)) + '$'
                 names = set(files)
-                if scan:
-                    if not isinstance(scan, dict):
-                        raise ValueError('Unverified runtime source scan: ' + local)
+                if 'scan' in entry:
+                    # An authored rule: a misspelt key is a semantic error, never inventory drift.
+                    if not _valid_scan(scan):
+                        raise ValueError('Malformed runtime source scan: ' + local)
                     excludes = set(scan.get('exclude', []))
-                    if not entry.get('audit') or not boundary.is_dir() or not excludes <= anchor_literals:
+                    if (not isinstance(entry.get('audit'), str) or not entry['audit'].strip() or not boundary.is_dir()
+                            or not excludes <= anchor_literals):
                         raise ValueError('Unverified runtime source scan: ' + local)
                     expected = {p.relative_to(project).as_posix() for p in boundary.rglob('*')
                                 if p.is_file() and not excludes & set(p.relative_to(boundary).parts)
                                 and (not scan.get('hidden') or not any(part.startswith('.') for part in p.relative_to(boundary).parts))
                                 and (p.name == scan.get('name') if scan.get('name') else p.suffix == scan.get('suffix'))}
+                    if not expected:
+                        # A scan that finds nothing has lost its boundary or rule; the author restates it.
+                        raise ValueError('Runtime source scan finds no files: ' + local + ' -> ' + anchor)
                     entry_fingerprints['files'] = sorted(expected)
                     if names != expected:
                         reasons.append('scan inventory changed: ' + anchor)
@@ -320,39 +418,117 @@ def runtime_read_index(project, manifests, declarations=None):
                     resolved.add(add(target, manifest, required=not scan or name in expected))
                 entry_fingerprints['resolved'] = sorted(resolved)
                 fingerprints['inputs'].append(entry_fingerprints)
+            fingerprints['sources'] = sorted({local} | {contained(project, crate / e['source']).relative_to(project).as_posix()
+                                                         for e in inputs if e.get('source')})
+            if local in derived['reads']:  # compiled by more than one crate: every one's callers
+                callers |= stale.get(local, {}).get('manifests', set())
             derived['reads'][local] = fingerprints
             if reasons:
-                # A crate's own tests, benches and examples are compiled into no other crate;
-                # any other reader (src/, build.rs, an included file) reaches Cargo consumers.
-                own = source.relative_to(crate).parts[0] in {'tests', 'benches', 'examples'}
-                stale[local] = {'manifests': callers, 'reasons': reasons, 'consumers': not own}
+                stale[local] = {'manifests': callers, 'reasons': reasons, 'consumers': True}
+            elif local in stale:
+                stale[local]['manifests'] |= callers
     if set(declarations) != checked:
         raise ValueError('Unknown runtime read declarations: ' + ', '.join(sorted(set(declarations) - checked)))
-    for local, entry in stale.items():
-        if local in resources:  # compiled into another source by include!/#[path]
-            entry['consumers'] = True
+    # A crate scanned later may include an own-target reader into its library: with every
+    # include known, such a reader's callers are its crate's dependents after all.
+    for local, manifest in sorted(narrow):
+        if not _own_target_only(project, manifest, local, includers) and project / local != project / manifest.parent / 'build.rs':
+            callers = {manifest}
+            while True:
+                enlarged = callers | {m for m, deps in dependencies.items() if deps & callers}
+                if enlarged == callers:
+                    break
+                callers = enlarged
+            if declarations[local].get('source_trees') != sorted(m.as_posix() for m in callers):
+                entry = stale.setdefault(local, {'manifests': set(), 'reasons': [], 'consumers': True})
+                entry['manifests'] |= callers
+                entry['reasons'].append('caller crates changed')
+                derived['source_trees'].update({m.as_posix(): tree_digests[m.as_posix()] for m in callers})
+                derived['reads'][local]['source_trees'] = sorted(set(derived['reads'][local]['source_trees'])
+                                                                 | {m.as_posix() for m in callers})
+    dependencies_closure = {}
+    def selects(path):
+        """The crates a change to `path` selects through its owner, its readers and their Cargo consumers."""
+        relative = Path(path)
+        selected = set(resources.get(path, ()))
+        if relative.suffix == '.rs' or relative.name in {'Cargo.toml', 'Cargo.lock'}:
+            selected |= {m for m in manifests if relative.is_relative_to(m.parent)}
+        key = frozenset(selected)
+        if key not in dependencies_closure:
+            closure = set(selected)
+            while True:
+                added = {m for m, deps in dependencies.items() if deps & closure} - closure
+                if not added:
+                    break
+                closure |= added
+            dependencies_closure[key] = closure
+        return dependencies_closure[key]
+    for local, fingerprints in derived['reads'].items():
+        own = all(_own_target_only(project, m, local, includers) for m in readers_of[local])
+        # A library or build-script source reaches the crate's Cargo consumers; a crate's
+        # own test, bench or example does not. What cannot be shown counts as a library.
+        fingerprints['compiled'] = not own
+        fingerprints['readers'] = sorted(m.as_posix() for m in readers_of[local])
+        if local in stale:
+            stale[local]['consumers'] = not own
+            if any(r == 'reader source changed' or r.startswith('anchor source changed') for r in stale[local]['reasons']):
+                files = {name for entry in fingerprints['inputs'] for name in entry['resolved']}
+                unread = set(declarations[local].get('unread_paths', {}))
+                uncovered = set()
+                for manifest in sorted(readers_of[local]):
+                    crate = project / manifest.parent
+                    roots, pending = set(), [manifest]
+                    while pending:
+                        current = pending.pop()
+                        if current not in roots:
+                            roots.add(current)
+                            pending.extend(dependencies[current])
+                    for name in fingerprints['sources']:
+                        for target in path_literal_targets(project, crate, project / name):
+                            if target in unread:
+                                continue
+                            if (project / target).is_dir():
+                                covered = (any(f.startswith(target + '/') for f in files)
+                                           or any(target == m.parent.as_posix() for m in roots))
+                            else:
+                                covered = manifest in selects(target)
+                            if not covered:
+                                uncovered.add(target)
+                fingerprints['uncovered'] = sorted(uncovered)
     derived['source_trees'] = dict(sorted(derived['source_trees'].items()))
     return resources, stale, derived
 
 
-def refresh_runtime_reads(project, manifests, declarations=None):
+def refresh_runtime_reads(project, manifests, declarations=None, held=None):
     """The declarations with every derived fingerprint recomputed from the tree; authored fields are kept.
 
     The one refresh path for `piping_runtime_reads`: the reader's and anchor
     sources' SHA-256, each declaration's caller crates, their Rust tree digests
-    and each scan's file inventory. A semantic error raises, as in selection."""
+    and each scan's file inventory. A semantic error raises, as in selection,
+    so nothing is rewritten. A declaration whose reader or anchor source changed
+    and now names a path its declared inputs, scans or audited unread paths do
+    not cover keeps its old source fingerprints, and so stays stale and widened,
+    until an author declares that input; it is reported in `held`, a dict this
+    fills with {source: uncovered paths}."""
     project = project.resolve()
     declarations = runtime_declarations(project) if declarations is None else declarations
     _, _, derived = runtime_read_index(project, manifests, declarations)
+    held = {} if held is None else held
     reads = {}
     for local, declaration in declarations['reads'].items():
         current = derived['reads'][local]
-        refreshed = {'sha256': current['sha256'], 'source_trees': current['source_trees'],
+        hold = bool(current.get('uncovered'))
+        if hold:
+            held[local] = current['uncovered']
+        refreshed = {'sha256': declaration.get('sha256') if hold else current['sha256'],
+                     'source_trees': current['source_trees'],
                      **{key: value for key, value in declaration.items() if key not in ('sha256', 'source_trees')}}
+        if refreshed['sha256'] is None:
+            del refreshed['sha256']
         refreshed['inputs'] = []
         for entry, fingerprints in zip(declaration['inputs'], current['inputs']):
             entry = dict(entry)
-            if 'source_sha256' in fingerprints:
+            if 'source_sha256' in fingerprints and not hold:
                 entry['source_sha256'] = fingerprints['source_sha256']
             if 'files' in fingerprints:
                 entry['files'] = fingerprints['files']
@@ -828,11 +1004,19 @@ def refresh_main(root, check=False):
     text = path.read_text()
     profile = json.loads(text)
     manifests = readiness.discover_cargo_manifests(root)
-    _, stale, _ = runtime_read_index(root, manifests, profile['piping_runtime_reads'])
-    profile['piping_runtime_reads'] = refresh_runtime_reads(root, manifests, profile['piping_runtime_reads'])
+    _, stale, derived = runtime_read_index(root, manifests, profile['piping_runtime_reads'])
+    held = {}
+    before = profile['piping_runtime_reads']
+    profile['piping_runtime_reads'] = refresh_runtime_reads(root, manifests, before, held)
     refreshed = json.dumps(profile, indent=2, ensure_ascii=False) + '\n'
     for local, entry in sorted(stale.items()):
         print(f"stale {local}: {'; '.join(entry['reasons'])}")
+    for local, declaration in sorted(before['reads'].items()):
+        for entry, after in zip(declaration['inputs'], profile['piping_runtime_reads']['reads'][local]['inputs']):
+            if 'scan' in entry and len(entry.get('files', [])) != len(after['files']):
+                print(f"scan {local} {entry['anchor']}: {len(entry.get('files', []))} -> {len(after['files'])} files")
+    for local, paths in sorted(held.items()):
+        print(f"needs an authored input (held stale) {local}: {', '.join(paths)}")
     if check:
         # Only stale declarations widen selection; other differences (an unreferenced
         # tree digest the refresh drops) are reported but change nothing.
@@ -840,8 +1024,9 @@ def refresh_main(root, check=False):
         return 1 if stale else 0
     if refreshed != text:
         path.write_text(refreshed)
-    print(f'Refreshed {len(stale)} stale runtime-read declarations.' if refreshed != text else 'Runtime-read fingerprints already current.')
-    return 0
+    print(f'Refreshed {len(stale) - len(held)} stale runtime-read declarations; {len(held)} held stale.'
+          if refreshed != text else 'Runtime-read fingerprints already current.')
+    return 1 if held else 0
 
 
 def main():

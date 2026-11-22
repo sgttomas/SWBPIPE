@@ -198,6 +198,23 @@ def compiled_crate_inputs(root: Path, roots: tuple[str, ...], root_dev: bool,
     for manifest in closure:
         crate = project / manifest.parent
         sources = sorted((crate / "src").rglob("*.rs")) + [p for p in [crate / "build.rs"] if p.is_file()]
+        # A `[lib] path` or `[package] build` override compiles from elsewhere: the Rust its
+        # module tree can reach counts, every file under its directory (at the crate root,
+        # the root's files and its directories other than src/, target/ and the crate's own
+        # tests, benches and examples, which src/ and other targets cover).
+        data = tomllib.loads((project / manifest).read_text())
+        for declared in (data.get("lib", {}).get("path"), data.get("package", {}).get("build")):
+            if isinstance(declared, str):
+                target = (crate / declared).resolve()
+                if not target.is_relative_to(project) or not target.is_file():
+                    raise ValueError(f"Unresolved {label} target: " + str(target))
+                if target.parent == crate.resolve():
+                    sources += sorted(crate.glob("*.rs")) + sorted(
+                        p for sub in sorted(crate.iterdir())
+                        if sub.is_dir() and sub.name not in {"src", "target", "tests", "benches", "examples", ".git"}
+                        for p in sub.rglob("*.rs"))
+                else:
+                    sources += sorted(target.parent.rglob("*.rs"))
         seen = set()
         while sources:
             source = sources.pop()
@@ -217,8 +234,8 @@ def compiled_crate_inputs(root: Path, roots: tuple[str, ...], root_dev: bool,
                 if not target.is_relative_to(project) or not target.is_file():
                     raise ValueError(f"Unresolved {label} compile read: " + str(target))
                 reads.add(target.relative_to(project).as_posix())
-                if not match.group().startswith("include"):
-                    sources.append(target)
+                if not match.group().startswith(("include_str", "include_bytes")):
+                    sources.append(target)  # `#[path]` and `include!` compile Rust
     return frozenset(m.parent.as_posix() for m in closure), frozenset(reads)
 
 
@@ -346,8 +363,9 @@ def desktop_rust_references(root: Path) -> frozenset[str]:
 
 
 def desktop_rust_dependency_reads(root: Path, crates: frozenset[str], profile: dict) -> tuple[frozenset[str], tuple[str, ...]]:
-    """Declared runtime reads of the path dependencies' `src/` and `build.rs`,
-    and those declarations whose derived fingerprints are stale.
+    """Declared runtime reads of sources the path dependencies compile into a
+    library or build script, and those declarations whose derived fingerprints
+    are stale.
 
     The numerical selector's own check validates the declarations first; a
     missing or malformed declaration fails selection.
@@ -357,17 +375,21 @@ def desktop_rust_dependency_reads(root: Path, crates: frozenset[str], profile: d
 
 @functools.lru_cache(maxsize=None)
 def declared_compiled_reads(root: Path, crates: frozenset[str], declarations_json: str) -> tuple[frozenset[str], tuple[str, ...]]:
-    """The files the `src/` and `build.rs` declarations of `crates` read (a scan's
-    files as the tree has them), and which of those declarations are stale: a
-    stale declaration may read a file it does not list."""
+    """The files read by declared sources that `crates` compile into a library or
+    build script (a scan's files as the tree has them), and which of those
+    declarations are stale: a stale declaration may read a file it does not list.
+    A source counts when one of the crates compiles it, wherever it lies (a
+    `#[path]` or `include!` helper of a build script, a `[lib] path` override),
+    unless it is shown to be only that crate's own test, bench or example."""
     module = numerical_module(root)
     project = (root / PIPING).resolve()
     declarations = json.loads(declarations_json)
     _, stale, derived = module.runtime_read_index(project, module.readiness.discover_cargo_manifests(project), declarations)
     reads, stale_sources = set(), set()
     for source in declarations["reads"]:
-        if any(source == crate + "/build.rs" or source.startswith(crate + "/src/") for crate in crates):
-            reads.update(name for entry in derived["reads"][source]["inputs"] for name in entry["resolved"])
+        current = derived["reads"][source]
+        if current["compiled"] and any(PurePosixPath(reader).parent.as_posix() in crates for reader in current["readers"]):
+            reads.update(name for entry in current["inputs"] for name in entry["resolved"])
             if source in stale:
                 stale_sources.add(source)
     return frozenset(reads), tuple(sorted(stale_sources))
