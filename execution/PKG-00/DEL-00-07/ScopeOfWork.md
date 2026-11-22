@@ -29,7 +29,7 @@ It serves SOW-062 under OBJ-013 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - *Denied by default.* A plugin's or adapter's declaration grants nothing. A capability exists only by an explicit grant, and a grant never lifts a control.
 - *Boundary checks.* What an adapter establishes before data enters core workflows: units and dimensions, provenance, redistribution status, diagnostics for whatever is missing or wrong, and the public or private class of the data.
 - *Controls that are never bypassed.* Domain and schema validation, rule-pack sandboxing, result envelopes, and report boundary controls.
-- *Named format.* An import or export format that the decomposition or the release target names, or that a recorded decision adds, made by the owner or within the delegation in force. Those named are the project package (a multi-member archive, `.opsproj`), the native JSON export package, CAEPIPE MBF, the CAEPIPE result CSV, stress-neutral CSV and JSON, the conservative PCF subset, GLB/glTF review geometry, and CSV export of result tables.
+- *Named format.* An import or export format that the decomposition or the release target names, or that a recorded decision adds, made by the owner or within the delegation in force. Those named are the project package (a multi-member archive, `.opsproj`; not provided in v1.0, LIM-045), the native JSON export package, CAEPIPE MBF, the CAEPIPE result CSV, stress-neutral CSV and JSON, the conservative PCF subset, GLB/glTF review geometry, and CSV export of result tables.
 
 **The five handoffs.**
 

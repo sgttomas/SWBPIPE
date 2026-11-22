@@ -265,7 +265,7 @@
     },
     {
       "path": "fixtures/redaction_export_controls/cases.json",
-      "sha256": "b6d5aff75c3c7421564b7c5ff2aef0645859cf36acee4b80d724cfaf3359637a",
+      "sha256": "590fddc48d2e2bf8d667665c6c49b9941b082b5768ec9af24747f0228ef7b3ce",
       "labels": [
         [
           "\"TBD\"",
@@ -346,6 +346,10 @@
         [
           "\"unknown\"",
           "\"pending\""
+        ],
+        [
+          "\"unknown\"",
+          "<missing>"
         ],
         [
           "1",

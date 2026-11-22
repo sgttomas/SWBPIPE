@@ -14,6 +14,7 @@ import type {
   ResultInterpretation
 } from "../../types";
 import { physicsRecords } from "../knowledge/KnowledgePanel";
+import { designKnowledgeDiagnostics, designKnowledgeRecords, type KnowledgeModel } from "../../services/designKnowledge";
 import { isNativeResult, type SessionResult } from "../../services/nativeResult";
 
 /** The affected refs of a diagnostic that do not name a model entity: for a native result, the
@@ -45,7 +46,7 @@ export function buildResultInterpretation({
   const linkedDiagnostics = result.diagnostics.filter((diagnostic) =>
     [item.id, item.entity_ref].some((ref) => diagnostic.affected_refs?.includes(ref))
   );
-  const linkedKnowledge = allKnowledgeRecords(knowledge, result).filter((record) =>
+  const linkedKnowledge = allKnowledgeRecords(knowledge, result.model_ref, result).filter((record) =>
     [item.id, item.entity_ref].some((ref) => record.affected_refs.includes(ref))
   );
   const resultHashes =
@@ -113,7 +114,7 @@ export function buildDiagnosticInterpretation({
         unit: item.unit,
         unit_source: "result_envelope" as const
       })) ?? [];
-  const linkedKnowledge = allKnowledgeRecords(knowledge, result, knowledgeAxialRow).filter((record) =>
+  const linkedKnowledge = allKnowledgeRecords(knowledge, model, result, knowledgeAxialRow).filter((record) =>
     [diagnostic.id, diagnostic.code, ...affectedRefs]
       .filter((value): value is string => Boolean(value))
       .some((ref) => record.affected_refs.includes(ref))
@@ -252,8 +253,8 @@ export function mechanicsGaps(): MechanicsGap[] {
   ];
 }
 
-function allKnowledgeRecords(knowledge: DesignKnowledge | null, result: SessionResult | null, axialRow?: MechanicsResult["results"][number] | null): KnowledgeRecord[] {
-  return [...(knowledge?.records ?? []), ...physicsRecords(result, axialRow)];
+function allKnowledgeRecords(knowledge: DesignKnowledge | null, model: KnowledgeModel, result: SessionResult | null, axialRow?: MechanicsResult["results"][number] | null): KnowledgeRecord[] {
+  return [...designKnowledgeRecords(knowledge, model), ...physicsRecords(result, axialRow)];
 }
 
 function allDiagnostics(
@@ -263,7 +264,7 @@ function allDiagnostics(
 ): Diagnostic[] {
   // a result message outside the reader-checked roster is explained as supplied,
   // unverified text, as the Diagnostics list shows it (`suppliedDiagnostics`).
-  return [...model.diagnostics, ...(knowledge?.diagnostics ?? []), ...presentedResultDiagnostics(result)];
+  return [...model.diagnostics, ...designKnowledgeDiagnostics(knowledge, model), ...presentedResultDiagnostics(result)];
 }
 
 function endpointPairFor(

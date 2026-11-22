@@ -117,10 +117,12 @@ describe("a saved and reopened model", () => {
     expect(await canonicalJsonString(opened)).toBe(await canonicalJsonString(edited));
 
     const list: EditorOperationIntent[] = [];
-    render(<LoadCaseManagerPanel model={opened} onQueueIntent={(intent) => list.push(intent)} onSelect={() => undefined} selection={{ type: "combination", id: "combination:SEISMIC-300" }} />);
+    const panel = (id: string) => <LoadCaseManagerPanel model={opened} onQueueIntent={(intent) => list.push(intent)} onSelect={() => undefined} selection={{ type: "combination", id }} />;
+    const view = render(panel("combination:SEISMIC-Y-300"));
+    expect(screen.getByTestId("load-manager-combination-resolved-combination:SEISMIC-Y-300")).toHaveTextContent("Minuend: load:EQ-Y resolves to the load case. Subtrahend: load:L-100 resolves to the load case.");
+    view.rerender(panel("combination:SEISMIC-300"));
     expect(screen.getByTestId("load-manager-combination-combination:SEISMIC-300")).toHaveTextContent(
-      "basis=srss; terms=combination combination:SEISMIC-X-300 x 1; combination combination:SEISMIC-Y-300 x 1; combination combination:SEISMIC-Z-300 x 1");
-    expect(screen.getByTestId("load-manager-combination-resolved-combination:SEISMIC-Y-300")).toHaveTextContent("load:EQ-Y resolves to the load case; load:L-100 resolves to the load case");
+      "SRSSSEISMIC-X-300 × 1 + SEISMIC-Y-300 × 1 + SEISMIC-Z-300 × 1");
     fireEvent.click(screen.getByTestId("load-manager-combination-term-combination:SEISMIC-300-1"));
     fireEvent.change(screen.getByTestId("load-manager-combination-factor-value"), { target: { value: "0.5" } });
     fireEvent.click(screen.getByTestId("queue-combination-factor-intent"));

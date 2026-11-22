@@ -12,7 +12,7 @@ needs:
     between panels in a stated order, and gives every panel the same keyboard route to its commands.
   gating: false
 - from: DEL-07-11
-  when: Taking a walkthrough of the launched application for the interface review
+  when: Taking a walkthrough of the launched application by script for the interface review
   condition: >-
     The scripted-run build drives the desktop by script, and what it substitutes is what the shell's
     scope declares: the file the chooser returns, the native menu commands and the report print
@@ -96,11 +96,14 @@ code_paths:
 # writes numbered screens with their word and control counts. It records what a person sees and where
 # a journey stops; it judges nothing and is no check of AC-007.
 - apps/desktop/walkthrough/**
+# The store the native walkthrough's refused-stored-run journey starts from. DEL-14-02 lists it with
+# the reopen guard whose refusal it shows; DEL-02-05 lists the fixture folder.
+- fixtures/persistence/refused_stored_run/openpipestress-projects.sql
 # AC-007's missing-data use case: its start model, requests and person-entered values, and the
 # offline judge of a trace of it. No driver runs it yet.
 - fixtures/embedded_agent/use_cases/missing-data/**
 - tools/agent_missing_data_judge.py
-# A review-export panel mounted in the evidence section and the drawer, and a Python reference
+# A review-export panel the v1.0 interface does not mount (LIM-039), and a Python reference
 # module with its own contract test. No criterion of this scope covers either.
 - apps/desktop/src/features/accessibility-baseline/**
 - core/gui/accessibility/**

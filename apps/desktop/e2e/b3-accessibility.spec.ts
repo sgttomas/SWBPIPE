@@ -26,10 +26,10 @@ async function tabTo(page: Page, testId: string) {
   throw new Error(`Tab did not reach ${testId}`);
 }
 
-test("disabled rail and Agent reasons escape clipping under keyboard focus", async ({ page }, info) => {
+test("disabled rail reasons escape clipping under keyboard focus", async ({ page }, info) => {
   await page.goto("/");
   await expect(page.getByTestId("workspace-toolbar")).toBeVisible();
-  for (const id of ["rail-stage-results", "rail-stage-review", "agent-strip-open"]) {
+  for (const id of ["rail-stage-results", "rail-stage-review"]) {
     await tabTo(page, id);
     const reasonId = await page.getByTestId(id).getAttribute("aria-describedby");
     const reason = page.locator(`#${reasonId}`);
@@ -304,51 +304,32 @@ test("support family popup dismissal does not invent a missing engineering choic
   await expect(page.getByTestId("workspace-undo")).toBeDisabled();
 });
 
-test("Agent reason preserves hover and lets focused page Close receive the pointer", async ({ page }, info) => {
-  await page.goto("/");
-  await openWorkspaceSection(page, "libraries");
-  const agent = page.getByTestId("agent-strip-open");
-  const reason = page.locator("#agent-strip-reason");
-  const close = page.getByTestId("workspace-dock-close");
-  await agent.focus();
-  await expect(reason).toBeVisible();
-  await reason.hover();
-  await expect(reason).toBeVisible();
-  await witness(info, "agent-reason-close-hit", await close.evaluate(el => {
-    const r = el.getBoundingClientRect();
-    const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
-    return { close: r.toJSON(), hit: hit?.outerHTML, ownsPointer: el.contains(hit), focused: document.activeElement?.outerHTML };
-  }));
-  await close.click();
-  await expect(close).toHaveCount(0);
-});
-
 test("disabled reasons own only visible unconsumed Escape and reset on reentry", async ({ page }) => {
   await page.goto("/");
   await openWorkspaceSection(page, "libraries");
-  const agent = page.getByTestId("agent-strip-open");
-  const reason = page.locator("#agent-strip-reason");
+  const anchor = page.getByTestId("rail-stage-review");
+  const reason = page.locator("#rail-reason-review");
   const close = page.getByTestId("workspace-dock-close");
-  await agent.focus();
+  await anchor.focus();
   await expect(reason).toBeVisible();
   // A child has already consumed this Escape; the reason and page must remain.
-  await agent.evaluate(el => el.addEventListener("keydown", event => event.preventDefault(), { once: true }));
+  await anchor.evaluate(el => el.addEventListener("keydown", event => event.preventDefault(), { once: true }));
   await page.keyboard.press("Escape");
   await expect(reason).toBeVisible();
   await expect(close).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(reason).toBeHidden();
-  await expect(agent).toHaveAccessibleDescription("Agent: not available yet");
-  await expect(agent).toBeFocused();
+  await expect(anchor).toHaveAccessibleDescription("No run yet");
+  await expect(anchor).toBeFocused();
   await expect(close).toBeVisible();
   await close.focus();
-  await agent.focus();
+  await anchor.focus();
   await expect(reason).toBeVisible();
 
   // Hover alone persists across the visible gap and over the tooltip itself.
   await close.focus();
-  await agent.hover();
-  const anchorBox = await agent.boundingBox();
+  await anchor.hover();
+  const anchorBox = await anchor.boundingBox();
   const reasonBox = await reason.boundingBox();
   expect(anchorBox).not.toBeNull();
   expect(reasonBox).not.toBeNull();
@@ -366,7 +347,7 @@ test("disabled reasons own only visible unconsumed Escape and reset on reentry",
   await expect(reason).toBeHidden();
   await expect(close).toBeVisible();
   await close.hover();
-  await agent.hover();
+  await anchor.hover();
   await expect(reason).toBeVisible();
   await close.hover();
   await expect(reason).toBeHidden();
@@ -380,18 +361,18 @@ test("simultaneous hovered and focused reasons dismiss before the page", async (
   await openWorkspaceSection(page, "libraries");
   const rail = page.getByTestId("rail-stage-results");
   const railReason = page.locator(`#${await rail.getAttribute("aria-describedby")}`);
-  const agent = page.getByTestId("agent-strip-open");
-  const reason = page.locator("#agent-strip-reason");
+  const anchor = page.getByTestId("rail-stage-review");
+  const reason = page.locator("#rail-reason-review");
   const close = page.getByTestId("workspace-dock-close");
   await rail.hover();
-  await agent.focus();
+  await anchor.focus();
   await expect(railReason).toBeVisible();
   await expect(reason).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(railReason).toBeHidden();
   await expect(reason).toBeHidden();
   await expect(close).toBeVisible();
-  await expect(agent).toBeFocused();
+  await expect(anchor).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(close).toHaveCount(0);
 });

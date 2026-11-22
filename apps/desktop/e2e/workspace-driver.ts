@@ -24,13 +24,22 @@ type WorkspaceSectionId =
   | "exports"
   | "evidence";
 
+/** The sections whose route is a rail stage and its tab (the View menu does not list them). */
+const STAGE_ROUTES: Partial<Record<WorkspaceSectionId, { stage: "model" | "loads"; tab: string }>> = {
+  operations: { stage: "model", tab: "workspace-review" },
+  loads: { stage: "loads", tab: "stage-tab-load-cases" }
+};
+
 export async function openWorkspaceSection(page: Page, sectionId: WorkspaceSectionId): Promise<Locator> {
   const section = page.getByTestId(`workspace-section-${sectionId}`);
   if (!await section.isVisible()) {
-    // Review changes is a tab of the Model stage's strip; from another stage it is summoned by the
-    // section command, as every other section is.
-    if (sectionId === "operations" && await page.getByTestId("workspace-review").isVisible()) {
-      await page.getByTestId("workspace-review").click();
+    // Review changes and Load Cases are reached as a person reaches them, by the rail and the
+    // stage tab; the View menu lists only the sections the rail does not reach in every state.
+    const route = STAGE_ROUTES[sectionId];
+    if (route) {
+      await page.getByTestId(`rail-stage-${route.stage}`).click();
+      const tab = page.getByTestId(route.tab);
+      if (await tab.getAttribute("aria-pressed") !== "true") await tab.click();
     } else {
       await page.getByTestId("menu-view").click();
       await page.getByTestId(`menu-item-view.section.${sectionId}`).click();
@@ -218,6 +227,19 @@ export async function expectVirtualTarget(scope: Page | Locator, testId: string,
   await expect(scope.getByTestId(testId).locator(".virtual-target-picker-current")).toContainText(value);
 }
 
+/** Opens a Loads page form by its command (New case, New combination, Add load, Add term), as a
+ * person does; a form already open is left open. */
+export async function openLoadsForm(scope: Page | Locator, command: string): Promise<void> {
+  const button = scope.getByTestId(command);
+  if ((await button.getAttribute("aria-expanded")) !== "true") await button.click();
+}
+
+/** Opens a closed disclosure on the Loads page (a form's "More", a case section) by its summary. */
+export async function openLoadsDisclosure(scope: Page | Locator, testId: string): Promise<void> {
+  const details = scope.getByTestId(testId);
+  if (!(await details.evaluate((element) => (element as HTMLDetailsElement).open))) await details.locator(":scope > summary").click();
+}
+
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -354,4 +376,51 @@ export async function selectCompactOption(control: Locator, value: string): Prom
   await option.click();
   await expect(control).toHaveAttribute("aria-expanded", "false");
   await expect(control).toHaveAttribute("data-value", value);
+}
+
+/**
+ * A control of the 3D view's bar or its More menu. The bar moves its lowest-priority groups into
+ * More while it is too narrow, and More always holds Fit Visible and the Fit that the canvas's Fit
+ * is not; this opens More, as a person would, when the control is not in the bar.
+ */
+/**
+ * The view's control, from its bar or, when the bar has no room for it, from the More row, which is
+ * opened for it. With `keyboard`, More is opened by focusing it and pressing Enter, so that a mouse
+ * button held down (and the canvas's pointer capture) is left undisturbed.
+ */
+export async function viewportControl(page: Page, control: Locator, options: { keyboard?: boolean } = {}): Promise<Locator> {
+  if (await control.isVisible()) return control;
+  const menu = page.getByTestId("viewport-more-menu");
+  if (!await menu.isVisible()) {
+    const more = page.getByTestId("viewport-more");
+    if (options.keyboard) {
+      await more.focus();
+      await page.keyboard.press("Enter");
+    } else {
+      await more.click();
+    }
+  }
+  await expect(menu).toBeVisible();
+  await expect(control).toBeVisible();
+  return control;
+}
+
+/**
+ * That the 3D view offers no such control, in its bar or in its More row: a closed More renders
+ * nothing, so More is opened for the check (programmatically, so that nothing over the view stops
+ * it and no focus moves) and closed again.
+ */
+export async function expectNotOfferedByView(page: Page, control: Locator): Promise<void> {
+  const more = page.getByTestId("viewport-more");
+  const menu = page.getByTestId("viewport-more-menu");
+  const opened = await more.count() > 0 && await menu.count() === 0;
+  if (opened) {
+    await more.evaluate((button) => (button as HTMLButtonElement).click());
+    await expect(menu).toHaveCount(1);
+  }
+  await expect(control).toHaveCount(0);
+  if (opened) {
+    await more.evaluate((button) => (button as HTMLButtonElement).click());
+    await expect(menu).toHaveCount(0);
+  }
 }

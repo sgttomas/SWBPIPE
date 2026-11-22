@@ -78,6 +78,13 @@ TOL = {
 # --------------------------------------------------------------------------
 # comparison record (synthetic numbers)
 # --------------------------------------------------------------------------
+@pytest.fixture(autouse=True)
+def _live_session_passed_through(monkeypatch):
+    """Every live route opens its session first (liveness, then the share's letter); that opening is examined in
+    tests/test_caepipe_live_session.py, and here it passes the configuration through unchanged."""
+    monkeypatch.setattr(run_pilot, "live_session", lambda config, emit=print: config)
+
+
 def swb_rows(*, uy_mm=-10.0, rz_rad=-0.01, fy=2000.0, restraint_fy=50.0):
     def row(kind, entity, value, unit, component=None):
         item = {"id": f"r:{kind}:{entity}:{component}", "kind": kind, "entity_ref": entity, "value": value,
@@ -435,7 +442,8 @@ def test_record_carries_prd_22_5_fields():
     assert result["target_tool"] == "CAEPIPE" and result["target_version"] == "0.0-invented"
     assert result["manual_changes"] == "none"
     assert result["comparison_basis"]["caepipe_load_cases_compared"] == [SUS]
-    assert "not validation" in result["evidence_classification"]
+    assert result["evidence_classification"].startswith("private validation evidence")
+    assert "code compliance or professional acceptance" in result["evidence_classification"]
     assert all(entry["basis"] == "ASSUMPTION" for name, entry in result["tolerance_basis"].items()
                if isinstance(entry, dict))
 
@@ -629,7 +637,7 @@ def test_round_trip_records_route_and_never_runs_a_real_prlctl(tmp_path, fake_cl
     assert (config.exchange_root / "_harness" / sha / "Invoke-CaepipeRoundTrip.ps1").is_file()
     assert record_["observed_csv_path"]["host"] == f"caepipe_out/{token}/model_results.csv"
     assert record_["expected_batch_csv_path"] == f"C:\\invented-work\\cpc-x\\{token}\\model.csv"
-    assert record_["boundary_note"].startswith("regression/handoff evidence only")
+    assert record_["boundary_note"].startswith("private validation evidence; not")
     assert "invented-vm" not in json.dumps(record_)
     stored = json.loads((case_dir / "caepipe_out" / "run_record.json").read_text(encoding="utf-8"))
     assert stored["route"] == "csv_from_gui_print"
@@ -3348,8 +3356,8 @@ def test_run_series_writes_a_private_record_and_rebuilds_declaring_cases(tmp_pat
     stored = json.loads((config.exchange_root / "series" / "shear-deformation.json").read_text(encoding="utf-8"))
     assert stored["status"] == "consistent" and stored["fitted_slope"] == pytest.approx(-2.0, abs=0.011)
     assert stored["document_kind"] == "openpipestress.caepipe_correlation.series_record"
-    assert lines[0] == "series shear-deformation: series record written: series/shear-deformation.json"
-    assert all("consistent" not in line and "slope" not in line for line in lines)  # operational status only
+    assert lines[0] == ("series shear-deformation: series record written: series/shear-deformation.json; status "
+                        "consistent")
     # A case without a stored record (cpc-03, cpc-04, cpc-05, cpc-06 here) is not rebuilt.
     assert "cpc-03-anchored-weight" not in rebuilt
 
