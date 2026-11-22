@@ -212,10 +212,38 @@ pub(crate) fn stored_project(path: &Path, project_id: &str, model: &Value) {
 
 pub(crate) type Rows = Vec<Vec<(String, rusqlite::types::Value)>>;
 
-/// Every row of `table`, every column but `skip`, in rowid order.
+/// Deterministic `ORDER BY` clause for `table`: `rowid` for rowid tables, or the
+/// declared `PRIMARY KEY` columns in `pk` order for a `WITHOUT ROWID` table.
+pub(crate) fn deterministic_table_order(connection: &Connection, table: &str) -> String {
+    assert!(!table.is_empty() && table.bytes().all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || byte == b'_'), "an identifier of the store: {table}");
+    let without_rowid: bool = connection
+        .query_row("SELECT wr != 0 FROM pragma_table_list(?1) WHERE schema = 'main'", [table], |row| row.get(0))
+        .unwrap();
+    if !without_rowid {
+        return "rowid".to_string();
+    }
+    let mut pk_statement = connection
+        .prepare("SELECT name FROM pragma_table_info(?1) WHERE pk > 0 ORDER BY pk")
+        .unwrap();
+    let pk_columns: Vec<String> = pk_statement
+        .query_map([table], |row| row.get::<_, String>(0))
+        .unwrap()
+        .map(Result::unwrap)
+        .map(|column| {
+            assert!(!column.is_empty() && column.bytes().all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || byte == b'_'), "a column of the store: {column}");
+            format!("\"{column}\"")
+        })
+        .collect();
+    assert!(!pk_columns.is_empty(), "a WITHOUT ROWID table has a primary key: {table}");
+    pk_columns.join(", ")
+}
+
+/// Every row of `table`, every column but `skip`, in rowid order (or primary-key order for a
+/// `WITHOUT ROWID` table).
 pub(crate) fn dump(path: &Path, table: &str, skip: &[&str]) -> Rows {
     let connection = Connection::open(path).unwrap();
-    let mut statement = connection.prepare(&format!("SELECT * FROM {table} ORDER BY rowid")).unwrap();
+    let order = deterministic_table_order(&connection, table);
+    let mut statement = connection.prepare(&format!("SELECT * FROM \"{table}\" ORDER BY {order}")).unwrap();
     let names: Vec<String> = statement.column_names().iter().map(|name| name.to_string()).collect();
     let mut rows = statement.query([]).unwrap();
     let mut out = Vec::new();
