@@ -151,7 +151,7 @@ function glueProblems(text, keys) {
 const PIN = {
   "run.mjs": "15053871b30ce51ecb835cab71bb2c1275388b7fb33a905310217ffbff494597",
   "mbf-journey.mjs": "34ca4d4e08e739918dcdceba80e6c3b4c6e8bf2e4164a18fa67fc5e43e49bd71",
-  "judged-launch.mjs": "ab6469bbd7443955e32613afa773f8a9875fa7c7f4f8b2f154a816fd26ac5cfc"
+  "judged-launch.mjs": "72621e4e032a9afb45d0b674652131e5f6350532b2cde8c7165e3ac587dd92c0"
 };
 const PIN_MESSAGE = (file) => [
   `${file} changed since its stop handling was last independently read. Before this pin is updated, the independent reader of the pull request that changes it re-reads it, and that pull request quotes the reading:`,
