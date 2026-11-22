@@ -62,6 +62,8 @@ export type CaseSection = {
   summary?: string;
   /** For a disclosure: open when the case has content. */
   hasContent?: boolean;
+  /** For a disclosure: a count that, when it changes, opens the disclosure again (a request to show it). */
+  openRequest?: number;
   /** Commands shown beside the section's heading (not for a disclosure). */
   actions?: ReactNode;
   render: () => ReactNode;
@@ -82,7 +84,7 @@ export function CaseSectionList({ caseId, sections }: { caseId: string; sections
         ) : (
           // Keyed by case: choosing another case opens or closes each section by that case's content.
           <details
-            key={`${section.id}:${caseId}`}
+            key={`${section.id}:${caseId}:${section.openRequest ?? 0}`}
             className="loads-case-section loads-disclosure"
             data-testid={`load-case-section-${section.id}`}
             open={section.hasContent}

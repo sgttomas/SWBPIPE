@@ -681,6 +681,13 @@ describe("LoadCaseManagerPanel layout", () => {
     expect(select).toHaveBeenLastCalledWith({ type: "load", id: "load:hot" });
     expect(byId("load-manager-selected-case")).toHaveAttribute("data-entity-id", "load:hot");
     expect(byId("load-case-section-pressure")).toHaveAttribute("open");
+    // The person closes it; the next press opens it again.
+    const pressure = byId("load-case-section-pressure") as HTMLDetailsElement;
+    pressure.open = false;
+    fireEvent(pressure, new Event("toggle"));
+    expect(byId("load-case-section-pressure")).not.toHaveAttribute("open");
+    fireEvent.click(screen.getByRole("button", { name: "load:hot has not been given pressure regions" }));
+    expect(byId("load-case-section-pressure")).toHaveAttribute("open");
   });
 
   it("shows what exists first and opens each creation form only on its command", () => {
