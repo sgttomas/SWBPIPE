@@ -157,11 +157,21 @@ def _combination(model, combination_id):
     return by_id(model, "combinations").get(combination_id)
 
 
+def _element_states(model, case_id):
+    return (_case(model, case_id) or {}).get("analysis_state", {}).get("element_states", [])
+
+
 def _ope_thermal(model):
-    states = (_case(model, "load:RS-OPE") or {}).get("analysis_state", {}).get("element_states", [])
+    """RS-OPE's thermal state on the modulus by temperature, and RS-OPE-REF's on the 20 degC point, each of whose
+    members with an operating temperature states its analysis basis (spec §8.1)."""
+    hot = [s for s in _element_states(model, "load:RS-OPE-REF") if "operating_temperature" in s]
     return bool(_case(model, "load:RS-SUS")) and any(
         s.get("material_selection", {}).get("kind") == "temperature_interpolation"
-        and s.get("thermal_state", {}).get("kind") == "free_length_state" for s in states)
+        and s.get("thermal_state", {}).get("kind") == "free_length_state"
+        for s in _element_states(model, "load:RS-OPE")) and bool(hot) and all(
+        s.get("material_selection", {}).get("kind") == "exact_point"
+        and s.get("thermal_state", {}).get("kind") == "free_length_state"
+        and s.get("analysis_basis_override", {}).get("reason") for s in hot)
 
 
 def _regions_closed(model):
@@ -218,7 +228,8 @@ FAMILY_PRESENT = {
     "Lift-off, friction and gap (RS-LO1, RS-FR1, RS-G1)": lambda m: bool(_supports(m, "nonlinear")),
     "RS-FR1 with RS-FR1V: lift-off friction shoe pending RT-A3 S7": lambda m: any(
         s["id"] == "support:RS-FR1V" and s.get("family") != "vertical_support" for s in m["supports"]),
-    "RS-SUS, RS-OPE (thermal, modulus by temperature)": _ope_thermal,
+    "RS-SUS, RS-OPE and RS-OPE-REF (thermal; modulus by temperature, or the 20 °C modulus with its stated basis)":
+        _ope_thermal,
     "RS-EXP": lambda m: bool(_combination(m, "combination:RS-EXP")),
     "RS-WIN, RS-EQX, RS-EQY, RS-EQZ on the document that carries temperature": lambda m: any(
         "equivalent_static" in c or c["id"] in ("load:RS-WIN", "load:RS-EQX", "load:RS-EQY", "load:RS-EQZ")
@@ -329,7 +340,7 @@ def missing_identities(record: str, text: str, model: dict) -> list[str]:
     for identity in sorted(fixture_identities(model)):
         if identity.startswith("region:") and record == "SPECIFICATION.md":
             # The specification states the regions once for every case: `region:<case>-<region>`.
-            case, region = re.fullmatch(r"region:(RS-[A-Z]+)-(RG-\w+)", identity).groups()
+            case, region = re.fullmatch(r"region:(RS-[A-Z]+(?:-[A-Z]+)*)-(RG-\w+)", identity).groups()
             if not (names(text, case) and names(text, region)):
                 missing.append(identity)
         elif not names(text, tag(identity)):
@@ -519,6 +530,13 @@ BINDINGS = [
      lambda m: [t["provenance"] for c in _cases(m) for r in c["pressure_regions"] for t in r["terminals"]]),
     ("regions", "Region provenance", lambda m: [r["provenance"] for c in _cases(m) for r in c["pressure_regions"]]),
     ("states", "Analysis state provenance", lambda m: [c["analysis_state"]["provenance"] for c in _cases(m)]),
+    # The override's two fields, each held with its case and member so that a report names them.
+    ("states", "analysis-basis reason", lambda m: [(f"{c['id']} {s['pipe_ref']}", s["analysis_basis_override"]["reason"])
+                                                   for c in _cases(m) for s in c["analysis_state"]["element_states"]
+                                                   if "analysis_basis_override" in s]),
+    ("states", "analysis-basis provenance",
+     lambda m: [(f"{c['id']} {s['pipe_ref']}", s["analysis_basis_override"]["provenance"])
+                for c in _cases(m) for s in c["analysis_state"]["element_states"] if "analysis_basis_override" in s]),
     ("combinations", "Provenance", lambda m: [c["provenance"] for c in m["combinations"]]),
 ]
 
@@ -546,8 +564,10 @@ def field_problems(text: str, model: dict) -> list[str]:
             continue
         (value,) = entered
         for held in values(model):
+            where, held = held if isinstance(held, tuple) else (None, held)
             if held != value and not listed(differences, label, held):
-                problems.append(f"step {step_name}, {label}: a record holds {held!r}, the sheet enters {value!r}")
+                record = f"{where} holds" if where else "a record holds"
+                problems.append(f"step {step_name}, {label}: {record} {held!r}, the sheet enters {value!r}")
     # Table-bound values, each compared with its own record: the bends' sources, the valve and flanges'
     # end references, and each case's self-weight provenance.
     components = by_id(model, "components")
@@ -584,14 +604,17 @@ def thermal_problems(text: str, model: dict, differences: str) -> list[str]:
     """Each element state's thermal provenance against what step states has the person enter for that
     case and that member: a sentence naming a member binds its value to that member, the case's other
     value is its template for every member; a case copied from another without marking its element
-    states absent keeps that case's values."""
+    states absent keeps that case's values. Each bullet is read with every line continuation (a newline
+    and the indentation after it) folded to one space, so that a line break inside a phrase or a
+    backticked value reads as the space it renders as; every character within a line is kept, so a
+    doubled space or a no-break space inside a value is read as typed."""
     body = step(text, "states")
-    parts = re.split(r"(?m)^- \*\*(RS-[A-Z]+)\.\*\*", body)
-    bullets = dict(zip(parts[1::2], parts[2::2]))
+    parts = re.split(r"(?m)^- \*\*(RS-[A-Z]+(?:-[A-Z]+)*)\.\*\*", body)
+    bullets = {case: re.sub(r"\n[ \t]*", " ", bullet) for case, bullet in zip(parts[1::2], parts[2::2])}
     texts = pasted_texts(text)
     expected: dict[str, dict[str, str | None]] = {}
     for case, bullet in bullets.items():
-        copied = re.search(r"Copy analysis state from case\*\* (RS-[A-Z]+)", bullet)
+        copied = re.search(r"Copy analysis state from case\*\* (RS-[A-Z]+(?:-[A-Z]+)*)", bullet)
         own = {"*": None}
         if copied and "Mark element_states absent" not in bullet:
             own = dict(expected[copied.group(1)])
@@ -833,7 +856,7 @@ def number_problems(text: str, model: dict) -> list[str]:
             if entered is None or [float(vector[a]) for a in "xyz"] != entered or unit != held_unit:
                 problems.append(f"step reducer, {name}: the sheet enters {entered} {unit or ''}, "
                                 f"{c['id']} holds {vector}")
-    sam = re.search(r"(?ms)^- \*\*RS-SAM\.\*\*.*", step(text, "states")).group(0)
+    sam = re.search(r"(?ms)^- \*\*RS-SAM\.\*\*.*?(?=^- \*\*|\Z)", step(text, "states")).group(0)
     motions = [(dof, number(v), unit) for dof, v, unit in re.findall(r"\b(U[XYZ]) ([−-]?\d+(?:\.\d+)?) (mm)\b", sam)]
     held = [(b["dof"], float(b["value"]["value"]), b["value"]["unit"]) for c in _cases(model)
             for s in c["analysis_state"]["support_states"] for b in s.get("boundary_motion", [])]
@@ -1089,9 +1112,8 @@ FLIP = {
         _add("supports", {"id": "support:RS-LO1", "family": "nonlinear"}),
     "RS-FR1 with RS-FR1V: lift-off friction shoe pending RT-A3 S7":
         lambda m: by_id(m, "supports")["support:RS-FR1V"].__setitem__("family", "nonlinear"),
-    "RS-SUS, RS-OPE (thermal, modulus by temperature)":
-        lambda m: [s.__setitem__("thermal_state", {"kind": "unchanged_reference"})
-                   for s in _case(m, "load:RS-OPE")["analysis_state"]["element_states"]],
+    "RS-SUS, RS-OPE and RS-OPE-REF (thermal; modulus by temperature, or the 20 °C modulus with its stated basis)":
+        lambda m: [s.pop("analysis_basis_override", None) for s in _element_states(m, "load:RS-OPE-REF")],
     "RS-EXP": _keep("combinations", lambda c: c["id"] != "combination:RS-EXP"),
     "RS-WIN, RS-EQX, RS-EQY, RS-EQZ on the document that carries temperature":
         _set_case("load:RS-SUS", "equivalent_static", {}),
@@ -1121,6 +1143,22 @@ def test_a_change_of_the_fixture_s_coverage_of_each_family_is_caught(family):
     assert FAMILY_PRESENT[family](model) != FAMILY_PRESENT[family](MODEL), f"{family}: the control does not flip it"
     stated = "in tranche 1" if spec_ledger(SPEC)[family]["in_tranche_1"] else "pending"
     assert reports(coverage_problems(SPEC, model), f"{family}: the ledger says {stated}")
+
+
+def test_the_thermal_family_is_lost_by_either_operating_case():
+    """The family of RS-SUS, RS-OPE and RS-OPE-REF has two controls beside FLIP's: RS-OPE without its thermal
+    state, and RS-OPE-REF with one hot member's analysis-basis override removed."""
+    family = "RS-SUS, RS-OPE and RS-OPE-REF (thermal; modulus by temperature, or the 20 °C modulus with its stated basis)"
+    stated = "in tranche 1" if spec_ledger(SPEC)[family]["in_tranche_1"] else "pending"
+    hot = lambda m: next(s for s in _element_states(m, "load:RS-OPE-REF") if "operating_temperature" in s)
+    for control in (
+            lambda m: [s.__setitem__("thermal_state", {"kind": "unchanged_reference"})
+                       for s in _element_states(m, "load:RS-OPE")],
+            lambda m: hot(m).pop("analysis_basis_override")):
+        model = copy.deepcopy(MODEL)
+        control(model)
+        assert FAMILY_PRESENT[family](model) is False
+        assert reports(coverage_problems(SPEC, model), f"{family}: the ledger says {stated}")
 
 
 def test_a_changed_sub_feature_or_interim_record_is_caught():
@@ -1177,7 +1215,7 @@ def test_a_missing_or_unknown_identity_is_caught():
         assert unknown_identities(text + "\n| RS-P010_old |\n", MODEL) == ["RS-P010_old"], record
     without_region = re.sub(r"(?<![\w-])RG-4(?![\w-])", "", SPEC)
     assert missing_identities("SPECIFICATION.md", without_region, MODEL) == [
-        "region:RS-OPE-RG-4", "region:RS-SAM-RG-4", "region:RS-SUS-RG-4"]
+        "region:RS-OPE-REF-RG-4", "region:RS-OPE-RG-4", "region:RS-SAM-RG-4", "region:RS-SUS-RG-4"]
 
 
 def _primitive(model, case_index, contains):
@@ -1285,6 +1323,60 @@ def test_a_stale_source_or_a_changed_fixture_field_is_caught():
     problems = field_problems(RUN_SHEET, model)
     assert reports(problems, "step states, load:RS-SUS pipe:RS-P010: thermal provenance")
     assert reports(problems, "step states, load:RS-SUS pipe:RS-P180: thermal provenance")
+    # RS-OPE-REF's instructions: a changed analysis-basis reason, a changed analysis-basis provenance, the
+    # replaced span's thermal provenance moved to another member, and a doubled space or a no-break space inside
+    # that thermal provenance are each reported with the case and member.
+    _rs_ope_ref_mutations_are_caught(RUN_SHEET)
+
+
+# RS-OPE-REF's instructions, changed, and what each must report.
+RS_OPE_REF_MUTATIONS = (
+    ("material basis (spec §8.1)`", "material basis (spec §8.2)`",
+     ("step states, analysis-basis reason: load:RS-OPE-REF pipe:RS-P010 holds",)),
+    ("**analysis-basis provenance** ⟨P⟩", "**analysis-basis provenance** ⟨S5⟩",
+     ("step states, analysis-basis provenance: load:RS-OPE-REF pipe:RS-P010 holds",)),
+    ("Then on RS-P180's row clear", "Then on RS-P170's row clear",
+     ("step states, load:RS-OPE-REF pipe:RS-P180: thermal provenance",)),
+    # Same-line characters inside the backticked value are read as typed: only a line continuation folds.
+    ("zero eigenstrain (spec §5.1)`", "zero eigenstrain  (spec §5.1)`",
+     ("step states, load:RS-OPE-REF pipe:RS-P180: thermal provenance",)),
+    ("zero eigenstrain (spec §5.1)`", "zero eigenstrain\u00a0(spec §5.1)`",
+     ("step states, load:RS-OPE-REF pipe:RS-P180: thermal provenance",)),
+)
+
+
+def _rs_ope_ref_bullet(sheet: str) -> str:
+    return re.search(r"(?ms)^- \*\*RS-OPE-REF\.\*\*.*?(?=^- \*\*|\Z)", step(sheet, "states")).group(0)
+
+
+def _rs_ope_ref_mutations_are_caught(sheet: str) -> None:
+    bullet = _rs_ope_ref_bullet(sheet)
+    for old, new, fragments in RS_OPE_REF_MUTATIONS:
+        assert bullet.count(old) == 1, old
+        problems = field_problems(sheet.replace(bullet, bullet.replace(old, new, 1), 1), MODEL)
+        assert reports(problems, *fragments), (old, problems)
+    moved = field_problems(sheet.replace(bullet, bullet.replace("Then on RS-P180's row clear",
+                                                                "Then on RS-P170's row clear", 1), 1), MODEL)
+    assert reports(moved, "step states, load:RS-OPE-REF pipe:RS-P170: thermal provenance")
+    assert not reports(moved, "step states, load:RS-OPE ")
+
+
+def test_a_rewrap_of_rs_ope_ref_s_instructions_changes_no_reading():
+    """A line break inside "Mark element_states absent" or inside the replaced span's backticked thermal provenance
+    changes nothing: the sheet still matches the fixture, and the RS-OPE-REF mutations are still caught (in round 1
+    such a break hid the moved replaced span). Each phrase is found whether the sheet already breaks it or not: a
+    space between its words matches a space or a line continuation."""
+    bullet = _rs_ope_ref_bullet(RUN_SHEET)
+    rewrapped = bullet
+    for phrase, wrapped in (("**Mark element_states absent**", "**Mark\n  element_states absent**"),
+                            ("replaced span RS-P180: zero eigenstrain", "replaced span\n  RS-P180: zero eigenstrain")):
+        pattern = r"(?: |\n[ \t]*)".join(map(re.escape, phrase.split(" ")))
+        assert len(re.findall(pattern, rewrapped)) == 1, phrase
+        rewrapped = re.sub(pattern, lambda _: wrapped, rewrapped, count=1)
+    sheet = RUN_SHEET.replace(bullet, rewrapped, 1)
+    assert sheet != RUN_SHEET
+    assert field_problems(sheet, MODEL) == []
+    _rs_ope_ref_mutations_are_caught(sheet)
 
 
 def test_a_wrong_typed_label_is_caught():

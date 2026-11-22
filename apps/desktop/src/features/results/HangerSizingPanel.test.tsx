@@ -6,15 +6,27 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import twoSpanJson from "../../../../../fixtures/results/hanger_sizing_result_two_span.json";
 import fourSpanJson from "../../../../../fixtures/results/hanger_sizing_result_four_span.json";
 import refusedJson from "../../../../../fixtures/results/hanger_sizing_result_refused.json";
+import corpusJson from "../../../../../fixtures/results/hanger_sizing_corpus.json";
 import twoSpanInput from "../../../../../fixtures/results/hanger_sizing_input_two_span.json";
 import fourSpanInput from "../../../../../fixtures/results/hanger_sizing_input_four_span.json";
+import exPressurisedJson from "../../../../../fixtures/results/hanger_sizing_result_ex_pressurised.json";
+import exPressurisedInput from "../../../../../fixtures/results/hanger_sizing_input_ex_pressurised.json";
 import { canonicalSha256HexCheckedV1 } from "../../services/hashService";
 import { CSV_SOFTWARE_VERSION } from "../result-export/csvProvenance";
 import { serializeCsvTable } from "../result-export/csvTable";
 import { preambleValue, readCsv } from "../../test/csvRead";
-import type { HangerSizingDocument, HangerSizingSizedDocument } from "./hangerSizingResult";
+import type { HangerSizingDisclosure, HangerSizingDisclosureCode, HangerSizingDocument, HangerSizingSizedDocument } from "./hangerSizingResult";
 import { hangerSizingCandidatesCsv, hangerSizingCsvProvenance, hangerSizingSolvesCsv } from "./hangerSizingCsv";
-import { HANGER_SIZING_STANDING_NAMES, hangerSizingView, type HangerSizingReaderEvidence } from "./hangerSizingView";
+import { CONFIRMATION_STATEMENTS } from "./integrityStatus";
+import { BOUNDARY_SENTENCE } from "./numericalHealthText";
+import {
+  HANGER_SIZING_CONFIRMATION_NOT_APPLICABLE,
+  HANGER_SIZING_STANDING_NAMES,
+  formatHangerSizingSolverStanding,
+  hangerSizingView,
+  integrityDisclosureMessage,
+  type HangerSizingReaderEvidence
+} from "./hangerSizingView";
 import {
   HANGER_SIZING_CANDIDATES_TABLE_LABEL,
   HANGER_SIZING_CONDITIONAL_TEXT,
@@ -22,6 +34,19 @@ import {
   HANGER_SIZING_UNCONDITIONAL_TEXT,
   HangerSizingPanel
 } from "./HangerSizingPanel";
+
+// Compile-time controls on the disclosure-code union (types only; the readers validate documents): every
+// code the schema admits is a member, and an unknown code is not.
+const DISCLOSURE_CODES_TYPED: readonly HangerSizingDisclosureCode[] = [
+  "HANGER_SIZING_SUPPORT_STATE_DIFFERS",
+  "HANGER_SIZING_COLD_REFERENCE_STATE_DIFFERS",
+  "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY",
+  "DISPLACEMENT_CORRECTION_UNAVAILABLE"
+];
+// @ts-expect-error an unknown disclosure code is not a member of the union.
+const UNKNOWN_DISCLOSURE_CODE: HangerSizingDisclosureCode = "HANGER_SIZING_UNKNOWN_DISCLOSURE";
+void DISCLOSURE_CODES_TYPED;
+void UNKNOWN_DISCLOSURE_CODE;
 
 const saved: Array<{ text: string; fileName: string; explicitLocalPrivateIntent: boolean }> = [];
 vi.mock("../result-export/csvSave", () => ({
@@ -45,7 +70,8 @@ const verdict = (): HangerSizingReaderEvidence["verdict"] => ({
   binding: { status: "passed", difference: null, not_checked: ["solve_request"] },
   arithmetic_consistent_with_published_positions: { status: "passed", difference: null },
   derivation: { status: "not_checked", difference: null },
-  reproduction: { status: "failed", difference: "V_O1: reproduced value differs" }
+  reproduction: { status: "failed", difference: "V_O1: reproduced value differs" },
+  integrity_bound: { status: "not_verified", reason: "inverse_norm_bound_not_verified" }
 });
 
 async function renderSized(props: Parameters<typeof HangerSizingPanel>[0]) {
@@ -55,6 +81,7 @@ async function renderSized(props: Parameters<typeof HangerSizingPanel>[0]) {
 }
 
 const byId = (id: string) => screen.getByTestId(`hanger-sizing-${id}`);
+const SENSITIVE_MESSAGE = "sensitive: the solver's numerical-integrity status for this derived solve is sensitive, not solver_checks_passed; every value sizing takes from it carries that standing (integrity_bound: not_verified, inverse_norm_bound_not_verified)";
 
 describe("HangerSizingPanel: the candidate table", () => {
   it("labels F_cold and F_C exactly and shows the published SI values as 3a gives them", async () => {
@@ -180,15 +207,153 @@ describe("HangerSizingPanel: basis, solves, standing and disclosures", () => {
     expect([...byId("limitations").querySelectorAll("li")].map((item) => item.textContent)).toEqual(twoSpanJson.limitations);
   });
 
+  it("reads the exact route from a committed exact-route document and renders its table", async () => {
+    const document = asDocument(exPressurisedJson) as HangerSizingSizedDocument;
+    await renderSized({ document, library: clone(exPressurisedInput.library) as Record<string, unknown> });
+    expect(byId("basis-route").textContent).toBe("exact_pressure");
+    const table = screen.getByRole("table", { name: HANGER_SIZING_CANDIDATES_TABLE_LABEL });
+    const rows = within(table).getAllByRole("row").slice(1);
+    expect(rows.map((row) => within(row).getByRole("rowheader").textContent)).toEqual(["H-3", "H-5"]);
+    expect(byId("outcome-H-3").textContent).toBe("selected");
+    expect(byId("outcome-H-5").textContent).toBe("selected");
+    expect(byId("record-H-3").textContent).toContain("VS-B");
+    expect(byId("record-H-5").textContent).toContain("CE-1");
+    expect([...byId("limitations").querySelectorAll("li")].map((item) => item.textContent)).toEqual(exPressurisedJson.limitations);
+    expect(screen.getByRole("table", { name: HANGER_SIZING_SOLVES_TABLE_LABEL })).toBeTruthy();
+  });
+
   it("lists every solve with its label, case, derived hash and each nonlinear support's state", async () => {
     await renderSized({ document: twoSpan() });
     const table = screen.getByRole("table", { name: HANGER_SIZING_SOLVES_TABLE_LABEL });
     expect(within(table).getAllByRole("rowheader").map((cell) => cell.textContent)).toEqual(["S_W", "S_C", "S_O1", "S_O2", "V_C", "V_O1", "V_O2"]);
+    expect(within(table).getAllByRole("columnheader").map((cell) => cell.textContent))
+      .toEqual(["Solve", "Case", "Derived document sha256", "Nonlinear support states", "Solver standing", "Support-state confirmation"]);
     expect([...byId("solve-S_O2").querySelectorAll("td")].map((cell) => cell.textContent))
-      .toEqual(["load:O2", "590df0f06c498e3e017fcf697b75b6e2be034bf4ad931367b3b37731f7e4a615", "support:C-lift: active"]);
+      .toEqual([
+        "load:O2", "590df0f06c498e3e017fcf697b75b6e2be034bf4ad931367b3b37731f7e4a615", "support:C-lift: active",
+        formatHangerSizingSolverStanding("solver_checks_passed"), CONFIRMATION_STATEMENTS.solver_reported_established
+      ]);
     cleanup();
     await renderSized({ document: fourSpan() });
     expect(byId("solve-S_W").textContent).toContain("no nonlinear support");
+    expect(byId("solve-S_W-standing").textContent).toBe(formatHangerSizingSolverStanding("solver_checks_passed"));
+    expect(byId("solve-S_W-confirmation").textContent).toBe(HANGER_SIZING_CONFIRMATION_NOT_APPLICABLE);
+  });
+
+  it("shows a non-passing solve's standing and a quoted confirmation detail beside the solve", async () => {
+    const document = twoSpan() as unknown as { result: { solves: Record<string, unknown>[]; disclosures: unknown[] } };
+    document.result.disclosures = [{ code: "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", names: ["S_O1"], message: SENSITIVE_MESSAGE }];
+    document.result.solves[2].solver_standing = "sensitive";
+    document.result.solves[4].support_state_confirmation = { outcome: "not_established_detail_quoted", detail: "margin below its bound" };
+    await renderSized({ document: document as unknown as HangerSizingDocument });
+    expect(byId("solve-S_O1-standing").textContent).toBe(formatHangerSizingSolverStanding("sensitive"));
+    expect(byId("solve-V_C-confirmation").textContent).toBe(`${CONFIRMATION_STATEMENTS.not_established_detail_quoted} margin below its bound`);
+    expect(byId("solve-V_C-confirmation-detail").tagName).toBe("Q");
+    expect(byId("solve-V_C-confirmation-detail").textContent).toBe("margin below its bound");
+    expect(screen.queryByTestId("hanger-sizing-solve-S_O2-confirmation-detail")).toBeNull();
+  });
+
+  it("renders no sized view of a document whose bound, standing or confirmation is tampered", async () => {
+    const tampered: [string, (d: { result: { integrity_bound: unknown; solves: Record<string, unknown>[] } }) => void, string][] = [
+      ["bound verified", (d) => { d.result.integrity_bound = { status: "verified", reason: "inverse_norm_bound_not_verified" }; }, "HANGER_SIZING_INTEGRITY_BOUND_MALFORMED"],
+      ["standing verified", (d) => { d.result.solves[0].solver_standing = "verified"; }, "HANGER_SIZING_SOLVE_STANDING_MALFORMED: S_W"],
+      ["standing undisclosed", (d) => { d.result.solves[0].solver_standing = "failed"; }, "HANGER_SIZING_SOLVE_STANDING_UNDISCLOSED: S_W"],
+      ["confirmation spurious detail", (d) => { d.result.solves[0].support_state_confirmation = { outcome: "no_confirmation_record", detail: "invented" }; }, "HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: S_W"]
+    ];
+    for (const [name, change, fault] of tampered) {
+      const document = twoSpan() as unknown as { result: { integrity_bound: unknown; solves: Record<string, unknown>[] } };
+      change(document);
+      render(<HangerSizingPanel document={document as unknown as HangerSizingDocument} />);
+      expect((await screen.findByTestId("hanger-sizing-error")).textContent, name).toBe(`The sizing result could not be displayed: ${fault}`);
+      expect(screen.queryByTestId("hanger-sizing-sized"), name).toBeNull();
+      expect(screen.queryByTestId("hanger-sizing-integrity-bound"), name).toBeNull();
+      cleanup();
+    }
+  });
+
+  it("renders no sized view of a document whose integrity disclosures are orphaned, multi-label, duplicated or forged", async () => {
+    type Disclosing = { result: { solves: Record<string, unknown>[]; disclosures: unknown[] } };
+    const own = { code: "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", names: ["S_W"], message: SENSITIVE_MESSAGE };
+    const tampered: [string, unknown[], string][] = [
+      ["orphan label", [own, { ...own, names: ["S_O99"] }], "HANGER_SIZING_SOLVE_INTEGRITY_DISCLOSURE_MALFORMED: disclosures[1]"],
+      ["multi-label", [{ ...own, names: ["S_W", "S_C"] }], "HANGER_SIZING_SOLVE_INTEGRITY_DISCLOSURE_MALFORMED: disclosures[0]"],
+      ["duplicate", [own, own], "HANGER_SIZING_SOLVE_INTEGRITY_DISCLOSURE_DUPLICATE: S_W"],
+      ["forged message", [{ ...own, message: "sensitive: a verified error bound for this solve" }], "HANGER_SIZING_SOLVE_INTEGRITY_DISCLOSURE_MALFORMED: disclosures[0]"]
+    ];
+    for (const [name, disclosures, fault] of tampered) {
+      const document = twoSpan() as unknown as Disclosing;
+      document.result.solves[0].solver_standing = "sensitive";
+      document.result.disclosures = disclosures;
+      render(<HangerSizingPanel document={document as unknown as HangerSizingDocument} />);
+      expect((await screen.findByTestId("hanger-sizing-error")).textContent, name).toBe(`The sizing result could not be displayed: ${fault}`);
+      expect(screen.queryByTestId("hanger-sizing-sized"), name).toBeNull();
+      cleanup();
+    }
+  });
+
+  it("renders no sized view of a solve reported established beside its unavailable correction, and renders the withdrawn one", async () => {
+    // S_O1 (solves[2]) sensitive with its integrity and correction-unavailable disclosures: the producer withdraws a
+    // confirmed state when the correction fails, so solver_reported_established is a contradiction.
+    const withS_O1 = (outcome: string) => {
+      const document = twoSpan() as unknown as { result: { solves: Record<string, unknown>[]; disclosures: unknown[] } };
+      document.result.solves[2].solver_standing = "sensitive";
+      document.result.disclosures = [
+        { code: "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", names: ["S_O1"], message: SENSITIVE_MESSAGE },
+        { code: "DISPLACEMENT_CORRECTION_UNAVAILABLE", names: ["S_O1"], message: "Load case load:OPERATING: the corrected displacement of node:A:UX could not be certified (invented); no published result of this case relies on the member-relative formation check." }
+      ];
+      document.result.solves[2].support_state_confirmation = { outcome, detail: null };
+      return document as unknown as HangerSizingDocument;
+    };
+    render(<HangerSizingPanel document={withS_O1("solver_reported_established")} />);
+    expect((await screen.findByTestId("hanger-sizing-error")).textContent)
+      .toBe("The sizing result could not be displayed: HANGER_SIZING_SOLVE_CONFIRMATION_CONTRADICTION: S_O1");
+    expect(screen.queryByTestId("hanger-sizing-sized")).toBeNull();
+    expect(screen.queryByRole("button", { name: /^Export CSV/ })).toBeNull();
+    cleanup();
+    await renderSized({ document: withS_O1("no_confirmation_record") });
+    expect(byId("solve-S_O1-standing").textContent).toBe(formatHangerSizingSolverStanding("sensitive"));
+    fireEvent.click(screen.getByRole("button", { name: "Export CSV: Hanger sizing candidates" }));
+    fireEvent.click(screen.getByRole("button", { name: "Export CSV: Hanger sizing derived solves" }));
+    await waitFor(() => expect(saved.length).toBe(2));
+    const solves = readCsv(saved.find((item) => item.fileName === "swbpipe-hanger-sizing-solves.csv")!.text);
+    expect(solves.rows[2][solves.header.indexOf("Support-state confirmation")]).toBe(CONFIRMATION_STATEMENTS.no_confirmation_record);
+    cleanup();
+    // A malformed or repeated correction-unavailable disclosure renders no sized view and no export either.
+    const unavailable = { code: "DISPLACEMENT_CORRECTION_UNAVAILABLE", names: ["S_O1"], message: "Load case load:OPERATING: the corrected displacement of node:A:UX could not be certified (invented); no published result of this case relies on the member-relative formation check." };
+    const malformed: [string, Record<string, unknown>, string][] = [
+      ["orphan label", { ...unavailable, names: ["S_O99"] }, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_MALFORMED: disclosures[2]"],
+      ["multi-label", { ...unavailable, names: ["S_O1", "S_O2"] }, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_MALFORMED: disclosures[2]"],
+      ["no label", { ...unavailable, names: [] }, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_MALFORMED: disclosures[2]"],
+      ["empty message", { ...unavailable, message: "" }, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_MALFORMED: disclosures[2]"],
+      ["repeated", unavailable, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_DUPLICATE: S_O1"]
+    ];
+    for (const [name, extra, fault] of malformed) {
+      const document = withS_O1("no_confirmation_record") as unknown as { result: { disclosures: unknown[] } };
+      document.result.disclosures.push(extra);
+      render(<HangerSizingPanel document={document as unknown as HangerSizingDocument} />);
+      expect((await screen.findByTestId("hanger-sizing-error")).textContent, name).toBe(`The sizing result could not be displayed: ${fault}`);
+      expect(screen.queryByTestId("hanger-sizing-sized"), name).toBeNull();
+      expect(screen.queryByRole("button", { name: /^Export CSV/ }), name).toBeNull();
+      cleanup();
+    }
+  });
+
+  it("shows a sensitive weight solve with the engine's exact integrity message, disclosed and not refused, and exports it", async () => {
+    expect(integrityDisclosureMessage("sensitive")).toBe(SENSITIVE_MESSAGE);
+    const document = twoSpan() as unknown as { result: { solves: Record<string, unknown>[]; disclosures: unknown[] } };
+    document.result.solves[0].solver_standing = "sensitive";
+    document.result.disclosures = [{ code: "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", names: ["S_W"], message: integrityDisclosureMessage("sensitive") }];
+    await renderSized({ document: document as unknown as HangerSizingDocument });
+    expect(byId("solve-S_W-standing").textContent).toBe(formatHangerSizingSolverStanding("sensitive"));
+    expect(byId("solve-S_C-standing").textContent).toBe(formatHangerSizingSolverStanding("solver_checks_passed"));
+    expect(byId("solve-S_C-standing").textContent).toContain(BOUNDARY_SENTENCE);
+    expect(byId("disclosure-0").textContent).toBe(`HANGER_SIZING_DERIVED_SOLVE_INTEGRITY (S_W): ${SENSITIVE_MESSAGE}`);
+    fireEvent.click(screen.getByRole("button", { name: "Export CSV: Hanger sizing candidates" }));
+    fireEvent.click(screen.getByRole("button", { name: "Export CSV: Hanger sizing derived solves" }));
+    await waitFor(() => expect(saved.length).toBe(2));
+    const solves = readCsv(saved.find((item) => item.fileName === "swbpipe-hanger-sizing-solves.csv")!.text);
+    expect(solves.rows[0][solves.header.indexOf("Solver standing")]).toBe(formatHangerSizingSolverStanding("sensitive"));
+    for (const item of saved) expect(item.text).toContain(`HANGER_SIZING_DERIVED_SOLVE_INTEGRITY (S_W): ${SENSITIVE_MESSAGE}`);
   });
 
   it("states a conditional standing prominently, with what it means and the candidates with no fit", async () => {
@@ -210,6 +375,26 @@ describe("HangerSizingPanel: basis, solves, standing and disclosures", () => {
     await renderSized({ document: document as unknown as HangerSizingDocument });
     expect(byId("disclosure-0").textContent).toBe("HANGER_SIZING_SUPPORT_STATE_DIFFERS (support:C-lift): invented message");
   });
+
+  it("lists each derived solve's integrity and correction-unavailable disclosures by solve label", async () => {
+    // The messages are the product's own forms (the integrity message of a sensitive standing; the
+    // DISPLACEMENT_CORRECTION_UNAVAILABLE warning of the forced-failure fixture rt_a3_s6_c1_correction_unavailable).
+    const disclosures: HangerSizingDisclosure[] = [
+      { code: "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", names: ["S_O1"], message: "sensitive: the solver's numerical-integrity status for this derived solve is sensitive, not solver_checks_passed; every value sizing takes from it carries that standing (integrity_bound: not_verified, inverse_norm_bound_not_verified)" },
+      { code: "DISPLACEMENT_CORRECTION_UNAVAILABLE", names: ["S_O1"], message: "Load case load:VACUUM: the corrected displacement of node:A:UX could not be certified (forced by test); no published result of this case relies on the member-relative formation check." },
+      { code: "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", names: ["V_O1"], message: "sensitive: the solver's numerical-integrity status for this derived solve is sensitive, not solver_checks_passed; every value sizing takes from it carries that standing (integrity_bound: not_verified, inverse_norm_bound_not_verified)" }
+    ];
+    const document = twoSpan() as unknown as { result: { disclosures: unknown[]; solves: Record<string, unknown>[] } };
+    document.result.disclosures = disclosures;
+    // Each integrity disclosure states its solve's own standing, and S_O1's confirmation is withdrawn beside its
+    // unavailable correction, as the producer withdraws it.
+    for (const label of ["S_O1", "V_O1"]) document.result.solves.find((solve) => solve.label === label)!.solver_standing = "sensitive";
+    document.result.solves[2].support_state_confirmation = { outcome: "no_confirmation_record", detail: null };
+    await renderSized({ document: document as unknown as HangerSizingDocument });
+    expect(byId("disclosure-0").textContent).toBe("HANGER_SIZING_DERIVED_SOLVE_INTEGRITY (S_O1): sensitive: the solver's numerical-integrity status for this derived solve is sensitive, not solver_checks_passed; every value sizing takes from it carries that standing (integrity_bound: not_verified, inverse_norm_bound_not_verified)");
+    expect(byId("disclosure-1").textContent).toBe("DISPLACEMENT_CORRECTION_UNAVAILABLE (S_O1): Load case load:VACUUM: the corrected displacement of node:A:UX could not be certified (forced by test); no published result of this case relies on the member-relative formation check.");
+    expect(byId("disclosure-2").textContent).toBe("HANGER_SIZING_DERIVED_SOLVE_INTEGRITY (V_O1): sensitive: the solver's numerical-integrity status for this derived solve is sensitive, not solver_checks_passed; every value sizing takes from it carries that standing (integrity_bound: not_verified, inverse_norm_bound_not_verified)");
+  });
 });
 
 describe("HangerSizingPanel: reader standings", () => {
@@ -222,6 +407,10 @@ describe("HangerSizingPanel: reader standings", () => {
     expect(byId("standing-binding").textContent).toBe("binding: passed; inputs not checked: solve_request");
     expect(byId("standing-derivation").textContent).toBe("derivation: not checked");
     expect(byId("standing-reproduction").textContent).toBe("reproduction: failed (first difference: V_O1: reproduced value differs)");
+    expect(byId("standings-integrity-bound").textContent).toBe("Integrity bound: not_verified (inverse_norm_bound_not_verified).");
+    expect(byId("integrity-bound").textContent).toBe(
+      `Integrity bound: not_verified (inverse_norm_bound_not_verified) — SWBPIPE does not verify an error bound for the ordinary derived solves (LIM-026). ${BOUNDARY_SENTENCE}`
+    );
   });
 
   it("shows the unbound reason and every standing as not checked for absent or mismatched evidence", async () => {
@@ -234,6 +423,8 @@ describe("HangerSizingPanel: reader standings", () => {
       expect(byId("standings-binding").textContent).toBe(`Reader evidence not bound: ${reason}. Every standing reads not checked.`);
       for (const name of HANGER_SIZING_STANDING_NAMES) expect(byId(`standing-${name}`).textContent).toBe(`${name}: not checked`);
       expect(byId("standings").textContent).not.toMatch(/passed|valid|accepted/i);
+      expect(screen.queryByTestId("hanger-sizing-standings-integrity-bound")).toBeNull();
+      expect(byId("integrity-bound").textContent).toContain("not_verified (inverse_norm_bound_not_verified)");
       cleanup();
     }
   });
@@ -243,12 +434,12 @@ describe("HangerSizingPanel: refused documents", () => {
   it("lists every refusal in order with the basis, and renders no table and no export", async () => {
     const document = refused() as unknown as Record<string, unknown> & { refusals: unknown[] };
     document.refusals = [
-      { code: "HANGER_SIZING_CANDIDATE_UNKNOWN", names: ["support:missing"], message: "the candidate does not meet the sizing rules of Design §3" },
+      { code: "HANGER_SIZING_CANDIDATE_UNKNOWN", names: ["support:missing"], message: "the named support is not a support of the model" },
       { code: "HANGER_SIZING_LIBRARY_NOT_ADMITTED", names: [], message: "the library is not admitted" }
     ];
     render(<HangerSizingPanel document={document as unknown as HangerSizingDocument} />);
     await screen.findByTestId("hanger-sizing-refused");
-    expect(byId("refusal-0").textContent).toBe("HANGER_SIZING_CANDIDATE_UNKNOWN (support:missing): the candidate does not meet the sizing rules of Design §3");
+    expect(byId("refusal-0").textContent).toBe("HANGER_SIZING_CANDIDATE_UNKNOWN (support:missing): the named support is not a support of the model");
     expect(byId("refusal-1").textContent).toBe("HANGER_SIZING_LIBRARY_NOT_ADMITTED: the library is not admitted");
     expect(screen.queryAllByRole("table")).toHaveLength(0);
     expect(screen.queryAllByRole("button", { name: /^Export CSV/ })).toHaveLength(0);
@@ -266,6 +457,27 @@ describe("HangerSizingPanel: refused documents", () => {
     await screen.findByTestId("hanger-sizing-refused");
     for (const id of ["basis-library-id", "basis-library-sha256", "basis-solve-request-sha256", "basis-sizing-request-sha256"]) expect(byId(id).textContent, id).toBe("not published");
     expect(byId("basis-request").textContent).toBe("Sizing request: not published (the input was not admitted).");
+  });
+
+  it("shows the null route of a refused document whose input was not admitted as not published", async () => {
+    // The committed corpus entry: the refused fixture with the corpus's replacements applied.
+    const entry = corpusJson.entries.find((candidate) => candidate.id === "refused-route-null-not-admitted");
+    if (!entry) throw new Error("corpus entry refused-route-null-not-admitted is missing");
+    const document = refused() as unknown as Record<string, unknown>;
+    for (const mutation of entry.mutations) {
+      expect(mutation.op).toBe("replace");
+      if (!("value" in mutation)) throw new Error("a replace mutation carries its value");
+      const parts = mutation.path.split("/").slice(1);
+      let parent = document as Record<string, unknown>;
+      for (const part of parts.slice(0, -1)) parent = parent[part] as Record<string, unknown>;
+      parent[parts[parts.length - 1]] = clone(mutation.value);
+    }
+    expect(document.route).toBeNull();
+    const view = await hangerSizingView(document as unknown as HangerSizingDocument);
+    expect(view.basis.route).toBeNull();
+    render(<HangerSizingPanel document={document as unknown as HangerSizingDocument} />);
+    await screen.findByTestId("hanger-sizing-refused");
+    expect(byId("basis-route").textContent).toBe("not published");
   });
 });
 
@@ -307,5 +519,24 @@ describe("HangerSizingPanel: accessibility and CSV controls", () => {
       expect(preambleValue(csv, "result_hash")).toBe(`sha256:${await canonicalSha256HexCheckedV1(document)}`);
     }
     await waitFor(() => expect(byId("export-csv-status").textContent).toMatch(/^Downloaded swbpipe-hanger-sizing\.csv \(\d+ bytes\)\.$/));
+  });
+
+  it("exports the provenance of the document as the view read it, whatever the document undergoes after rendering", async () => {
+    const document = twoSpan();
+    render(<HangerSizingPanel document={document} />);
+    // Changed synchronously after rendering, while the view awaits its hashes; the export clicks come after.
+    (document as unknown as { result: { integrity_bound: { status: string } } }).result.integrity_bound.status = "verified";
+    (document as unknown as { semantic_contract_id: string }).semantic_contract_id = "mutated";
+    await screen.findByTestId("hanger-sizing-sized");
+    expect(byId("basis-document").textContent).toContain("(openpipestress.result_semantics/hanger-sizing-1)");
+    fireEvent.click(screen.getByRole("button", { name: "Export CSV: Hanger sizing candidates" }));
+    fireEvent.click(screen.getByRole("button", { name: "Export CSV: Hanger sizing derived solves" }));
+    await waitFor(() => expect(saved.length).toBe(2));
+    for (const item of saved) {
+      const csv = readCsv(item.text);
+      expect(preambleValue(csv, "result_hash"), item.fileName).toBe("sha256:0264fd8e5d22c82815486fd143ae6c4cc6fcd5da6da12c3a156e7b39acc4133a");
+      expect(preambleValue(csv, "analysis_route"), item.fileName).toBe("openpipestress.result_semantics/hanger-sizing-1");
+      for (const row of csv.rows) expect(row[csv.header.indexOf("Integrity bound")], item.fileName).toBe("not_verified (inverse_norm_bound_not_verified)");
+    }
   });
 });

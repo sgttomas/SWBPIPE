@@ -1,6 +1,6 @@
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
-import { test } from "@playwright/test";
+import { test, type Page } from "@playwright/test";
 import {
   ensureViewportToggle,
   expectedVisibleEntityLabel,
@@ -16,8 +16,14 @@ import {
   writeJson
 } from "./benchmark-harness";
 import { assertBoundCandidateDocumentResponse, bindCandidateDriverEntry } from "./candidate-server-response";
+import { judgeStatusSelectionExposure } from "./status-selection-exposure";
 
 const candidateDriverBinding = bindCandidateDriverEntry("candidate-visual-point-preflight");
+
+/** Whether the status bar's typed selection is legible, read in the page (judgeStatusSelectionExposure). */
+async function statusSelectionExposure(page: Page, expected: { type: string; id: string }): Promise<any> {
+  return page.getByTestId("status-selection").evaluate(judgeStatusSelectionExposure, { type: expected.type, id: expected.id });
+}
 
 test("untimed candidate V4 visual point preflight on three frozen probes", async ({ page }) => {
   const evidenceRoot = requireEvidenceRoot();
@@ -46,17 +52,19 @@ test("untimed candidate V4 visual point preflight on three frozen probes", async
   }, { timeout: 30_000 });
   const cameraBinding = await validateCandidateMeasuredCameraBinding(page, fixture.pointOracle);
   await ensureViewportToggle(page, "toggle-viewport-labels", false, 30_000);
-  // Open the identity disclosure after display setup; its popup covers view controls.
-  await page.getByTestId("command-bar").locator(".command-context > summary").click();
-  await page.getByTestId("command-selection-readout").waitFor({ state: "visible", timeout: 30_000 });
+  // What a person sees of the selection is the status bar's typed selection (the command bar's
+  // selection summary is a visually hidden live status).
+  await page.getByTestId("status-selection").waitFor({ state: "visible", timeout: 30_000 });
   const selectionVisualOracle = fixture.pointOracle?.candidate_preflight?.selection_visual_oracle;
   if (selectionVisualOracle?.sourceSha256 !== "009b27db887e3de224f72d0df221966fbaaa0305de218ee20848050ac6a1be1b") {
     throw new Error("candidate visual preflight is not bound to VISUAL_TOKENS_V4");
   }
   const records = [];
+  const exposures = [];
   for (const sample of fixture.samples.point_selection.slice(0, 3)) {
     const oracleProbe = fixture.pointOracle.probes.find((probe: any) => probe.sample === sample.sample);
     if (!oracleProbe?.candidate_runtime?.oracle?.expectedHitRef) throw new Error(`candidate sample ${sample.sample} has no expected hit`);
+    const expectedHitRef = oracleProbe.candidate_runtime.oracle.expectedHitRef;
     records.push(await measureCanvasPointSelection(
       page,
       sample,
@@ -65,14 +73,20 @@ test("untimed candidate V4 visual point preflight on three frozen probes", async
       path.join(outputDir, `candidate-visual-point-sample-${String(sample.sample).padStart(3, "0")}.png`),
       "candidate",
       fixture.model.project.id,
-      expectedVisibleEntityLabel(fixture.model, oracleProbe.candidate_runtime.oracle.expectedHitRef),
-      selectionVisualOracle
+      expectedVisibleEntityLabel(fixture.model, expectedHitRef),
+      selectionVisualOracle,
+      null,
+      // The visible status, as the status bar states it: "<type>: <id>".
+      { locator: page.getByTestId("status-selection"), text: `${expectedHitRef.type}: ${expectedHitRef.id}`, testId: "status-selection" }
     ));
+    // Read as captured: the helper has just captured this element, and nothing has happened since.
+    exposures.push({ sample: sample.sample, ...(await statusSelectionExposure(page, expectedHitRef)) });
   }
-  await page.getByTestId("command-bar").locator(".command-context > summary").click();
-  await page.getByTestId("command-selection-readout").waitFor({ state: "hidden", timeout: 30_000 });
   await ensureViewportToggle(page, "toggle-viewport-labels", true, 30_000);
-  const failed = records.filter((record) => record.status !== "CANDIDATE_EXPECTED_SELECTION_AND_PROPERTY_OBSERVED_CAPTURED");
+  const failed = [
+    ...records.filter((record) => record.status !== "CANDIDATE_EXPECTED_SELECTION_AND_PROPERTY_OBSERVED_CAPTURED"),
+    ...exposures.filter((exposure) => exposure.status !== "PASS_STATUS_SELECTION_EXPOSED")
+  ];
   await writeJson(path.join(outputDir, "result.json"), {
     schema: "openpipestress.ui-foundation.candidate-visual-point-preflight/v1",
     status: failed.length === 0 ? "PASS_THREE_EXACT_TYPED_V4_VISUAL_PROBES" : "FAIL_VISUAL_OR_TYPED_POINT_PREFLIGHT",
@@ -82,7 +96,8 @@ test("untimed candidate V4 visual point preflight on three frozen probes", async
     cameraBinding,
     visualTokenSha256: selectionVisualOracle.sourceSha256,
     records,
+    statusSelectionExposures: exposures,
     claim: "Untimed method/visual feasibility only. Screenshot bounds do not establish the <=100ms presented-feedback target."
   });
-  if (failed.length) throw new Error(`candidate visual point preflight failed ${failed.length}/3 probes`);
+  if (failed.length) throw new Error(`candidate visual point preflight failed ${failed.length} checks over 3 probes`);
 });

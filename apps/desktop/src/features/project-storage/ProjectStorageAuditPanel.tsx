@@ -10,6 +10,10 @@ import type {
   PreviewModel
 } from "../../types";
 
+/** The Project snapshot line's words in place of its result and run counts when the open left the
+ * stored run unopened: the summary counts what was opened, and the store's own counts are not read. */
+export const STORED_RUN_NOT_OPENED = "A stored run is kept and was not opened";
+
 export function ProjectStorageAuditPanel({
   model,
   storageCapability,
@@ -20,7 +24,8 @@ export function ProjectStorageAuditPanel({
   editorIntents,
   proposal,
   modelHashIntegrity = null,
-  projectEnvelopeHashIntegrity = null
+  projectEnvelopeHashIntegrity = null,
+  storedRunNotOpened = false
 }: {
   model: PreviewModel;
   storageCapability: LocalStorageCapability | null;
@@ -32,6 +37,9 @@ export function ProjectStorageAuditPanel({
   proposal: AgentProposal | null;
   modelHashIntegrity?: ModelHashIntegrityEvidence | null;
   projectEnvelopeHashIntegrity?: ProjectEnvelopeHashIntegrityEvidence | null;
+  /** The open left the project's stored run in the store unopened (refused or withheld). The
+   * summary's result and run members then count what was opened, not what the store holds. */
+  storedRunNotOpened?: boolean;
 }) {
   const packet = buildProjectStorageAuditPacket({
     model,
@@ -54,7 +62,7 @@ export function ProjectStorageAuditPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="project-storage-export-link"
-          download={`openpipestress-preview-storage-audit-${safeFileToken(model.project.id)}.json`}
+          download={suggestedFileName("storageAudit")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />
@@ -91,13 +99,13 @@ export function ProjectStorageAuditPanel({
             packet.summary.persisted_selected_review_target_count
           }; persisted_review_target_ref=${
             packet.summary.persisted_selected_review_target_ref
-          }; persisted_mechanics_results=${
+          }; ${storedRunNotOpened ? STORED_RUN_NOT_OPENED : `persisted_mechanics_results=${
             packet.summary.persisted_mechanics_result_count
           }; persisted_analysis_runs=${
             packet.summary.persisted_analysis_run_count
           }; persisted_analysis_run_ref=${
             packet.summary.persisted_analysis_run_ref
-          }; copied_external_files=${String(
+          }`}; copied_external_files=${String(
             packet.summary.copied_external_files
           )}`}
           testId="project-storage-snapshot"
@@ -356,7 +364,5 @@ function jsonDataHref(payload: unknown): string {
   return `data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(payload, null, 2))}`;
 }
 
-function safeFileToken(value: string): string {
-  return value.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
-}
 import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";
+import { suggestedFileName } from "../fileNames";

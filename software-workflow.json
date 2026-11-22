@@ -181,6 +181,15 @@
         "apps/desktop/scripts/worktreeBuildLock.test.mjs"
       ]
     },
+    "annular-bend-reference": {
+      "cwd": "validation/references/annular_bend_elasticity",
+      "command": [
+        "python3",
+        "-I",
+        "-B",
+        "generators/annular_reference.py"
+      ]
+    },
     "repository-checks": {
       "cwd": ".",
       "command": [
@@ -461,6 +470,18 @@
       ],
       "checks": [
         "desktop-native-smoke-node-tests"
+      ]
+    },
+    {
+      "paths": [
+        "validation/references/annular_bend_elasticity/**",
+        "validation/caepipe_benchmark/models/cpb-g[234]-*.json",
+        "docs/RELEASE_LIMITATIONS_v1.0.md",
+        ".github/workflows/annular-bend-reference.yml",
+        "software-workflow.json"
+      ],
+      "checks": [
+        "annular-bend-reference"
       ]
     }
   ]

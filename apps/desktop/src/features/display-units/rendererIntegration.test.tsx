@@ -72,7 +72,7 @@ describe("shared display preference in result renderers", () => {
     render(<DisplayUnitsProvider converter={convert}><DisplayUnitSelector />
       <ResultsPanel result={result} knowledge={knowledge} analysisRun={null} selectedResultId="force:i" onSelectResult={() => {}} />
       <DiagnosticsPanel model={model} knowledge={knowledge} result={result} selectedDiagnosticId="diagnostic:1" onSelectDiagnostic={() => {}} />
-      <KnowledgePanel knowledge={knowledge} result={result} />
+      <KnowledgePanel knowledge={knowledge} model={model} result={result} />
     </DisplayUnitsProvider>);
     fireEvent.change(screen.getByLabelText("Display units"), { target: { value: "US" } });
     await waitFor(() => expect(screen.getByTestId("selected-diagnostic-linked-results")).toHaveTextContent("2.248 lbf"));

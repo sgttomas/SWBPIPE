@@ -111,7 +111,7 @@ describe("Save Shareable Report Package… preparation (route 010)", () => {
   }
 
   for (const shape of ["pressure_2_straight", "pressure_source_1"]) {
-    it(`sends the D-6 vector's request with record 1.1.0 and the delivered texts (${shape})`, async () => {
+    it(`sends the D-6 vector's request with record 1.2.0 and the delivered texts (${shape})`, async () => {
       const fixture = load(`fixtures/reports/invented/exact_report_package_requests/${shape}.json`);
       const vector = load(`fixtures/reports/invented/user_release_exact/${shape}.json`);
       const model = fixture.model as PreviewModel;
@@ -126,8 +126,8 @@ describe("Save Shareable Report Package… preparation (route 010)", () => {
       expect(prepared.route).toBe("ready");
       if (prepared.route !== "ready") return;
       const request = JSON.parse(prepared.args.requestCanonicalText) as Json;
-      expect(request.report.report_context.user_release.record_version).toBe("1.1.0");
-      expect(request.report.report_context.user_release.scope.not_carried.at(-1)).toBe("ineligible_exact_route_results");
+      expect(request.report.report_context.user_release.record_version).toBe("1.2.0");
+      expect(request.report.report_context.user_release.scope.not_carried).toEqual(["rule_pack_references", "user_rule_outcomes", "run_comparisons", "handoff_records", "library_records", "audit_assets"]);
       expect(prepared.args.requestCanonicalText).toBe(await canonicalJsonString(vector.request));
       expect(prepared.args.analysisRunCanonicalText).toBe(await canonicalJsonString(vector.run_record));
       expect(prepared.args.exactResultText).toBe(bytes);

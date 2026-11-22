@@ -11,11 +11,11 @@ use std::cell::Cell;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::ipc::InvokeBody;
 
-const PROJECT: &str = "project:w12-invented-runs";
+pub(crate) const PROJECT: &str = "project:w12-invented-runs";
 const BASE: &str = "sha256:base-1";
 const RUN: &str = "run:preview-linear-static-001";
 /// 2026-10-27T11:30:45.123Z.
-const T0: i64 = 1_793_100_645_123;
+pub(crate) const T0: i64 = 1_793_100_645_123;
 
 /// The TypeScript-built transient record of a real producer result
 /// (`fixtures/persistence/transient_run_input.json`, written by
@@ -34,7 +34,7 @@ const WITNESS_RULE_PACKS_PATH_ENV: &str = "OPENPIPESTRESS_WRITE_RECORDED_RUN_WIT
 const S2_UNRESOLVED_RUN: &str = include_str!("../../../../fixtures/persistence/s2_unresolved_rule_pack_run.json");
 
 /// An invented 0.9.0 document of `PROJECT` (`name` makes distinct models).
-fn model(name: &str) -> Value {
+pub(crate) fn model(name: &str) -> Value {
     json!({
         "schema_version": open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION,
         "document_kind": "openpipestress.product_preview.model",
@@ -149,14 +149,14 @@ fn write_project(connection: &mut Connection, project_id: &str, model: &Value, b
     .unwrap();
 }
 
-fn store_with_project(label: &str) -> PathBuf {
+pub(crate) fn store_with_project(label: &str) -> PathBuf {
     let path = scratch_store(label);
     let (mut connection, _) = crate::open_project_store(&path).unwrap();
     write_project(&mut connection, PROJECT, &model("Invented project"), BASE);
     path
 }
 
-fn save_state(path: &Path, model: &Value, name: &str, token: &'static str, millis: i64) -> ModelStateSummary {
+pub(crate) fn save_state(path: &Path, model: &Value, name: &str, token: &'static str, millis: i64) -> ModelStateSummary {
     let model_canonical = canonical_json(model);
     let request = SaveModelStateRequest {
         project_id: PROJECT.to_string(),
@@ -183,7 +183,7 @@ fn run_labels(name: &str) -> RunLabels {
     .unwrap()
 }
 
-fn request(model: &Value, name: &str) -> RecordRunRequest {
+pub(crate) fn request(model: &Value, name: &str) -> RecordRunRequest {
     let manifest = manifest_text(model);
     let result = result_text(1.25);
     RecordRunRequest {
@@ -206,7 +206,7 @@ fn with_new_state(mut request: RecordRunRequest, name: &str) -> RecordRunRequest
     request
 }
 
-fn record(path: &Path, request: RecordRunRequest, millis: i64) -> Result<RecordRunOutcome, String> {
+pub(crate) fn record(path: &Path, request: RecordRunRequest, millis: i64) -> Result<RecordRunOutcome, String> {
     let now = move || Ok(millis);
     let token = || Ok("0000000000000000000000000000beef".to_string());
     let between_rows = |_: &Transaction<'_>, _: &str| Ok(());
@@ -246,7 +246,7 @@ fn v13_migrates_a_v12_store_with_states_and_is_safe_to_run_twice() {
     let (connection, evidence) = crate::open_project_store(&path).unwrap();
     assert_eq!(evidence.store_schema_version_before_open, 12);
     assert_eq!(evidence.store_schema_version, crate::STORE_SCHEMA_TARGET_VERSION);
-    assert_eq!(evidence.migrations_applied_on_open, vec!["store-v13-analysis-runs-tables", "store-v14-retire-project-fts-sidecar"]);
+    assert_eq!(evidence.migrations_applied_on_open, vec!["store-v13-analysis-runs-tables", "store-v14-retire-project-fts-sidecar", "store-v15-saved-package-entries-table"]);
     let listed = model_states::list_states(&connection, PROJECT).unwrap();
     assert_eq!(listed, vec![ModelStateSummary { recorded_run_count: 0, ..state.clone() }]);
     drop(connection);
@@ -255,7 +255,7 @@ fn v13_migrates_a_v12_store_with_states_and_is_safe_to_run_twice() {
     // interrupted migration could leave) changes nothing.
     Connection::open(&path).unwrap().execute_batch("PRAGMA user_version = 12;").unwrap();
     let (connection, evidence) = crate::open_project_store(&path).unwrap();
-    assert_eq!(evidence.migrations_applied_on_open, vec!["store-v13-analysis-runs-tables", "store-v14-retire-project-fts-sidecar"]);
+    assert_eq!(evidence.migrations_applied_on_open, vec!["store-v13-analysis-runs-tables", "store-v14-retire-project-fts-sidecar", "store-v15-saved-package-entries-table"]);
     migrate_v13_analysis_runs(&connection).unwrap();
     assert_eq!(list_runs(&connection, PROJECT).unwrap(), vec![outcome.run.clone()]);
     assert_eq!(model_states::list_states(&connection, PROJECT).unwrap()[0].recorded_run_count, 1);
@@ -324,15 +324,16 @@ fn v14_retires_the_fts_sidecar_of_a_v13_store_and_keeps_every_canonical_byte() {
     let (connection, evidence) = crate::open_project_store(&path).unwrap();
     assert_eq!(
         (evidence.store_schema_version_before_open, evidence.store_schema_version, evidence.pending_migration_count),
-        (13, 14, 0)
+        (13, 15, 0)
     );
-    assert_eq!(evidence.migrations_applied_on_open, vec!["store-v14-retire-project-fts-sidecar"]);
-    assert_eq!(evidence.migration_status, "migrated_on_open_store_schema_v13_to_v14");
+    // The store's later step (v15, the saved-package entries' table) is applied in the same open.
+    assert_eq!(evidence.migrations_applied_on_open, vec!["store-v14-retire-project-fts-sidecar", "store-v15-saved-package-entries-table"]);
+    assert_eq!(evidence.migration_status, "migrated_on_open_store_schema_v13_to_v15");
     drop(connection);
     assert!(sidecar_objects(&path).is_empty(), "the table and its shadow tables are gone");
     assert_eq!(crate::tests::canonical_store_dump(&path), canonical, "every canonical byte is unchanged");
     let (_, evidence) = crate::open_project_store(&path).unwrap();
-    assert_eq!(evidence.migration_status, "current_store_schema_v14_no_pending_migrations");
+    assert_eq!(evidence.migration_status, "current_store_schema_v15_no_pending_migrations");
     assert_eq!(history_reads(&path, &state, &outcome), reads, "reopen, state and run reads are unchanged");
     // A save after v14 writes no search row and creates no table.
     let (mut connection, _) = crate::open_project_store(&path).unwrap();
@@ -362,12 +363,12 @@ fn a_failed_v14_step_rolls_back_whole_is_reported_pending_and_retried_on_the_nex
     let mut connection = Connection::open(&path).unwrap();
     let evidence = crate::apply_store_migrations_to(&connection, crate::STORE_SCHEMA_TARGET_VERSION, &migrations).unwrap();
     assert!(connection.is_autocommit(), "no transaction is left open");
-    assert_eq!((evidence.store_schema_version_before_open, evidence.store_schema_version, evidence.store_schema_target_version), (13, 13, 14));
-    assert_eq!(evidence.pending_migration_count, 1);
+    assert_eq!((evidence.store_schema_version_before_open, evidence.store_schema_version, evidence.store_schema_target_version), (13, 13, 15));
+    assert_eq!(evidence.pending_migration_count, 2, "v14 and the step after it");
     assert!(evidence.migrations_applied_on_open.is_empty());
     assert_eq!(
         evidence.migration_status,
-        "migration_pending_store_schema_v13_of_v14: store-v14-retire-project-fts-sidecar failed and was rolled back (no such table: invented_missing_table); the store stays at v13 and the next open retries it"
+        "migration_pending_store_schema_v13_of_v15: store-v14-retire-project-fts-sidecar failed and was rolled back (no such table: invented_missing_table); the store stays at v13 and the next open retries it"
     );
     assert_eq!(crate::store_user_version(&connection).unwrap(), 13);
     // A save meanwhile writes the project row only: the sidecar's rows are untouched.
@@ -379,8 +380,8 @@ fn a_failed_v14_step_rolls_back_whole_is_reported_pending_and_retried_on_the_nex
     assert_ne!(after_save, canonical, "the save wrote its project row");
     // The next open retries the real step and succeeds.
     let (connection, evidence) = crate::open_project_store(&path).unwrap();
-    assert_eq!((evidence.store_schema_version_before_open, evidence.store_schema_version, evidence.pending_migration_count), (13, 14, 0));
-    assert_eq!(evidence.migrations_applied_on_open, vec!["store-v14-retire-project-fts-sidecar"]);
+    assert_eq!((evidence.store_schema_version_before_open, evidence.store_schema_version, evidence.pending_migration_count), (13, 15, 0));
+    assert_eq!(evidence.migrations_applied_on_open, vec!["store-v14-retire-project-fts-sidecar", "store-v15-saved-package-entries-table"]);
     drop(connection);
     assert!(sidecar_objects(&path).is_empty());
     assert_eq!(crate::tests::canonical_store_dump(&path), after_save, "every canonical byte is unchanged by the retry");
@@ -388,8 +389,9 @@ fn a_failed_v14_step_rolls_back_whole_is_reported_pending_and_retried_on_the_nex
 }
 
 /// A v13 build (its target 13 and its steps) opening a store this build
-/// migrated to v14 refuses it by name before writing anything: not a byte
-/// of the store file changes and its version and schema stay v14's.
+/// migrated to its current version (v14 or later) refuses it by name before
+/// writing anything: not a byte of the store file changes and its version
+/// and schema stay this build's.
 #[test]
 fn a_v13_build_refuses_a_v14_store_by_name_and_writes_nothing() {
     let (path, ..) = store_with_history("v13-build");
@@ -398,11 +400,12 @@ fn a_v13_build_refuses_a_v14_store_by_name_and_writes_nothing() {
     let v13: Vec<crate::StoreMigration> = crate::store_migrations().into_iter().filter(|migration| migration.version <= 13).collect();
     let connection = Connection::open(&path).unwrap();
     let error = crate::apply_store_migrations_to(&connection, 13, &v13).map(|_| ()).unwrap_err();
+    let current = crate::STORE_SCHEMA_TARGET_VERSION;
     assert!(
-        error.starts_with("STORE-SCHEMA-NEWER: the local project store is at store schema v14, newer than this build's v13; it was written by a newer SWBPIPE build. Nothing was read or written"),
+        error.starts_with(&format!("STORE-SCHEMA-NEWER: the local project store is at store schema v{current}, newer than this build's v13; it was written by a newer SWBPIPE build. Nothing was read or written")),
         "{error}"
     );
-    assert_eq!(crate::store_user_version(&connection).unwrap(), 14);
+    assert_eq!(crate::store_user_version(&connection).unwrap(), current);
     drop(connection);
     assert_eq!(std::fs::read(&path).unwrap(), before, "not a byte written");
     assert_eq!(crate::tests::canonical_store_dump(&path), canonical);

@@ -205,6 +205,14 @@
     {
       "tag": "older_document",
       "vocabulary": "no_figure_reason"
+    },
+    {
+      "tag": "not_verified",
+      "vocabulary": "integrity_bound"
+    },
+    {
+      "tag": "inverse_norm_bound_not_verified",
+      "vocabulary": "integrity_bound_reason"
     }
   ],
   "version": 1
