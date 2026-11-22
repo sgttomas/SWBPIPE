@@ -6,6 +6,11 @@
 //! other member is handed over as a whole value. Walking a member hands it to the visitor and
 //! stages exactly that member's canonical bytes, with its punctuation, in the same call.
 //!
+//! The canonical text is staged piece by piece as it is written, a long string included:
+//! no member's or row entry's text is held whole, and every stage write and every verifier
+//! read is at most [`CHUNK`] bytes. A row entry is held as one value only while it is
+//! handed over; the six row lists never form one value.
+//!
 //! A member handed over as a value is a `serde_json::Value` whose objects iterate their
 //! members in sorted order, which a rule walking it relies on: that holds because serde_json
 //! is built without its `preserve_order` feature (no manifest in the repository enables it;
@@ -24,7 +29,9 @@ use std::borrow::Cow;
 use std::cell::{Cell, RefCell};
 use std::io::{ErrorKind, Read, Write};
 
-/// The bytes are passed to the stage in chunks of at most about this size.
+/// The bytes are passed to the stage in chunks of at most this size: every write to a
+/// caller's stage, and every read the verifier asks of a written file, is at most `CHUNK`
+/// bytes (65,536).
 const CHUNK: usize = 1 << 16;
 
 /// Where an emission's bytes go.
@@ -69,9 +76,16 @@ impl Out<'_> {
             self.payload.update(piece);
         }
         self.bytes += piece.len() as u64;
-        if !matches!(self.stage, Stage::Digest) {
-            self.buffer.extend_from_slice(piece);
-            if self.buffer.len() >= CHUNK {
+        if matches!(self.stage, Stage::Digest) {
+            return;
+        }
+        // Filled to exactly one chunk at a time, so the buffer never holds more than CHUNK.
+        let mut rest = piece;
+        while !rest.is_empty() && self.failure.is_none() {
+            let (now, later) = rest.split_at(rest.len().min(CHUNK - self.buffer.len()));
+            self.buffer.extend_from_slice(now);
+            rest = later;
+            if self.buffer.len() == CHUNK {
                 self.flush();
             }
         }
@@ -151,7 +165,7 @@ impl<'s, 'a> Emission<'s, 'a> {
             document,
             out: RefCell::new(Out {
                 stage,
-                buffer: Vec::with_capacity(CHUNK + 4096),
+                buffer: Vec::with_capacity(CHUNK),
                 theirs: Vec::new(),
                 full: Sha256::new(),
                 payload: Sha256::new(),
@@ -346,7 +360,6 @@ impl<'s, 'a> Emission<'s, 'a> {
         self.begin(node)?;
         self.put(b"[");
         let mut checked = Sha256::new();
-        let mut text = Vec::new();
         let mut first = true;
         for (index, fact) in self.document.facts.iter().enumerate() {
             if !list.holds(fact.disposition) {
@@ -356,13 +369,18 @@ impl<'s, 'a> Emission<'s, 'a> {
                 Ok(entry) => entry,
                 Err(e) => return Err(self.fail(&format!("DOCUMENT_STREAM_ROW_FAILED: source row {index}: {e}"))),
             };
-            canonical::bytes(&entry, &mut text);
-            checked.update(&text);
             if !first {
                 self.put(b",");
             }
             first = false;
-            self.put(&text);
+            // The entry's canonical text, streamed: digested and staged piece by piece.
+            {
+                let mut out = self.out.borrow_mut();
+                canonical::write(&entry, &mut |piece| {
+                    checked.update(piece);
+                    out.put(piece, true);
+                });
+            }
             self.handed(visit(Member::Value(&entry)), None)?;
         }
         self.put(b"]");

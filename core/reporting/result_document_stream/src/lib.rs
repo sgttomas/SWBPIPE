@@ -16,7 +16,20 @@
 //!   is also a content source ([`SourceObject`]) that a visitor walks: what it stages is
 //!   exactly the canonical text of what it shows. It reports success only after checking that
 //!   its bytes, less the hash member, digest to the first emission's hash.
-//! - [`DocumentSource::verify`] re-emits and compares with a written file in constant memory.
+//! - [`DocumentSource::verify`] re-emits and compares with a written file, chunk by chunk.
+//!
+//! What is held, and its bounds:
+//!
+//! - The six row lists never form one value. Each emission derives one row's entries at a
+//!   time and streams each entry's canonical text into the digests and the stage as it is
+//!   written, long strings included; no entry's text is held whole.
+//! - Every write to a caller's stage, and every read the verifier asks of a written file, is
+//!   at most 64 KiB (65,536 bytes).
+//! - One `RowFact` is kept per source row (its disposition, place, class and two digests),
+//!   so this part grows with the number of rows, not with their size.
+//! - Otherwise what is held at once is bounded by one item: the one row entry being derived
+//!   and handed over, the largest ordinary member of the header (held as a value), and the
+//!   sorted member names of one object being written.
 //!
 //! The six row lists are `result_envelope.result_sets[0].values`, `review_evidence`,
 //! `row_accounting`, `row_disclosures`, `source_annotations` and
@@ -44,7 +57,7 @@ pub use open_pipe_stress_export_decision::{Member, Peek, SourceList, SourceObjec
 #[doc(hidden)]
 pub use canonical::canonical_text;
 
-use header::{header_decisions, validate_header, DerivedHeader};
+use header::{header_decisions, refuse_declared_dimensions, validate_header, DerivedHeader};
 use open_pipe_stress_result_export::derivative::{checksum, guard_json, reference};
 use open_pipe_stress_result_export::retained_precision::AccuracyClass;
 use open_pipe_stress_result_export::semantic_contract::{for_source, retained_row_classes};
@@ -117,7 +130,7 @@ pub(crate) enum Slot<'a> {
 /// What is kept of one source row between emissions.
 pub(crate) struct RowFact {
     pub(crate) disposition: Disposition,
-    pub(crate) place: u32,
+    pub(crate) place: usize,
     pub(crate) class: Option<AccuracyClass>,
     pub(crate) row_digest: [u8; 32],
     pub(crate) target_digest: [u8; 32],
@@ -183,7 +196,7 @@ impl<'a> DocumentSource<'a> {
             _ => Value::Null,
         };
         envelope.insert("schema_version".into(), json!(version));
-        let decisions = header_decisions(source, origin["received_carrier_checksum"]["payload_scope"].as_str());
+        let decisions = header_decisions(source);
         let mut borrowed: Vec<(String, Slot<'a>)> = Vec::new();
         let mut copy = |envelope: &mut Map<String, Value>, key: &str| {
             envelope.remove(key);
@@ -220,9 +233,7 @@ impl<'a> DocumentSource<'a> {
         if !authentic && !origin["original_producer_checksum"].is_null() {
             return Err("UNAVAILABLE_PRODUCER_HASH".into());
         }
-        if let Some(refusal) = decisions.declared_dimensions {
-            return Err(refusal.into());
-        }
+        refuse_declared_dimensions(scope, rows)?;
         let basis = RowBasis {
             source,
             table,
@@ -247,10 +258,9 @@ impl<'a> DocumentSource<'a> {
         let mut facts = Vec::with_capacity(rows.len());
         let mut lists: [Sha256; 6] = Default::default();
         let (mut row_refusal, mut witness_refusal) = (None, None);
-        let mut text = Vec::new();
         let mut checked = |list: RowList, entry: &Value| {
-            canonical::bytes(entry, &mut text);
-            lists[list as usize].update(&text);
+            let hasher = &mut lists[list as usize];
+            canonical::write(entry, &mut |piece| hasher.update(piece));
         };
         for (index, row) in rows.iter().enumerate() {
             let id = row["id"].as_str().filter(|s| !s.is_empty()).ok_or("SOURCE_ID_MISSING")?;
@@ -281,7 +291,7 @@ impl<'a> DocumentSource<'a> {
             }
             facts.push(RowFact {
                 disposition: derived.disposition,
-                place: u32::try_from(place).map_err(|_| "SOURCE_ROWS_TOO_MANY")?,
+                place,
                 class: class.cloned(),
                 row_digest: derived.row_digest,
                 target_digest: derived.target_digest,
@@ -415,15 +425,16 @@ impl<'a> DocumentSource<'a> {
         Emission::new(self, emit::Stage::Write(stage))
     }
 
-    /// The whole document's canonical bytes, written to `stage` in bounded chunks.
+    /// The whole document's canonical bytes, written to `stage` at most one chunk (64 KiB)
+    /// per write.
     pub fn write_to(&self, stage: &mut dyn std::io::Write) -> Result<Emitted, String> {
         let emission = self.emission(stage);
         let walked = walk_whole(&emission);
         emission.finish_walk(walked)
     }
 
-    /// Re-emits the document and compares it with what `written` reads, in constant memory:
-    /// `Ok` only when the two are equal to the last byte.
+    /// Re-emits the document and compares it with what `written` reads, at most one chunk
+    /// (64 KiB) per read: `Ok` only when the two are equal to the last byte.
     pub fn verify(&self, written: &mut dyn std::io::Read) -> Result<Emitted, String> {
         let emission = Emission::new(self, emit::Stage::Compare(written));
         let walked = walk_whole(&emission);
@@ -433,7 +444,7 @@ impl<'a> DocumentSource<'a> {
     /// The entry of row `index` in `list`, derived for this emission.
     pub(crate) fn entry(&self, list: RowList, index: usize, fact: &RowFact) -> Result<Value, String> {
         let row = &self.rows[index];
-        let place = fact.place as usize;
+        let place = fact.place;
         if list == RowList::Accounting {
             return self.basis.accounting(row, index, fact.disposition, place, &fact.row_digest);
         }

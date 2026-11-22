@@ -183,6 +183,27 @@ fn cases() -> Vec<(String, Input, &'static str)> {
         }),
         "SOURCE_PREVIEW_PHYSICS_STRING_INVALID",
     );
+    // A dimension-absent carrier whose rows declare a dimension is refused only after the
+    // origin checks derive_document makes before it.
+    let declaring = || source_edit("", Input::received("r", parse(PREVIEW), None), |s| row(s, 3)["dimension"] = json!("force")).1;
+    case(
+        with("a declaring carrier, and another carrier digest", declaring(), |i| i.origin["received_carrier_checksum"]["value"] = json!("0".repeat(64))),
+        "SOURCE_CARRIER_HASH_MISMATCH",
+    );
+    case(
+        with("a declaring carrier, and an unavailable producer with a hash", declaring(), |i| {
+            i.origin["original_producer_checksum"] = i.origin["received_carrier_checksum"].clone();
+        }),
+        "UNAVAILABLE_PRODUCER_HASH",
+    );
+    case(
+        with("a declaring carrier, and no carrier scope", declaring(), |i| i.origin["received_carrier_checksum"]["payload_scope"] = json!(null)),
+        "ORIGIN_SCOPE_MISSING",
+    );
+    case(
+        with("a declaring carrier, and no producer availability", declaring(), |i| i.origin["authentic_producer_available"] = json!("yes")),
+        "ORIGIN_AVAILABILITY_MISSING",
+    );
     case(
         source_edit("a repeated id at row 6, and a row without an entity at row 4", preview(), |s| {
             row(s, 6)["id"] = s["results"][5]["id"].clone();

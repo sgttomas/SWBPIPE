@@ -11,6 +11,7 @@
 mod common;
 
 use common::{compare, parse, Input, Outcome};
+use open_pipe_stress_result_document_stream::DocumentSource;
 use open_pipe_stress_result_export::semantic_contract::{canonical_metadata_for, complete_metadata, for_source, signature_for};
 use open_pipe_stress_result_export::source_blocks::domain_hash;
 use serde_json::{json, Value};
@@ -274,4 +275,55 @@ fn every_reachable_arm_is_reached_and_derived_alike() {
     let reached_unreachable: Vec<&str> = UNREACHED.iter().map(|(arm, _)| *arm).filter(|arm| arms.contains(*arm)).collect();
     assert!(missing.is_empty(), "arms not reached: {missing:?}");
     assert!(reached_unreachable.is_empty(), "arms listed unreachable were reached: {reached_unreachable:?}");
+}
+
+fn derivative_hash(document: &Value) -> String {
+    document["result_envelope"]["reproducibility"]["derivative_hash"]["value"].as_str().unwrap().to_owned()
+}
+
+/// A request is hashed into `reproducibility.request_hash` as derive_document hashes it: a
+/// named request under its `request_id`, an unnamed one under `request`; either changes the
+/// derivative hash from that of the same input without a request.
+#[test]
+fn a_request_is_hashed_as_derive_document_hashes_it() {
+    let plain = Input::attested("connected without a request", parse(CONNECTED), None);
+    let Outcome::Derived(without) = compare(&plain) else { panic!("connected without a request: refused") };
+    let unrequested = DocumentSource::new(plain.base.clone(), &plain.model, &plain.source, plain.origin.clone(), None).unwrap();
+    assert_eq!(unrequested.derivative_sha256(), derivative_hash(&without));
+    let requests = [
+        ("a named request", json!({"request_id": "runner-request:document-stream", "mode": "solve", "options": {"b": [1, 2.5], "a": null}}), "runner-request:document-stream"),
+        ("an unnamed request", json!({"mode": "solve", "note": "no request id"}), "request"),
+    ];
+    for (name, request, id) in requests {
+        let mut input = plain.clone();
+        input.name = name.into();
+        input.request = Some(request);
+        let Outcome::Derived(document) = compare(&input) else { panic!("{name}: refused") };
+        let request_hash = &document["result_envelope"]["reproducibility"]["request_hash"];
+        assert!(request_hash.is_object(), "{name}: {request_hash}");
+        assert_eq!(request_hash["payload_ref"]["ref_id"], json!(id), "{name}");
+        let requested = DocumentSource::new(input.base.clone(), &input.model, &input.source, input.origin.clone(), input.request.as_ref()).unwrap();
+        assert_eq!(requested.derivative_sha256(), derivative_hash(&document), "{name}");
+        assert_ne!(requested.derivative_sha256(), unrequested.derivative_sha256(), "{name}");
+    }
+}
+
+/// The hash member, and the one comma beside it, are left out of the payload wherever the
+/// hash member sorts among `reproducibility`'s members. The committed base has
+/// `audit_manifest_ref` before it (index 1); these add a member before that (index 2) and
+/// remove the members before it (index 0, where the comma left out is the one after it).
+#[test]
+fn the_hash_member_is_left_out_wherever_it_sorts() {
+    let cases: [(&str, fn(&mut Value), usize); 2] = [
+        ("a member sorting before the hash member", |r| r["a_note"] = json!("before-hash"), 2),
+        ("the hash member sorting first", |r| drop(r.as_object_mut().unwrap().remove("audit_manifest_ref")), 0),
+    ];
+    for (name, edit, expected) in cases {
+        let mut input = Input::attested(name, parse(CONNECTED), None);
+        edit(&mut input.base["result_envelope"]["reproducibility"]);
+        let Outcome::Derived(document) = compare(&input) else { panic!("{name}: refused") };
+        let mut keys: Vec<&String> = document["result_envelope"]["reproducibility"].as_object().unwrap().keys().collect();
+        keys.sort_by(|left, right| left.encode_utf16().cmp(right.encode_utf16()));
+        assert_eq!(keys.iter().position(|key| *key == "derivative_hash"), Some(expected), "{name}: {keys:?}");
+    }
 }

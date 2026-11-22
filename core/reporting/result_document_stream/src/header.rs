@@ -20,19 +20,17 @@ pub(crate) struct HeaderDecisions {
     /// A successor identity: its `retained_precision` receipt travels whole, and its rows
     /// carry validated classes.
     pub(crate) is_successor: bool,
-    /// The refusal of a dimension-absent carrier whose rows declare a dimension.
-    pub(crate) declared_dimensions: Option<&'static str>,
 }
 
 /// (d) The header-level decisions: which semantic contracts carry `contract_evidence`,
-/// whether the source is a successor, whether it carries the source-block receipt, and
-/// whether a dimension-absent carrier is refused for declaring a row dimension.
+/// whether the source is a successor and whether it carries the source-block receipt; with
+/// [`refuse_declared_dimensions`], whether a dimension-absent carrier is refused for
+/// declaring a row dimension.
 ///
 /// Restates `derivative.rs` lines 158 to 168 (the identities that carry
-/// `contract_evidence`), `is_successor` (lines 17 to 22), the pressure-source test of
-/// lines 173 and 426, and `refuse_declared_dimensions` (lines 110 to 117), all private
-/// there. `carrier_scope` is the origin's carrier scope, when it states one.
-pub(crate) fn header_decisions(source: &Value, carrier_scope: Option<&str>) -> HeaderDecisions {
+/// `contract_evidence`), `is_successor` (lines 17 to 22) and the pressure-source test of
+/// lines 173 and 426, private there.
+pub(crate) fn header_decisions(source: &Value) -> HeaderDecisions {
     let identity = source["producer"]["semantic_contract_id"].as_str();
     let carries_contract_evidence = matches!(
         identity,
@@ -47,14 +45,20 @@ pub(crate) fn header_decisions(source: &Value, carrier_scope: Option<&str>) -> H
     );
     let is_successor = matches!(identity, Some(PREVIEW_PHYSICS_RETAINED_ID | PHYSICS_RETAINED_ID));
     let carries_source_blocks = source["producer"]["semantic_contract_id"] == PRESSURE_SOURCE_ID;
-    let declares = || {
-        source["results"]
-            .as_array()
-            .is_some_and(|rows| rows.iter().any(|row| row.get("dimension").is_some()))
-    };
-    let declared_dimensions = (carrier_scope == Some("received_current_dimension_absent_carrier") && declares())
-        .then_some("CARRIER_DIMENSION_PRESENT");
-    HeaderDecisions { carries_contract_evidence, carries_source_blocks, is_successor, declared_dimensions }
+    HeaderDecisions { carries_contract_evidence, carries_source_blocks, is_successor }
+}
+
+/// (d) A dimension-absent received carrier declares no row dimension: one whose rows declare
+/// a dimension is refused. Called only where `derive_document` calls the original, after the
+/// origin checks that come before it, so the rows are scanned only then.
+///
+/// Restates `refuse_declared_dimensions` (`derivative.rs` lines 110 to 117), private there.
+/// `scope` is the origin's carrier scope.
+pub(crate) fn refuse_declared_dimensions(scope: &str, rows: &[Value]) -> Result<(), String> {
+    if scope == "received_current_dimension_absent_carrier" && rows.iter().any(|row| row.get("dimension").is_some()) {
+        return Err("CARRIER_DIMENSION_PRESENT".into());
+    }
+    Ok(())
 }
 
 /// What the header comparisons read of the derived envelope.

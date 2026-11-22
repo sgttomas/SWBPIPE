@@ -3,11 +3,14 @@
 
 mod common;
 
-use common::{parse, record_object, recorded_is_staged, Input};
+use common::{compare, parse, record_object, recorded_is_staged, Input, Outcome};
+use open_pipe_stress_canonical_json::canonical_json;
 use open_pipe_stress_result_document_stream::{walk_whole, DocumentSource, Member, SourceObject, WalkStopped};
-use std::io::Write;
+use serde_json::json;
+use std::io::{Read, Write};
 
 const SOURCE: &str = include_str!("../../../../fixtures/results/preview_physics_connected_sparse.json");
+const PRESSURE: &str = include_str!("../../../../fixtures/results/pressure_connected_mechanics_sparse.json");
 
 fn input() -> Input {
     Input::attested("connected sparse", parse(SOURCE), None)
@@ -214,6 +217,94 @@ impl Write for Full {
     fn flush(&mut self) -> std::io::Result<()> {
         Ok(())
     }
+}
+
+/// The chunk every stage write and every verifier read stays within.
+const CHUNK: usize = 65_536;
+
+/// About `bytes` bytes of text with every kind of JSON escape scattered through it.
+fn long_text(bytes: usize, seed: &str) -> String {
+    const SCATTERED: [&str; 12] = ["\"", "\\", "\n", "\t", "\r", "\u{8}", "\u{c}", "\u{1}", "\u{1f}", "\u{7f}", "\u{2028}", "\u{1f600}"];
+    let mut text = String::with_capacity(bytes + 64);
+    let mut at = 0;
+    while text.len() < bytes {
+        text.push_str(seed);
+        text.push_str(" é ");
+        text.push_str(SCATTERED[at % SCATTERED.len()]);
+        at += 1;
+    }
+    text
+}
+
+/// A stage that keeps what it is given and the largest slice one write gave it.
+struct Widest {
+    inner: Vec<u8>,
+    widest: usize,
+}
+
+impl Write for Widest {
+    fn write(&mut self, bytes: &[u8]) -> std::io::Result<usize> {
+        self.widest = self.widest.max(bytes.len());
+        self.inner.extend_from_slice(bytes);
+        Ok(bytes.len())
+    }
+
+    fn flush(&mut self) -> std::io::Result<()> {
+        Ok(())
+    }
+}
+
+/// A written file that notes the largest buffer one read asked it to fill.
+struct WidestRead<'w> {
+    written: &'w [u8],
+    widest: usize,
+}
+
+impl Read for WidestRead<'_> {
+    fn read(&mut self, buffer: &mut [u8]) -> std::io::Result<usize> {
+        self.widest = self.widest.max(buffer.len());
+        self.written.read(buffer)
+    }
+}
+
+/// A member of the header and a row entry each far larger than one chunk: the bytes and the
+/// hash are still derive_document's, and no stage write or verifier read exceeds one chunk.
+#[test]
+fn stage_writes_and_verifier_reads_stay_within_one_chunk() {
+    // The pressure reader discloses a row of a kind it does not know (the preview reader
+    // refuses one), so the long kind reaches a row entry.
+    let mut input = Input::attested("a long diagnostic message and a long row kind", parse(PRESSURE), None);
+    let message = long_text(300 * 1024, "a long diagnostic message");
+    input.base["result_envelope"]["diagnostics"][0]["message"] = json!(message);
+    let kind = long_text(300 * 1024, "document_stream_long_kind");
+    input.source["results"][0]["kind"] = json!(kind);
+    let input = input.rebound();
+    assert!(canonical_json(&input.source["results"][0]).len() > 256 * 1024);
+
+    let document = match compare(&input) {
+        Outcome::Derived(document) => document,
+        Outcome::Refused(text) => panic!("both refuse: {text}"),
+    };
+    let disclosure = document["result_envelope"]["row_disclosures"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|entry| entry["source_kind"] == json!(kind))
+        .expect("the long row is disclosed");
+    assert!(canonical_json(disclosure).len() > CHUNK);
+
+    let stream = stream(&input);
+    let mut stage = Widest { inner: Vec::new(), widest: 0 };
+    let emitted = stream.write_to(&mut stage).unwrap();
+    assert_eq!(stage.inner, canonical_json(&document).as_bytes());
+    let mut written = WidestRead { written: &stage.inner, widest: 0 };
+    let verified = stream.verify(&mut written);
+    let (wrote, read) = (stage.widest, written.widest);
+    assert!(
+        (1..=CHUNK).contains(&wrote) && (1..=CHUNK).contains(&read),
+        "the largest stage write was {wrote} bytes and the largest verifier read {read} bytes; each must be within 1..={CHUNK}"
+    );
+    assert_eq!(verified.unwrap(), emitted);
 }
 
 #[test]
