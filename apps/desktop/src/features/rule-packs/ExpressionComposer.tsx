@@ -181,7 +181,8 @@ export function collectRulePackVariables(document: RulePackDocument): RulePackVa
         variables.push({
           id,
           kind: "required_input",
-          name: (record && asString(record.name)) ?? id
+          // An input whose name is empty is named by its identifier.
+          name: (record && asString(record.name)) || id
         });
       }
     }

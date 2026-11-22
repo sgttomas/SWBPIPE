@@ -119,6 +119,7 @@ import { ReviewGeometryPanel } from "./features/review-geometry/ReviewGeometryPa
 import { RuleCheckPanel } from "./features/rule-check/RuleCheckPanel";
 import { RuleCheckRunPanel } from "./features/rule-check/RuleCheckRunPanel";
 import { RulePackManagerPanel } from "./features/rule-packs/RulePackManagerPanel";
+import { useReturnCount } from "./features/rule-packs/useReturnCount";
 import { LinesSection } from "./features/model-data/LinesSection";
 import { AssumptionsPanel } from "./features/model-data/AssumptionsPanel";
 import { ConstraintsPanel } from "./features/model-data/ConstraintsPanel";
@@ -353,6 +354,8 @@ function AppSession() {
     exposeViewportForNarrowInteraction,
     toggleWorkspaceRail
   } = session.chrome;
+  // Each return to the Rules page reaches the retained, sleeping page as a new count, and it reads its list again.
+  const rulePacksVisit = useReturnCount(activeSection === "rule-packs");
   // "Show solver diagnostic" (DEL-07-05 numerical health §3): the Issues drawer's
   // Diagnostics panel opens filtered to exactly that diagnostic, once.
   const { filterRequest: diagnosticFilterRequest, requestDiagnosticFilter } = useDiagnosticFilterRequest({ issuesDrawerOpen, result, analysisRun });
@@ -1161,7 +1164,7 @@ function AppSession() {
               <DormantSection page="rule-packs" active={activeSection === "rule-packs"} sessionGeneration={projectSessionGeneration}>
               <RulePackManagerPanel model={model} result={currentSolvedResult} onR3JourneyEvent={recordR3JourneyEvent}
                 queuedIntents={editorIntents} onQueueIntent={handleQueueEditorIntent} operationBusy={operationBusy}
-                active={activeSection === "rule-packs"} />
+                visit={rulePacksVisit} />
               </DormantSection>) : null}
             </section>
 

@@ -304,7 +304,7 @@ export const DIMENSION_WORDS: Words = {
 
 export const NODE_KIND_WORDS: Words = {
   literal: "Number",
-  variable_ref: "Input or limit",
+  variable_ref: "Input",
   unary: "Sign, absolute or not",
   binary: "Arithmetic",
   compare: "Comparison",
@@ -354,7 +354,7 @@ export const COMPOSER_FIELD_WORDS: Words = {
   value: "Value",
   dimension: "Quantity",
   unit_ref: "Unit",
-  variable: "Input or limit",
+  variable: "Input",
   operator: "Operation",
   function: "Which",
   mode: "Match",

@@ -82,11 +82,15 @@ export function RulePackManagerPanel({
   queuedIntents,
   onQueueIntent,
   operationBusy = false,
-  active = true
+  visit = 0
 }: {
   model: PreviewModel | null;
-  /** Whether the Rules page is shown; a list read that failed is tried again when it is shown again. */
-  active?: boolean;
+  /**
+   * How many times the Rules page has been shown again (see useReturnCount): each
+   * new count reads the list again, so a failed read recovers and a change to the
+   * store made elsewhere shows.
+   */
+  visit?: number;
   /** The session's current solved result; its rows' selectors are offered to solver inputs. */
   result?: SessionResult | null;
   onR3JourneyEvent?: (event: RulePackR3JourneyEvent) => void;
@@ -121,8 +125,6 @@ export function RulePackManagerPanel({
   // The project whose packs the list may show: a read started for another
   // project (a save or delete that finished after the project changed) is dropped.
   const currentProject = useRef<string | null>(null);
-  // The last list read for the current project failed, so it is tried again when the page is shown again.
-  const [listFailed, setListFailed] = useState(false);
 
   const projectId = model?.project.id ?? null;
   currentProject.current = projectId;
@@ -148,49 +150,51 @@ export function RulePackManagerPanel({
   useEffect(() => {
     setEntries([]);
     setListRefreshed(false);
-    setListFailed(false);
     void readList(projectId);
   }, [projectId]);
 
-  // Back on the page after a failed read in the same project: read again.
+  // Back on the page: the list is read again, in place.
   useEffect(() => {
-    if (active && listFailed) void readList(projectId);
+    if (visit > 0) void readList(projectId);
     // Only the page being shown again starts this read.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active]);
+  }, [visit]);
 
   /**
    * Read the saved packs of `forProject`. Without a project nothing is read:
    * the store's list with no project names every project's packs, and the
-   * page shows one project's only.
+   * page shows one project's only. A read asked for a project that is no
+   * longer open (an act that finished after the project changed) starts nothing,
+   * so it cannot supersede the open project's own read. Returns the entries read,
+   * or null when none were.
    */
-  async function readList(forProject: string | null) {
+  async function readList(forProject: string | null): Promise<LocalRulePackIndexEntry[] | null> {
+    if (forProject !== currentProject.current) return null;
     const request = ++listRequest.current;
     if (forProject === null) {
       setEntries([]);
       setListRefreshed(false);
-      setListFailed(false);
       setListStatus(null);
-      return;
+      return null;
     }
     const stale = () => request !== listRequest.current || currentProject.current !== forProject;
     try {
       const route = await listLocalRulePacks(forProject);
-      if (stale()) return;
-      setListFailed(false);
+      if (stale()) return null;
       if (route.route === "unavailable_browser_preview") {
         setEntries([]);
         setListStatus({ text: PAGE_WORDS.listUnavailable, code: route.diagnostic });
-        return;
+        return null;
       }
       setEntries(route.entries);
       setListRefreshed(true);
       setListStatus(route.entries.length === 0 ? { text: PAGE_WORDS.listEmpty } : null);
+      return route.entries;
     } catch (error) {
-      if (stale()) return;
+      if (stale()) return null;
       setEntries([]);
-      setListFailed(true);
       setListStatus({ text: `The saved rule packs could not be read: ${String(error)}`, code: "RULE-PACK-BACKEND-ERROR (list)" });
+      return null;
     }
   }
 
@@ -330,7 +334,20 @@ export function RulePackManagerPanel({
         text: blocking === 0 ? "Saved on this computer." : `Saved on this computer, with ${thingsToFix(blocking)}.`,
         code: `${route.envelope.message} (rule_pack_id=${route.envelope.rule_pack_id}, storage=${route.envelope.storage_mode})`
       });
-      await readList(actProject);
+      const listed = await readList(actProject);
+      // Saved under another identifier than the pack it was opened from (its
+      // identifier edited in the document): the open pack is the one saved, so
+      // the old pack's row shows no verdict of this text.
+      if (
+        openedEntry &&
+        (openedEntry.rule_pack_id !== route.envelope.rule_pack_id || openedEntry.project_id !== route.envelope.project_id)
+      ) {
+        setOpenedEntry(
+          listed?.find(
+            (entry) => entry.project_id === route.envelope.project_id && entry.rule_pack_id === route.envelope.rule_pack_id
+          ) ?? null
+        );
+      }
     } catch (error) {
       reportBackendError("save", error);
     } finally {
@@ -941,7 +958,7 @@ export function faultsOf(validation: RulePackDocumentValidation, document: RuleP
       // On the part its path names (a formula's expression, a check's limit),
       // else on the check it was found in.
       if (finding.severity === "blocking") {
-        faults.push({ message: finding.message, code: finding.code, subject: check.check_id, part: part(finding.path) ?? "checks" });
+        faults.push({ message: finding.message, code: finding.code, subject: finding.path || check.check_id, part: part(finding.path) ?? "checks" });
       }
     }
   }

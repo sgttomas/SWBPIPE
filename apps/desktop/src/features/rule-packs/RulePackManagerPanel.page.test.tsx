@@ -9,6 +9,8 @@ import {
   type RulePackValidationFinding
 } from "../../services/rulePackService";
 import { RulePackManagerPanel, faultsOf, partOfSubject } from "./RulePackManagerPanel";
+import { useReturnCount } from "./useReturnCount";
+import { DormantSection } from "../workspace/dormantSection";
 import { COMPLETENESS_STATUSES, LIBRARY_KINDS, REQUIRED_FOR_TARGETS, SLOT_KINDS, SOURCE_KINDS, VALUE_STATUSES } from "./DeclarationsEditor";
 import {
   REPORTED_STATUSES,
@@ -68,6 +70,9 @@ const backend = vi.hoisted(() => ({
   listProjects: [] as Array<string | null>,
   // The next list reads that fail, in order.
   listFailures: 0,
+  // The next list reads held open until the test releases them, in order.
+  heldLists: 0,
+  releaseLists: [] as Array<() => void>,
   validation: null as unknown as RulePackDocumentValidation,
   checksumDocuments: [] as unknown[],
   // A save held open until the test releases it.
@@ -85,6 +90,10 @@ vi.mock("../../services/rulePackService", async (importOriginal) => {
       if (backend.listFailures > 0) {
         backend.listFailures -= 1;
         throw new Error("invented store failure");
+      }
+      if (backend.heldLists > 0) {
+        backend.heldLists -= 1;
+        await new Promise<void>((resolve) => backend.releaseLists.push(resolve));
       }
       const entries = backend.entries.filter((entry) => projectId !== null && entry.project_id === projectId);
       return { route: "tauri_backend", entries };
@@ -195,6 +204,8 @@ beforeEach(() => {
   backend.entries = [savedEntry];
   backend.listProjects = [];
   backend.listFailures = 0;
+  backend.heldLists = 0;
+  backend.releaseLists = [];
   backend.releaseSave = null;
   backend.openEnvelope = null;
   backend.listCalls = 0;
@@ -532,16 +543,71 @@ describe("the list shows one project's packs only", () => {
     expect(screen.queryByTestId("rule-pack-entry-invented_saved_pack")).toBeNull();
   });
 
-  it("reads the list again when the page is shown again after a failed read in the same project", async () => {
+  it("shows project B's packs when a save in project A finishes while B's list is still being read", async () => {
+    backend.entries = [savedEntry, otherEntry];
+    const { rerender } = render(<RulePackManagerPanel model={modelFor("project:invented-page")} />);
+    await screen.findByTestId("rule-pack-entry-invented_saved_pack");
+    fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
+    fireEvent.click(screen.getByTestId("rule-pack-save"));
+    await waitFor(() => expect(backend.releaseSave).not.toBeNull());
+
+    backend.heldLists = 1;
+    rerender(<RulePackManagerPanel model={modelFor("project:invented-other")} />);
+    await waitFor(() => expect(backend.releaseLists).toHaveLength(1));
+    // A's save finishes first: it starts no read, so B's read still stands.
+    await act(async () => {
+      backend.releaseSave?.();
+    });
+    await act(async () => {
+      backend.releaseLists[0]();
+    });
+    await screen.findByTestId("rule-pack-entry-invented_other_pack");
+    expect(screen.queryByTestId("rule-pack-entry-invented_saved_pack")).toBeNull();
+    expect(backend.listProjects).toEqual(["project:invented-page", "project:invented-other"]);
+  });
+});
+
+/** The Rules page as the shell mounts it: retained, asleep while hidden, counted back in. */
+function ShellRules({ shown, model }: { shown: boolean; model: PreviewModel }) {
+  const visit = useReturnCount(shown);
+  return (
+    <DormantSection page="rule-packs" active={shown} sessionGeneration={1}>
+      <RulePackManagerPanel model={model} visit={visit} />
+    </DormantSection>
+  );
+}
+
+describe("the list is read again on each return to the Rules page", () => {
+  it("recovers a failed read and shows a pack saved meanwhile, through the sleeping section", async () => {
     backend.listFailures = 1;
-    const { rerender } = render(<RulePackManagerPanel model={modelStub} active />);
+    const { rerender } = render(<ShellRules shown model={modelStub} />);
     await waitFor(() => expect(screen.getByTestId("rule-pack-list-status").textContent).toContain("could not be read"));
-    rerender(<RulePackManagerPanel model={modelStub} active={false} />);
     expect(backend.listCalls).toBe(1);
-    rerender(<RulePackManagerPanel model={modelStub} active />);
+
+    // Away and back in the same project: the hidden page sleeps, and the return reads again.
+    rerender(<ShellRules shown={false} model={modelStub} />);
+    await act(async () => {});
+    expect(backend.listCalls).toBe(1);
+    rerender(<ShellRules shown model={modelStub} />);
     await screen.findByTestId("rule-pack-entry-invented_saved_pack");
     expect(backend.listCalls).toBe(2);
-    expect(backend.listProjects).toEqual(["project:invented-page", "project:invented-page"]);
+
+    // A pack saved elsewhere while the page was away shows on the next return.
+    rerender(<ShellRules shown={false} model={modelStub} />);
+    backend.entries = [savedEntry, { ...savedEntry, rule_pack_id: "invented_second_pack", rule_pack_name: "Invented second pack" }];
+    await act(async () => {});
+    expect(screen.queryByTestId("rule-pack-entry-invented_second_pack")).toBeNull();
+    rerender(<ShellRules shown model={modelStub} />);
+    await screen.findByTestId("rule-pack-entry-invented_second_pack");
+    expect(backend.listCalls).toBe(3);
+    expect(backend.listProjects).toEqual(["project:invented-page", "project:invented-page", "project:invented-page"]);
+  });
+
+  it("reads once on the first showing", async () => {
+    render(<ShellRules shown model={modelStub} />);
+    await screen.findByTestId("rule-pack-entry-invented_saved_pack");
+    await act(async () => {});
+    expect(backend.listCalls).toBe(1);
   });
 });
 
@@ -606,6 +672,40 @@ describe("the count of faults agrees with the parts", () => {
   });
 });
 
+describe("a pack saved under another identifier", () => {
+  it("is the open pack after saving, so the pack it was opened from shows no verdict of it", async () => {
+    backend.openEnvelope = {
+      project_id: savedEntry.project_id,
+      rule_pack_id: savedEntry.rule_pack_id,
+      storage_mode: "local_sqlite",
+      created_at_unix: 1,
+      updated_at_unix: 1,
+      document: buildDraftRulePackDocument(),
+      validation: validationWith([]),
+      message: "Opened."
+    };
+    render(<RulePackManagerPanel model={modelStub} />);
+    fireEvent.click(await screen.findByTestId("rule-pack-open-invented_saved_pack"));
+    const row = (id: string) => screen.getByTestId(`rule-pack-entry-${id}`);
+    await waitFor(() => expect(row("invented_saved_pack").textContent).toContain(PAGE_WORDS.noFaults));
+
+    // The store answers the save under the identifier its document now names.
+    backend.validation = validationWith([
+      { code: "RULE_PACK_FIELD_REQUIRED", subject: "required_inputs[0]", message: "the input needs a unit", blocking: true }
+    ]);
+    const renamed = { ...savedEntry, rule_pack_id: "private_draft_rule_pack", rule_pack_name: "Renamed pack" };
+    backend.entries = [savedEntry, renamed];
+    fireEvent.click(screen.getByTestId("rule-pack-save"));
+    await waitFor(() => expect(backend.releaseSave).not.toBeNull());
+    await act(async () => {
+      backend.releaseSave?.();
+    });
+    await waitFor(() => expect(row("private_draft_rule_pack").textContent).toContain("to fix"));
+    expect(row("invented_saved_pack").textContent).not.toContain("to fix");
+    expect(row("invented_saved_pack").textContent).toContain("awaiting review");
+  });
+});
+
 describe("findings reach the part their subject names", () => {
   it("looks a dotted identifier up whole, and places a duplicate mapping identifier with the categories", () => {
     const document = {
@@ -646,6 +746,23 @@ describe("references never make two declarations look the same", () => {
     expect(bindableVariables(collectRulePackVariables(buildDraftRulePackDocument())).map((v) => v.id)).toEqual([
       "user_required_input_1"
     ]);
+  });
+});
+
+describe("an input whose name is empty", () => {
+  it("is offered in the formula by its identifier", () => {
+    const document = buildDraftRulePackDocument();
+    (document.required_inputs as Array<Record<string, unknown>>)[0].name = "";
+    expect(collectRulePackVariables(document).find((variable) => variable.kind === "required_input")?.name).toBe(
+      "user_required_input_1"
+    );
+    render(<RulePackManagerPanel model={modelStub} />);
+    fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
+    const inputs = openPart("inputs");
+    fireEvent.change(within(inputs).getByTestId("rule-pack-input-name"), { target: { value: "" } });
+    const formula = openPart("formula");
+    expect(optionTexts("rule-pack-variable-ref", formula)).toEqual(["user_required_input_1"]);
+    expect(NODE_KIND_WORDS.variable_ref).toBe("Input");
   });
 });
 
