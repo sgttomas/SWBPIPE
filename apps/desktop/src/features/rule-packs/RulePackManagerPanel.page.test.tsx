@@ -78,6 +78,9 @@ const backend = vi.hoisted(() => ({
   checksumDocuments: [] as unknown[],
   // A save held open until the test releases it.
   releaseSave: null as null | (() => void),
+  // When true, saveLocalRulePack adds/updates the entry in backend.entries on resolve.
+  upsertOnSave: false,
+  deleted: [] as Array<{ projectId: string; rulePackId: string }>,
   openEnvelope: null as unknown
 }));
 
@@ -100,15 +103,48 @@ vi.mock("../../services/rulePackService", async (importOriginal) => {
       return { route: "tauri_backend", entries };
     }),
     openLocalRulePack: vi.fn(async () => ({ route: "tauri_backend", envelope: backend.openEnvelope })),
+    deleteLocalRulePack: vi.fn(async (projectId: string, rulePackId: string) => {
+      backend.deleted.push({ projectId, rulePackId });
+      backend.entries = backend.entries.filter(
+        (entry) => !(entry.project_id === projectId && entry.rule_pack_id === rulePackId)
+      );
+      return {
+        route: "tauri_backend",
+        receipt: { project_id: projectId, rule_pack_id: rulePackId, deleted: true, message: `Deleted ${rulePackId}.` }
+      };
+    }),
     saveLocalRulePack: vi.fn(
       (projectId: string, document: Record<string, unknown>) =>
         new Promise((resolve) => {
-          backend.releaseSave = () =>
+          const metadata = (document.metadata ?? {}) as Record<string, unknown>;
+          const rulePackId =
+            typeof metadata.rule_pack_id === "string" ? metadata.rule_pack_id : "private_draft_rule_pack";
+          const rulePackName = typeof metadata.name === "string" ? metadata.name : "Private Draft Rule Pack";
+          const rulePackVersion = typeof metadata.rule_pack_version === "string" ? metadata.rule_pack_version : "0.1.0";
+          const lifecycle = typeof metadata.lifecycle_status === "string" ? metadata.lifecycle_status : "draft";
+          backend.releaseSave = () => {
+            if (backend.upsertOnSave) {
+              const nextEntry: LocalRulePackIndexEntry = {
+                project_id: projectId,
+                rule_pack_id: rulePackId,
+                rule_pack_name: rulePackName,
+                rule_pack_version: rulePackVersion,
+                lifecycle_status: lifecycle,
+                privacy_class: "private_user_data",
+                storage_mode: "local_sqlite",
+                created_at_unix: 1,
+                updated_at_unix: 2
+              };
+              backend.entries = [
+                ...backend.entries.filter((entry) => !(entry.project_id === projectId && entry.rule_pack_id === rulePackId)),
+                nextEntry
+              ];
+            }
             resolve({
               route: "tauri_backend",
               envelope: {
                 project_id: projectId,
-                rule_pack_id: "private_draft_rule_pack",
+                rule_pack_id: rulePackId,
                 storage_mode: "local_sqlite",
                 created_at_unix: 1,
                 updated_at_unix: 1,
@@ -117,6 +153,7 @@ vi.mock("../../services/rulePackService", async (importOriginal) => {
                 message: "Saved."
               }
             });
+          };
         })
     ),
     validateRulePack: vi.fn(async () => ({ route: "tauri_backend", validation: backend.validation })),
@@ -208,6 +245,8 @@ beforeEach(() => {
   backend.heldLists = 0;
   backend.releaseLists = [];
   backend.releaseSave = null;
+  backend.upsertOnSave = false;
+  backend.deleted = [];
   backend.openEnvelope = null;
   backend.listCalls = 0;
   backend.validation = validationWith([]);
@@ -761,6 +800,97 @@ describe("a pack saved under another identifier", () => {
     await waitFor(() => expect(row("private_draft_rule_pack").textContent).toContain("to fix"));
     expect(row("invented_saved_pack").textContent).not.toContain("to fix");
     expect(row("invented_saved_pack").textContent).toContain("awaiting review");
+  });
+
+  it("binds the saved identity on first save so its row shows the verdict and deleting its row closes the open pack", async () => {
+    backend.entries = [];
+    backend.upsertOnSave = true;
+    render(<RulePackManagerPanel model={modelStub} />);
+    await screen.findByTestId("rule-pack-list-status");
+
+    fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
+    expect(screen.getByTestId("rule-pack-save-state").textContent).toBe(PAGE_WORDS.notSaved);
+    fireEvent.click(screen.getByTestId("rule-pack-save"));
+    await waitFor(() => expect(backend.releaseSave).not.toBeNull());
+    await act(async () => {
+      backend.releaseSave?.();
+    });
+
+    const row = await screen.findByTestId("rule-pack-entry-private_draft_rule_pack");
+    expect(row.textContent).toContain(PAGE_WORDS.noFaults);
+    expect(screen.getByTestId("rule-pack-save-state").textContent).toBe("");
+
+    fireEvent.click(screen.getByTestId("rule-pack-delete-private_draft_rule_pack"));
+    await waitFor(() => expect(backend.deleted).toEqual([{ projectId: "project:invented-page", rulePackId: "private_draft_rule_pack" }]));
+    await waitFor(() => expect(screen.queryByTestId("rule-pack-entry-private_draft_rule_pack")).toBeNull());
+    expect(screen.queryByTestId("rule-pack-open-pack")).toBeNull();
+    expect(screen.queryByTestId("rule-pack-draft-json")).toBeNull();
+    expect(screen.queryByTestId("rule-pack-save-state")).toBeNull();
+  });
+
+  it("keeps the saved identity from the save response even when the post-save list read fails", async () => {
+    backend.entries = [];
+    backend.upsertOnSave = true;
+    const { rerender } = render(<ShellRules shown model={modelStub} />);
+    await screen.findByTestId("rule-pack-list-status");
+
+    fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
+    backend.listFailures = 1;
+    fireEvent.click(screen.getByTestId("rule-pack-save"));
+    await waitFor(() => expect(backend.releaseSave).not.toBeNull());
+    await act(async () => {
+      backend.releaseSave?.();
+    });
+    await waitFor(() => expect(screen.getByTestId("rule-pack-list-status").textContent).toContain("could not be read"));
+    expect(screen.getByTestId("rule-pack-save-state").textContent).toBe("");
+
+    // Returning to the page recovers the list, and the already-bound saved entry matches the listed row.
+    rerender(<ShellRules shown={false} model={modelStub} />);
+    rerender(<ShellRules shown model={modelStub} />);
+    const row = await screen.findByTestId("rule-pack-entry-private_draft_rule_pack");
+    expect(row.textContent).toContain(PAGE_WORDS.noFaults);
+
+    fireEvent.click(screen.getByTestId("rule-pack-delete-private_draft_rule_pack"));
+    await waitFor(() => expect(screen.queryByTestId("rule-pack-entry-private_draft_rule_pack")).toBeNull());
+    expect(screen.queryByTestId("rule-pack-open-pack")).toBeNull();
+  });
+
+  it("unbinds an opened pack and its saved state on project switch while preserving the authored draft", async () => {
+    const projectBSameIdEntry: LocalRulePackIndexEntry = {
+      ...savedEntry,
+      project_id: "project:invented-other",
+      rule_pack_name: "Project B same-id pack"
+    };
+    backend.entries = [savedEntry, projectBSameIdEntry];
+    backend.openEnvelope = {
+      project_id: savedEntry.project_id,
+      rule_pack_id: savedEntry.rule_pack_id,
+      storage_mode: "local_sqlite",
+      created_at_unix: 1,
+      updated_at_unix: 1,
+      document: buildDraftRulePackDocument(),
+      validation: validationWith([]),
+      message: "Opened."
+    };
+    const { rerender } = render(<RulePackManagerPanel model={modelStub} />);
+    fireEvent.click(await screen.findByTestId("rule-pack-open-invented_saved_pack"));
+    await waitFor(() => expect(screen.getByTestId("rule-pack-entry-invented_saved_pack").textContent).toContain(PAGE_WORDS.noFaults));
+    expect(screen.getByTestId("rule-pack-save-state").textContent).toBe("");
+
+    rerender(<RulePackManagerPanel model={modelFor("project:invented-other")} />);
+    const rowInB = await screen.findByTestId("rule-pack-entry-invented_saved_pack");
+    expect(rowInB.textContent).toContain("Project B same-id pack");
+    expect(rowInB.textContent).not.toContain(PAGE_WORDS.noFaults);
+    expect(screen.getByTestId("rule-pack-open-pack")).toBeTruthy();
+    expect(screen.getByTestId("rule-pack-save-state").textContent).toBe(PAGE_WORDS.notSaved);
+
+    // Deleting Project B's same-ID pack clears Project B's row only and leaves the carried draft open.
+    fireEvent.click(screen.getByTestId("rule-pack-delete-invented_saved_pack"));
+    await waitFor(() =>
+      expect(backend.deleted).toEqual([{ projectId: "project:invented-other", rulePackId: savedEntry.rule_pack_id }])
+    );
+    await waitFor(() => expect(screen.queryByTestId("rule-pack-entry-invented_saved_pack")).toBeNull());
+    expect(screen.getByTestId("rule-pack-open-pack")).toBeTruthy();
   });
 });
 

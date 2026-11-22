@@ -15,6 +15,7 @@ import {
   saveLocalRulePack,
   stampChecksumIntoDocument,
   validateRulePack,
+  type LocalRulePackEnvelope,
   type LocalRulePackIndexEntry,
   type RulePackComputedChecksum,
   type RulePackDocument,
@@ -113,7 +114,7 @@ export function RulePackManagerPanel({
   // The draft text as last opened or saved: anything else is "not saved".
   const [savedText, setSavedText] = useState<string | null>(null);
   const [checksum, setChecksum] = useState<RulePackComputedChecksum | null>(null);
-  // The stored entry the current draft was opened from, while it is unedited.
+  // The stored entry bound to the current draft in the active project (opened or saved).
   const [openedEntry, setOpenedEntry] = useState<LocalRulePackIndexEntry | null>(null);
   // In-request busy guard: while a backend command is awaiting, the draft
   // editors (document textarea + structured composer) and every action are
@@ -133,10 +134,18 @@ export function RulePackManagerPanel({
 
   const projectId = model?.project.id ?? null;
   currentProject.current = projectId;
-  // A stored pack in another format: shown with its refusal,
-  // delete only. There is no migration; the user re-authors it.
+  // A stored pack in another format: shown with its refusal only while its own
+  // project is active, delete only. There is no migration; the user re-authors it.
+  const hasVersionRefusal = validation !== null && versionRefusal(validation) !== null;
   const refusedStoredPack =
-    openedEntry !== null && validation !== null && versionRefusal(validation) !== null ? openedEntry : null;
+    openedEntry !== null && openedEntry.project_id === projectId && hasVersionRefusal ? openedEntry : null;
+  const staleRefusedPack = openedEntry !== null && openedEntry.project_id !== projectId && hasVersionRefusal;
+  // Keeps the active opened-pack state readable across project-switch effects and async continuations.
+  const openedStateRef = useRef<{ entry: LocalRulePackIndexEntry | null; versionRefused: boolean }>({
+    entry: null,
+    versionRefused: false
+  });
+  openedStateRef.current = { entry: openedEntry, versionRefused: hasVersionRefusal };
   const draftReason = !draft
     ? NO_DRAFT_REASON
     : inFlight
@@ -150,11 +159,26 @@ export function RulePackManagerPanel({
 
   // The stored-pack list is project-scoped and read when the page opens and
   // whenever the active project changes. Reading lists the local store only;
-  // it writes nothing. The session draft is intentionally preserved across a
-  // project change (it is authored, not bound to a project until saved).
+  // it writes nothing. A refused stored pack belongs only to its project and
+  // clears on project switch; an authored draft stays open but unbinds from
+  // the previous project's saved entry and saved state.
   useEffect(() => {
     setEntries([]);
     setListRefreshed(false);
+    const previousOpened = openedStateRef.current;
+    if (previousOpened.entry !== null && previousOpened.entry.project_id !== projectId) {
+      if (previousOpened.versionRefused) {
+        setDraft(null);
+        acceptValidation(null, null);
+        setSavedText(null);
+        setChecksum(null);
+        setOpenedEntry(null);
+        setActionStatus(null);
+      } else {
+        setOpenedEntry(null);
+        setSavedText(null);
+      }
+    }
     let query: Promise<RulePackListRoute> | undefined;
     if (projectId !== null) {
       const held = openingQuery.current;
@@ -340,27 +364,34 @@ export function RulePackManagerPanel({
   async function handleSave() {
     // The list is read again for the project this act was made in, and only while it is still open.
     const actProject = projectId;
-    if (!projectId) {
+    if (!actProject) {
       setActionStatus({ text: PAGE_WORDS.noProject });
       return;
     }
     const document = parseDraft();
     if (!document || !draft) return;
     const text = draft.text;
+    const previousEntry = openedStateRef.current.entry;
     onR3JourneyEvent?.("rule_pack_save_requested");
     setInFlight(true);
     try {
-      const route = await saveLocalRulePack(projectId, document);
+      const route = await saveLocalRulePack(actProject, document);
       if (route.route === "unavailable_browser_preview") {
         reportUnavailable(route.diagnostic);
+        return;
+      }
+      if (currentProject.current !== actProject) {
+        setOpenedEntry(null);
+        setSavedText(null);
         return;
       }
       // Saved under another identifier than the pack it was opened from (its
       // identifier edited in the document): the pack it was opened from is no
       // longer the open one, from the moment this text's verdict is shown.
       const renamed =
-        openedEntry !== null &&
-        (openedEntry.rule_pack_id !== route.envelope.rule_pack_id || openedEntry.project_id !== route.envelope.project_id);
+        previousEntry !== null &&
+        (previousEntry.rule_pack_id !== route.envelope.rule_pack_id ||
+          previousEntry.project_id !== route.envelope.project_id);
       if (renamed) setOpenedEntry(null);
       acceptValidation(route.envelope.validation, text);
       setSavedText(text);
@@ -370,14 +401,17 @@ export function RulePackManagerPanel({
         code: `${route.envelope.message} (rule_pack_id=${route.envelope.rule_pack_id}, storage=${route.envelope.storage_mode})`
       });
       const listed = await readList(actProject);
-      // Once listed, the pack saved is the open one.
-      if (renamed) {
-        setOpenedEntry(
-          listed?.find(
-            (entry) => entry.project_id === route.envelope.project_id && entry.rule_pack_id === route.envelope.rule_pack_id
-          ) ?? null
-        );
+      if (currentProject.current !== actProject) {
+        setOpenedEntry(null);
+        setSavedText(null);
+        return;
       }
+      // Bind the saved pack in this project on every save (first save, overwrite, or rename).
+      const matched =
+        listed?.find(
+          (entry) => entry.project_id === route.envelope.project_id && entry.rule_pack_id === route.envelope.rule_pack_id
+        ) ?? null;
+      setOpenedEntry(matched ?? (route.envelope.project_id === actProject ? entryFromEnvelope(route.envelope) : null));
     } catch (error) {
       reportBackendError("save", error);
     } finally {
@@ -386,15 +420,17 @@ export function RulePackManagerPanel({
   }
 
   async function handleOpen(entry: LocalRulePackIndexEntry) {
-    // The list is read again for the project this act was made in, and only while it is still open.
+    // Only packs belonging to the active project can be opened, and only while it remains active.
     const actProject = projectId;
+    if (!actProject || entry.project_id !== actProject) return;
     setInFlight(true);
     try {
-      const route = await openLocalRulePack(entry.project_id, entry.rule_pack_id);
+      const route = await openLocalRulePack(actProject, entry.rule_pack_id);
       if (route.route === "unavailable_browser_preview") {
         reportUnavailable(route.diagnostic);
         return;
       }
+      if (currentProject.current !== actProject) return;
       if (!route.envelope) {
         setActionStatus({ text: `${packName(entry)} is no longer saved here.`, code: entry.rule_pack_id });
         await readList(actProject);
@@ -415,31 +451,38 @@ export function RulePackManagerPanel({
   }
 
   async function handleDelete(entry: LocalRulePackIndexEntry) {
-    // The list is read again for the project this act was made in, and only while it is still open.
+    // Deletions are scoped strictly to the active project.
     const actProject = projectId;
+    if (!actProject || entry.project_id !== actProject) {
+      setActionStatus({ text: "That rule pack belongs to another project; nothing was deleted." });
+      return;
+    }
     setInFlight(true);
     try {
-      const route = await deleteLocalRulePack(entry.project_id, entry.rule_pack_id);
+      const route = await deleteLocalRulePack(actProject, entry.rule_pack_id);
       if (route.route === "unavailable_browser_preview") {
         reportUnavailable(route.diagnostic);
         return;
       }
-      setActionStatus({
-        text: route.receipt.deleted ? `Deleted ${packName(entry)}.` : `${packName(entry)} was not saved here; nothing was deleted.`,
-        code: route.receipt.message
-      });
-      // A deleted pack's open draft goes with it.
-      if (
-        openedEntry &&
-        openedEntry.project_id === entry.project_id &&
-        openedEntry.rule_pack_id === entry.rule_pack_id &&
-        route.receipt.deleted
-      ) {
-        setDraft(null);
-        acceptValidation(null, null);
-        setSavedText(null);
-        setChecksum(null);
-        setOpenedEntry(null);
+      if (currentProject.current === actProject) {
+        setActionStatus({
+          text: route.receipt.deleted ? `Deleted ${packName(entry)}.` : `${packName(entry)} was not saved here; nothing was deleted.`,
+          code: route.receipt.message
+        });
+        // A deleted pack's open draft goes with it when still in the same project.
+        const currentOpened = openedStateRef.current.entry;
+        if (
+          currentOpened &&
+          currentOpened.project_id === actProject &&
+          currentOpened.rule_pack_id === entry.rule_pack_id &&
+          route.receipt.deleted
+        ) {
+          setDraft(null);
+          acceptValidation(null, null);
+          setSavedText(null);
+          setChecksum(null);
+          setOpenedEntry(null);
+        }
       }
       await readList(actProject);
     } catch (error) {
@@ -577,9 +620,9 @@ export function RulePackManagerPanel({
         />
       ) : null}
 
-      {draft ? null : statusLine}
+      {draft && !staleRefusedPack ? null : statusLine}
 
-      {draft ? (
+      {draft && !staleRefusedPack ? (
         <div className="rule-pack-open" data-testid="rule-pack-open-pack">
           <div className="rule-pack-header" data-testid="rule-pack-header">
             <strong>{document ? documentName(document) : PAGE_WORDS.document}</strong>
@@ -787,7 +830,7 @@ export function RulePackManagerPanel({
           </div>
         ) : null}
 
-        {validation ? (
+        {validation && !staleRefusedPack ? (
           <div className="report-list" data-testid="rule-pack-validation">
             <strong>Document validation</strong>
             <small data-testid="rule-pack-validation-summary">
@@ -1043,6 +1086,26 @@ function documentName(document: RulePackDocument): string {
 function documentVersion(document: RulePackDocument): string {
   const version = asRecord(document.metadata)?.rule_pack_version;
   return typeof version === "string" && version.trim() ? version : "not stated";
+}
+
+function entryFromEnvelope(envelope: LocalRulePackEnvelope): LocalRulePackIndexEntry {
+  const metadata = asRecord(envelope.document.metadata);
+  const classification = asRecord(envelope.document.classification);
+  const readString = (record: Record<string, unknown> | null, key: string): string => {
+    const value = record?.[key];
+    return typeof value === "string" ? value : "";
+  };
+  return {
+    project_id: envelope.project_id,
+    rule_pack_id: envelope.rule_pack_id,
+    rule_pack_name: readString(metadata, "name") || envelope.validation.rule_pack_name || envelope.rule_pack_id,
+    rule_pack_version: readString(metadata, "rule_pack_version") || envelope.validation.rule_pack_version || "",
+    lifecycle_status: readString(metadata, "lifecycle_status") || "draft",
+    privacy_class: readString(classification, "privacy_class") || "private_user_data",
+    storage_mode: envelope.storage_mode,
+    created_at_unix: envelope.created_at_unix,
+    updated_at_unix: envelope.updated_at_unix
+  };
 }
 
 function packName(entry: LocalRulePackIndexEntry): string {

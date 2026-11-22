@@ -19,7 +19,8 @@ const backend = vi.hoisted(() => ({
   validation: null as unknown as RulePackDocumentValidation,
   entries: [] as LocalRulePackIndexEntry[],
   envelope: null as unknown as LocalRulePackEnvelope,
-  deleted: [] as string[]
+  deleted: [] as string[],
+  deletedTargets: [] as Array<{ projectId: string; rulePackId: string }>
 }));
 
 vi.mock("../../services/rulePackService", async (importOriginal) => {
@@ -27,11 +28,17 @@ vi.mock("../../services/rulePackService", async (importOriginal) => {
   return {
     ...actual,
     validateRulePack: vi.fn(async () => ({ route: "tauri_backend", validation: backend.validation })),
-    listLocalRulePacks: vi.fn(async () => ({ route: "tauri_backend", entries: backend.entries })),
+    listLocalRulePacks: vi.fn(async (projectId: string | null) => ({
+      route: "tauri_backend",
+      entries: backend.entries.filter((entry) => projectId !== null && entry.project_id === projectId)
+    })),
     openLocalRulePack: vi.fn(async () => ({ route: "tauri_backend", envelope: backend.envelope })),
     deleteLocalRulePack: vi.fn(async (projectId: string, rulePackId: string) => {
       backend.deleted.push(rulePackId);
-      backend.entries = backend.entries.filter((entry) => entry.rule_pack_id !== rulePackId);
+      backend.deletedTargets.push({ projectId, rulePackId });
+      backend.entries = backend.entries.filter(
+        (entry) => !(entry.project_id === projectId && entry.rule_pack_id === rulePackId)
+      );
       return {
         route: "tauri_backend",
         receipt: { project_id: projectId, rule_pack_id: rulePackId, deleted: true, message: `Deleted ${rulePackId}.` }
@@ -88,6 +95,7 @@ const legacyEntry: LocalRulePackIndexEntry = {
 
 beforeEach(() => {
   backend.deleted = [];
+  backend.deletedTargets = [];
 });
 
 afterEach(cleanup);
@@ -170,5 +178,56 @@ describe("RulePackManagerPanel format 0.5.0 validation", () => {
     expect(screen.queryByTestId("rule-pack-version-refusal")).toBeNull();
     expect(screen.getByTestId("rule-pack-load-case-categories-editor")).toBeTruthy();
     expect(screen.getByTestId("rule-pack-validate")).toHaveProperty("disabled", false);
+  });
+
+  it("clears a refused stored pack when switching to another project or closing the project so it cannot be deleted or edited across projects", async () => {
+    const projectB = {
+      project: { id: "project:invented-other-format", name: "Other Format Project" }
+    } as unknown as PreviewModel;
+    const projectBEntry: LocalRulePackIndexEntry = {
+      ...legacyEntry,
+      project_id: "project:invented-other-format",
+      rule_pack_id: "invented_project_b_pack",
+      rule_pack_name: "Project B pack"
+    };
+    backend.entries = [legacyEntry, projectBEntry];
+    backend.validation = validationWith([finding("RULE_PACK_SCHEMA_VERSION_UNSUPPORTED", "schema_version", "format '0.4.0' is not supported")], "0.4.0");
+    backend.envelope = {
+      project_id: legacyEntry.project_id,
+      rule_pack_id: legacyEntry.rule_pack_id,
+      storage_mode: "local_sqlite",
+      created_at_unix: 1,
+      updated_at_unix: 1,
+      document: { schema_version: "0.4.0", metadata: { rule_pack_id: legacyEntry.rule_pack_id, schema_version: "0.4.0" } },
+      validation: backend.validation,
+      message: "Opened invented_legacy_pack."
+    };
+
+    const { rerender } = render(<RulePackManagerPanel model={modelStub} />);
+    fireEvent.click(await screen.findByTestId("rule-pack-open-invented_legacy_pack"));
+    await screen.findByTestId("rule-pack-version-refusal");
+    expect(screen.getByTestId("rule-pack-refused-delete")).toBeTruthy();
+
+    rerender(<RulePackManagerPanel model={projectB} />);
+    await screen.findByTestId("rule-pack-entry-invented_project_b_pack");
+    expect(screen.queryByTestId("rule-pack-entry-invented_legacy_pack")).toBeNull();
+    expect(screen.queryByTestId("rule-pack-version-refusal")).toBeNull();
+    expect(screen.queryByTestId("rule-pack-refused-delete")).toBeNull();
+    expect(screen.queryByTestId("rule-pack-open-pack")).toBeNull();
+    expect(screen.queryByTestId("rule-pack-draft-json")).toBeNull();
+    expect(screen.queryByTestId("rule-pack-load-case-categories-editor")).toBeNull();
+    expect(backend.deletedTargets).toEqual([]);
+    expect(backend.entries.some((entry) => entry.project_id === legacyEntry.project_id && entry.rule_pack_id === legacyEntry.rule_pack_id)).toBe(true);
+
+    // Switching back to Project A and then to no project clears a newly opened refused pack too.
+    rerender(<RulePackManagerPanel model={modelStub} />);
+    fireEvent.click(await screen.findByTestId("rule-pack-open-invented_legacy_pack"));
+    await screen.findByTestId("rule-pack-version-refusal");
+
+    rerender(<RulePackManagerPanel model={null} />);
+    await waitFor(() => expect(screen.queryByTestId("rule-pack-version-refusal")).toBeNull());
+    expect(screen.queryByTestId("rule-pack-refused-delete")).toBeNull();
+    expect(screen.queryByTestId("rule-pack-open-pack")).toBeNull();
+    expect(backend.deletedTargets).toEqual([]);
   });
 });
