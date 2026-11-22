@@ -127,6 +127,8 @@ export function RulePackManagerPanel({
   // The project whose packs the list may show: a read started for another
   // project (a save or delete that finished after the project changed) is dropped.
   const currentProject = useRef<string | null>(null);
+  // Tracks the last mounted projectId so project switches reset save status/state even before openedEntry is bound.
+  const mountedProject = useRef<string | null | undefined>(undefined);
   // The list query the opening read started, while it is still unanswered: the
   // mount effect run again (React's development StrictMode replays it) takes it
   // over instead of starting a second query.
@@ -134,18 +136,23 @@ export function RulePackManagerPanel({
 
   const projectId = model?.project.id ?? null;
   currentProject.current = projectId;
+  const parsedDraft = draft ? parseRulePackDocument(draft.text) : null;
+  const validationCurrent = validation !== null && draft !== null && validatedText === draft.text;
+  // The saved pack's row carries a check's verdict, and a stored-format refusal applies,
+  // only when the check was of the pack text as stored (never an unsaved edit).
+  const savedPackChecked = validationCurrent && savedText !== null && validatedText === savedText;
+  const hasStoredVersionRefusal = savedPackChecked && versionRefusal(validation) !== null;
   // A stored pack in another format: shown with its refusal only while its own
   // project is active, delete only. There is no migration; the user re-authors it.
-  const hasVersionRefusal = validation !== null && versionRefusal(validation) !== null;
   const refusedStoredPack =
-    openedEntry !== null && openedEntry.project_id === projectId && hasVersionRefusal ? openedEntry : null;
-  const staleRefusedPack = openedEntry !== null && openedEntry.project_id !== projectId && hasVersionRefusal;
+    openedEntry !== null && openedEntry.project_id === projectId && hasStoredVersionRefusal ? openedEntry : null;
+  const staleRefusedPack = openedEntry !== null && openedEntry.project_id !== projectId && hasStoredVersionRefusal;
   // Keeps the active opened-pack state readable across project-switch effects and async continuations.
   const openedStateRef = useRef<{ entry: LocalRulePackIndexEntry | null; versionRefused: boolean }>({
     entry: null,
     versionRefused: false
   });
-  openedStateRef.current = { entry: openedEntry, versionRefused: hasVersionRefusal };
+  openedStateRef.current = { entry: openedEntry, versionRefused: hasStoredVersionRefusal };
   const draftReason = !draft
     ? NO_DRAFT_REASON
     : inFlight
@@ -153,21 +160,23 @@ export function RulePackManagerPanel({
       : refusedStoredPack
         ? REFUSED_STORED_PACK_REASON
         : undefined;
-  const parsedDraft = draft ? parseRulePackDocument(draft.text) : null;
-  const validationCurrent = validation !== null && draft !== null && validatedText === draft.text;
   const modelReferences = model?.rule_pack_refs ?? [];
 
   // The stored-pack list is project-scoped and read when the page opens and
   // whenever the active project changes. Reading lists the local store only;
   // it writes nothing. A refused stored pack belongs only to its project and
   // clears on project switch; an authored draft stays open but unbinds from
-  // the previous project's saved entry and saved state.
+  // the previous project's saved entry, saved state and project-specific status.
   useEffect(() => {
     setEntries([]);
     setListRefreshed(false);
+    const previousProject = mountedProject.current;
+    const projectChanged = previousProject !== undefined && previousProject !== projectId;
+    mountedProject.current = projectId;
     const previousOpened = openedStateRef.current;
-    if (previousOpened.entry !== null && previousOpened.entry.project_id !== projectId) {
-      if (previousOpened.versionRefused) {
+    const fromAnotherProject = previousOpened.entry !== null && previousOpened.entry.project_id !== projectId;
+    if (projectChanged || fromAnotherProject) {
+      if (fromAnotherProject && previousOpened.versionRefused) {
         setDraft(null);
         acceptValidation(null, null);
         setSavedText(null);
@@ -177,6 +186,7 @@ export function RulePackManagerPanel({
       } else {
         setOpenedEntry(null);
         setSavedText(null);
+        setActionStatus(null);
       }
     }
     let query: Promise<RulePackListRoute> | undefined;
@@ -371,13 +381,12 @@ export function RulePackManagerPanel({
     const document = parseDraft();
     if (!document || !draft) return;
     const text = draft.text;
-    const previousEntry = openedStateRef.current.entry;
     onR3JourneyEvent?.("rule_pack_save_requested");
     setInFlight(true);
     try {
       const route = await saveLocalRulePack(actProject, document);
       if (route.route === "unavailable_browser_preview") {
-        reportUnavailable(route.diagnostic);
+        if (currentProject.current === actProject) reportUnavailable(route.diagnostic);
         return;
       }
       if (currentProject.current !== actProject) {
@@ -385,14 +394,10 @@ export function RulePackManagerPanel({
         setSavedText(null);
         return;
       }
-      // Saved under another identifier than the pack it was opened from (its
-      // identifier edited in the document): the pack it was opened from is no
-      // longer the open one, from the moment this text's verdict is shown.
-      const renamed =
-        previousEntry !== null &&
-        (previousEntry.rule_pack_id !== route.envelope.rule_pack_id ||
-          previousEntry.project_id !== route.envelope.project_id);
-      if (renamed) setOpenedEntry(null);
+      // Bind the saved envelope immediately so any old opened pack is unbound on rename
+      // and a post-save project switch cleans up saved state cleanly even before readList settles.
+      const savedIdentity = route.envelope.project_id === actProject ? entryFromEnvelope(route.envelope) : null;
+      setOpenedEntry(savedIdentity);
       acceptValidation(route.envelope.validation, text);
       setSavedText(text);
       const blocking = faultsOf(route.envelope.validation, document).length;
@@ -406,14 +411,13 @@ export function RulePackManagerPanel({
         setSavedText(null);
         return;
       }
-      // Bind the saved pack in this project on every save (first save, overwrite, or rename).
       const matched =
         listed?.find(
           (entry) => entry.project_id === route.envelope.project_id && entry.rule_pack_id === route.envelope.rule_pack_id
         ) ?? null;
-      setOpenedEntry(matched ?? (route.envelope.project_id === actProject ? entryFromEnvelope(route.envelope) : null));
+      if (matched) setOpenedEntry(matched);
     } catch (error) {
-      reportBackendError("save", error);
+      if (currentProject.current === actProject) reportBackendError("save", error);
     } finally {
       setInFlight(false);
     }
@@ -427,7 +431,7 @@ export function RulePackManagerPanel({
     try {
       const route = await openLocalRulePack(actProject, entry.rule_pack_id);
       if (route.route === "unavailable_browser_preview") {
-        reportUnavailable(route.diagnostic);
+        if (currentProject.current === actProject) reportUnavailable(route.diagnostic);
         return;
       }
       if (currentProject.current !== actProject) return;
@@ -444,7 +448,7 @@ export function RulePackManagerPanel({
       setOpenedEntry(entry);
       setActionStatus({ text: `Opened ${packName(entry)}.`, code: `${route.envelope.message} (rule_pack_id=${route.envelope.rule_pack_id})` });
     } catch (error) {
-      reportBackendError("open", error);
+      if (currentProject.current === actProject) reportBackendError("open", error);
     } finally {
       setInFlight(false);
     }
@@ -461,7 +465,7 @@ export function RulePackManagerPanel({
     try {
       const route = await deleteLocalRulePack(actProject, entry.rule_pack_id);
       if (route.route === "unavailable_browser_preview") {
-        reportUnavailable(route.diagnostic);
+        if (currentProject.current === actProject) reportUnavailable(route.diagnostic);
         return;
       }
       if (currentProject.current === actProject) {
@@ -486,7 +490,7 @@ export function RulePackManagerPanel({
       }
       await readList(actProject);
     } catch (error) {
-      reportBackendError("delete", error);
+      if (currentProject.current === actProject) reportBackendError("delete", error);
     } finally {
       setInFlight(false);
     }
@@ -519,8 +523,6 @@ export function RulePackManagerPanel({
   const document = parsedDraft && parsedDraft.ok ? parsedDraft.document : null;
   const faults = validation ? faultsOf(validation, document) : [];
   const partFaults = validationCurrent ? faultsByPart(faults) : emptyFaults();
-  // The saved pack's row carries a check's verdict only when the check was of the pack as saved.
-  const savedPackChecked = validationCurrent && savedText !== null && validatedText === savedText;
 
   // The outcome of the last act, in one line: under the save controls while a
   // pack is open, under the list once it is closed (a discard or a delete).

@@ -33,6 +33,42 @@ vi.mock("../../services/rulePackService", async (importOriginal) => {
       entries: backend.entries.filter((entry) => projectId !== null && entry.project_id === projectId)
     })),
     openLocalRulePack: vi.fn(async () => ({ route: "tauri_backend", envelope: backend.envelope })),
+    saveLocalRulePack: vi.fn(async (projectId: string, document: Record<string, unknown>) => {
+      const metadata = (document.metadata ?? {}) as Record<string, unknown>;
+      const rulePackId =
+        typeof metadata.rule_pack_id === "string" ? metadata.rule_pack_id : "private_draft_rule_pack";
+      const rulePackName = typeof metadata.name === "string" ? metadata.name : "Private Draft Rule Pack";
+      const rulePackVersion = typeof metadata.rule_pack_version === "string" ? metadata.rule_pack_version : "0.1.0";
+      const lifecycle = typeof metadata.lifecycle_status === "string" ? metadata.lifecycle_status : "draft";
+      const entry: LocalRulePackIndexEntry = {
+        project_id: projectId,
+        rule_pack_id: rulePackId,
+        rule_pack_name: rulePackName,
+        rule_pack_version: rulePackVersion,
+        lifecycle_status: lifecycle,
+        privacy_class: "private_user_data",
+        storage_mode: "local_sqlite",
+        created_at_unix: 1,
+        updated_at_unix: 2
+      };
+      backend.entries = [
+        ...backend.entries.filter((item) => !(item.project_id === projectId && item.rule_pack_id === rulePackId)),
+        entry
+      ];
+      return {
+        route: "tauri_backend",
+        envelope: {
+          project_id: projectId,
+          rule_pack_id: rulePackId,
+          storage_mode: "local_sqlite",
+          created_at_unix: 1,
+          updated_at_unix: 2,
+          document,
+          validation: backend.validation,
+          message: "Saved."
+        }
+      };
+    }),
     deleteLocalRulePack: vi.fn(async (projectId: string, rulePackId: string) => {
       backend.deleted.push(rulePackId);
       backend.deletedTargets.push({ projectId, rulePackId });
@@ -228,6 +264,52 @@ describe("RulePackManagerPanel format 0.5.0 validation", () => {
     await waitFor(() => expect(screen.queryByTestId("rule-pack-version-refusal")).toBeNull());
     expect(screen.queryByTestId("rule-pack-refused-delete")).toBeNull();
     expect(screen.queryByTestId("rule-pack-open-pack")).toBeNull();
+    expect(backend.deletedTargets).toEqual([]);
+  });
+
+  it("keeps an edited draft repairable when Check finds an unsupported schema version on a saved 0.5.0 pack", async () => {
+    const projectB = {
+      project: { id: "project:invented-other-format", name: "Other Format Project" }
+    } as unknown as PreviewModel;
+    backend.entries = [];
+    backend.validation = validationWith([], "0.5.0");
+
+    const { rerender } = render(<RulePackManagerPanel model={modelStub} />);
+    fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
+    fireEvent.click(screen.getByTestId("rule-pack-save"));
+    const savedRow = await screen.findByTestId("rule-pack-entry-private_draft_rule_pack");
+    expect(savedRow.textContent).toContain("No faults found.");
+
+    const textarea = screen.getByTestId("rule-pack-draft-json") as HTMLTextAreaElement;
+    const edited = JSON.parse(textarea.value) as Record<string, unknown>;
+    edited.schema_version = "0.4.0";
+    (edited.metadata as Record<string, unknown>).schema_version = "0.4.0";
+    fireEvent.change(textarea, { target: { value: JSON.stringify(edited, null, 2) } });
+
+    backend.validation = validationWith(
+      [finding("RULE_PACK_SCHEMA_VERSION_UNSUPPORTED", "schema_version", "format '0.4.0' is not supported")],
+      "0.4.0"
+    );
+    fireEvent.click(screen.getByTestId("rule-pack-validate"));
+    const words = await screen.findByTestId("rule-pack-validation-words");
+    expect(words.textContent).toContain("format '0.4.0' is not supported");
+
+    // The refusal only applies to a stored pack; the unsaved edit keeps all editors enabled and leaves the stored 0.5.0 copy untouched.
+    expect(screen.queryByTestId("rule-pack-version-refusal")).toBeNull();
+    expect(screen.queryByTestId("rule-pack-refused-delete")).toBeNull();
+    expect(screen.getByTestId("rule-pack-load-case-categories-editor")).toBeTruthy();
+    for (const testId of ["rule-pack-validate", "rule-pack-compute-checksum", "rule-pack-save", "rule-pack-draft-json"]) {
+      expect(screen.getByTestId(testId)).toHaveProperty("disabled", false);
+    }
+    expect(backend.deletedTargets).toEqual([]);
+    expect(backend.entries.some((entry) => entry.project_id === "project:invented-format" && entry.rule_pack_id === "private_draft_rule_pack")).toBe(true);
+
+    // Switching projects preserves the unsaved edited draft instead of treating it as a refused stored pack.
+    rerender(<RulePackManagerPanel model={projectB} />);
+    await waitFor(() => expect(screen.getByTestId("rule-pack-save-state").textContent).toBe("not saved"));
+    expect(screen.getByTestId("rule-pack-open-pack")).toBeTruthy();
+    expect((screen.getByTestId("rule-pack-draft-json") as HTMLTextAreaElement).value).toContain('"schema_version": "0.4.0"');
+    expect(screen.queryByTestId("rule-pack-version-refusal")).toBeNull();
     expect(backend.deletedTargets).toEqual([]);
   });
 });

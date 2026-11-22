@@ -605,6 +605,39 @@ describe("the list shows one project's packs only", () => {
     expect(screen.queryByTestId("rule-pack-entry-invented_saved_pack")).toBeNull();
     expect(backend.listProjects).toEqual(["project:invented-page", "project:invented-other"]);
   });
+
+  it("clears saved state and save status immediately when switching projects while a post-save list read is pending", async () => {
+    backend.entries = [otherEntry];
+    backend.upsertOnSave = true;
+    const { rerender } = render(<RulePackManagerPanel model={modelFor("project:invented-page")} />);
+    await screen.findByTestId("rule-pack-list-status");
+
+    fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
+    backend.heldLists = 1;
+    fireEvent.click(screen.getByTestId("rule-pack-save"));
+    await waitFor(() => expect(backend.releaseSave).not.toBeNull());
+    await act(async () => {
+      backend.releaseSave?.();
+    });
+    await waitFor(() => expect(backend.releaseLists).toHaveLength(1));
+    expect(screen.getByTestId("rule-pack-save-state").textContent).toBe("");
+    expect(screen.getByTestId("rule-pack-action-status").textContent).toContain("Saved on this computer.");
+
+    rerender(<RulePackManagerPanel model={modelFor("project:invented-other")} />);
+    await screen.findByTestId("rule-pack-entry-invented_other_pack");
+    expect(screen.getByTestId("rule-pack-open-pack")).toBeTruthy();
+    expect(screen.getByTestId("rule-pack-save-state").textContent).toBe(PAGE_WORDS.notSaved);
+    expect(screen.queryByTestId("rule-pack-action-status")).toBeNull();
+
+    await act(async () => {
+      backend.releaseLists[0]();
+    });
+    await act(async () => {});
+    expect(screen.getByTestId("rule-pack-entry-invented_other_pack")).toBeTruthy();
+    expect(screen.queryByTestId("rule-pack-entry-private_draft_rule_pack")).toBeNull();
+    expect(screen.getByTestId("rule-pack-save-state").textContent).toBe(PAGE_WORDS.notSaved);
+    expect(screen.queryByTestId("rule-pack-action-status")).toBeNull();
+  });
 });
 
 /** The Rules page as the shell mounts it: retained, asleep while hidden, counted back in. */
