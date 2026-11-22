@@ -610,3 +610,41 @@ fn a_solve_blocked_after_formation_omits_only_a_warning_that_names_a_result() {
         }
     }
 }
+
+/// REQ-013's exception where the solve blocks before its load generation, in
+/// both modes: the cantilever's force case names a modulus basis the model does
+/// not define, which the checks before formation do not refuse and the
+/// preview-route solve does, at basis resolution. Beside it, an empty case named
+/// `case_id` draws the non-blocking warning that it applies no action; the
+/// blocked solve keeps that warning when it names no result and omits it when it
+/// names one.
+#[test]
+fn a_solve_blocked_at_basis_resolution_omits_only_a_warning_that_names_a_result() {
+    for (case_id, kept) in [("case:empty", true), ("result:empty", false)] {
+        let mut wire = cantilever();
+        wire["model"]["load_cases"][0]["modulus_basis_ref"] = json!("basis:undefined");
+        wire["model"]["load_cases"].as_array_mut().unwrap().push(json!({"id": case_id, "primitive_loads": [], "provenance": "checks"}));
+        let (before, generation) = solve_inputs(&wire);
+        assert!(generation.is_empty(), "{case_id}: {generation:#?}");
+        assert!(!before.iter().any(is_blocking), "{case_id}: {before:#?}");
+        let empty: Vec<Value> = before.iter().filter(|d| d["code"] == "LOAD_CASE_APPLIES_NO_ACTION").cloned().collect();
+        assert_eq!(empty.len(), 1, "{case_id}: {before:#?}");
+        assert_eq!(empty[0]["severity"], "warning");
+        assert_eq!(empty[0]["affected_refs"], json!([case_id]));
+        for mode in MODES {
+            let solve = envelope(&wire, mode);
+            assert_eq!(solve["status"]["mechanics"], "MODEL_INCOMPLETE", "{case_id} ({mode:?})");
+            let published = solve["diagnostics"].as_array().cloned().unwrap_or_default();
+            let codes: Vec<&str> = published.iter().map(|d| d["code"].as_str().unwrap()).collect();
+            if kept {
+                let found: Vec<Value> = published.iter().filter(|d| d["code"] == "LOAD_CASE_APPLIES_NO_ACTION").cloned().collect();
+                same_fields(&format!("{case_id} ({mode:?})"), &empty, &found);
+                assert_eq!(codes, ["LOAD_CASE_APPLIES_NO_ACTION", "MODULUS_BASIS_UNRESOLVED"], "{case_id} ({mode:?})\n{published:#?}");
+            } else {
+                assert_eq!(codes, ["MODULUS_BASIS_UNRESOLVED"], "{case_id} ({mode:?})\n{published:#?}");
+            }
+            let unresolved = published.iter().find(|d| d["code"] == "MODULUS_BASIS_UNRESOLVED").unwrap();
+            assert!(is_blocking(unresolved), "{unresolved:#}");
+        }
+    }
+}
