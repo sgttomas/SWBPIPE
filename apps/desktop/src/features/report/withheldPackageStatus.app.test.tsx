@@ -85,15 +85,28 @@ async function settle() {
   await act(async () => { await new Promise((resolve) => setTimeout(resolve, 50)); });
 }
 
+/** The strip's single polite live announcer, already mounted and empty before any outcome exists. */
+function preMountedOutcomeAnnouncer(): HTMLElement {
+  const outcomes = screen.getByRole("region", { name: "Report output outcomes" });
+  const announcer = within(outcomes).getByRole("status");
+  expect(announcer).toHaveAttribute("aria-live", "polite");
+  expect(announcer).toHaveAttribute("aria-atomic", "false");
+  expect(announcer.textContent).toBe("");
+  return announcer;
+}
+
 /** The save's refusal on screen: once in the Report section and once as the session's kept
- * outcome in the report output strip (DEL-08-01 REQ-022, issue 508), announced by exactly one
- * status region, the strip's (mounted before the outcome existed). `strip` is the strip's line. */
-async function expectWithheldRefusal(report: HTMLElement, strip: string) {
+ * outcome in the report output strip (DEL-08-01 REQ-022, issue 508), announced by the strip's
+ * single pre-mounted polite status region. `strip` is the strip's line. */
+async function expectWithheldRefusal(report: HTMLElement, announcerBefore: HTMLElement, strip: string) {
   const shown = await within(report).findByText((text) => text.includes(RECORD_REFUSAL));
   expect(within(report).getAllByText((text) => text.includes(RECORD_REFUSAL))).toEqual([shown]);
   expect(shown).toHaveAttribute("data-testid", "report-package-save-status");
   const outcomes = screen.getByRole("region", { name: "Report output outcomes" });
   const kept = within(outcomes).getByRole("status");
+  expect(kept).toBe(announcerBefore);
+  expect(kept).toHaveAttribute("aria-live", "polite");
+  expect(kept).toHaveAttribute("aria-atomic", "false");
   expect(kept.querySelector("p")?.textContent).toBe(strip);
   expect(screen.getAllByText((text) => text.includes(RECORD_READING))).toHaveLength(2);
   expect(screen.getAllByRole("status").filter((status) => status.textContent?.includes(RECORD_READING))).toEqual([kept]);
@@ -110,8 +123,9 @@ describe("a report-package save started while the rendered report is withheld fo
     const { report, copies, sent } = await solvedApp({ recordAboveLimit: true });
     expect(await within(report).findAllByTestId("c2-result-refused")).not.toHaveLength(0);
     expect(within(report).queryByTestId("report-package-save-status")).toBeNull();
+    const announcerBefore = preMountedOutcomeAnnouncer();
     nativeMenuCommand("file.save-shareable-report-package");
-    const shown = await expectWithheldRefusal(report,
+    const shown = await expectWithheldRefusal(report, announcerBefore,
       `Shareable report package not saved: ${RECORD_READING} (RESULT-DETAIL-WEBVIEW-LIMIT). Nothing was written.`);
     expect(shown.textContent).toBe(`Not saved: no shareable report package was written and no user release was made. ${RECORD_REFUSAL}`);
     expect(screen.queryByTestId("user-release-dialog")).toBeNull();
@@ -122,8 +136,9 @@ describe("a report-package save started while the rendered report is withheld fo
   it("File > Save Report Package…: its refusal is shown once in the Report section", async () => {
     const { report, copies, sent } = await solvedApp({ recordAboveLimit: true });
     expect(await within(report).findAllByTestId("c2-result-refused")).not.toHaveLength(0);
+    const announcerBefore = preMountedOutcomeAnnouncer();
     nativeMenuCommand("file.save-report-package");
-    const shown = await expectWithheldRefusal(report,
+    const shown = await expectWithheldRefusal(report, announcerBefore,
       `Report package not saved: ${RECORD_READING} (RESULT-DETAIL-WEBVIEW-LIMIT). Nothing was written.`);
     expect(shown.textContent).toBe(RECORD_REFUSAL);
     expect(copies()).toBe(0);
@@ -135,6 +150,7 @@ describe("with the rendered report shown", () => {
   it("a saved package's receipt is the panel's, once, in the panel's own words, and the gate adds none", async () => {
     const { report, sent } = await solvedApp({ recordAboveLimit: false });
     const panel = await within(report).findByTestId("rendered-report-panel");
+    const announcerBefore = preMountedOutcomeAnnouncer();
     nativeMenuCommand("file.save-shareable-report-package");
     await screen.findByTestId("user-release-dialog");
     fireEvent.click(screen.getByTestId("user-release-statement"));
@@ -155,6 +171,7 @@ describe("with the rendered report shown", () => {
     // The session keeps the outcome apart from the panel, in the strip's own words, and the strip
     // alone announces it (issue 508).
     const kept = within(screen.getByRole("region", { name: "Report output outcomes" })).getByRole("status");
+    expect(kept).toBe(announcerBefore);
     expect(kept.querySelector("p")?.textContent).toBe("Shareable report package saved as invented-shared.opsproj.");
     expect(screen.getAllByRole("status").filter((region) => region.textContent?.includes("invented-shared.opsproj"))).toEqual([kept]);
   }, 90_000);

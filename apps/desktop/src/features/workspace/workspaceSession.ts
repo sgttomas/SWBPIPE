@@ -4257,6 +4257,7 @@ export function useWorkspaceSession() {
     if (sizeRefusal) {
       const text = reportPackageSizeText(sizeRefusal);
       reportPackageOutput("report_package", outputBasis).notSent(text);
+      setReportPackageRedaction(null);
       setReportPackageRoute({ route: "redaction_blocked", diagnostic: text });
       return;
     }
@@ -4388,6 +4389,7 @@ export function useWorkspaceSession() {
       const text = reportPackageSizeText(sizeRefusal);
       reportPackageOutput("shareable_report_package",
         reportOutputBasisOf(reportSource.sequence, model.project, projectSummary?.project_name, analysisRun.analysis_run.run_id)).notSent(text);
+      setReportPackageRedaction(null);
       setReportPackageRoute({ route: "redaction_blocked", diagnostic: `${SHAREABLE_SAVE_NOT_WRITTEN} ${text}` });
       return;
     }
