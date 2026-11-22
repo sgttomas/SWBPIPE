@@ -177,6 +177,13 @@ code_paths:
 - apps/desktop/src/features/report/pfTimoshenkoReport.ts
 - apps/desktop/src/features/report/reportPackageRequest.ts
 - apps/desktop/src/features/report/userReleasedReportPackageSave.ts
+# REQ-024 "Package and user release": the dialog's frame statements, the native host's
+# report_frame_statements operation of the verdict command (also DEL-04-07 and DEL-07-07 code);
+# its reply decoder is in apps/desktop/src/services/nativeResult.ts, DEL-07-07's. The rendered
+# report's source, which the package and the user release also take on the exact route.
+- apps/desktop/src/features/report/reportFrameStatements.ts
+- apps/desktop/src-tauri/src/native_verdict.rs
+- apps/desktop/src/features/report/renderableReportSource.ts
 - apps/desktop/src/features/report/controlledRouteEvidence.ts
 - apps/desktop/src/services/reportRenderService.ts
 - apps/desktop/src/services/reportPackageSaveService.ts
@@ -204,6 +211,7 @@ code_paths:
 - fixtures/reports/standing_statements.json
 - fixtures/reports/numerical_vocabulary.json
 - fixtures/reports/invented/report_standing_witnesses/**
+- fixtures/reports/invented/pf_timoshenko_not_eligible/**
 - core/reporting/numerical_vocabulary/**
 - core/reporting/report_renderer/tests/standing_statements.rs
 - apps/desktop/src/features/report/reportStandingWitness.test.tsx
@@ -250,15 +258,19 @@ checks:
 - tests/test_headless_runner_contract.py
 - tests/test_report_sections_provenance_records.py
 - apps/desktop/src-tauri/src/report_render_exact_tests.rs
+- apps/desktop/src-tauri/src/report_render_pf_timoshenko_tests.rs
 - apps/desktop/src-tauri/src/report_session_diagnostics_tests.rs
 - apps/desktop/src-tauri/src/object_form_tests.rs
 - apps/desktop/src-tauri/src/user_release_admission_tests.rs
 - apps/desktop/src-tauri/src/user_release_save_tests.rs
+- apps/desktop/src-tauri/src/report_standing_package_tests.rs
 - apps/desktop/src-tauri/src/user_release_reach_scan_tests.rs
 - apps/desktop/src/features/report/renderedReport.test.tsx
 - apps/desktop/src/features/report/renderedReportNativeRoutes.test.tsx
 - apps/desktop/src/features/report/pfTimoshenkoRenderRows.test.tsx
 - apps/desktop/src/features/report/renderedReportGate.app.test.tsx
+- apps/desktop/src/features/report/timoshenkoReportAnyStanding.app.test.tsx
+- apps/desktop/src/features/report/reportPackageStandingRefusal.test.ts
 - apps/desktop/src/features/report/restoredRunReportWords.app.test.tsx
 - apps/desktop/src/features/report/withheldPackageStatus.app.test.tsx
 - apps/desktop/src/features/report/reportOutputOutcomes.test.ts
@@ -280,10 +292,15 @@ checks:
 - apps/desktop/src/features/report/userReleaseDerivation.parity.test.ts
 - apps/desktop/src/features/report/userReleaseExact.parity.test.ts
 - apps/desktop/src/features/report/UserReleaseDialog.test.tsx
+- apps/desktop/src/features/report/reportFrameStatements.test.ts
+- apps/desktop/src/features/report/renderableReportSource.test.ts
 - apps/desktop/src/features/report/userReleasedReportPackageCell.test.ts
 - apps/desktop/src/features/report/userReleasedReportPackageSave.test.ts
 - apps/desktop/src/features/workspace/reportPackageSave.session.test.tsx
 - apps/desktop/src/features/workspace/userReleaseSave.session.test.tsx
+- apps/desktop/src/features/workspace/reportPackageAdmission.session.test.tsx
+- apps/desktop/src/test/reportPackageDeniedStates.ts
+- apps/desktop/src/features/workspace/reportPackageOutcomes.session.test.tsx
 - apps/desktop/src/features/workspace/reportPackageRedactionRecords.session.test.tsx
 - apps/desktop/src/features/results/outputPolicy.test.ts
 - apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx

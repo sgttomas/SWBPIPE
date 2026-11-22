@@ -85,7 +85,6 @@ async function solve(item: Shape): Promise<Session> {
  * and the manifest are the session's own. */
 type Edit = { name: string; refusal: string; apply: (refs: Json[]) => Json };
 const ROW_BINDING = "CURRENT_ROW_BINDING_MISMATCH";
-const NEEDS_RECOMPUTE = "CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE";
 /** An unnamed error is recorded by its class; its message is the engine's. */
 const TYPE_ERROR = "TypeError";
 const EDITS: readonly Edit[] = [
@@ -138,10 +137,11 @@ describe("report admission, standing and refusals against the search the row bin
     expect(JSON.stringify(input.numerical_standing.cases.map((c: Json) => [c.case_id, c.health, c.integrity_code, c.confirmation.outcome])))
       .toBe(JSON.stringify((reading.numerical_standing as Json).cases.map((c: Json) => [c.case_id, c.health, c.integrity_code, c.confirmation.outcome])));
 
+    // DEL-08-01 REQ-024, "Package and user release": on the exact route the package admits
+    // what the render admits, whatever the numerical standing, and states the same record.
     const packaged = await bothWays(packageRequest(session), "package");
-    if (item.eligible) expect("made" in packaged && packaged.reachedRowBinding).toBe(true);
-    // A result that is not numerically eligible is refused for its standing, before any row is bound.
-    else expect(packaged).toStrictEqual({ refused: NEEDS_RECOMPUTE, reachedRowBinding: false });
+    expect("made" in packaged && packaged.reachedRowBinding, JSON.stringify(packaged).slice(0, 300)).toBe(true);
+    expect(JSON.parse((packaged as { made: string }).made).report.numerical_standing).toEqual(reading.numerical_standing);
   }, 240_000);
 
   it.each(SHAPES.flatMap(item => EDITS.map(edit => ({ item, edit, title: `${item.name}, ${edit.name}` }))))("$title: the same named refusal", async ({ item, edit }) => {
@@ -149,7 +149,7 @@ describe("report admission, standing and refusals against the search the row bin
     const rendered = await bothWays(render(session), "render");
     expect(rendered).toStrictEqual({ refused: edit.refusal, reachedRowBinding: true });
     const packaged = await bothWays(packageRequest(session), "package");
-    // The standing refusal comes first for a result that is not numerically eligible.
-    expect(packaged).toStrictEqual(item.eligible ? { refused: edit.refusal, reachedRowBinding: true } : { refused: NEEDS_RECOMPUTE, reachedRowBinding: false });
+    // Standing is not a ground for refusal: every session reaches the row binding's refusal.
+    expect(packaged).toStrictEqual({ refused: edit.refusal, reachedRowBinding: true });
   }, 240_000);
 });
