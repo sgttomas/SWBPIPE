@@ -49,7 +49,7 @@ it("shows the computed axial-force record from the native lookup: the same row t
   // The oracle: the record's row over the full rows (the fixed id, else the first of its kind).
   const rows = (JSON.parse(nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" }).bytes) as MechanicsResult).results;
   const expected = rows.find((row) => row.id === "result:force:pipe-P-120:axial") ?? rows.find((row) => row.kind === "element_local_axial_force")!;
-  render(<KnowledgePanel knowledge={null} result={result} />);
+  render(<KnowledgePanel knowledge={null} model={null} result={result} />);
   expect(await screen.findByTestId("knowledge-record-knowledge:computed-axial-force")).toHaveTextContent(`${expected.id} is`);
   expect(screen.queryByTestId("knowledge-axial-force-refused")).toBeNull();
   await disposeDeliveredMechanicsResult(result);
@@ -58,7 +58,7 @@ it("shows the computed axial-force record from the native lookup: the same row t
 it("says a refused lookup is refused, and shows no axial-force record as if the row were absent", async () => {
   const result = await nativeResult();
   refuseLookup = true;
-  render(<KnowledgePanel knowledge={null} result={result} />);
+  render(<KnowledgePanel knowledge={null} model={null} result={result} />);
   expect(await screen.findByTestId("knowledge-axial-force-refused")).toHaveTextContent("The computed axial-force record could not be read from the result:");
   expect(screen.queryByTestId("knowledge-record-knowledge:computed-axial-force")).toBeNull();
   await disposeDeliveredMechanicsResult(result);

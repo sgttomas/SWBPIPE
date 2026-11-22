@@ -185,6 +185,8 @@ from core.handoff.caepipe_external.harness import (  # noqa: E402
     CONFIG_NAME,
     check_guest_alive,
     check_no_foreign_instance,
+    exchange_share_letter,
+    open_live_session,
     BOUNDARY_NOTE,
     SETTINGS_KEEP_GOING,
     CASE_ID_PATTERN,
@@ -1369,6 +1371,25 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
     return RECORDED, route, ""
 
 
+def _stops_hold(stops: BenchmarkStops, label: str, *, sleep: Callable[[float], None],
+                emit: Callable[[str], None]) -> str | None:
+    """The host's stop files, checked with no guest call: the freeze file present stops; a pending exclusive job is
+    waited for (up to BENCHMARK_EXCLUSIVE_WAIT_S), then stops. Both are checked again after each wait, so a freeze
+    that arrives while an exclusive job is waited for stops. None when neither holds."""
+    waited = 0.0
+    while True:
+        if stops.freeze.exists():
+            return "the freeze file is present"
+        if not _exclusive_pending(stops.exclusive):
+            return None
+        if waited >= BENCHMARK_EXCLUSIVE_WAIT_S:
+            return f"an exclusive job was still pending after {waited:g} s"
+        if waited == 0.0:
+            emit(f"{label}: an exclusive job is pending; waiting for it (up to {BENCHMARK_EXCLUSIVE_WAIT_S:g} s)")
+        sleep(BENCHMARK_POLL_S)
+        waited += BENCHMARK_POLL_S
+
+
 def _benchmark_gate(model_id: str, config: HarnessConfig, stops: BenchmarkStops, *,
                     liveness: Callable[[HarnessConfig], dict[str, Any]],
                     precondition: Callable[[HarnessConfig], dict[str, Any]], sleep: Callable[[float], None],
@@ -1376,16 +1397,9 @@ def _benchmark_gate(model_id: str, config: HarnessConfig, stops: BenchmarkStops,
     """Before each live model: the freeze file, a pending exclusive job, the guest's liveness (checked again once
     after BENCHMARK_RETRY_WAIT_S) and the no-foreign-instance precondition. None when the model may start, else why
     the run stops."""
-    if stops.freeze.exists():
-        return "the freeze file is present"
-    waited = 0.0
-    while _exclusive_pending(stops.exclusive):
-        if waited >= BENCHMARK_EXCLUSIVE_WAIT_S:
-            return f"an exclusive job was still pending after {waited:g} s"
-        if waited == 0.0:
-            emit(f"{model_id}: an exclusive job is pending; waiting for it (up to {BENCHMARK_EXCLUSIVE_WAIT_S:g} s)")
-        sleep(BENCHMARK_POLL_S)
-        waited += BENCHMARK_POLL_S
+    held = _stops_hold(stops, model_id, sleep=sleep, emit=emit)
+    if held is not None:
+        return held
     alive = liveness(config)
     if alive["status"] != "alive":
         emit(f"{model_id}: liveness {alive['status']}; {alive.get('reason', '')}; "
@@ -1480,6 +1494,22 @@ def run_benchmark(models: list[Mapping[str, Any]], config: HarnessConfig, *, run
                 emit(f"{model_id}: route={route}; {reason}; no benchmark record after one retry")
             results.append(status in ((COLLECTED,) if collect_only else (RECORDED, CAPTURED)))
     return 0 if all(results) else 1
+
+
+def live_session(config: HarnessConfig, emit: Callable[[str], None] = print) -> HarnessConfig | None:
+    """Open a live run (`open_live_session`) before its first guest step and before anything is staged: the guest's
+    liveness, asked again a stated number of times, then the guest's own drive letter for the exchange share, which
+    the run uses in place of the configured one (in memory; the configuration file is not changed). The configuration
+    the run uses, or None when it stops, with the reason emitted."""
+    session, record = open_live_session(config, liveness=check_guest_alive, share=exchange_share_letter)
+    if session is None:
+        emit(f"stopped before the first guest step: {record['status']}; {record.get('reason', '')}")
+        return None
+    share = session.exchange_share
+    if share["differs_from_configured"]:
+        emit(f"exchange share {share['remote']} is at {share['letter']} in the guest, not the configured "
+             f"{share['configured_root']}; this run uses {share['letter']} (the configuration file is unchanged)")
+    return session
 
 
 def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ) -> int:
@@ -1580,6 +1610,9 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
                 return 2
         for warning in config.warnings:
             print(f"warning: {warning}")
+        config = live_session(config)
+        if config is None:
+            return 1
         if args.authored_dir:
             # Session precondition: no instance of the tool may be running that this run did not start.
             pre = check_no_foreign_instance(config)
@@ -1600,6 +1633,9 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
     if args.export_only:
         for warning in config.warnings:
             print(f"warning: {warning}")
+        config = live_session(config)
+        if config is None:
+            return 1
         return 0 if all([export_case(case, config) for case in cases]) else 1
     runner = args.runner or environ.get(RUNNER_ENV)
     if not runner or not Path(runner).is_file():
@@ -1607,6 +1643,10 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
         return 2
     for warning in config.warnings:
         print(f"warning: {warning}")
+    if not args.offline:
+        config = live_session(config)
+        if config is None:
+            return 1
     hand_calcs = load_hand_calcs()
     results = run_cases(cases, config, runner=runner, offline=args.offline, hand_calcs=hand_calcs,
                         export_mbf=args.export_mbf)
@@ -1724,6 +1764,20 @@ def benchmark_main(args: argparse.Namespace, environ: Mapping[str, str]) -> int:
         print(f"warning: {warning}")
     stops = None if args.offline else BenchmarkStops(freeze=Path(args.freeze_file),
                                                      exclusive=Path(args.exclusive_file))
+    if stops is not None:
+        # Before the session's first guest call: the batch argument, then the host's stop files, so no guest call is
+        # made for an out-of-range batch or while a stop is in force (an exclusive measurement window included).
+        batches = benchmark_batches(models, args.batch_size)
+        if args.batch is not None and not 1 <= args.batch <= len(batches):
+            print(f"error: --batch {args.batch} is not one of the {len(batches)} batches")
+            return 2
+        held = _stops_hold(stops, "before the session", sleep=time.sleep, emit=print)
+        if held is not None:
+            print(f"stopped before the first guest step: {held}")
+            return 1
+        config = live_session(config)
+        if config is None:
+            return 1
     return run_benchmark(models, config, runner=runner, offline=args.offline, batch_size=args.batch_size,
                          batch=args.batch, stops=stops, pace_s=args.pace_s, collect_only=args.collect_only)
 
