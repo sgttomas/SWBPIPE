@@ -47,4 +47,4 @@ export type SourceContract = "pressure_source" | "preview_physics" | "pressure" 
 /** TS's standing status for each carrier token of the successor (RV92 N-8: carriers
  * compare the token; this mapping is pinned separately). TS has no `unsupported`
  * status: a refused statement reads `needs_recompute` with the reader's code. */
-export const RETAINED_STANDING_STATUS = Object.freeze({ numerically_eligible: "integrity_checked", needs_recompute: "needs_recompute", unsupported: "needs_recompute" } as const);
+export const RETAINED_STANDING_STATUS = Object.freeze({ numerically_eligible: "solver_checks_passed", needs_recompute: "needs_recompute", unsupported: "needs_recompute" } as const);

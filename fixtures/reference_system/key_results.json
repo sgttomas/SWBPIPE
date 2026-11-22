@@ -34,7 +34,7 @@
       ],
       "check": {
         "basis_record": "validation/references/reference_system_r1_ce/references.json",
-        "check": "in RS-SUS, RS-OPE and RS-SAM RS-CE1's constant_effort_support_applied_load row and its published support_reaction_component_v2 Fz each equal its entered constant_load, 9000 N, and its Fx, Fy, Mx, My and Mz are zero (DEC-049); RS-VS1's load awaits a verified solve, so no value of it is recorded",
+        "check": "in RS-SUS, RS-OPE, RS-SAM and RS-OPE-REF RS-CE1's constant_effort_support_applied_load row and its published support_reaction_component_v2 Fz each equal its entered constant_load, 9000 N, and its Fx, Fy, Mx, My and Mz are zero (DEC-049); the basis record names the first three, and RS-OPE-REF's are compared with the entered load alone; RS-VS1's load awaits a verified solve, so no value of it is recorded",
         "kind": "identity",
         "test": "tests/test_reference_system_fixture.py"
       },
@@ -128,15 +128,20 @@
       "cases": [
         "RS-SUS",
         "RS-OPE",
+        "RS-OPE-REF",
         "RS-SAM",
         "RS-HYD"
       ],
-      "description": "The sum of vertical reactions over all supports, the spring and the constant-effort support included, equals the total weight, in RS-SUS, RS-OPE and RS-SAM, and in RS-HYD (with the test contents) when it lands",
+      "description": "The sum of vertical reactions over all supports, the spring and the constant-effort support included, equals the total weight, in RS-SUS, RS-OPE, RS-OPE-REF and RS-SAM, and in RS-HYD (with the test contents) when it lands",
       "expected": {
         "basis_record": "validation/references/reference_system_r1_ce/references.json",
+        "case_binding": {
+          "RS-OPE-REF": "validation/references/reference_system_ope_ref/references.json"
+        },
         "cases": [
           "RS-SUS",
           "RS-OPE",
+          "RS-OPE-REF",
           "RS-SAM"
         ],
         "check": "the sum of the global Z support action components over every support, RS-VS1 and RS-CE1 included, equals W_total",
@@ -153,15 +158,20 @@
       "cases": [
         "RS-SUS",
         "RS-OPE",
+        "RS-OPE-REF",
         "RS-SAM",
         "RS-HYD"
       ],
-      "description": "In RS-SUS, RS-OPE and RS-SAM, and in RS-HYD when it lands, the horizontal reaction resultant is zero, and the reaction moment resultant about the origin equals minus the moment of the weight",
+      "description": "In RS-SUS, RS-OPE, RS-OPE-REF and RS-SAM, and in RS-HYD when it lands, the horizontal reaction resultant is zero, and the reaction moment resultant about the origin equals minus the moment of the weight",
       "expected": {
         "basis_record": "validation/references/reference_system_r1_ce/references.json",
+        "case_binding": {
+          "RS-OPE-REF": "validation/references/reference_system_ope_ref/references.json"
+        },
         "cases": [
           "RS-SUS",
           "RS-OPE",
+          "RS-OPE-REF",
           "RS-SAM"
         ],
         "check": "the horizontal (X, Y) reaction resultant is zero, and the reaction moment resultant about the origin (sum of r x F + M over every support) equals minus the weight's moment about the origin",
@@ -180,18 +190,18 @@
       "basis": "identity",
       "cases": [
         "RS-EXP",
-        "RS-OPE",
+        "RS-OPE-REF",
         "RS-SUS"
       ],
-      "description": "On every published signed component row, RS-EXP equals RS-OPE - RS-SUS; magnitude rows are recomputed from the combined components; withheld rows are excluded",
+      "description": "On every published signed component row, RS-EXP equals RS-OPE-REF - RS-SUS; magnitude rows are recomputed from the combined components; withheld rows are excluded. The identity establishes the combination's algebra and nothing about either solve",
       "expected": {
-        "basis_record": "validation/references/reference_system/README.md",
+        "basis_record": "validation/references/reference_system_ope_ref/README.md",
         "cases": [
           "RS-EXP",
-          "RS-OPE",
+          "RS-OPE-REF",
           "RS-SUS"
         ],
-        "identity": "on every published signed component row, RS-EXP = RS-OPE - RS-SUS; magnitude rows equal the norm of the combined components; rows the combination withholds are excluded and listed"
+        "identity": "on every published signed component row, RS-EXP = RS-OPE-REF - RS-SUS; magnitude rows equal the norm of the combined components; rows the combination withholds are excluded and listed; the identity establishes the combination's algebra and nothing about either solve"
       },
       "id": "EQ-3",
       "spec_basis": "exact identity"
@@ -234,7 +244,7 @@
         "RS-dEQY",
         "RS-dEQZ"
       ],
-      "description": "The resultant of RS-dWIN reactions equals minus the generated wind resultant, and that of RS-dEQx equals minus the factor times g times the total mass on the generator's stated mass basis",
+      "description": "The reaction resultant of RS-dWIN, force and moment about the origin, equals minus the resultant of the generated wind load. That of each of RS-dEQX, RS-dEQY and RS-dEQZ equals minus the resultant of the corresponding generated seismic load from RS-EQX, RS-EQY or RS-EQZ: on each member that carries a line load of self-weight, the factor times the seismic case's entered gravity times the member's mass per length on the generator's stated mass basis; and, in place of that load on the body of each of RS-F1, RS-V1, RS-F2 and RS-R1, the factor times the component's entered weight at its centre of gravity. Take generated force moments at their points of action about the global origin. For the reaction moment, sum the moments of the reaction forces about that origin and the support couples",
       "expected": null,
       "id": "EQ-6",
       "spec_basis": "closed form from the inputs"
@@ -244,10 +254,10 @@
       "cases": [
         "spectrum"
       ],
-      "description": "Spectrum directional combination recomputed from the published per-direction results",
+      "description": "For each response quantity, recompute the periodic magnitude in each direction, the rigid magnitude when applied, their combination and the magnitude over directions from the published signed contributions under the recorded rules. Sum each periodic cluster's contributions with their signs first. Each published magnitude must be within 1e-9 relative of the exact value on the represented operands: the published signed contributions and, where the rule uses them, each periodic cluster's published standing frequency and the published damping ratio. A published zero requires an exact value of zero",
       "expected": null,
       "id": "EQ-7",
-      "spec_basis": "exact identity"
+      "spec_basis": "identity checked by recomputation from the published result (DEL-04-10 REQ-006). The 1e-9 relative comparison over directions is specified for this system. The magnitude accuracy and exact-zero rule govern publication"
     }
   ],
   "rule": "an expected value enters only from a closed-form reference with an independent generator, an exact identity or a verified solve, frozen in a reference-system package under validation/references/ with its basis recorded (spec §1); each expected value here names that record",

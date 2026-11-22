@@ -16,12 +16,17 @@
 //! repair. While it re-formed the load from the record's millimetre values as
 //! metres it was given a mass 10^6 times the one the load was formed from, and
 //! the fixture's cases were demoted to sensitive.
+//!
+//! The verdicts read are those of RS-SUS, RS-OPE and RS-SAM. The fixture's fourth
+//! case, RS-OPE-REF, is solved with them and its generated records are re-authored
+//! in the twin like theirs, but no verdict of it is stated here.
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
 use open_pipe_stress_units::{canonical_unit, convert_for_dimension, unit_by_symbol, Dimension};
 use serde_json::{json, Value};
 
 const FIXTURE: &str = include_str!("../../../fixtures/reference_system/reference_system.json");
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
+/// The cases whose verdict this test states (module comment).
 const CASES: [&str; 3] = ["load:RS-SUS", "load:RS-OPE", "load:RS-SAM"];
 const GENERATED_METHOD: &str = "pipe_mass_per_length_times_explicit_axis_acceleration/v2";
 const LENGTHS: [&str; 5] = ["outside_diameter", "wall_thickness", "mill_tolerance", "corrosion_allowance", "insulation_thickness"];
@@ -72,12 +77,12 @@ fn metre_twin(fixture: &Value) -> Value {
             rewritten += 1;
         }
     }
-    assert_eq!(rewritten, 63, "every generated line-load record of the fixture: 21 per case");
+    assert_eq!(rewritten, 84, "every generated line-load record of the fixture: 21 per case, four cases");
     model
 }
 
-/// Each case's integrity code, after checking the envelope solved and that the
-/// diagnostic and the numerical quality agree.
+/// The integrity code of RS-SUS, RS-OPE and RS-SAM, after checking the envelope
+/// solved and that each one's diagnostic and numerical quality agree.
 fn verdicts(model: &Value, mode: PreviewSolverMode, label: &str) -> Vec<String> {
     let envelope = serde_json::to_value(
         run_linear_static_preview_value_with_mode(json!({"model": model, "materials": []}), mode).unwrap(),
@@ -102,8 +107,8 @@ fn verdicts(model: &Value, mode: PreviewSolverMode, label: &str) -> Vec<String> 
     }).collect()
 }
 
-/// The metre twin publishes checks passed in every case; the fixture as
-/// committed publishes the same verdicts.
+/// The metre twin publishes checks passed in RS-SUS, RS-OPE and RS-SAM; the
+/// fixture as committed publishes the same verdicts in those three.
 #[test]
 fn the_reference_systems_generated_weight_cases_publish_their_metre_twins_verdict() {
     let fixture: Value = serde_json::from_str(FIXTURE).unwrap();

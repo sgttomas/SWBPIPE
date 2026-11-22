@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { EmbeddedAgentSession, boundedFindings, PROPOSAL_FINDING_TEXT, PROPOSAL_FINDINGS_LABEL, refusedProposalMessage, type WorkspaceExecution, type AgentSolveOutcome, type AgentSolverMode } from './embeddedAgentSession';
+import { EmbeddedAgentSession, boundedFindings, integrityBoundChecks, PROPOSAL_FINDING_TEXT, PROPOSAL_FINDINGS_LABEL, refusedProposalMessage, type WorkspaceExecution, type AgentSolveOutcome, type AgentSolverMode } from './embeddedAgentSession';
 import { agentDetailFilter } from './resultDetail';
 import { GENERIC_REFUSAL } from './agentUnitRefusal';
 import { PERSON_ENTERED_CHECK } from './operationAuthorship';
@@ -747,6 +747,13 @@ describe('a native result read tells the host which rows its values are',()=>{
   expect(JSON.parse(session.actual('invented-session:2')!.outcome).status).toBe('ok');
   expect(sent.filter(v=>v.kind==='publish_actual').at(-1)!.proof).toMatchObject({kind:'run',handle:runHandle,nativeJobId:'job-1',ordinals:[7,9]});
   await session.close();
+ });
+});
+
+describe('release exit criterion 18: the integrity bound in a results read\'s standing',()=>{
+ it('carries the reader verdict\'s integrity bound among a results read\'s checks',()=>{
+  expect(integrityBoundChecks({status:'not_verified',reason:'inverse_norm_bound_not_verified'})).toEqual(['integrity_bound:not_verified:inverse_norm_bound_not_verified']);
+  expect(integrityBoundChecks(null)).toEqual([]);
  });
 });
 
