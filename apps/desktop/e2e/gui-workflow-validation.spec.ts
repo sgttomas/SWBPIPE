@@ -10,6 +10,7 @@ import {
   expectTreeEntity,
   openWorkspaceSection,
   projectButton,
+  projectCommand,
   startPropertyTaskFromTreeEntity,
 } from "./workspace-driver";
 
@@ -187,7 +188,7 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
 
   await (await projectButton(page, "save-local")).click();
   await expect(page.getByTestId("local-project-message")).toContainText("Saved local browser-preview project snapshot");
-  await (await projectButton(page, "open-local")).click();
+  await projectCommand(page, "open-local");
   await expect(page.getByTestId("local-project-message")).toContainText("Opened local browser-preview project snapshot");
   await expect(page.getByTestId("historical-run-context")).toHaveCount(0);
   await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
@@ -255,7 +256,7 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   await expect(page.getByTestId("local-project-message")).toContainText(
     "Saved local browser-preview project snapshot without external file copies."
   );
-  await (await projectButton(page, "list-local")).click();
+  await projectCommand(page, "list-local");
   await expect(page.getByTestId("local-project-message")).toContainText(
     "Listed 1 local project snapshot from the local store index."
   );

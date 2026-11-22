@@ -20,14 +20,11 @@ import {
   Bot,
   ClipboardCheck,
   Crosshair,
-  Database,
   FilePlus,
   FolderOpen,
   HardDrive,
-  List,
   Play,
   Save,
-  Sparkles,
   X
 } from "lucide-react";
 import { AgentStrip } from "./features/workspace/shell/AgentStrip";
@@ -90,9 +87,10 @@ import { OperationLedgerPanel } from "./features/operations/OperationLedgerPanel
 import { PcfExportPanel } from "./features/pcf-export/PcfExportPanel";
 import { ProjectStorageAuditPanel } from "./features/project-storage/ProjectStorageAuditPanel";
 import { ReplaceProjectPrompt } from "./features/project-storage/ReplaceProjectPrompt";
-import { HistoryPanel } from "./features/history/HistoryPanel";
+import { ProjectPage } from "./features/project-storage/ProjectPage";
 import { QuitWhileBusyPrompt, UnsavedChangesPrompt } from "./features/project-storage/UnsavedChangesPrompt";
-import { AUTOSAVE_DESKTOP_ONLY, AutosaveRecoveryPrompt } from "./features/autosave";
+import { AutosaveRecoveryPrompt } from "./features/autosave";
+import { formatAutosaveTime } from "./features/autosave/autosaveRecovery";
 import { ProjectUnitsDialog } from "./features/project-units/ProjectUnitsDialog";
 import { ModelDocumentSaveDialog } from "./features/model-file/ModelDocumentSaveDialog";
 import { HandoffSaveDialog } from "./features/handoff/HandoffSaveDialog";
@@ -240,7 +238,6 @@ function AppSession() {
     handleInspectBundledReference,
     handleCancelRun,
     handleRuleCheckAggregate,
-    handleProposal,
     handleSelectResult,
     handleSelectDiagnostic,
     handleSaveReportPackage,
@@ -310,13 +307,11 @@ function AppSession() {
     projectMessageDetails,
     projectOperation,
     projectBusy,
-    handleCreateProject,
     requestBlankProject,
     blankProjectUnitsRequest,
     handleOpenProject,
     handleOpenModelDocument,
     handleSaveProject,
-    handleListProjects,
     replaceProjectPrompt,
     modelDocumentSaveRequest,
     handoffSaveRequest,
@@ -624,7 +619,6 @@ function AppSession() {
             <EmbeddedAgentPanel session={session.agent} active={activeSection === "operations" && operationTab === "agent"} onReview={() => {setActiveSection("operations");setOperationTab("review");}} />
             <AgentWorkbenchPanel
               appliedOperationCount={appliedOperations.length}
-              mechanicsReady={Boolean(result)}
               model={model}
               proposal={proposal}
               queuedIntentCount={editorIntents.length}
@@ -633,7 +627,6 @@ function AppSession() {
               selectedReviewTarget={selectedReviewTarget}
               statusText={r3ExitJourneyStatus({ result, ruleCheckAggregate, projectSummary })}
               reviewActive={activeSection === "operations" && operationTab === "review"}
-              onGenerateProposal={handleProposal}
               onOpenOperations={() => { setActiveSection("operations"); setOperationTab("review"); }}
               onOpenResults={() => setActiveSection("results")}
               onRunMechanics={handleRun}
@@ -744,9 +737,7 @@ function AppSession() {
                   />
                   <AgentProposalPanel
                     proposal={proposal}
-                    mechanicsReady={Boolean(result)}
                     selectedReviewTarget={selectedReviewTarget}
-                    onLoad={handleProposal}
                   />
                 </div>
               </section>
@@ -1063,6 +1054,9 @@ function AppSession() {
               getPreparationEpoch={getPreparationEpoch}
               model={model}
               onSelectReference={(entity) => { handleSelectEntity(entity); }}
+              onChangeSelected={openBulkChange}
+              armedCreationTool={armedCreationTool}
+              onArmCreationTool={handleArmCreationTool}
               onQueueIntent={handleQueueEditorIntent}
               onValidateIntent={handleValidateIntent}
               onApplyIntent={handleApplyIntent}
@@ -1087,37 +1081,20 @@ function AppSession() {
           <header className="workspace-dock-header" data-testid="workspace-dock-header">
             <h2>{shell.page ? WORKSPACE_SECTIONS.find((candidate) => candidate.id === shell.page)?.label ?? shell.page : ""}</h2>
             <div className={shell.page === "project" ? "titlebar-actions shell-project-controls" : "titlebar-actions shell-project-controls inactive"} aria-label="Local project controls">
-          <button type="button" onClick={handleCreateProject} disabled={projectBusy}>
-            <Database size={15} aria-hidden="true" />
-            Create local
-          </button>
-          <button type="button" onClick={() => requestBlankProject("local")} disabled={projectBusy}>
+          {/* New, Open… and Save: the File menu keeps the complete list (Save as New Local Project,
+              Open Local Project…, List Local Projects); the saved projects are listed on the page.
+              New's dialog offers the starting model, the ordinary blank or the one set up for internal pressure. */}
+          <button type="button" data-testid="project-new" onClick={() => requestBlankProject()} disabled={projectBusy}>
             <FilePlus size={15} aria-hidden="true" />
-            New blank
-          </button>
-          <button type="button" data-testid="new-blank-040" onClick={() => requestBlankProject("load_state")} disabled={projectBusy}>
-            <FilePlus size={15} aria-hidden="true" />
-            Blank load/reference model
+            New
           </button>
           <button data-testid="open-model-document" type="button" onClick={() => void handleOpenModelDocument()} disabled={projectBusy}>
             <FolderOpen size={15} aria-hidden="true" />
-            Open model file
+            Open…
           </button>
-          <button data-testid="project-recover-autosave" type="button" onClick={() => void autosave.recoverAutosave()} disabled={projectBusy || !autosave.settings} title={autosave.settings ? "Offer each autosave not shown to be saved" : AUTOSAVE_DESKTOP_ONLY}>
-            <FolderOpen size={15} aria-hidden="true" />
-            Recover autosave…
-          </button>
-          <button data-testid="open-local-project" type="button" onClick={() => handleOpenProject()} disabled={projectBusy}>
-            <FolderOpen size={15} aria-hidden="true" />
-            Open local
-          </button>
-          <button type="button" onClick={handleListProjects} disabled={projectBusy}>
-            <List size={15} aria-hidden="true" />
-            List local
-          </button>
-          <button type="button" onClick={handleSaveProject} disabled={projectBusy}>
+          <button type="button" data-testid="project-save" onClick={handleSaveProject} disabled={projectBusy}>
             <Save size={15} aria-hidden="true" />
-            Save local
+            Save
           </button>
             </div>
             {shell.page ? (
@@ -1132,7 +1109,7 @@ function AppSession() {
         {projectMessageDetails ? <p data-testid="local-project-message-details">{projectMessageDetails}</p> : null}
         <span data-testid="local-project-review-context">{projectReviewContext(editorIntents, proposal, appliedOperations.length)}</span>
         {projectIndex && projectIndex.length > 0 ? (
-          <div className="project-index-picker" data-testid="project-index-picker" aria-label="Open listed project by id">
+          <div className="project-index-picker" data-testid="project-index-picker" aria-label="Open a listed project">
             {projectIndex.map((entry) => (
               <button
                 key={entry.project_id}
@@ -1142,7 +1119,7 @@ function AppSession() {
                 disabled={projectBusy}
               >
                 <FolderOpen size={15} aria-hidden="true" />
-                {entry.project_name} ({entry.project_id})
+                {entry.project_name} · saved {formatAutosaveTime(entry.updated_at_unix * 1000)}
               </button>
             ))}
           </div>
@@ -1233,34 +1210,35 @@ function AppSession() {
             >
               {activeSection === "project" || activatedExpensiveSections.has("project") ? (
               <DormantSection page="project" active={activeSection === "project"} sessionGeneration={projectSessionGeneration}>
-              <ProjectStorageAuditPanel
-                model={model}
-                storageCapability={storageCapability}
-                projectSummary={projectSummary}
-                projectIndex={projectIndex}
-                projectMessage={projectMessage}
-                projectMessageDetails={projectMessageDetails}
-                projectOperation={projectOperation}
-                editorIntents={editorIntents}
-                proposal={proposal}
-                modelHashIntegrity={modelHashIntegrity}
-                projectEnvelopeHashIntegrity={projectEnvelopeHashIntegrity}
-                storedRunNotOpened={storedRunNotOpened}
-              />
-              <HistoryPanel />
-              <ProjectValidationPanel
-                model={model}
-                storageCapability={storageCapability}
-                projectSummary={projectSummary}
-                projectOperation={projectOperation}
-                editorIntents={editorIntents}
-                proposal={proposal}
-                modelHash={modelHash}
-                modelHashIntegrity={modelHashIntegrity}
-                projectEnvelopeHash={projectEnvelopeHash}
-                projectEnvelopeHashIntegrity={projectEnvelopeHashIntegrity}
-                modelDocumentVersion={modelDocumentVersion}
-              />
+              <ProjectPage storageRecord={<>
+                  <ProjectStorageAuditPanel
+                    model={model}
+                    storageCapability={storageCapability}
+                    projectSummary={projectSummary}
+                    projectIndex={projectIndex}
+                    projectMessage={projectMessage}
+                    projectMessageDetails={projectMessageDetails}
+                    projectOperation={projectOperation}
+                    editorIntents={editorIntents}
+                    proposal={proposal}
+                    modelHashIntegrity={modelHashIntegrity}
+                    projectEnvelopeHashIntegrity={projectEnvelopeHashIntegrity}
+                    storedRunNotOpened={storedRunNotOpened}
+                  />
+                  <ProjectValidationPanel
+                    model={model}
+                    storageCapability={storageCapability}
+                    projectSummary={projectSummary}
+                    projectOperation={projectOperation}
+                    editorIntents={editorIntents}
+                    proposal={proposal}
+                    modelHash={modelHash}
+                    modelHashIntegrity={modelHashIntegrity}
+                    projectEnvelopeHash={projectEnvelopeHash}
+                    projectEnvelopeHashIntegrity={projectEnvelopeHashIntegrity}
+                    modelDocumentVersion={modelDocumentVersion}
+                  />
+              </>} />
               </DormantSection>) : null}
             </section>
 
@@ -1617,7 +1595,6 @@ function MenuBar({
 
 function AgentWorkbenchPanel({
   appliedOperationCount,
-  mechanicsReady,
   model,
   proposal,
   queuedIntentCount,
@@ -1626,13 +1603,11 @@ function AgentWorkbenchPanel({
   selectedReviewTarget,
   statusText,
   reviewActive,
-  onGenerateProposal,
   onOpenOperations,
   onOpenResults,
   onRunMechanics
 }: {
   appliedOperationCount: number;
-  mechanicsReady: boolean;
   model: PreviewModel;
   proposal: AgentProposal | null;
   queuedIntentCount: number;
@@ -1641,7 +1616,6 @@ function AgentWorkbenchPanel({
   selectedReviewTarget: SelectedReviewTarget | null;
   statusText: string;
   reviewActive: boolean;
-  onGenerateProposal: () => void;
   onOpenOperations: () => void;
   onOpenResults: () => void;
   onRunMechanics: () => void;
@@ -1674,16 +1648,6 @@ function AgentWorkbenchPanel({
         <button type="button" data-testid="agent-run-mechanics" onClick={onRunMechanics} disabled={running}>
           <Play size={15} aria-hidden="true" />
           Run
-        </button>
-        <button
-          type="button"
-          data-testid="agent-generate-proposal"
-          onClick={onGenerateProposal}
-          disabled={!mechanicsReady}
-          title={mechanicsReady ? undefined : "Run mechanics before generating a review proposal."}
-        >
-          <Sparkles size={15} aria-hidden="true" />
-          Propose
         </button>
         <button type="button" data-testid="agent-open-operations" aria-pressed={reviewActive} onClick={onOpenOperations}>
           <ClipboardCheck size={15} aria-hidden="true" />

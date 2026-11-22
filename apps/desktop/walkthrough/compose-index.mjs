@@ -49,7 +49,7 @@ export function composeIndex(out, { size = null } = {}) {
     window: windows.join(", ") || null,
     marks_explained: {
       redrawn: "true where the picture is the application's document redrawn outside its window by Chromium, not a capture of the window",
-      substitutions: "each substitution of the scripted-run build the step used: the file a chooser returns, a native menu command, the report print dialog",
+      substitutions: "each substitution of the scripted-run build the step used: the file a chooser returns, a native menu command, a request to quit or to close the main window, the report print dialog",
       native_surfaces: "each native surface not pictured, what prevents it (the permission prompt, or the substitution) and whether that leaves evidence missing",
       native_menus: "for each launch of the app, the menu it built, read from it once by the scripted-run build: each menu's items in order with label, command identifier, enabled and ticked state, and separators; names, order and state, not appearance or placement",
       window_shown: "on a native screen, whether the run brought the app's window to the front (--show-window) so its web view drew; page_visibility is what the page reported at that step"

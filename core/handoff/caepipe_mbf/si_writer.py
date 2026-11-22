@@ -523,6 +523,9 @@ class _Writer:
         self.tangent_points: dict[str, str] = {}
         self.rotation_converted = False
         self.contract: dict[str, Any] | None = None
+        # A pressure-free document's own shear model selection (model_settings.shear_model), or None when it states
+        # none; the sidecar's pressure_map carries it for a bound import.
+        self.free_shear: str | None = None
         self.pipe_pressure: dict[str, float] = {}
         self.regions: list[dict[str, Any]] = []
         self.pressure_case: str | None = None
@@ -718,6 +721,7 @@ class _Writer:
                           "own beam theory, and the sidecar's pressure_map keeps the contract for a bound import")
         if self.model.get("shear_model") is not None:
             self.refuse("MBF-SI-SHEAR-MODEL-UNSUPPORTED", "model.shear_model", "shear_model is not exported")
+        self.read_free_shear_model(contract)
         if self.model.get("reference_configurations"):
             self.refuse("MBF-SI-REFERENCE-CONFIGURATION-UNSUPPORTED", "model.reference_configurations",
                         "reference configurations are not exported by the pilot writer")
@@ -1523,8 +1527,34 @@ class _Writer:
             record.update(target={"support": support_id, "dof": dof}, mbf="D" if translation else "ROT")
         self.load_records[f"{case_id}/{load_id}"] = record
 
+    def read_free_shear_model(self, contract: Any) -> None:
+        """A pressure-free document's `model_settings.shear_model` travels in the sidecar's pressure_map, as the
+        exact contract's does: the MBF has no field for it. A selection beside a pressure contract is the document's
+        own refusal (MODEL_SETTING_SHEAR_MODEL_WITH_PRESSURE_CONTRACT), and an unknown value is not exported. A present
+        null is a value the solve refuses, not an absent selection: the key's presence decides."""
+        settings = self.model.get("model_settings")
+        if not isinstance(settings, Mapping) or "shear_model" not in settings:
+            return
+        selected = settings["shear_model"]
+        if contract is not None:
+            self.refuse("MBF-SI-SHEAR-MODEL-UNSUPPORTED", "model.model_settings.shear_model",
+                        "a model_settings.shear_model beside a pressure_contract is refused by the solve "
+                        "(MODEL_SETTING_SHEAR_MODEL_WITH_PRESSURE_CONTRACT) and is not exported")
+        elif selected not in _SHEAR_MODELS:
+            self.refuse("MBF-SI-SHEAR-MODEL-UNSUPPORTED", "model.model_settings.shear_model",
+                        f"model_settings.shear_model {selected!r} is not one of {', '.join(_SHEAR_MODELS)}")
+        else:
+            self.free_shear = selected
+            kept = ("the sidecar's pressure_map keeps it for a bound import" if selected != "euler_bernoulli" else
+                    "a bound import restores it as a document that states no choice, which reads as euler_bernoulli")
+            self.omit("MBF-SI-SHEAR-MODEL-NOT-EXPORTED", "model.model_settings.shear_model",
+                      f"shear_model {selected} is not in the MBF; the target program applies its own beam theory, "
+                      f"and {kept}")
+
     def read_other_members(self) -> None:
-        if self.model.get("model_settings") is not None:
+        settings = self.model.get("model_settings")
+        # The shear model selection is carried by the sidecar (read_free_shear_model); every other setting is not.
+        if settings is not None and not (isinstance(settings, Mapping) and set(settings) == {"shear_model"}):
             self.omit("MBF-SI-MODEL-SETTINGS-NOT-EXPORTED", "model.model_settings",
                       "model_settings (input validation settings) are not exported")
         self.sweep_fields()
@@ -1933,9 +1963,10 @@ class _Writer:
             else:
                 entry["caepipe_node"] = node_map[self.supports[target["support"]]["node"]]
             load_map[key] = entry
-        # The effective pressure state of every model: the contract or "none", the shear model (the route's
-        # Euler-Bernoulli without a contract) and the regions.
-        pressure_map: dict[str, Any] = {"contract": "none", "shear_model": "euler_bernoulli", "regions": []}
+        # The effective pressure state of every model: the contract or "none", the shear model (without a contract,
+        # the document's own timoshenko_annulus_energy_v1 selection, else the route's Euler-Bernoulli) and the regions.
+        free = "timoshenko_annulus_energy_v1" if self.free_shear == "timoshenko_annulus_energy_v1" else "euler_bernoulli"
+        pressure_map: dict[str, Any] = {"contract": "none", "shear_model": free, "regions": []}
         if self.contract is not None:
             pressure_map = {"contract": {"version": self.contract["version"], "mode": self.contract["mode"]},
                             "shear_model": self.contract["shear_model"], "regions": [

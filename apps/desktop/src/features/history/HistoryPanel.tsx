@@ -78,6 +78,13 @@ function RunCompareSelect({ id, testId, selection, refusal }: { id: string; test
   );
 }
 
+/** A refusal's words without its leading code, for a person: "RUN-RECORD-NO-RUN: solve the
+ * model to record a run." reads "Solve the model to record a run." */
+export function plainReason(reason: string): string {
+  const words = reason.replace(/^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+:\s*/, "");
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
 /** A disabled control's stated reason (the dead-control audit's accessible reason). */
 function reasonFor(busy: boolean, other: string | null = null): string | undefined {
   if (busy) return BUSY_REASON;
@@ -531,6 +538,8 @@ export function HistoryPanel() {
   // A readable run whose state is not a readable listed state has no row under a state.
   const orphanRuns = states ? (runs ?? []).filter((run) => !states.some((state) => state.state_id === run.state_id)) : [];
   const runsOf = (stateId: string) => (runs ?? []).filter((run) => run.state_id === stateId).sort((left, right) => left.created_at < right.created_at ? -1 : left.created_at > right.created_at ? 1 : 0);
+  const recordRunReason = recordRunUnavailableReason ? plainReason(recordRunUnavailableReason) : null;
+  const recordRunReasonShown = recordRunReason !== null && !historyBusy && !projectBusy;
   // The states the list below shows: readable rows, and rows the store cannot read (by id).
   const statesShown = Boolean(states?.length || unreadable?.states.length);
   if (!model) return null;
@@ -540,16 +549,12 @@ export function HistoryPanel() {
         <History size={16} aria-hidden="true" />
         Model History
       </div>
-      <p className="muted">
-        Saved model states of project {model.project.id}: immutable snapshots of the model, kept in the local store for
-        reopening and comparison, each with the analysis runs recorded against it. A recorded run ties a solve's result,
-        solver, settings, units and load basis to the exact saved model it solved. Human review is still required for any use of them.
-      </p>
+      <p className="muted" data-testid="model-history-intro">Saved snapshots of this model, each with the runs recorded against it.</p>
       <div className="report-actions">
         <button type="button" data-testid="model-state-save-open" disabled={saving || historyBusy || projectBusy} title={reasonFor(historyBusy || projectBusy, saving ? "The Save Model State form is open below." : null)} onClick={() => setSaving(true)}>
           Save Model State…
         </button>
-        <button type="button" data-testid="record-run-open" disabled={recording || historyBusy || projectBusy || recordRunUnavailableReason !== null} title={reasonFor(historyBusy || projectBusy, recording ? "The Record Run form is open below." : recordRunUnavailableReason)} onClick={() => setRecording(true)}>
+        <button type="button" data-testid="record-run-open" disabled={recording || historyBusy || projectBusy || recordRunUnavailableReason !== null} title={reasonFor(historyBusy || projectBusy, recording ? "The Record Run form is open below." : recordRunReason)} aria-describedby={recordRunReasonShown ? "record-run-unavailable" : undefined} onClick={() => setRecording(true)}>
           Record Run…
         </button>
         <button
@@ -568,7 +573,8 @@ export function HistoryPanel() {
           Refresh
         </button>
       </div>
-      {recordRunUnavailableReason && !historyBusy && !projectBusy ? <p className="muted" data-testid="record-run-unavailable">Record Run: {recordRunUnavailableReason}</p> : null}
+      {/* The reason Record Run… is disabled is its title; this is the same reason for assistive technology. */}
+      {recordRunReasonShown ? <p className="visually-hidden" id="record-run-unavailable" data-testid="record-run-unavailable">{recordRunReason}</p> : null}
       {saving ? <SaveStateForm onDone={() => setSaving(false)} /> : null}
       {recording ? <RecordRunForm onDone={() => setRecording(false)} /> : null}
       <p className="muted" role="status" data-testid="model-history-message">{historyMessage === NO_MODEL_STATES_LISTED && statesShown ? "" : historyMessage}</p>

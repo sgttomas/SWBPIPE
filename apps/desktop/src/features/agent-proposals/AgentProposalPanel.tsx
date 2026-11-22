@@ -1,37 +1,19 @@
-import { CheckSquare, ClipboardList, ShieldCheck, Wand2 } from "lucide-react";
+import { CheckSquare, ClipboardList, ShieldCheck } from "lucide-react";
 import type { AgentProposal, SelectedReviewTarget } from "../../types";
 
+/** Shows a review proposal a project already carries (one saved by an earlier version). Nothing here makes one. */
 export function AgentProposalPanel({
   proposal,
-  mechanicsReady,
-  selectedReviewTarget,
-  onLoad
+  selectedReviewTarget
 }: {
   proposal: AgentProposal | null;
-  mechanicsReady: boolean;
   selectedReviewTarget: SelectedReviewTarget | null;
-  onLoad: () => void;
 }) {
   const unitPolicy = proposal ? proposalUnitPolicy(proposal) : null;
 
   return (
     <section className="panel agent-panel" aria-label="Agentic proposal" data-testid="agent-proposal-panel">
       <div className="panel-title">Proposal</div>
-      <button
-        className="secondary-action"
-        data-testid="generate-review-proposal"
-        onClick={onLoad}
-        disabled={!mechanicsReady}
-        title={
-          mechanicsReady
-            ? undefined
-            : "Disabled: review proposals are generated against solve results. Open the Solve section and run the mechanics preview first."
-        }
-        type="button"
-      >
-        <Wand2 size={16} />
-        Generate review proposal
-      </button>
       {selectedReviewTarget ? (
         <div className="status-pill" data-testid="selected-review-target">
           <span>Review target</span>
@@ -119,7 +101,7 @@ export function AgentProposalPanel({
           </button>
         </div>
       ) : (
-        <p className="muted">Local proposal examples are deterministic and review-only.</p>
+        <p className="muted">No saved proposal in this project.</p>
       )}
     </section>
   );

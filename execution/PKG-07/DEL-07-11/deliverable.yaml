@@ -67,7 +67,9 @@ code_paths:
 # The open and save surfaces. modelDocumentShape.ts is DEL-02-01's; storedDocumentExport.ts is
 # DEL-02-05's; modelDocumentSave.ts and ModelDocumentSaveDialog.tsx are shared with DEL-15-03.
 - apps/desktop/src/features/model-file/**
-# The work-loss guards. ProjectStorageAuditPanel.tsx in this folder is a review-export panel.
+# The Project page (ProjectPage.tsx: the project and its saved line, the saved projects, Model
+# History and the closed storage record) and the work-loss guards. ProjectStorageAuditPanel.tsx in
+# this folder is a review-export panel, shown inside the page's storage record.
 - apps/desktop/src/features/project-storage/**
 - apps/desktop/src/services/modelDocumentFile.ts
 - apps/desktop/src/services/projectService.ts
@@ -119,6 +121,8 @@ checks:
 - apps/desktop/src/features/workspace/workspaceSession.shell.test.tsx
 - apps/desktop/src/App.shell.test.tsx
 - apps/desktop/src/App.pageErrorBoundary.test.tsx
+- apps/desktop/src/App.projectPage.test.tsx
+- apps/desktop/src/features/project-storage/ProjectPage.test.tsx
 - apps/desktop/e2e/r2-smoke.spec.ts
 - apps/desktop/src/services/projectService.test.ts
 - apps/desktop/e2e/b3a-session-status.spec.ts

@@ -229,6 +229,9 @@ export async function openWorkspaceSection(page: Page, id: string): Promise<Loca
 
 export async function currentModelHashThroughVisibleExport(page: Page): Promise<string> {
   await openWorkspaceSection(page, "project");
+  // The validation preflight is in the Project page's storage record, a closed disclosure.
+  const record = page.getByTestId("project-storage-record");
+  if (!await record.evaluate((element) => (element as HTMLDetailsElement).open)) await record.locator(":scope > summary").click();
   const consent = page.getByTestId("project-validation-export-link-local-private-intent");
   if (!await consent.isChecked()) await consent.check();
   const link = page.getByTestId("project-validation-export-link");

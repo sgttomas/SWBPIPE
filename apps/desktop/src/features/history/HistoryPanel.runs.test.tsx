@@ -5,7 +5,7 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { AnalysisRunSummary } from "../../services/analysisRunService";
-import { LABELS_DO_NOT_CHANGE_RUN, RUN_RECORD_MANIFEST_UNAVAILABLE } from "../../services/analysisRunService";
+import { LABELS_DO_NOT_CHANGE_RUN, RUN_RECORD_MANIFEST_UNAVAILABLE, RUN_RECORD_NO_RUN } from "../../services/analysisRunService";
 import type { ModelStateSummary } from "../../services/modelStateService";
 import type { HistoricalRunContext } from "../results/HistoricalRunContext";
 import { WorkspaceSessionProvider } from "../workspace/WorkspaceSessionContext";
@@ -106,8 +106,25 @@ describe("recorded runs in the History panel (W-12 S2)", () => {
     renderPanel(history({ recordRunUnavailableReason: RUN_RECORD_MANIFEST_UNAVAILABLE }));
     const open = screen.getByTestId("record-run-open");
     expect(open).toBeDisabled();
-    expect(open).toHaveAttribute("title", RUN_RECORD_MANIFEST_UNAVAILABLE);
-    expect(screen.getByTestId("record-run-unavailable")).toHaveTextContent(`Record Run: ${RUN_RECORD_MANIFEST_UNAVAILABLE}`);
+    // The reason is the disabled control's title, in plain words without the refusal's code;
+    // no line of the code is shown after the buttons.
+    const plain = "Re-solve to record this run (a run restored from the saved project has no input manifest).";
+    expect(open).toHaveAttribute("title", plain);
+    expect(open).toHaveAccessibleDescription(plain);
+    expect(screen.getByTestId("record-run-unavailable")).toHaveClass("visually-hidden");
+    expect(screen.getByTestId("model-history-panel")).not.toHaveTextContent(/RUN-RECORD-/);
+  });
+
+  it("Record Run… without a solve says to solve first, as its title", () => {
+    renderPanel(history({ recordRunUnavailableReason: RUN_RECORD_NO_RUN }));
+    expect(screen.getByTestId("record-run-open")).toBeDisabled();
+    expect(screen.getByTestId("record-run-open")).toHaveAttribute("title", "Solve the model to record a run.");
+  });
+
+  it("Model History says what it holds in one line, without the project's identifier", () => {
+    renderPanel(history());
+    expect(screen.getByTestId("model-history-intro")).toHaveTextContent(/^Saved snapshots of this model, each with the runs recorded against it\.$/);
+    expect(screen.getByTestId("model-history-panel")).not.toHaveTextContent(PROJECT);
   });
 
   it("Record Run… is disabled with the busy reason while another project operation runs", () => {

@@ -33,7 +33,6 @@ import {
   loadDesignKnowledge,
   loadBundledMechanicsReference,
   loadPreviewModel,
-  loadSampleProposal,
   hasNativeMechanicsInvocation,
   discardPreviewMechanicsJobResult,
   disposeDeliveredMechanicsResult,
@@ -1960,11 +1959,6 @@ export function useWorkspaceSession() {
     }
   }
 
-  async function handleProposal() {
-    // The sample proposal reads full rows (a C2 consumer): a native result's bounded full copy.
-    setProposal(await loadSampleProposal(result && isNativeResult(result) ? (await loadC2Full(result, { record: false })).result : result, selectedReviewTarget));
-  }
-
   function handleQueueEditorIntent(intent: EditorOperationIntent) {
     intentSequence.current += 1;
     setEditorIntents((current) => [
@@ -3495,11 +3489,16 @@ export function useWorkspaceSession() {
         savedBasisSequence.current += 1;
         setSavedModelBasis(verifiedBasis);
       }
-      if (!stillCurrent()) return;
+      // As in saveProject: an edit that lands while this verified write (or its history read) is in
+      // flight, with no other project operation after it, leaves the session bound to the project.
+      const keepStoredBinding = () => {
+        if (verifiedBasis && request === projectRequest.current && sameProjectSession()) setProjectSummary(created.summary);
+      };
+      if (!stillCurrent()) { keepStoredBinding(); return; }
       const returnedHistory = requestHistoricalRun
         ? created.native?.restored ? historyAfterRestoredSave(requestHistoricalRun, created.native) : await buildHistoricalRunContext(created)
         : null;
-      if (!stillCurrent()) return;
+      if (!stillCurrent()) { keepStoredBinding(); return; }
       if (requestHistoricalRun) {
         setHistoricalRun((current) => current === requestHistoricalRun ? returnedHistory : current);
       }
@@ -3535,24 +3534,28 @@ export function useWorkspaceSession() {
     }
   }
 
-  /** W-17 §3: "New blank", "Blank load/reference model" and `file.new-blank` ask for
-   * the project units first. Create builds the blank with the chosen map; Cancel
-   * creates nothing. */
-  function requestBlankProject(kind: BlankProjectKind) {
+  /** W-17 §3: New (the Project page) and `file.new-blank` open the one "New blank project"
+   * dialog: the starting model (`initialKind` selected, the ordinary blank by default) and the
+   * project units. Create builds the chosen kind with the chosen map; Cancel creates nothing. */
+  function requestBlankProject(initialKind: BlankProjectKind = "local") {
     // A project operation in flight refuses a blank, as the create itself would.
     if (projectSessionBusy()) return;
-    // Captured before the workspace turns inert, which drops its focus.
-    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    // Captured before the workspace turns inert, which drops its focus. A command chosen from
+    // an in-app menu came from a menu item that unmounts when the menu closes: focus returns
+    // to that menu's trigger (File), which stays.
+    const focused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const menuTrigger = focused?.closest(".app-menu")?.querySelector<HTMLElement>(":scope > .app-menu-trigger") ?? null;
+    const opener = menuTrigger ?? focused;
     const askUnits = () => {
       const close = () => { projectUnitsDialogOpenRef.current = false; setBlankProjectUnitsRequest(null); };
       projectUnitsDialogOpenRef.current = true;
       setBlankProjectUnitsRequest({
-        kind,
+        kind: initialKind,
         opener,
         cancel: close,
-        create: (units) => {
+        create: (units, chosenKind = initialKind) => {
           close();
-          void (kind === "load_state" ? handleCreateBlankLoadStateProject(units) : handleCreateBlankProject(units));
+          void (chosenKind === "load_state" ? handleCreateBlankLoadStateProject(units) : handleCreateBlankProject(units));
         }
       });
     };
@@ -3562,7 +3565,7 @@ export function useWorkspaceSession() {
       return;
     }
     void confirmReplacingEdits({
-      action: kind === "load_state" ? "Creating a new blank load/reference model" : "Creating a new blank project",
+      action: initialKind === "load_state" ? "Creating a new blank load/reference model" : "Creating a new blank project",
       verb: "create it"
     }).then((guarded) => {
       if (guarded !== "proceed") {
@@ -4454,11 +4457,17 @@ export function useWorkspaceSession() {
         savedBasisSequence.current += 1;
         setSavedModelBasis(verifiedBasis);
       }
-      if (!stillCurrent()) return;
+      // An edit landed while this save was written and verified (or while its history was read), and
+      // no other project operation followed: the write stands, so the session stays bound to the
+      // stored project, and the newer working model (with its unsaved edits) is kept as it is.
+      const keepStoredBinding = () => {
+        if (verifiedBasis && request === projectRequest.current && sameProjectSession()) setProjectSummary(saved.summary);
+      };
+      if (!stillCurrent()) { keepStoredBinding(); return; }
       const returnedHistory = requestHistoricalRun
         ? saved.native?.restored ? historyAfterRestoredSave(requestHistoricalRun, saved.native) : await buildHistoricalRunContext(saved)
         : null;
-      if (!stillCurrent()) return;
+      if (!stillCurrent()) { keepStoredBinding(); return; }
       if (requestHistoricalRun) {
         // Preserve a fresh Current solve that completed while the native save
         // was pending. Only the still-owned Historical snapshot may refresh.
@@ -5204,7 +5213,7 @@ export function useWorkspaceSession() {
         void handleCreateProject();
         break;
       case "file.new-blank":
-        requestBlankProject("local");
+        requestBlankProject();
         break;
       case "file.open-model":
         void handleOpenModelDocument();
@@ -5934,7 +5943,6 @@ export function useWorkspaceSession() {
       handleInspectBundledReference,
       handleCancelRun,
       handleRuleCheckAggregate,
-      handleProposal,
       handleSelectResult,
       handleSelectDiagnostic,
       handleSaveReportPackage,
