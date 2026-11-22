@@ -90,6 +90,7 @@ import { ReplaceProjectPrompt } from "./features/project-storage/ReplaceProjectP
 import { ProjectPage } from "./features/project-storage/ProjectPage";
 import { QuitWhileBusyPrompt, UnsavedChangesPrompt } from "./features/project-storage/UnsavedChangesPrompt";
 import { AutosaveRecoveryPrompt } from "./features/autosave";
+import { formatAutosaveTime } from "./features/autosave/autosaveRecovery";
 import { ProjectUnitsDialog } from "./features/project-units/ProjectUnitsDialog";
 import { ModelDocumentSaveDialog } from "./features/model-file/ModelDocumentSaveDialog";
 import { HandoffSaveDialog } from "./features/handoff/HandoffSaveDialog";
@@ -1100,7 +1101,7 @@ function AppSession() {
         <summary><span data-testid="local-project-message" role="status">{projectMessage}</span><span className="project-details-label">Details</span></summary>
         <span data-testid="local-project-review-context">{projectReviewContext(editorIntents, proposal, appliedOperations.length)}</span>
         {projectIndex && projectIndex.length > 0 ? (
-          <div className="project-index-picker" data-testid="project-index-picker" aria-label="Open listed project by id">
+          <div className="project-index-picker" data-testid="project-index-picker" aria-label="Open a listed project">
             {projectIndex.map((entry) => (
               <button
                 key={entry.project_id}
@@ -1110,7 +1111,7 @@ function AppSession() {
                 disabled={projectBusy}
               >
                 <FolderOpen size={15} aria-hidden="true" />
-                {entry.project_name} ({entry.project_id})
+                {entry.project_name} · saved {formatAutosaveTime(entry.updated_at_unix * 1000)}
               </button>
             ))}
           </div>

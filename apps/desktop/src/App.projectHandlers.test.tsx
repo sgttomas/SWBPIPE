@@ -12,6 +12,7 @@ import { createNativeMechanicsReplay, nativeMechanicsReplayPair, REPLAY_COMMANDS
 import { applyModelOperation } from "./services/operationService";
 import { getLocalStorageCapability } from "./services/projectService";
 import { confirmProjectUnits } from "./test-support/workspaceTestControls";
+import { formatAutosaveTime } from "./features/autosave/autosaveRecovery";
 import type {
   EditorOperationIntent,
   LocalProjectEnvelope,
@@ -1139,6 +1140,98 @@ describe("B3A baseline ownership after asynchronous persistence", () => {
     expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument();
     expect(screen.getByTestId("workspace-undo")).toBeDisabled();
     expect(projectMessage()).toHaveTextContent("Same-ID reopened source");
+  });
+});
+
+// PR 584 round 1, findings 1 and 2: the Project page's line and rows say which stored project
+// the session is bound to, and when that stored revision was saved, through the session's own
+// transitions. All data are invented.
+describe("the Project page's stored-project binding", () => {
+  const SAVED_AT = 1_790_000_000;
+  const listing = (model: PreviewModel, updated = SAVED_AT) => [{
+    project_id: model.project.id, project_name: model.project.name, storage_mode: "local_sqlite", created_at_unix: SAVED_AT, updated_at_unix: updated
+  }];
+  // Under the native runtime the page is opened as the native menu opens it.
+  const projectPage = () => {
+    if (screen.getByTestId("workspace-section-project").classList.contains("inactive")) act(() => nativeMenuCommand("view.section.project"));
+    return within(screen.getByTestId("workspace-section-project")).getByTestId("project-page");
+  };
+  const savedLine = () => within(projectPage()).getByTestId("project-page-saved-line");
+
+  it("keeps the stored binding when an edit lands during a first save: Saved, changed since", async () => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    setTauriRuntime(true);
+    const pendingSave = deferred<LocalProjectEnvelope>();
+    let saveRequest: Record<string, unknown> | undefined;
+    invokeMock.mockImplementation((command: string, args?: { request?: Record<string, unknown> }) => {
+      if (command === "save_local_project") { saveRequest = args?.request; return pendingSave.promise; }
+      if (command === "list_local_projects") return Promise.resolve(saveRequest ? listing(model) : []);
+      return Promise.resolve({});
+    });
+    expect(savedLine()).toHaveTextContent(/^Not saved as a project\.$/);
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(saveRequest).toBeDefined());
+    await applyGridEditWhilePending();
+    await act(async () => {
+      pendingSave.resolve(savedEnvelopeFor(model, saveRequest!, "Saved invented project under a first-save edit."));
+      await pendingSave.promise;
+    });
+    await flushPendingWork();
+    await waitFor(() => expect(savedLine()).toHaveTextContent(`Saved ${formatAutosaveTime(SAVED_AT * 1000)}. Changed since.`));
+    expect(within(projectPage()).getByTestId(`project-saved-open-${model.project.id}`)).toHaveTextContent("open now");
+    expect(screen.getByTestId("project-edited")).toBeInTheDocument();
+  });
+
+  it("unbinds a model file opened over its stored project: not saved, and its stored row not open", async () => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    setTauriRuntime(true);
+    invokeMock.mockImplementation((command: string, args?: { request?: Record<string, unknown> }) => {
+      if (command === "save_local_project") return Promise.resolve(savedEnvelopeFor(model, args!.request!, "Saved invented project."));
+      if (command === "list_local_projects") return Promise.resolve(listing(model));
+      if (command === "open_model_document_file") {
+        return Promise.resolve({ outcome: "opened", file_name: "same-id.json", byte_count: 1234, schema_status: "current", document: JSON.parse(JSON.stringify(model)) });
+      }
+      return Promise.resolve({});
+    });
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Saved invented project."));
+    await waitFor(() => expect(within(projectPage()).getByTestId(`project-saved-open-${model.project.id}`)).toHaveTextContent("open now"));
+    act(() => nativeMenuCommand("file.open-model"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Opened model document same-id.json"));
+    await waitFor(() => expect(savedLine()).toHaveTextContent(/^Not saved as a project\.$/));
+    await waitFor(() => expect(within(projectPage()).getByTestId(`project-saved-open-${model.project.id}`)).not.toHaveTextContent("open now"));
+  });
+
+  it("never moves the Saved time on a refused save after a successful one; the line and the row agree", async () => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    setTauriRuntime(true);
+    let refuse = false;
+    invokeMock.mockImplementation((command: string, args?: { request?: Record<string, unknown> }) => {
+      if (command === "save_local_project") {
+        const saved = savedEnvelopeFor(model, args!.request!, refuse ? "Refused invented save." : "Saved invented project.");
+        // The refused reply names another project: the session refuses it by name and the store is unchanged.
+        if (refuse) saved.summary = { ...saved.summary, project_id: "project:invented-other" };
+        return Promise.resolve(saved);
+      }
+      if (command === "list_local_projects") return Promise.resolve(listing(model));
+      return Promise.resolve({});
+    });
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Saved invented project."));
+    const time = formatAutosaveTime(SAVED_AT * 1000);
+    await waitFor(() => expect(savedLine()).toHaveTextContent(`Saved ${time}. No changes since.`));
+    refuse = true;
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Save failed: PROJECT-PERSISTENCE-RESPONSE-INTEGRITY"));
+    await flushPendingWork();
+    expect(savedLine()).toHaveTextContent(`Saved ${time}. No changes since.`);
+    expect(within(projectPage()).getByTestId(`project-saved-open-${model.project.id}`)).toHaveTextContent(`saved ${time}`);
   });
 });
 

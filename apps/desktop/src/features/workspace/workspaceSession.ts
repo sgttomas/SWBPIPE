@@ -3032,8 +3032,12 @@ export function useWorkspaceSession() {
   function requestBlankProject(initialKind: BlankProjectKind = "local") {
     // A project operation in flight refuses a blank, as the create itself would.
     if (projectSessionBusy()) return;
-    // Captured before the workspace turns inert, which drops its focus.
-    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    // Captured before the workspace turns inert, which drops its focus. A command chosen from
+    // an in-app menu came from a menu item that unmounts when the menu closes: focus returns
+    // to that menu's trigger (File), which stays.
+    const focused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const menuTrigger = focused?.closest(".app-menu")?.querySelector<HTMLElement>(":scope > .app-menu-trigger") ?? null;
+    const opener = menuTrigger ?? focused;
     const askUnits = () => {
       const close = () => { projectUnitsDialogOpenRef.current = false; setBlankProjectUnitsRequest(null); };
       projectUnitsDialogOpenRef.current = true;
@@ -3944,7 +3948,13 @@ export function useWorkspaceSession() {
         savedBasisSequence.current += 1;
         setSavedModelBasis(verifiedBasis);
       }
-      if (!stillCurrent()) return;
+      if (!stillCurrent()) {
+        // An edit landed while this save was written and verified, and no other project operation
+        // followed: the write stands, so the session stays bound to the stored project, and the
+        // newer working model (with its unsaved edits) is kept as it is.
+        if (verifiedBasis && request === projectRequest.current && sameProjectSession()) setProjectSummary(saved.summary);
+        return;
+      }
       const returnedHistory = requestHistoricalRun
         ? saved.native?.restored ? historyAfterRestoredSave(requestHistoricalRun, saved.native) : await buildHistoricalRunContext(saved)
         : null;

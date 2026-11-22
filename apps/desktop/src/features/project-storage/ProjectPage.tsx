@@ -6,28 +6,26 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { FolderOpen } from "lucide-react";
 import { listLocalProjects } from "../../services/projectService";
 import { nativeFailureText } from "../../services/nativeIngress";
-import type { LocalProjectIndexEntry, LocalProjectSummary, ModelHashIntegrityEvidence } from "../../types";
+import type { LocalProjectIndexEntry, LocalProjectSummary } from "../../types";
 import { autosaveSlot, listProjectAutosaves, type AutosaveEntry } from "../autosave/autosaveService";
 import { formatAutosaveTime } from "../autosave/autosaveRecovery";
 import { HistoryPanel } from "../history/HistoryPanel";
 import { useSessionChrome, useSessionModel, useSessionProject } from "../workspace/WorkspaceSessionContext";
 
-/** The project's one line: whether and when it was last saved, and whether it changed since.
- * It reads only what the session holds: the stored summary and hash observation of the last
- * create, open or save, the saved projects listed on this page, and the unsaved-changes notion. */
-export function projectSavedLine({ projectId, projectSummary, modelHashIntegrity, modelEdited, savedProjects }: {
+/** The project's one line: whether it is bound to a stored project, when that stored revision
+ * was saved, and whether the working model changed since. The binding is the session's stored
+ * summary (set only by a create, open or save that committed to that project); the time is the
+ * stored revision's own, as the saved-projects list reads it from the store, so the line and the
+ * project's row agree and a refused or failed save never moves it. */
+export function projectSavedLine({ projectId, projectSummary, modelEdited, savedProjects }: {
   projectId: string;
   projectSummary: LocalProjectSummary | null;
-  modelHashIntegrity: ModelHashIntegrityEvidence | null;
   modelEdited: boolean;
   savedProjects: readonly LocalProjectIndexEntry[] | null;
 }): string {
   if (projectSummary?.project_id !== projectId) return "Not saved as a project.";
-  const source = modelHashIntegrity?.verification_source;
-  const observed = source === "save" || source === "create" ? Date.parse(modelHashIntegrity?.observed_at ?? "") : Number.NaN;
   const listed = savedProjects?.find((entry) => entry.project_id === projectId);
-  const savedAt = Number.isFinite(observed) ? observed : listed ? listed.updated_at_unix * 1000 : null;
-  const saved = savedAt === null ? "Saved." : `Saved ${formatAutosaveTime(savedAt)}.`;
+  const saved = listed ? `Saved ${formatAutosaveTime(listed.updated_at_unix * 1000)}.` : "Saved.";
   return `${saved} ${modelEdited ? "Changed since." : "No changes since."}`;
 }
 
@@ -91,13 +89,15 @@ function useRecoverableAutosave(active: boolean, native: boolean, refreshKey: st
 export function ProjectPage({ storageRecord }: { storageRecord: ReactNode }) {
   const { model } = useSessionModel();
   const {
-    projectSummary, modelHashIntegrity, modelEdited, projectOperation, projectBusy, handleOpenProject, autosave
+    projectSummary, modelEdited, projectOperation, projectBusy, handleOpenProject, autosave
   } = useSessionProject();
   const { projectSessionGeneration: generation } = useSessionModel();
   // The page stays mounted, dormant, once opened; it reads the store only while it is the open page.
   const active = useSessionChrome().activeSection === "project";
   const saved = useSavedProjects(active, projectOperation, projectBusy, generation);
-  const recoverable = useRecoverableAutosave(active, Boolean(autosave.settings), `${projectOperation}:${projectBusy}:${autosave.statusLine ?? ""}`, saved.items);
+  // The autosave folder's own revision moves when a record is written or removed (the cleanup
+  // after a save finishes after the save does), so Recover leaves when its last record does.
+  const recoverable = useRecoverableAutosave(active, Boolean(autosave.settings), `${projectOperation}:${projectBusy}:${autosave.statusLine ?? ""}:${autosave.recordsRevision ?? 0}`, saved.items);
   if (!model) return null;
   const projectId = model.project.id;
   return (
@@ -105,7 +105,7 @@ export function ProjectPage({ storageRecord }: { storageRecord: ReactNode }) {
       <section className="project-page-head" aria-label="This project">
         <h3 data-testid="project-page-name">{model.project.name}</h3>
         <p data-testid="project-page-saved-line">
-          {projectSavedLine({ projectId, projectSummary, modelHashIntegrity, modelEdited, savedProjects: saved.items })}
+          {projectSavedLine({ projectId, projectSummary, modelEdited, savedProjects: saved.items })}
         </p>
         {recoverable ? (
           <p className="project-page-recover" data-testid="project-page-recover-line">
@@ -139,7 +139,7 @@ export function ProjectPage({ storageRecord }: { storageRecord: ReactNode }) {
                   <FolderOpen size={14} aria-hidden="true" />
                   <span className="project-saved-name">{entry.project_name}</span>
                   <span className="muted">
-                    {" "}saved {formatAutosaveTime(entry.updated_at_unix * 1000)}{entry.project_id === projectId ? " · open now" : ""}
+                    {" "}saved {formatAutosaveTime(entry.updated_at_unix * 1000)}{entry.project_id === projectSummary?.project_id ? " · open now" : ""}
                   </span>
                 </button>
               </li>

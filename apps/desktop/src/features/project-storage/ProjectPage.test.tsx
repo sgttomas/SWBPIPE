@@ -4,7 +4,7 @@
 // The whole window in a saved project is `App.projectPage.test.tsx`. All data are invented.
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { LocalProjectIndexEntry, LocalProjectSummary, ModelHashIntegrityEvidence } from "../../types";
+import type { LocalProjectIndexEntry, LocalProjectSummary } from "../../types";
 import { RUN_RECORD_NO_RUN } from "../../services/analysisRunService";
 import { WorkspaceSessionProvider } from "../workspace/WorkspaceSessionContext";
 import type { WorkspaceSession } from "../workspace/workspaceSession";
@@ -29,7 +29,6 @@ const SAVED_AT = Date.UTC(2026, 10, 21, 9, 30, 0);
 const OTHER: LocalProjectIndexEntry = { project_id: "project:invented-other", project_name: "Invented Other Loop", storage_mode: "local_sqlite", created_at_unix: 1_790_000_000, updated_at_unix: 1_790_000_100 };
 const THIS: LocalProjectIndexEntry = { project_id: PROJECT, project_name: NAME, storage_mode: "local_sqlite", created_at_unix: 1_790_000_000, updated_at_unix: SAVED_AT / 1000 };
 const SUMMARY = { project_id: PROJECT, project_name: NAME } as LocalProjectSummary;
-const SAVE_OBSERVATION = { verification_source: "save", observed_at: new Date(SAVED_AT).toISOString() } as ModelHashIntegrityEvidence;
 
 afterEach(() => {
   listed.projects = [];
@@ -49,21 +48,24 @@ function historySlice(overrides: Record<string, unknown> = {}) {
 function renderPage({ native = false, summary = SUMMARY as LocalProjectSummary | null, edited = false } = {}) {
   const recoverAutosave = vi.fn(async () => undefined);
   const handleOpenProject = vi.fn(async () => undefined);
-  const session = {
+  const sessionWith = (recordsRevision: number) => ({
     model: { model: { project: { id: PROJECT, name: NAME } }, projectSessionGeneration: 1 },
     chrome: { activeSection: "project" },
     project: {
-      projectSummary: summary, modelHashIntegrity: summary ? SAVE_OBSERVATION : null, modelEdited: edited, projectOperation: "save", projectBusy: false,
+      projectSummary: summary, modelEdited: edited, projectOperation: "save", projectBusy: false,
       handleOpenProject, history: historySlice(),
-      autosave: { settings: native ? { autosave_minutes: 5 } : null, statusLine: null, recoverAutosave }
+      autosave: { settings: native ? { autosave_minutes: 5 } : null, statusLine: null, recordsRevision, recoverAutosave }
     }
-  } as unknown as WorkspaceSession;
-  render(
-    <WorkspaceSessionProvider session={session}>
+  }) as unknown as WorkspaceSession;
+  const page = (recordsRevision: number) => (
+    <WorkspaceSessionProvider session={sessionWith(recordsRevision)}>
       <ProjectPage storageRecord={<><section data-testid="project-storage-panel" /><section data-testid="project-validation-panel" /></>} />
     </WorkspaceSessionProvider>
   );
-  return { recoverAutosave, handleOpenProject };
+  const view = render(page(0));
+  /** The autosave records changed (a write, a discard, a save's cleanup finishing). */
+  const recordsChanged = (recordsRevision: number) => view.rerender(page(recordsRevision));
+  return { recoverAutosave, handleOpenProject, recordsChanged };
 }
 
 describe("the Project page", () => {
@@ -71,7 +73,8 @@ describe("the Project page", () => {
     listed.projects = [THIS, OTHER];
     const { handleOpenProject } = renderPage();
     expect(screen.getByTestId("project-page-name")).toHaveTextContent(NAME);
-    expect(screen.getByTestId("project-page-saved-line")).toHaveTextContent(`Saved ${formatAutosaveTime(SAVED_AT)}. No changes since.`);
+    // The line's time is the stored revision's, the same the project's row shows.
+    await waitFor(() => expect(screen.getByTestId("project-page-saved-line")).toHaveTextContent(`Saved ${formatAutosaveTime(SAVED_AT)}. No changes since.`));
 
     const saved = screen.getByTestId("project-saved-list");
     const other = await within(saved).findByTestId(`project-saved-open-${OTHER.project_id}`);
@@ -96,15 +99,21 @@ describe("the Project page", () => {
     expect(within(record).getByTestId("project-validation-panel")).toBeInTheDocument();
   });
 
-  it("says a model is not saved as a project, and that a saved one changed since", () => {
-    expect(projectSavedLine({ projectId: PROJECT, projectSummary: null, modelHashIntegrity: null, modelEdited: true, savedProjects: null })).toBe("Not saved as a project.");
-    expect(projectSavedLine({ projectId: PROJECT, projectSummary: SUMMARY, modelHashIntegrity: SAVE_OBSERVATION, modelEdited: true, savedProjects: null }))
+  it("says a model is not saved as a project, and gives a saved one its stored revision's time", () => {
+    expect(projectSavedLine({ projectId: PROJECT, projectSummary: null, modelEdited: true, savedProjects: [THIS] })).toBe("Not saved as a project.");
+    expect(projectSavedLine({ projectId: PROJECT, projectSummary: SUMMARY, modelEdited: true, savedProjects: [THIS, OTHER] }))
       .toBe(`Saved ${formatAutosaveTime(SAVED_AT)}. Changed since.`);
-    // Opened from its saved copy: the time it was saved is the listed one, not the time it was opened.
-    const opened = { verification_source: "open", observed_at: new Date(SAVED_AT + 3_600_000).toISOString() } as ModelHashIntegrityEvidence;
-    expect(projectSavedLine({ projectId: PROJECT, projectSummary: SUMMARY, modelHashIntegrity: opened, modelEdited: false, savedProjects: [THIS] }))
-      .toBe(`Saved ${formatAutosaveTime(SAVED_AT)}. No changes since.`);
-    expect(projectSavedLine({ projectId: PROJECT, projectSummary: SUMMARY, modelHashIntegrity: opened, modelEdited: false, savedProjects: null })).toBe("Saved. No changes since.");
+    // Before the saved projects are read, the line names no time rather than another one.
+    expect(projectSavedLine({ projectId: PROJECT, projectSummary: SUMMARY, modelEdited: false, savedProjects: null })).toBe("Saved. No changes since.");
+  });
+
+  it("marks a row open only when the session is bound to that stored project", async () => {
+    // A model file or a recovered autosave with a stored project's id is not that stored project.
+    listed.projects = [THIS];
+    renderPage({ summary: null });
+    const row = await screen.findByTestId(`project-saved-open-${PROJECT}`);
+    expect(row).not.toHaveTextContent("open now");
+    expect(screen.getByTestId("project-page-saved-line")).toHaveTextContent(/^Not saved as a project\.$/);
   });
 
   it("shows no Recover when there is nothing to recover", async () => {
@@ -114,6 +123,21 @@ describe("the Project page", () => {
     await screen.findByTestId(`project-saved-open-${PROJECT}`);
     expect(screen.queryByTestId("project-recover-autosave")).toBeNull();
     expect(screen.queryByTestId("project-page-recover-line")).toBeNull();
+  });
+
+  it("takes Recover away when a save's cleanup removes the last autosave after the save has landed", async () => {
+    listed.projects = [THIS];
+    listed.autosaves = { outcome: "listed", entries: [
+      { file_name: "a.json", slot: await autosaveSlot(PROJECT), written_unix_millis: SAVED_AT - 60_000, model_hash: `sha256:${"b".repeat(64)}`, byte_count: 10 }
+    ] };
+    const { recordsChanged } = renderPage({ native: true });
+    // The page read the folder when the save landed: the record was still there.
+    await screen.findByTestId("project-page-recover-line");
+    // The cleanup finishes later and removes it; nothing else about the session changes.
+    listed.autosaves = { outcome: "listed", entries: [] };
+    recordsChanged(1);
+    await waitFor(() => expect(screen.queryByTestId("project-page-recover-line")).toBeNull());
+    expect(screen.queryByTestId("project-recover-autosave")).toBeNull();
   });
 
   it("shows Recover with what and when when an autosave is found", async () => {

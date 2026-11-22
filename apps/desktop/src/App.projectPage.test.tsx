@@ -49,16 +49,41 @@ describe("the Project page in a saved project", () => {
     const record = within(page).getByTestId("project-storage-record") as HTMLDetailsElement;
     expect(record.open).toBe(false);
     for (const id of ["project-storage-panel", "project-validation-panel"]) expect(within(record).getByTestId(id)).toBeInTheDocument();
-    // Nothing of the storage record is outside it, and no project:… identifier is on the page before it.
+    // Nothing of the storage record is outside it, and no project:… identifier is shown anywhere on
+    // the page above it: its header, its status strip with Details open and the listed projects
+    // (File › List Local Projects), and every part of the page body before the record.
     expect(within(page).getAllByTestId(/^project-(storage|validation)-panel$/).every((panel) => record.contains(panel))).toBe(true);
-    for (const part of [within(page).getByTestId("project-page-name").parentElement!, saved, within(page).getByTestId("model-history-panel")]) {
-      expect(part).not.toHaveTextContent("project:");
-    }
+    act(() => nativeMenuCommand("file.list-local"));
+    await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Listed 1 local project snapshot"));
+    const strip = screen.getByLabelText("Project summary") as HTMLDetailsElement;
+    fireEvent.click(strip.querySelector(":scope > summary")!);
+    expect(strip.open).toBe(true);
+    expect(within(strip).getByTestId("project-index-picker")).toHaveTextContent(name);
+    const above = [screen.getByTestId("workspace-dock-header"), strip, ...[...page.children].filter((part) => part !== record)];
+    expect(above.length).toBeGreaterThanOrEqual(5);
+    for (const part of above) expect(part).not.toHaveTextContent("project:");
     fireEvent.click(within(record).getByText("Storage record", { selector: "summary" }));
     expect(record.open).toBe(true);
     for (const id of ["project-storage-export-link", "project-storage-export-link-local-private-intent", "project-storage-summary",
       "project-validation-export-link", "project-validation-export-link-local-private-intent", "project-validation-summary"]) {
       expect(within(record).getByTestId(id)).toBeInTheDocument();
     }
+  });
+
+  it("returns focus to File when the New blank project dialog, opened from the File menu, is cancelled with Escape", async () => {
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    const file = screen.getByTestId("menu-file");
+    fireEvent.click(file);
+    const item = screen.getByTestId("menu-item-file.new-blank");
+    // A keyboard user is on the menu item when the command runs; the item leaves with its menu.
+    item.focus();
+    fireEvent.click(item);
+    await screen.findByTestId("project-units-dialog");
+    expect(screen.queryByTestId("menu-item-file.new-blank")).toBeNull();
+    expect(item.isConnected).toBe(false);
+    fireEvent.keyDown(window, { key: "Escape" });
+    await waitFor(() => expect(screen.queryByTestId("project-units-dialog")).toBeNull());
+    await waitFor(() => expect(file).toHaveFocus());
   });
 });
