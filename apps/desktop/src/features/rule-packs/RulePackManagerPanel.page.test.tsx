@@ -863,7 +863,9 @@ describe("what a check reports and which messages it uses", () => {
     // The reported outcomes come first, under their own heading.
     const order = Array.from(statuses.querySelectorAll("input")).map((input) => input.getAttribute("data-testid"));
     expect(order.slice(0, 3)).toEqual(REPORTED_STATUSES.map((status) => `rule-pack-check-status-${status}`));
-    expect(ANALYSIS_STATUS_WORDS.USER_RULE_FAILED).toBe("Fails");
+    expect(ANALYSIS_STATUS_WORDS.USER_RULE_CHECKED).toBe("Within limit");
+    expect(ANALYSIS_STATUS_WORDS.USER_RULE_FAILED).toBe("Exceeds limit");
+    expect(fieldWord("acceptability_relation")).toBe("Within limit when the result is");
 
     const policy = within(checks).getByTestId("rule-pack-check-diagnostic-policy");
     const groups = Array.from(policy.querySelectorAll(":scope > .rule-pack-check-subgroup"));

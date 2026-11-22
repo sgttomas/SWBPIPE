@@ -132,7 +132,7 @@ export const FIELD_WORDS: Words = {
   required_input_refs: "Inputs used",
   value_slot_refs: "Limits used",
   acceptability_basis: "Basis",
-  acceptability_relation: "Passes when the result is",
+  acceptability_relation: "Within limit when the result is",
   result_statuses: "Outcomes it may report",
   diagnostic_policy: "Messages"
 };
@@ -211,7 +211,7 @@ export const ACCEPTABILITY_BASIS_WORDS: Words = {
   TBD: NOT_CHOSEN
 };
 
-// CheckDefinition.acceptability_relation: passes when computed <relation> limit.
+// CheckDefinition.acceptability_relation: within limit when computed <relation> limit.
 export const ACCEPTABILITY_RELATION_WORDS: Words = {
   less_than: "below the limit",
   less_than_or_equal: "at most the limit",
@@ -220,11 +220,11 @@ export const ACCEPTABILITY_RELATION_WORDS: Words = {
 };
 
 // AnalysisStatus. A check reports only the first three (rule_check_runner);
-// "Fails" rather than "exceeds", since a minimum or a true/false check fails
-// without exceeding anything.
+// SWBPIPE does not proclaim code compliance, so the runner's "within limit"
+// and "exceeds limit" wording stays instead of pass/fail (decided by Agent 0).
 export const ANALYSIS_STATUS_WORDS: Words = {
-  USER_RULE_CHECKED: "Passes",
-  USER_RULE_FAILED: "Fails",
+  USER_RULE_CHECKED: "Within limit",
+  USER_RULE_FAILED: "Exceeds limit",
   RULE_INPUTS_INCOMPLETE: "Inputs incomplete",
   HUMAN_REVIEW_REQUIRED: "Needs human review",
   MODEL_INCOMPLETE: "Model incomplete",
