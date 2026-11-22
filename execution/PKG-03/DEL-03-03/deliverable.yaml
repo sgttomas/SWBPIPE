@@ -59,6 +59,14 @@ needs:
     bends among its members.
   gating: true
   when: Examining the reference system's bends on the exact route.
+- from: DEL-17-05
+  condition: >-
+    The invented benchmark model documents matching
+    validation/caepipe_benchmark/models/cpb-g[234]-*.json (DEL-17-05 OUT-002) are maintained as
+    public model inputs carrying realized bends, material properties and bend flexibility factors;
+    only model documents are read, never external-prover results.
+  gating: false
+  when: Recomputing LIM-021's benchmark-system comparison in the annular bend elasticity reference check
 code_paths:
 # The arc element: this deliverable's definition, examined under its criteria. DEL-04-01 lists the
 # same crate with the frame kernel's code, which assembles the element into the global stiffness

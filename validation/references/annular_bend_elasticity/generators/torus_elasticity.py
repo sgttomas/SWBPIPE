@@ -24,6 +24,16 @@ the centroidal line, radius R), the section compliance per unit arc length is
 C = S^-T E S^-1. This compliance includes everything three-dimensional elasticity holds in the
 interior: shear and its distribution, curvature, Poisson effects and free ovalization of the
 section. It excludes end effects (restraint of ovalization by tangents or flanges).
+
+Conditioning. The six rigid motions of the section in its own plane and out of it (SECTION_MODES)
+strain the torus only through its curvature, by O(1/R). In each harmonic two of them are exact null
+motions of the problem (NULL_MODES) and the others are nearly so as R grows, so a stiffness matrix of
+the whole periodic field is ill-conditioned (relative eigenvalues near 1e-11 at R = 1000 D), and the
+amplitudes of those motions, on which the resultants depend, were left to roundoff. The periodic field
+is therefore split: U = Q a + V, with Q the section motions other than the exact null motions, whose
+strains are formed in closed form (`mode_strain`), and V orthogonal to all six. V is found from a
+saddle-point system that enforces the orthogonality (no node is pinned); the amplitudes a from the
+small Schur complement. The exact null motions carry no strain and are left out.
 """
 from __future__ import annotations
 
@@ -140,9 +150,58 @@ def secular(cls, r, z):
     return s
 
 
-# normal-type strain slots (sin part of class S) and shear-type (cos part)
+# normal-type strain components (sin part of class S) and shear-type (cos part)
 NORMAL = [0, 1, 2, 5]
 SHEAR = [3, 4]
+
+
+# Rigid motions of the section, as (U_r, U_t, U_z) fields of rho = r - R and z, with their gradients:
+# in-plane translations along r and z and rotation, out-of-plane translation and rotations about z and r.
+SECTION_MODES = (
+    ("translation r", lambda rho, z: (1.0, 0.0, 0.0), ((0, 0), (0, 0), (0, 0))),
+    ("translation z", lambda rho, z: (0.0, 0.0, 1.0), ((0, 0), (0, 0), (0, 0))),
+    ("rotation in plane", lambda rho, z: (-z, 0.0, rho), ((0, -1), (0, 0), (1, 0))),
+    ("translation t", lambda rho, z: (0.0, 1.0, 0.0), ((0, 0), (0, 0), (0, 0))),
+    ("rotation about z", lambda rho, z: (0.0, rho, 0.0), ((0, 0), (1, 0), (0, 0))),
+    ("rotation about r", lambda rho, z: (0.0, z, 0.0), ((0, 0), (0, 1), (0, 0))),
+)
+# Per harmonic: the combinations of SECTION_MODES (coefficients over the six, with R) that strain nothing
+# (n = 0: translation along the torus axis, rotation about it; n = 1: translation along x, rotation about
+# y), and the four section motions kept as amplitudes, which with the null motions span all six.
+NULL_MODES = {0: (lambda R: (0, 1, 0, 0, 0, 0), lambda R: (0, 0, 0, R, 1, 0)),
+              1: (lambda R: (1, 0, 0, 1, 0, 0), lambda R: (0, -R, -1, 0, 0, 1))}
+KEPT_MODES = {0: (0, 2, 3, 5), 1: (0, 1, 2, 4)}
+REFINE = 3
+# A deliberate perturbation of the assembled data, for the check's estimate of each figure's sensitivity to
+# roundoff: None, or (seed, relative size). Each element matrix and load is multiplied entrywise by
+# 1 + size * u, u uniform in [-1, 1] (symmetric for the matrices), from numpy's platform-independent generator.
+PERTURBATION = None
+
+
+def _noise(rng, shape, size, symmetric=False):
+    u = rng.uniform(-1.0, 1.0, shape)
+    if symmetric:
+        u = 0.5 * (u + np.swapaxes(u, -1, -2))
+    return 1.0 + size * u
+
+
+def mode_strain(cls, k, r, z, R):
+    """Strain amplitudes (6) of section mode k in harmonic cls at (r, z), in closed form."""
+    fr, ft, fz = SECTION_MODES[k][1](r - R, z)
+    (dr_r, dz_r), (dr_t, dz_t), (dr_z, dz_z) = SECTION_MODES[k][2]
+    e = np.zeros(6)
+    e[0] = dr_r
+    e[2] = dz_z
+    e[5] = dz_r + dr_z
+    if cls == 0:
+        e[1] = fr / r
+        e[3] = dr_t - ft / r
+        e[4] = dz_t
+    else:
+        e[1] = fr / r - ft / r
+        e[3] = fr / r + dr_t - ft / r
+        e[4] = dz_t + fz / r
+    return e
 
 
 class Torus:
@@ -167,44 +226,92 @@ class Torus:
         self.area = sum(g[6] for g in self.gp)
         self.rc = sum(g[4] * g[6] for g in self.gp) / self.area
 
+    def nodal_modes(self, cls):
+        """Nodal values (3 n x 6) of the six section modes, and the kept modes' indices."""
+        rho, z = self.X[:, 0] - self.R, self.X[:, 1]
+        Q = np.zeros((3 * len(self.X), 6))
+        for k, (_, f, _) in enumerate(SECTION_MODES):
+            fr, ft, fz = f(rho, z)
+            Q[0::3, k], Q[1::3, k], Q[2::3, k] = fr, ft, fz
+        return Q
+
     def solve_class(self, cls):
+        """The periodic field of harmonic cls for its two prescribed dislocations: (V, a), with the field
+        U = Q[:, kept] a + V (see Conditioning in the module docstring)."""
         n = 3 * len(self.X)
+        kept = KEPT_MODES[cls]
+        m = len(kept)
         rows, cols, vals = [], [], []
         F = np.zeros((n, 2))
+        KQ = np.zeros((n, m))
+        Kqq = np.zeros((m, m))
+        Fq = np.zeros((m, 2))
         D = self.D
-        for el, N, Nr, Nz, r, z, dA in self.gp:
+        if PERTURBATION is not None:
+            rng = np.random.default_rng([PERTURBATION[0], cls])
+            ng, size = len(self.gp), PERTURBATION[1]
+            noise = (_noise(rng, (ng, 27, 27), size, True), _noise(rng, (ng, m, m), size, True),
+                     _noise(rng, (ng, 27, 2), size), _noise(rng, (ng, 27, m), size), _noise(rng, (ng, m, 2), size))
+        for g, (el, N, Nr, Nz, r, z, dA) in enumerate(self.gp):
             B = bmat(cls, N, Nr, Nz, r)
             dofs = (3 * el[:, None] + np.arange(3)).ravel()
             w = r * dA
             ke = w * (B.T @ D @ B)
+            sec = secular(cls, r, z)
+            fe = -w * (B.T @ D @ sec)
+            Eq = np.column_stack([mode_strain(cls, k, r, z, self.R) for k in kept])
+            DEq = D @ Eq
+            kq, qq, fq = w * (B.T @ DEq), w * (Eq.T @ DEq), -w * (DEq.T @ sec)
+            if PERTURBATION is not None:
+                ke, qq, fe, kq, fq = (x * u[g] for x, u in zip((ke, qq, fe, kq, fq), noise))
             rows.append(np.repeat(dofs, len(dofs)))
             cols.append(np.tile(dofs, len(dofs)))
             vals.append(ke.ravel())
-            F[dofs] -= w * (B.T @ D @ secular(cls, r, z))
+            F[dofs] += fe
+            KQ[dofs] += kq
+            Kqq += qq
+            Fq += fq
         K = sp.csr_matrix((np.concatenate(vals), (np.concatenate(rows), np.concatenate(cols))), shape=(n, n))
-        # remove the class's exact null space (rigid motions) by fixing two dofs at one node
-        a = int(np.argmax(self.X[:, 0]))  # outermost node, z = 0 on a symmetric mesh
-        fixed = [3 * a + 2, 3 * a + (1 if cls == 0 else 0)]
-        free = np.setdiff1d(np.arange(n), fixed)
-        U = np.zeros((n, 2))
-        lu = spla.splu(K[free][:, free].tocsc())
-        U[free] = lu.solve(F[free])
-        return U
+        # V orthogonal to all six section modes, by a saddle-point system (no node pinned)
+        Q = self.nodal_modes(cls)
+        Cq = Q / np.linalg.norm(Q, axis=0) * float(np.mean(np.abs(K.diagonal())))
+        A = sp.bmat([[K, sp.csr_matrix(Cq)], [sp.csr_matrix(Cq.T), None]], format="csc")
+        rhs = np.zeros((n + 6, 2 + m))
+        rhs[:n, :2] = F
+        rhs[:n, 2:] = KQ
+        lu = spla.splu(A)
+        Y = lu.solve(rhs)
+        for _ in range(REFINE):  # iterative refinement: the backward error to roundoff, whatever the ordering
+            Y += lu.solve(rhs - A @ Y)
+        Y = Y[:n]
+        a = np.linalg.solve(Kqq - KQ.T @ Y[:, 2:], Fq - KQ.T @ Y[:, :2])
+        V = Y[:, :2] - Y[:, 2:] @ a
+        self.residual = getattr(self, "residual", {})
+        Kv = K @ V + KQ @ a - F  # stationarity: orthogonal to V's space and to the kept modes
+        self.residual[cls] = float(np.linalg.norm(Kv - Q @ np.linalg.lstsq(Q, Kv, rcond=None)[0]) / np.linalg.norm(F))
+        return V, a
+
+    def strain(self, cls, sol, g):
+        """Strain amplitudes (6 x 2) of harmonic cls's two states at Gauss point g."""
+        V, a = sol
+        el, N, Nr, Nz, r, z, dA = g
+        dofs = (3 * el[:, None] + np.arange(3)).ravel()
+        Eq = np.column_stack([mode_strain(cls, k, r, z, self.R) for k in KEPT_MODES[cls]])
+        return bmat(cls, N, Nr, Nz, r) @ V[dofs] + Eq @ a + secular(cls, r, z)
 
     def states(self):
         """Stress and strain at a section for the six local states; returns (S, E) with
         S[:, k] the resultants of state k and E the cross-energy per unit centroidal length."""
-        U0 = self.solve_class(0)
-        U1 = self.solve_class(1)
+        sol0 = self.solve_class(0)
+        sol1 = self.solve_class(1)
         R = self.R
         D = self.D
         # strain vectors per state at each Gauss point
         sig = [[] for _ in range(6)]
         eps = [[] for _ in range(6)]
-        for el, N, Nr, Nz, r, z, dA in self.gp:
-            dofs = (3 * el[:, None] + np.arange(3)).ravel()
-            e0 = bmat(0, N, Nr, Nz, r) @ U0[dofs] + secular(0, r, z)
-            e1 = bmat(1, N, Nr, Nz, r) @ U1[dofs] + secular(1, r, z)
+        for g in self.gp:
+            e0 = self.strain(0, sol0, g)
+            e1 = self.strain(1, sol1, g)
             shear_part = e1.copy()
             shear_part[NORMAL] = 0.0
             normal_part = e1.copy()

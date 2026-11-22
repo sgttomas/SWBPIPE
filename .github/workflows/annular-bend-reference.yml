@@ -5,7 +5,8 @@ name: Annular bend reference
 #
 # Selected by the paths the check reads: the package, the invented benchmark model documents it reads as inputs (by
 # the same pattern as the generator, which fails if the documents it reads are not exactly those), LIM-021's document,
-# whose stated figures it checks, and this workflow. It reports beside the required `harness` check: `harness` does
+# whose stated figures it checks, this workflow and the registry that registers the check (the check confirms that this
+# list and the registry's rule name the same five paths). It reports beside the required `harness` check: `harness` does
 # not wait on it, and the repository's required-check setting is unchanged. A pull request touching these paths is
 # merged only after this workflow's result has been read (the package's README).
 on:
@@ -15,6 +16,7 @@ on:
       - validation/caepipe_benchmark/models/cpb-g[234]-*.json
       - docs/RELEASE_LIMITATIONS_v1.0.md
       - .github/workflows/annular-bend-reference.yml
+      - software-workflow.json
   workflow_dispatch:
 
 permissions:

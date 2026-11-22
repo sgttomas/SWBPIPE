@@ -46,6 +46,18 @@ Options of `solve` (keyword only; the command line takes the same names with das
                   every anchor elastic instead of rigid
   quad            Gauss points along an arc (default 48)
 
+Supported models (anything else is refused with ValueError, never solved approximately)
+  - pressure-free models only: a model with a pressure_contract, pressure_regions on a load case, a load
+    category naming pressure, or any pressure setting (such as pressure elongation) in model_settings is refused;
+  - every material states shear_modulus explicitly (G is never derived from poisson_ratio);
+  - supports: family "anchor", "rigid", "guide", "stop", "restraint" or none, each holding its listed
+    restraints rigidly; "spring" (one stiffness on one dof); or any support with "stiffness6". Other families,
+    such as "line_stop", are refused;
+  - load categories: concentrated_force, concentrated_moment, weight, uniform_load and thermal. Others, such as
+    imposed_displacement, are refused;
+  - an arc's section compliance must be positive definite on its active terms: a factor must be positive, and
+    with the curved bar's coupling k_in must exceed the bound the coupling sets (for "c", (r_g / R)^2).
+
 Output: {"units", "straight_theory", "arc", "cases": {case id: {"reactions": {support id: {"node", "Fx", "Fy",
 "Fz", "Mx", "My", "Mz"}}, "displacements": {node id: {"ux", "uy", "uz", "rx", "ry", "rz"}},
 "member_end_actions": {member id: {"end_i", "end_j"}}}}}. Reactions are the support's action on the pipe in
@@ -250,6 +262,28 @@ class Arc:
         g, wt = np.polynomial.legendre.leggauss(nq)
         self.th = 0.5 * self.phi * (g + 1)
         self.wt = wt * 0.5 * self.phi
+        self._admissible()
+
+    def _admissible(self):
+        """Refuses a section compliance that is not positive definite on its active (nonzero-diagonal) terms."""
+        C = self.section_compliance()
+        act = [i for i in range(6) if C[i, i] != 0.0]
+        try:
+            np.linalg.cholesky(C[np.ix_(act, act)])
+            return
+        except np.linalg.LinAlgError:
+            pass
+        if self.C_user is not None:
+            raise ValueError("the section compliance given is not positive definite")
+        if not (self.k_in > 0 and self.k_out > 0):
+            raise ValueError(f"flexibility factors must be positive: k_in = {self.k_in:g}, k_out = {self.k_out:g}")
+        # only C[5, 5] depends on k_in, with slope s; positive definiteness needs C55 > C05^2 / C00
+        s = self.sec
+        slope = 1 / (s.E * s.A * s.neutral_offset(self.R) * self.R) if self.curved == "a" else 1 / (s.E * s.I)
+        bound = self.k_in - (C[5, 5] - C[0, 5] ** 2 / C[0, 0]) / slope
+        named = " = (r_g/R)^2" if self.curved == "c" else ""
+        raise ValueError(f"arc (shear {self.shear}, curved bar {self.curved}) at R = {self.R:g}: k_in = "
+                         f"{self.k_in:g} must exceed {bound:.6g}{named} for a positive definite section compliance")
 
     def pos(self, th):
         return self.Cc + self.R * (math.cos(th) * self.e1 + math.sin(th) * self.e2)
@@ -391,7 +425,33 @@ def q(obj, unit_expected):
 DIRS = {"global_x": np.array([1.0, 0, 0]), "global_y": np.array([0, 1.0, 0]), "global_z": np.array([0, 0, 1.0])}
 
 
+LOAD_CATEGORIES = ("concentrated_force", "concentrated_moment", "weight", "uniform_load", "thermal")
+RIGID_FAMILIES = (None, "anchor", "rigid", "guide", "stop", "restraint")
+
+
+def refuse_unsupported(model):
+    """Raises ValueError for a model outside the supported subset (see the module docstring)."""
+    if "pressure_contract" in model:
+        raise ValueError("pressure_contract: pressure is not supported; this solver takes pressure-free models only")
+    for k in (model.get("model_settings") or {}):
+        if "pressure" in k:
+            raise ValueError(f"model_settings.{k}: pressure settings are not supported")
+    for lc in model["load_cases"]:
+        if "pressure_regions" in lc:
+            raise ValueError(f"load case {lc['id']}: pressure_regions are not supported")
+        for ld in lc["primitive_loads"]:
+            if "pressure" in ld["category"] or ld["category"] not in LOAD_CATEGORIES:
+                raise ValueError(f"load case {lc['id']}: load category {ld['category']!r} not supported")
+    for m in model["materials"]:
+        if "shear_modulus" not in m:
+            raise ValueError(f"material {m['id']}: shear_modulus must be given (G is not derived from poisson_ratio)")
+    for s in model.get("supports", []):
+        if s.get("family") not in (*RIGID_FAMILIES, "spring") and "stiffness6" not in s:
+            raise ValueError(f"support {s['id']}: family {s.get('family')!r} not supported")
+
+
 def build(model, o: Options):
+    refuse_unsupported(model)
     nodes = {n["id"]: np.array([n["position"]["x"], n["position"]["y"], n["position"]["z"]], float)
              for n in model["nodes"]}
     mats = {m["id"]: m for m in model["materials"]}
@@ -472,7 +532,7 @@ def solve(model, **options):
             for j in range(6):
                 springs.append((s["id"], base + j, o.anchor_stiffness[j]))
         else:
-            if fam not in (None, "anchor", "rigid", "guide", "stop", "restraint"):
+            if fam not in RIGID_FAMILIES:
                 raise ValueError(f"support family {fam!r} not handled")
             for r in s["restraints"]:
                 fixed.setdefault(base + DOFS.index(r), []).append(s["id"])
