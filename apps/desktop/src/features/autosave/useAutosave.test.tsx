@@ -788,6 +788,27 @@ describe("after a save lands", () => {
     expect(calls("discard_project_autosave").map(([, args]) => args.fileName).sort()).toEqual([sameNewer.file_name, sameOlder.file_name].sort());
     expect(state.entries.map((item) => item.file_name)).toEqual([otherWindowAfter.file_name, otherWindowBeforeCutoff.file_name, keptForLater.file_name, otherProject.file_name]);
   });
+
+  it("moves its records revision when the cleanup after a save finishes, after the save itself", async () => {
+    const state = native();
+    const { session } = mount();
+    await waitFor(() => expect(screen.getByTestId("autosave-interval")).toHaveValue("5"));
+    state.entries = [entry(DEMO_SLOT, 1_000_000_000_001, DEMO_HASH)];
+    // The listing the cleanup reads is held: the save has landed, the record is still there.
+    let releaseListing: () => void = () => {};
+    const listed = new Promise<void>((resolve) => { releaseListing = resolve; });
+    const listing = invokeMock.getMockImplementation()!;
+    invokeMock.mockImplementation((command: string, args: Record<string, unknown> = {}) =>
+      command === "list_project_autosaves" ? listed.then(() => listing(command, args)) : listing(command, args));
+    const before = session().recordsRevision;
+    let cleanup: Promise<void> = Promise.resolve();
+    act(() => { cleanup = session().afterProjectSaved(DEMO.project.id, DEMO_HASH); });
+    await act(async () => { await Promise.resolve(); });
+    expect(session().recordsRevision).toBe(before);
+    await act(async () => { releaseListing(); await cleanup; });
+    expect(state.entries).toEqual([]);
+    expect(session().recordsRevision).toBeGreaterThan(before);
+  });
 });
 
 describe("the recovery offer", () => {

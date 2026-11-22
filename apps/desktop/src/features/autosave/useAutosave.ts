@@ -134,6 +134,10 @@ export function useAutosave(deps: AutosaveDeps) {
   const settingsInFlight = useRef(false);
   const backupSequence = useRef(0);
   const [statusLine, setStatusLine] = useState<string | null>(null);
+  // Moves each time an autosave record may have been written or removed, so a view of the
+  // records (the Project page's Recover line) reads them again; it carries no other meaning.
+  const [recordsRevision, setRecordsRevision] = useState(0);
+  const recordsChanged = () => { if (mounted.current) setRecordsRevision((revision) => revision + 1); };
   const [recoveryPrompt, setRecoveryPrompt] = useState<AutosaveRecoveryPromptState | null>(null);
   const [settingBusy, setSettingBusy] = useState(false);
   const inFlight = useRef<Promise<void> | null>(null);
@@ -283,6 +287,7 @@ export function useAutosave(deps: AutosaveDeps) {
         if (!sameSession(state.generation)) return;
         const outcome = await writeProjectAutosave(text, modelHash.value);
         recorded = outcome.outcome === "written" || outcome.outcome === "unchanged";
+        if (outcome.outcome === "written") recordsChanged();
         // A record written keeps its own name (slot, time, hash); a session
         // replaced meanwhile is told nothing about it.
         if (!sameSession(state.generation)) return;
@@ -449,6 +454,8 @@ export function useAutosave(deps: AutosaveDeps) {
       }
     } catch (error) {
       show(`Autosave not removed after the save: ${nativeFailureText(error)}`);
+    } finally {
+      recordsChanged();
     }
   }
 
@@ -583,6 +590,7 @@ export function useAutosave(deps: AutosaveDeps) {
       try {
         const discarded = await discardProjectAutosave(entry.file_name);
         if (!mounted.current) return choice;
+        recordsChanged();
         setStatusLine(discarded.outcome === "refused"
           ? `Autosave not discarded: ${diagnosticsText(discarded.diagnostics)}`
           : `Autosave written ${writtenAt} discarded.`);
@@ -600,6 +608,8 @@ export function useAutosave(deps: AutosaveDeps) {
     settings,
     /** Item (a): shown for as long as autosave is off, apart from the status line. */
     offNotice: settings?.autosave_minutes === 0 ? AUTOSAVE_OFF_NOTICE : null,
+    /** Moves when an autosave record may have been written or removed (a write, a discard, the cleanup after a save). */
+    recordsRevision,
     settingBusy,
     statusLine,
     backupStatusLine,

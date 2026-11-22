@@ -357,10 +357,11 @@ describe("the reference system entered from blank through the desktop's authorin
       fireEvent.click(inspector().getByRole("tab", { name: /^Properties$/ }));
     }
 
-    // Step units: Project page, Blank load/reference model: the units dialog, Preset SI, Create.
-    // UI function: `requestBlankProject("load_state")`, the function the Project page's button calls; then the dialog typed.
-    act(() => current.session.project.requestBlankProject("load_state"));
+    // Step units: Project page, New: the dialog's starting model set up for internal pressure, Preset SI, Create.
+    // UI function: `requestBlankProject()`, the function the Project page's New calls; then the dialog typed.
+    act(() => current.session.project.requestBlankProject());
     const dialog = await screen.findByTestId("project-units-dialog");
+    fireEvent.click(within(dialog).getByTestId("project-units-kind-load-state"));
     expect(within(dialog).getByTestId("project-units-preset")).toHaveValue("si");
     fireEvent.click(within(dialog).getByTestId("project-units-create"));
     await waitFor(() => expect(model().project.name).toMatch(/^Blank Local Load\/reference Model/));

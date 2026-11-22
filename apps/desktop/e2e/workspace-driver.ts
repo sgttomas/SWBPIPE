@@ -248,24 +248,33 @@ function escapeRegExp(value: string): string {
 
 export type ProjectCommand = "new-local" | "new-blank" | "open-local" | "list-local" | "save-local";
 
-const PROJECT_BUTTON_NAMES: Record<ProjectCommand, string> = {
-  "new-local": "Create local",
-  "new-blank": "New blank",
-  "open-local": "Open local",
-  "list-local": "List local",
-  "save-local": "Save local"
-};
+const PROJECT_BUTTON_NAMES = {
+  "new-blank": "New",
+  "save-local": "Save"
+} as const satisfies Partial<Record<ProjectCommand, string>>;
 
 /**
- * The five project buttons live in the Project page's header. This opens that
- * page when it is not the open page and returns the button, found by its role
- * and its unchanged accessible name.
+ * New and Save are buttons in the Project page's header (with Open…, which opens a
+ * model file); the other project commands are the File menu's (`projectCommand`). This
+ * opens that page when it is not the open page and returns the button, found by its
+ * role and accessible name.
  */
-export async function projectButton(page: Page, command: ProjectCommand): Promise<Locator> {
-  const button = page.getByRole("button", { name: PROJECT_BUTTON_NAMES[command], exact: true });
+export async function projectButton(page: Page, command: keyof typeof PROJECT_BUTTON_NAMES): Promise<Locator> {
+  const button = page.getByLabel("Local project controls").getByRole("button", { name: PROJECT_BUTTON_NAMES[command], exact: true });
   if (!await button.isVisible()) await openWorkspaceSection(page, "project");
   await expect(button).toBeVisible();
   return button;
+}
+
+/**
+ * The Project page's storage record (the storage audit and validation preflight panels)
+ * is behind one closed disclosure. This opens the page and the disclosure.
+ */
+export async function openStorageRecord(page: Page): Promise<Locator> {
+  await openWorkspaceSection(page, "project");
+  const record = page.getByTestId("project-storage-record");
+  if (!await record.evaluate((element) => (element as HTMLDetailsElement).open)) await record.locator(":scope > summary").click();
+  return record;
 }
 
 /**
@@ -286,8 +295,8 @@ export async function projectCommand(page: Page, command: ProjectCommand, keyboa
 }
 
 /**
- * W-17: "New blank", "Blank load/reference model" and the File-menu command open
- * the units dialog first. Create accepts its selection (SI unless changed).
+ * W-17: New on the Project page and the File-menu command open the "New blank
+ * project" dialog first (its starting model and units). Create accepts its selection (SI unless changed).
  * `keyboard` focuses Create and presses Enter, for tests that hold a pointer.
  */
 export async function confirmProjectUnits(page: Page, keyboard = false): Promise<void> {
