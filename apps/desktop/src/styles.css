@@ -3409,7 +3409,7 @@ tbody tr:hover { background-image: linear-gradient(var(--hover-wash), var(--hove
 /* The Rules page: the project's packs as a short list, one button to start a
    pack, and an open pack's parts as closed lines that open in place. */
 .rule-pack-manager-panel {
-  gap: 8px;
+  gap: var(--space-4);
 }
 
 .rule-pack-scope,
@@ -3425,7 +3425,7 @@ tbody tr:hover { background-image: linear-gradient(var(--hover-wash), var(--hove
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-3);
 }
 
 .rule-pack-primary {
@@ -3436,7 +3436,7 @@ tbody tr:hover { background-image: linear-gradient(var(--hover-wash), var(--hove
 
 .rule-pack-list {
   display: grid;
-  gap: 4px;
+  gap: var(--space-2);
 }
 
 .rule-pack-list-row,
@@ -3444,12 +3444,12 @@ tbody tr:hover { background-image: linear-gradient(var(--hover-wash), var(--hove
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 4px 10px;
+  gap: var(--space-2) var(--space-5);
 }
 
 .rule-pack-list-row {
-  padding: 4px 0;
-  border-bottom: 1px solid var(--ui-divider);
+  padding: var(--space-2) 0;
+  border-bottom: var(--border-width-hairline) solid var(--ui-divider);
 }
 
 .rule-pack-list-row .rule-pack-row-actions {
@@ -3458,28 +3458,28 @@ tbody tr:hover { background-image: linear-gradient(var(--hover-wash), var(--hove
 
 .rule-pack-open {
   display: grid;
-  gap: 6px;
-  padding-top: 6px;
-  border-top: 1px solid var(--ui-divider);
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: var(--border-width-hairline) solid var(--ui-divider);
 }
 
 .rule-pack-findings-words ul {
-  margin: 2px 0 0;
-  padding-left: 18px;
+  margin: var(--space-1) 0 0;
+  padding-left: var(--space-7);
   color: var(--ui-error-text);
-  font-size: 12px;
+  font-size: var(--type-size-body);
 }
 
 .rule-pack-part {
-  border-bottom: 1px solid var(--ui-divider);
+  border-bottom: var(--border-width-hairline) solid var(--ui-divider);
 }
 
 .rule-pack-part > summary {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 4px 10px;
-  padding: 6px 0;
+  gap: var(--space-2) var(--space-5);
+  padding: var(--space-3) 0;
   cursor: pointer;
 }
 
@@ -3498,7 +3498,7 @@ tbody tr:hover { background-image: linear-gradient(var(--hover-wash), var(--hove
 }
 
 .rule-pack-part-title {
-  font-weight: 600;
+  font-weight: var(--type-weight-semibold);
 }
 
 .rule-pack-part-fault,
@@ -3508,27 +3508,27 @@ tbody tr:hover { background-image: linear-gradient(var(--hover-wash), var(--hove
 
 .rule-pack-part-body {
   display: grid;
-  gap: 8px;
-  padding: 0 0 8px 12px;
+  gap: var(--space-4);
+  padding: 0 0 var(--space-4) var(--space-5);
 }
 
 .rule-pack-subheading {
-  font-size: 12px;
+  font-size: var(--type-size-body);
 }
 
 .rule-pack-disclosure > summary {
   color: var(--ui-muted);
-  font-size: 12px;
+  font-size: var(--type-size-body);
   cursor: pointer;
 }
 
 .rule-pack-disclosure[open] {
   display: grid;
-  gap: 4px;
+  gap: var(--space-2);
 }
 
 .rule-pack-reads-as {
-  font-size: 12px;
+  font-size: var(--type-size-body);
 }
 
 /* Accepted vocabulary navigation; forms continue to own draft and operation state. */

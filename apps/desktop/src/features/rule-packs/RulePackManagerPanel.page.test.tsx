@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { PreviewModel } from "../../types";
 import {
@@ -8,9 +8,12 @@ import {
   type RulePackDocumentValidation,
   type RulePackValidationFinding
 } from "../../services/rulePackService";
-import { RulePackManagerPanel, partOfSubject } from "./RulePackManagerPanel";
+import { RulePackManagerPanel, faultsOf, partOfSubject } from "./RulePackManagerPanel";
 import { COMPLETENESS_STATUSES, LIBRARY_KINDS, REQUIRED_FOR_TARGETS, SLOT_KINDS, SOURCE_KINDS, VALUE_STATUSES } from "./DeclarationsEditor";
 import {
+  REPORTED_STATUSES,
+  RUNTIME_POLICY_FIELDS,
+  referenceNames,
   ACCEPTABILITY_BASES,
   ACCEPTABILITY_RELATIONS,
   ANALYSIS_STATUSES,
@@ -25,12 +28,15 @@ import {
   EDITABLE_NODE_TYPES,
   LOGICAL_OPERATORS,
   LOOKUP_MODES,
-  UNARY_OPERATORS
+  UNARY_OPERATORS,
+  bindableVariables,
+  collectRulePackVariables
 } from "./ExpressionComposer";
 import {
   ACCEPTABILITY_BASIS_WORDS,
   ACCEPTABILITY_RELATION_WORDS,
   ANALYSIS_STATUS_WORDS,
+  CHECK_GROUP_WORDS,
   COMPLETENESS_WORDS,
   DIAGNOSTIC_CODE_WORDS,
   DIAGNOSTIC_POLICY_FIELD_WORDS,
@@ -57,19 +63,53 @@ import {
 
 const backend = vi.hoisted(() => ({
   entries: [] as LocalRulePackIndexEntry[],
+  // Per project, when a test needs more than one; else `entries`.
+  entriesByProject: null as Record<string, LocalRulePackIndexEntry[]> | null,
   listCalls: 0,
+  listProjects: [] as Array<string | null>,
+  // The next list reads that fail, in order.
+  listFailures: 0,
   validation: null as unknown as RulePackDocumentValidation,
-  checksumDocuments: [] as unknown[]
+  checksumDocuments: [] as unknown[],
+  // A save held open until the test releases it.
+  releaseSave: null as null | (() => void),
+  openEnvelope: null as unknown
 }));
 
 vi.mock("../../services/rulePackService", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../services/rulePackService")>();
   return {
     ...actual,
-    listLocalRulePacks: vi.fn(async () => {
+    listLocalRulePacks: vi.fn(async (projectId: string | null) => {
       backend.listCalls += 1;
-      return { route: "tauri_backend", entries: backend.entries };
+      backend.listProjects.push(projectId);
+      if (backend.listFailures > 0) {
+        backend.listFailures -= 1;
+        throw new Error("invented store failure");
+      }
+      const entries = backend.entriesByProject ? backend.entriesByProject[projectId ?? ""] ?? [] : backend.entries;
+      return { route: "tauri_backend", entries };
     }),
+    openLocalRulePack: vi.fn(async () => ({ route: "tauri_backend", envelope: backend.openEnvelope })),
+    saveLocalRulePack: vi.fn(
+      (projectId: string, document: Record<string, unknown>) =>
+        new Promise((resolve) => {
+          backend.releaseSave = () =>
+            resolve({
+              route: "tauri_backend",
+              envelope: {
+                project_id: projectId,
+                rule_pack_id: "private_draft_rule_pack",
+                storage_mode: "local_sqlite",
+                created_at_unix: 1,
+                updated_at_unix: 1,
+                document,
+                validation: backend.validation,
+                message: "Saved."
+              }
+            });
+        })
+    ),
     validateRulePack: vi.fn(async () => ({ route: "tauri_backend", validation: backend.validation })),
     computeRulePackChecksum: vi.fn(async (document: unknown) => {
       backend.checksumDocuments.push(document);
@@ -154,6 +194,11 @@ function words(tokens: readonly string[], table: Words): string[] {
 
 beforeEach(() => {
   backend.entries = [savedEntry];
+  backend.entriesByProject = null;
+  backend.listProjects = [];
+  backend.listFailures = 0;
+  backend.releaseSave = null;
+  backend.openEnvelope = null;
   backend.listCalls = 0;
   backend.validation = validationWith([]);
   backend.checksumDocuments = [];
@@ -446,5 +491,200 @@ describe("the document a set of entries produces", () => {
     fireEvent.click(screen.getByTestId("rule-pack-compute-checksum"));
     await waitFor(() => expect(backend.checksumDocuments).toHaveLength(1));
     expect(JSON.stringify(backend.checksumDocuments[0] as RulePackDocument, null, 2)).toBe(JSON.stringify(expected, null, 2));
+  });
+});
+
+// Round 1 review repairs.
+
+const otherEntry: LocalRulePackIndexEntry = {
+  ...savedEntry,
+  project_id: "project:invented-other",
+  rule_pack_id: "invented_other_pack",
+  rule_pack_name: "Invented other pack"
+};
+
+function modelFor(id: string): PreviewModel {
+  return { project: { id, name: id }, rule_pack_refs: [] } as unknown as PreviewModel;
+}
+
+describe("the list shows one project's packs only", () => {
+  it("reads nothing without a project, so no other project's pack can be opened or deleted", async () => {
+    render(<RulePackManagerPanel model={null} />);
+    await act(async () => {});
+    expect(backend.listCalls).toBe(0);
+    expect(screen.queryByTestId("rule-pack-entry-invented_saved_pack")).toBeNull();
+    expect(screen.queryByTestId("rule-pack-open-invented_saved_pack")).toBeNull();
+  });
+
+  it("drops a list read that a save in project A finishes after the page moved to project B", async () => {
+    backend.entriesByProject = {
+      "project:invented-page": [savedEntry],
+      "project:invented-other": [otherEntry]
+    };
+    const { rerender } = render(<RulePackManagerPanel model={modelFor("project:invented-page")} />);
+    await screen.findByTestId("rule-pack-entry-invented_saved_pack");
+    fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
+    fireEvent.click(screen.getByTestId("rule-pack-save"));
+    await waitFor(() => expect(backend.releaseSave).not.toBeNull());
+
+    rerender(<RulePackManagerPanel model={modelFor("project:invented-other")} />);
+    await screen.findByTestId("rule-pack-entry-invented_other_pack");
+    await act(async () => {
+      backend.releaseSave?.();
+    });
+    await act(async () => {});
+    expect(screen.getByTestId("rule-pack-entry-invented_other_pack")).toBeTruthy();
+    expect(screen.queryByTestId("rule-pack-entry-invented_saved_pack")).toBeNull();
+  });
+
+  it("reads the list again when the page is shown again after a failed read in the same project", async () => {
+    backend.listFailures = 1;
+    const { rerender } = render(<RulePackManagerPanel model={modelStub} active />);
+    await waitFor(() => expect(screen.getByTestId("rule-pack-list-status").textContent).toContain("could not be read"));
+    rerender(<RulePackManagerPanel model={modelStub} active={false} />);
+    expect(backend.listCalls).toBe(1);
+    rerender(<RulePackManagerPanel model={modelStub} active />);
+    await screen.findByTestId("rule-pack-entry-invented_saved_pack");
+    expect(backend.listCalls).toBe(2);
+    expect(backend.listProjects).toEqual(["project:invented-page", "project:invented-page"]);
+  });
+});
+
+describe("the count of faults agrees with the parts", () => {
+  it("counts a blocking unit finding, so the page never says no faults while a check shows one", async () => {
+    backend.validation = {
+      ...validationWith([]),
+      has_blocking_findings: false,
+      unit_check: {
+        status: "findings",
+        checks: [
+          {
+            check_id: "user_check_1",
+            formula_id: "user_formula_1",
+            status: "findings",
+            findings: [
+              { code: "UnitMismatch", severity: "blocking", subject: "add_subtract", path: "formula_declarations[0]", operands: [], message: "operand units differ" },
+              { code: "RULE_PACK_LIMIT_CANDIDATE_MISMATCH", severity: "conditional", subject: "s", path: "p", operands: [], message: "conditional only" }
+            ]
+          }
+        ],
+        declaration_findings: []
+      }
+    };
+    render(<RulePackManagerPanel model={modelStub} />);
+    fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
+    fireEvent.click(screen.getByTestId("rule-pack-validate"));
+    const words = await screen.findByTestId("rule-pack-validation-words");
+    expect(words.textContent).toContain("1 thing to fix");
+    expect(words.textContent).not.toContain(PAGE_WORDS.noFaults);
+    expect(screen.getByTestId("rule-pack-part-fault-checks").textContent).toBe("operand units differ");
+    expect(faultsOf(backend.validation, null)).toHaveLength(1);
+  });
+
+  it("puts a check of unsaved edits on the open pack, not on the saved pack's row", async () => {
+    const document = buildDraftRulePackDocument();
+    backend.openEnvelope = {
+      project_id: savedEntry.project_id,
+      rule_pack_id: savedEntry.rule_pack_id,
+      storage_mode: "local_sqlite",
+      created_at_unix: 1,
+      updated_at_unix: 1,
+      document,
+      validation: validationWith([]),
+      message: "Opened."
+    };
+    render(<RulePackManagerPanel model={modelStub} />);
+    fireEvent.click(await screen.findByTestId("rule-pack-open-invented_saved_pack"));
+    const row = () => screen.getByTestId("rule-pack-entry-invented_saved_pack");
+    await waitFor(() => expect(row().textContent).toContain(PAGE_WORDS.noFaults));
+
+    fireEvent.click(screen.getByTestId("rule-pack-input-add"));
+    backend.validation = validationWith([
+      { code: "RULE_PACK_FIELD_REQUIRED", subject: "required_inputs[1]", message: "the new input needs a unit", blocking: true }
+    ]);
+    fireEvent.click(screen.getByTestId("rule-pack-validate"));
+    await screen.findByTestId("rule-pack-part-fault-inputs");
+    expect(row().textContent).not.toContain("to fix");
+    expect(row().textContent).toContain("awaiting review");
+  });
+});
+
+describe("findings reach the part their subject names", () => {
+  it("looks a dotted identifier up whole, and places a duplicate mapping identifier with the categories", () => {
+    const document = {
+      ...buildDraftRulePackDocument(),
+      stress_categories: [{ category_id: "stress.hot", name: "Hot", description: "" }],
+      required_inputs: [{ input_id: "check_definitions.like_id", name: "An input" }]
+    } as RulePackDocument;
+    expect(partOfSubject("stress.hot", document)).toBe("categories");
+    expect(partOfSubject("check_definitions.like_id", document)).toBe("inputs");
+    expect(partOfSubject("user_load_case_mapping_1", document)).toBe("categories");
+  });
+});
+
+describe("references never make two declarations look the same", () => {
+  it("shows the identifier beside a name two options share", () => {
+    expect(referenceNames(["a", "b", "c"], { a: "Same", b: "Same", c: "Other" })).toEqual({
+      a: "Same (a)",
+      b: "Same (b)",
+      c: "Other"
+    });
+    expect(referenceNames(["x"], {})).toEqual({ x: "x" });
+  });
+
+  it("names two inputs with the same placeholder name apart, and offers no limit as a formula variable", () => {
+    render(<RulePackManagerPanel model={modelStub} />);
+    fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
+    fireEvent.click(screen.getByTestId("rule-pack-input-add"));
+    const checks = openPart("checks");
+    expect(optionTexts("rule-pack-check-input-ref", checks)).toEqual([
+      "User-defined required input (placeholder) (user_required_input_1)",
+      "User-defined required input (placeholder) (user_required_input_2)"
+    ]);
+    const formula = openPart("formula");
+    const variable = within(formula).getByTestId("rule-pack-variable-ref") as HTMLSelectElement;
+    const values = Array.from(variable.options).map((option) => option.value);
+    expect(values).toEqual(["user_required_input_1", "user_required_input_2"]);
+    expect(values).not.toContain("user_limit_slot_1");
+    expect(bindableVariables(collectRulePackVariables(buildDraftRulePackDocument())).map((v) => v.id)).toEqual([
+      "user_required_input_1"
+    ]);
+  });
+});
+
+describe("what a check reports and which messages it uses", () => {
+  it("separates the outcomes a check reports and the messages it uses from those only kept with the pack", () => {
+    render(<RulePackManagerPanel model={modelStub} />);
+    fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
+    const checks = openPart("checks");
+    const statuses = within(checks).getByTestId("rule-pack-check-result-statuses");
+    const labels = Array.from(statuses.querySelectorAll(".rule-pack-node-label")).map((node) => node.textContent);
+    expect(labels).toEqual([CHECK_GROUP_WORDS.reportedOutcomes, CHECK_GROUP_WORDS.keptOutcomes]);
+    // The reported outcomes come first, under their own heading.
+    const order = Array.from(statuses.querySelectorAll("input")).map((input) => input.getAttribute("data-testid"));
+    expect(order.slice(0, 3)).toEqual(REPORTED_STATUSES.map((status) => `rule-pack-check-status-${status}`));
+    expect(ANALYSIS_STATUS_WORDS.USER_RULE_FAILED).toBe("Fails");
+
+    const policy = within(checks).getByTestId("rule-pack-check-diagnostic-policy");
+    const groups = Array.from(policy.querySelectorAll(":scope > .rule-pack-check-subgroup"));
+    expect(groups.map((group) => group.querySelector(".rule-pack-node-label")?.textContent)).toEqual([
+      CHECK_GROUP_WORDS.usedMessages,
+      CHECK_GROUP_WORDS.keptMessages
+    ]);
+    const used = Array.from(groups[0].querySelectorAll("select")).map((select) => select.getAttribute("data-testid"));
+    expect(used).toEqual(RUNTIME_POLICY_FIELDS.map((field) => `rule-pack-check-policy-${field}`));
+    expect(groups[1].querySelectorAll("select")).toHaveLength(DIAGNOSTIC_POLICY_FIELDS.length - RUNTIME_POLICY_FIELDS.length);
+    // Every stored token is kept: the eight settings still read the template's codes.
+    const textarea = screen.getByTestId("rule-pack-draft-json") as HTMLTextAreaElement;
+    expect(JSON.parse(textarea.value).check_definitions[0].diagnostic_policy).toEqual(
+      (buildDraftRulePackDocument().check_definitions as Array<Record<string, unknown>>)[0].diagnostic_policy
+    );
+  });
+
+  it("says that an input's value from the model, the owner or nowhere chosen is entered when checking", () => {
+    for (const token of ["model_input", "owner_design_basis", "TBD", "user_supplied_rule_value"]) {
+      expect(SOURCE_KIND_WORDS[token]).toMatch(/[Ee]ntered when checking/);
+    }
+    expect(fieldWord("value_status")).toBe("Declared value status");
   });
 });

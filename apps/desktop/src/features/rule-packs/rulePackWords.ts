@@ -124,7 +124,7 @@ export const FIELD_WORDS: Words = {
   // limits
   slot_id: "Identifier",
   slot_kind: "Kind",
-  value_status: "Value",
+  value_status: "Declared value status",
   // checks
   check_id: "Identifier",
   category_ref: "Stress category",
@@ -149,14 +149,15 @@ export function fieldWord(formatName: string): string {
 export const BASIS_TYPE_WORDS: Words = { load_case: "Load case", combination: "Combination" };
 
 // RequiredInput.source_kind. model_input, owner_design_basis and TBD are all
-// taken from a value entered when the check runs (rule_check_runner).
+// taken from a value entered when the check runs (rule_check_runner); none is
+// read from the model, so each says so.
 export const SOURCE_KIND_WORDS: Words = {
   solver_result: "Solved result",
-  model_input: "Model input",
+  model_input: "Model input, entered when checking",
   user_supplied_rule_value: "Entered when checking",
   private_library_value: "Private library",
-  owner_design_basis: "Owner's design basis",
-  TBD: NOT_CHOSEN
+  owner_design_basis: "Owner's design basis, entered when checking",
+  TBD: "Not chosen, entered when checking"
 };
 
 // required_for: only rule_check inputs are tested for completeness.
@@ -218,10 +219,12 @@ export const ACCEPTABILITY_RELATION_WORDS: Words = {
   greater_than_or_equal: "at least the limit"
 };
 
-// AnalysisStatus. A check reports only the first three (rule_check_runner).
+// AnalysisStatus. A check reports only the first three (rule_check_runner);
+// "Fails" rather than "exceeds", since a minimum or a true/false check fails
+// without exceeding anything.
 export const ANALYSIS_STATUS_WORDS: Words = {
-  USER_RULE_CHECKED: "Within your limit",
-  USER_RULE_FAILED: "Exceeds your limit",
+  USER_RULE_CHECKED: "Passes",
+  USER_RULE_FAILED: "Fails",
   RULE_INPUTS_INCOMPLETE: "Inputs incomplete",
   HUMAN_REVIEW_REQUIRED: "Needs human review",
   MODEL_INCOMPLETE: "Model incomplete",
@@ -229,6 +232,14 @@ export const ANALYSIS_STATUS_WORDS: Words = {
 };
 
 // DiagnosticPolicy: the condition each message is for.
+/** The two halves of a check's outcomes and of its messages. */
+export const CHECK_GROUP_WORDS = {
+  reportedOutcomes: "Outcomes a check reports",
+  keptOutcomes: "Kept with the pack; a check never reports these",
+  usedMessages: "Messages a check shows",
+  keptMessages: "Kept with the pack; not used when checking"
+} as const;
+
 export const DIAGNOSTIC_POLICY_FIELD_WORDS: Words = {
   rule_check_blocking: "Check blocked",
   missing_input: "Input missing",

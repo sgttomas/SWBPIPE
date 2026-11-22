@@ -3,6 +3,7 @@ import {
   ACCEPTABILITY_BASIS_WORDS,
   ACCEPTABILITY_RELATION_WORDS,
   ANALYSIS_STATUS_WORDS,
+  CHECK_GROUP_WORDS,
   DIAGNOSTIC_CODE_WORDS,
   DIAGNOSTIC_POLICY_FIELD_WORDS,
   PART_WORDS,
@@ -115,6 +116,13 @@ export const DIAGNOSTIC_POLICY_FIELDS = [
   "evaluator_error"
 ] as const;
 
+// What the rule-check runner acts on (core/rules/rule_check_runner): a check
+// reports only these outcomes, and selects a message only for these two
+// conditions. The other statuses and the other six message settings are kept
+// with the pack as declarations; their tokens are stored unchanged.
+export const REPORTED_STATUSES = ["USER_RULE_CHECKED", "USER_RULE_FAILED", "RULE_INPUTS_INCOMPLETE"] as const;
+export const RUNTIME_POLICY_FIELDS = ["missing_input", "evaluator_error"] as const;
+
 function asObject(value: unknown): Record<string, unknown> | null {
   if (typeof value !== "object" || value === null || Array.isArray(value)) return null;
   return value as Record<string, unknown>;
@@ -131,6 +139,16 @@ function asArray(value: unknown): unknown[] {
 function asStringArray(value: unknown): string[] {
   return asArray(value).filter((entry): entry is string => typeof entry === "string");
 }
+
+function isRuntimePolicyField(field: string): boolean {
+  return (RUNTIME_POLICY_FIELDS as readonly string[]).includes(field);
+}
+
+// The message settings in two groups: those a check uses, then those kept only.
+const POLICY_GROUPS: ReadonlyArray<readonly [string, readonly string[]]> = [
+  [CHECK_GROUP_WORDS.usedMessages, DIAGNOSTIC_POLICY_FIELDS.filter((field) => isRuntimePolicyField(field))],
+  [CHECK_GROUP_WORDS.keptMessages, DIAGNOSTIC_POLICY_FIELDS.filter((field) => !isRuntimePolicyField(field))]
+];
 
 function isKnownStatus(status: string): boolean {
   return (ANALYSIS_STATUSES as readonly string[]).includes(status);
@@ -250,6 +268,7 @@ function RefSelect({
   // rather than silently snapping the ref to the first declared id; the backend
   // validation independently flags dangling references.
   const known = options.includes(value);
+  const shown = referenceNames(options, labels);
   return (
     <select
       data-testid={testId}
@@ -259,12 +278,28 @@ function RefSelect({
     >
       {!known ? <option value={value}>(unresolved) {value || "(empty)"}</option> : null}
       {options.map((option) => (
-        <option key={option} value={option}>
-          {labels?.[option] || option}
+        <option key={option} value={option} title={option}>
+          {shown[option]}
         </option>
       ))}
     </select>
   );
+}
+
+/**
+ * How a reference picker names each option: by its declared name, falling back
+ * to its identifier where no name was entered, and with the identifier beside
+ * a name two options share, so different declarations never look the same.
+ */
+export function referenceNames(options: readonly string[], labels?: Record<string, string>): Record<string, string> {
+  const named = options.map((option) => labels?.[option] || option);
+  const shown: Record<string, string> = {};
+  options.forEach((option, index) => {
+    const name = named[index];
+    const shared = named.filter((other) => other === name).length > 1;
+    shown[option] = shared && name !== option ? `${name} (${option})` : name;
+  });
+  return shown;
 }
 
 function ResultStatusToggles({
@@ -283,32 +318,38 @@ function ResultStatusToggles({
   // never silently dropped). The minItems:1 schema floor blocks unchecking the
   // last selected status.
   const unknown = selected.filter((status) => !isKnownStatus(status));
-  const options = [...ANALYSIS_STATUSES, ...unknown];
+  const reported = REPORTED_STATUSES as readonly string[];
+  const kept = [...ANALYSIS_STATUSES.filter((status) => !reported.includes(status)), ...unknown];
   const floorReason = "A check needs at least one result status.";
+  const toggle = (status: string) => {
+    const checked = selected.includes(status);
+    const blockUncheck = checked && selected.length <= 1;
+    return (
+      <label className="rule-pack-node-field" key={status}>
+        <input
+          type="checkbox"
+          data-testid={`rule-pack-check-status-${status}`}
+          checked={checked}
+          disabled={disabled || blockUncheck}
+          title={disabled ? disabledReason : blockUncheck ? floorReason : undefined}
+          onChange={(event) => onToggle(status, event.target.checked)}
+        />
+        <span title={isKnownStatus(status) ? status : undefined}>
+          {isKnownStatus(status) ? wordFor(ANALYSIS_STATUS_WORDS, status) : `(current) ${status}`}
+        </span>
+      </label>
+    );
+  };
   return (
     <div className="rule-pack-check-statuses" data-testid="rule-pack-check-result-statuses">
       <span className="rule-pack-node-label" title="Format name: result_statuses">
-        {fieldWord("result_statuses")}
+        {CHECK_GROUP_WORDS.reportedOutcomes}
       </span>
-      {options.map((status) => {
-        const checked = selected.includes(status);
-        const blockUncheck = checked && selected.length <= 1;
-        return (
-          <label className="rule-pack-node-field" key={status}>
-            <input
-              type="checkbox"
-              data-testid={`rule-pack-check-status-${status}`}
-              checked={checked}
-              disabled={disabled || blockUncheck}
-              title={disabled ? disabledReason : blockUncheck ? floorReason : undefined}
-              onChange={(event) => onToggle(status, event.target.checked)}
-            />
-            <span title={isKnownStatus(status) ? status : undefined}>
-              {isKnownStatus(status) ? wordFor(ANALYSIS_STATUS_WORDS, status) : `(current) ${status}`}
-            </span>
-          </label>
-        );
-      })}
+      {REPORTED_STATUSES.map(toggle)}
+      <span className="rule-pack-node-label" title="Format name: result_statuses">
+        {CHECK_GROUP_WORDS.keptOutcomes}
+      </span>
+      {kept.map(toggle)}
     </div>
   );
 }
@@ -617,8 +658,10 @@ export function CheckDefinitionsEditor({
                   data-testid="rule-pack-check-diagnostic-policy"
                   title="Format name: diagnostic_policy"
                 >
-                  <span className="rule-pack-node-label">{fieldWord("diagnostic_policy")}</span>
-                  {DIAGNOSTIC_POLICY_FIELDS.map((field) => (
+                  {POLICY_GROUPS.map(([heading, fields]) => (
+                  <div className="rule-pack-check-subgroup" key={heading}>
+                  <span className="rule-pack-node-label">{heading}</span>
+                  {fields.map((field) => (
                     <EnumSelect
                       key={field}
                       testId={`rule-pack-check-policy-${field}`}
@@ -630,6 +673,8 @@ export function CheckDefinitionsEditor({
                       disabled={disabled}
                       onChange={(next) => updateDiagnosticPolicy(index, field, next)}
                     />
+                  ))}
+                  </div>
                   ))}
                 </div>
               </Disclosure>

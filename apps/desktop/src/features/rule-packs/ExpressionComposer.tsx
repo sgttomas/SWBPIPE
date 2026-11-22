@@ -727,7 +727,12 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
 
   if (kind === "variable_ref") {
     const variableId = asString(node.variable_id) ?? "";
-    const known = variables.some((variable) => variable.id === variableId);
+    // A formula binds only declared inputs: a limit never binds as a formula
+    // variable (the validator refuses it), so the picker offers inputs only.
+    // A stored reference to anything else stays shown as "(current)".
+    const inputs = bindableVariables(variables);
+    const known = inputs.some((variable) => variable.id === variableId);
+    const shown = variableNames(inputs);
     return (
       <NodeShell kind={kind} label={label} depth={depth}>
         {typeSelect}
@@ -739,20 +744,20 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
             disabled={disabled}
             onChange={(event) => onChange({ ...node, variable_id: event.target.value })}
           >
-            {variables.length === 0 ? <option value="">(no declared inputs or slots)</option> : null}
+            {inputs.length === 0 ? <option value="">(no declared inputs)</option> : null}
             {!known && variableId !== "" ? (
               <option value={variableId}>(current) {variableId}</option>
             ) : null}
-            {variables.map((variable) => (
+            {inputs.map((variable) => (
               <option key={variable.id} value={variable.id} title={`${variable.id} (${variable.kind})`}>
-                {variableWord(variable)}
+                {shown[variable.id]}
               </option>
             ))}
           </select>
         </label>
         {variableId === "" ? (
           <small className="rule-pack-node-note" data-testid="rule-pack-variable-ref-empty">
-            No input or limit chosen; the check reports a missing reference until one is.
+            No input chosen; the check reports a missing reference until one is.
           </small>
         ) : null}
       </NodeShell>
@@ -1243,9 +1248,22 @@ export function ExpressionComposer({
   );
 }
 
-/** A variable as the picker names it: an input by its name, a limit by its identifier. */
-function variableWord(variable: RulePackVariable): string {
-  return variable.kind === "required_input" ? `${variable.name} (input)` : `${variable.id} (limit)`;
+/** The variables a formula can bind: the declared required inputs. */
+export function bindableVariables(variables: RulePackVariable[]): RulePackVariable[] {
+  return variables.filter((variable) => variable.kind === "required_input");
+}
+
+/**
+ * How the picker names each input: by its name, with its identifier beside a
+ * name two inputs share, so different inputs never look the same.
+ */
+export function variableNames(inputs: RulePackVariable[]): Record<string, string> {
+  const shown: Record<string, string> = {};
+  for (const variable of inputs) {
+    const shared = inputs.filter((other) => other.name === variable.name).length > 1;
+    shown[variable.id] = shared && variable.name !== variable.id ? `${variable.name} (${variable.id})` : variable.name;
+  }
+  return shown;
 }
 
 function expressionUnitPolicySummary(route: UnitCatalogRoute | null, expression: AstNode): string {

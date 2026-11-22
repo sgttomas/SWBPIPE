@@ -81,9 +81,12 @@ export function RulePackManagerPanel({
   onR3JourneyEvent,
   queuedIntents,
   onQueueIntent,
-  operationBusy = false
+  operationBusy = false,
+  active = true
 }: {
   model: PreviewModel | null;
+  /** Whether the Rules page is shown; a list read that failed is tried again when it is shown again. */
+  active?: boolean;
   /** The session's current solved result; its rows' selectors are offered to solver inputs. */
   result?: SessionResult | null;
   onR3JourneyEvent?: (event: RulePackR3JourneyEvent) => void;
@@ -115,8 +118,14 @@ export function RulePackManagerPanel({
   const [inFlight, setInFlight] = useState(false);
   // Reading the list never blocks editing; a newer read supersedes an older one.
   const listRequest = useRef(0);
+  // The project whose packs the list may show: a read started for another
+  // project (a save or delete that finished after the project changed) is dropped.
+  const currentProject = useRef<string | null>(null);
+  // The last list read for the current project failed, so it is tried again when the page is shown again.
+  const [listFailed, setListFailed] = useState(false);
 
   const projectId = model?.project.id ?? null;
+  currentProject.current = projectId;
   // A stored pack in another format: shown with its refusal,
   // delete only. There is no migration; the user re-authors it.
   const refusedStoredPack =
@@ -139,16 +148,36 @@ export function RulePackManagerPanel({
   useEffect(() => {
     setEntries([]);
     setListRefreshed(false);
-    void readList();
-    // readList reads projectId through this render's closure.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setListFailed(false);
+    void readList(projectId);
   }, [projectId]);
 
-  async function readList() {
+  // Back on the page after a failed read in the same project: read again.
+  useEffect(() => {
+    if (active && listFailed) void readList(projectId);
+    // Only the page being shown again starts this read.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active]);
+
+  /**
+   * Read the saved packs of `forProject`. Without a project nothing is read:
+   * the store's list with no project names every project's packs, and the
+   * page shows one project's only.
+   */
+  async function readList(forProject: string | null) {
     const request = ++listRequest.current;
+    if (forProject === null) {
+      setEntries([]);
+      setListRefreshed(false);
+      setListFailed(false);
+      setListStatus(null);
+      return;
+    }
+    const stale = () => request !== listRequest.current || currentProject.current !== forProject;
     try {
-      const route = await listLocalRulePacks(projectId);
-      if (request !== listRequest.current) return;
+      const route = await listLocalRulePacks(forProject);
+      if (stale()) return;
+      setListFailed(false);
       if (route.route === "unavailable_browser_preview") {
         setEntries([]);
         setListStatus({ text: PAGE_WORDS.listUnavailable, code: route.diagnostic });
@@ -158,8 +187,9 @@ export function RulePackManagerPanel({
       setListRefreshed(true);
       setListStatus(route.entries.length === 0 ? { text: PAGE_WORDS.listEmpty } : null);
     } catch (error) {
-      if (request !== listRequest.current) return;
+      if (stale()) return;
       setEntries([]);
+      setListFailed(true);
       setListStatus({ text: `The saved rule packs could not be read: ${String(error)}`, code: "RULE-PACK-BACKEND-ERROR (list)" });
     }
   }
@@ -235,7 +265,7 @@ export function RulePackManagerPanel({
         return;
       }
       acceptValidation(route.validation, text);
-      const blocking = blockingFindings(route.validation).length;
+      const blocking = faultsOf(route.validation, document).length;
       setActionStatus({
         text: blocking === 0 ? `Checked: ${PAGE_WORDS.noFaults}` : `Checked: ${thingsToFix(blocking)}.`,
         code:
@@ -276,6 +306,8 @@ export function RulePackManagerPanel({
   }
 
   async function handleSave() {
+    // The list is read again for the project this act was made in, and only while it is still open.
+    const actProject = projectId;
     if (!projectId) {
       setActionStatus({ text: PAGE_WORDS.noProject });
       return;
@@ -293,12 +325,12 @@ export function RulePackManagerPanel({
       }
       acceptValidation(route.envelope.validation, text);
       setSavedText(text);
-      const blocking = blockingFindings(route.envelope.validation).length;
+      const blocking = faultsOf(route.envelope.validation, document).length;
       setActionStatus({
         text: blocking === 0 ? "Saved on this computer." : `Saved on this computer, with ${thingsToFix(blocking)}.`,
         code: `${route.envelope.message} (rule_pack_id=${route.envelope.rule_pack_id}, storage=${route.envelope.storage_mode})`
       });
-      await readList();
+      await readList(actProject);
     } catch (error) {
       reportBackendError("save", error);
     } finally {
@@ -307,6 +339,8 @@ export function RulePackManagerPanel({
   }
 
   async function handleOpen(entry: LocalRulePackIndexEntry) {
+    // The list is read again for the project this act was made in, and only while it is still open.
+    const actProject = projectId;
     setInFlight(true);
     try {
       const route = await openLocalRulePack(entry.project_id, entry.rule_pack_id);
@@ -316,7 +350,7 @@ export function RulePackManagerPanel({
       }
       if (!route.envelope) {
         setActionStatus({ text: `${packName(entry)} is no longer saved here.`, code: entry.rule_pack_id });
-        await readList();
+        await readList(actProject);
         return;
       }
       const text = JSON.stringify(route.envelope.document, null, 2);
@@ -334,6 +368,8 @@ export function RulePackManagerPanel({
   }
 
   async function handleDelete(entry: LocalRulePackIndexEntry) {
+    // The list is read again for the project this act was made in, and only while it is still open.
+    const actProject = projectId;
     setInFlight(true);
     try {
       const route = await deleteLocalRulePack(entry.project_id, entry.rule_pack_id);
@@ -358,7 +394,7 @@ export function RulePackManagerPanel({
         setChecksum(null);
         setOpenedEntry(null);
       }
-      await readList();
+      await readList(actProject);
     } catch (error) {
       reportBackendError("delete", error);
     } finally {
@@ -391,7 +427,10 @@ export function RulePackManagerPanel({
   const editorReason = inFlight ? BUSY_REASON : undefined;
   const actionDisabled = !draft || inFlight || refusedStoredPack !== null;
   const document = parsedDraft && parsedDraft.ok ? parsedDraft.document : null;
-  const partFaults = validationCurrent && validation && document ? faultsByPart(validation, document) : emptyFaults();
+  const faults = validation ? faultsOf(validation, document) : [];
+  const partFaults = validationCurrent ? faultsByPart(faults) : emptyFaults();
+  // The saved pack's row carries a check's verdict only when the check was of the pack as saved.
+  const savedPackChecked = validationCurrent && savedText !== null && validatedText === savedText;
 
   // The outcome of the last act, in one line: under the save controls while a
   // pack is open, under the list once it is closed (a discard or a delete).
@@ -449,7 +488,7 @@ export function RulePackManagerPanel({
               <span>version {entry.rule_pack_version || "not stated"}</span>
               <span className="rule-pack-row-state">
                 {[
-                  isOpen && validationCurrent && validation ? findingsInWords(validation) : wordFor(LIFECYCLE_WORDS, entry.lifecycle_status),
+                  isOpen && savedPackChecked ? faultsInWords(faults) : wordFor(LIFECYCLE_WORDS, entry.lifecycle_status),
                   used ? PAGE_WORDS.usedByModel : null
                 ]
                   .filter(Boolean)
@@ -545,10 +584,10 @@ export function RulePackManagerPanel({
           {validation ? (
             <div className="rule-pack-findings-words" data-testid="rule-pack-validation-words" role="status">
               {!validationCurrent ? <small>{PAGE_WORDS.staleFindings} </small> : null}
-              <small>{findingsInWords(validation)}</small>
-              {blockingFindings(validation).length > 0 ? (
+              <small>{faultsInWords(faults)}</small>
+              {faults.length > 0 ? (
                 <ul>
-                  {blockingFindings(validation).map((finding, index) => (
+                  {faults.map((finding, index) => (
                     <li key={`${finding.code}:${finding.subject}:${index}`} title={`${finding.code}; ${finding.subject}`}>
                       {finding.message}
                     </li>
@@ -845,11 +884,31 @@ function idsOf(document: RulePackDocument, member: string, idKey: string): strin
 
 /**
  * The part a finding belongs to, read from its subject: a document path
- * (`required_inputs[0].name`) or a declared identifier. A finding of the whole
- * document belongs to no part and is shown beside the save controls only.
+ * (`required_inputs[0].name`) or a declared identifier. An identifier may
+ * itself hold dots (`stress.hot`), so the whole subject is looked up as an
+ * identifier before any path is read from it. A finding of the whole document
+ * belongs to no part and is shown beside the save controls only.
  */
 export function partOfSubject(subject: string, document: RulePackDocument): PartKey | null {
-  const head = subject.trim().split(/[[.\s(]/, 1)[0];
+  const trimmed = subject.trim();
+  const byId: Array<[PartKey, string[]]> = [
+    ["loadCases", idsOf(document, "required_load_cases", "required_load_case_id")],
+    [
+      "categories",
+      [...idsOf(document, "stress_categories", "category_id"), ...idsOf(document, "load_case_mappings", "mapping_id")]
+    ],
+    ["inputs", [...idsOf(document, "required_inputs", "input_id"), ...idsOf(document, "value_slots", "slot_id")]],
+    ["formula", idsOf(document, "formula_declarations", "formula_id")],
+    ["checks", idsOf(document, "check_definitions", "check_id")]
+  ];
+  const byIdentifier = (candidate: string): PartKey | null => {
+    for (const [part, ids] of byId) if (ids.includes(candidate)) return part;
+    return null;
+  };
+  // 1. The whole subject, or the subject before a parenthesised note, as an identifier.
+  const whole = byIdentifier(trimmed) ?? byIdentifier(trimmed.split(" (", 1)[0]);
+  if (whole) return whole;
+  // 2. A document path: its first member names the part.
   const byMember: Record<string, PartKey> = {
     required_load_cases: "loadCases",
     stress_categories: "categories",
@@ -859,44 +918,53 @@ export function partOfSubject(subject: string, document: RulePackDocument): Part
     formula_declarations: "formula",
     check_definitions: "checks"
   };
-  if (byMember[head]) return byMember[head];
-  const byId: Array<[PartKey, string[]]> = [
-    ["loadCases", idsOf(document, "required_load_cases", "required_load_case_id")],
-    ["categories", idsOf(document, "stress_categories", "category_id")],
-    ["inputs", [...idsOf(document, "required_inputs", "input_id"), ...idsOf(document, "value_slots", "slot_id")]],
-    ["formula", idsOf(document, "formula_declarations", "formula_id")],
-    ["checks", idsOf(document, "check_definitions", "check_id")]
-  ];
-  for (const [part, ids] of byId) if (ids.includes(head)) return part;
+  const member = /^([a-z_]+)(?:\[|\.|$)/.exec(trimmed)?.[1];
+  if (member && byMember[member]) return byMember[member];
   return null;
 }
 
-/** The blocking findings of the last check, by the part they belong to. */
-function faultsByPart(validation: RulePackDocumentValidation, document: RulePackDocument): PartFaults {
-  const faults = emptyFaults();
-  const add = (part: PartKey | null, message: string, code: string) => {
-    if (!part) return;
-    const current = faults[part];
-    faults[part] = current ? { ...current, more: current.more + 1 } : { message, code, more: 0 };
-  };
-  for (const finding of blockingFindings(validation)) add(partOfSubject(finding.subject, document), finding.message, finding.code);
+/** A fault the last check found: a blocking document finding or a blocking unit finding. */
+type Fault = { message: string; code: string; subject: string; part: PartKey | null };
+
+/**
+ * Every blocking fault of the last check, each with the part it belongs to.
+ * A blocking unit finding is a fault like any other, so the count, the list
+ * beside the save controls and the parts' closed lines always agree.
+ */
+export function faultsOf(validation: RulePackDocumentValidation, document: RulePackDocument | null): Fault[] {
+  const part = (subject: string) => (document ? partOfSubject(subject, document) : null);
+  const faults: Fault[] = collectFindings(validation)
+    .filter((finding) => finding.blocking)
+    .map((finding) => ({ message: finding.message, code: finding.code, subject: finding.subject, part: part(finding.subject) }));
   for (const check of validation.unit_check?.checks ?? []) {
-    for (const finding of check.findings) if (finding.severity === "blocking") add("checks", finding.message, finding.code);
+    for (const finding of check.findings) {
+      if (finding.severity === "blocking") {
+        faults.push({ message: finding.message, code: finding.code, subject: check.check_id, part: "checks" });
+      }
+    }
   }
   for (const finding of validation.unit_check?.declaration_findings ?? []) {
-    if (finding.severity === "blocking") add(partOfSubject(finding.path, document) ?? "inputs", finding.message, finding.code);
+    if (finding.severity === "blocking") {
+      faults.push({ message: finding.message, code: finding.code, subject: finding.path, part: part(finding.path) ?? "inputs" });
+    }
   }
   return faults;
 }
 
-function blockingFindings(validation: RulePackDocumentValidation): RulePackValidationFinding[] {
-  return collectFindings(validation).filter((finding) => finding.blocking);
+/** The faults of the last check, by the part they belong to. */
+function faultsByPart(faults: Fault[]): PartFaults {
+  const byPart = emptyFaults();
+  for (const fault of faults) {
+    if (!fault.part) continue;
+    const current = byPart[fault.part];
+    byPart[fault.part] = current ? { ...current, more: current.more + 1 } : { message: fault.message, code: fault.code, more: 0 };
+  }
+  return byPart;
 }
 
 /** The last check in words: "No faults found." or "N things to fix". */
-function findingsInWords(validation: RulePackDocumentValidation): string {
-  const blocking = blockingFindings(validation).length;
-  return blocking === 0 ? PAGE_WORDS.noFaults : thingsToFix(blocking);
+function faultsInWords(faults: Fault[]): string {
+  return faults.length === 0 ? PAGE_WORDS.noFaults : thingsToFix(faults.length);
 }
 
 function inputsSummary(document: RulePackDocument): string {

@@ -1224,7 +1224,11 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   await page.getByTestId("rule-pack-input-source-kind").last().selectOption("private_library_value");
   await expect(page.getByTestId("rule-pack-input-library-ref")).toBeVisible();
   await expect(page.getByTestId("rule-pack-input-library-ref-note")).toContainText(
-    "never embedded in the rule pack"
+    "the pack keeps only where to find it"
+  );
+  await expect(page.getByTestId("rule-pack-input-library-ref-note")).toHaveAttribute(
+    "title",
+    /never embedded in the rule pack/
   );
   await page.getByTestId("rule-pack-input-library-kind").selectOption("material");
   await page.getByTestId("rule-pack-input-library-id").fill("my_private_lib");
@@ -1254,7 +1258,11 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   await page.getByTestId("rule-pack-input-source-kind").last().selectOption("solver_result");
   await expect(page.getByTestId("rule-pack-input-solver-ref")).toBeVisible();
   await expect(page.getByTestId("rule-pack-input-solver-ref-note")).toContainText(
-    "On each required load case of a check"
+    "Picks one solved row on each load case"
+  );
+  await expect(page.getByTestId("rule-pack-input-solver-ref-note")).toHaveAttribute(
+    "title",
+    /On each required load case of a check/
   );
   await page.getByTestId("rule-pack-input-solver-result-kind").fill("element_local_axial_normal_stress");
   await page.getByTestId("rule-pack-input-solver-entity-ref").fill("pipe:P-100");
@@ -1613,13 +1621,18 @@ test("R3 guided flow routes private library, rule-pack, solve, binding, and bloc
   await openWorkspaceSection(page, "rule-packs");
   await expect(page.getByTestId("workspace-section-rule-packs")).toBeVisible();
   await page.getByTestId("rule-pack-new-draft").click();
+  // The status line says it in words; the code it stands for is its title.
   await page.getByTestId("rule-pack-validate").click();
-  await expect(page.getByTestId("rule-pack-action-status")).toContainText(
-    "RULE-PACK-BACKEND-DESKTOP-ONLY"
+  await expect(page.getByTestId("rule-pack-action-status")).toContainText("run in the desktop app");
+  await expect(page.getByTestId("rule-pack-action-status")).toHaveAttribute(
+    "title",
+    /RULE-PACK-BACKEND-DESKTOP-ONLY/
   );
   await page.getByTestId("rule-pack-compute-checksum").click();
-  await expect(page.getByTestId("rule-pack-action-status")).toContainText(
-    "RULE-PACK-BACKEND-DESKTOP-ONLY"
+  await expect(page.getByTestId("rule-pack-action-status")).toContainText("run in the desktop app");
+  await expect(page.getByTestId("rule-pack-action-status")).toHaveAttribute(
+    "title",
+    /RULE-PACK-BACKEND-DESKTOP-ONLY/
   );
   await page.getByTestId("rule-pack-save").click();
 
