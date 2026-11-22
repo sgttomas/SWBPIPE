@@ -11091,7 +11091,7 @@ fn build_load_case_primitive_loads(
             }
         })
         .collect::<Vec<_>>();
-    append_equivalent_static_generated_loads(model, load_case, &mut loads, diagnostics);
+    let _ = append_equivalent_static_generated_loads(model, load_case, &mut loads, diagnostics);
     loads
 }
 
@@ -11446,14 +11446,14 @@ fn append_seismic_generated_loads<'a>(
 /// mechanics from user inputs and the model's own computed mass
 /// distribution: no coefficients, no catalogs, no defaults; missing inputs
 /// or marked spans are blocking (PRD section 6.2).
-fn append_equivalent_static_generated_loads(
-    model: &PreviewModel,
+fn append_equivalent_static_generated_loads<'a>(
+    model: &'a PreviewModel,
     load_case: &PreviewLoadCase,
     loads: &mut Vec<PrimitiveLoad>,
     diagnostics: &mut Vec<Diagnostic>,
-) {
+) -> Option<seismic_component::Plan<'a>> {
     let Some(equivalent_static) = &load_case.equivalent_static else {
-        return;
+        return None;
     };
     let case_id = load_case.id.as_str();
     // W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md`): the exact
@@ -11472,12 +11472,15 @@ fn append_equivalent_static_generated_loads(
             "equivalent_static generation requires user-entered seismic or wind inputs",
             vec![case_id.to_string()],
         ));
-        return;
+        return None;
     }
 
+    let mut seismic_plan = None;
     if let Some(seismic) = &equivalent_static.seismic {
-        if let SeismicGeneration::Stopped = append_seismic_generated_loads(model, load_case, seismic, loads, diagnostics) {
-            return;
+        match append_seismic_generated_loads(model, load_case, seismic, loads, diagnostics) {
+            SeismicGeneration::Generated(plan) => seismic_plan = Some(plan),
+            SeismicGeneration::Refused => {}
+            SeismicGeneration::Stopped => return None,
         }
     }
 
@@ -11535,10 +11538,10 @@ fn append_equivalent_static_generated_loads(
                 ),
                 vec![case_id.to_string()],
             ));
-            return;
+            return None;
         }
         if span_fields_missing {
-            return;
+            return None;
         }
         let direction_value = wind.direction.as_deref().expect("checked above");
         // Exactly the model schema's tokens, which the readers form the
@@ -11555,7 +11558,7 @@ fn append_equivalent_static_generated_loads(
                     "wind equivalent-static direction must be a global axis (global_x, global_y, or global_z)",
                     vec![case_id.to_string(), "wind.direction".to_string()],
                 ));
-                return;
+                return None;
             }
         };
         let pipe_map = model
@@ -11709,7 +11712,7 @@ fn append_equivalent_static_generated_loads(
             }
         }
         if refs_blocked {
-            return;
+            return None;
         }
         let basis = WindEquivalentStaticBasis {
             load_case_ref: case_id.to_string(),
@@ -11735,6 +11738,7 @@ fn append_equivalent_static_generated_loads(
         }
     }
     refuse_generated_id_collisions(load_case, &loads[generated_from..], diagnostics);
+    seismic_plan
 }
 
 /// W-16 slice c (§2): a generated load whose id equals an authored

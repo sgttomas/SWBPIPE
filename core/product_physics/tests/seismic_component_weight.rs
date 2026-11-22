@@ -1981,7 +1981,7 @@ fn load_state_seismic_warnings_follow_resolved_load_sources() {
     }
 
     // 5. Unlisted collision refusing load-state seismic generation suppresses all seismic warnings.
-    let mut collided_case = mixed_case;
+    let mut collided_case = mixed_case.clone();
     collided_case["primitive_loads"].as_array_mut().unwrap().push(
         entered_load(&format!("{case_id}:generated:seismic:global-y:element-0"), "weight", "AB"),
     );
@@ -1997,6 +1997,68 @@ fn load_state_seismic_warnings_follow_resolved_load_sources() {
         for diagnostics in [&out["diagnostics"], &checks] {
             for warning in [GRAVITY_DIFFERS, WEIGHT_LOAD_ENTERED, CONDITION_WEIGHT_ADDED] {
                 assert!(findings(diagnostics, warning, case_id).is_empty(), "{mode:?} {warning}");
+            }
+        }
+    }
+
+    // 6. Mixed seismic + wind case uses the complete case generation decision (round-2 review):
+    // admitted raises WEIGHT_LOAD_ENTERED on the listed weight; an excluded wind generated-ID
+    // collision or missing wind shape_factor suppresses all seismic warnings in solve and model_checks.
+    let mut mixed_wind_case = mixed_case;
+    mixed_wind_case["equivalent_static"]["wind"] = json!({
+        "pressure": qv(500.0, "Pa"),
+        "shape_factor": qv(0.7, "1"),
+        "direction": "global_z",
+        "exposed_pipe_refs": ["AB"],
+    });
+    let admitted_mixed_wind = as_load_state(
+        document(Route::Ex, Model::Cant, ONE_MAPPED, vec![mixed_wind_case.clone()]),
+        &[&["load:listed-weight".to_string()]],
+    );
+    let checks = model_checks(&admitted_mixed_wind);
+    for mode in MODES {
+        let out = solved(&admitted_mixed_wind, mode, "load-state admitted mixed seismic+wind");
+        let found = findings(&out["diagnostics"], WEIGHT_LOAD_ENTERED, case_id);
+        assert_eq!(found.len(), 1, "{mode:?}: {found:?}");
+        assert_eq!(named(&out["diagnostics"], WEIGHT_LOAD_ENTERED, case_id), ["load:listed-weight"]);
+        assert!(!found[0]["message"].as_str().unwrap().contains("load:excluded-weight"));
+        assert_eq!(findings(&checks, WEIGHT_LOAD_ENTERED, case_id), found);
+    }
+
+    let mut wind_collided_case = mixed_wind_case.clone();
+    wind_collided_case["primitive_loads"].as_array_mut().unwrap().push(
+        entered_load(&format!("{case_id}:generated:wind:global-z:element-0"), "weight", "AB"),
+    );
+    let wind_collided_wire = as_load_state(
+        document(Route::Ex, Model::Cant, ONE_MAPPED, vec![wind_collided_case]),
+        &[&["load:listed-weight".to_string()]],
+    );
+    let checks = model_checks(&wind_collided_wire);
+    for mode in MODES {
+        let out = run(&wind_collided_wire, mode);
+        assert_eq!(out["status"]["mechanics"], "MODEL_INCOMPLETE", "{mode:?}");
+        assert!(codes(&out).iter().any(|c| c == "EQUIVALENT_STATIC_GENERATED_ID_COLLISION"), "{mode:?}: {:?}", codes(&out));
+        for diagnostics in [&out["diagnostics"], &checks] {
+            for warning in [GRAVITY_DIFFERS, WEIGHT_LOAD_ENTERED, CONDITION_WEIGHT_ADDED] {
+                assert!(findings(diagnostics, warning, case_id).is_empty(), "wind collision {mode:?} {warning}");
+            }
+        }
+    }
+
+    let mut wind_missing_case = mixed_wind_case;
+    wind_missing_case["equivalent_static"]["wind"].as_object_mut().unwrap().remove("shape_factor");
+    let wind_missing_wire = as_load_state(
+        document(Route::Ex, Model::Cant, ONE_MAPPED, vec![wind_missing_case]),
+        &[&["load:listed-weight".to_string()]],
+    );
+    let checks = model_checks(&wind_missing_wire);
+    for mode in MODES {
+        let out = run(&wind_missing_wire, mode);
+        assert_eq!(out["status"]["mechanics"], "MODEL_INCOMPLETE", "{mode:?}");
+        assert!(codes(&out).iter().any(|c| c == "EQUIVALENT_STATIC_INPUT_MISSING"), "{mode:?}: {:?}", codes(&out));
+        for diagnostics in [&out["diagnostics"], &checks] {
+            for warning in [GRAVITY_DIFFERS, WEIGHT_LOAD_ENTERED, CONDITION_WEIGHT_ADDED] {
+                assert!(findings(diagnostics, warning, case_id).is_empty(), "wind missing {mode:?} {warning}");
             }
         }
     }

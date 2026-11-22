@@ -267,28 +267,23 @@ pub(crate) fn append(
     }
 }
 
-/// The generator's own admission of the case's seismic generation: the
-/// component plan when [`crate::append_seismic_generated_loads`] generates
-/// the case's seismic loads with no refusal (a present, finite, strictly
-/// positive gravity; at least one entered g-factor, every entered one finite;
-/// no component-plan refusal; every unreplaced member's mass; the
-/// generator's own checks) and no generated id collision (`refuse_generated_id_collisions`,
-/// and for load/reference-state documents `refuse_load_state_generated_collisions`,
-/// plus `refuse_document_generated_collisions`); otherwise `None`. The generator is
-/// asked, so the gate cannot drift from it.
+/// The generator's own admission of the case's generation: the component plan
+/// when [`crate::append_equivalent_static_generated_loads`] admits both seismic
+/// and any accompanying wind generation on the case with no refusal and no
+/// generated id collision (`refuse_generated_id_collisions`,
+/// `refuse_load_state_generated_collisions`, and
+/// `refuse_document_generated_collisions`); otherwise `None`. The case's
+/// complete generation gate is asked so warnings agree with `solve_prepared_load_case`.
 fn admitted<'a>(
     model: &'a PreviewModel,
     materials: &[crate::MaterialInput],
     case: &PreviewLoadCase,
     resolved: Option<&crate::case_state::resolve::ResolvedCase>,
 ) -> Option<crate::seismic_component::Plan<'a>> {
-    let seismic = case.equivalent_static.as_ref()?.seismic.as_ref()?;
+    case.equivalent_static.as_ref()?.seismic.as_ref()?;
     let mut loads = Vec::new();
     let mut refusals = Vec::new();
-    let crate::SeismicGeneration::Generated(plan) = crate::append_seismic_generated_loads(model, case, seismic, &mut loads, &mut refusals) else {
-        return None;
-    };
-    crate::refuse_generated_id_collisions(case, &loads, &mut refusals);
+    let plan = crate::append_equivalent_static_generated_loads(model, case, &mut loads, &mut refusals)?;
     if let Some(state) = resolved {
         crate::refuse_load_state_generated_collisions(model, case, state, &loads, &mut refusals);
     }
