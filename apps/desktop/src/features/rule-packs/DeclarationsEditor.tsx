@@ -1,5 +1,18 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { DimensionSelect } from "./ExpressionComposer";
+import {
+  BASIS_TYPE_WORDS,
+  COMPLETENESS_WORDS,
+  LIBRARY_KIND_WORDS,
+  PART_WORDS,
+  REQUIRED_FOR_WORDS,
+  SLOT_KIND_WORDS,
+  SOURCE_KIND_WORDS,
+  VALUE_STATUS_WORDS,
+  fieldWord,
+  wordFor,
+  type Words
+} from "./rulePackWords";
 import { draftPlaceholderProvenance } from "../../services/rulePackService";
 import {
   SOLVER_SELECTOR_SECTION_BASES,
@@ -295,13 +308,43 @@ export function setValueSlots(
   return { ...document, value_slots: slots };
 }
 
+/**
+ * How a reference names each declaration: by its entered name, falling back
+ * to its identifier where no name was entered, and with the identifier beside
+ * a name two declarations share, so different declarations never look the same.
+ */
+export function distinctNames(ids: readonly string[], names?: Record<string, string>): Record<string, string> {
+  const named = ids.map((id) => names?.[id] || id);
+  const shown: Record<string, string> = {};
+  ids.forEach((id, index) => {
+    const name = named[index];
+    const shared = named.filter((other) => other === name).length > 1;
+    shown[id] = shared && name !== id ? `${name} (${id})` : name;
+  });
+  return shown;
+}
+
 // ---------------------------------------------------------------------------
 // Field primitives
 // ---------------------------------------------------------------------------
 
-export function Field({ label, children }: { label: string; children: ReactNode }) {
+/** The title that keeps a field's format name findable. */
+export function formatNameTitle(formatName: string | undefined): string | undefined {
+  return formatName ? `Format name: ${formatName}` : undefined;
+}
+
+export function Field({
+  label,
+  formatName,
+  children
+}: {
+  label: string;
+  /** The format's own name of the field, kept as the label's title. */
+  formatName?: string;
+  children: ReactNode;
+}) {
   return (
-    <label className="rule-pack-node-field">
+    <label className="rule-pack-node-field" title={formatNameTitle(formatName)}>
       <span>{label}</span>
       {children}
     </label>
@@ -311,18 +354,20 @@ export function Field({ label, children }: { label: string; children: ReactNode 
 export function TextField({
   testId,
   label,
+  formatName,
   value,
   disabled,
   onChange
 }: {
   testId: string;
   label: string;
+  formatName?: string;
   value: string;
   disabled: boolean;
   onChange: (next: string) => void;
 }) {
   return (
-    <Field label={label}>
+    <Field label={label} formatName={formatName}>
       <input
         type="text"
         data-testid={testId}
@@ -361,6 +406,7 @@ function unitOptions(route: UnitCatalogRoute | null, dimensionId: string, curren
 function UnitRefField({
   testId,
   label,
+  formatName,
   value,
   dimension,
   disabled,
@@ -369,6 +415,7 @@ function UnitRefField({
 }: {
   testId: string;
   label: string;
+  formatName?: string;
   value: string;
   dimension: string;
   disabled: boolean;
@@ -379,13 +426,13 @@ function UnitRefField({
   // behavior so browser preview does not invent a fallback catalog.
   if (unitCatalogRoute?.route !== "tauri_unit_catalog") {
     return (
-      <TextField testId={testId} label={label} value={value} disabled={disabled} onChange={onChange} />
+      <TextField testId={testId} label={label} formatName={formatName} value={value} disabled={disabled} onChange={onChange} />
     );
   }
 
   const options = unitOptions(unitCatalogRoute, dimension, value);
   return (
-    <Field label={label}>
+    <Field label={label} formatName={formatName}>
       <select
         data-testid={testId}
         value={value.trim() || "TBD"}
@@ -405,14 +452,19 @@ function UnitRefField({
 export function EnumSelect({
   testId,
   label,
+  formatName,
   options,
+  words,
   value,
   disabled,
   onChange
 }: {
   testId: string;
   label: string;
+  formatName?: string;
   options: readonly string[];
+  /** The visible word of each token; the token stays the option's value and title. */
+  words?: Words;
   value: string;
   disabled: boolean;
   onChange: (next: string) => void;
@@ -422,7 +474,7 @@ export function EnumSelect({
   // silently snapping it to a default — the user sees exactly what is stored.
   const known = options.includes(value);
   return (
-    <Field label={label}>
+    <Field label={label} formatName={formatName}>
       <select
         data-testid={testId}
         value={value}
@@ -431,12 +483,34 @@ export function EnumSelect({
       >
         {!known ? <option value={value}>(current) {value}</option> : null}
         {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
+          <option key={option} value={option} title={words ? option : undefined}>
+            {words ? wordFor(words, option) : option}
           </option>
         ))}
       </select>
     </Field>
+  );
+}
+
+/**
+ * A closed disclosure inside a row or part ("More", "Details"). Native
+ * <details>: every control inside stays in the document, reachable by
+ * keyboard once opened.
+ */
+export function Disclosure({
+  summary,
+  testId,
+  children
+}: {
+  summary: ReactNode;
+  testId?: string;
+  children: ReactNode;
+}) {
+  return (
+    <details className="rule-pack-disclosure" data-testid={testId}>
+      <summary>{summary}</summary>
+      {children}
+    </details>
   );
 }
 
@@ -628,19 +702,8 @@ export function DeclarationsEditor({
 
   return (
     <div className="report-list rule-pack-declarations-editor" data-testid="rule-pack-declarations-editor">
-      <strong>Variable declarations (structured; no text syntax — D-02b)</strong>
-      <small className="rule-pack-node-readonly" data-testid="rule-pack-declarations-guidance">
-        Declare the rule pack&apos;s required inputs (bound from solver results or model inputs at
-        check time) and user-supplied value slots (private allowables/limits). The expression
-        composer&apos;s <code>variable_ref</code> picker binds to these ids. Values stay private; the
-        software never fills in code or standards values.
-      </small>
-      <small className="rule-pack-node-readonly" data-testid="rule-pack-declarations-unit-policy">
-        {unitPolicySummary}
-      </small>
-
       <div data-testid="rule-pack-required-inputs">
-        <small>Required inputs ({rawInputs.length})</small>
+        <strong className="rule-pack-subheading">{PART_WORDS.inputsHeading} ({rawInputs.length})</strong>
         {rawInputs.map((entry, index) => {
           const record = asObject(entry) ?? {};
           const quantity = asObject(record.quantity_intent) ?? {};
@@ -663,28 +726,24 @@ export function DeclarationsEditor({
               key={`input-${index}`}
             >
               <TextField
-                testId="rule-pack-input-id"
-                label="input_id"
-                value={asString(record.input_id) ?? ""}
-                disabled={disabled}
-                onChange={(next) => updateInput(index, { input_id: next })}
-              />
-              <TextField
                 testId="rule-pack-input-name"
-                label="name"
+                label={fieldWord("name")}
+                formatName="name"
                 value={asString(record.name) ?? ""}
                 disabled={disabled}
                 onChange={(next) => updateInput(index, { name: next })}
               />
               <EnumSelect
                 testId="rule-pack-input-source-kind"
-                label="source_kind"
+                label={fieldWord("source_kind")}
+                formatName="source_kind"
                 options={SOURCE_KINDS}
+                words={SOURCE_KIND_WORDS}
                 value={asString(record.source_kind) ?? "TBD"}
                 disabled={disabled}
                 onChange={(next) => changeInputSourceKind(index, next)}
               />
-              <Field label="dimension">
+              <Field label={fieldWord("dimension")} formatName="quantity_intent.dimension">
                 <DimensionSelect
                   testId="rule-pack-input-dimension"
                   value={asString(quantity.dimension) ?? "TBD"}
@@ -694,64 +753,53 @@ export function DeclarationsEditor({
               </Field>
               <UnitRefField
                 testId="rule-pack-input-unit"
-                label="unit_ref"
+                label={fieldWord("unit_ref")}
+                formatName="quantity_intent.unit_ref"
                 value={asString(quantity.unit_ref) ?? "TBD"}
                 dimension={asString(quantity.dimension) ?? "TBD"}
                 disabled={disabled}
                 unitCatalogRoute={unitCatalogRoute}
                 onChange={(next) => updateInputQuantity(index, { unit_ref: next })}
               />
-              <EnumSelect
-                testId="rule-pack-input-required-for"
-                label="required_for"
-                options={REQUIRED_FOR_TARGETS}
-                value={asString(record.required_for) ?? "TBD"}
-                disabled={disabled}
-                onChange={(next) => updateInput(index, { required_for: next })}
-              />
-              <EnumSelect
-                testId="rule-pack-input-completeness"
-                label="completeness_status"
-                options={COMPLETENESS_STATUSES}
-                value={asString(record.completeness_status) ?? "TBD"}
-                disabled={disabled}
-                onChange={(next) => updateInput(index, { completeness_status: next })}
-              />
               {showLibraryRef ? (
                 <div className="rule-pack-node" data-testid="rule-pack-input-library-ref">
                   <small
-                    className="rule-pack-node-readonly"
+                    className="rule-pack-node-note"
                     data-testid="rule-pack-input-library-ref-note"
+                    title="The referenced value is resolved at check-run time from the local private library store; it stays in the library and is never embedded in the rule pack."
                   >
-                    Private library reference. The referenced value is resolved at check-run time
-                    from the local private library store; it stays in the library and is never
-                    embedded in the rule pack.
+                    The value stays in your private library; the pack keeps only where to find it.
                   </small>
                   <EnumSelect
                     testId="rule-pack-input-library-kind"
-                    label="library_kind"
+                    label={fieldWord("library_kind")}
+                    formatName="library_value_ref.library_kind"
                     options={LIBRARY_KINDS}
+                    words={LIBRARY_KIND_WORDS}
                     value={asString(libraryRef?.library_kind) ?? LIBRARY_KINDS[0]}
                     disabled={disabled}
                     onChange={(next) => updateInputLibraryRef(index, { library_kind: next })}
                   />
                   <TextField
                     testId="rule-pack-input-library-id"
-                    label="library_id"
+                    label={fieldWord("library_id")}
+                    formatName="library_value_ref.library_id"
                     value={asString(libraryRef?.library_id) ?? ""}
                     disabled={disabled}
                     onChange={(next) => updateInputLibraryRef(index, { library_id: next })}
                   />
                   <TextField
                     testId="rule-pack-input-library-record"
-                    label="record_id"
+                    label={fieldWord("record_id")}
+                    formatName="library_value_ref.record_id"
                     value={asString(libraryRef?.record_id) ?? ""}
                     disabled={disabled}
                     onChange={(next) => updateInputLibraryRef(index, { record_id: next })}
                   />
                   <TextField
                     testId="rule-pack-input-library-slot"
-                    label="slot_id"
+                    label={fieldWord("library slot_id")}
+                    formatName="library_value_ref.slot_id"
                     value={asString(libraryRef?.slot_id) ?? ""}
                     disabled={disabled}
                     onChange={(next) => updateInputLibraryRef(index, { slot_id: next })}
@@ -776,25 +824,24 @@ export function DeclarationsEditor({
               {showSolverRef ? (
                 <div className="rule-pack-node" data-testid="rule-pack-input-solver-ref">
                   <small
-                    className="rule-pack-node-readonly"
+                    className="rule-pack-node-note"
                     data-testid="rule-pack-input-solver-ref-note"
+                    title="On each required load case of a check, this input binds the one solved row of this kind and entity whose location, component, section basis and tie rod equal the members below; an empty optional member matches only a row without it. No row, or more than one, leaves the check incomplete there."
                   >
-                    Solver-row selector. On each required load case of a check, this input binds the
-                    one solved row of this kind and entity whose location, component, section basis and
-                    tie rod equal the members below; an empty optional member matches only a row
-                    without it. No row, or more than one, leaves the check incomplete there.
+                    Picks one solved row on each load case; none or several leaves the check incomplete there.
                   </small>
                   {SOLVER_SELECTOR_TEXT_MEMBERS.map((member) => (
                     <TextField
                       key={member}
                       testId={`rule-pack-input-solver-${member.replace("_", "-")}`}
-                      label={member}
+                      label={fieldWord(member)}
+                      formatName={`solver_result_ref.${member}`}
                       value={asString(solverRef?.[member]) ?? ""}
                       disabled={disabled}
                       onChange={(next) => updateInputSolverRef(index, member, next)}
                     />
                   ))}
-                  <Field label="section_basis">
+                  <Field label={fieldWord("section_basis")} formatName="solver_result_ref.section_basis">
                     <select
                       data-testid="rule-pack-input-solver-section-basis"
                       value={asString(solverRef?.section_basis) ?? ""}
@@ -816,7 +863,7 @@ export function DeclarationsEditor({
                     </select>
                   </Field>
                   {selectorOffers.length > 0 ? (
-                    <Field label="from the current solved result">
+                    <Field label={fieldWord("solver_offer")}>
                       <select
                         data-testid="rule-pack-input-solver-offer"
                         value=""
@@ -832,8 +879,8 @@ export function DeclarationsEditor({
                       </select>
                     </Field>
                   ) : (
-                    <small className="rule-pack-node-readonly" data-testid="rule-pack-input-solver-offer-none">
-                      No current solved result in this session; type the selector members.
+                    <small className="rule-pack-node-note" data-testid="rule-pack-input-solver-offer-none">
+                      No solved result in this session; type the selector members.
                     </small>
                   )}
                   <button
@@ -853,6 +900,36 @@ export function DeclarationsEditor({
                   </button>
                 </div>
               ) : null}
+              <Disclosure summary="More" testId="rule-pack-input-more">
+                <TextField
+                  testId="rule-pack-input-id"
+                  label={fieldWord("input_id")}
+                  formatName="input_id"
+                  value={asString(record.input_id) ?? ""}
+                  disabled={disabled}
+                  onChange={(next) => updateInput(index, { input_id: next })}
+                />
+                <EnumSelect
+                  testId="rule-pack-input-required-for"
+                  label={fieldWord("required_for")}
+                  formatName="required_for"
+                  options={REQUIRED_FOR_TARGETS}
+                  words={REQUIRED_FOR_WORDS}
+                  value={asString(record.required_for) ?? "TBD"}
+                  disabled={disabled}
+                  onChange={(next) => updateInput(index, { required_for: next })}
+                />
+                <EnumSelect
+                  testId="rule-pack-input-completeness"
+                  label={fieldWord("completeness_status")}
+                  formatName="completeness_status"
+                  options={COMPLETENESS_STATUSES}
+                  words={COMPLETENESS_WORDS}
+                  value={asString(record.completeness_status) ?? "TBD"}
+                  disabled={disabled}
+                  onChange={(next) => updateInput(index, { completeness_status: next })}
+                />
+              </Disclosure>
               <button
                 type="button"
                 data-testid="rule-pack-input-remove"
@@ -872,12 +949,12 @@ export function DeclarationsEditor({
           title={disabled ? disabledReason : undefined}
           onClick={addInput}
         >
-          Add required input
+          Add input
         </button>
       </div>
 
       <div data-testid="rule-pack-value-slots">
-        <small>Value slots ({rawSlots.length})</small>
+        <strong className="rule-pack-subheading">{PART_WORDS.limitsHeading} ({rawSlots.length})</strong>
         {rawSlots.map((entry, index) => {
           const record = asObject(entry) ?? {};
           const quantity = asObject(record.quantity_intent) ?? {};
@@ -887,22 +964,26 @@ export function DeclarationsEditor({
               data-testid="rule-pack-value-slot-row"
               key={`slot-${index}`}
             >
+              {/* A limit has no name member: its identifier is the name it has. */}
               <TextField
                 testId="rule-pack-slot-id"
-                label="slot_id"
+                label={fieldWord("slot_id")}
+                formatName="slot_id"
                 value={asString(record.slot_id) ?? ""}
                 disabled={disabled}
                 onChange={(next) => updateSlot(index, { slot_id: next })}
               />
               <EnumSelect
                 testId="rule-pack-slot-kind"
-                label="slot_kind"
+                label={fieldWord("slot_kind")}
+                formatName="slot_kind"
                 options={SLOT_KINDS}
+                words={SLOT_KIND_WORDS}
                 value={asString(record.slot_kind) ?? "TBD"}
                 disabled={disabled}
                 onChange={(next) => updateSlot(index, { slot_kind: next })}
               />
-              <Field label="dimension">
+              <Field label={fieldWord("dimension")} formatName="quantity_intent.dimension">
                 <DimensionSelect
                   testId="rule-pack-slot-dimension"
                   value={asString(quantity.dimension) ?? "TBD"}
@@ -912,37 +993,46 @@ export function DeclarationsEditor({
               </Field>
               <UnitRefField
                 testId="rule-pack-slot-unit"
-                label="unit_ref"
+                label={fieldWord("unit_ref")}
+                formatName="quantity_intent.unit_ref"
                 value={asString(quantity.unit_ref) ?? "TBD"}
                 dimension={asString(quantity.dimension) ?? "TBD"}
                 disabled={disabled}
                 unitCatalogRoute={unitCatalogRoute}
                 onChange={(next) => updateSlotQuantity(index, { unit_ref: next })}
               />
-              <EnumSelect
-                testId="rule-pack-slot-value-status"
-                label="value_status"
-                options={VALUE_STATUSES}
-                value={asString(record.value_status) ?? "TBD"}
-                disabled={disabled}
-                onChange={(next) => updateSlot(index, { value_status: next })}
-              />
-              <EnumSelect
-                testId="rule-pack-slot-required-for"
-                label="required_for"
-                options={REQUIRED_FOR_TARGETS}
-                value={asString(record.required_for) ?? "TBD"}
-                disabled={disabled}
-                onChange={(next) => updateSlot(index, { required_for: next })}
-              />
-              <EnumSelect
-                testId="rule-pack-slot-completeness"
-                label="completeness_status"
-                options={COMPLETENESS_STATUSES}
-                value={asString(record.completeness_status) ?? "TBD"}
-                disabled={disabled}
-                onChange={(next) => updateSlot(index, { completeness_status: next })}
-              />
+              <Disclosure summary="More" testId="rule-pack-slot-more">
+                <EnumSelect
+                  testId="rule-pack-slot-value-status"
+                  label={fieldWord("value_status")}
+                  formatName="value_status"
+                  options={VALUE_STATUSES}
+                  words={VALUE_STATUS_WORDS}
+                  value={asString(record.value_status) ?? "TBD"}
+                  disabled={disabled}
+                  onChange={(next) => updateSlot(index, { value_status: next })}
+                />
+                <EnumSelect
+                  testId="rule-pack-slot-required-for"
+                  label={fieldWord("required_for")}
+                  formatName="required_for"
+                  options={REQUIRED_FOR_TARGETS}
+                  words={REQUIRED_FOR_WORDS}
+                  value={asString(record.required_for) ?? "TBD"}
+                  disabled={disabled}
+                  onChange={(next) => updateSlot(index, { required_for: next })}
+                />
+                <EnumSelect
+                  testId="rule-pack-slot-completeness"
+                  label={fieldWord("completeness_status")}
+                  formatName="completeness_status"
+                  options={COMPLETENESS_STATUSES}
+                  words={COMPLETENESS_WORDS}
+                  value={asString(record.completeness_status) ?? "TBD"}
+                  disabled={disabled}
+                  onChange={(next) => updateSlot(index, { completeness_status: next })}
+                />
+              </Disclosure>
               <button
                 type="button"
                 data-testid="rule-pack-slot-remove"
@@ -950,7 +1040,7 @@ export function DeclarationsEditor({
                 title={disabled ? disabledReason : slotRemoveReason}
                 onClick={() => removeSlot(index)}
               >
-                Remove slot
+                Remove limit
               </button>
             </div>
           );
@@ -962,9 +1052,15 @@ export function DeclarationsEditor({
           title={disabled ? disabledReason : undefined}
           onClick={addSlot}
         >
-          Add value slot
+          Add limit
         </button>
       </div>
+
+      <Disclosure summary="Details" testId="rule-pack-declarations-details">
+        <small className="rule-pack-node-readonly" data-testid="rule-pack-declarations-unit-policy">
+          {unitPolicySummary}
+        </small>
+      </Disclosure>
     </div>
   );
 }
@@ -1092,6 +1188,8 @@ export type LoadCaseCategoriesEditorProps = {
   disabled: boolean;
   disabledReason?: string;
   model?: PreviewModel | null;
+  /** Which half to show: the page shows each in its own part; both by default. */
+  show?: "both" | "load-cases" | "categories";
 };
 
 export function LoadCaseCategoriesEditor({
@@ -1099,7 +1197,8 @@ export function LoadCaseCategoriesEditor({
   onChange,
   disabled,
   disabledReason,
-  model = null
+  model = null,
+  show = "both"
 }: LoadCaseCategoriesEditorProps) {
   const rawLoadCases = asArray(document.required_load_cases);
   const rawCategories = asArray(document.stress_categories);
@@ -1107,6 +1206,16 @@ export function LoadCaseCategoriesEditor({
   const loadCaseIds = readRequiredLoadCaseIds(document);
   const categoryIds = readStressCategoryIds(document);
   const basisOptions = modelBasisOptions(model);
+  // Each load case by its name, with its identifier beside a name two share.
+  const loadCaseNames = distinctNames(
+    loadCaseIds,
+    Object.fromEntries(
+      rawLoadCases
+        .map((entry) => asObject(entry))
+        .filter((entry): entry is Record<string, unknown> => entry !== null)
+        .map((entry) => [asString(entry.required_load_case_id) ?? "", asString(entry.name) ?? ""])
+    )
+  );
 
   const patchItem = (items: unknown[], index: number, patch: Record<string, unknown>) =>
     items.map((entry, position) => (position === index ? { ...(asObject(entry) ?? {}), ...patch } : entry));
@@ -1257,21 +1366,22 @@ export function LoadCaseCategoriesEditor({
     onChange({ ...document, load_case_mappings: patchItem(rawMappings, index, { required_load_case_refs: nextRefs }) });
   };
 
+  const showLoadCases = show !== "categories";
+  const showCategories = show !== "load-cases";
   return (
     <div
       className="report-list rule-pack-load-case-categories-editor"
-      data-testid="rule-pack-load-case-categories-editor"
+      data-testid={show === "categories" ? "rule-pack-stress-categories-editor" : "rule-pack-load-case-categories-editor"}
     >
-      <strong>Required load cases, stress categories and mappings</strong>
-      <small className="rule-pack-node-readonly" data-testid="rule-pack-load-case-categories-guidance">
-        Each check names one stress category and is evaluated once for each required load case its
-        category maps, with one outcome per load case or combination. Category names and
-        descriptions are your own text; the software gives them no meaning. A required load case
-        missing from the model or not solved leaves the check incomplete on it.
+      {showLoadCases ? (
+      <small className="rule-pack-node-note" data-testid="rule-pack-load-case-categories-guidance">
+        A check runs once on each load case its stress category lists.
       </small>
+      ) : null}
 
+      {showLoadCases ? (
       <div data-testid="rule-pack-required-load-cases">
-        <small>Required load cases ({rawLoadCases.length})</small>
+        <strong className="rule-pack-subheading">{PART_WORDS.loadCases} ({rawLoadCases.length})</strong>
         {rawLoadCases.map((entry, index) => {
           const record = asObject(entry) ?? {};
           const basis = asObject(record.basis_ref) ?? {};
@@ -1286,28 +1396,15 @@ export function LoadCaseCategoriesEditor({
               key={`load-case-${index}`}
             >
               <TextField
-                testId="rule-pack-load-case-id"
-                label="required_load_case_id"
-                value={asString(record.required_load_case_id) ?? ""}
-                disabled={disabled}
-                onChange={(next) => renameLoadCase(index, next)}
-              />
-              <TextField
                 testId="rule-pack-load-case-name"
-                label="name"
+                label={fieldWord("name")}
+                formatName="name"
                 value={asString(record.name) ?? ""}
                 disabled={disabled}
                 onChange={(next) => updateLoadCase(index, { name: next })}
               />
-              <TextField
-                testId="rule-pack-load-case-description"
-                label="description"
-                value={asString(record.description) ?? ""}
-                disabled={disabled}
-                onChange={(next) => updateLoadCase(index, { description: next })}
-              />
               {basisOptions.length > 0 ? (
-                <Field label="load case or combination (current model)">
+                <Field label={fieldWord("basis_ref")} formatName="basis_ref">
                   <select
                     data-testid="rule-pack-load-case-basis"
                     value={current}
@@ -1333,21 +1430,42 @@ export function LoadCaseCategoriesEditor({
                 <>
                   <EnumSelect
                     testId="rule-pack-load-case-basis-type"
-                    label="basis ref_type"
+                    label={fieldWord("basis ref_type")}
+                    formatName="basis_ref.ref_type"
                     options={["load_case", "combination"]}
+                    words={BASIS_TYPE_WORDS}
                     value={refType}
                     disabled={disabled}
                     onChange={(next) => setLoadCaseBasis(index, next, refId)}
                   />
                   <TextField
                     testId="rule-pack-load-case-basis-id"
-                    label="basis ref_id (the model's id)"
+                    label={fieldWord("basis ref_id")}
+                    formatName="basis_ref.ref_id"
                     value={refId}
                     disabled={disabled}
                     onChange={(next) => setLoadCaseBasis(index, refType || "load_case", next)}
                   />
                 </>
               )}
+              <TextField
+                testId="rule-pack-load-case-description"
+                label={fieldWord("description")}
+                formatName="description"
+                value={asString(record.description) ?? ""}
+                disabled={disabled}
+                onChange={(next) => updateLoadCase(index, { description: next })}
+              />
+              <Disclosure summary="More" testId="rule-pack-load-case-more">
+                <TextField
+                  testId="rule-pack-load-case-id"
+                  label={fieldWord("required_load_case_id")}
+                  formatName="required_load_case_id"
+                  value={asString(record.required_load_case_id) ?? ""}
+                  disabled={disabled}
+                  onChange={(next) => renameLoadCase(index, next)}
+                />
+              </Disclosure>
               <button
                 type="button"
                 data-testid="rule-pack-load-case-remove"
@@ -1361,7 +1479,7 @@ export function LoadCaseCategoriesEditor({
                 }
                 onClick={() => removeLoadCase(index)}
               >
-                Remove required load case
+                Remove load case
               </button>
             </div>
           );
@@ -1373,12 +1491,14 @@ export function LoadCaseCategoriesEditor({
           title={disabled ? disabledReason : undefined}
           onClick={addLoadCase}
         >
-          Add required load case
+          Add load case
         </button>
       </div>
+      ) : null}
 
+      {showCategories ? (
       <div data-testid="rule-pack-stress-categories">
-        <small>Stress categories ({rawCategories.length})</small>
+        <strong className="rule-pack-subheading">{PART_WORDS.categories} ({rawCategories.length})</strong>
         {rawCategories.map((entry, index) => {
           const record = asObject(entry) ?? {};
           const categoryId = asString(record.category_id) ?? "";
@@ -1390,33 +1510,29 @@ export function LoadCaseCategoriesEditor({
               key={`category-${index}`}
             >
               <TextField
-                testId="rule-pack-category-id"
-                label="category_id"
-                value={categoryId}
-                disabled={disabled}
-                onChange={(next) => renameCategory(index, next)}
-              />
-              <TextField
                 testId="rule-pack-category-name"
-                label="name"
+                label={fieldWord("name")}
+                formatName="name"
                 value={asString(record.name) ?? ""}
                 disabled={disabled}
                 onChange={(next) => updateCategory(index, { name: next })}
               />
               <TextField
                 testId="rule-pack-category-description"
-                label="description"
+                label={fieldWord("description")}
+                formatName="description"
                 value={asString(record.description) ?? ""}
                 disabled={disabled}
                 onChange={(next) => updateCategory(index, { description: next })}
               />
-              <div className="rule-pack-check-subgroup" data-testid="rule-pack-category-mapping">
-                <span className="rule-pack-node-label">required load cases of this category</span>
+              <div
+                className="rule-pack-check-subgroup"
+                data-testid="rule-pack-category-mapping"
+                title="Format name: load_case_mappings[].required_load_case_refs"
+              >
+                <span className="rule-pack-node-label">{fieldWord("required_load_case_refs")}</span>
                 {loadCaseIds.map((loadCaseId) => {
-                  const loadCase = asObject(
-                    rawLoadCases.find((candidate) => asObject(candidate)?.required_load_case_id === loadCaseId)
-                  );
-                  const name = asString(loadCase?.name);
+                  const name = loadCaseNames[loadCaseId];
                   return (
                     <label className="rule-pack-node-field" key={loadCaseId}>
                       <input
@@ -1424,14 +1540,24 @@ export function LoadCaseCategoriesEditor({
                         data-testid={`rule-pack-category-mapping-${loadCaseId}`}
                         checked={mapped.includes(loadCaseId)}
                         disabled={disabled || !categoryId}
-                        title={disabled ? disabledReason : !categoryId ? "Give the category an id first." : undefined}
+                        title={disabled ? disabledReason : !categoryId ? "Give the category an identifier first." : undefined}
                         onChange={(event) => toggleMapping(categoryId, loadCaseId, event.target.checked)}
                       />
-                      <span>{name ? `${name} (${loadCaseId})` : loadCaseId}</span>
+                      <span title={loadCaseId}>{name}</span>
                     </label>
                   );
                 })}
               </div>
+              <Disclosure summary="More" testId="rule-pack-category-more">
+                <TextField
+                  testId="rule-pack-category-id"
+                  label={fieldWord("category_id")}
+                  formatName="category_id"
+                  value={categoryId}
+                  disabled={disabled}
+                  onChange={(next) => renameCategory(index, next)}
+                />
+              </Disclosure>
               <button
                 type="button"
                 data-testid="rule-pack-category-remove"
@@ -1460,6 +1586,7 @@ export function LoadCaseCategoriesEditor({
           Add stress category
         </button>
       </div>
+      ) : null}
     </div>
   );
 }

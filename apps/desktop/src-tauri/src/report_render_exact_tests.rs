@@ -1753,7 +1753,7 @@ mod direct_native {
     /// writes and checks it, under a pinned clock), bound by its SHA-256, which that test also holds.
     const APP_RENDER_REQUEST: &str =
         include_str!("../../../../fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive.app_render_request.json");
-    const APP_RENDER_REQUEST_SHA256: &str = "7072ee35b1fdc822932613792b89b7b2cf3738fe97982d5b10da02e3a0295a4a";
+    const APP_RENDER_REQUEST_SHA256: &str = "217708dc55ad57f8c8a6ff241008ffdffa4a057fe980dadf8a7f5717e45ca27f";
 
     /// DEL-08-01 REQ-017, REQ-024, end to end across the IPC boundary: the request the App
     /// sends for a solved exact-route result that is not numerically eligible renders through

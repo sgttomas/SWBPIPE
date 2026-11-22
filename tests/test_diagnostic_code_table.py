@@ -85,7 +85,9 @@ UNSURE_PIN = 39
 # 60 -> 59: SUPPORT_DIRECTION_SKEW_FORCE_SCALED_UNSUPPORTED is named wholly by LIM-030. No refusal changed.
 # 59 -> 60 (PR 272): retire EXACT_ROUTE_PENDING (-1), add CANDIDATE_MOVED and
 # WEIGHT_SUPPORT_STATE_UNSUPPORTED (+2), each only partly named by LIM-008/009.
-UNNAMED_ABSENT_CAPABILITY_PIN = 60
+# 60 -> 59 (PR 479): retire EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED; generation is admitted on a load and
+# reference-state document. A refusal was removed.
+UNNAMED_ABSENT_CAPABILITY_PIN = 59
 # 47 -> 52 (review of d776be92e): the same four, and CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE, whose product
 # text describes its gate only partially (F7). 52 -> 57 (completeness review): the same five.
 # 57 -> 56: the same code, named wholly by LIM-020. 56 -> 55: the skew code above, named wholly by LIM-030.

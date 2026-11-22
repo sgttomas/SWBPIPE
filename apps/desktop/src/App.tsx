@@ -118,6 +118,7 @@ import { ReviewGeometryPanel } from "./features/review-geometry/ReviewGeometryPa
 import { RuleCheckPanel } from "./features/rule-check/RuleCheckPanel";
 import { RuleCheckRunPanel } from "./features/rule-check/RuleCheckRunPanel";
 import { RulePackManagerPanel } from "./features/rule-packs/RulePackManagerPanel";
+import { useReturnCount } from "./features/rule-packs/useReturnCount";
 import { LinesSection } from "./features/model-data/LinesSection";
 import { AssumptionsPanel } from "./features/model-data/AssumptionsPanel";
 import { ConstraintsPanel } from "./features/model-data/ConstraintsPanel";
@@ -304,6 +305,7 @@ function AppSession() {
     projectEnvelopeHashIntegrity,
     modelDocumentVersion,
     projectMessage,
+    projectMessageDetails,
     projectOperation,
     projectBusy,
     requestBlankProject,
@@ -355,6 +357,8 @@ function AppSession() {
     exposeViewportForNarrowInteraction,
     toggleWorkspaceRail
   } = session.chrome;
+  // Each return to the Rules page reaches the retained, sleeping page as a new count, and it reads its list again.
+  const rulePacksVisit = useReturnCount(activeSection === "rule-packs");
   // "Show solver diagnostic" (DEL-07-05 numerical health §3): the Issues drawer's
   // Diagnostics panel opens filtered to exactly that diagnostic, once.
   const { filterRequest: diagnosticFilterRequest, requestDiagnosticFilter } = useDiagnosticFilterRequest({ issuesDrawerOpen, result, analysisRun });
@@ -1105,6 +1109,7 @@ function AppSession() {
           <div className={shell.page === "project" ? "shell-project-strip" : "shell-project-strip inactive"}>
       <details className="project-strip" aria-label="Project summary">
         <summary><span data-testid="local-project-message" role="status">{projectMessage}</span><span className="project-details-label">Details</span></summary>
+        {projectMessageDetails ? <p data-testid="local-project-message-details">{projectMessageDetails}</p> : null}
         <span data-testid="local-project-review-context">{projectReviewContext(editorIntents, proposal, appliedOperations.length)}</span>
         {projectIndex && projectIndex.length > 0 ? (
           <div className="project-index-picker" data-testid="project-index-picker" aria-label="Open a listed project">
@@ -1146,7 +1151,8 @@ function AppSession() {
               {activeSection === "rule-packs" || activatedExpensiveSections.has("rule-packs") ? (
               <DormantSection page="rule-packs" active={activeSection === "rule-packs"} sessionGeneration={projectSessionGeneration}>
               <RulePackManagerPanel model={model} result={currentSolvedResult} onR3JourneyEvent={recordR3JourneyEvent}
-                queuedIntents={editorIntents} onQueueIntent={handleQueueEditorIntent} operationBusy={operationBusy} />
+                queuedIntents={editorIntents} onQueueIntent={handleQueueEditorIntent} operationBusy={operationBusy}
+                visit={rulePacksVisit} />
               </DormantSection>) : null}
             </section>
 
@@ -1215,6 +1221,7 @@ function AppSession() {
                     projectSummary={projectSummary}
                     projectIndex={projectIndex}
                     projectMessage={projectMessage}
+                    projectMessageDetails={projectMessageDetails}
                     projectOperation={projectOperation}
                     editorIntents={editorIntents}
                     proposal={proposal}

@@ -430,7 +430,7 @@ const UNREADABLE_RUN = { id: "runrec:dddddddddddddddddddddddddddddddd", handle: 
 function slice(overrides: Partial<WorkspaceSession["project"]["history"]> = {}) {
   return {
     states: [stateSummary("sha256:m")], runs: [RUN_A, RUN_B, RUN_C], unreadable: { states: [], runs: [UNREADABLE_RUN] }, runCheck: null,
-    recordRunUnavailableReason: "RUN-RECORD-NO-RUN: solve first.", recordRunState: null, historyMessage: "", historyOperation: "", historyBusy: false, basisStateId: null,
+    recordRunUnavailableReason: "RUN-RECORD-NO-RUN: solve first.", recordRunState: null, historyMessage: "", historyMessageDetails: null, historyOperation: "", historyBusy: false, basisStateId: null,
     refreshStates: vi.fn(), saveState: vi.fn(), openState: vi.fn(), editLabels: vi.fn(), deleteState: vi.fn(), recordRun: vi.fn(), editRunLabels: vi.fn(),
     deleteRun: vi.fn(), checkRun: vi.fn(), deleteUnreadable: vi.fn(), stateComparison: null, compareStates: vi.fn(async () => true), closeStateComparison: vi.fn(),
     runComparison: null, compareRuns: vi.fn(async () => true), closeRunComparison: vi.fn(), currentRunUnavailableReason: "Solve the model to compare the current run.", refusedRuns: {},
