@@ -6,8 +6,8 @@
 // Called only by the session
 // (`useWorkspaceSession`), which hands it the cells and handlers it needs; the
 // History panel reads the result through `useSessionHistory()`.
-import { describeFullResultRefused, FullResultRefused, isNativeResult } from "../../services/nativeResult";
-import { useEffect, useRef, useState } from "react";
+import { fullResultRefusalWords, FullResultRefused, isNativeResult } from "../../services/nativeResult";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { MutableRefObject } from "react";
 import {
   admitModelStateComparison,
@@ -228,7 +228,25 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
   // naming the state Record Run ties the run to.
   const [solvedModelHash, setSolvedModelHash] = useState<{ manifest: unknown; hash: string | null } | null>(null);
   const [statesProjectId, setStatesProjectId] = useState<string | null>(null);
-  const [historyMessage, setHistoryMessage] = useState(NO_MODEL_STATES_LISTED);
+  const [historyStatus, setHistoryStatus] = useState<{ projectId: string | null; generation: number | null; message: string; details: string | null }>({
+    projectId: null,
+    generation: null,
+    message: NO_MODEL_STATES_LISTED,
+    details: null
+  });
+  const setHistoryMessage = useCallback(
+    (next: string | ((prev: string) => string), details: string | null = null) => {
+      const ownerProjectId = depsRef.current.currentModel.current?.project.id ?? depsRef.current.model?.project.id ?? null;
+      const ownerGeneration = depsRef.current.projectSessionGenerationRef.current;
+      setHistoryStatus((prev) => ({
+        projectId: ownerProjectId,
+        generation: ownerGeneration,
+        message: typeof next === "function" ? next(prev.message) : next,
+        details: typeof next === "function" ? prev.details : details
+      }));
+    },
+    []
+  );
   const [historyOperation, setHistoryOperation] = useState("not_started");
   // W-17: the saved state the last Open State refused for lacking `project.units`,
   // which can be saved to a file as stored (`exportRefusedState`).
@@ -242,6 +260,11 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
   depsRef.current = deps;
 
   const projectId = deps.model?.project.id ?? null;
+  const historyStatusCurrent =
+    (historyStatus.projectId === null || historyStatus.projectId === projectId) &&
+    (historyStatus.generation === null || historyStatus.generation === deps.projectSessionGeneration);
+  const historyMessage = historyStatusCurrent ? historyStatus.message : NO_MODEL_STATES_LISTED;
+  const historyMessageDetails = historyStatusCurrent ? historyStatus.details : null;
   const basisStateId = basis && basis.generation === deps.projectSessionGeneration && basis.projectId === projectId ? basis.stateId : null;
 
   async function refreshStates(forProjectId: string | null = depsRef.current.currentModel.current?.project.id ?? null) {
@@ -273,6 +296,26 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
       setHistoryOperation("list_failed");
     }
   }
+
+  const previousSessionRef = useRef<{ projectId: string | null; generation: number }>({
+    projectId,
+    generation: deps.projectSessionGeneration
+  });
+  useEffect(() => {
+    const prevSession = previousSessionRef.current;
+    if (
+      (prevSession.projectId !== null && prevSession.projectId !== projectId) ||
+      prevSession.generation !== deps.projectSessionGeneration
+    ) {
+      setHistoryStatus((prev) =>
+        (prev.projectId !== null && prev.projectId !== projectId) ||
+        (prev.generation !== null && prev.generation !== deps.projectSessionGeneration)
+          ? { projectId: null, generation: null, message: NO_MODEL_STATES_LISTED, details: null }
+          : prev
+      );
+    }
+    previousSessionRef.current = { projectId, generation: deps.projectSessionGeneration };
+  }, [projectId, deps.projectSessionGeneration]);
 
   useEffect(() => {
     void refreshStates(projectId);
@@ -866,11 +909,14 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
       return true;
     } catch (error) {
       if (!sameSession()) return false;
-      // A full copy refused for its size (C2) is said as the other C2 consumers say it.
-      const reason = error instanceof RunComparisonRefusal ? error.message
-        : error instanceof FullResultRefused ? describeFullResultRefused(error, "the comparison")
-        : nativeFailureText(error);
-      setHistoryMessage(`Not compared: ${reason}`);
+      if (error instanceof FullResultRefused) {
+        // Three-part refusal on the line (History has no C2ResultGate); code and exact bytes behind Details.
+        const words = fullResultRefusalWords(error, "the comparison");
+        setHistoryMessage(`Not compared: ${words.fact} ${words.stillWorks} ${words.advice}`, words.details);
+      } else {
+        const reason = error instanceof RunComparisonRefusal ? error.message : nativeFailureText(error);
+        setHistoryMessage(`Not compared: ${reason}`);
+      }
       setHistoryOperation("compare_runs_failed");
       return false;
     } finally {
@@ -910,6 +956,7 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     states: statesProjectId === projectId ? states : null,
     basisStateId,
     historyMessage,
+    historyMessageDetails,
     historyOperation,
     historyBusy,
     refreshStates,

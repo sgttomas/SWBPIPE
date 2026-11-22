@@ -38,7 +38,7 @@ afterEach(() => {
 function historySlice(overrides: Record<string, unknown> = {}) {
   return {
     states: [], runs: [], unreadable: null, runCheck: null, recordRunUnavailableReason: RUN_RECORD_NO_RUN, recordRunState: null,
-    historyMessage: "", historyOperation: "", historyBusy: false, basisStateId: null, refusedRuns: {}, currentRunUnavailableReason: "Solve the model to compare the current run.",
+    historyMessage: "", historyMessageDetails: null, historyOperation: "", historyBusy: false, basisStateId: null, refusedRuns: {}, currentRunUnavailableReason: "Solve the model to compare the current run.",
     stateComparison: null, runComparison: null, refusedStateExport: null,
     refreshStates: vi.fn(), compareStates: vi.fn(), compareRuns: vi.fn(), closeStateComparison: vi.fn(), closeRunComparison: vi.fn(), exportRefusedState: vi.fn(),
     ...overrides

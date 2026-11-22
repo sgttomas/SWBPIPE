@@ -46,8 +46,8 @@ import {
 import { ResourceUnavailableError } from "../../services/memoryPool";
 import {
   createNativeAnalysisRun,
-  describeFullResultRefused,
   FullResultRefused,
+  fullResultRefusalWords,
   isFreshNativeResult,
   isNativeAnalysisRun,
   isNativeResult,
@@ -296,6 +296,7 @@ import {
   packageNotSentSettlement,
   packageReceiptSettlement,
   packageRetiredSettlement,
+  packageSizeRefusedSettlement,
   reportOutputBasisOf,
   useReportOutputOutcomes,
   type ReportOutputBasis,
@@ -742,6 +743,7 @@ export function useWorkspaceSession() {
     history: HistoricalRunContext | null;
     result: MechanicsResult | null;
     analysisRun: AnalysisRunEnvelope | null;
+    retentionNotice: { message: string; details: string | null } | null;
   } | null>(null);
   /** C1 slice 6: the project whose stored run the open refused (not admitted into native custody). */
   const unopenedStoredRun = useRef<string | null>(null);
@@ -799,7 +801,7 @@ export function useWorkspaceSession() {
     projectEnvelopeHash, setProjectEnvelopeHash,
     modelDocumentVersion, setModelDocumentVersion,
     projectEnvelopeHashIntegrity, setProjectEnvelopeHashIntegrity,
-    projectMessage, setProjectMessage,
+    projectMessage, projectMessageDetails, setProjectMessage,
     projectOperation, setProjectOperation,
     projectBusy, setProjectBusy
   } = useProjectSessionState(reportSource.owner.advance);
@@ -1322,21 +1324,30 @@ export function useWorkspaceSession() {
 
   /** The result and record a reference inspection retains for its restore: copies of a full result,
    * or a native result's C2 full copy and full record. */
-  async function retainedReferenceRun(): Promise<{ result: MechanicsResult | null; analysisRun: AnalysisRunEnvelope | null; message?: string }> {
+  async function retainedReferenceRun(): Promise<{ result: MechanicsResult | null; analysisRun: AnalysisRunEnvelope | null; message?: string; details?: string | null }> {
     if (!result) return { result: null, analysisRun: isNativeAnalysisRun(analysisRun) ? null : (analysisRun ? structuredClone(analysisRun) : null) };
     if (!isNativeResult(result)) return { result: structuredClone(result), analysisRun: analysisRun && !isNativeAnalysisRun(analysisRun) ? structuredClone(analysisRun) : null };
     try {
       const full = await loadC2Full(result, { record: true });
       return { result: structuredClone(full.result), analysisRun: full.analysisRun ? structuredClone(full.analysisRun) : null };
     } catch (error) {
-      return { result: null, analysisRun: null, message: `The current solve's result is not retained while the reference is inspected: ${error instanceof FullResultRefused ? error.message : nativeFailureText(error)}` };
+      if (error instanceof FullResultRefused) {
+        // The bundled reference still opens; the size limit prevents keeping the current solve for the return (LIM-010).
+        const words = fullResultRefusalWords(error, "keeping the current solve while inspecting the reference");
+        return { result: null, analysisRun: null, message: `The current solve's result is not retained. ${words.fact}`, details: words.details };
+      }
+      return { result: null, analysisRun: null, message: `The current solve's result is not retained while the reference is inspected: ${nativeFailureText(error)}` };
     }
   }
 
   async function handleInspectBundledReference() {
     if (!model) return;
+    const existingPersistence = retainedReferencePersistence(model);
+    let retentionNotice: { message: string; details: string | null } | null = existingPersistence?.retentionNotice
+      ? { ...existingPersistence.retentionNotice }
+      : null;
     if (result || analysisRun || historicalRun?.designation === "historical_saved_run"
-      || !retainedReferencePersistence(model)) {
+      || !existingPersistence) {
       const basis = {
         generation: projectSessionGenerationRef.current, revision: modelRevision.current,
         resultSequence: resultBasisRef.current.sequence, runSequence: analysisBasisRef.current.sequence,
@@ -1348,13 +1359,17 @@ export function useWorkspaceSession() {
       if (currentModel.current !== model || projectSessionGenerationRef.current !== basis.generation
         || modelRevision.current !== basis.revision || resultBasisRef.current.sequence !== basis.resultSequence
         || analysisBasisRef.current.sequence !== basis.runSequence || solveRunGate.current.current() !== basis.solve) return;
-      if (retained.message) setProjectMessage(retained.message);
+      retentionNotice = retained.message ? { message: retained.message, details: retained.details ?? null } : null;
+      if (retained.message) {
+        setProjectMessage(retained.message, retained.details ?? null);
+      }
       referencePersistence.current = {
         model, generation: basis.generation, modelContent: checkedJsonText(model),
         // A restored run is retained by its handle (its rows are native, never cloned); the
         // reference switch makes it no current result.
         history: historicalRun?.designation === "historical_saved_run" ? (historicalRun.restored ? historicalRun : structuredClone(historicalRun)) : null,
         result: retained.result, analysisRun: retained.analysisRun,
+        retentionNotice,
       };
     }
     // Retire any pending backend publication before loading the separate example.
@@ -1374,7 +1389,7 @@ export function useWorkspaceSession() {
     try {
       const reference = await loadBundledMechanicsReference(solverMode);
       if (!solveRunGate.current.isCurrent(referenceGeneration)) return;
-      setHistoricalRun(buildBundledReferenceContext(reference));
+      setHistoricalRun(buildBundledReferenceContext(reference, retentionNotice));
       setActiveSection("results");
     } finally {
       solveRunGate.current.finish(referenceGeneration);
@@ -4711,6 +4726,7 @@ export function useWorkspaceSession() {
       notSent: (reason: unknown) => settle(packageNotSentSettlement(reason)),
       failed(error: unknown) {
         if (error instanceof IngressRequestRetiredError) settle(packageRetiredSettlement(entry !== null));
+        else if (error instanceof FullResultRefused && entry === null) settle(packageSizeRefusedSettlement(error.code, reportPackageSizeWords(error)));
         else settle(entry === null ? packageNotSentSettlement(error) : packageFailureSettlement(error));
       },
       end: () => settle(packageRetiredSettlement(entry !== null))
@@ -4736,8 +4752,8 @@ export function useWorkspaceSession() {
     return new FullResultRefused(RESULT_DETAIL_WEBVIEW_LIMIT, recordBytes, limit,
       `${RESULT_DETAIL_WEBVIEW_LIMIT} (record_bytes=${recordBytes}, limit_bytes=${limit}): the run record is above the size the webview can hold whole.`, "record");
   }
-  /** Both package commands' words for that refusal: the C2 gates' sentence, for the report package. */
-  const reportPackageSizeText = (refusal: FullResultRefused) => describeFullResultRefused(refusal, "the report package");
+  /** A package size refusal's words (the commands show the fact; the strip keeps the reading and the details). */
+  const reportPackageSizeWords = (refusal: FullResultRefused) => fullResultRefusalWords(refusal, "the report package");
 
   async function handleSaveReportPackage() {
     const refusal = reportPackageRequestRefusal();
@@ -4748,10 +4764,9 @@ export function useWorkspaceSession() {
     // A result or record too large for the full copy is refused here: nothing is read or chosen.
     const sizeRefusal = reportPackageSizeRefusal(renderableSolvedResult);
     if (sizeRefusal) {
-      const text = reportPackageSizeText(sizeRefusal);
-      reportPackageOutput("report_package", outputBasis).notSent(text);
+      reportPackageOutput("report_package", outputBasis).failed(sizeRefusal);
       setReportPackageRedaction(null);
-      setReportPackageRoute({ route: "redaction_blocked", diagnostic: text });
+      setReportPackageRoute({ route: "redaction_blocked", diagnostic: reportPackageSizeWords(sizeRefusal).fact });
       return;
     }
     const generation = ++reportPackageRequestGenerationRef.current;
@@ -4867,7 +4882,8 @@ export function useWorkspaceSession() {
       setReportPackageRedaction(null);
       setReportPackageRoute({
         route: "redaction_blocked",
-        diagnostic: localPrivateSaveFailureText(error)
+        // The loader's size refusal (nothing was sent) in the commands' words; any other error as before.
+        diagnostic: error instanceof FullResultRefused ? reportPackageSizeWords(error).fact : localPrivateSaveFailureText(error)
       });
     } finally {
       output.end();
@@ -4917,11 +4933,10 @@ export function useWorkspaceSession() {
     // asked for a save that cannot proceed.
     const sizeRefusal = reportPackageSizeRefusal(renderableSolvedResult);
     if (sizeRefusal) {
-      const text = reportPackageSizeText(sizeRefusal);
       reportPackageOutput("shareable_report_package",
-        reportOutputBasisOf(reportSource.sequence, model.project, projectSummary?.project_name, analysisRun.analysis_run.run_id)).notSent(text);
+        reportOutputBasisOf(reportSource.sequence, model.project, projectSummary?.project_name, analysisRun.analysis_run.run_id)).failed(sizeRefusal);
       setReportPackageRedaction(null);
-      setReportPackageRoute({ route: "redaction_blocked", diagnostic: `${SHAREABLE_SAVE_NOT_WRITTEN} ${text}` });
+      setReportPackageRoute({ route: "redaction_blocked", diagnostic: `${SHAREABLE_SAVE_NOT_WRITTEN} ${reportPackageSizeWords(sizeRefusal).fact}` });
       return;
     }
     // Captured before the workspace turns inert, which drops its focus.
@@ -5040,7 +5055,10 @@ export function useWorkspaceSession() {
       output.failed(error);
       if (error instanceof IngressRequestRetiredError || !isCurrent()) return;
       setReportPackageRedaction(null);
-      setReportPackageRoute({ route: "redaction_blocked", diagnostic: `${shareableSaveFailureStatement(error, sent)} ${formatPackageSaveError(error)}` });
+      // The loader's size refusal comes before anything is sent: nothing was written and no release made.
+      setReportPackageRoute({ route: "redaction_blocked", diagnostic: error instanceof FullResultRefused
+        ? `${SHAREABLE_SAVE_NOT_WRITTEN} ${reportPackageSizeWords(error).fact}`
+        : `${shareableSaveFailureStatement(error, sent)} ${formatPackageSaveError(error)}` });
     } finally {
       output.end();
       // Released whenever this save still holds the busy mark, even when its basis moved on (a
@@ -5981,6 +5999,7 @@ export function useWorkspaceSession() {
       projectEnvelopeHashIntegrity,
       modelDocumentVersion,
       projectMessage,
+      projectMessageDetails,
       projectOperation,
       projectBusy,
       handleCreateProject,

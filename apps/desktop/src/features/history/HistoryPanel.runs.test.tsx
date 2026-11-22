@@ -28,7 +28,7 @@ const RUN: AnalysisRunSummary = {
 
 function history(overrides: Partial<WorkspaceSession["project"]["history"]> = {}) {
   return {
-    states: [STATE], runs: [RUN], runCheck: null, recordRunUnavailableReason: null, recordRunState: STATE, recordRunStateKnown: true, historyMessage: "", historyOperation: "", historyBusy: false,
+    states: [STATE], runs: [RUN], runCheck: null, recordRunUnavailableReason: null, recordRunState: STATE, recordRunStateKnown: true, historyMessage: "", historyMessageDetails: null, historyOperation: "", historyBusy: false,
     basisStateId: null, refreshStates: vi.fn(), saveState: vi.fn(), openState: vi.fn(), editLabels: vi.fn(), deleteState: vi.fn(),
     recordRun: vi.fn(async () => true), editRunLabels: vi.fn(async () => true), deleteRun: vi.fn(async () => true), checkRun: vi.fn(async () => true),
     ...overrides
@@ -191,5 +191,21 @@ describe("the Model History message before any operation", () => {
   it("keeps an operation's message above the list", () => {
     renderPanel(history({ historyMessage: "Labels of model state \"After solve\" saved." }));
     expect(screen.getByTestId("model-history-message")).toHaveTextContent("Labels of model state \"After solve\" saved.");
+    expect(screen.queryByTestId("model-history-message-details")).toBeNull();
+  });
+
+  it("renders size-refusal diagnostic details closed behind Details right after the history message", () => {
+    const detailsText = "RESULT-DETAIL-WEBVIEW-LIMIT: run record 67108865 bytes; limit 67108864 bytes.";
+    renderPanel(history({
+      historyMessage: "Not compared: This run record is too large for the comparison: just over 64 MiB, and the most it can take is 64 MiB.",
+      historyMessageDetails: detailsText
+    }));
+    const message = screen.getByTestId("model-history-message");
+    const details = screen.getByTestId("model-history-message-details") as HTMLDetailsElement;
+    expect(details.tagName).toBe("DETAILS");
+    expect(details.open).toBe(false);
+    expect(details.querySelector("summary")?.textContent).toBe("Details");
+    expect(details.querySelector("p")?.textContent).toBe(detailsText);
+    expect(message.nextElementSibling).toBe(details);
   });
 });

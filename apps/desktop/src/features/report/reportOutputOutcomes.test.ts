@@ -11,8 +11,10 @@ import {
   packageNotSentSettlement,
   packageReceiptSettlement,
   packageRetiredSettlement,
+  packageSizeRefusedSettlement,
   printSettlement,
   ReportOutputOutcomes,
+  reportOutputDetails,
   reportOutputText,
   saveSettlement,
   type ReportOutputBasis,
@@ -143,6 +145,22 @@ describe("report package outcomes (issue 508)", () => {
     const unknown = line(packageFailureSettlement(new Error("invented lost reply")));
     expect(unknown).toBe("It is not known whether the report package was saved. Check the file you selected.");
     expect(unknown).not.toMatch(/not saved|nothing was/i);
+  });
+
+  it("keeps a size refusal's code and exact sizes behind its details, not on its line; every other entry keeps its code on its line", () => {
+    const words = { reading: "this run record is too large for it (88 MiB; the most it can take is 64 MiB)", details: "RESULT-DETAIL-WEBVIEW-LIMIT: run record 92274688 bytes; limit 67108864 bytes." };
+    const sized = packageSizeRefusedSettlement("RESULT-DETAIL-WEBVIEW-LIMIT", words);
+    expect(sized).toMatchObject({ state: "refused", code: "RESULT-DETAIL-WEBVIEW-LIMIT", package: { sent: false, nothingWritten: true, detailsLine: words.details } });
+    expect(line(sized)).toBe("Report package not saved: this run record is too large for it (88 MiB; the most it can take is 64 MiB). Nothing was written.");
+    expect(line(sized, 5, "shareable_report_package")).toBe("Shareable report package not saved: this run record is too large for it (88 MiB; the most it can take is 64 MiB). Nothing was written. It is of an earlier run: project:invented, run run:invented-1. The model or its results have changed since.");
+    expect(reportOutputDetails({ id: 1, kind: "report_package", basis, ...sized })).toEqual(["Report basis: model project:invented, run run:invented-1.", words.details]);
+    // Every other settlement keeps no details line, so its line reads as it did (the line cases above).
+    for (const other of [
+      packageReceiptSettlement(packageReceipt("durable")), packageReceiptSettlement(packageReceipt("not_applicable", "cancelled")),
+      packageFailureSettlement(commandError("REPORT-PACKAGE-INVENTED", "admit")), packageFailureSettlement(commandError("REPORT-PACKAGE-INVENTED", "write")),
+      packageFailureSettlement(new Error("invented lost reply")), packageNotSentSettlement("REPORT-PACKAGE-INVENTED-BLOCKED: invented block."),
+      packageRetiredSettlement(), packageRetiredSettlement(true)
+    ]) expect(other.package.detailsLine).toBeNull();
   });
 
   it("settles a receipt outcome it does not know as unknown, never as cancelled", () => {

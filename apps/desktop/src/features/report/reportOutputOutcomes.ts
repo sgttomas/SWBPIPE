@@ -83,6 +83,10 @@ export type ReportPackageFacts = {
   } | null;
   /** A write that failed and whose temporary file could not be removed. */
   temporaryFileMayRemain: boolean;
+  /** A line kept behind the entry's details that carries its code, in place of the code on its
+   * line (as a saved package's receipt code is kept): a size refusal's code and exact sizes.
+   * Null for every other entry, whose code stays on its line. */
+  detailsLine: string | null;
   /** The saved package's entry in the project's list of saved reports (issue 498), as the native
    * receipt states it. Null while the receipt states nothing of it, as every receipt does before
    * the list lands. The list's interface widens this to `null | <its outcome>` and adds its words
@@ -102,7 +106,7 @@ export function isReportPackageEntry(entry: ReportOutputEntry): entry is ReportP
   return entry.kind === "report_package" || entry.kind === "shareable_report_package";
 }
 
-const SENT_PACKAGE: ReportPackageFacts = { sent: true, nothingWritten: false, warnings: [], receipt: null, temporaryFileMayRemain: false, listEntry: null };
+const SENT_PACKAGE: ReportPackageFacts = { sent: true, nothingWritten: false, warnings: [], receipt: null, temporaryFileMayRemain: false, detailsLine: null, listEntry: null };
 
 /** The session's report output outcomes (see the module comment). */
 export class ReportOutputOutcomes {
@@ -340,6 +344,13 @@ export function packageNotSentSettlement(reason: unknown): ReportPackageSettleme
   return packageSettlement({ state: "refused", code, detail: reading, basename: null }, { sent: false, nothingWritten: true });
 }
 
+/** A package save refused before anything was sent because the result or its run record is too
+ * large for the report package's full copy: `reading` is the line's (the size refusal's lower-case
+ * reading, with no code), and `details` (the code and the exact sizes) is kept behind its details. */
+export function packageSizeRefusedSettlement(code: string, words: { reading: string; details: string }): ReportPackageSettlement {
+  return packageSettlement({ state: "refused", code, detail: words.reading, basename: null }, { sent: false, nothingWritten: true, detailsLine: words.details });
+}
+
 /** A package save whose basis changed before its request was sent (or, after the memory pool
  * refused it for want of free memory, before it was sent again): nothing was written. The memory
  * pool's refusal of the package save, on either route, comes before the save chooser and before
@@ -390,7 +401,9 @@ function packageOutputText(entry: ReportPackageOutputEntry, changed: boolean, an
     case "failed": {
       const temporary = entry.state === "failed" && entry.package.temporaryFileMayRemain ? ` A temporary file may remain beside ${file}.` : "";
       const nothing = entry.package.nothingWritten ? " Nothing was written." : "";
-      return `${Name} not saved${readingWithCode(entry.detail, entry.code)}.${temporary}${nothing}${earlier}`;
+      // An entry whose code is kept behind its details reads without it on its line.
+      const reading = entry.package.detailsLine !== null ? `: ${entry.detail}` : readingWithCode(entry.detail, entry.code);
+      return `${Name} not saved${reading}.${temporary}${nothing}${earlier}`;
     }
     case "unknown":
     case "print_window_opened":
@@ -415,6 +428,7 @@ export function reportOutputDetails(entry: ReportOutputEntry): string[] {
     if (entry.code) lines.push(`Receipt code: ${entry.code}.`);
     lines.push(`Limitation: ${receipt.limitation}`);
   }
+  if (entry.package.detailsLine !== null) lines.push(entry.package.detailsLine);
   if (entry.state === "failed") lines.push("The selected file was left as it was.");
   if (entry.state === "unknown" && entry.detail) lines.push(entry.code && !entry.detail.startsWith(entry.code) ? `${entry.detail} (${entry.code})` : entry.detail);
   return lines;

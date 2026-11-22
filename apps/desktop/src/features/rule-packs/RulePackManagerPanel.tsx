@@ -480,7 +480,7 @@ export function RulePackManagerPanel({
             />
             {/* The selector offers read every row (a rule-check consumer, C2): a native result's
                 bounded full copy, loaded when the person asks. */}
-            <C2ResultGate result={result ?? null} analysisRun={null} feature="the solved-result selector offers" explicit>
+            <C2ResultGate result={result ?? null} analysisRun={null} feature="the solved-result selector" explicit>
               {(full) => (
                 <DeclarationsEditor
                   document={parsedDraft.document}
