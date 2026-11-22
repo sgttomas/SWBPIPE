@@ -4,6 +4,8 @@
 // comparison itself is `buildPreviewComparison`, unchanged. Invented data only.
 import rangeEnvelopeResult from "../../../../../fixtures/results/preview_physics_range_envelope_sparse.json";
 import rangeEnvelopeModel from "../../../../../core/product_physics/tests/fixtures/preview_physics_range_envelope_model.json";
+import { readFileSync } from "node:fs";
+import { resolve as resolvePath } from "node:path";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import {
@@ -23,7 +25,10 @@ import {
   droppedBases,
   droppedNotice,
   fixedPairComparison,
+  basisName,
+  COMPARISON_BASIS_WITHOUT_ROWS,
   packageNotice,
+  packageNoticeParts,
   NO_COMBINATION_ROWS,
   NO_LOAD_CASE_OR_COMBINATION_ROWS,
   NO_LOAD_CASE_ROWS,
@@ -32,6 +37,8 @@ import {
   WITHIN_RUN_BUSY_PROJECT,
   WITHIN_RUN_BUSY_REPORT,
   WITHIN_RUN_BUSY_SOLVE,
+  packagedComparisonForRun,
+  withheldCombinationGates,
   withinRunBasisOptions,
   withinRunBusyReason,
   type HeldWithinRunSelection,
@@ -53,10 +60,14 @@ const result = () => {
 const model = () => structuredClone(rangeEnvelopeModel) as unknown as PreviewModel;
 const analysisRun = (runId: string) =>
   ({ analysis_run: { run_id: runId, model_state_ref: { object_type: "ModelState", ref: "model-state:invented" } } }) as unknown as AnalysisRunEnvelope;
-/** The range-envelope result with its combination rows moved to the fixed combination id. */
+/** The range-envelope result with its combination rows moved to the fixed combination id,
+ * and that combination's withheld gate cleared, so the fixed pair has rows and is not withheld. */
 function withFixedCombination(): MechanicsResult {
   const source = result();
   for (const row of source.results) if (row.basis_ref?.ref_id === RANGE) row.basis_ref = { ...row.basis_ref, ref_id: DEFAULT_COMPARISON_RIGHT_BASIS_REF };
+  const evidence = source.contract_evidence as { combination_gates?: Array<{ combination_id: string; withheld: boolean; reason: string | null }> };
+  evidence.combination_gates = (evidence.combination_gates ?? []).map((gate) =>
+    gate.combination_id === DEFAULT_COMPARISON_RIGHT_BASIS_REF ? { ...gate, withheld: false, reason: null } : gate);
   return source;
 }
 function counts(source: MechanicsResult, refType: string) {
@@ -194,9 +205,12 @@ describe("the default", () => {
     const expected = buildPreviewComparison({ result: source, analysisRun: run, leftBasisRef: "load:L-100", rightBasisRef: RANGE });
     expect(view.comparison).toStrictEqual(expected);
     expect(expected.summary.comparable_result_pairs).toBeGreaterThan(0);
-    // Without a choice the packages keep the fixed-pair comparison, as before.
-    expect(packaged!.comparison).toStrictEqual(buildPreviewComparison({ result: source, analysisRun: run }));
-    expect(packageNotice(packaged)).toBe(`Packages include: ${DEFAULT_COMPARISON_LEFT_BASIS_REF} vs ${DEFAULT_COMPARISON_RIGHT_BASIS_REF}.`);
+    // Without a choice the packages carry the fixed pair's: C-OPER-ALT has no rows, so its
+    // unavailable record, not an empty comparison.
+    expect(packaged!.comparison).toBeNull();
+    expect(packaged!.unavailable).toMatchObject({ left_basis_ref: DEFAULT_COMPARISON_LEFT_BASIS_REF, right_basis_ref: DEFAULT_COMPARISON_RIGHT_BASIS_REF, reason_code: COMPARISON_BASIS_WITHOUT_ROWS });
+    // C-OPER-ALT is withheld by the solve, so it has no rows: the notice says no comparison is carried.
+    expect(packageNotice(packaged)).toBe("The local-private report package carries no comparison of load case L-100 with combination C-OPER-ALT: combination C-OPER-ALT has no results in this run (withheld by the solve: the model has nonlinear supports, so superposing case states is not a solved state).");
   });
 
   it("is nothing, with the reason, when no load case or no combination has result rows", () => {
@@ -228,7 +242,7 @@ describe("the choice", () => {
     expect(comparison.summary.tolerance_status).toBe("not_tolerance_checked");
     expect(comparison.summary.tolerance_profile_ref).toBe("TBD");
     expect(comparison.unit_policy_evidence.conversion_performed).toBe(false);
-    expect(packageNotice(packaged)).toBe(`Packages include: load:L-200 vs ${RANGE}.`);
+    expect(packageNotice(packaged)).toBe("The local-private report package includes the comparison of load case L-200 with combination U4B-RANGE-MAX.");
   });
 
   it("names the bases a run does not offer; such an id is never compared", () => {
@@ -265,8 +279,11 @@ describe("the choice", () => {
       reason: expect.stringContaining("has no source dimension declaration"),
       release_or_professional_claim: false
     });
-    expect(packageNotice(packaged)).toMatch(new RegExp(`^Packages omit the comparison of load:L-200 vs ${RANGE}: ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED`));
-    expect(buildWithinRunComparison(source, run, { left: "load:L-100", right: DEFAULT_COMPARISON_RIGHT_BASIS_REF }).unavailable).toBeNull();
+    expect(packageNotice(packaged)).toMatch(/^The local-private report package omits the comparison of load case L-200 vs combination U4B-RANGE-MAX: ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED/);
+    // The fixed pair: unavailable here, where the solve withheld C-OPER-ALT (no rows), not
+    // refused by the builder; with rows for both bases it is built and nothing is unavailable.
+    expect(buildWithinRunComparison(source, run, { left: "load:L-100", right: DEFAULT_COMPARISON_RIGHT_BASIS_REF }).unavailable).toMatchObject({ reason_code: COMPARISON_BASIS_WITHOUT_ROWS });
+    expect(buildWithinRunComparison(withFixedCombination(), run, { left: "load:L-100", right: DEFAULT_COMPARISON_RIGHT_BASIS_REF }).unavailable).toBeNull();
   });
 });
 
@@ -344,7 +361,7 @@ describe("the panel", () => {
     expect(left.options[0].textContent).toMatch(/^Invented operating gravity and pressure preview \(load:L-100\); \d+ result rows$/);
     expect(screen.getByRole("group", { name: "Within this run" })).toBeTruthy();
     expect(screen.getByTestId("comparison-summary")).toHaveTextContent(`${DEFAULT_COMPARISON_LEFT_BASIS_REF};`);
-    expect(screen.getByTestId("comparison-package-basis")).toHaveTextContent(`Packages include: ${DEFAULT_COMPARISON_LEFT_BASIS_REF} vs ${DEFAULT_COMPARISON_RIGHT_BASIS_REF}.`);
+    expect(screen.getByTestId("comparison-package-basis")).toHaveTextContent("The local-private report package includes the comparison of load case L-100 with combination C-OPER-ALT.");
     fireEvent.change(left, { target: { value: "load:L-200" } });
     expect(onSelect).toHaveBeenLastCalledWith({ left: "load:L-200", right: DEFAULT_COMPARISON_RIGHT_BASIS_REF });
     // No wording of standing.
@@ -369,14 +386,14 @@ describe("the panel", () => {
     expect(screen.getByTestId("comparison-unavailable")).toHaveTextContent(NO_COMBINATION_ROWS);
     expect(screen.queryByTestId("comparison-summary")).toBeNull();
     expect(screen.queryByTestId("comparison-left-select")).toBeNull();
-    expect(screen.getByTestId("comparison-package-basis")).toHaveTextContent(`Packages include: ${DEFAULT_COMPARISON_LEFT_BASIS_REF} vs ${DEFAULT_COMPARISON_RIGHT_BASIS_REF}.`);
+    expect(screen.getByTestId("comparison-package-basis")).toHaveTextContent("The local-private report package carries no comparison of load case L-100 with combination C-OPER-ALT: combination C-OPER-ALT has no results in this run (withheld by the solve: the model has nonlinear supports, so superposing case states is not a solved state).");
   });
 
   it("names the builder's refusal and says the packages omit the comparison, though no comparison id is shown (Codex finding 3)", () => {
     panel(resolve(producerResult(), analysisRun("run:invented"), { left: "load:L-200", right: RANGE }));
     expect(screen.getByTestId("comparison-refused")).toHaveTextContent("Not compared: ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED");
     expect(screen.queryByTestId("comparison-summary")).toBeNull();
-    expect(screen.getByTestId("comparison-package-basis")).toHaveTextContent(`Packages omit the comparison of load:L-200 vs ${RANGE}: ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED`);
+    expect(screen.getByTestId("comparison-package-basis")).toHaveTextContent("The local-private report package omits the comparison of load case L-200 vs combination U4B-RANGE-MAX: ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED");
   });
 
   it("names a dropped choice", () => {
@@ -387,7 +404,7 @@ describe("the panel", () => {
   it("the package notice beside the package actions reads the same", () => {
     const resolved = resolve(result(), analysisRun("run:invented"), { left: "load:L-200", right: RANGE });
     render(<ComparisonPackageNotice packaged={resolved.packaged} testId="report-comparison-package-notice" />);
-    expect(screen.getByTestId("report-comparison-package-notice")).toHaveTextContent(`Packages include: load:L-200 vs ${RANGE}.`);
+    expect(screen.getByTestId("report-comparison-package-notice")).toHaveTextContent("The local-private report package includes the comparison of load case L-200 with combination U4B-RANGE-MAX.");
     const { container } = render(<ComparisonPackageNotice packaged={null} testId="none" />);
     expect(container.textContent).toBe("");
   });
@@ -401,5 +418,260 @@ describe("the panel", () => {
     render(<ComparisonPanel comparison={null} result={null} onSelectResult={() => {}} withinRun={{ view: { status: "no_result" }, disabledReason: null, onSelect: () => {}, packaged: null, dropped: null }} />);
     expect(screen.getByTestId("comparison-empty")).toBeTruthy();
     expect(screen.queryByTestId("comparison-within-run")).toBeNull();
+  });
+});
+
+describe("the package notice", () => {
+  const run = analysisRun("run:invented");
+  it("names a basis by its kind and its id without the stored prefix", () => {
+    expect(basisName("left", "load:L-100")).toBe("load case L-100");
+    expect(basisName("right", "combination:C-OPER-ALT")).toBe("combination C-OPER-ALT");
+    // An id without the prefix, or only the prefix, is shown as it is.
+    expect(basisName("left", "case:six")).toBe("load case case:six");
+    expect(basisName("right", "combination:")).toBe("combination combination:");
+  });
+
+  it("compared: both bases have rows; the members and the sentence", () => {
+    const parts = packageNoticeParts(buildWithinRunComparison(result(), run, { left: "load:L-200", right: RANGE }))!;
+    expect(parts).toEqual({
+      left: "load:L-200", right: RANGE, leftName: "load case L-200", rightName: "combination U4B-RANGE-MAX",
+      state: "compared", withoutRows: [], reason: null,
+      text: "The local-private report package includes the comparison of load case L-200 with combination U4B-RANGE-MAX."
+    });
+  });
+
+  it("none carried: a side without rows, with the solve's reason only where the solve withheld it", () => {
+    // C-OPER-ALT is withheld by the solve (its gate and diagnostic).
+    const withheld = packageNoticeParts(buildWithinRunComparison(result(), run, { left: "load:L-100", right: DEFAULT_COMPARISON_RIGHT_BASIS_REF }))!;
+    expect([withheld.state, withheld.withoutRows.map((basis) => [basis.side, basis.ref_id, basis.withheld])]).toEqual(["none_carried", [["right", DEFAULT_COMPARISON_RIGHT_BASIS_REF, true]]]);
+    expect(withheld.reason).toBe("withheld by the solve: the model has nonlinear supports, so superposing case states is not a solved state");
+    // A gate with no diagnostic message: withheld, with no text of its own.
+    const silent = result();
+    silent.diagnostics = silent.diagnostics.filter((item) => item.code !== "NONLINEAR_COMBINATION_REQUIRES_SOLVE");
+    expect(packageNoticeParts(buildWithinRunComparison(silent, run, { left: "load:L-100", right: DEFAULT_COMPARISON_RIGHT_BASIS_REF }))!.text)
+      .toBe("The local-private report package carries no comparison of load case L-100 with combination C-OPER-ALT: combination C-OPER-ALT has no results in this run (withheld by the solve).");
+    // A basis the run has no rows for and the solve did not withhold: no reason.
+    const missing = packageNoticeParts(buildWithinRunComparison(result(), run, { left: "load:L-999", right: RANGE }))!;
+    expect([missing.state, missing.reason, missing.text]).toEqual([
+      "none_carried", null,
+      "The local-private report package carries no comparison of load case L-999 with combination U4B-RANGE-MAX: load case L-999 has no results in this run."
+    ]);
+    // Both sides: both named; the reason names the side it belongs to.
+    const both = packageNoticeParts(buildWithinRunComparison(result(), run, { left: "load:L-999", right: DEFAULT_COMPARISON_RIGHT_BASIS_REF }))!;
+    expect(both.withoutRows.map((basis) => basis.side)).toEqual(["left", "right"]);
+    expect(both.text).toBe("The local-private report package carries no comparison of load case L-999 with combination C-OPER-ALT: load case L-999 and combination C-OPER-ALT have no results in this run (combination C-OPER-ALT withheld by the solve: the model has nonlinear supports, so superposing case states is not a solved state).");
+    const neither = packageNoticeParts(buildWithinRunComparison(result(), run, { left: "load:L-999", right: "combination:C-999" }))!;
+    expect([neither.reason, neither.text]).toEqual([null, "The local-private report package carries no comparison of load case L-999 with combination C-999: load case L-999 and combination C-999 have no results in this run."]);
+  });
+
+  it("omitted: the builder refused the pair; today's sentence with the bases named", () => {
+    const parts = packageNoticeParts(buildWithinRunComparison(producerResult(), run, { left: "load:L-200", right: RANGE }))!;
+    expect([parts.state, parts.withoutRows]).toEqual(["omitted", []]);
+    expect(parts.reason).toMatch(/^ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED/);
+    expect(parts.text).toBe(`The local-private report package omits the comparison of load case L-200 vs combination U4B-RANGE-MAX: ${parts.reason}`);
+  });
+
+  it("is null without a Current run", () => {
+    expect(packageNoticeParts(null)).toBeNull();
+    expect(packageNotice(null)).toBeNull();
+  });
+});
+
+describe("the fixed pair without a choice (Agent 0's absent-pair rule)", () => {
+  const run = analysisRun("run:invented");
+  const WITHHELD = "Combination withheld: the model has nonlinear supports, so superposing case states is not a solved state.";
+  /** The range-envelope result with no row, gate or diagnostic of either fixed basis. */
+  function withoutFixedBases(): MechanicsResult {
+    const source = result();
+    source.results = source.results.filter((row) => row.basis_ref?.ref_id !== DEFAULT_COMPARISON_LEFT_BASIS_REF && row.basis_ref?.ref_id !== DEFAULT_COMPARISON_RIGHT_BASIS_REF);
+    const evidence = source.contract_evidence as { combination_gates?: Array<{ combination_id: string }> };
+    evidence.combination_gates = (evidence.combination_gates ?? []).filter((gate) => gate.combination_id !== DEFAULT_COMPARISON_RIGHT_BASIS_REF);
+    source.diagnostics = source.diagnostics.filter((item) => !item.affected_refs?.includes(DEFAULT_COMPARISON_RIGHT_BASIS_REF));
+    return source;
+  }
+  function modelWithout(): PreviewModel {
+    const solved = model();
+    solved.load_cases = solved.load_cases.filter((entry) => entry.id !== DEFAULT_COMPARISON_LEFT_BASIS_REF);
+    solved.combinations = solved.combinations!.filter((entry) => entry.id !== DEFAULT_COMPARISON_RIGHT_BASIS_REF);
+    return solved;
+  }
+
+  it("is nothing, with no notice, when neither fixed basis is in the model, has rows or was withheld", () => {
+    expect(fixedPairComparison(withoutFixedBases(), run, modelWithout())).toBeNull();
+    expect(fixedPairComparison(withoutFixedBases(), run, null)).toBeNull();
+    expect(packageNotice(null)).toBeNull();
+    // An explicit pair is unchanged: it still carries the record when a basis has no rows.
+    expect(buildWithinRunComparison(withoutFixedBases(), run, { left: DEFAULT_COMPARISON_LEFT_BASIS_REF, right: DEFAULT_COMPARISON_RIGHT_BASIS_REF }).unavailable)
+      .toMatchObject({ reason_code: COMPARISON_BASIS_WITHOUT_ROWS });
+  });
+
+  it("is the unavailable record when a fixed basis is only in the model (no rows, no withheld gate)", () => {
+    const solved = modelWithout();
+    solved.load_cases = [...solved.load_cases, { ...model().load_cases.find((entry) => entry.id === DEFAULT_COMPARISON_LEFT_BASIS_REF)! }];
+    const build = fixedPairComparison(withoutFixedBases(), run, solved)!;
+    expect(build.comparison).toBeNull();
+    expect(build.unavailable).toMatchObject({
+      left_basis_ref: DEFAULT_COMPARISON_LEFT_BASIS_REF,
+      right_basis_ref: DEFAULT_COMPARISON_RIGHT_BASIS_REF,
+      reason_code: COMPARISON_BASIS_WITHOUT_ROWS,
+      reason: `${COMPARISON_BASIS_WITHOUT_ROWS}: load:L-100 and combination:C-OPER-ALT have no result rows in this run, so the pair is not compared.`
+    });
+    // The combination only in the model: the same.
+    const withCombination = modelWithout();
+    withCombination.combinations = [...withCombination.combinations!, { ...model().combinations!.find((entry) => entry.id === DEFAULT_COMPARISON_RIGHT_BASIS_REF)! }];
+    expect(fixedPairComparison(withoutFixedBases(), run, withCombination)!.unavailable).toMatchObject({ reason_code: COMPARISON_BASIS_WITHOUT_ROWS });
+  });
+
+  it("is the unavailable record with the solve's withholding text when the solve withheld a fixed basis", () => {
+    // The range-envelope run: L-100 has rows and the solve withheld C-OPER-ALT.
+    const build = fixedPairComparison(result(), run, model())!;
+    expect(build.comparison).toBeNull();
+    expect(build.unavailable).toMatchObject({
+      reason_code: COMPARISON_BASIS_WITHOUT_ROWS,
+      reason: `${COMPARISON_BASIS_WITHOUT_ROWS}: combination:C-OPER-ALT has no result rows in this run, so the pair is not compared. combination:C-OPER-ALT: ${WITHHELD}`
+    });
+    // Withheld only (no row of either basis, not in the model): still the record.
+    const withheldOnly = withoutFixedBases();
+    (withheldOnly.contract_evidence as { combination_gates: unknown[] }).combination_gates.push({ combination_id: DEFAULT_COMPARISON_RIGHT_BASIS_REF, reason: "NONLINEAR_COMBINATION_REQUIRES_SOLVE", withheld: true });
+    expect(fixedPairComparison(withheldOnly, run, modelWithout())!.unavailable).toMatchObject({ reason_code: COMPARISON_BASIS_WITHOUT_ROWS });
+  });
+});
+
+describe("a withheld combination with only bookkeeping rows (review round 1)", () => {
+  const run = analysisRun("run:invented");
+  /** The committed v5_sustained_only_load document: the solve withholds comb:o-s, which keeps
+   * only its two combination_modulus_basis_record presence rows. */
+  function sustainedOnly() {
+    const corpus = JSON.parse(readFileSync(resolvePath(__dirname, "../../../../../fixtures/results/preview_physics_difference_basis_corpus.json"), "utf8")) as { documents: Array<{ name: string; document: unknown; model: unknown }> };
+    const entry = corpus.documents.find((item) => item.name === "v5_sustained_only_load")!;
+    return { result: structuredClone(entry.document) as MechanicsResult, model: structuredClone(entry.model) as PreviewModel };
+  }
+
+  it("is not offered, carries the unavailable record with the solve's message, and is not announced as compared", () => {
+    const { result: source, model: solved } = sustainedOnly();
+    const bookkeeping = source.results.filter((row) => row.basis_ref?.ref_id === "comb:o-s");
+    expect(bookkeeping.length).toBeGreaterThan(0);
+    expect(bookkeeping.every((row) => row.kind === "combination_modulus_basis_record")).toBe(true);
+    expect(withinRunBasisOptions(source, solved).combinations.map((option) => option.ref_id)).not.toContain("comb:o-s");
+    const message = source.diagnostics.find((item) => item.code === "EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING" && item.affected_refs?.[0] === "comb:o-s")!.message;
+    const build = buildWithinRunComparison(source, run, { left: "case:O", right: "comb:o-s" });
+    expect(build.comparison).toBeNull();
+    expect(build.unavailable).toMatchObject({
+      reason_code: COMPARISON_BASIS_WITHOUT_ROWS,
+      reason: `${COMPARISON_BASIS_WITHOUT_ROWS}: comb:o-s has no result rows in this run, so the pair is not compared. comb:o-s: ${message}`
+    });
+    const parts = packageNoticeParts(build)!;
+    expect(parts.state).toBe("none_carried");
+    expect(parts.withoutRows).toEqual([{ side: "right", ref_id: "comb:o-s", withheld: true, withheld_reason: message }]);
+    expect(parts.text).toMatch(/^The local-private report package carries no comparison of load case case:O with combination comb:o-s: combination comb:o-s has no results in this run \(withheld by the solve: /);
+  });
+
+  it("the fixed combination with bookkeeping rows only: withheld, not offered, not compared", () => {
+    const source = result();
+    const base = source.results.find((row) => row.basis_ref?.ref_id === "load:L-100")!;
+    source.results.push({ ...base, id: "invented:fixed-modulus", kind: "combination_modulus_basis_record", unit: "record", value: 1, source_result_refs: [], basis_ref: { ref_type: "combination", ref_id: DEFAULT_COMPARISON_RIGHT_BASIS_REF } });
+    expect(withinRunBasisOptions(source, model()).combinations.map((option) => option.ref_id)).not.toContain(DEFAULT_COMPARISON_RIGHT_BASIS_REF);
+    const fixed = fixedPairComparison(source, run, model())!;
+    expect([fixed.comparison, fixed.unavailable?.reason_code, packageNoticeParts(fixed)!.state]).toEqual([null, COMPARISON_BASIS_WITHOUT_ROWS, "none_carried"]);
+  });
+
+  it("a combination with real rows is still built by the unchanged builder", () => {
+    const source = withFixedCombination(), fixed = fixedPairComparison(source, run, model())!;
+    expect(fixed.unavailable).toBeNull();
+    expect(JSON.stringify(fixed.comparison)).toBe(JSON.stringify(buildPreviewComparison({ result: source, analysisRun: run })));
+  });
+});
+
+describe("exact-route combination gates (review round 1)", () => {
+  const run = analysisRun("run:invented");
+  const MESSAGE = "Combination withheld: its load cases were solved on different modulus bases.";
+  /** A result whose withholding is stated only in the exact route's form. */
+  function exactWithheld(): MechanicsResult {
+    const source = result();
+    source.results = source.results.filter((row) => row.basis_ref?.ref_id !== DEFAULT_COMPARISON_LEFT_BASIS_REF && row.basis_ref?.ref_id !== DEFAULT_COMPARISON_RIGHT_BASIS_REF);
+    source.diagnostics = source.diagnostics.filter((item) => !item.affected_refs?.includes(DEFAULT_COMPARISON_RIGHT_BASIS_REF));
+    source.contract_evidence = {
+      ...(source.contract_evidence as object),
+      combination_gates: undefined,
+      exact_combinations: [{ combination_id: DEFAULT_COMPARISON_RIGHT_BASIS_REF, gate: { withheld: true, reason: "COMBINATION_MODULUS_BASIS_MIXED" } }]
+    } as MechanicsResult["contract_evidence"];
+    source.diagnostics.push({ id: "diagnostic:exact-combination:gate:invented", code: "COMBINATION_MODULUS_BASIS_MIXED", severity: "warning", message: MESSAGE, source: "core/product_physics", affected_refs: [DEFAULT_COMPARISON_RIGHT_BASIS_REF] } as MechanicsResult["diagnostics"][number]);
+    return source;
+  }
+
+  it("reads the exact form's gate and carries the solve's message", () => {
+    const source = exactWithheld();
+    expect(withheldCombinationGates(source)).toEqual([{ combination_id: DEFAULT_COMPARISON_RIGHT_BASIS_REF, reason: "COMBINATION_MODULUS_BASIS_MIXED" }]);
+    const build = buildWithinRunComparison(source, run, { left: "load:L-200", right: DEFAULT_COMPARISON_RIGHT_BASIS_REF });
+    expect(build.basesWithoutRows).toEqual([{ side: "right", ref_id: DEFAULT_COMPARISON_RIGHT_BASIS_REF, withheld: true, withheld_reason: MESSAGE }]);
+    expect(build.unavailable!.reason).toContain(`${DEFAULT_COMPARISON_RIGHT_BASIS_REF}: ${MESSAGE}`);
+  });
+
+  it("an exact gate alone makes the fixed pair present, with no solved model", () => {
+    const build = fixedPairComparison(exactWithheld(), run, null)!;
+    expect(build).not.toBeNull();
+    expect(build.unavailable).toMatchObject({ reason_code: COMPARISON_BASIS_WITHOUT_ROWS });
+    expect(build.basesWithoutRows.map((basis) => [basis.side, basis.withheld])).toEqual([["left", false], ["right", true]]);
+  });
+});
+
+describe("a load case and a combination that share an id (review round 1)", () => {
+  const run = analysisRun("run:invented");
+  /** No row, gate or diagnostic of either fixed basis. */
+  function bare(): MechanicsResult {
+    const source = result();
+    source.results = source.results.filter((row) => row.basis_ref?.ref_id !== DEFAULT_COMPARISON_LEFT_BASIS_REF && row.basis_ref?.ref_id !== DEFAULT_COMPARISON_RIGHT_BASIS_REF);
+    (source.contract_evidence as { combination_gates: unknown[] }).combination_gates = [];
+    source.diagnostics = source.diagnostics.filter((item) => !item.affected_refs?.includes(DEFAULT_COMPARISON_RIGHT_BASIS_REF));
+    return source;
+  }
+
+  it("a load case named like the fixed combination neither makes the fixed pair present nor gives the right side rows", () => {
+    const source = bare();
+    const base = source.results.find((row) => row.basis_ref?.ref_id === "load:L-200")!;
+    source.results.push({ ...base, id: "invented:collide", basis_ref: { ref_type: "load_case", ref_id: DEFAULT_COMPARISON_RIGHT_BASIS_REF } });
+    expect(fixedPairComparison(source, run, null)).toBeNull();
+    const build = buildWithinRunComparison(source, run, { left: "load:L-200", right: DEFAULT_COMPARISON_RIGHT_BASIS_REF });
+    expect(build.basesWithoutRows).toEqual([{ side: "right", ref_id: DEFAULT_COMPARISON_RIGHT_BASIS_REF, withheld: false, withheld_reason: null }]);
+    expect(build.unavailable?.reason_code).toBe(COMPARISON_BASIS_WITHOUT_ROWS);
+  });
+
+  it("a combination gate named like the left basis is not attributed to the left", () => {
+    const source = bare();
+    (source.contract_evidence as { combination_gates: unknown[] }).combination_gates.push({ combination_id: "load:L-200", withheld: true, reason: "NONLINEAR_COMBINATION_REQUIRES_SOLVE" });
+    expect(buildWithinRunComparison(source, run, { left: "load:L-200", right: RANGE }).basesWithoutRows).toEqual([]);
+    // A gate on the fixed load case's id does not make the fixed pair present.
+    (source.contract_evidence as { combination_gates: unknown[] }).combination_gates.push({ combination_id: DEFAULT_COMPARISON_LEFT_BASIS_REF, withheld: true, reason: "NONLINEAR_COMBINATION_REQUIRES_SOLVE" });
+    expect(fixedPairComparison(source, run, null)).toBeNull();
+  });
+});
+
+describe("the notice's text edge cases (review round 1)", () => {
+  const run = analysisRun("run:invented");
+  it("a withheld message that is only its label reads as withheld by the solve", () => {
+    const source = result();
+    for (const item of source.diagnostics) if (item.code === "NONLINEAR_COMBINATION_REQUIRES_SOLVE") item.message = "Combination withheld: .";
+    expect(packageNoticeParts(buildWithinRunComparison(source, run, { left: "load:L-100", right: DEFAULT_COMPARISON_RIGHT_BASIS_REF }))!.reason).toBe("withheld by the solve");
+  });
+  it("one id for both sides is named once in the record and by kind in the notice", () => {
+    const build = buildWithinRunComparison(result(), run, { left: "same:X", right: "same:X" });
+    expect(build.unavailable!.reason).toBe(`${COMPARISON_BASIS_WITHOUT_ROWS}: same:X has no result rows in this run as the load case or as the combination, so the pair is not compared.`);
+    expect(packageNoticeParts(build)!.text).toBe("The local-private report package carries no comparison of load case same:X with combination same:X: load case same:X and combination same:X have no results in this run.");
+  });
+});
+
+describe("the packaged comparison for one run (review round 1)", () => {
+  it("is the session's: the held choice when the run offers it, else the fixed pair's, and says whether it was dropped", () => {
+    const run = analysisRun("run:invented");
+    const source = result();
+    const held = packagedComparisonForRun({ result: source, analysisRun: run, model: model(), held: { left: "load:L-200", right: RANGE } });
+    expect(held.heldDropped).toBe(false);
+    expect(held.packaged!.pair).toEqual({ left: "load:L-200", right: RANGE });
+    expect(JSON.stringify(held.packaged!.comparison)).toBe(JSON.stringify(buildPreviewComparison({ result: source, analysisRun: run, leftBasisRef: "load:L-200", rightBasisRef: RANGE })));
+    const dropped = packagedComparisonForRun({ result: source, analysisRun: run, model: model(), held: { left: "load:L-999", right: RANGE } });
+    expect(dropped.heldDropped).toBe(true);
+    expect(dropped.packaged).toEqual(fixedPairComparison(source, run, model()));
+    const none = packagedComparisonForRun({ result: source, analysisRun: run, model: model(), held: null });
+    expect([none.heldDropped, none.packaged!.unavailable!.reason_code]).toEqual([false, COMPARISON_BASIS_WITHOUT_ROWS]);
   });
 });

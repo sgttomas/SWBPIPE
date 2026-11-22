@@ -8,7 +8,7 @@
 // process is involved. All data are invented.
 import { StrictMode, createElement, type ReactNode } from "react";
 import { act, renderHook } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   ReportSourceCoordinator,
   ReportSourceSequence,
@@ -315,6 +315,34 @@ describe("activation across workspace lifetimes (F2)", () => {
 });
 
 describe("sequenced state cells", () => {
+  it("a subscriber throwing during a model write stops neither the other subscribers, the write, nor the native send; it is reported once, and a view that did not hear the advance is stale", async () => {
+    const model = nativeModel();
+    const source = new ReportSourceSequence(model.transport, new ReportSourceCoordinator());
+    source.start();
+    await settle();
+    model.holding.add("advance");
+    const reported = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    try {
+      const heard: number[] = [];
+      source.subscribe(() => { throw new Error("invented subscriber failure"); });
+      source.subscribe(() => { throw new Error("a second invented failure"); });
+      source.subscribe((sequence) => heard.push(sequence));
+      const { result } = renderHook(() => useSequencedState<string>("old model", source.advance));
+      expect(() => act(() => result.current[1]("new model"))).not.toThrow();
+      expect(heard).toEqual([1]);
+      expect(result.current[0]).toBe("new model");
+      expect(source.sequence).toBe(1);
+      await settle();
+      expect(model.held.map((entry) => [entry.kind, entry.argument])).toEqual([["advance", { incarnation: 1, sequence: 1 }]]);
+      expect(reported).toHaveBeenCalledTimes(1);
+      expect(reported.mock.calls[0]).toEqual(["A report-source subscriber failed; the others were still told and the advance went on.", new Error("invented subscriber failure")]);
+      await expect(source.registeredFor(0)).rejects.toMatchObject({ code: "REPORT-SOURCE-STALE-VIEW" });
+    } finally {
+      reported.mockRestore();
+    }
+  });
+
+
   it("advance once per change of value, not for a repeated value, and resolve functional updates in order", () => {
     let advances = 0;
     const advance = () => ++advances;

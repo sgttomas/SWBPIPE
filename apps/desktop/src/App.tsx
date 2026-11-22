@@ -168,7 +168,8 @@ export function App() {
 }
 
 function AppSession() {
-  const session = useWorkspaceSession();
+  // DEL-16-03, Commit: the editors' binder stays here, out of the context; this slice binds no editor to it.
+  const { editorBinding, ...session } = useWorkspaceSession();
   // DEL-08-01 REQ-022: the report source sequence and the report output outcomes, owned by
   // the session; the outcomes are shown outside the dormant Report section.
   const reportOutput = {
@@ -788,7 +789,7 @@ function AppSession() {
                   Key results
                 </button>
               </div>
-              {historicalRun ? <HistoricalRunPanel key={historicalRun.runId} context={historicalRun} /> : <ResultsPanel
+              {historicalRun ? <HistoricalRunPanel key={historicalRun.viewKey} context={historicalRun} /> : <ResultsPanel
                 result={result}
                 model={model}
                 exportAnalysisRun={currentSolvedResult !== null && result === currentSolvedResult ? analysisRun : null}

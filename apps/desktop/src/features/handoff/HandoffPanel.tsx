@@ -108,7 +108,7 @@ export function HandoffPanel({
         <ControlledExportLink
               className="report-export-link"
               data-testid="handoff-export-link"
-              download={`openpipestress-preview-handoff-${safeFileToken(handoffPackage.analysis_run_ref.ref)}.json`}
+              download={suggestedFileName("handoff")}
               href={jsonDataHref(handoffPackage)}
             >
               <Download size={14} aria-hidden="true" />
@@ -426,7 +426,5 @@ function safeRefToken(value: string): string {
   return value.replace(/[^a-zA-Z0-9:_-]+/g, "-").replace(/^-+|-+$/g, "") || "ref";
 }
 
-function safeFileToken(value: string): string {
-  return value.replace(/[^a-zA-Z0-9_-]+/g, "-").replace(/^-+|-+$/g, "") || "preview";
-}
 import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";
+import { suggestedFileName } from "../fileNames";
