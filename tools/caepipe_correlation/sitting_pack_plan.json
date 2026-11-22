@@ -20,7 +20,7 @@
       "id": "part-2",
       "kind": "pressure",
       "title": "Pressurised series",
-      "buys": "The declared screened runs of the cases that carry the exact pressure contract, each model's pressure-default run next to its pressure-elongation-on run, then the declared capture-only runs (pressure-bourdon-expansion-capture), which are sealed captures."
+      "buys": "The declared screened runs of the cases that carry the exact pressure contract, each model's pressure-default run next to its pressure-elongation-on run, then the declared capture-only runs (pressure-bourdon-expansion-capture), which are capture-only runs."
     },
     {
       "id": "part-3",

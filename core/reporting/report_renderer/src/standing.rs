@@ -12,7 +12,8 @@
 //! decoded. Free-text detail is quoted as the solver's detail, escaped by the
 //! emission, and never interpreted.
 use open_pipe_stress_numerical_vocabulary::{
-    CaseHealth, EvidenceStatus, FrictionNormal, HistoricalCause, HistoricalConfirmation, HistoricalIntegrityCode, NoFigureReason, Premise,
+    CaseHealth, EvidenceStatus, FrictionNormal, HistoricalCause, HistoricalConfirmation, HistoricalIntegrityCode, IntegrityBound,
+    IntegrityBoundReason, NoFigureReason, Premise,
     StandingFinding, SupportBehavior, SupportState, VocabularyTag,
 };
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -233,6 +234,21 @@ pub fn no_figure_statement(reason: NoFigureReason) -> String {
     )
 }
 
+/// The integrity bound's status, as stated beside a verdict or a text that is
+/// the solver's own (release exit criterion 18, LIM-026).
+pub fn integrity_bound_statement(status: IntegrityBound) -> &'static str {
+    match status {
+        IntegrityBound::NotVerified => "Reported by the solver; not verified by SWBPIPE.",
+    }
+}
+
+/// Why the integrity bound has its status, in words a person reads.
+pub fn integrity_bound_reason_statement(reason: IntegrityBoundReason) -> &'static str {
+    match reason {
+        IntegrityBoundReason::InverseNormBoundNotVerified => "SWBPIPE has not verified an error bound for the ordinary solve's values.",
+    }
+}
+
 /// The evidence status's display form (EV-FIGURE), with its premise or reason.
 pub fn status_form(status: EvidenceStatus, premises: &[Premise], reason: &str) -> String {
     match status {
@@ -266,14 +282,22 @@ pub fn confirmation_statement(outcome: HistoricalConfirmation) -> &'static str {
     }
 }
 
-/// One support's statement in one load case.
+/// One support's statement in one load case: its computed state and its reason
+/// ([`support_reason`]).
 pub fn support_statement(support: &SupportRecord, outcome: HistoricalConfirmation) -> String {
-    let state = state_words(support.state.0);
-    let gap = support.behavior.0 == SupportBehavior::Gap;
+    format!("Computed state: {}. {}", state_words(support.state.0), support_reason(support, outcome))
+}
+
+/// One support's reviewed reason in one load case, as its support row states it: for a
+/// gap support the family fact, else the statement of the case's confirmation outcome,
+/// each outcome mapped, with no wildcard arm.
+pub fn support_reason(support: &SupportRecord, outcome: HistoricalConfirmation) -> &'static str {
     // No confirmation covers gap supports (DEL-04-01 REQ-016): a family fact, true
     // whatever this result records about its load case.
-    let tail = match outcome {
-        _ if gap => "Not confirmed: no confirmation covers gap supports.",
+    if support.behavior.0 == SupportBehavior::Gap {
+        return GAP_NOT_CONFIRMED;
+    }
+    match outcome {
         HistoricalConfirmation::SolverReportedEstablished => {
             "Not confirmed: the solver's confirmation reports this state established, conditional on the solver's inverse-norm step. This result does not publish the deciding quantity or its interval."
         }
@@ -283,8 +307,89 @@ pub fn support_statement(support: &SupportRecord, outcome: HistoricalConfirmatio
         HistoricalConfirmation::NotEstablishedDetailQuoted => "Not confirmed: the solver's confirmation did not establish the support states of this load case.",
         HistoricalConfirmation::NoConfirmationRecord => "Not confirmed: the result records no support-state confirmation for this load case.",
         HistoricalConfirmation::NotApplicable => "Not confirmed.",
-    };
-    format!("Computed state: {state}. {tail}")
+    }
+}
+
+/// Whether a historical confirmation outcome lets the report call its load case's
+/// support states confirmed. A state is called confirmed only where its confirmation is
+/// established (DEL-08-01 REQ-024), and no historical outcome establishes one; the match
+/// has no wildcard arm, so a new outcome must decide this before it builds.
+pub fn outcome_confirms_states(outcome: HistoricalConfirmation) -> bool {
+    match outcome {
+        HistoricalConfirmation::SolverReportedEstablished
+        | HistoricalConfirmation::NotAttemptedReasonNotRecorded
+        | HistoricalConfirmation::NotEstablishedDetailQuoted
+        | HistoricalConfirmation::NoConfirmationRecord
+        | HistoricalConfirmation::NotApplicable => false,
+    }
+}
+
+/// SUPPORT-STATES-FRAME's state words.
+pub const SUPPORT_STATES_NOT_CONFIRMED: &str = "Support states: not confirmed.";
+/// The family fact for a gap support (DEL-04-01 REQ-016), as the support rows state it.
+pub const GAP_NOT_CONFIRMED: &str = "Not confirmed: no confirmation covers gap supports.";
+/// KEPT-FOR-INSPECTION-FRAME's stem, the stem of the desktop's sentence for the same mark
+/// (`numericalHealthText.ts`, `KEPT_FOR_INSPECTION_TEXT`, `RECOVERY_BASIS_UNQUALIFIED_TEXT`).
+pub const KEPT_FOR_INSPECTION: &str = "Kept for inspection.";
+
+/// Whether the record lets the report call `support`'s state confirmed in a load case
+/// whose confirmation outcome is `outcome`: never for a gap support (no confirmation covers
+/// gap supports), else as [`outcome_confirms_states`] decides.
+pub fn support_state_confirmed(support: &SupportRecord, outcome: HistoricalConfirmation) -> bool {
+    support.behavior.0 != SupportBehavior::Gap && outcome_confirms_states(outcome)
+}
+
+/// SUPPORT-STATES-FRAME (DEL-08-01 REQ-024, "Package and user release"): the frame's
+/// statement that the result's support states are not confirmed, where any load case has
+/// a nonlinear support whose state the record does not let the report call confirmed.
+/// Its reasons are those supports' reviewed reasons ([`support_reason`], the support rows'
+/// own wording), each once, in the order first met: load cases in record order, supports
+/// in each case's order. `None` where no support is unconfirmed. It does not say that a
+/// load case is kept for inspection; that is [`kept_for_inspection_frame_statement`]'s.
+pub fn support_states_frame_statement(standing: &NumericalStanding) -> Option<String> {
+    let mut reasons: Vec<&'static str> = Vec::new();
+    for case in &standing.cases {
+        let outcome = case.confirmation.outcome.0;
+        for support in case.supports.iter().filter(|support| !support_state_confirmed(support, outcome)) {
+            let reason = support_reason(support, outcome);
+            if !reasons.contains(&reason) {
+                reasons.push(reason);
+            }
+        }
+    }
+    if reasons.is_empty() {
+        return None;
+    }
+    Some(format!("{SUPPORT_STATES_NOT_CONFIRMED} {}", reasons.join(" ")))
+}
+
+/// Whether `case` carries the solver's published mark that its recovery basis is
+/// unqualified, as the standing record gives it: the cause `recovery_basis_unqualified`
+/// or the integrity code `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED`. It reads neither
+/// the case's supports nor its confirmation outcome: the mark is the solver's, and a gap
+/// support in the model is not it.
+pub fn case_carries_recovery_basis_unqualified(case: &CaseStanding) -> bool {
+    case.causes.iter().any(|cause| cause.cause.0 == HistoricalCause::RecoveryBasisUnqualified)
+        || case.integrity_code.as_ref().is_some_and(|code| code.0 == HistoricalIntegrityCode::RecoveryBasisUnqualified)
+}
+
+/// KEPT-FOR-INSPECTION-FRAME (DEL-08-01 REQ-024, "Package and user release"): on a line
+/// of its own, "Kept for inspection." with the reviewed cause statement of
+/// `recovery_basis_unqualified`, where any load case carries that mark
+/// ([`case_carries_recovery_basis_unqualified`]); else `None`.
+pub fn kept_for_inspection_frame_statement(standing: &NumericalStanding) -> Option<String> {
+    standing
+        .cases
+        .iter()
+        .any(case_carries_recovery_basis_unqualified)
+        .then(|| format!("{KEPT_FOR_INSPECTION} {}", cause_statement(HistoricalCause::RecoveryBasisUnqualified)))
+}
+
+/// The frame's statements that apply to `standing`, each its own line, in the order the
+/// frame shows them: SUPPORT-STATES-FRAME, then KEPT-FOR-INSPECTION-FRAME. The
+/// user-release dialog shows the same list, word for word.
+pub fn frame_statements(standing: &NumericalStanding) -> Vec<String> {
+    [support_states_frame_statement(standing), kept_for_inspection_frame_statement(standing)].into_iter().flatten().collect()
 }
 
 /// L-ERROR-FIGURE-BASIS, its title and its text.
@@ -408,6 +513,12 @@ pub fn statement_table() -> Vec<(&'static str, &'static str, String)> {
     }
     for r in NoFigureReason::ALL {
         out.push((NoFigureReason::VOCABULARY, r.as_str(), no_figure_statement(*r)));
+    }
+    for s in IntegrityBound::ALL {
+        out.push((IntegrityBound::VOCABULARY, s.as_str(), integrity_bound_statement(*s).to_string()));
+    }
+    for r in IntegrityBoundReason::ALL {
+        out.push((IntegrityBoundReason::VOCABULARY, r.as_str(), integrity_bound_reason_statement(*r).to_string()));
     }
     out
 }

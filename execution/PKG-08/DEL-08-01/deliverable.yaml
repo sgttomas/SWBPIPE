@@ -145,6 +145,15 @@ needs:
     section's dormant subtree.
   when: Ordering report output with changes of its source (REQ-022).
   gating: true
+- from: DEL-07-11
+  condition: The workspace session keeps the saved-package entry holder token that a held save's receipt
+    returns for as long as the document session lasts, presents it with each later package save, list,
+    state check and removal of that document session, and, after its own successful first store save of
+    the project, calls the native command that writes that holder's held entries with the project's id
+    and the token; a document session that replaces it presents no earlier token.
+  when: Keeping the entries made before a project's first store save (REQ-023 "Before the first project
+    save").
+  gating: true
 - from: DEL-07-03
   condition: Each publication of the store's library-reference findings is a complete, immutable set that
     replaces the previous one, and every publication notifies its subscribers synchronously before it
@@ -177,6 +186,13 @@ code_paths:
 - apps/desktop/src/features/report/pfTimoshenkoReport.ts
 - apps/desktop/src/features/report/reportPackageRequest.ts
 - apps/desktop/src/features/report/userReleasedReportPackageSave.ts
+# REQ-024 "Package and user release": the dialog's frame statements, the native host's
+# report_frame_statements operation of the verdict command (also DEL-04-07 and DEL-07-07 code);
+# its reply decoder is in apps/desktop/src/services/nativeResult.ts, DEL-07-07's. The rendered
+# report's source, which the package and the user release also take on the exact route.
+- apps/desktop/src/features/report/reportFrameStatements.ts
+- apps/desktop/src-tauri/src/native_verdict.rs
+- apps/desktop/src/features/report/renderableReportSource.ts
 - apps/desktop/src/features/report/controlledRouteEvidence.ts
 - apps/desktop/src/services/reportRenderService.ts
 - apps/desktop/src/services/reportPackageSaveService.ts
@@ -196,6 +212,9 @@ code_paths:
 - apps/desktop/src-tauri/src/report_package_bridge.rs
 - apps/desktop/src-tauri/src/report_package_save.rs
 - apps/desktop/src-tauri/src/atomic_report_package_save.rs
+# The project's saved-package entries (REQ-023): the write from the save's outcome, the
+# list, the state check and removal. DEL-02-05 keeps them (REQ-039).
+- apps/desktop/src-tauri/src/saved_package_entries.rs
 - apps/desktop/src-tauri/src/exact_source_binding.rs
 - apps/desktop/src-tauri/src/user_release_admission.rs
 - apps/desktop/src-tauri/src/user_release_reach_scan.rs
@@ -204,6 +223,7 @@ code_paths:
 - fixtures/reports/standing_statements.json
 - fixtures/reports/numerical_vocabulary.json
 - fixtures/reports/invented/report_standing_witnesses/**
+- fixtures/reports/invented/pf_timoshenko_not_eligible/**
 - core/reporting/numerical_vocabulary/**
 - core/reporting/report_renderer/tests/standing_statements.rs
 - apps/desktop/src/features/report/reportStandingWitness.test.tsx
@@ -219,6 +239,7 @@ code_paths:
 - fixtures/reports/invented/report_quantity_display_parity.json
 - fixtures/reports/invented/report_result_rows_parity.json
 - fixtures/reports/invented/report_diagnostics_parity.json
+- fixtures/reports/invented/report_members_vectors/**
 - fixtures/reports/invented/user_release_derivation_vectors.json
 - fixtures/reports/invented/user_release_exact/**
 - fixtures/reports/invented/user_release_record.json
@@ -249,14 +270,20 @@ checks:
 - tests/test_headless_runner_contract.py
 - tests/test_report_sections_provenance_records.py
 - apps/desktop/src-tauri/src/report_render_exact_tests.rs
+- apps/desktop/src-tauri/src/report_render_pf_timoshenko_tests.rs
 - apps/desktop/src-tauri/src/report_session_diagnostics_tests.rs
 - apps/desktop/src-tauri/src/object_form_tests.rs
 - apps/desktop/src-tauri/src/user_release_admission_tests.rs
 - apps/desktop/src-tauri/src/user_release_save_tests.rs
+- apps/desktop/src-tauri/src/report_standing_package_tests.rs
+- apps/desktop/src-tauri/src/saved_package_entries_tests.rs
 - apps/desktop/src-tauri/src/user_release_reach_scan_tests.rs
 - apps/desktop/src/features/report/renderedReport.test.tsx
 - apps/desktop/src/features/report/renderedReportNativeRoutes.test.tsx
+- apps/desktop/src/features/report/pfTimoshenkoRenderRows.test.tsx
 - apps/desktop/src/features/report/renderedReportGate.app.test.tsx
+- apps/desktop/src/features/report/timoshenkoReportAnyStanding.app.test.tsx
+- apps/desktop/src/features/report/reportPackageStandingRefusal.test.ts
 - apps/desktop/src/features/report/restoredRunReportWords.app.test.tsx
 - apps/desktop/src/features/report/withheldPackageStatus.app.test.tsx
 - apps/desktop/src/features/report/reportOutputOutcomes.test.ts
@@ -268,6 +295,7 @@ checks:
 - apps/desktop/src/features/report/reportResultRows.parity.test.ts
 - apps/desktop/src/features/report/reportQuantityDisplay.parity.test.ts
 - apps/desktop/src/features/report/reportDiagnostics.parity.test.ts
+- apps/desktop/src/features/report/reportMembersVectors.test.ts
 - apps/desktop/src/features/report/reportComposition.parity.test.ts
 - apps/desktop/src/features/report/modelInputTables.parity.test.ts
 - apps/desktop/src/features/report/ReportComposer.test.tsx
@@ -277,10 +305,14 @@ checks:
 - apps/desktop/src/features/report/userReleaseDerivation.parity.test.ts
 - apps/desktop/src/features/report/userReleaseExact.parity.test.ts
 - apps/desktop/src/features/report/UserReleaseDialog.test.tsx
+- apps/desktop/src/features/report/reportFrameStatements.test.ts
+- apps/desktop/src/features/report/renderableReportSource.test.ts
 - apps/desktop/src/features/report/userReleasedReportPackageCell.test.ts
 - apps/desktop/src/features/report/userReleasedReportPackageSave.test.ts
 - apps/desktop/src/features/workspace/reportPackageSave.session.test.tsx
 - apps/desktop/src/features/workspace/userReleaseSave.session.test.tsx
+- apps/desktop/src/features/workspace/reportPackageAdmission.session.test.tsx
+- apps/desktop/src/test/reportPackageDeniedStates.ts
 - apps/desktop/src/features/workspace/reportPackageOutcomes.session.test.tsx
 - apps/desktop/src/features/workspace/reportPackageRedactionRecords.session.test.tsx
 - apps/desktop/src/features/results/outputPolicy.test.ts

@@ -1,9 +1,9 @@
 // DEL-08-01 REQ-022: the session's report output outcomes (`reportOutputOutcomes.ts`),
 // rendered by App outside the Report section's dormant subtree so that each save's and
 // print's outcome stays visible while Report is hidden, after its panel or render is
-// retired and after a project switch, until the person dismisses it. A report package save's
-// entry (issue 508) is one status region: its line, then the receipt's warnings, then its
-// figures behind a closed Details; Dismiss once it has settled.
+// retired and after a project switch, until the person dismisses it. One polite live
+// announcer stays mounted in the DOM before any outcome exists so screen readers observe
+// immediate settlements as updates inside it.
 import type { ReportOutputEntry, ReportOutputOutcomes, ReportPackageOutputEntry } from "./reportOutputOutcomes";
 import { isReportPackageEntry, reportOutputDetails, reportOutputText } from "./reportOutputOutcomes";
 
@@ -17,7 +17,6 @@ function ReportPackageOutput({ outcomes, entry, currentSequence, currentProjectI
   const details = reportOutputDetails(entry);
   return (
     <div
-      role="status"
       data-testid={`report-output-${entry.id}`}
       data-kind={entry.kind}
       data-state={entry.state}
@@ -63,28 +62,34 @@ export function ReportOutputStatus({
   /** The open project's identity, to say an entry is of another project; unknown if omitted. */
   currentProjectId?: string | null;
 }) {
-  if (entries.length === 0) return null;
   return (
-    <section className="report-output-status" aria-label="Report output outcomes" data-testid="report-output-status">
-      {entries.map((entry) => isReportPackageEntry(entry) ? (
-        <ReportPackageOutput key={entry.id} outcomes={outcomes} entry={entry} currentSequence={currentSequence} currentProjectId={currentProjectId} />
-      ) : (
-        <p
-          key={entry.id}
-          role="status"
-          data-testid={`report-output-${entry.id}`}
-          data-kind={entry.kind}
-          data-state={entry.state}
-          data-workspace-changed={String(entry.basis.sequence !== currentSequence)}
-        >
-          <span data-testid={`report-output-${entry.id}-text`}>{reportOutputText(entry, currentSequence, currentProjectId)}</span>
-          {entry.state === "pending" ? null : (
-            <button type="button" data-testid={`report-output-${entry.id}-dismiss`} onClick={() => outcomes.dismiss(entry.id)}>
-              Dismiss
-            </button>
-          )}
-        </p>
-      ))}
+    <section className="report-output-status-region" aria-label="Report output outcomes">
+      <div
+        className="report-output-status"
+        role="status"
+        aria-live="polite"
+        aria-atomic="false"
+        data-testid="report-output-status"
+      >
+        {entries.map((entry) => isReportPackageEntry(entry) ? (
+          <ReportPackageOutput key={entry.id} outcomes={outcomes} entry={entry} currentSequence={currentSequence} currentProjectId={currentProjectId} />
+        ) : (
+          <p
+            key={entry.id}
+            data-testid={`report-output-${entry.id}`}
+            data-kind={entry.kind}
+            data-state={entry.state}
+            data-workspace-changed={String(entry.basis.sequence !== currentSequence)}
+          >
+            <span data-testid={`report-output-${entry.id}-text`}>{reportOutputText(entry, currentSequence, currentProjectId)}</span>
+            {entry.state === "pending" ? null : (
+              <button type="button" data-testid={`report-output-${entry.id}-dismiss`} onClick={() => outcomes.dismiss(entry.id)}>
+                Dismiss
+              </button>
+            )}
+          </p>
+        ))}
+      </div>
     </section>
   );
 }

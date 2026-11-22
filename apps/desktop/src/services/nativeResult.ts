@@ -113,6 +113,13 @@ export type NativeCustody = Readonly<{
    * never binds a standing (`binding.standing` stays null). Null for a solve, and for a retained
    * route, whose panel shows no health indicator (`routeHealth`). */
   historicalStanding?: Readonly<{ eligible: boolean; findings: readonly string[] }> | null;
+  /** Release exit criterion 18: what a restored run's S says of its support-state confirmations.
+   * `"read"`: S was read with the saved model for them (`support_confirmations` is the reader's
+   * record, or null where none could be derived); `"no_nonlinear_support"`: the saved model is known
+   * to have none, so no case has a line; `"not_read"`: the confirmation read was not made or failed,
+   * or no model was available, so every case states that its record could not be read. Absent for a
+   * solve, whose S is read with its own model. */
+  supportConfirmations?: "read" | "no_nonlinear_support" | "not_read";
 }>;
 
 const NATIVE = Symbol("swbpipe.nativeResult");
@@ -327,6 +334,39 @@ export function requireRouteHeaderAgreement(header: NativeRouteHeader, verdict: 
 
 export type VerdictRequest = Readonly<{ modelText?: string | null; invocationText?: string | null; reader?: ReaderName | null }>;
 
+/** DEL-08-01 REQ-024, "Package and user release": the report's frame statements for a held
+ * result, as the native host gives them (the verdict command's `report_frame_statements`
+ * operation): the renderer's own lines for the result's standing record, each a line, in
+ * the frame's order. The webview composes none of them. */
+export type NativeFrameStatements = Readonly<{
+  document_kind: "swbpipe.desktop.report_frame_statements"; version: 1; job_id: string;
+  frame_statements: readonly string[];
+}>;
+const FRAME_STATEMENTS_KEYS = ["document_kind", "version", "job_id", "frame_statements"];
+export function decodeNativeFrameStatements(delivered: unknown, jobId: string): NativeFrameStatements {
+  const keys = plain(delivered) ? Object.keys(delivered) : [];
+  if (!plain(delivered) || keys.length !== FRAME_STATEMENTS_KEYS.length || !keys.every((key) => FRAME_STATEMENTS_KEYS.includes(key))
+    || delivered.document_kind !== "swbpipe.desktop.report_frame_statements" || delivered.version !== 1 || delivered.job_id !== jobId
+    || !Array.isArray(delivered.frame_statements) || !delivered.frame_statements.every((line) => typeof line === "string" && line.length > 0)) {
+    malformed("not this job's report frame statements");
+  }
+  return freeze({ ...(delivered as unknown as NativeFrameStatements), frame_statements: freeze([...(delivered.frame_statements as string[])]) });
+}
+/** The held result's frame statements, read natively with the standing's bound texts, cached
+ * by them. A refusal (`REPORT-FRAME-STATEMENTS-UNAVAILABLE: ...`) is thrown and not kept. */
+export function readNativeFrameStatements(jobId: string, request: Readonly<{ modelText: string; invocationText: string | null }>): Promise<NativeFrameStatements> {
+  return cached(jobId, keyOf("report_frame_statements", request.modelText, request.invocationText), async () => {
+    const delivered = decodeNativeFrameStatements(await send(NATIVE_VERDICT_COMMAND, {
+      jobId,
+      operation: "report_frame_statements",
+      modelJson: request.modelText,
+      ...(request.invocationText != null ? { invocationJson: request.invocationText } : {})
+    }), jobId);
+    live(jobId); // A late reply cannot resurrect disposed custody.
+    return delivered;
+  });
+}
+
 /* -------------------------------------------------------------------------- *
  * Per-job caches, bound by exact inputs, dropped on disposal
  * -------------------------------------------------------------------------- */
@@ -405,11 +445,13 @@ export function readNativeValidation(jobId: string, reader: ReaderName, request:
     })));
 }
 
-/** S for the model text and standing, cached by both (`null`: no standing). */
-export function readNativeSummary(jobId: string, modelText: string, standing: NativeBinding["standing"]): Promise<ResultSummary> {
+/** S for the model text and standing, cached by both (`null`: no standing). `modelUse`
+ * "confirmations" (a restored run, release exit criterion 18): the model is read for S's support-state
+ * confirmations only, and every table is read with no model. */
+export function readNativeSummary(jobId: string, modelText: string, standing: NativeBinding["standing"], modelUse?: "confirmations"): Promise<ResultSummary> {
   const standingArg = standing ? { eligible: standing.eligible, findings: [...standing.findings] } : null;
-  return cached(jobId, keyOf("summary", modelText, JSON.stringify(standingArg)), async () => {
-    const delivered = await bytesInvoke(NATIVE_SUMMARY_COMMAND, { jobId, modelJson: modelText, standing: standingArg });
+  return cached(jobId, keyOf("summary", modelText, JSON.stringify(standingArg), modelUse ?? null), async () => {
+    const delivered = await bytesInvoke(NATIVE_SUMMARY_COMMAND, { jobId, modelJson: modelText, standing: standingArg, ...(modelUse ? { modelUse } : {}) });
     if (typeof delivered === "string") throw new Error("RESULT-SUMMARY-MALFORMED: a text response where bytes were expected");
     return decodeResultSummary(delivered);
   });

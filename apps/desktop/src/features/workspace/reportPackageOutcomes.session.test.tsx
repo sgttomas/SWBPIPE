@@ -134,13 +134,19 @@ async function startSave(kind: Kind, state: () => WorkspaceSession) {
   act(() => request!.save({ userReleasedAt: "2026-11-21T00:00:00Z" }));
 }
 
-/** The outcome strip's announced entries, in order. */
-function outcomeStatuses(): HTMLElement[] {
-  const strip = screen.queryByRole("region", { name: "Report output outcomes" });
-  return strip ? within(strip).queryAllByRole("status") : [];
+/** The outcome strip's single pre-mounted polite live announcer inside its region. */
+function outcomeAnnouncer(): HTMLElement {
+  const region = screen.getByRole("region", { name: "Report output outcomes" });
+  return within(region).getByRole("status");
 }
-/** The line of each announced entry (its first paragraph), in order. */
-const outcomeLines = () => outcomeStatuses().map((status) => status.querySelector("p")?.textContent ?? "");
+/** The outcome strip's entries, in order (direct children of its live announcer). */
+function outcomeEntries(): HTMLElement[] {
+  return Array.from(outcomeAnnouncer().children).filter(
+    (child): child is HTMLElement => child instanceof HTMLElement && (child.getAttribute("data-testid") ?? "").startsWith("report-output-")
+  );
+}
+/** The line of each entry (its first paragraph), in order. */
+const outcomeLines = () => outcomeEntries().map((entry) => entry.querySelector("p")?.textContent ?? "");
 
 function coordinateEdit(model: PreviewModel) {
   const target = model.nodes[0];
@@ -212,11 +218,11 @@ describe.each(KINDS)("%s: the outcome is kept whatever happens to the workspace"
     await waitFor(() => expect(saveCalls()).toHaveLength(1));
     // Sent: its pending line is announced, and it offers no Dismiss.
     await waitFor(() => expect(outcomeLines()).toEqual([`Choose where to save the ${name.toLowerCase()}.`]));
-    expect(within(outcomeStatuses()[0]).queryByRole("button", { name: "Dismiss" })).toBeNull();
+    expect(within(outcomeEntries()[0]).queryByRole("button", { name: "Dismiss" })).toBeNull();
     await makeChange(change, state);
     await act(async () => { reply.resolve(receipt(kind)); await Promise.resolve(); });
     await waitFor(() => expect(outcomeLines()).toEqual([`${name} saved as invented.opsproj.${moved(change, basis)}`]));
-    expect(within(outcomeStatuses()[0]).getByRole("button", { name: "Dismiss" })).toBeInTheDocument();
+    expect(within(outcomeEntries()[0]).getByRole("button", { name: "Dismiss" })).toBeInTheDocument();
   }, 90_000);
 
   it.each(CHANGES)("shown, then %s: the entry stays, now saying the workspace has changed", async (change) => {
@@ -256,7 +262,7 @@ describe.each(KINDS)("%s: each outcome is stated as such", (kind, name) => {
     await waitFor(() => expect(outcomeLines()).toEqual([line]));
     if (line.startsWith("It is not known")) {
       // An unknown outcome never reads as nothing written.
-      expect(outcomeStatuses()[0].textContent).not.toMatch(/not saved|nothing was (written|sent)|was not written/i);
+      expect(outcomeEntries()[0].textContent).not.toMatch(/not saved|nothing was (written|sent)|was not written/i);
     }
   }, 90_000);
 });
@@ -267,7 +273,7 @@ describe("Save Report Package…: what the entry shows and how it goes", () => {
     const { state, basis } = await solvedSession(async () => receipt("report_package", { warnings, replaced_existing: true }));
     await startSave("report_package", state);
     await waitFor(() => expect(outcomeLines()).toEqual(["Report package saved as invented.opsproj."]));
-    const status = outcomeStatuses()[0];
+    const status = outcomeEntries()[0];
     expect(within(within(status).getByRole("list", { name: "Warnings" })).getAllByRole("listitem").map((item) => item.textContent)).toEqual([
       "Warning: invented: the library reference could not be resolved. (MODEL-LIBRARY-REF-UNRESOLVED, at /model/materials/0)"
     ]);
@@ -291,7 +297,7 @@ describe("Save Report Package…: what the entry shows and how it goes", () => {
     await waitFor(() => expect(outcomeLines()).toEqual(["Report package saved as invented-1.opsproj."]));
     await startSave("report_package", state);
     await waitFor(() => expect(outcomeLines()).toEqual(["Report package saved as invented-1.opsproj.", "Report package saved as invented-2.opsproj."]));
-    fireEvent.click(within(outcomeStatuses()[0]).getByRole("button", { name: "Dismiss" }));
+    fireEvent.click(within(outcomeEntries()[0]).getByRole("button", { name: "Dismiss" }));
     expect(outcomeLines()).toEqual(["Report package saved as invented-2.opsproj."]);
   }, 90_000);
 
@@ -326,7 +332,7 @@ function recordOverLimit() {
  * strip's line its reading, and the entry's Details its code and exact sizes. */
 const SIZE_WORDS = nativeResult.fullResultRefusalWords(
   new nativeResult.FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", RECORD_OVER, nativeResult.RESULT_DETAIL_WEBVIEW_LIMIT_BYTES, "", "record"), "the report package");
-const outcomeDetails = () => outcomeStatuses().map((status) => [...status.querySelectorAll("details li")].map((line) => line.textContent));
+const outcomeDetails = () => outcomeEntries().map((status) => [...status.querySelectorAll("details li")].map((line) => line.textContent));
 const wholeResultReads = () => invokeMock.mock.calls.filter(([command]) => command === "read_preview_mechanics_job_rows_all").length;
 
 describe("a run record too large for the full copy", () => {
@@ -360,7 +366,67 @@ describe("a run record too large for the full copy", () => {
     await act(async () => { await state().results.requestSaveShareableReportPackage(); });
     expect(state().results.userReleaseRequest).not.toBeNull();
     expect(state().results.userReleaseRequest!.refusal).toBeNull();
-    expect(outcomeStatuses()).toHaveLength(0);
+    expect(outcomeEntries()).toHaveLength(0);
+    expect(outcomeAnnouncer().textContent).toBe("");
+  }, 90_000);
+});
+
+/** A solved result one byte above the webview's limit, read from its native custody without copying. */
+const RESULT_OVER = nativeResult.RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1;
+function resultOverLimit() {
+  const custody = nativeResult.nativeCustody;
+  vi.spyOn(nativeResult, "nativeCustody").mockImplementation((result) => ({ ...custody(result), resultBytes: RESULT_OVER }));
+}
+/** That result's size refusal for the report package: both package commands show its fact, the
+ * strip's line its reading, and the entry's Details its code and exact sizes. */
+const RESULT_SIZE_WORDS = nativeResult.fullResultRefusalWords(
+  new nativeResult.FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", RESULT_OVER, nativeResult.RESULT_DETAIL_WEBVIEW_LIMIT_BYTES, "", "result"), "the report package");
+
+describe("a result too large for the full copy", () => {
+  it("File > Save Shareable Report Package… asks for no statement: no dialog, the refusal shown and kept", async () => {
+    const { state } = await solvedSession(async () => receipt("shareable_report_package"));
+    resultOverLimit();
+    await act(async () => { await state().results.requestSaveShareableReportPackage(); });
+    expect(RESULT_SIZE_WORDS.fact).toContain("This result is ");
+    expect(state().results.userReleaseRequest).toBeNull();
+    expect(state().results.reportPackageRedaction).toBeNull();
+    const section = screen.getByRole("region", { name: "Report section" });
+    expect(section.textContent).toBe(`Not saved: no shareable report package was written and no user release was made. ${RESULT_SIZE_WORDS.fact}`);
+    expect(outcomeLines()).toEqual([`Shareable report package not saved: ${RESULT_SIZE_WORDS.reading}. Nothing was written.`]);
+    expect(outcomeDetails()[0]).toContain(RESULT_SIZE_WORDS.details);
+    expect(wholeResultReads()).toBe(0);
+    expect(saveCalls()).toHaveLength(0);
+  }, 90_000);
+
+  it("File > Save Report Package… is refused at once, in the same fact", async () => {
+    const { state } = await solvedSession(async () => receipt("report_package"));
+    resultOverLimit();
+    await act(async () => { await state().results.handleSaveReportPackage(); });
+    expect(RESULT_SIZE_WORDS.fact).toContain("This result is ");
+    expect(state().results.userReleaseRequest).toBeNull();
+    expect(state().results.reportPackageRedaction).toBeNull();
+    const section = screen.getByRole("region", { name: "Report section" });
+    expect(section.textContent).toBe(RESULT_SIZE_WORDS.fact);
+    expect(outcomeLines()).toEqual([`Report package not saved: ${RESULT_SIZE_WORDS.reading}. Nothing was written.`]);
+    expect(outcomeDetails()[0]).toContain(RESULT_SIZE_WORDS.details);
+    expect(wholeResultReads()).toBe(0);
+    expect(saveCalls()).toHaveLength(0);
+  }, 90_000);
+
+  it.each(["shareable", "local-private"] as const)("an early size refusal on %s save clears any prior local-private redaction record from session state", async (command) => {
+    const { state } = await solvedSession(async () => receipt("report_package"));
+    await startSave("report_package", state);
+    await waitFor(() => expect(state().results.reportPackageRedaction).not.toBeNull());
+    await waitFor(() => expect(state().results.reportPackageBusy).toBe(false));
+    const savesAfterFirst = saveCalls().length;
+    resultOverLimit();
+    await act(async () => {
+      if (command === "shareable") await state().results.requestSaveShareableReportPackage();
+      else await state().results.handleSaveReportPackage();
+    });
+    expect(state().results.reportPackageRedaction).toBeNull();
+    expect(state().results.userReleaseRequest).toBeNull();
+    expect(saveCalls()).toHaveLength(savesAfterFirst);
   }, 90_000);
 });
 
@@ -490,14 +556,14 @@ describe("a \"not requested\" status (issue 508, comment)", () => {
     expect(within(section).queryByRole("status")).toBeNull();
     await act(async () => { read.resolve(); await recording; });
     await waitFor(() => {
-      const states = outcomeStatuses().map((status) => status.getAttribute("data-state"));
+      const states = outcomeEntries().map((status) => status.getAttribute("data-state"));
       expect(states).toHaveLength(1);
       expect(states).not.toContain("pending");
     });
     expect(within(section).queryByRole("status")).toBeNull();
     expect(within(section).queryByText(/^Not saved: /)).toBeNull();
     // The save the press started is kept in the strip, whatever it came to.
-    expect(outcomeStatuses()).toHaveLength(1);
+    expect(outcomeEntries()).toHaveLength(1);
     expect(outcomeLines()[0]).toMatch(/^Report package /);
   }, 90_000);
 });

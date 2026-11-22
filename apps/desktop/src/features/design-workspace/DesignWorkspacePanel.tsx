@@ -2,6 +2,7 @@ import { resultRowCount, resultUnits, runResultHashCount, type SessionAnalysisRu
 import type { PreviewComparisonUnavailable } from "../comparison/withinRunComparison";
 import { Download, GitCompare } from "lucide-react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
+import { designKnowledgeDiagnostics, designKnowledgeFor, designKnowledgeRecords } from "../../services/designKnowledge";
 import type {
   AgentProposal,
   AnalysisRunEnvelope,
@@ -59,7 +60,7 @@ export function DesignWorkspacePanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="design-workspace-export-link"
-          download={`openpipestress-preview-design-workspace-${safeFileToken(model.project.id)}.json`}
+          download={suggestedFileName("designWorkspace")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />
@@ -167,7 +168,7 @@ function buildDesignWorkspacePacket({
         ]
       : [])
   ];
-  const currentDiagnostics = [...model.diagnostics, ...(knowledge?.diagnostics ?? []), ...(result?.diagnostics ?? [])];
+  const currentDiagnostics = [...model.diagnostics, ...designKnowledgeDiagnostics(knowledge, model), ...(result?.diagnostics ?? [])];
   const comparisonPairCount = comparison?.summary.comparable_result_pairs ?? 0;
   const unresolvedComparisonCount =
     (comparison?.summary.unmatched_left_results ?? 0) + (comparison?.summary.unmatched_right_results ?? 0);
@@ -200,8 +201,8 @@ function buildDesignWorkspacePacket({
       ]
     },
     summary: {
-      current_design_knowledge_record_count: knowledge?.records.length ?? 0,
-      current_design_knowledge_diagnostic_count: knowledge?.diagnostics.length ?? 0,
+      current_design_knowledge_record_count: designKnowledgeRecords(knowledge, model).length,
+      current_design_knowledge_diagnostic_count: designKnowledgeDiagnostics(knowledge, model).length,
       current_model_diagnostic_count: model.diagnostics.length,
       current_result_diagnostic_count: result?.diagnostics.length ?? 0,
       current_total_diagnostic_count: currentDiagnostics.length,
@@ -230,7 +231,7 @@ function buildDesignWorkspacePacket({
       workspace_hash_scope: "ui_composition_review_state_only"
     },
     current_workspace_state: {
-      design_knowledge_panel: knowledge ? "available" : "unavailable_missing_input",
+      design_knowledge_panel: designKnowledgeFor(knowledge, model) ? "available" : "unavailable_missing_input",
       constraint_warning_panel: "represented_by_diagnostics_and_missing_data_panel",
       state_run_browser: analysisRun ? "available" : "pending_mechanics_run",
       comparison_tables: comparison ? "available" : "pending_mechanics_run",
@@ -246,7 +247,10 @@ function buildDesignWorkspacePacket({
       route_state: selectedReviewTarget ? "review_navigation_available" : "no_selected_review_target",
       result_selection_routes_to_model_context: true,
       diagnostic_selection_routes_to_model_context: true,
-      unavailable_panel_ids: analysisRun && comparison ? [] : ["state_run_browser", "comparison_tables"]
+      unavailable_panel_ids: [
+        ...(designKnowledgeFor(knowledge, model) ? [] : ["design_knowledge"]),
+        ...(analysisRun && comparison ? [] : ["state_run_browser", "comparison_tables"])
+      ]
     },
     operation_review_records: operationRecords,
     mutation_boundary: {
@@ -373,7 +377,5 @@ function jsonDataHref(payload: unknown): string {
   return `data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(payload, null, 2))}`;
 }
 
-function safeFileToken(value: string): string {
-  return value.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
-}
 import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";
+import { suggestedFileName } from "../fileNames";

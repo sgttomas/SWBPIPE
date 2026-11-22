@@ -25,7 +25,7 @@ describe("numerical health over the wasm export", () => {
     expect(health!.cases.map((c) => c.state)).toEqual(["sensitive"]);
     const view = numericalHealthView(health, { eligible: false, verdictHold: true })!;
     expect(view.headline).toBe("Numerical health: 1 sensitive");
-    expect(view.outputSentence).toBe("Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while 1 load case(s) are not checks passed; results tables, CSV export and, for an exact-route result, the rendered report carry each case's standing.");
+    expect(view.outputSentence).toBe("Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while 1 load case(s) are sensitive, quality unresolved, solve failed or not assessed; results tables, CSV export and, for an exact-route result, the rendered report carry each case's standing.");
     // Without the model the reader cannot cover the requested cases: no verdict-only flag.
     expect(readNumericalHealth(result, numericalResultStanding(result).findings)!.verdict_only).toBe(false);
     expect(readNumericalHealth(result, null)!.verdict_only).toBe(false);
@@ -43,10 +43,10 @@ describe("numerical health over the wasm export", () => {
     expect(view.rowBadges).toBe(false);
   });
 
-  it("reads a passing generic result green", () => {
+  it("reads a generic result the solver's checks found no problem with, in the neutral grey style", () => {
     const result = JSON.parse(readFileSync(resolve(__dirname, "../../../../../fixtures/results/preview_physics_unicode_ids_sparse.json"), "utf8")) as MechanicsResult;
     const view = numericalHealthView(readNumericalHealth(result, numericalResultStanding(result).findings), { eligible: false, verdictHold: false })!;
-    expect([view.badge, view.headline]).toEqual(["green", "Numerical health: checks passed"]);
+    expect([view.badge, view.headline]).toEqual(["grey", "Numerical health: solver checks found no problem"]);
     for (const c of view.cases) if (c.conditioning) expect(c.conditioning).toMatch(/roughly (below 0\.1|\d+\.\d{1,2}) of the about 16/);
   });
 

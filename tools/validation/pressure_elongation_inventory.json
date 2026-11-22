@@ -28,11 +28,11 @@
    ".json",
    ".jsonl"
   ],
-  "files": 543,
+  "files": 553,
   "claimed_by": {
-   "group": 142,
-   "in_code": 64,
-   "exemption": 337
+   "group": 145,
+   "in_code": 67,
+   "exemption": 341
   }
  },
  "counts": {
@@ -69,7 +69,7 @@
   "reference_system": {
    "files": 1,
    "documents": 1,
-   "pressurised_load_cases": 3
+   "pressurised_load_cases": 4
   },
   "caepipe_benchmark": {
    "files": 22,
@@ -129,6 +129,13 @@
    "pressurised_load_cases": 0,
    "held_documents": 4,
    "held_pressurised_load_cases": 6
+  },
+  "report_standing_package_inputs": {
+   "files": 2,
+   "documents": 2,
+   "pressurised_load_cases": 3,
+   "held_documents": 2,
+   "held_pressurised_load_cases": 3
   },
   "report_standing_app_render_request": {
    "files": 1,
@@ -226,8 +233,8 @@
    "files": 1,
    "documents": 0,
    "pressurised_load_cases": 0,
-   "held_documents": 58,
-   "held_pressurised_load_cases": 66
+   "held_documents": 60,
+   "held_pressurised_load_cases": 68
   },
   "desktop_analysis_run_v03_cases": {
    "files": 1,
@@ -249,6 +256,11 @@
    "pressurised_load_cases": 0,
    "held_documents": 150,
    "held_pressurised_load_cases": 150
+  },
+  "hanger_sizing_ex_pressurised": {
+   "files": 1,
+   "documents": 1,
+   "pressurised_load_cases": 3
   }
  },
  "entries": [
@@ -1486,7 +1498,9 @@
    },
    "pinned_by": [
     "core/product_physics/src/rt_a3_s6_tests.rs",
-    "tests/test_rt_a3_nonlinear_reader.py"
+    "tests/test_rt_a3_nonlinear_reader.py",
+    "core/analysis/hanger_sizing/src/derived.rs",
+    "tests/test_hanger_sizing_evidence.py"
    ],
    "anchor": {
     "kind": "excluded",
@@ -1530,7 +1544,8 @@
      "pressurised_load_cases": [
       "load:RS-SUS",
       "load:RS-OPE",
-      "load:RS-SAM"
+      "load:RS-SAM",
+      "load:RS-OPE-REF"
      ]
     }
    ]
@@ -3879,6 +3894,88 @@
     },
     {
      "pointer": "/input_manifest_text",
+     "text_pointers": [
+      "/model_basis/model_payload"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:PRESSURE",
+      "load:VACUUM"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "report_standing_package_inputs/pressure_3_coupled_friction_sensitive.package",
+   "group": "report_standing_package_inputs",
+   "path": "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive.package.json",
+   "producer": {
+    "kind": "ts_test",
+    "path": "apps/desktop/src/features/report/reportStandingWitness.test.tsx",
+    "write": "its write mode (OPENPIPESTRESS_WRITE_REPORT_STANDING_RENDER_INPUTS), beside the render inputs, from request_path and raw_path",
+    "switch_plumbed": false,
+    "switch_route": "copies its model from a committed source: re-produce that source with the switch, then re-run this writer"
+   },
+   "pinned_by": [
+    "apps/desktop/src-tauri/src/report_standing_package_tests.rs"
+   ],
+   "anchor": {
+    "kind": "excluded",
+    "reason": "the model is held inside the input manifest of package-request witness inputs, beside the render inputs that hold it as intake text"
+   },
+   "documents": [
+    {
+     "pointer": "/input_manifest/manifest/model_basis/model_payload",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:RS-SUS"
+     ]
+    }
+   ],
+   "held_documents": [
+    {
+     "pointer": "/input_manifest/canonical_bytes",
+     "text_pointers": [
+      "/model_basis/model_payload"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:RS-SUS"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "report_standing_package_inputs/pressure_3_gap_unresolved.package",
+   "group": "report_standing_package_inputs",
+   "path": "fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved.package.json",
+   "producer": {
+    "kind": "ts_test",
+    "path": "apps/desktop/src/features/report/reportStandingWitness.test.tsx",
+    "write": "its write mode (OPENPIPESTRESS_WRITE_REPORT_STANDING_RENDER_INPUTS), beside the render inputs, from request_path and raw_path",
+    "switch_plumbed": false,
+    "switch_route": "copies its model from a committed source: re-produce that source with the switch, then re-run this writer"
+   },
+   "pinned_by": [
+    "apps/desktop/src-tauri/src/report_standing_package_tests.rs"
+   ],
+   "anchor": {
+    "kind": "excluded",
+    "reason": "the model is held inside the input manifest of package-request witness inputs, beside the render inputs that hold it as intake text"
+   },
+   "documents": [
+    {
+     "pointer": "/input_manifest/manifest/model_basis/model_payload",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:PRESSURE",
+      "load:VACUUM"
+     ]
+    }
+   ],
+   "held_documents": [
+    {
+     "pointer": "/input_manifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6316,7 +6413,7 @@
    "documents": [],
    "held_documents": [
     {
-     "pointer": "/requests/37/args/modelJson",
+     "pointer": "/requests/39/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6327,221 +6424,7 @@
      ]
     },
     {
-     "pointer": "/requests/61/args/invocationJson",
-     "text_pointers": [
-      "/request/model"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/87/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/98/args/invocationJson",
-     "text_pointers": [
-      "/request/model"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/129/args/invocationJson",
-     "text_pointers": [
-      "/request/model"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/134/args/inputManifest/canonical_bytes",
-     "text_pointers": [
-      "/model_basis/model_payload"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:cold-pressure",
-      "case:hot-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/185/args/invocationJson",
-     "text_pointers": [
-      "/request/model"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/187/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/217/args/inputManifest/canonical_bytes",
-     "text_pointers": [
-      "/model_basis/model_payload"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "load:RS-SUS"
-     ]
-    },
-    {
-     "pointer": "/requests/225/args/inputManifest/canonical_bytes",
-     "text_pointers": [
-      "/model_basis/model_payload"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:closed-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/230/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:cold-pressure",
-      "case:hot-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/263/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/263/args/invocationJson",
-     "text_pointers": [
-      "/request/model"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/294/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:closed-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/314/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:closed-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/330/args/inputManifest/canonical_bytes",
-     "text_pointers": [
-      "/model_basis/model_payload"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:cold-pressure",
-      "case:hot-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/339/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/341/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/341/args/invocationJson",
-     "text_pointers": [
-      "/request/model"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/350/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:cold-pressure",
-      "case:hot-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/362/args/invocationJson",
-     "text_pointers": [
-      "/request/model"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/420/args/invocationJson",
-     "text_pointers": [
-      "/request/model"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/428/args/modelJson",
+     "pointer": "/requests/40/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6551,7 +6434,221 @@
      ]
     },
     {
-     "pointer": "/requests/438/args/modelJson",
+     "pointer": "/requests/65/args/invocationJson",
+     "text_pointers": [
+      "/request/model"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/91/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/102/args/invocationJson",
+     "text_pointers": [
+      "/request/model"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/136/args/invocationJson",
+     "text_pointers": [
+      "/request/model"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/141/args/inputManifest/canonical_bytes",
+     "text_pointers": [
+      "/model_basis/model_payload"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:cold-pressure",
+      "case:hot-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/197/args/invocationJson",
+     "text_pointers": [
+      "/request/model"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/201/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/231/args/inputManifest/canonical_bytes",
+     "text_pointers": [
+      "/model_basis/model_payload"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:RS-SUS"
+     ]
+    },
+    {
+     "pointer": "/requests/239/args/inputManifest/canonical_bytes",
+     "text_pointers": [
+      "/model_basis/model_payload"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:closed-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/244/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:cold-pressure",
+      "case:hot-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/279/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/279/args/invocationJson",
+     "text_pointers": [
+      "/request/model"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/311/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:closed-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/331/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:closed-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/347/args/inputManifest/canonical_bytes",
+     "text_pointers": [
+      "/model_basis/model_payload"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:cold-pressure",
+      "case:hot-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/356/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/358/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/358/args/invocationJson",
+     "text_pointers": [
+      "/request/model"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/367/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:cold-pressure",
+      "case:hot-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/379/args/invocationJson",
+     "text_pointers": [
+      "/request/model"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/438/args/invocationJson",
+     "text_pointers": [
+      "/request/model"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/448/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6561,7 +6658,17 @@
      ]
     },
     {
-     "pointer": "/requests/444/args/modelJson",
+     "pointer": "/requests/459/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:RS-SUS"
+     ]
+    },
+    {
+     "pointer": "/requests/466/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6571,7 +6678,7 @@
      ]
     },
     {
-     "pointer": "/requests/477/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/503/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6581,7 +6688,7 @@
      ]
     },
     {
-     "pointer": "/requests/520/args/modelJson",
+     "pointer": "/requests/548/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6591,7 +6698,7 @@
      ]
     },
     {
-     "pointer": "/requests/524/args/modelJson",
+     "pointer": "/requests/552/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6602,7 +6709,7 @@
      ]
     },
     {
-     "pointer": "/requests/532/args/modelJson",
+     "pointer": "/requests/562/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6612,7 +6719,7 @@
      ]
     },
     {
-     "pointer": "/requests/560/args/modelJson",
+     "pointer": "/requests/590/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6622,7 +6729,7 @@
      ]
     },
     {
-     "pointer": "/requests/560/args/invocationJson",
+     "pointer": "/requests/590/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6632,7 +6739,7 @@
      ]
     },
     {
-     "pointer": "/requests/567/args/modelJson",
+     "pointer": "/requests/597/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6642,7 +6749,7 @@
      ]
     },
     {
-     "pointer": "/requests/572/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/602/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6652,7 +6759,7 @@
      ]
     },
     {
-     "pointer": "/requests/579/args/modelJson",
+     "pointer": "/requests/609/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6662,7 +6769,7 @@
      ]
     },
     {
-     "pointer": "/requests/598/args/modelJson",
+     "pointer": "/requests/629/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6672,7 +6779,7 @@
      ]
     },
     {
-     "pointer": "/requests/603/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/634/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6682,7 +6789,7 @@
      ]
     },
     {
-     "pointer": "/requests/642/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/674/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6692,7 +6799,7 @@
      ]
     },
     {
-     "pointer": "/requests/661/args/modelJson",
+     "pointer": "/requests/693/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6702,7 +6809,7 @@
      ]
     },
     {
-     "pointer": "/requests/661/args/invocationJson",
+     "pointer": "/requests/693/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6712,7 +6819,7 @@
      ]
     },
     {
-     "pointer": "/requests/688/args/modelJson",
+     "pointer": "/requests/718/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6722,7 +6829,7 @@
      ]
     },
     {
-     "pointer": "/requests/709/args/modelJson",
+     "pointer": "/requests/723/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6732,7 +6839,17 @@
      ]
     },
     {
-     "pointer": "/requests/721/args/modelJson",
+     "pointer": "/requests/745/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:closed-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/758/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6743,7 +6860,7 @@
      ]
     },
     {
-     "pointer": "/requests/722/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/759/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6753,7 +6870,7 @@
      ]
     },
     {
-     "pointer": "/requests/736/args/modelJson",
+     "pointer": "/requests/774/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6763,7 +6880,7 @@
      ]
     },
     {
-     "pointer": "/requests/738/args/modelJson",
+     "pointer": "/requests/776/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6771,26 +6888,6 @@
      "pressurised_load_cases": [
       "case:cold-pressure",
       "case:hot-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/756/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/790/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
      ]
     },
     {
@@ -6800,11 +6897,11 @@
      ],
      "schema_version": "0.9.0",
      "pressurised_load_cases": [
-      "case:closed-pressure"
+      "case:ordinary-pressure"
      ]
     },
     {
-     "pointer": "/requests/798/args/modelJson",
+     "pointer": "/requests/832/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6814,7 +6911,7 @@
      ]
     },
     {
-     "pointer": "/requests/847/args/modelJson",
+     "pointer": "/requests/836/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6824,7 +6921,27 @@
      ]
     },
     {
-     "pointer": "/requests/869/args/invocationJson",
+     "pointer": "/requests/841/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/892/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:closed-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/914/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6834,7 +6951,7 @@
      ]
     },
     {
-     "pointer": "/requests/921/args/modelJson",
+     "pointer": "/requests/971/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6844,7 +6961,7 @@
      ]
     },
     {
-     "pointer": "/requests/929/args/modelJson",
+     "pointer": "/requests/980/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6854,7 +6971,7 @@
      ]
     },
     {
-     "pointer": "/requests/944/args/modelJson",
+     "pointer": "/requests/995/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6864,7 +6981,7 @@
      ]
     },
     {
-     "pointer": "/requests/987/args/invocationJson",
+     "pointer": "/requests/1040/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6874,7 +6991,7 @@
      ]
     },
     {
-     "pointer": "/requests/988/args/modelJson",
+     "pointer": "/requests/1041/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6884,7 +7001,7 @@
      ]
     },
     {
-     "pointer": "/requests/1002/args/modelJson",
+     "pointer": "/requests/1056/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6894,7 +7011,7 @@
      ]
     },
     {
-     "pointer": "/requests/1013/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/1068/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -8881,6 +8998,42 @@
      "storage": "retained-precision-corpus-dag/v1"
     }
    ]
+  },
+  {
+   "id": "hanger_sizing_ex_pressurised",
+   "group": "hanger_sizing_ex_pressurised",
+   "path": "fixtures/results/hanger_sizing_input_ex_pressurised.json",
+   "producer": {
+    "kind": "rust_test",
+    "path": "core/analysis/hanger_sizing/tests/publication.rs",
+    "write": "HANGER_SIZING_WRITE_FIXTURES=1 with the_committed_inputs_are_the_builders",
+    "switch_plumbed": false,
+    "switch_route": "ex_input uses common/model_builder.rs exs_request without a pressure-elongation setting; EXS-A frozen vertical sizing quantities are pressure independent, and the separate ex_references regression authors O1 explicitly"
+   },
+   "pinned_by": [
+    "core/analysis/hanger_sizing/tests/publication.rs",
+    "core/analysis/hanger_sizing/tests/desktop.rs",
+    "core/analysis/hanger_sizing/tests/source_admission.rs",
+    "core/analysis/hanger_sizing/tests/projection_family.rs",
+    "core/runner/headless/tests/size_hangers_cli.rs",
+    "tests/test_hanger_sizing_evidence.py",
+    "apps/desktop/src/features/results/HangerSizingPanel.test.tsx",
+    "fixtures/results/hanger_sizing_result_ex_pressurised.json (solve_request and derived_document hashes)"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   },
+   "documents": [
+    {
+     "pointer": "/request/model",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "W",
+      "O1",
+      "O2"
+     ]
+    }
+   ]
   }
  ],
  "derived_consumers": [
@@ -9385,6 +9538,14 @@
   },
   {
    "paths": [
+    "tests/test_caepipe_stated_bases.py"
+   ],
+   "expectations": "closed_form",
+   "cases_named": "some",
+   "detail": "CAEPIPE benchmark stated-bases tests. Named: elongation-on series documents (cpb-p1-01, cpb-p1-04, cpb-p2-01, cpb-p2-03, cpb-p4-01, cpb-p5-01) solved directly and transformed by stated_bases.realize (which removes pressure_elongation and places free-strain thermal loads), judged against closed forms and product superposition. Unnamed: default-series documents (cpb-p1-01, cpb-p1-04, cpb-p2-01, cpb-p2-03, cpb-p3-01..04, cpb-p4-01, cpb-p5-01), judged against closed-end zero-reaction, open-end p A_i and thin-wall strain closed forms and product superposition"
+  },
+  {
+   "paths": [
     "tests/test_caepipe_mbf_round_trip.py"
    ],
    "expectations": "product_output",
@@ -9443,6 +9604,23 @@
    "expectations": "no_response_value",
    "cases_named": "all",
    "detail": "declared-problem study tool: re-authors J2's source requests (the pressurised one names its case) and records product runs for the O4 census; asserts no response value"
+  },
+  {
+   "paths": [
+    "core/analysis/hanger_sizing/tests/common/model_builder.rs"
+   ],
+   "expectations": "reference_file",
+   "cases_named": "some",
+   "reference": "validation/references/hanger_sizing/ex_sizing.json",
+   "detail": "exs_request builds EXS-A pressurised load/reference-state documents without a pressure-elongation setting; publication and baseline EX comparisons leave it absent, while ex_references and source_admission author selected operating cases before real sizing. Frozen comparisons concern pressure-independent vertical sizing quantities; source-admission controls assert admission only. EXS-B and exact() twins have no nonzero-pressure region."
+  },
+  {
+   "paths": [
+    "core/analysis/hanger_sizing/tests/source_admission.rs"
+   ],
+   "expectations": "product_output",
+   "cases_named": "some",
+   "detail": "Reads committed EXS-A and other sized sources, creates isolated faults and compares ordinary neutralised admission with real sizing; positive controls also compare candidates with committed product results. Selected operating cases are authored by the setting tests; other controls preserve the fixture default without a setting. No independent pressure-sensitive numerical expectation is introduced."
   },
   {
    "paths": [
@@ -9793,6 +9971,15 @@
    ]
   },
   {
+   "reason": "its exact-route documents carry only empty pressure-region lists (the seismic_component_weight package has no internal pressure), so no solved case carries pressure",
+   "paths": [
+    "core/product_physics/tests/seismic_component_weight.rs"
+   ],
+   "files": [
+    "core/product_physics/tests/seismic_component_weight.rs"
+   ]
+  },
+  {
    "reason": "producer of a data group above; its committed documents are claimed by that group",
    "paths": [
     "fixtures/reference_system/generate_reference_system.py",
@@ -10051,6 +10238,7 @@
     "fixtures/results/modal_*.request.json",
     "fixtures/results/retained_precision_cases.json",
     "fixtures/results/retained_precision_*_successor_*.json",
+    "fixtures/results/seismic_component_record_corpus.json",
     "validation/qualification/fixtures/first_static/*.json",
     "validation/qualification/fixtures/load_reference/*.json",
     "validation/references/inverse_norm_witness/requests/linear.request.json",
@@ -10107,6 +10295,7 @@
     "fixtures/results/retained_precision_o4_w1e_successor_dense_scrutiny.json",
     "fixtures/results/retained_precision_o4_w1e_successor_sparse_interactive.json",
     "fixtures/results/retained_precision_o4_w1e_unavailable_successor_sparse_interactive.json",
+    "fixtures/results/seismic_component_record_corpus.json",
     "validation/qualification/fixtures/first_static/axial.runner_input.candidate.json",
     "validation/qualification/fixtures/first_static/bending_torsion.runner_input.candidate.json",
     "validation/qualification/fixtures/load_reference/coefficient_definition.preview_request.json",
@@ -10292,6 +10481,15 @@
    ]
   },
   {
+   "reason": "EXS-B source is solved but contains no pressurised case: every case has an empty region list and no condition pressure use; no pressure-elongation setting applies. This is the zero-pressure data rule, not an exemption because the model is solved.",
+   "paths": [
+    "fixtures/results/hanger_sizing_input_ex_riser.json"
+   ],
+   "files": [
+    "fixtures/results/hanger_sizing_input_ex_riser.json"
+   ]
+  },
+  {
    "reason": "catalog parsing and admission checks, including pressure-region operation payloads; no model document is solved",
    "paths": [
     "apps/desktop/src-tauri/src/embedded_agent/catalog.rs"
@@ -10316,6 +10514,15 @@
    ],
    "files": [
     "apps/desktop/src/services/embeddedAgentSession.test.ts"
+   ]
+  },
+  {
+   "reason": "the benchmark stated-bases helper: transforms caller-supplied benchmark documents (claimed by caepipe_benchmark or its test) and calls a caller-supplied solve; it owns no model or response expectation",
+   "paths": [
+    "tools/caepipe_correlation/stated_bases.py"
+   ],
+   "files": [
+    "tools/caepipe_correlation/stated_bases.py"
    ]
   }
  ]

@@ -704,6 +704,30 @@ fn n1_realized_arcs_keep_their_extent_refusal() {
     }
 }
 
+/// N1, the refused case's path: the arc's refusal is raised while the case's
+/// certified ledger is built, and the case keeps the path it has always had
+/// (assembled and solved before the document is refused). The document
+/// publishes exactly these findings, in this order, the trailing inspection
+/// finding included; only a generated seismic component value that is not the
+/// rule's stops a case before its ledger is finished.
+#[test]
+fn n1_an_arc_refusal_keeps_the_case_s_path() {
+    let wire = arc_document(wind(&[], &[("pipe:BEND".into(), 0.2, 0.7)]), TIMOSHENKO);
+    for mode in MODES {
+        let out = run(&wire, mode);
+        assert_eq!(out["status"]["mechanics"], "MODEL_INCOMPLETE", "{mode:?}");
+        assert!(rows(&out).is_empty(), "{mode:?}");
+        let found: Vec<String> = out["diagnostics"].as_array().unwrap().iter()
+            .map(|d| format!("{}:{}", d["severity"].as_str().unwrap(), d["code"].as_str().unwrap())).collect();
+        assert_eq!(found, [
+            "warning:BEND_GEOMETRY_INPUT_MISSING",
+            "warning:BEND_USER_MODIFIER_INPUT_MISSING",
+            "blocking:LOAD_INPUT_INVALID",
+            "info:NUMERICAL_INTEGRITY_INSPECTION_ONLY",
+        ], "{mode:?}");
+    }
+}
+
 /// N2: a wind marking on a connector-replaced span stays refused under
 /// Timoshenko.
 #[test]

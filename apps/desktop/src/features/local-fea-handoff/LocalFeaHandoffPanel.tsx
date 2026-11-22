@@ -71,7 +71,7 @@ export function LocalFeaHandoffPanel({
         <ControlledExportLink
               className="report-export-link"
               data-testid="local-fea-export-link"
-              download={`openpipestress-preview-local-fea-handoff-${safeFileToken(packet.handoff_package.handoff_id)}.json`}
+              download={localFeaHandoffFileName(packet)}
               href={jsonDataHref(packet)}
             >
               <Download size={14} aria-hidden="true" />
@@ -153,6 +153,18 @@ export function LocalFeaHandoffPanel({
 function regionBodyNotices(result: MechanicsResult, packet: ReturnType<typeof buildLocalFeaHandoffPacket>): string[] {
   const selected = packet.handoff_package.local_region.selected_entity_ids;
   return componentBodyNotices(result, { pipeIds: selected.element_ids, resultIds: selected.result_ids });
+}
+
+/** The handoff's suggested name, qualified by its local region: the model's own element and node ids that the
+ * region is drawn from (its id without the "local-region:" type word). With no region drawn from the result's
+ * summary, the name has no qualifier. */
+export function localFeaHandoffFileName(packet: ReturnType<typeof buildLocalFeaHandoffPacket>): string {
+  return suggestedFileName(
+    "localFeaHandoff",
+    packet.handoff_package.diagnostics.some((item) => item.code === "LOCAL-FEA-RESULT-SUMMARY-REF-MISSING")
+      ? null
+      : packet.handoff_package.local_region.region_id.replace(/^local-region:/, "")
+  );
 }
 
 function LocalFeaLine({ label, value, testId }: { label: string; value: string; testId: string }) {
@@ -720,7 +732,5 @@ function safeRefToken(value: string): string {
   return value.replace(/[^a-zA-Z0-9:_-]+/g, "-").replace(/^-+|-+$/g, "") || "ref";
 }
 
-function safeFileToken(value: string): string {
-  return value.replace(/[^a-zA-Z0-9_-]+/g, "-").replace(/^-+|-+$/g, "") || "preview";
-}
 import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";
+import { suggestedFileName } from "../fileNames";
