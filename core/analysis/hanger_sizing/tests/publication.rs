@@ -904,6 +904,37 @@ fn the_reader_refuses_a_tampered_solve_standing_or_confirmation() {
     assert_eq!(reader::closure(&doc), Ok(()));
 }
 
+/// A solve whose displacement correction is unavailable never reports its
+/// nonlinear-support state established: the producer withdraws the confirmed
+/// state when the correction fails. The reader refuses the contradiction on the
+/// committed two-span document (S_O1 is `$.result.solves[2]`) and closes the same
+/// solve with its confirmation withdrawn.
+#[test]
+fn the_reader_refuses_an_established_confirmation_beside_an_unavailable_correction() {
+    let mutated = |outcome: &str| {
+        let mut doc = read_json("hanger_sizing_result_two_span.json");
+        *doc.pointer_mut("/result/solves/2/solver_standing").unwrap() = json!("sensitive");
+        *doc.pointer_mut("/result/solves/2/support_state_confirmation").unwrap() = json!({"outcome": outcome, "detail": null});
+        doc["result"]["disclosures"] = json!([
+            {"code": derived::DERIVED_SOLVE_INTEGRITY, "names": ["S_O1"], "message": derived::integrity_message("sensitive")},
+            {"code": derived::DISPLACEMENT_CORRECTION_UNAVAILABLE, "names": ["S_O1"],
+             "message": "Load case load:OPERATING: the corrected displacement of node:A:UX could not be certified (invented); no published result of this case relies on the member-relative formation check."},
+        ]);
+        doc
+    };
+    let contradiction = mutated(derived::SOLVER_REPORTED_ESTABLISHED);
+    let reason = "$.result.solves[2].support_state_confirmation.outcome: solver_reported_established beside the DISPLACEMENT_CORRECTION_UNAVAILABLE disclosure of S_O1 at $.result.disclosures[1]";
+    assert_eq!(reader::closure(&contradiction), Err(reason.to_string()));
+    let verdict = reader::read_document(&contradiction, Supplied::default()).to_json();
+    assert_eq!(verdict["closure"]["status"], "failed", "{verdict}");
+    assert_eq!(verdict["closure"]["difference"], reason, "{verdict}");
+    // The positive control: the same solve with its confirmation withdrawn.
+    let withdrawn = mutated("no_confirmation_record");
+    assert_eq!(reader::closure(&withdrawn), Ok(()));
+    let verdict = reader::read_document(&withdrawn, Supplied::default()).to_json();
+    assert_eq!(verdict["closure"]["status"], "passed", "{verdict}");
+}
+
 /// Sizing states a passing solve and the unverified bound in the reader
 /// verdict's own words (`result_export::reader_verdict`, LIM-026), so the two
 /// cannot drift apart.

@@ -188,7 +188,7 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 - **Why:** sizing measures every position from the drawn geometry and replaces the candidate by a force; a moved base changes what the travel is measured against, and the method states no rule for it.
 - **What the user does instead:** size with cases in which the attachment does not move, and check the moved case by a solve after applying the selection.
 - **Basis:** DEL-04-11 [scope](../execution/PKG-04/DEL-04-11/ScopeOfWork.md), REQ-002; made standing on the exact route by PR #272.
-- **Status:** not yet declared.
+- **Status:** declared acceptable by Agent 0 (PR #272).
 
 ### LIM-009 — The hot-load basis is formed only in the weight case's own support state
 
@@ -201,7 +201,7 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 - **Why:** the solve cannot be made to hold another case's nonlinear states; forming the basis that way would need a second assembly, which the deliverable's one solve path excludes.
 - **What the user does instead:** read the published states and the warning; where the difference matters, model the support in its operating state for the sizing run.
 - **Basis:** DEL-04-11 [scope](../execution/PKG-04/DEL-04-11/ScopeOfWork.md), REQ-003. On the pressure-free route the refusal was standing before this entry, as `HANGER_SIZING_REQUEST_INVALID` naming the weight support state. PR #272 extends hanger sizing, and this refusal with it, to the exact route, gives the refusal its own code, and adds the entry.
-- **Status:** not yet declared.
+- **Status:** declared acceptable by Agent 0 (PR #272).
 
 ### LIM-010 — Outputs that need a full copy of the result cannot be made above 64 MiB, and report generation beyond the committed witnesses is not established
 

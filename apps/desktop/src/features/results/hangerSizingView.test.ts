@@ -501,6 +501,17 @@ const sensitiveS_O1With = (d: Tamperable, extra: unknown) => {
   d.result.disclosures = [sensitiveDisclosure("S_O1"), extra];
 };
 const FORGED_MESSAGE = "sensitive: a verified error bound for this solve";
+/** The product's DISPLACEMENT_CORRECTION_UNAVAILABLE warning, as a per-solve disclosure. */
+const UNAVAILABLE_MESSAGE = "Load case load:OPERATING: the corrected displacement of node:A:UX could not be certified (invented); no published result of this case relies on the member-relative formation check.";
+const unavailableDisclosure = (names: unknown, message: unknown = UNAVAILABLE_MESSAGE) => ({ code: "DISPLACEMENT_CORRECTION_UNAVAILABLE", names, message });
+/** S_O1 (solves[2]) sensitive, with its integrity and displacement-correction-unavailable disclosures and its
+ * confirmation outcome set to `outcome`: the producer withdraws a confirmed state when the correction fails, so
+ * `solver_reported_established` here is a contradiction and `no_confirmation_record` is consistent. */
+const unavailableS_O1 = (outcome: string) => (d: Tamperable) => {
+  d.result.solves[2].solver_standing = "sensitive";
+  d.result.disclosures = [sensitiveDisclosure("S_O1"), unavailableDisclosure(["S_O1"])];
+  d.result.solves[2].support_state_confirmation = { outcome, detail: null };
+};
 const BLANK_DETAILS = ["", "  ", "\u0085", "\uFEFF", "\u0085\uFEFF"] as const;
 
 /** Each tampering of the two-span document (S_O1 is solves[2]) and the fault it names. */
@@ -543,7 +554,18 @@ const TAMPERED: readonly (readonly [string, (document: Tamperable) => void, stri
   }, "HANGER_SIZING_SOLVE_INTEGRITY_DISCLOSURE_MALFORMED: disclosures[0]"],
   ["integrity disclosure of solver_checks_passed", (d) => { d.result.disclosures = [integrityDisclosure(["S_O1"], integrityDisclosureMessage("solver_checks_passed"))]; }, "HANGER_SIZING_SOLVE_INTEGRITY_DISCLOSURE_MALFORMED: disclosures[0]"],
   ["integrity disclosure of checks_passed", (d) => { d.result.disclosures = [integrityDisclosure(["S_O1"], integrityDisclosureMessage("checks_passed"))]; }, "HANGER_SIZING_SOLVE_INTEGRITY_DISCLOSURE_MALFORMED: disclosures[0]"],
-  ["integrity disclosure without a message", (d) => { d.result.disclosures = [integrityDisclosure(["S_O1"], null)]; }, "HANGER_SIZING_SOLVE_INTEGRITY_DISCLOSURE_MALFORMED: disclosures[0]"]
+  ["integrity disclosure without a message", (d) => { d.result.disclosures = [integrityDisclosure(["S_O1"], null)]; }, "HANGER_SIZING_SOLVE_INTEGRITY_DISCLOSURE_MALFORMED: disclosures[0]"],
+  ["correction unavailable of an orphan label", (d) => { d.result.disclosures = [unavailableDisclosure(["S_O99"])]; }, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_MALFORMED: disclosures[0]"],
+  ["correction unavailable naming two solves", (d) => { d.result.disclosures = [unavailableDisclosure(["S_O1", "S_O2"])]; }, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_MALFORMED: disclosures[0]"],
+  ["correction unavailable naming none", (d) => { d.result.disclosures = [unavailableDisclosure([])]; }, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_MALFORMED: disclosures[0]"],
+  ["correction unavailable with names not an array", (d) => { d.result.disclosures = [unavailableDisclosure("S_O1")]; }, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_MALFORMED: disclosures[0]"],
+  ["correction unavailable with an empty message", (d) => { d.result.disclosures = [unavailableDisclosure(["S_O1"], "")]; }, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_MALFORMED: disclosures[0]"],
+  ["correction unavailable without a message", (d) => { d.result.disclosures = [unavailableDisclosure(["S_O1"], null)]; }, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_MALFORMED: disclosures[0]"],
+  ["correction unavailable duplicated", (d) => {
+    d.result.solves[2].support_state_confirmation = { outcome: "no_confirmation_record", detail: null };
+    d.result.disclosures = [unavailableDisclosure(["S_O1"]), unavailableDisclosure(["S_O1"])];
+  }, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_DUPLICATE: S_O1"],
+  ["established beside an unavailable correction", unavailableS_O1("solver_reported_established"), "HANGER_SIZING_SOLVE_CONFIRMATION_CONTRADICTION: S_O1"]
 ];
 
 describe("hangerSizingView: the integrity bound and each solve's standing and confirmation", () => {
@@ -620,6 +642,17 @@ describe("hangerSizingView: the integrity bound and each solve's standing and co
     expect(hangerSizingViewFault(view)).toBeNull();
   });
 
+  it("builds the view of a solve whose confirmation is withdrawn beside its unavailable correction", async () => {
+    const view = await sized(tamper(unavailableS_O1("no_confirmation_record")));
+    expect(view.solves[2].solverStanding).toBe("sensitive");
+    expect(view.solves[2].supportStateConfirmation).toEqual({ outcome: "no_confirmation_record", detail: null });
+    expect(view.disclosures.map((d) => d.code)).toEqual(["HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", "DISPLACEMENT_CORRECTION_UNAVAILABLE"]);
+    expect(hangerSizingViewFault(view)).toBeNull();
+    // The contradiction is named on a view a direct caller hands over too.
+    const solves = view.solves.map((solve, index) => (index === 2 ? { ...solve, supportStateConfirmation: { outcome: "solver_reported_established" as const, detail: null } } : solve));
+    expect(hangerSizingViewFault({ ...view, solves })).toBe("HANGER_SIZING_SOLVE_CONFIRMATION_CONTRADICTION: S_O1");
+  });
+
   it("discloses, and does not refuse, a sensitive weight solve carrying the engine's exact integrity message (REQ-003)", async () => {
     expect(integrityDisclosureMessage("sensitive")).toBe(SENSITIVE_MESSAGE);
     expect(HANGER_SIZING_NONPASSING_STANDINGS).toEqual(["not_assessed", "sensitive", "unresolved", "failed"]);
@@ -683,6 +716,25 @@ describe("hangerSizingView: the integrity bound and each solve's standing and co
       expect(hangerSizingViewFault(view), name).toBeNull();
       // The document's change was made, and a fresh view of it now fails closed.
       if (name !== "states") await expect(hangerSizingView(document), name).rejects.toThrow();
+    }
+  });
+
+  it("records the document's hash and contract as they were when it was called, whatever changes while it awaits", async () => {
+    const document = twoSpan();
+    const contract = document.semantic_contract_id;
+    const expected = await canonicalSha256HexCheckedV1(document);
+    expect(expected).toBe("0264fd8e5d22c82815486fd143ae6c4cc6fcd5da6da12c3a156e7b39acc4133a");
+    for (const evidence of [null, { document_sha256: expected, verdict: verdict() }]) {
+      const live = twoSpan();
+      const pending = hangerSizingView(live, evidence);
+      ((live as unknown as Tamperable).result.integrity_bound as { status: string }).status = "verified";
+      (live as { semantic_contract_id: string }).semantic_contract_id = "mutated";
+      const view = await pending;
+      if (view.status !== "sized") throw new Error("expected a sized view");
+      expect(view.documentSha256).toBe(expected);
+      expect(view.basis.semanticContractId).toBe(contract);
+      expect(view.integrityBound).toEqual(NOT_VERIFIED);
+      if (evidence !== null) expect(view.readerStandings.binding).toEqual({ state: "bound", documentSha256: expected });
     }
   });
 

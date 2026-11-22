@@ -250,7 +250,7 @@
   ],
   "piping_runtime_reads": {
     "source_trees": {
-      "core/analysis/hanger_sizing/Cargo.toml": "226d46404ccd8d5be89ef35058ffd6cd9d00f035ecb42c84543c2ffb4bfc4f1d",
+      "core/analysis/hanger_sizing/Cargo.toml": "23314ff28b769566d7b3fac1cbce0475a7a8aa12ae3a9bac70f069e1f6853a38",
       "core/gui/viewport_editor/Cargo.toml": "32de48e1e1afd2bc77f84655a69561bdc96074a31fe17f705e7b3a0d8aa6eddf",
       "core/handoff/caepipe_mbf_engine/Cargo.toml": "665cfd34254f574ae7e7bcfbb0399ccd24247c17337e7fda43a43ea4a1e408d4",
       "core/handoff/caepipe_mbf_wasm/Cargo.toml": "26ee5f7833006eccfbccf2633c6f785d6f25b282cd7043f48f0078a9efa4f39d",
@@ -6465,7 +6465,7 @@
         }
       },
       "core/analysis/hanger_sizing/tests/publication.rs": {
-        "sha256": "71e68c76f44a7b76648add44e641dc50d74711f8dbb4f270368538993f850dab",
+        "sha256": "6e4b47643cce69a57a4a8a57bd05743c6c97a725d97b692279f486e08751862e",
         "source_trees": [
           "core/analysis/hanger_sizing/Cargo.toml"
         ],

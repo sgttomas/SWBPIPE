@@ -244,17 +244,24 @@ token its integrity disclosure carries when it has one, and beside its nonlinear
 supports' states its `support_state_confirmation`: what the solver's integrity record
 of that solve's case says of the converged support state, read from the producer's
 fixed text at the record's end. A solve with nonlinear supports reads
-`solver_reported_established` when the record ends with the confirmed-state line,
-alone or followed by the clause on support relative-displacement rows, by the case's
-recovery-guard sentence, or by the clause and then that sentence;
+`solver_reported_established` when the record holds the confirmed-state line once
+and, after it and the clause on support relative-displacement rows if present,
+ends or continues with the case's S11-G recovery-guard prefix
+(`" S11-G recovery guard (R-b'): load case <case> is Sensitive because "`). The
+prefix is matched by its start, as the report standing matches it, so the text
+after it is not read; issue #609 tracks tightening both. The solve reads
 `not_attempted_reason_not_recorded` or `not_established_detail_quoted` (with the
-solver's one reason quoted as `detail`) when it ends with the not-established
-sentence; and `no_confirmation_record` for any other ending, such as the
-displacement-correction-unavailable sentence. A solve without any reads
-`not_applicable`. This is the rule the report standing uses, with two deliberate
-differences: the report standing does not recognise the relative-displacement
-clause, which sizing reads as established; and a blank reason, which the producer
-never forms, is `no_confirmation_record` here rather than quoted. A reason is blank
+solver's one reason quoted as `detail`) when the record ends with the
+not-established sentence, and `no_confirmation_record` for every other record,
+such as one ending with the displacement-correction-unavailable sentence. A solve
+without any reads `not_applicable`. This is the rule the report standing uses,
+with two deliberate differences: the report standing does not recognise the
+relative-displacement clause, which sizing reads as established (issue #609); and
+a blank reason, which the producer never forms, is `no_confirmation_record` here
+rather than quoted. The producer withdraws a case's confirmed state when its
+displacement correction fails, so a solve with a
+`DISPLACEMENT_CORRECTION_UNAVAILABLE` disclosure never reads
+`solver_reported_established`; every reader refuses a result that pairs them. A reason is blank
 when it consists only of the 30 code points that Rust, Python or JavaScript treats as
 whitespace (U+0009–U+000D, U+001C–U+0020, U+0085, U+00A0, U+1680, U+2000–U+200A,
 U+2028, U+2029, U+202F, U+205F, U+3000, U+FEFF); the engine, every reader, the schema

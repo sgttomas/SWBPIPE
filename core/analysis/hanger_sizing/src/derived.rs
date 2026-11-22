@@ -660,12 +660,17 @@ pub const SOLVER_STANDINGS: [&str; 5] = [SOLVER_CHECKS_PASSED, "not_assessed", "
 /// the tokens of `numerical_vocabulary::HistoricalConfirmation` that
 /// `report_standing` derives from the same fixed producer text.
 pub const CONFIRMATION_OUTCOMES: [&str; 5] = [
-    "solver_reported_established",
+    SOLVER_REPORTED_ESTABLISHED,
     "not_attempted_reason_not_recorded",
     "not_established_detail_quoted",
     "no_confirmation_record",
     "not_applicable",
 ];
+/// The confirmation outcome of a solve whose solver reports its nonlinear-support
+/// state established. The producer withdraws that confirmation when the case's
+/// displacement correction fails, so a solve with a
+/// [`DISPLACEMENT_CORRECTION_UNAVAILABLE`] disclosure never carries it.
+pub const SOLVER_REPORTED_ESTABLISHED: &str = "solver_reported_established";
 /// The confirmation outcome that alone carries a quoted `detail`.
 pub const DETAIL_QUOTED: &str = "not_established_detail_quoted";
 /// The confirmation outcome of a solve that publishes no nonlinear-support state.
@@ -770,7 +775,7 @@ pub fn support_state_confirmation(case_id: &str, states: &BTreeMap<String, Strin
             let rest = rest.strip_prefix(clause.as_str()).unwrap_or(rest);
             let recovery = [RECOVERY_LEAD, case_id, SENSITIVE_BECAUSE].concat();
             if rest.is_empty() || rest.starts_with(recovery.as_str()) {
-                return SupportStateConfirmation::of("solver_reported_established", None);
+                return SupportStateConfirmation::of(SOLVER_REPORTED_ESTABLISHED, None);
             }
         }
     }
@@ -1247,7 +1252,7 @@ mod confirmation_tests {
 
     #[test]
     fn each_of_the_five_outcomes() {
-        let established = SupportStateConfirmation::of("solver_reported_established", None);
+        let established = SupportStateConfirmation::of(SOLVER_REPORTED_ESTABLISHED, None);
         let none = SupportStateConfirmation::of("no_confirmation_record", None);
         // not_applicable: no nonlinear-support state, whatever the message says.
         let confirmed = format!("{HEAD} {NONLINEAR_CONFIRMED_LINE}");
@@ -1292,7 +1297,7 @@ mod confirmation_tests {
     /// no confirmation record.
     #[test]
     fn the_relative_displacement_clause_after_the_confirmed_line_is_established() {
-        let established = SupportStateConfirmation::of("solver_reported_established", None);
+        let established = SupportStateConfirmation::of(SOLVER_REPORTED_ESTABLISHED, None);
         let none = SupportStateConfirmation::of("no_confirmation_record", None);
         let clause = format!("{HEAD} {NONLINEAR_CONFIRMED_LINE} {NONLINEAR_RELATIVE_DISPLACEMENT_CLAUSE}");
         // (a) the clause alone after the confirmed line.

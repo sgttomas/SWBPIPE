@@ -264,11 +264,15 @@ def _solve(doc, label):
 
 
 def _with_standings(disclosures):
-    """_with_disclosures, each integrity disclosure's solve standing set to its token."""
+    """_with_disclosures, each integrity disclosure's solve standing set to its token and each
+    displacement-correction-unavailable solve's confirmation withdrawn, as the producer withdraws it."""
     doc = _with_disclosures(disclosures)
     for disclosure in disclosures:
         if disclosure["code"] == "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY":
             _solve(doc, disclosure["names"][0])["solver_standing"] = disclosure["message"].split(":", 1)[0]
+        elif disclosure["code"] == "DISPLACEMENT_CORRECTION_UNAVAILABLE":
+            _solve(doc, disclosure["names"][0])["support_state_confirmation"] = {"outcome": "no_confirmation_record",
+                                                                                 "detail": None}
     return doc
 
 
@@ -293,6 +297,37 @@ def test_the_schema_refuses_what_it_can_state_of_bad_per_solve_disclosures(case)
     with pytest.raises(AssertionError, match="failed JSON Schema validation"):
         validate_instance(SCHEMA, _with_disclosures(deepcopy(disclosures)), schema_label="hanger_sizing_result",
                           instance_label=case[0])
+
+
+def _correction_unavailable_s_o1(outcome):
+    """The two-span document with S_O1 (solves[2]) sensitive, its integrity and displacement-correction-unavailable
+    disclosures, and its confirmation outcome set to ``outcome``."""
+    doc = _with_disclosures([_integrity("S_O1", "sensitive"), _unavailable("S_O1")])
+    _solve(doc, "S_O1")["solver_standing"] = "sensitive"
+    _solve(doc, "S_O1")["support_state_confirmation"] = {"outcome": outcome, "detail": None}
+    return doc
+
+
+def test_an_established_confirmation_beside_an_unavailable_correction_is_refused():
+    """The producer withdraws the confirmed state when the displacement correction fails, so a solve with that
+    disclosure never reports its state established. The pairing compares sibling members, which JSON Schema cannot
+    state: the schema admits the document and the readers' closure refuses it."""
+    doc = _correction_unavailable_s_o1("solver_reported_established")
+    reason = ("$.result.solves[2].support_state_confirmation.outcome: solver_reported_established beside the "
+              "DISPLACEMENT_CORRECTION_UNAVAILABLE disclosure of S_O1 at $.result.disclosures[1]")
+    with pytest.raises(hs.Difference) as refused:
+        hs.closure(doc)
+    assert str(refused.value) == reason
+    verdict = hs.verify(doc)
+    assert verdict["closure"] == {"status": "failed", "difference": reason}
+    validate_instance(SCHEMA, doc, schema_label="hanger_sizing_result", instance_label="established-beside-unavailable")
+
+
+def test_a_withdrawn_confirmation_beside_an_unavailable_correction_is_closed():
+    doc = _correction_unavailable_s_o1("no_confirmation_record")
+    hs.closure(doc)
+    assert hs.verify(doc)["closure"] == {"status": "passed", "difference": None}
+    validate_instance(SCHEMA, doc, schema_label="hanger_sizing_result", instance_label="withdrawn-beside-unavailable")
 
 
 def test_the_schemas_disclosure_vocabulary_is_the_verifiers():

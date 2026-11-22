@@ -98,7 +98,7 @@
    "flows_to_callers": "RESTS ON A PREMISE NOT ESTABLISHED: that every use of a function with a text code parameter is a direct call the scanner finds, so the value is recorded at each caller's argument. A call through a function pointer or a closure object defeats it.",
    "enum_code_field": "RESTS ON A PREMISE NOT ESTABLISHED: that an enum at a code field declared with that enum has an as_str the scanner reads as an enum code producer. An enum with no as_str yields neither a code nor an unresolved site."
   },
-  "listed_unresolved": "36 code positions are listed as unresolved (listed_unresolved_sites), 2 of them marked not known; 13 are operation applier positions outside the unit.",
+  "listed_unresolved": "42 code positions are listed as unresolved (listed_unresolved_sites), 2 of them marked not known; 13 are operation applier positions outside the unit.",
   "crates": [
    "core/product_physics",
    "core/solver/*",
@@ -1941,13 +1941,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 824,
+    "line": 829,
     "via": "field code"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 824,
+     "line": 829,
      "via": "field code",
      "severity": null,
      "through": [
@@ -3934,12 +3934,18 @@
     }
    ],
    "messages": [],
-   "classification": null,
-   "reason": null,
-   "unsure": false,
-   "candidates": null,
-   "named_by": null,
-   "named_by_coverage": null,
+   "classification": "absent_capability",
+   "reason": "Two uses in check_candidates/moved_candidates: sizing an attachment whose authored support state moves, is inactive or locked, or names a device is not provided; a missing or repeated support-state entry is malformed input. Classed by the absent capability, with both uses retained.",
+   "unsure": true,
+   "candidates": [
+    "absent_capability",
+    "input_error"
+   ],
+   "named_by": "LIM-008",
+   "named_by_coverage": {
+    "coverage": "partial",
+    "reason": "LIM-008 names the unsupported moving, inactive, locked or device-referenced attachment. It does not name the missing or repeated support-state input errors that the same code also reports. The entry remains not yet declared."
+   },
    "named_by_statement": null
   },
   {
@@ -4111,8 +4117,8 @@
    "messages": [
     "the further operating cases to check are required, stated as a list even when it is empty"
    ],
-   "classification": null,
-   "reason": null,
+   "classification": "input_error",
+   "reason": "required_findings refuses an absent check_operating_cases member; the user must supply the list explicitly, even when empty.",
    "unsure": false,
    "candidates": null,
    "named_by": null,
@@ -4127,13 +4133,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 1047,
+    "line": 1052,
     "via": "field code"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 1047,
+     "line": 1052,
      "via": "field code",
      "severity": null
     }
@@ -4202,19 +4208,19 @@
     },
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 806,
+     "line": 811,
      "via": "refusal()",
      "severity": null
     },
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 836,
+     "line": 841,
      "via": "refusal()",
      "severity": null
     },
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 896,
+     "line": 901,
      "via": "refusal()",
      "severity": null
     },
@@ -4256,13 +4262,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 812,
+    "line": 817,
     "via": "field code"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 812,
+     "line": 817,
      "via": "field code",
      "severity": null,
      "through": [
@@ -4273,8 +4279,8 @@
    "messages": [
     "integrity_message(token)"
    ],
-   "classification": null,
-   "reason": null,
+   "classification": "numerical_standing",
+   "reason": "solve_disclosures carries a derived solve's numerical-integrity status other than checks_passed, with its exact standing token and solve label. It qualifies the sizing quantities without itself refusing the request.",
    "unsure": false,
    "candidates": null,
    "named_by": null,
@@ -4340,8 +4346,8 @@
    "messages": [
     "each candidate's family policy is required"
    ],
-   "classification": null,
-   "reason": null,
+   "classification": "input_error",
+   "reason": "required_findings refuses a candidate object without family_policy; the user supplies its variable, constant or fallback policy.",
    "unsure": false,
    "candidates": null,
    "named_by": null,
@@ -4356,13 +4362,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 950,
+    "line": 955,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 950,
+     "line": 955,
      "via": "refusal()",
      "severity": null
     }
@@ -4607,8 +4613,8 @@
    "messages": [
     "a hanger library is required; none is supplied or assumed"
    ],
-   "classification": null,
-   "reason": null,
+   "classification": "input_error",
+   "reason": "library_required refuses an input without the private hanger library; no catalogue is supplied or assumed by the product.",
    "unsure": false,
    "candidates": null,
    "named_by": null,
@@ -4637,8 +4643,8 @@
    "messages": [
     "the load design (hot or cold) is required"
    ],
-   "classification": null,
-   "reason": null,
+   "classification": "input_error",
+   "reason": "required_findings refuses an absent method.load_design; the user states hot or cold design rather than receiving a default.",
    "unsure": false,
    "candidates": null,
    "named_by": null,
@@ -4653,13 +4659,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 978,
+    "line": 983,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 978,
+     "line": 983,
      "via": "refusal()",
      "severity": null
     },
@@ -4788,8 +4794,8 @@
    "messages": [
     "the selection rule is required"
    ],
-   "classification": null,
-   "reason": null,
+   "classification": "input_error",
+   "reason": "required_findings refuses an absent method.selection_rule; the user states the record-selection rule.",
    "unsure": false,
    "candidates": null,
    "named_by": null,
@@ -4818,8 +4824,8 @@
    "messages": [
     "the solver mode of the caller's own solve is required"
    ],
-   "classification": null,
-   "reason": null,
+   "classification": "input_error",
+   "reason": "required_findings refuses an absent solver_mode; derived solves must use the mode the caller explicitly supplies.",
    "unsure": false,
    "candidates": null,
    "named_by": null,
@@ -4834,13 +4840,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 1042,
+    "line": 1047,
     "via": "field code"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 1042,
+     "line": 1047,
      "via": "field code",
      "severity": null
     }
@@ -4938,8 +4944,8 @@
    "messages": [
     "the travel allowance is required, stated even when it is zero"
    ],
-   "classification": null,
-   "reason": null,
+   "classification": "input_error",
+   "reason": "required_findings refuses an absent method.travel_allowance_m; the user states the allowance explicitly, including zero.",
    "unsure": false,
    "candidates": null,
    "named_by": null,
@@ -4998,8 +5004,8 @@
    "messages": [
     "the variation limit is required"
    ],
-   "classification": null,
-   "reason": null,
+   "classification": "input_error",
+   "reason": "required_findings refuses an absent method.variation_limit; the user supplies the limit used to select records.",
    "unsure": false,
    "candidates": null,
    "named_by": null,
@@ -5028,8 +5034,8 @@
    "messages": [
     "the variation reference load is required"
    ],
-   "classification": null,
-   "reason": null,
+   "classification": "input_error",
+   "reason": "required_findings refuses an absent method.variation_reference; the user states which load is the variation denominator.",
    "unsure": false,
    "candidates": null,
    "named_by": null,
@@ -5058,8 +5064,8 @@
    "messages": [
     "the weight case is required"
    ],
-   "classification": null,
-   "reason": null,
+   "classification": "input_error",
+   "reason": "required_findings refuses an absent weight_case; the user names the case from which the rigid hot-load basis is formed.",
    "unsure": false,
    "candidates": null,
    "named_by": null,
@@ -5091,8 +5097,8 @@
    "messages": [
     "the support state the hot-load basis is formed in is required; the only admitted value is own_solve, the weight case's own converged state"
    ],
-   "classification": null,
-   "reason": null,
+   "classification": "input_error",
+   "reason": "required_findings refuses an absent weight_support_state; the user must explicitly request the admitted own_solve state.",
    "unsure": false,
    "candidates": null,
    "named_by": null,
@@ -5124,12 +5130,18 @@
    "messages": [
     "the hot-load basis is formed only in the weight case's own converged support state (own_solve); another case's state cannot be held by the solve"
    ],
-   "classification": null,
-   "reason": null,
-   "unsure": false,
-   "candidates": null,
-   "named_by": null,
-   "named_by_coverage": null,
+   "classification": "absent_capability",
+   "reason": "Two uses in required_findings: forming the hot-load basis with supports held in another case's state is not provided; arbitrary tokens and non-string values in weight_support_state are malformed input. Both take this code when the supplied value is not own_solve. Classed by the absent capability.",
+   "unsure": true,
+   "candidates": [
+    "absent_capability",
+    "input_error"
+   ],
+   "named_by": "LIM-009",
+   "named_by_coverage": {
+    "coverage": "partial",
+    "reason": "LIM-009 names the unavailable basis using another case's held nonlinear state. It does not describe arbitrary invalid tokens or non-string weight_support_state values that receive the same code. The entry remains not yet declared."
+   },
    "named_by_statement": null
   },
   {
@@ -21163,26 +21175,6 @@
  ],
  "listed_unresolved_sites": [
   {
-   "file": "core/analysis/hanger_sizing/src/derived.rs",
-   "line_text": ".map(|(code, names)| refusal(code, names, \"the candidate does not meet the sizing rules of Design §3\"))",
-   "at": "refusal()",
-   "expression": "code",
-   "form": "a closure pattern over a call whose returned values come from a parameter the scanner cannot type",
-   "outside_unit": false,
-   "not_known": false,
-   "relay_of": "the codes the flag(code, id) closure of check_candidates (core/analysis/hanger_sizing/src/derived.rs 216) files into refusals; each flag call passes a HANGER_SIZING_CANDIDATE_* literal, read by the scanner at that call (flag's parameter is named code)"
-  },
-  {
-   "file": "core/analysis/hanger_sizing/src/publish.rs",
-   "line_text": ".map(|d| json!({\"code\": d.code, \"names\": d.names, \"message\": d.message}))",
-   "at": "json code",
-   "expression": "d.code",
-   "form": "record code field through an unproven receiver type",
-   "outside_unit": false,
-   "not_known": false,
-   "relay_of": "the Disclosure records of run.disclosures, built at core/analysis/hanger_sizing/src/derived.rs 570 and 575 (Disclosure { code: \"HANGER_SIZING_SUPPORT_STATE_DIFFERS\" .. } and \"HANGER_SIZING_COLD_REFERENCE_STATE_DIFFERS\"), code fields the scanner reads"
-  },
-  {
    "file": "core/loads/self_weight_wasm/src/lib.rs",
    "line_text": "\"code\":d.code,\"severity\":\"blocking\",\"message\":d.message,",
    "at": "json code",
@@ -21521,6 +21513,86 @@
    "outside_unit": false,
    "not_known": false,
    "relay_of": "a SkewCode value; its text is given by product_physics skew_code() (core/product_physics/src/document_members.rs 34 to 64), whose arms the scanner reads (the SUPPORT_DIRECTION_* and SUPPORT_SKEW_* codes)"
+  },
+  {
+   "file": "core/analysis/hanger_sizing/src/derived.rs",
+   "line_text": ".map(|(code, names)| refusal(code, names, candidate_message(code)))",
+   "at": "candidate_message()",
+   "expression": "code",
+   "outside_unit": false,
+   "not_known": false,
+   "form": "closure tuple over a locally populated refusal map; the scanner does not follow the map key into the consumer",
+   "relay_of": "check_candidates inserts only the literal codes passed to its flag closure, each observed by the scanner at that call. Its final map closure relays those keys to refusal; candidate_message matches the same key only to choose message text and constructs no diagnostic or new code. The changed consumer was introduced by PR 272 commit d7a08e43e."
+  },
+  {
+   "file": "core/analysis/hanger_sizing/src/derived.rs",
+   "line_text": ".map(|(code, names)| refusal(code, names, candidate_message(code)))",
+   "at": "refusal()",
+   "expression": "code",
+   "outside_unit": false,
+   "not_known": false,
+   "form": "closure tuple over a locally populated refusal map; the scanner does not follow the map key into the consumer",
+   "relay_of": "check_candidates inserts only the literal codes passed to its flag closure, each observed by the scanner at that call. Its final map closure relays those keys to refusal; candidate_message matches the same key only to choose message text and constructs no diagnostic or new code. The changed consumer was introduced by PR 272 commit d7a08e43e."
+  },
+  {
+   "file": "core/analysis/hanger_sizing/src/publish.rs",
+   "line_text": ".map(|d| json!({\"code\": d.code, \"names\": d.names, \"message\": d.message}))",
+   "at": "json code",
+   "expression": "d.code",
+   "outside_unit": false,
+   "not_known": false,
+   "form": "record code field through an unproven receiver type",
+   "relay_of": "run.disclosures consists of the two state-difference Disclosure constructions in derived::run and the DERIVED_SOLVE_INTEGRITY and DISPLACEMENT_CORRECTION_UNAVAILABLE Disclosure constructions in derived::solve_disclosures. Each construction is observed by the scanner. sized_document serializes their code fields without choosing or changing a code."
+  },
+  {
+   "file": "core/analysis/hanger_sizing/src/publish.rs",
+   "line_text": "(_, None) => add(code, path, message, None),",
+   "at": "add()",
+   "expression": "code",
+   "outside_unit": false,
+   "not_known": false,
+   "form": "loop tuple over a closed constant table of code-message pairs",
+   "relay_of": "required_findings iterates REQUIRED_MEMBERS in publish.rs; every code in that constant table is observed as a code-message pair (the weight support state constant resolves to its literal). The add closure copies the code into found without computing a new value. The empty-candidates branch selects the candidates entry only. Introduced by PR 272 commit 8357589df."
+  },
+  {
+   "file": "core/analysis/hanger_sizing/src/publish.rs",
+   "line_text": "(\"candidates\", Some(Value::Array(items))) if items.is_empty() => add(code, path, message, None),",
+   "at": "add()",
+   "expression": "code",
+   "outside_unit": false,
+   "not_known": false,
+   "form": "loop tuple over a closed constant table of code-message pairs",
+   "relay_of": "required_findings iterates REQUIRED_MEMBERS in publish.rs; every code in that constant table is observed as a code-message pair (the weight support state constant resolves to its literal). The add closure copies the code into found without computing a new value. The empty-candidates branch selects the candidates entry only. Introduced by PR 272 commit 8357589df."
+  },
+  {
+   "file": "core/analysis/hanger_sizing/src/publish.rs",
+   "line_text": "add(code, member_path(&method_path, key), message, Some(method_path.clone()));",
+   "at": "add()",
+   "expression": "code",
+   "outside_unit": false,
+   "not_known": false,
+   "form": "loop tuple over a closed constant table of code-message pairs",
+   "relay_of": "required_findings iterates REQUIRED_METHOD_MEMBERS in publish.rs; every code in that constant table is observed as a code-message pair (the weight support state constant resolves to its literal). The add closure copies the code into found without computing a new value. The empty-candidates branch selects the candidates entry only. Introduced by PR 272 commit 8357589df."
+  },
+  {
+   "file": "core/analysis/hanger_sizing/src/publish.rs",
+   "line_text": "add(code, member_path(&method_path, key), message, None);",
+   "at": "add()",
+   "expression": "code",
+   "outside_unit": false,
+   "not_known": false,
+   "form": "loop tuple over a closed constant table of code-message pairs",
+   "relay_of": "required_findings iterates REQUIRED_METHOD_MEMBERS in publish.rs; every code in that constant table is observed as a code-message pair (the weight support state constant resolves to its literal). The add closure copies the code into found without computing a new value. The empty-candidates branch selects the candidates entry only. Introduced by PR 272 commit 8357589df."
+  },
+  {
+   "file": "core/analysis/hanger_sizing/src/publish.rs",
+   "line_text": "(found.into_iter().map(|(code, paths, message)| refusal(code, paths, message)).collect(), covered)",
+   "at": "refusal()",
+   "expression": "code",
+   "outside_unit": false,
+   "not_known": false,
+   "form": "closure tuple over a local collection filled by a code-parameter closure",
+   "relay_of": "required_findings fills found only through add: the literal or resolved-constant codes in REQUIRED_MEMBERS and REQUIRED_METHOD_MEMBERS, WEIGHT_SUPPORT_STATE_UNSUPPORTED, and HANGER_SIZING_FAMILY_POLICY_REQUIRED. All are observed at their code-message pairs or explicit add calls. The final map relays each unchanged code to refusal. Introduced by PR 272 commit 8357589df."
   }
  ],
  "unresolved_sites": [
@@ -22122,15 +22194,15 @@
   {
    "literal": "S_C",
    "sites": [
-    "core/analysis/hanger_sizing/src/derived.rs:1045",
-    "core/analysis/hanger_sizing/src/derived.rs:984",
+    "core/analysis/hanger_sizing/src/derived.rs:1050",
+    "core/analysis/hanger_sizing/src/derived.rs:989",
     "core/analysis/hanger_sizing/src/publish.rs:427"
    ]
   },
   {
    "literal": "S_O1",
    "sites": [
-    "core/analysis/hanger_sizing/src/derived.rs:1040"
+    "core/analysis/hanger_sizing/src/derived.rs:1045"
    ]
   },
   {
@@ -22142,11 +22214,11 @@
   {
    "literal": "S_W",
    "sites": [
-    "core/analysis/hanger_sizing/src/derived.rs:1040",
     "core/analysis/hanger_sizing/src/derived.rs:1045",
-    "core/analysis/hanger_sizing/src/derived.rs:967",
-    "core/analysis/hanger_sizing/src/derived.rs:968",
+    "core/analysis/hanger_sizing/src/derived.rs:1050",
     "core/analysis/hanger_sizing/src/derived.rs:972",
+    "core/analysis/hanger_sizing/src/derived.rs:973",
+    "core/analysis/hanger_sizing/src/derived.rs:977",
     "core/analysis/hanger_sizing/src/publish.rs:427"
    ]
   },
@@ -22357,7 +22429,7 @@
   {
    "literal": "V_C",
    "sites": [
-    "core/analysis/hanger_sizing/src/derived.rs:1020",
+    "core/analysis/hanger_sizing/src/derived.rs:1025",
     "core/analysis/hanger_sizing/src/publish.rs:429"
    ]
   },

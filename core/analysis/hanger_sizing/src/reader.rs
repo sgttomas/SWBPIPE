@@ -444,6 +444,7 @@ fn closure_sized(doc: &Value) -> R<()> {
         return Err(format!("$.result.solves: {} entries, expected {}", solves.len(), plan.len()));
     }
     let mut standings: Vec<&str> = Vec::new();
+    let mut confirmations: Vec<&'static str> = Vec::new();
     for (i, (solve, (label, case))) in solves.iter().zip(&plan).enumerate() {
         let path = format!("$.result.solves[{i}]");
         let solve = obj(solve, &path, &SOLVE_KEYS)?;
@@ -462,7 +463,7 @@ fn closure_sized(doc: &Value) -> R<()> {
             one_of(state, &format!("{path}.states.{support}"), &STATE_CODES)?;
         }
         standings.push(one_of(&solve["solver_standing"], &at(&path, "solver_standing"), &derived::SOLVER_STANDINGS)?);
-        closure_confirmation(&solve["support_state_confirmation"], &at(&path, "support_state_confirmation"), states.is_empty())?;
+        confirmations.push(closure_confirmation(&solve["support_state_confirmation"], &at(&path, "support_state_confirmation"), states.is_empty())?);
     }
 
     let disclosures = array(&result["disclosures"], "$.result.disclosures")?;
@@ -470,6 +471,8 @@ fn closure_sized(doc: &Value) -> R<()> {
     let mut solve_pairs: Vec<(&str, &str)> = Vec::new();
     // Each integrity disclosure's solve label, standing token and index.
     let mut integrity: Vec<(&str, &str, usize)> = Vec::new();
+    // Each displacement-correction-unavailable disclosure's solve label and index.
+    let mut correction_unavailable: Vec<(&str, usize)> = Vec::new();
     let all_codes: Vec<&str> = DISCLOSURE_CODES.iter().chain(&SOLVE_DISCLOSURE_CODES).copied().collect();
     for (i, disclosure) in disclosures.iter().enumerate() {
         let path = format!("$.result.disclosures[{i}]");
@@ -499,6 +502,8 @@ fn closure_sized(doc: &Value) -> R<()> {
                 integrity.push((label, token, i));
             } else if message.is_empty() {
                 return Err(format!("{path}.message: empty"));
+            } else {
+                correction_unavailable.push((label, i));
             }
             continue;
         }
@@ -534,16 +539,32 @@ fn closure_sized(doc: &Value) -> R<()> {
             _ => {}
         }
     }
+    // The producer withdraws a case's confirmed state when its displacement
+    // correction fails, so a solve with that disclosure never reports it established.
+    for (i, ((label, _), outcome)) in plan.iter().zip(&confirmations).enumerate() {
+        if *outcome != derived::SOLVER_REPORTED_ESTABLISHED {
+            continue;
+        }
+        if let Some((_, j)) = correction_unavailable.iter().find(|entry| entry.0 == label.as_str()) {
+            return Err(format!(
+                "$.result.solves[{i}].support_state_confirmation.outcome: {} beside the {} disclosure of {label} at $.result.disclosures[{j}]",
+                derived::SOLVER_REPORTED_ESTABLISHED,
+                derived::DISPLACEMENT_CORRECTION_UNAVAILABLE
+            ));
+        }
+    }
     Ok(())
 }
 
 /// A solve's `support_state_confirmation`: a closed `{outcome, detail}`, the
 /// outcome `not_applicable` exactly when the solve publishes no nonlinear-support
 /// state, and `detail` a non-blank string ([`derived::is_blank_detail`]) exactly
-/// when the outcome is `not_established_detail_quoted`, null otherwise.
-fn closure_confirmation(value: &Value, path: &str, stateless: bool) -> R<()> {
+/// when the outcome is `not_established_detail_quoted`, null otherwise. Returns the
+/// outcome's closed token.
+fn closure_confirmation(value: &Value, path: &str, stateless: bool) -> R<&'static str> {
     let confirmation = obj(value, path, &["outcome", "detail"])?;
-    let outcome = one_of(&confirmation["outcome"], &at(path, "outcome"), &derived::CONFIRMATION_OUTCOMES)?;
+    let text = one_of(&confirmation["outcome"], &at(path, "outcome"), &derived::CONFIRMATION_OUTCOMES)?;
+    let outcome = derived::CONFIRMATION_OUTCOMES.into_iter().find(|token| *token == text).unwrap_or_default();
     if stateless != (outcome == derived::NOT_APPLICABLE) {
         return Err(format!("{path}.outcome: not {:?} exactly when the solve publishes no nonlinear-support state", derived::NOT_APPLICABLE));
     }
@@ -555,7 +576,7 @@ fn closure_confirmation(value: &Value, path: &str, stateless: bool) -> R<()> {
     } else if !detail.is_null() {
         return Err(format!("{path}.detail: not null for the outcome {outcome:?}"));
     }
-    Ok(())
+    Ok(outcome)
 }
 
 /// A per-case list: one entry per operating case, its `case` ids in order.
@@ -1096,13 +1117,18 @@ mod disclosure_closure_tests {
         doc["result"]["solves"].as_array_mut().expect("solves").iter_mut().find(|s| s["label"] == label).expect("label")
     }
 
-    /// [`with`], each integrity disclosure's solve standing as its token.
+    /// [`with`], each integrity disclosure's solve standing as its token and each
+    /// displacement-correction-unavailable solve's confirmation withdrawn, as the
+    /// producer withdraws it, to `no_confirmation_record`.
     fn with_standings(disclosures: Value) -> Value {
         let mut doc = with(disclosures.clone());
         for disclosure in disclosures.as_array().expect("disclosures") {
+            let label = disclosure["names"][0].as_str().expect("label");
             if disclosure["code"] == derived::DERIVED_SOLVE_INTEGRITY {
                 let token = disclosure["message"].as_str().expect("message").split(':').next().expect("token").to_string();
-                solve_mut(&mut doc, disclosure["names"][0].as_str().expect("label"))["solver_standing"] = json!(token);
+                solve_mut(&mut doc, label)["solver_standing"] = json!(token);
+            } else if disclosure["code"] == derived::DISPLACEMENT_CORRECTION_UNAVAILABLE {
+                solve_mut(&mut doc, label)["support_state_confirmation"] = json!({"outcome": "no_confirmation_record", "detail": null});
             }
         }
         doc
@@ -1198,6 +1224,20 @@ mod disclosure_closure_tests {
         assert_eq!(closure(&doc), Ok(()));
         let verdict = read_document_with(&doc, Supplied::default(), ReadOptions::WITHOUT_REPRODUCTION);
         assert_eq!(verdict.closure.status, Status::Passed);
+    }
+
+    #[test]
+    fn an_established_confirmation_beside_an_unavailable_correction_is_refused() {
+        // The producer withdraws the confirmed state when the correction fails: a
+        // solve with that disclosure never reports its state established.
+        let mut doc = with_standings(json!([integrity("S_O1", "sensitive"), unavailable("S_O1")]));
+        assert_eq!(closure(&doc), Ok(()));
+        solve_mut(&mut doc, "S_O1")["support_state_confirmation"] = json!({"outcome": derived::SOLVER_REPORTED_ESTABLISHED, "detail": null});
+        refused_doc(&doc, "$.result.solves[2].support_state_confirmation.outcome: solver_reported_established beside the DISPLACEMENT_CORRECTION_UNAVAILABLE disclosure of S_O1 at $.result.disclosures[1]");
+        // Another solve's established confirmation is unaffected.
+        assert_eq!(solve_mut(&mut doc, "S_O2")["support_state_confirmation"]["outcome"], derived::SOLVER_REPORTED_ESTABLISHED);
+        solve_mut(&mut doc, "S_O1")["support_state_confirmation"] = json!({"outcome": "no_confirmation_record", "detail": null});
+        assert_eq!(closure(&doc), Ok(()));
     }
 
     #[test]

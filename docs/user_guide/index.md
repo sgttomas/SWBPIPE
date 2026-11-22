@@ -771,11 +771,18 @@ to CSV.
   and its support-state confirmation: the solver's report of whether the converged
   support state was established, with the solver's quoted reason where it gives one,
   or not applicable for a solve without nonlinear supports. An established state is
-  the solver's report, not an independently verified confirmation. The desktop shows
-  and exports nothing of a result whose bound, standing or confirmation is outside
-  these values or disagrees with its disclosures, whose solve labels repeat, or whose
-  integrity disclosures are not sizing's own message for exactly one of its solves
-  each; it says the result could not be displayed.
+  the solver's report, not an independently verified confirmation, and never stands
+  beside the solve's displacement-correction-unavailable disclosure: the solver
+  withdraws its confirmation when the correction fails. The desktop shows and exports
+  nothing of a result whose bound, standing or confirmation is outside these values
+  or disagrees with its disclosures, whose solve labels repeat, whose integrity
+  disclosures are not sizing's own message for exactly one of its solves each, whose
+  correction-unavailable disclosures do not each name one of its solves once with a
+  message, or that states an established state beside a correction-unavailable
+  disclosure; it says the result could not be displayed.
+- **CSV provenance.** Each export records the result hash and analysis route of the
+  document as the panel read it when it formed the view, never the document as it
+  stands when you export.
 - **Standings.** The desktop shows the product reader's standings for the document it
   shows: closure, binding, arithmetic consistent with the published positions and
   derivation. None of them states that the mechanics are verified.

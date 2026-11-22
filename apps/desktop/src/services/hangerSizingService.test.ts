@@ -200,6 +200,31 @@ describe("sizeHangers", () => {
     expect((await service.sizeHangers(input())).kind).toBe("replied");
   });
 
+  it("reads no reply whose solve is reported established beside its unavailable correction, and reads the withdrawn one", async () => {
+    type Tamperable = { document: { result: { solves: Record<string, unknown>[]; disclosures: unknown[] } } };
+    // S_O1 (solves[2]) sensitive with its integrity and correction-unavailable disclosures: the producer withdraws a
+    // confirmed state when the correction fails, so solver_reported_established is a contradiction.
+    const withS_O1 = (outcome: string) => {
+      const reply = structuredClone(twoSpanReply) as unknown as Tamperable;
+      reply.document.result.solves[2].solver_standing = "sensitive";
+      reply.document.result.disclosures = [
+        { code: "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", names: ["S_O1"], message: integrityDisclosureMessage("sensitive") },
+        { code: "DISPLACEMENT_CORRECTION_UNAVAILABLE", names: ["S_O1"], message: "Load case load:OPERATING: the corrected displacement of node:A:UX could not be certified (invented); no published result of this case relies on the member-relative formation check." }
+      ];
+      reply.document.result.solves[2].support_state_confirmation = { outcome, detail: null };
+      return reply;
+    };
+    host(() => Promise.resolve(withS_O1("solver_reported_established")));
+    const completion = await service.sizeHangers(input());
+    expect(completion.kind).toBe("failed");
+    if (completion.kind === "failed") {
+      expect(completion.code).toBe(service.HANGER_SIZING_REPLY_UNREADABLE);
+      expect(completion.message).toBe("the native reply's sized document is not readable here (HANGER_SIZING_SOLVE_CONFIRMATION_CONTRADICTION: S_O1).");
+    }
+    host(() => Promise.resolve(withS_O1("no_confirmation_record")));
+    expect((await service.sizeHangers(input())).kind).toBe("replied");
+  });
+
   it("refuses in the browser preview without sending anything", async () => {
     delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
     const completion = await service.sizeHangers(input());

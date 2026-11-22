@@ -87,7 +87,10 @@ NONPASSING_STANDINGS = ("not_assessed", "sensitive", "unresolved", "failed")
 SOLVER_STANDINGS = (SOLVER_CHECKS_PASSED, *NONPASSING_STANDINGS)
 # A derived solve's support_state_confirmation.outcome; detail is quoted exactly for not_established_detail_quoted,
 # and not_applicable stands exactly when the solve publishes no nonlinear-support state.
-CONFIRMATION_OUTCOMES = ("solver_reported_established", "not_attempted_reason_not_recorded",
+# solver_reported_established never stands beside the solve's DISPLACEMENT_CORRECTION_UNAVAILABLE disclosure: the
+# producer withdraws the confirmed state when the correction fails.
+SOLVER_REPORTED_ESTABLISHED = "solver_reported_established"
+CONFIRMATION_OUTCOMES = (SOLVER_REPORTED_ESTABLISHED, "not_attempted_reason_not_recorded",
                          "not_established_detail_quoted", "no_confirmation_record", "not_applicable")
 DETAIL_QUOTED = "not_established_detail_quoted"
 NOT_APPLICABLE = "not_applicable"
@@ -515,7 +518,7 @@ def _closure_sized(doc):
     solves = _array(result["solves"], "$.result.solves")
     if len(solves) != len(plan):
         raise Difference(f"$.result.solves: {len(solves)} entries, expected {len(plan)}")
-    standings = []
+    standings, confirmations = [], []
     for i, (solve, (label, case)) in enumerate(zip(solves, plan)):
         path = f"$.result.solves[{i}]"
         _obj(solve, path, SOLVE_KEYS)
@@ -531,12 +534,14 @@ def _closure_sized(doc):
                 raise Difference(f"{path}.states: an empty support id")
             _one_of(state, f"{path}.states.{support}", STATE_CODES)
         standings.append(_one_of(solve["solver_standing"], f"{path}.solver_standing", SOLVER_STANDINGS))
-        _closure_confirmation(solve["support_state_confirmation"], f"{path}.support_state_confirmation",
-                              not solve["states"])
+        confirmations.append(_closure_confirmation(solve["support_state_confirmation"],
+                                                   f"{path}.support_state_confirmation", not solve["states"]))
 
     disclosures = _array(result["disclosures"], "$.result.disclosures")
     labels = [label for label, _ in plan]
     codes, solve_pairs, integrity = [], [], {}
+    # Each displacement-correction-unavailable disclosure's index, by solve label.
+    correction_unavailable = {}
     for i, disclosure in enumerate(disclosures):
         path = f"$.result.disclosures[{i}]"
         _obj(disclosure, path, ("code", "names", "message"))
@@ -559,6 +564,8 @@ def _closure_sized(doc):
                 integrity[label] = (token, i)
             elif not message:
                 raise Difference(f"{path}.message: empty")
+            else:
+                correction_unavailable[label] = i
             continue
         if code in codes:
             raise Difference(f"{path}.code: repeated")
@@ -583,6 +590,13 @@ def _closure_sized(doc):
         elif standing != SOLVER_CHECKS_PASSED:
             raise Difference(f"$.result.solves[{i}].solver_standing: {standing} without its "
                              "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY disclosure")
+    # The producer withdraws a case's confirmed state when its displacement correction fails, so a solve with that
+    # disclosure never reports it established.
+    for i, (label, outcome) in enumerate(zip(labels, confirmations)):
+        if outcome == SOLVER_REPORTED_ESTABLISHED and label in correction_unavailable:
+            raise Difference(f"$.result.solves[{i}].support_state_confirmation.outcome: {SOLVER_REPORTED_ESTABLISHED} "
+                             f"beside the DISPLACEMENT_CORRECTION_UNAVAILABLE disclosure of {label} at "
+                             f"$.result.disclosures[{correction_unavailable[label]}]")
 
 
 # The 30 code points a quoted detail may not consist of alone: the union of Rust char::is_whitespace, Python
@@ -609,6 +623,7 @@ def _closure_confirmation(value, path, stateless):
             raise Difference(f"{path}.detail: blank")
     elif confirmation["detail"] is not None:
         raise Difference(f"{path}.detail: not null for the outcome {outcome!r}")
+    return outcome
 
 
 def closure(doc) -> None:

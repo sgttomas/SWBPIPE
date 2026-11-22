@@ -78,21 +78,36 @@ export const HANGER_SIZING_CONSTANT_COUNT_KEYS = ["E1", "L", "T"] as const;
 
 type Context = Readonly<{ view: HangerSizingSizedView; provenance: CsvProvenance; softwareVersion: string }>;
 
-/** The preamble's provenance: `model_hash` as the caller records it (`not_recorded` when none is
- * supplied); `result_hash`, `sha256:` and the document's checked canonical hash (`not_recorded`
- * when the document cannot be hashed); `analysis_route`, its `semantic_contract_id`. */
+const recordedModelHash = (modelHash: string | null | undefined): string =>
+  modelHash === undefined || modelHash === null ? CSV_NOT_RECORDED : csvRecordedModelHash(modelHash);
+
+/** The preamble's provenance of the document a view was formed from, read from the view alone: `model_hash` as the
+ * caller records it (`not_recorded` when none is supplied); `result_hash`, `sha256:` and the document's checked
+ * canonical hash as the view took it before its first await (`not_recorded` when the document could not be hashed);
+ * `analysis_route`, its `semantic_contract_id` as the view read it. Nothing is read from the live document, so a
+ * change it undergoes after the view was formed reaches neither export. */
+export function hangerSizingViewCsvProvenance(input: { view: HangerSizingSizedView; modelHash?: string | null }): CsvProvenance {
+  return {
+    modelHash: recordedModelHash(input.modelHash),
+    resultHash: input.view.documentSha256 === null ? CSV_NOT_RECORDED : `sha256:${input.view.documentSha256}`,
+    analysisRoutes: [input.view.basis.semanticContractId]
+  };
+}
+
+/** The preamble's provenance of a document: `model_hash` as the caller records it (`not_recorded` when none is
+ * supplied); `result_hash`, `sha256:` and the document's checked canonical hash (`not_recorded` when the document
+ * cannot be hashed); `analysis_route`, its `semantic_contract_id`. Both are read synchronously, as it is called. */
 export async function hangerSizingCsvProvenance(input: { document: HangerSizingSizedDocument; modelHash?: string | null }): Promise<CsvProvenance> {
+  const analysisRoute = input.document.semantic_contract_id;
+  // The checked text is taken as the hash is called, before the await below.
+  const hash = canonicalSha256HexCheckedV1(input.document);
   let resultHash = CSV_NOT_RECORDED;
   try {
-    resultHash = `sha256:${await canonicalSha256HexCheckedV1(input.document)}`;
+    resultHash = `sha256:${await hash}`;
   } catch {
     resultHash = CSV_NOT_RECORDED;
   }
-  return {
-    modelHash: input.modelHash === undefined || input.modelHash === null ? CSV_NOT_RECORDED : csvRecordedModelHash(input.modelHash),
-    resultHash,
-    analysisRoutes: [input.document.semantic_contract_id]
-  };
+  return { modelHash: recordedModelHash(input.modelHash), resultHash, analysisRoutes: [analysisRoute] };
 }
 
 // ---------------------------------------------------------------------------------------------

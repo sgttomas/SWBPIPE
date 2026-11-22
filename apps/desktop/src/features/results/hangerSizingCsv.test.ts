@@ -18,7 +18,8 @@ import {
   HANGER_SIZING_UNCONDITIONAL_TEXT,
   hangerSizingCandidatesCsv,
   hangerSizingCsvProvenance,
-  hangerSizingSolvesCsv
+  hangerSizingSolvesCsv,
+  hangerSizingViewCsvProvenance
 } from "./hangerSizingCsv";
 import { CONFIRMATION_STATEMENTS } from "./integrityStatus";
 import { BOUNDARY_SENTENCE } from "./numericalHealthText";
@@ -43,11 +44,19 @@ async function sized(document: HangerSizingDocument, library?: unknown): Promise
   return view;
 }
 
+/** Both exports of a document, as the panel builds them: the provenance is the view's own. */
 async function exports(document: HangerSizingSizedDocument, library?: unknown, modelHash?: string | null) {
   const view = await sized(document, library);
-  const context = { view, provenance: await hangerSizingCsvProvenance({ document, modelHash }), softwareVersion: CSV_SOFTWARE_VERSION };
+  return exportsOf(view, modelHash);
+}
+
+function exportsOf(view: HangerSizingSizedView, modelHash?: string | null) {
+  const context = { view, provenance: hangerSizingViewCsvProvenance({ view, modelHash }), softwareVersion: CSV_SOFTWARE_VERSION };
   return { candidates: hangerSizingCandidatesCsv(context), solves: hangerSizingSolvesCsv(context) };
 }
+
+/** The product's DISPLACEMENT_CORRECTION_UNAVAILABLE warning, as a per-solve disclosure. */
+const UNAVAILABLE_MESSAGE = "Load case load:VACUUM: the corrected displacement of node:A:UX could not be certified (forced by test); no published result of this case relies on the member-relative formation check.";
 
 const crlf = (lines: readonly string[]) => lines.map((line) => `${line}\r\n`).join("");
 
@@ -233,8 +242,10 @@ describe("hanger-sizing CSV: document-level qualifications and library quantitie
 
   it("carries each derived solve's integrity and correction-unavailable disclosures, by solve label, on every row", async () => {
     const document = twoSpan() as unknown as { result: { disclosures: { code: string; names: string[]; message: string }[]; solves: Record<string, unknown>[] } };
-    // The integrity disclosure states S_O1's own standing.
+    // The integrity disclosure states S_O1's own standing, and its confirmation is withdrawn beside the unavailable
+    // correction, as the producer withdraws it.
     document.result.solves[2].solver_standing = "sensitive";
+    document.result.solves[2].support_state_confirmation = { outcome: "no_confirmation_record", detail: null };
     document.result.disclosures = [
       { code: "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", names: ["S_O1"], message: "sensitive: the solver's numerical-integrity status for this derived solve is sensitive, not solver_checks_passed; every value sizing takes from it carries that standing (integrity_bound: not_verified, inverse_norm_bound_not_verified)" },
       { code: "DISPLACEMENT_CORRECTION_UNAVAILABLE", names: ["S_O1"], message: "Load case load:VACUUM: the corrected displacement of node:A:UX could not be certified (forced by test); no published result of this case relies on the member-relative formation check." }
@@ -410,6 +421,37 @@ describe("hanger-sizing CSV: failing closed on a tampered view", () => {
     for (const row of csv.rows.slice(1)) expect(textField(csv, row, "Solver standing")).toContain(BOUNDARY_SENTENCE);
   });
 
+  it("exports neither file from a solve reported established beside its unavailable correction", async () => {
+    // S_O1 (solves[2]) sensitive with its integrity and correction-unavailable disclosures: the producer withdraws a
+    // confirmed state when the correction fails, so solver_reported_established is a contradiction.
+    const withS_O1 = (outcome: string) => {
+      const document = twoSpan() as unknown as { result: { solves: Record<string, unknown>[]; disclosures: unknown[] } };
+      document.result.solves[2].solver_standing = "sensitive";
+      document.result.disclosures = [
+        { code: "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", names: ["S_O1"], message: integrityDisclosureMessage("sensitive") },
+        { code: "DISPLACEMENT_CORRECTION_UNAVAILABLE", names: ["S_O1"], message: UNAVAILABLE_MESSAGE }
+      ];
+      document.result.solves[2].support_state_confirmation = { outcome, detail: null };
+      return document as unknown as HangerSizingSizedDocument;
+    };
+    const fault = "HANGER_SIZING_SOLVE_CONFIRMATION_CONTRADICTION: S_O1";
+    await expect(exports(withS_O1("solver_reported_established"))).rejects.toThrow(fault);
+    // The positive control: the same solve with its confirmation withdrawn exports both files.
+    const view = await sized(withS_O1("no_confirmation_record"));
+    const { candidates, solves } = exportsOf(view);
+    const csv = readCsv(serializeCsvTable(solves.table));
+    expect(textField(csv, csv.rows[2], "Support-state confirmation")).toBe(CONFIRMATION_STATEMENTS.no_confirmation_record);
+    expect(readCsv(serializeCsvTable(candidates.table)).rows.length).toBeGreaterThan(0);
+    // The same contradiction on a view a direct caller hands over is refused by both builders.
+    const contradicted = { ...view, solves: view.solves.map((solve, i) => (i === 2 ? { ...solve, supportStateConfirmation: { outcome: "solver_reported_established" as const, detail: null } } : solve)) };
+    const input = await context(contradicted);
+    for (const build of builders) expect(() => build(input)).toThrow(fault);
+    // And a malformed correction-unavailable disclosure is refused the same way.
+    const orphan = { ...view, disclosures: [...view.disclosures, { code: "DISPLACEMENT_CORRECTION_UNAVAILABLE", names: ["S_O99"], message: UNAVAILABLE_MESSAGE }] };
+    const orphaned = await context(orphan);
+    for (const build of builders) expect(() => build(orphaned)).toThrow("HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_MALFORMED: disclosures[2]");
+  });
+
   it("builds no view to export from a document tampered the same way", async () => {
     const document = twoSpan() as unknown as { result: { integrity_bound: unknown } };
     document.result.integrity_bound = { status: "verified", reason: "inverse_norm_bound_not_verified" };
@@ -438,6 +480,36 @@ describe("hanger-sizing CSV provenance and file names", () => {
     changed.result.candidates[0].w_n = Number.NaN;
     expect((await hangerSizingCsvProvenance({ document: changed as unknown as HangerSizingSizedDocument })).resultHash).toBe(CSV_NOT_RECORDED);
     expect(provenance.analysisRoutes).toEqual(["openpipestress.result_semantics/hanger-sizing-1"]);
+  });
+
+  it("records the view's own hash and contract, whatever the document undergoes after the view was called", async () => {
+    const document = twoSpan();
+    const pending = hangerSizingView(document);
+    // Changed synchronously, while the view awaits its hashes.
+    (document as unknown as { result: { integrity_bound: { status: string } } }).result.integrity_bound.status = "verified";
+    (document as unknown as { semantic_contract_id: string }).semantic_contract_id = "mutated";
+    const view = await pending;
+    if (view.status !== "sized") throw new Error("expected a sized view");
+    expect(view.documentSha256).toBe(TWO_SPAN_SHA256);
+    const provenance = hangerSizingViewCsvProvenance({ view });
+    expect(provenance).toEqual({ modelHash: CSV_NOT_RECORDED, resultHash: `sha256:${TWO_SPAN_SHA256}`, analysisRoutes: ["openpipestress.result_semantics/hanger-sizing-1"] });
+    const { candidates, solves } = exportsOf(view);
+    for (const table of [candidates.table, solves.table]) {
+      const csv = readCsv(serializeCsvTable(table));
+      expect(preambleValue(csv, "result_hash")).toBe(`sha256:${TWO_SPAN_SHA256}`);
+      expect(preambleValue(csv, "analysis_route")).toBe("openpipestress.result_semantics/hanger-sizing-1");
+      for (const row of csv.rows) expect(textField(csv, row, "Integrity bound")).toBe("not_verified (inverse_norm_bound_not_verified)");
+    }
+    // A view whose document could not be hashed records not_recorded.
+    expect(hangerSizingViewCsvProvenance({ view: { ...view, documentSha256: null } }).resultHash).toBe(CSV_NOT_RECORDED);
+  });
+
+  it("reads the document's hash and contract as the document provenance is called", async () => {
+    const document = twoSpan();
+    const pending = hangerSizingCsvProvenance({ document });
+    (document as unknown as { semantic_contract_id: string }).semantic_contract_id = "mutated";
+    (document as unknown as { result: { integrity_bound: { status: string } } }).result.integrity_bound.status = "verified";
+    expect(await pending).toEqual({ modelHash: CSV_NOT_RECORDED, resultHash: `sha256:${TWO_SPAN_SHA256}`, analysisRoutes: ["openpipestress.result_semantics/hanger-sizing-1"] });
   });
 
   it("suggests names under the export file-name rule", async () => {

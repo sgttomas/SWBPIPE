@@ -11,7 +11,7 @@
 import { useEffect, useRef, useState } from "react";
 import { CsvExportControl } from "../result-export/CsvExportControl";
 import { CSV_SOFTWARE_VERSION } from "../result-export/csvProvenance";
-import type { HangerSizingDocument, HangerSizingSizedDocument } from "./hangerSizingResult";
+import type { HangerSizingDocument } from "./hangerSizingResult";
 import { BOUNDARY_SENTENCE } from "./numericalHealthText";
 import {
   HANGER_SIZING_CONDITIONAL_TEXT,
@@ -26,9 +26,9 @@ import {
   HANGER_SIZING_NOT_TESTED,
   HANGER_SIZING_VARIABLE_COUNT_KEYS,
   hangerSizingCandidatesCsv,
-  hangerSizingCsvProvenance,
   hangerSizingNotShown,
-  hangerSizingSolvesCsv
+  hangerSizingSolvesCsv,
+  hangerSizingViewCsvProvenance
 } from "./hangerSizingCsv";
 import {
   F_COLD_CONDITION_LABEL,
@@ -104,7 +104,7 @@ export function HangerSizingPanel({ document, evidence, library, modelHash, test
       {error !== null ? <p role="alert" data-testid={tid("error")}>The sizing result could not be displayed: {error}</p> : null}
       {error === null && current === null ? <p role="status" data-testid={tid("pending")}>Reading the sizing result…</p> : null}
       {current?.view.status === "sized" ? (
-        <SizedView view={current.view} document={current.document as HangerSizingSizedDocument} modelHash={modelHash} tid={tid} />
+        <SizedView view={current.view} modelHash={modelHash} tid={tid} />
       ) : null}
       {current?.view.status === "refused" ? <RefusedView view={current.view} tid={tid} /> : null}
     </section>
@@ -229,10 +229,12 @@ function ReaderStandings({ standings, tid }: { standings: StandingsView; tid: Ti
 // ---------------------------------------------------------------------------------------------
 // The sized view
 
-function SizedView({ view, document, modelHash, tid }: { view: HangerSizingSizedView; document: HangerSizingSizedDocument; modelHash?: string | null; tid: Tid }) {
+function SizedView({ view, modelHash, tid }: { view: HangerSizingSizedView; modelHash?: string | null; tid: Tid }) {
   const conditional = view.verificationStanding === "conditional";
   const noFit = view.rows.filter((row) => row.outcome === "no_record_fits").map((row) => row.support);
-  const context = async () => ({ view, provenance: await hangerSizingCsvProvenance({ document, modelHash }), softwareVersion: CSV_SOFTWARE_VERSION });
+  // The exports' provenance is the view's own: the document's hash and contract as the view read them, never the
+  // live document at the time of the click.
+  const context = async () => ({ view, provenance: hangerSizingViewCsvProvenance({ view, modelHash }), softwareVersion: CSV_SOFTWARE_VERSION });
   return (
     <div data-testid={tid("sized")} data-standing={view.verificationStanding}>
       <p data-testid={tid("status")}>{HANGER_SIZING_SIZED_TEXT}</p>
