@@ -1199,3 +1199,24 @@ fn checks_sharing_a_category_are_priced_without_forming_their_bases() {
     assert_eq!(projection.outcomes, 1_000_000);
     assert!(projection.least_bytes > MAX_RULE_CHECK_REPLY_BYTES);
 }
+
+/// A solver input whose selector names an absent entity by a 128 KiB entity_ref,
+/// on one solved basis: the missing-row finding echoes the whole identifier into
+/// the outcome, and the outcome stays within its price, which counts the input's
+/// whole definition, selector strings included.
+#[test]
+fn a_solver_inputs_selector_strings_are_priced_where_a_finding_echoes_them() {
+    let (registry, gate) = registry();
+    let probe = probe();
+    let mut pack = widened(&probe.pack, 1, 1);
+    let absent = format!("pipe:absent-{}", "e".repeat(128 * 1024));
+    pack["required_inputs"][0]["solver_result_ref"]["entity_ref"] = json!(absent);
+    let pack = restamp(pack);
+    let job = solve_holding(&registry, &gate, &probe.text, ResultCustody::Native);
+    let answer = run_command(&registry, &json!({"rulePackDocument": pack, "jobId": job, "model": probe.model})).unwrap();
+    let outcomes = answer["checks"].as_array().unwrap();
+    assert_eq!(outcomes.len(), 1);
+    assert!(serde_json::to_string(&outcomes[0]).unwrap().contains(&absent), "a finding echoes the absent entity");
+    outcomes_within_their_price(&pack, &answer, "a 128 KiB absent entity");
+    registry.dispose_result(&job).unwrap();
+}

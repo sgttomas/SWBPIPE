@@ -4189,13 +4189,15 @@ pub(crate) const MAX_RULE_CHECK_REPLY_BYTES: u64 = rule_solver_selection::MAX_PR
 pub(crate) const RULE_CHECK_OUTCOME_LEAST_BYTES: u64 = r#"{"check_id":"","category_ref":"","basis_ref":null,"status":"","acceptability_relation":"","bound_inputs":[],"completeness_findings":[],"evaluator_findings":[],"diagnostic_codes":[]},"#.len() as u64;
 /// One outcome's text is priced at this many bytes, and this many more for each
 /// input and value slot its check names (a bound input, and a finding about it,
-/// for each), plus [`RULE_CHECK_ID_REPEATS`] times the written length of each
-/// identifier the outcome can carry (its check, category, required load case and
-/// basis, and its inputs' ids). The committed rule-check runs stay within it
-/// (`rule_check_handle_tests.rs`).
+/// for each), plus [`RULE_CHECK_ID_REPEATS`] times the written length of every
+/// pack record the outcome can quote: its check definition, its stress category,
+/// its mapping's required load cases, and the definition of each input and value
+/// slot it names, selector strings included. No string of those records escapes
+/// the price, whichever finding or diagnostic echoes it. The committed rule-check
+/// runs stay within it (`rule_check_handle_tests.rs`).
 pub(crate) const RULE_CHECK_OUTCOME_TEXT_BYTES: u64 = 4096;
 pub(crate) const RULE_CHECK_INPUT_TEXT_BYTES: u64 = 1024;
-/// How many times an outcome may write one identifier: as its own member and in
+/// How many times an outcome may write one pack string: as its own member and in
 /// the subject and message of findings about it.
 pub(crate) const RULE_CHECK_ID_REPEATS: u64 = 4;
 /// The working memory of one outcome, as a multiple of its priced text: the
@@ -4222,6 +4224,23 @@ pub(crate) struct RuleCheckPrice {
     pub(crate) outcomes: u64,
     pub(crate) least_text: u64,
     pub(crate) priced_text: u64,
+}
+
+/// The length of `value` as compact JSON writes it, counted without keeping it.
+fn json_written_len(value: &Value) -> u64 {
+    struct Count(u64);
+    impl std::io::Write for Count {
+        fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+            self.0 += buf.len() as u64;
+            Ok(buf.len())
+        }
+        fn flush(&mut self) -> std::io::Result<()> {
+            Ok(())
+        }
+    }
+    let mut count = Count(0);
+    let _ = serde_json::to_writer(&mut count, value);
+    count.0
 }
 
 /// The length of `text` as compact JSON writes it, without its quotes.
@@ -4251,6 +4270,21 @@ pub(crate) fn rule_check_prices(pack: &Value) -> Vec<RuleCheckPrice> {
             .and_then(|reference| reference.get("ref_id").and_then(Value::as_str))
             .filter(|id| !id.is_empty())
     }
+    // The written length of each record an outcome can quote, by its id (summed over
+    // records sharing an id), each counted once for the whole pack.
+    fn records<'a>(pack: &'a Value, key: &str, id_key: &str) -> HashMap<&'a str, u64> {
+        let mut lengths: HashMap<&str, u64> = HashMap::new();
+        for item in list(pack, key) {
+            if let Some(id) = item.get(id_key).and_then(Value::as_str) {
+                let length = lengths.entry(id).or_default();
+                *length = length.saturating_add(json_written_len(item));
+            }
+        }
+        lengths
+    }
+    let input_records = records(pack, "required_inputs", "input_id");
+    let slot_records = records(pack, "value_slots", "slot_id");
+    let category_records = records(pack, "stress_categories", "category_id");
     let mut load_cases: HashMap<&str, Vec<&Value>> = HashMap::new();
     for item in list(pack, "required_load_cases") {
         if let Some(id) = item.get("required_load_case_id").and_then(Value::as_str).filter(|id| !id.is_empty()) {
@@ -4284,18 +4318,20 @@ pub(crate) fn rule_check_prices(pack: &Value) -> Vec<RuleCheckPrice> {
             ids = ids.saturating_add(json_text_len(id));
             let declared = match load_cases.get(id).map(Vec::as_slice) {
                 Some([declared]) => *declared,
-                _ => {
+                Some(several) => {
+                    ids = several.iter().fold(ids, |ids, record| ids.saturating_add(json_written_len(record)));
+                    planned = false;
+                    continue;
+                }
+                None => {
                     planned = false;
                     continue;
                 }
             };
-            match declared.get("basis_ref").filter(|basis| rule_pack_document::BasisRef::from_value(basis).is_some()) {
-                Some(basis) => {
-                    for key in ["ref_type", "ref_id"] {
-                        ids = ids.saturating_add(basis.get(key).and_then(Value::as_str).map_or(0, json_text_len));
-                    }
-                }
-                None => planned = false,
+            // The whole declared record: its id, name and basis.
+            ids = ids.saturating_add(json_written_len(declared));
+            if declared.get("basis_ref").and_then(rule_pack_document::BasisRef::from_value).is_none() {
+                planned = false;
             }
             if !seen.insert(id) {
                 planned = false;
@@ -4308,19 +4344,28 @@ pub(crate) fn rule_check_prices(pack: &Value) -> Vec<RuleCheckPrice> {
         .map(|check| {
             let check_id = check.get("check_id").and_then(Value::as_str).map_or(0, json_text_len);
             let category = ref_of(check.get("category_ref"), rule_pack_document::format::CATEGORY_REF_TYPE);
+            let category_record = category.map_or(0, |id| json_text_len(id).saturating_add(category_records.get(id).copied().unwrap_or(0)));
             let (bases, basis_ids) = match category {
                 None => (None, 0),
                 Some(category) => *categories.entry(category).or_insert_with(|| plan(category)),
             };
-            let named = |key: &str| list(check, key);
-            let inputs = named("required_input_refs").iter().chain(named("value_slot_refs"));
-            let (count, input_ids) = inputs.fold((0u64, 0u64), |(count, ids), reference| {
-                (count + 1, ids.saturating_add(reference.get("ref_id").and_then(Value::as_str).map_or(0, json_text_len)))
-            });
-            let ids = check_id
-                .saturating_add(category.map_or(0, json_text_len))
+            // Each input and value slot the check names: its reference and its whole
+            // definition (a solver input's selector strings among them).
+            let named = |key: &str, definitions: &HashMap<&str, u64>| {
+                list(check, key).iter().fold((0u64, 0u64), |(count, length), reference| {
+                    let id = reference.get("ref_id").and_then(Value::as_str);
+                    let record = id.and_then(|id| definitions.get(id)).copied().unwrap_or(0);
+                    (count + 1, length.saturating_add(json_written_len(reference)).saturating_add(record))
+                })
+            };
+            let (inputs, input_records_len) = named("required_input_refs", &input_records);
+            let (slots, slot_records_len) = named("value_slot_refs", &slot_records);
+            let count = inputs + slots;
+            let ids = json_written_len(check)
+                .saturating_add(category_record)
                 .saturating_add(basis_ids)
-                .saturating_add(input_ids);
+                .saturating_add(input_records_len)
+                .saturating_add(slot_records_len);
             RuleCheckPrice {
                 outcomes: bases.unwrap_or(1),
                 least_text: RULE_CHECK_OUTCOME_LEAST_BYTES.saturating_add(check_id),
