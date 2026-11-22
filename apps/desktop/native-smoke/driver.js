@@ -136,8 +136,11 @@
     return {
       root,
       load: all("c2-result-load").find((button) => said(button) === `Load for ${feature}`) ?? null,
-      // The gate's own wording (C2ResultGate.tsx; describeFullResultRefused in nativeResult.ts).
-      stopped: all("c2-result-refused").find((element) => said(element).includes(`too large for ${feature}:`))
+      // The gate's own wording (C2ResultGate.tsx; fullResultRefusalWords in nativeResult.ts).
+      stopped: all("c2-result-refused").find((element) => {
+        const text = said(element);
+        return text.includes(`too large for ${feature}:`) || text.includes(`too large for ${feature}.`);
+      })
         ?? all("c2-result-failed").find((element) => said(element).startsWith(`${feature} could not read`) || said(element).startsWith(`${feature} has no route`))
         ?? null,
       reading: all("c2-result-loading").some((element) => said(element).includes(`for ${feature}`)),

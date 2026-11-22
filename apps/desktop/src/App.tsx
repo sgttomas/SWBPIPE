@@ -307,6 +307,7 @@ function AppSession() {
     projectEnvelopeHashIntegrity,
     modelDocumentVersion,
     projectMessage,
+    projectMessageDetails,
     projectOperation,
     projectBusy,
     handleCreateProject,
@@ -1128,6 +1129,7 @@ function AppSession() {
           <div className={shell.page === "project" ? "shell-project-strip" : "shell-project-strip inactive"}>
       <details className="project-strip" aria-label="Project summary">
         <summary><span data-testid="local-project-message" role="status">{projectMessage}</span><span className="project-details-label">Details</span></summary>
+        {projectMessageDetails ? <p data-testid="local-project-message-details">{projectMessageDetails}</p> : null}
         <span data-testid="local-project-review-context">{projectReviewContext(editorIntents, proposal, appliedOperations.length)}</span>
         {projectIndex && projectIndex.length > 0 ? (
           <div className="project-index-picker" data-testid="project-index-picker" aria-label="Open listed project by id">

@@ -422,11 +422,18 @@ describe("Compare… of the current run with a recorded run, for a run record ab
     await act(async () => { compared = await history(state).compareRuns(CURRENT_RUN_ID, history(state).runs![0].recording_id); });
     expect(compared).toBe(false);
     expect(history(state).historyOperation).toBe("compare_runs_failed");
-    // Said as the other C2 consumers say it (`describeFullResultRefused`): no class name, no key=value form.
+    // Said as the other C2 consumers say it (`describeFullResultRefused`) without codes or bytes on the line,
+    // and with the code and exact sizes carried separately in `historyMessageDetails`.
     const refusal = new nativeResult.FullResultRefused(nativeResult.RESULT_DETAIL_WEBVIEW_LIMIT, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES, "", "record");
+    const words = nativeResult.fullResultRefusalWords(refusal, "the comparison");
+    expect(history(state).historyMessage).toBe(`Not compared: ${words.fact} ${words.stillWorks} ${words.advice}`);
     expect(history(state).historyMessage).toBe(`Not compared: ${nativeResult.describeFullResultRefused(refusal, "the comparison")}`);
-    expect(history(state).historyMessage).not.toMatch(/FullResultRefused|Error:|record_bytes=|limit_bytes=/);
+    expect(history(state).historyMessageDetails).toBe(words.details);
+    expect(history(state).historyMessage).not.toMatch(/RESULT-DETAIL|webview|native|bytes|FullResultRefused|Error:|record_bytes=|limit_bytes=/i);
     expect(copies()).toBe(0);
     expect(history(state).runComparison).toBeNull();
+    // A subsequent history message clears the stale size-refusal Details.
+    await act(async () => { await history(state).compareRuns(CURRENT_RUN_ID, CURRENT_RUN_ID); });
+    expect(history(state).historyMessageDetails).toBeNull();
   });
 });

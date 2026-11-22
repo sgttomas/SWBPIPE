@@ -801,7 +801,7 @@ export function useWorkspaceSession() {
     projectEnvelopeHash, setProjectEnvelopeHash,
     modelDocumentVersion, setModelDocumentVersion,
     projectEnvelopeHashIntegrity, setProjectEnvelopeHashIntegrity,
-    projectMessage, setProjectMessage,
+    projectMessage, projectMessageDetails, setProjectMessage,
     projectOperation, setProjectOperation,
     projectBusy, setProjectBusy
   } = useProjectSessionState(reportSource.owner.advance);
@@ -1324,17 +1324,19 @@ export function useWorkspaceSession() {
 
   /** The result and record a reference inspection retains for its restore: copies of a full result,
    * or a native result's C2 full copy and full record. */
-  async function retainedReferenceRun(): Promise<{ result: MechanicsResult | null; analysisRun: AnalysisRunEnvelope | null; message?: string }> {
+  async function retainedReferenceRun(): Promise<{ result: MechanicsResult | null; analysisRun: AnalysisRunEnvelope | null; message?: string; details?: string | null }> {
     if (!result) return { result: null, analysisRun: isNativeAnalysisRun(analysisRun) ? null : (analysisRun ? structuredClone(analysisRun) : null) };
     if (!isNativeResult(result)) return { result: structuredClone(result), analysisRun: analysisRun && !isNativeAnalysisRun(analysisRun) ? structuredClone(analysisRun) : null };
     try {
       const full = await loadC2Full(result, { record: true });
       return { result: structuredClone(full.result), analysisRun: full.analysisRun ? structuredClone(full.analysisRun) : null };
     } catch (error) {
-      // A size refusal names the inspection in its own words, so the lead does not name it again.
-      return { result: null, analysisRun: null, message: error instanceof FullResultRefused
-        ? `The current solve's result is not retained. ${fullResultRefusalWords(error, "the reference inspection").fact}`
-        : `The current solve's result is not retained while the reference is inspected: ${nativeFailureText(error)}` };
+      if (error instanceof FullResultRefused) {
+        // The bundled reference still opens; the size limit prevents keeping the current solve for the return (LIM-010).
+        const words = fullResultRefusalWords(error, "keeping the current solve while inspecting the reference");
+        return { result: null, analysisRun: null, message: `The current solve's result is not retained. ${words.fact}`, details: words.details };
+      }
+      return { result: null, analysisRun: null, message: `The current solve's result is not retained while the reference is inspected: ${nativeFailureText(error)}` };
     }
   }
 
@@ -1353,7 +1355,7 @@ export function useWorkspaceSession() {
       if (currentModel.current !== model || projectSessionGenerationRef.current !== basis.generation
         || modelRevision.current !== basis.revision || resultBasisRef.current.sequence !== basis.resultSequence
         || analysisBasisRef.current.sequence !== basis.runSequence || solveRunGate.current.current() !== basis.solve) return;
-      if (retained.message) setProjectMessage(retained.message);
+      if (retained.message) setProjectMessage(retained.message, retained.details ?? null);
       referencePersistence.current = {
         model, generation: basis.generation, modelContent: checkedJsonText(model),
         // A restored run is retained by its handle (its rows are native, never cloned); the
@@ -5980,6 +5982,7 @@ export function useWorkspaceSession() {
       projectEnvelopeHashIntegrity,
       modelDocumentVersion,
       projectMessage,
+      projectMessageDetails,
       projectOperation,
       projectBusy,
       handleCreateProject,

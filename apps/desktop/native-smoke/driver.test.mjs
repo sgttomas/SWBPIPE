@@ -384,6 +384,18 @@ test("a matching gate that refused ends the wait at once with its own text; anot
     return true;
   });
   assert.ok(Date.now() - started < 1000);
+  const unknownSize = "This result is too large for rule checks. The results can still be read: the summary, the tables and the model view.";
+  const u = gatedWindow();
+  const uSolve = u.section("solve");
+  u.place(uSolve, u.element("c2-result-refused", { textContent: "This result is too large for the report. The results can still be read: the summary, the tables and the model view." }));
+  u.explicitGate(uSolve, "rule checks", () => u.place(uSolve, u.element("c2-result-refused", { textContent: unknownSize })));
+  const uStarted = Date.now();
+  await assert.rejects(u.hooks.openC2Gate("solve", "rule checks", "rule-check-run-panel", 3000), (error) => {
+    assert.match(error.message, /^rule checks: This result is too large for rule checks\. /);
+    assert.match(error.message, /clicked=true$/);
+    return true;
+  });
+  assert.ok(Date.now() - uStarted < 1000);
   const v = gatedWindow();
   const report = v.section("report");
   v.place(report, v.element("c2-result-failed", { textContent: "the report could not read the full result: boom" }));

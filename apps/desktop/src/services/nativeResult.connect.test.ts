@@ -130,6 +130,22 @@ describe("C1 slice 4: a fresh solve's result is read natively and never taken", 
       .toBe("this result is too large for it (1.5 GiB; the most it can take is 64 MiB)");
     expect(fullResultRefusalWords(new FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", 70.125 * MIB, 64 * MIB, ""), "comparisons").fact)
       .toContain(": 70.13 MiB, and");
+    // Exact limit equality does not read "just over"; one-sided nulls drop both sizes from prose.
+    const exact = fullResultRefusalWords(new FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", 64 * MIB, 64 * MIB, ""), "comparisons");
+    expect(exact.fact).toBe("This result is too large for comparisons: 64 MiB, and the most it can take is 64 MiB.");
+    expect(exact.reading).toBe("this result is too large for it (64 MiB; the most it can take is 64 MiB)");
+    const nullBytes = fullResultRefusalWords(new FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", null, 64 * MIB, ""), "the report");
+    expect([nullBytes.fact, nullBytes.reading, nullBytes.details]).toEqual([
+      "This result is too large for the report.",
+      "this result is too large for it",
+      "RESULT-DETAIL-WEBVIEW-LIMIT: result of unknown size; limit 67108864 bytes."
+    ]);
+    const nullLimit = fullResultRefusalWords(new FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", 65 * MIB, null, ""), "the report");
+    expect([nullLimit.fact, nullLimit.reading, nullLimit.details]).toEqual([
+      "This result is too large for the report.",
+      "this result is too large for it",
+      "RESULT-DETAIL-WEBVIEW-LIMIT: result 68157440 bytes; limit not known."
+    ]);
     // Sizes not known: the fact without them; the details say so.
     const unknown = fullResultRefusalWords(new FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", null, null, ""), "the report");
     expect([unknown.fact, unknown.reading, unknown.details]).toEqual([

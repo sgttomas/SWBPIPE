@@ -73,7 +73,6 @@ function resultLength(bytes: number) {
   const custody = nativeResult.nativeCustody;
   return vi.spyOn(nativeResult, "nativeCustody").mockImplementation((result) => ({ ...custody(result), resultBytes: bytes }));
 }
-/** The record-size refusal's own words, as a caller's status carries them. */
 /** The record one byte above the limit, refused for its size. */
 const RECORD_REFUSED = new FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES, "", "record");
 /** That refusal as both package saves show it: the fact, for the report package. */
@@ -198,13 +197,18 @@ describe("the session's callers that use the record, with a fitting result and a
     expect(copies()).toBe(0);
   }, 60_000);
 
-  it("reference inspection retains no run and says the record refused it, before the copy", async () => {
+  it("reference inspection retains no run and says keeping the current solve met the limit, with Details beside it", async () => {
     const { hook, copies } = await solvedSession();
     recordAboveLimit();
     await act(async () => { await hook.result.current.results.handleInspectBundledReference(); });
-    expect(hook.result.current.project.projectMessage).toContain(
-      `The current solve's result is not retained. ${nativeResult.fullResultRefusalWords(RECORD_REFUSED, "the reference inspection").fact}`);
+    const words = nativeResult.fullResultRefusalWords(RECORD_REFUSED, "keeping the current solve while inspecting the reference");
+    expect(hook.result.current.project.projectMessage).toBe(`The current solve's result is not retained. ${words.fact}`);
+    expect(hook.result.current.project.projectMessageDetails).toBe(words.details);
+    expect(hook.result.current.project.projectMessage).not.toMatch(/RESULT-DETAIL|bytes|for the reference inspection/i);
     expect(copies()).toBe(0);
+    // A subsequent project message clears stale retention-refusal Details.
+    await act(async () => { await hook.result.current.project.handleOpenProject("missing-project"); });
+    expect(hook.result.current.project.projectMessageDetails).toBeNull();
   }, 60_000);
 });
 

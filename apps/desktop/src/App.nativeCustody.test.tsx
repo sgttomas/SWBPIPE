@@ -167,4 +167,23 @@ describe("a native result's first paint in the app", () => {
     for (const refusal of refusals) expectSizeRefusal(refusal, "result", REPORT_GATES);
     expect(mechanics.nativeHeld()).toHaveLength(1);
   }, 90_000);
+
+  it("reference inspection on an oversized run record opens the reference and keeps the code in the project strip's Details", async () => {
+    await installPreviewReplay();
+    const preview = nativeResult.nativeRunPreview;
+    vi.spyOn(nativeResult, "nativeRunPreview").mockImplementation((run) => ({ ...preview(run), record_bytes: RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1 }));
+    render(<App />);
+    await screen.findByTestId("workspace-toolbar");
+    await solve();
+    fireEvent.click(within(screen.getByTestId("workspace-section-solve")).getByRole("button", { name: "Inspect bundled reference" }));
+    expect(await screen.findByTestId("historical-run-context")).toHaveTextContent("Bundled reference");
+    const refusal = new nativeResult.FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES, "", "record");
+    const words = nativeResult.fullResultRefusalWords(refusal, "keeping the current solve while inspecting the reference");
+    const message = screen.getByTestId("local-project-message");
+    expect(message).toHaveTextContent(`The current solve's result is not retained. ${words.fact}`);
+    expect(message.textContent).not.toMatch(/RESULT-DETAIL|bytes|webview|native/i);
+    const strip = message.closest("details") as HTMLDetailsElement;
+    expect(strip.open).toBe(false);
+    expect(within(strip).getByTestId("local-project-message-details")).toHaveTextContent(words.details);
+  }, 90_000);
 });

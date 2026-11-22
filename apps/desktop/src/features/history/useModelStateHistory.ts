@@ -6,8 +6,8 @@
 // Called only by the session
 // (`useWorkspaceSession`), which hands it the cells and handlers it needs; the
 // History panel reads the result through `useSessionHistory()`.
-import { describeFullResultRefused, FullResultRefused, isNativeResult } from "../../services/nativeResult";
-import { useEffect, useRef, useState } from "react";
+import { fullResultRefusalWords, FullResultRefused, isNativeResult } from "../../services/nativeResult";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { MutableRefObject } from "react";
 import {
   admitModelStateComparison,
@@ -228,7 +228,21 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
   // naming the state Record Run ties the run to.
   const [solvedModelHash, setSolvedModelHash] = useState<{ manifest: unknown; hash: string | null } | null>(null);
   const [statesProjectId, setStatesProjectId] = useState<string | null>(null);
-  const [historyMessage, setHistoryMessage] = useState(NO_MODEL_STATES_LISTED);
+  const [historyStatus, setHistoryStatus] = useState<{ message: string; details: string | null }>({
+    message: NO_MODEL_STATES_LISTED,
+    details: null
+  });
+  const historyMessage = historyStatus.message;
+  const historyMessageDetails = historyStatus.details;
+  const setHistoryMessage = useCallback(
+    (next: string | ((prev: string) => string), details: string | null = null) => {
+      setHistoryStatus((prev) => ({
+        message: typeof next === "function" ? next(prev.message) : next,
+        details: typeof next === "function" ? prev.details : details
+      }));
+    },
+    []
+  );
   const [historyOperation, setHistoryOperation] = useState("not_started");
   // W-17: the saved state the last Open State refused for lacking `project.units`,
   // which can be saved to a file as stored (`exportRefusedState`).
@@ -866,11 +880,14 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
       return true;
     } catch (error) {
       if (!sameSession()) return false;
-      // A full copy refused for its size (C2) is said as the other C2 consumers say it.
-      const reason = error instanceof RunComparisonRefusal ? error.message
-        : error instanceof FullResultRefused ? describeFullResultRefused(error, "the comparison")
-        : nativeFailureText(error);
-      setHistoryMessage(`Not compared: ${reason}`);
+      if (error instanceof FullResultRefused) {
+        // Three-part refusal on the line (History has no C2ResultGate); code and exact bytes behind Details.
+        const words = fullResultRefusalWords(error, "the comparison");
+        setHistoryMessage(`Not compared: ${words.fact} ${words.stillWorks} ${words.advice}`, words.details);
+      } else {
+        const reason = error instanceof RunComparisonRefusal ? error.message : nativeFailureText(error);
+        setHistoryMessage(`Not compared: ${reason}`);
+      }
       setHistoryOperation("compare_runs_failed");
       return false;
     } finally {
@@ -910,6 +927,7 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     states: statesProjectId === projectId ? states : null,
     basisStateId,
     historyMessage,
+    historyMessageDetails,
     historyOperation,
     historyBusy,
     refreshStates,
