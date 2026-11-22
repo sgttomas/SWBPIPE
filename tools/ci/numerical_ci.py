@@ -322,9 +322,15 @@ def runtime_read_index(project, manifests, declarations=None):
                 fingerprints['inputs'].append(entry_fingerprints)
             derived['reads'][local] = fingerprints
             if reasons:
-                stale[local] = {'manifests': callers, 'reasons': reasons}
+                # A crate's own tests, benches and examples are compiled into no other crate;
+                # any other reader (src/, build.rs, an included file) reaches Cargo consumers.
+                own = source.relative_to(crate).parts[0] in {'tests', 'benches', 'examples'}
+                stale[local] = {'manifests': callers, 'reasons': reasons, 'consumers': not own}
     if set(declarations) != checked:
         raise ValueError('Unknown runtime read declarations: ' + ', '.join(sorted(set(declarations) - checked)))
+    for local, entry in stale.items():
+        if local in resources:  # compiled into another source by include!/#[path]
+            entry['consumers'] = True
     derived['source_trees'] = dict(sorted(derived['source_trees'].items()))
     return resources, stale, derived
 
@@ -590,9 +596,12 @@ def numerical_selection(project, manifests, paths, declarations=None, ignored_pa
             return full('Unknown numerical input: ' + path)
     # A declaration whose derived fingerprints are stale may now read a file it
     # does not list, which this or a later diff can change: its reader crate
-    # and Rust callers run in every selection until the refresh lands.
+    # and Rust callers run in every selection until the refresh lands, with
+    # their Cargo consumers unless the reader is a crate's own test, bench or
+    # example, which no other crate compiles.
+    own_tests = set()
     for local, entry in sorted(stale.items()):
-        selected.update(entry['manifests'])
+        (selected if entry['consumers'] else own_tests).update(entry['manifests'])
         reasons.append({'kind': 'stale-runtime-read', 'source': local,
                         'manifests': [m.as_posix() for m in sorted(entry['manifests'])], 'stale': entry['reasons']})
     while True:
@@ -604,6 +613,7 @@ def numerical_selection(project, manifests, paths, declarations=None, ignored_pa
             reasons.append({'kind': 'cargo-consumer', 'manifest': manifest.as_posix(),
                             'dependencies': [m.as_posix() for m in sorted(dependencies[manifest] & selected)]})
         selected.update(added)
+    selected |= own_tests
     graph = {'cargo': {m.as_posix(): [d.as_posix() for d in sorted(deps)] for m, deps in dependencies.items()},
              'reads': {p: [m.as_posix() for m in sorted(readers)] for p, readers in sorted(resources.items())},
              'stale': sorted(stale)}

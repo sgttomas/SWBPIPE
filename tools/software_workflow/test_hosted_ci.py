@@ -70,8 +70,7 @@ def shared_numerical_module(root):
                      or any(reads['source_trees'].get(Path(m).as_posix()) != committed['source_trees'].get(Path(m).as_posix())
                             for m in entry['manifests'])}
         return ({path: set(readers) for path, readers in resources.items()},
-                {source: {'manifests': set(entry['manifests']), 'reasons': list(entry['reasons'])}
-                 for source, entry in stale.items()}, copy.deepcopy(derived))
+                copy.deepcopy(stale), copy.deepcopy(derived))
 
     module.runtime_read_index = runtime_read_index
     module.artifact_producers = artifact_producers

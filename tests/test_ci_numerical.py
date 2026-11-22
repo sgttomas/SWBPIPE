@@ -741,6 +741,25 @@ class ReachabilitySafetyTests(unittest.TestCase):
             self.assertEqual(ci.numerical_selection(project, manifests, unrelated_change, refreshed)['manifests'],
                              [unrelated.as_posix()])
 
+    def test_stale_test_reader_selects_its_own_crate_not_its_consumers(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            manifests, _, declaration = self.stale_fixture(project)
+            reader, consumer, unrelated, other = manifests
+            downstream = self.crate(project, 'downstream', '[dependencies]\nother={path="../other"}\n')
+            manifests = manifests + [downstream]
+            change = [ci.PROJECT + 'core/unrelated/src/lib.rs']
+            self.assertEqual(ci.numerical_selection(project, manifests, change, declaration)['manifests'], [unrelated.as_posix()])
+            test = project / other.parent / 'tests/read.rs'
+            test.write_text(test.read_text() + '#[test] fn u() { std::fs::read("../../fixtures/undeclared.json"); }\n')
+            result = ci.numerical_selection(project, manifests, change, declaration)
+            self.assertEqual((result['classification'], result['manifests']),
+                             ('reachability', sorted([other.as_posix(), unrelated.as_posix()])))
+            # The same reader compiled into the library by #[path] reaches the crate's consumers.
+            (project / other.parent / 'src/lib.rs').write_text('#[path = "../tests/read.rs"] mod read;\n')
+            result = ci.numerical_selection(project, manifests, change, declaration)
+            self.assertEqual(result['manifests'], sorted([other.as_posix(), downstream.as_posix(), unrelated.as_posix()]))
+
     def test_stale_scan_inventory_reads_the_tree_and_selects_its_reader_and_callers(self):
         with tempfile.TemporaryDirectory() as tmp:
             project = Path(tmp)
