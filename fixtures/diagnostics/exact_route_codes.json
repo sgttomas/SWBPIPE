@@ -751,8 +751,11 @@
    "reason": "A combination with a hydrostatic test case among its operands, directly or through another combination, is withheld: v1.0 does not define what it means (DEL-05-01, DEL-05-02 \"Withheld in v1.0\").",
    "unsure": false,
    "candidates": null,
-   "named_by": "unnamed",
-   "named_by_coverage": null,
+   "named_by": "LIM-003",
+   "named_by_coverage": {
+    "coverage": "whole",
+    "reason": "LIM-003 names the code and refuses exactly what it withholds: a combination with a test case among its operands, directly or through another combination."
+   },
    "named_by_statement": null
   },
   {
@@ -6663,8 +6666,11 @@
    "reason": "A hydrostatic test case on the pressure-free route: the test is defined and solved on the exact pressure route only (DEL-05-01/REQ-014); it is refused, never solved as an ordinary case.",
    "unsure": false,
    "candidates": null,
-   "named_by": "unnamed",
-   "named_by_coverage": null,
+   "named_by": "LIM-044",
+   "named_by_coverage": {
+    "coverage": "whole",
+    "reason": "LIM-044 names the code and refuses exactly a hydrostatic test case on a model with no pressure_contract."
+   },
    "named_by_statement": null
   },
   {
