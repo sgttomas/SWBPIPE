@@ -609,6 +609,7 @@ export function useWorkspaceSession() {
     currentSolvedResult,
     renderableSolvedResult,
     numericallyEligible,
+    integrityBound,
     numericalHealth,
     numericalHealthHold,
     analysisRun, setAnalysisRun,
@@ -712,6 +713,7 @@ export function useWorkspaceSession() {
   } | null>(null);
   /** C1 slice 6: the project whose stored run the open refused (not admitted into native custody). */
   const unopenedStoredRun = useRef<string | null>(null);
+  const [unopenedRunSummary, setUnopenedRunSummary] = useState<import("../../types").LocalProjectSummary | null>(null);
   /** C1 slice 6: the restored runs this session holds natively (the shown historical run, and one a
    * reference inspection retains for its restore). Each is released once nothing references it. */
   const ownedRestoredRuns = useRef<Set<RestoredRun>>(new Set());
@@ -2017,11 +2019,13 @@ export function useWorkspaceSession() {
     return () => { retained.status = event.type === "withdrawn" ? "withdrawn" : "unknown"; };
   }), [sessionEvents]);
 
-  async function handleQueueOperationBatch(batch: OperationBatch, options: { importContext?: ImportContext; precondition?: BatchPrecondition } = {}): Promise<void> {
-    await registerOperationBatch(batch, {
+  /** Whether the batch was registered for review (false where registration refused it). */
+  async function handleQueueOperationBatch(batch: OperationBatch, options: { importContext?: ImportContext; precondition?: BatchPrecondition } = {}): Promise<boolean> {
+    const registered = await registerOperationBatch(batch, {
       ...(options.importContext ? { importContext: options.importContext } : {}),
       ...(options.precondition ? { precondition: options.precondition } : {})
     });
+    return registered !== null;
   }
 
   /** Requeue a stored record with its author re-derived host-side (DEL-16-03).
@@ -2641,6 +2645,16 @@ export function useWorkspaceSession() {
     stepSessionHistory("redo");
   }
 
+  // A failure's text that cannot itself throw: a thrown value with no
+  // conversion to text is given fixed words.
+  function describableFailureText(error: unknown): string {
+    try {
+      return nativeFailureText(error);
+    } catch {
+      return "the failure could not be described";
+    }
+  }
+
   // Undo and redo move one checkpoint between the stacks with the model it
   // restores, ordered Prepare, Publish, Notify like an apply. Neither throws:
   // a failure is reported in the operation message.
@@ -2683,7 +2697,9 @@ export function useWorkspaceSession() {
     }
 
     // Publish: one synchronous block of state setters and session-owned ref
-    // writes; nothing here throws.
+    // writes. Only the event listeners' staged publishes can throw; that
+    // failure is kept and reported, and the model, the selection and the
+    // cleared computed state are still published with the moved stacks.
     if (action === "undo") {
       setUndoStack(remaining);
       setRedoStack((current) => [prepared.reverse, ...current].slice(0, 25));
@@ -2691,20 +2707,29 @@ export function useWorkspaceSession() {
       setRedoStack(remaining);
       setUndoStack((current) => [prepared.reverse, ...current].slice(0, 25));
     }
-    prepared.publishEvents();
+    let listenerFailure: string | null = null;
+    try {
+      prepared.publishEvents();
+    } catch (error) {
+      const failure = describableFailureText(error);
+      listenerFailure = `A part of the workspace did not record this step: ${failure}${/[.!?]$/.test(failure) ? "" : "."}`;
+    }
     publishModel(prepared.publication);
     commitSelectionState(prepared.restoredSelection, prepared.restoredModel);
     clearComputedModelState(prepared.solveJob);
+    const stepped = `${action === "undo" ? "Undid" : "Redid"} ${checkpoint.operation_id}`;
     const steppedMessage =
-      `${action === "undo" ? "Undid" : "Redid"} ${checkpoint.operation_id} in the local session; previous solve results were cleared. Save is still required to persist the current session model.`;
+      `${stepped} in the local session; previous solve results were cleared. Save is still required to persist the current session model.`
+      + (listenerFailure ? ` ${listenerFailure}` : "");
     setOperationMessage(steppedMessage);
+    if (listenerFailure) setHistoryFailure(`${stepped}. ${listenerFailure}`);
 
     // Notify: external callbacks, each caught and reported; the step is not
     // rolled back.
     const viewportFailure = retireViewportBoxGestureAfterPublication();
     if (viewportFailure) {
       setOperationMessage(`${steppedMessage} ${viewportFailure}`);
-      setHistoryFailure(`${action === "undo" ? "Undid" : "Redid"} ${checkpoint.operation_id}. ${viewportFailure}`);
+      setHistoryFailure(`${stepped}. ${listenerFailure ? `${listenerFailure} ` : ""}${viewportFailure}`);
     }
   }
 
@@ -3288,6 +3313,7 @@ export function useWorkspaceSession() {
       setSelectedReviewTarget(opened.selected_review_target ?? null);
       setSolveJob(initialSolveJob());
       setProjectSummary(opened.summary);
+      setUnopenedRunSummary(refusedRun || opened.stored_result_withheld ? opened.summary : null);
       setProjectEnvelopeHash(opened.project_envelope_hash ?? null);
       setModelDocumentVersion(opened.model_document_version ?? null);
       // W-13 §5.3: the validator's warnings show at project load (blocking
@@ -5160,7 +5186,7 @@ export function useWorkspaceSession() {
     // they differ from the first load on and the agent could never start.)
     snapshot: () => ({ model: currentModel.current, hash: currentHashOwned && modelHashOwner.current?.modelRevision === modelRevision.current && projectSessionGeneration === projectSessionGenerationRef.current ? modelHash : null,
       revision: modelRevision.current, generation: projectSessionGenerationRef.current,
-      result: currentSolvedResultRef.current, standing: { eligible: numericallyEligible, health: numericalHealth } }),
+      result: currentSolvedResultRef.current, standing: { eligible: numericallyEligible, health: numericalHealth, integrityBound } }),
     register: (batch, context) => registerOperationBatch(batch, { agentContext: context }),
     proposal: (key) => agentProposalStandingRef.current.get(key) ?? null,
     solve: (mode) => handleRunWithAgentReceipt(mode ?? solverMode, mode !== undefined),
@@ -5308,6 +5334,7 @@ export function useWorkspaceSession() {
       modelEdited,
       storageCapability,
       projectSummary,
+      storedRunNotOpened: unopenedRunSummary !== null && unopenedRunSummary === projectSummary,
       projectIndex,
       modelHashIntegrity,
       projectEnvelopeHash,

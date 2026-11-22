@@ -44,7 +44,7 @@ LIVE_CHECKS = {
                (R.FRICTION_REVERSAL_TEST, "a3d31f87f98f9fcdaca68d3430abaefe1eeb158b58084963b71c1c14e7f404ae"))),
     "reference_system_generated_loads": LiveCheck(
         ("generators/rsgl_reference.py", "--check-live"), (R.REFERENCE_FIXTURE,),
-        whole=((R.REFERENCE_FIXTURE, "14719edc7709d3f893ae4820ddae6747b48ce68c91dbe1d853c7b2151a6c8cc2"),)),
+        whole=((R.REFERENCE_FIXTURE, "efe17ce6443b3b7df1f95c8cff6c7ab6611563c9c72a50201875c64db277000b"),)),
 }
 
 # A live check compares part of its source: the leaves of a model document that the derivation reads, or the lines

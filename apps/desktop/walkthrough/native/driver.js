@@ -437,6 +437,47 @@
     await journey.step("loads-stage", "The opened project's Loads stage", async () => { await openStage("loads"); });
   }
 
+  // A copy of the local project store, written by the app through a read-only connection (the checkpoint's store
+  // snapshot) as `<report>.store-<name>.store.sqlite3`; the runner reads its stored runs after the launch
+  // (run.mjs storedRunEvidence). Nothing in the store is written.
+  const storeCopy = (name) => call("native_smoke_checkpoint", { name: `store-${name}`, report: { nonce, store_copy: name, at: Date.now() }, storeSnapshot: true });
+  const projectMessage = () => text("local-project-message") ?? "";
+
+  // F. A saved project whose stored run's record binds its result rules at a revision this version does not read,
+  // opened from the placed store: what the person is told, the Results stage, and a save in place.
+  async function refusedStoredRun(journey, plan) {
+    await openPrepared(journey, plan, "a saved project whose stored run this version does not read");
+    await journey.step("project-page", "The Project page after the open, with what it says of the stored run", async () => {
+      await storeCopy("after-open");
+      await closeOverlays();
+      await showSection("project");
+      return projectMessage() || "the Project page shows no message";
+    });
+    await journey.step("results-stage", "The Results stage: what the window says of the run", async () => {
+      await closeOverlays();
+      const stage = await waitFor("the Results stage in the rail", () => { const item = byTestId("rail-stage-results"); return visible(item) ? item : null; }, T.ui);
+      if (stage.disabled || stage.getAttribute("aria-disabled") === "true") {
+        // Not pressed: a disabled stage is read where a person reads it, its reason shown on focus.
+        acting(stage, "rail-stage-results").focus();
+        await sleep(300);
+        const caption = text("rail-caption-results");
+        return `the Results stage is disabled: "${disabledReason(stage)}"${caption ? `; its caption: "${caption}"` : ""}`;
+      }
+      await openStage("results");
+      const section = await waitFor("the Results section", () => { const item = byTestId("workspace-section-results"); return visible(item) ? item : null; }, T.ui);
+      return section.textContent.replace(/\s+/g, " ").trim().slice(0, 400);
+    });
+    await journey.step("save", "File > Save Local Project: what the person is told", async () => {
+      await closeOverlays();
+      const before = projectMessage();
+      await menu("file.save-local");
+      const said = await waitFor("the save's outcome", () => { const now = projectMessage(); return now && now !== before ? now : null; }, T.save);
+      await storeCopy("after-save");
+      // The message is the project strip's; it is on screen only where the window shows that strip.
+      return `${said}${visible(byTestId("local-project-message")) ? "" : " (this message is not on screen here: the window shows it in the Project page's strip)"}`;
+    });
+  }
+
   // D. The reference system, opened as a model document and solved.
   async function referenceSystem(journey, plan) {
     await journey.step("first-open", "The application as first opened");
@@ -476,7 +517,7 @@
     await journey.scrolled("report", "The Report tab", 4);
   }
 
-  const JOURNEYS = { "solve-and-results": solveAndResults, report, exports: exportsPage, "reference-system": referenceSystem, "prepared-project": preparedProject };
+  const JOURNEYS = { "solve-and-results": solveAndResults, report, exports: exportsPage, "reference-system": referenceSystem, "prepared-project": preparedProject, "refused-stored-run": refusedStoredRun };
 
   (async () => {
     const result = { nonce: null, ok: false, journey: null, user_agent: navigator.userAgent };

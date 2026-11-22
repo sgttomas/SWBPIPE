@@ -167,22 +167,25 @@ design are right."
 
 **Display forms:**
 
-- "Numerical health: checks passed", "Numerical health: sensitive",
-  "Numerical health: quality unresolved", "Numerical health: solve failed"
-  and "Numerical health: not assessed";
+- "Numerical health: solver checks found no problem", "Numerical health:
+  sensitive", "Numerical health: quality unresolved", "Numerical health: solve
+  failed" and "Numerical health: not assessed". "Solver checks found no
+  problem" is the display form of the solver's checks-passed verdict: it says
+  what was checked and found, and the product verifies the bound those checks
+  rest on for no case (LIM-026);
 - the prefix "Ordinary solve —", on routes whose standing comes from other
   evidence;
 - the result header's count form, "Numerical health: {n} {state}, …".
 
 They report the solver's existing integrity verdicts (`M03-INTEGRITY-v1`) for
 each load case. They are numerical-quality indicators, not analysis statuses
-or evidence-status labels (§2.1), and they never use "verified", "certified",
-"bound", "guaranteed", "valid", "approved", "compliant", "correct" or
-"reliable".
+or evidence-status labels (§2.1), and no state is worded or styled as a
+pass, a certificate or an approval.
 
 **Belongs on:** the desktop's numerical-health indicator, and the
-numerical-health line of generated reports. The canonical sentence accompanies
-the checks-passed state.
+numerical-health line of generated reports. On the desktop's indicator the
+canonical sentence accompanies every state; on a generated report's line it
+accompanies a verdict of checks passed.
 
 ### EV-FIGURE — evidence status of a numerical figure, state or comparison
 

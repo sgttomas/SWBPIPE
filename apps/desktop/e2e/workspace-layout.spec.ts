@@ -1,7 +1,7 @@
 import { writeFile } from "node:fs/promises";
 import { gotoRoutedFixture, selectTreeRow, ensureRail, setAppearance, expectCenterUnobscured, expectPassiveOrientationFrame, keyboardMeasureTargets, attachBrowserIdentity, captureState } from "./ui-foundation-workflows";
 import { expect, test, type Page } from "@playwright/test";
-import { openWorkspaceSection, selectTreeEntity, startPropertyTaskFromCurrentSelection } from "./workspace-driver";
+import { openWorkspaceSection, selectTreeEntity, startPropertyTaskFromCurrentSelection, viewportControl } from "./workspace-driver";
 
 async function expectCanvasInWorkspace(page: Page) {
   await expect.poll(async () => page.evaluate(() => {
@@ -285,7 +285,7 @@ test("the table strip clears DOM readouts and the painted orientation frame in M
   await expect(page.getByTestId("viewport-canvas").locator("canvas").first()).toBeVisible();
   const rects = () => page.evaluate(() => {
     const rect = (selector: string) => { const r = document.querySelector(selector)!.getBoundingClientRect(); return { left: r.left, top: r.top, right: r.right, bottom: r.bottom }; };
-    return { strip: rect('[data-testid="stage-tab-strip"]'), pane: rect(".workspace-pane-tree"), scaleBar: rect(".viewport-scale-bar"), triad: rect('[data-testid="viewport-axis-triad"]'), readout: rect('[data-testid="viewport-measurement-readout"]'), canvasPane: rect(".workspace-pane-viewport") };
+    return { strip: rect('[data-testid="stage-tab-strip"]'), pane: rect(".workspace-pane-tree"), triad: rect('[data-testid="viewport-axis-triad"]'), readout: rect('[data-testid="viewport-measurement-readout"]'), canvasPane: rect(".workspace-pane-viewport") };
   });
   const intersects = (a: { left: number; top: number; right: number; bottom: number }, b: typeof a) =>
     a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
@@ -308,7 +308,7 @@ test("the table strip clears DOM readouts and the painted orientation frame in M
     const measured = await rects();
     const orientation = await expectPassiveOrientationFrame(page, testInfo, label.replace(/[^a-z0-9]+/gi, "-").toLowerCase());
     const painted = { left: orientation.clip.x, top: orientation.clip.y, right: orientation.clip.x + orientation.clip.width, bottom: orientation.clip.y + orientation.clip.height };
-    for (const furniture of ["scaleBar", "triad", "readout"] as const) {
+    for (const furniture of ["triad", "readout"] as const) {
       expect(intersects(measured[furniture], measured.pane), `${label}: ${furniture} ${JSON.stringify(measured[furniture])} against the table pane ${JSON.stringify(measured.pane)}`).toBe(false);
       expect(measured[furniture].bottom).toBeLessThanOrEqual(measured.canvasPane.bottom);
     }
@@ -457,7 +457,7 @@ for (const viewport of [{ width: 1440, height: 920 }, { width: 1280, height: 800
       for (const preset of ["Front", "Top", "Isometric"]) {
         await page.getByRole("button", { name: preset, exact: true }).click();
         for (const command of ["Fit Visible", "Fit Selection"]) {
-          await page.getByRole("button", { name: command, exact: true }).click();
+          await (await viewportControl(page, page.getByRole("button", { name: command, exact: true }))).click();
           const points = (command === "Fit Visible" ? model.nodes : model.nodes.filter((node: any) => node.id === pipe.from || node.id === pipe.to)).map((node: any) => node.position);
           const fit = await page.evaluate((points) => {
             const api = globalThis.__openPipeStressUiDiagnosticsV1;
