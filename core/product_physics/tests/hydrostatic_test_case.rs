@@ -819,6 +819,89 @@ fn a_held_record_with_another_action_is_refused_and_separate_records_solve() {
     }
 }
 
+/// The four-span pipe run on the anchor at `node:a` alone, with `extra` beside
+/// it, and the reference cases `case_ids`.
+fn propped(extra: Vec<Value>, case_ids: &[&str]) -> Value {
+    let refs = refs();
+    let (mut model, built) = skeleton("M4", "euler_bernoulli");
+    let mut supports = vec![model["supports"][0].clone()];
+    assert_eq!(supports[0]["id"], "support:a");
+    supports.extend(extra);
+    model["supports"] = json!(supports);
+    let records: Vec<Value> = case_ids.iter().map(|id| {
+        let reference = refs["cases"].as_array().unwrap().iter().find(|c| c["id"] == *id).unwrap();
+        case_record(&model, &built, reference)
+    }).collect();
+    model["load_cases"] = json!(records);
+    model
+}
+
+fn end_ce() -> Value {
+    json!({"id": "support:e-ce", "node": "node:e", "family": "constant_effort_support", "restraints": ["UZ"],
+        "hanger": {"hanger_type": "constant_effort_support", "constant_load": qv(input("Fce_4s_c"), "N"), "travel_range": qv(0.05, "m"),
+            "source_reference": "invented"}, "provenance": PROV})
+}
+
+fn end_guide_uy() -> Value {
+    json!({"id": "support:e", "node": "node:e", "family": "guide", "restraints": ["UY"], "provenance": PROV})
+}
+
+fn blocked_by(model: &Value, code: &str, what: &str) {
+    for mode in MODES {
+        let out = run(model, mode);
+        assert_ne!(out["status"]["mechanics"], "MECHANICS_SOLVED", "{what} {mode:?}");
+        assert!(rows(&out).is_empty(), "{what} {mode:?}: no rows");
+        assert!(out["diagnostics"].as_array().unwrap().iter().any(|d| d["code"] == code && d["severity"] == "blocking"),
+            "{what} {mode:?}: expected {code}, got {:?}", codes(&out));
+    }
+}
+
+/// The ground restraints are checked on the system each case is solved on. A
+/// document whose every case holds its supports is checked on the replaced
+/// system, where a held constant-effort support is the rigid restraint it is:
+/// the anchor, a guide on UY and a held constant-effort support on UZ at the
+/// far end solve, and match the same run on an explicit rigid UZ prop. Beside
+/// an ordinary case, solved on the document's own system with five ground
+/// constraints, the document is refused; and a replaced system of five ground
+/// constraints is refused too.
+#[test]
+fn ground_restraints_are_checked_on_the_system_each_case_is_solved_on() {
+    let id = "HT-4S-TEST-HELD";
+    let held = propped(vec![end_guide_uy(), end_ce()], &[id]);
+    let prop = propped(vec![end_guide_uy(), json!({"id": "support:e-up", "node": "node:e", "family": "vertical_support", "restraints": ["UZ"], "provenance": PROV})], &[id]);
+    let reference = refs()["cases"].as_array().unwrap().iter().find(|c| c["id"] == id).unwrap().clone();
+    let w = reference["weight_per_length"]["value"].as_f64().unwrap();
+    // Each force, moment, length and stress row on its own scale; rows of
+    // other units (rotations, counts) are compared by the same rule on 1.
+    let scale = |row: &Value| match row["unit"].as_str().unwrap_or_default() {
+        "N" | "kN" => Some(w * input("a")),
+        "N*m" | "kN*m" => Some(w * input("a") * input("a")),
+        "m" | "mm" => Some(derived("two_span_delta0_test_euler_bernoulli")),
+        "Pa" | "kPa" | "MPa" => Some(reference["pressure"]["value"].as_f64().unwrap()),
+        _ => None,
+    };
+    let value = |row: &Value| if scale(row).is_some() { si(row) } else { row["value"].as_f64().unwrap() };
+    for mode in MODES {
+        let (on_held, on_prop) = (solved(&held, mode, "a held-only document on its replaced system"), solved(&prop, mode, "the explicit prop"));
+        assert_eq!(exact_case(&on_held, id)["test_condition"]["held_support_refs"], json!(["support:e-ce"]), "{mode:?}");
+        let theirs: BTreeMap<String, f64> = case_rows(&on_prop, id).filter(|row| row["value"].is_number())
+            .map(|row| (row["id"].as_str().unwrap().to_string(), value(row))).collect();
+        let mut compared = 0;
+        for row in case_rows(&on_held, id).filter(|row| row["value"].is_number()) {
+            // Row identities carry each id's length: the prop's id has the held one's.
+            let key = row["id"].as_str().unwrap().replace("support:e-ce", "support:e-up");
+            let other = *theirs.get(&key).unwrap_or_else(|| panic!("{mode:?}: the prop publishes no {key}"));
+            assert!(close(value(row), other, scale(row).unwrap_or(1.0)), "{mode:?} {key}: held {:e}, prop {other:e}", value(row));
+            compared += 1;
+        }
+        assert_eq!(compared, theirs.len(), "{mode:?}: the same rows");
+        assert!(compared > 50, "{mode:?}: compared {compared}");
+    }
+    blocked_by(&propped(vec![end_guide_uy(), end_ce()], &[id, "HT-4S-ORDINARY"]), "SOLVER_SYSTEM_BLOCKED",
+        "an ordinary case on five ground constraints beside the held case");
+    blocked_by(&propped(vec![end_ce()], &[id]), "SOLVER_SYSTEM_BLOCKED", "a replaced system of five ground constraints");
+}
+
 // ------------------------------------------------------------------ the certificate
 
 /// A case's certificate as published: its numerical-quality record and its

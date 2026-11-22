@@ -683,6 +683,13 @@ pub(crate) fn solve_held_case(
         }
         return HeldOutcome::Blocked;
     }
+    // The replaced system's own ground restraints, by the document's rule: a
+    // held support counts as the rigid restraint it is, and its spring or
+    // constant-effort action no longer does.
+    crate::check_ground_restraints(&replaced, &built, &boundary, diagnostics);
+    if crate::has_blocking(diagnostics) {
+        return HeldOutcome::Blocked;
+    }
     let stiffness = match crate::form_basis_stiffness(&built, &boundary.springs, built.nonlinear_supports.is_empty()) {
         Ok(stiffness) => stiffness,
         Err(error) => return HeldOutcome::Failed(error),

@@ -3204,46 +3204,14 @@ fn run_linear_static_preview_observed_inner(
     topology::append_topology_diagnostics(&model, &built, &mut diagnostics);
 
     let boundary = prepare_boundary(built.nodes.len(), &built.supports);
-    let potential_contact_dofs = eligible_contact_dofs(
-        built.nodes.len(),
-        &boundary.restrained_dofs,
-        &built.nonlinear_supports,
-        &built.nonlinear_initial_states,
-    );
-    if boundary.restrained_dofs.is_empty()
-        && boundary.springs.is_empty()
-        && potential_contact_dofs.is_none() && built.skew.is_none()
-    {
-        diagnostics.push(diag(
-            "diagnostic:physics:no-restraints",
-            "SUPPORT_INPUT_MISSING",
-            "blocking",
-            "linear-static preview requires explicit support restraints or springs; no automatic boundary conditions are applied",
-            vec!["supports".to_string()],
-        ));
-    }
-
-    // Necessary lower bound only: fewer than six independent ground DOFs
-    // cannot remove six rigid-body modes. Springs count; duplicates do not.
-    // Passing this check never establishes stability: the assembled solve does.
-    let ground_dofs = boundary
-        .restrained_dofs
-        .iter()
-        .copied()
-        .chain(
-            boundary
-                .springs
-                .iter()
-                .filter(|spring| spring.stiffness.value > 0.0)
-                .map(|spring| spring.node_dof.global_index()),
-        )
-        .chain(potential_contact_dofs.iter().flatten().copied())
-        .collect::<HashSet<_>>();
-    let skewed_rows = skew::ground_rows(built.skew.as_ref()); if !(ground_dofs.is_empty() && skewed_rows == 0) && ground_dofs.len() + skewed_rows < DOF_PER_NODE {
-        let (restrained, missing) = support_restraint_summary(&boundary.restrained_dofs); let skewed = if built.skew.is_some() { format!("; skewed constraints: {skewed_rows}") } else { String::new() };
-        diagnostics.push(diag("diagnostic:physics:under-restrained", "SOLVER_SYSTEM_BLOCKED", "blocking",
-            format!("fewer than six independent ground constraints including positive springs: the six rigid-body modes of a connected structure cannot all be removed; directly restrained global DOF classes: {restrained}; global DOF classes with no direct restraint: {missing} (not a rigid-body mode analysis; separated restraints can resist rotations); support contributions: {}{skewed}", support_contribution_summary(&model)),
-            vec!["supports".to_string()]));
+    // DEL-04-07 REQ-011: a held test case is solved on its own replaced
+    // system, whose ground restraints `solve_held_case` checks by the same
+    // rule. The document's own system is checked when some case is solved on
+    // it: with no case, a case that holds nothing, or no support held.
+    let holds_all = !model.load_cases.is_empty() && model.load_cases.iter().all(hydrostatic::holds_supports)
+        && !hydrostatic::held_set(&model, "").0.is_empty();
+    if !holds_all {
+        check_ground_restraints(&model, &built, &boundary, &mut diagnostics);
     }
     for finding in &boundary.findings {
         diagnostics.push(diag(
@@ -4686,6 +4654,60 @@ enum BasisStiffness {
 /// F1b (ROOT Q2): the basis assembly with K2a's range refusal deferred on a
 /// linear invocation. Every other formation error, and a range refusal on an
 /// invocation with a nonlinear support, blocks the invocation as today.
+/// The necessary ground-restraint checks of a built system before its
+/// stiffness is formed: some explicit restraint, spring or contact
+/// (`SUPPORT_INPUT_MISSING`), and at least six independent ground constraints
+/// (`SOLVER_SYSTEM_BLOCKED`). Run on the document's system and, by
+/// [`hydrostatic::solve_held_case`], on a held test case's replaced one.
+pub(crate) fn check_ground_restraints(
+    model: &PreviewModel,
+    built: &BuiltModel,
+    boundary: &open_pipe_stress_linear_supports::BoundaryPreparation,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    let potential_contact_dofs = eligible_contact_dofs(
+        built.nodes.len(),
+        &boundary.restrained_dofs,
+        &built.nonlinear_supports,
+        &built.nonlinear_initial_states,
+    );
+    if boundary.restrained_dofs.is_empty()
+        && boundary.springs.is_empty()
+        && potential_contact_dofs.is_none() && built.skew.is_none()
+    {
+        diagnostics.push(diag(
+            "diagnostic:physics:no-restraints",
+            "SUPPORT_INPUT_MISSING",
+            "blocking",
+            "linear-static preview requires explicit support restraints or springs; no automatic boundary conditions are applied",
+            vec!["supports".to_string()],
+        ));
+    }
+
+    // Necessary lower bound only: fewer than six independent ground DOFs
+    // cannot remove six rigid-body modes. Springs count; duplicates do not.
+    // Passing this check never establishes stability: the assembled solve does.
+    let ground_dofs = boundary
+        .restrained_dofs
+        .iter()
+        .copied()
+        .chain(
+            boundary
+                .springs
+                .iter()
+                .filter(|spring| spring.stiffness.value > 0.0)
+                .map(|spring| spring.node_dof.global_index()),
+        )
+        .chain(potential_contact_dofs.iter().flatten().copied())
+        .collect::<HashSet<_>>();
+    let skewed_rows = skew::ground_rows(built.skew.as_ref()); if !(ground_dofs.is_empty() && skewed_rows == 0) && ground_dofs.len() + skewed_rows < DOF_PER_NODE {
+        let (restrained, missing) = support_restraint_summary(&boundary.restrained_dofs); let skewed = if built.skew.is_some() { format!("; skewed constraints: {skewed_rows}") } else { String::new() };
+        diagnostics.push(diag("diagnostic:physics:under-restrained", "SOLVER_SYSTEM_BLOCKED", "blocking",
+            format!("fewer than six independent ground constraints including positive springs: the six rigid-body modes of a connected structure cannot all be removed; directly restrained global DOF classes: {restrained}; global DOF classes with no direct restraint: {missing} (not a rigid-body mode analysis; separated restraints can resist rotations); support contributions: {}{skewed}", support_contribution_summary(model)),
+            vec!["supports".to_string()]));
+    }
+}
+
 fn form_basis_stiffness(
     built: &BuiltModel,
     springs: &[SpringEntry],
