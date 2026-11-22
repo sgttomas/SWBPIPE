@@ -235,14 +235,25 @@ REGIONS = [
 OPERATING_PRESSURE_KPA = 1600
 
 # -- §8 tranche-1 load cases and combinations -------------------------------------------------------------------------
+# Each case's element state (spec §8.1): INSTALLED (the 20 degC point, no thermal state), OPERATING (the operating
+# thermal state on the modulus at the operating temperature) or OPERATING_REFERENCE_MODULUS (the same thermal state
+# on the 20 degC point, each member stating why its modulus is not the one at its temperature).
+INSTALLED, OPERATING, OPERATING_REFERENCE_MODULUS = "installed", "operating", "operating_reference_modulus"
 CASES = [
-    ("RS-SUS", "RS-SUS sustained: W + P (operating pressure)", False, None),
-    ("RS-OPE", "RS-OPE operating: W + P + T (210 degC, modulus at 210 degC)", True, None),
-    ("RS-SAM", "RS-SAM seismic anchor movement: W + P + anchor RS-C moved UX +15 mm, UY -10 mm", False,
+    ("RS-SUS", "RS-SUS sustained: W + P (operating pressure)", INSTALLED, None),
+    ("RS-OPE", "RS-OPE operating: W + P + T (210 degC, modulus at 210 degC)", OPERATING, None),
+    ("RS-SAM", "RS-SAM seismic anchor movement: W + P + anchor RS-C moved UX +15 mm, UY -10 mm", INSTALLED,
      ("RS-C", [("UX", 15), ("UY", -10)])),
+    ("RS-OPE-REF", "RS-OPE-REF operating thermal state on the 20 degC modulus: W + P + T (210 degC, modulus at 20 degC)",
+     OPERATING_REFERENCE_MODULUS, None),
 ]
+# spec §8.1: the reason each member of RS-OPE-REF gives for a modulus that is not the one at its temperature.
+REFERENCE_MODULUS_REASON = "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
 COMBINATIONS = [
-    ("RS-EXP", "RS-EXP expansion: RS-OPE - RS-SUS", "RS-OPE", "RS-SUS"),
+    # spec §8.2: the difference of two independently solved equilibria on one material basis, not a solve under the
+    # load difference.
+    ("RS-EXP", "RS-EXP expansion: RS-OPE-REF - RS-SUS, the difference of two solved states on the 20 degC modulus",
+     "RS-OPE-REF", "RS-SUS"),
     ("RS-dSAM", "RS-dSAM anchor movement term: RS-SAM - RS-SUS", "RS-SAM", "RS-SUS"),
 ]
 
@@ -267,11 +278,12 @@ LEDGER = [
      "interim: RS-FR1V authored as a linear `vertical_support` UZ (Agent 0, 2026-10-31)",
      "fixture adoption (DEL-09-01); the solve admits the one-way source (DEL-04-04 REQ-012)",
      "the intended one-way normal source solves in the combined test overlay and is not confirmed: "
-     "without RS-G1 each case is `NUMERICAL_INTEGRITY_SENSITIVE` (friction normal source is not a base "
-     "restraint), with RS-G1 unqualified (core/product_physics/tests/rt_a3_s6_reference_system.rs)"),
-    ("RS-SUS, RS-OPE (thermal, modulus by temperature)",
+     "without RS-G1 RS-SUS, RS-OPE and RS-SAM are each `NUMERICAL_INTEGRITY_SENSITIVE` (friction normal source "
+     "is not a base restraint), with RS-G1 unqualified (core/product_physics/tests/rt_a3_s6_reference_system.rs)"),
+    ("RS-SUS, RS-OPE and RS-OPE-REF (thermal; modulus by temperature, or the 20 °C modulus with its stated basis)",
      "in tranche 1 as linear cases (load/reference-state group)", "—", "—"),
-    ("RS-EXP", "in tranche 1 as a subtraction; `difference_basis` pending",
+    ("RS-EXP", "in tranche 1 as a subtraction, RS-OPE-REF - RS-SUS; `difference_basis` pending; on the exact route "
+               "the declared basis follows after v1.0 (LIM-038)",
      "RT-A5 slice 1b / load-cases lane (0.9.0)", "basis not recorded"),
     ("RS-WIN, RS-EQX, RS-EQY, RS-EQZ on the document that carries temperature", "pending",
      "#1678 / load-cases lane", "`EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED`"),
@@ -333,39 +345,60 @@ KEY_RESULTS = [
     ("KR-10", "Hanger table: per hanger, the sized load, travel and selected invented record", ["hanger sizing"],
      "verified_solve", "verified solve"),
     ("EQ-1", "The sum of vertical reactions over all supports, the spring and the constant-effort support included, "
-     "equals the total weight, in RS-SUS, RS-OPE and RS-SAM, and in RS-HYD (with the test contents) when it lands",
-     ["RS-SUS", "RS-OPE", "RS-SAM", "RS-HYD"], "closed_form", "closed form: the total weight recomputed independently "
+     "equals the total weight, in RS-SUS, RS-OPE, RS-OPE-REF and RS-SAM, and in RS-HYD (with the test contents) when "
+     "it lands",
+     ["RS-SUS", "RS-OPE", "RS-OPE-REF", "RS-SAM", "RS-HYD"], "closed_form", "closed form: the total weight recomputed independently "
      "from the inputs (§4, §5) on EX's stated mass bases"),
-    ("EQ-2", "In RS-SUS, RS-OPE and RS-SAM, and in RS-HYD when it lands, the horizontal reaction resultant is zero, and "
-     "the reaction moment resultant about the origin equals minus the moment of the weight",
-     ["RS-SUS", "RS-OPE", "RS-SAM", "RS-HYD"], "closed_form", "closed form from the inputs"),
-    ("EQ-3", "On every published signed component row, RS-EXP equals RS-OPE - RS-SUS; magnitude rows are "
-     "recomputed from the combined components; withheld rows are excluded", ["RS-EXP", "RS-OPE", "RS-SUS"],
+    ("EQ-2", "In RS-SUS, RS-OPE, RS-OPE-REF and RS-SAM, and in RS-HYD when it lands, the horizontal reaction resultant "
+     "is zero, and the reaction moment resultant about the origin equals minus the moment of the weight",
+     ["RS-SUS", "RS-OPE", "RS-OPE-REF", "RS-SAM", "RS-HYD"], "closed_form", "closed form from the inputs"),
+    ("EQ-3", "On every published signed component row, RS-EXP equals RS-OPE-REF - RS-SUS; magnitude rows are "
+     "recomputed from the combined components; withheld rows are excluded. The identity establishes the "
+     "combination's algebra and nothing about either solve", ["RS-EXP", "RS-OPE-REF", "RS-SUS"],
      "identity", "exact identity"),
     ("EQ-4", "On the same signed component rows, RS-EQ-SRSS equals sqrt(sum dEQ^2) and RS-EQ-ABS equals "
      "sum |dEQ| over the operand rows, so SRSS <= ABS on each", ["RS-EQ-SRSS", "RS-EQ-ABS", "RS-dEQX", "RS-dEQY",
                                                                   "RS-dEQZ"], "identity", "exact identity"),
     ("EQ-5", "The RS-dSAM reactions are self-equilibrated (resultant force and moment zero)", ["RS-dSAM"], "identity",
      "exact identity: no load differs between RS-SAM and RS-SUS"),
-    ("EQ-6", "The resultant of RS-dWIN reactions equals minus the generated wind resultant, and that of RS-dEQx "
-     "equals minus the factor times g times the total mass on the generator's stated mass basis",
+    ("EQ-6", "The reaction resultant of RS-dWIN, force and moment about the origin, equals minus the resultant of "
+     "the generated wind load. That of each of RS-dEQX, RS-dEQY and RS-dEQZ equals minus the resultant of the "
+     "corresponding generated seismic load from RS-EQX, RS-EQY or RS-EQZ: on each member that carries a line load "
+     "of self-weight, the factor times the seismic case's entered gravity times the member's mass per length on "
+     "the generator's stated mass basis; and, in place of that load on the body of each of RS-F1, RS-V1, RS-F2 and "
+     "RS-R1, the factor times the component's entered weight at its centre of gravity. Take generated force "
+     "moments at their points of action about the global origin. For the reaction moment, sum the moments of the "
+     "reaction forces about that origin and the support couples",
      ["RS-dWIN", "RS-dEQX", "RS-dEQY", "RS-dEQZ"], "closed_form", "closed form from the inputs"),
-    ("EQ-7", "Spectrum directional combination recomputed from the published per-direction results", ["spectrum"],
-     "identity", "exact identity"),
+    ("EQ-7", "For each response quantity, recompute the periodic magnitude in each direction, the rigid magnitude "
+     "when applied, their combination and the magnitude over directions from the published signed contributions "
+     "under the recorded rules. Sum each periodic cluster's contributions with their signs first. Each published "
+     "magnitude must be within 1e-9 relative of the exact value on the represented operands: the published signed "
+     "contributions and, where the rule uses them, each periodic cluster's published standing frequency and the "
+     "published damping ratio. A published zero requires an exact value of zero", ["spectrum"],
+     "identity",
+     "identity checked by recomputation from the published result (DEL-04-10 REQ-006). The 1e-9 relative "
+     "comparison over directions is specified for this system. The magnitude accuracy and exact-zero rule govern "
+     "publication"),
 ]
 
 
 # Frozen expected values (spec §1): copied from the independent references in REFERENCES (EQ-1, EQ-2; the fixture
 # test checks the copy against references.json) or naming the identity and its record (EQ-3, EQ-5). EQ-1 and EQ-2 are
-# those of the fixture as it now holds RS-R1 and RS-CE1 (REFERENCES); the tranche-1 package REFERENCES_TRANCHE_1 stays
-# frozen as the earlier fixture's, and its README states the EQ-3 and EQ-5 identities and the product-row conventions.
-# The tranche-1 cases only: RS-HYD's weight (test contents) is not yet referenced.
+# those of the fixture as it now holds RS-R1 and RS-CE1 (REFERENCES), for RS-SUS, RS-OPE and RS-SAM there and for
+# RS-OPE-REF through REFERENCES_OPE_REF, which binds the same record to it; the tranche-1 package REFERENCES_TRANCHE_1
+# stays frozen as the earlier fixture's, and its README states the EQ-5 identity and the product-row conventions.
+# REFERENCES_OPE_REF_README states EQ-3 on RS-EXP's operands RS-OPE-REF and RS-SUS. The tranche-1 cases only: RS-HYD's
+# weight (test contents) is not yet referenced.
 REFERENCES = "validation/references/reference_system_r1_ce/references.json"
 REFERENCES_TRANCHE_1 = "validation/references/reference_system/references.json"
 REFERENCES_README = "validation/references/reference_system/README.md"
+REFERENCES_OPE_REF = "validation/references/reference_system_ope_ref/references.json"
+REFERENCES_OPE_REF_README = "validation/references/reference_system_ope_ref/README.md"
 EXPECTED = {
     "EQ-1": {
-        "basis_record": REFERENCES, "key": "W_total_N", "unit": "N", "cases": ["RS-SUS", "RS-OPE", "RS-SAM"],
+        "basis_record": REFERENCES, "key": "W_total_N", "unit": "N", "cases": ["RS-SUS", "RS-OPE", "RS-OPE-REF", "RS-SAM"],
+        "case_binding": {"RS-OPE-REF": REFERENCES_OPE_REF},
         "check": "the sum of the global Z support action components over every support, RS-VS1 and RS-CE1 included, "
                  "equals W_total",
         "exact": "(3600) + (66155686593423/5000000000)*pi + (124534361799687/800000000000)*pi^2",
@@ -373,15 +406,16 @@ EXPECTED = {
     },
     "EQ-2": {
         "basis_record": REFERENCES, "key": "weight_moment_about_origin_N_m", "unit": "N*m",
-        "cases": ["RS-SUS", "RS-OPE", "RS-SAM"],
+        "cases": ["RS-SUS", "RS-OPE", "RS-OPE-REF", "RS-SAM"], "case_binding": {"RS-OPE-REF": REFERENCES_OPE_REF},
         "check": "the horizontal (X, Y) reaction resultant is zero, and the reaction moment resultant about the origin "
                  "(sum of r x F + M over every support) equals minus the weight's moment about the origin",
         "value": [-442344.66809078795, 249877.7487664089, 0.0],
     },
     "EQ-3": {
-        "basis_record": REFERENCES_README, "cases": ["RS-EXP", "RS-OPE", "RS-SUS"],
-        "identity": "on every published signed component row, RS-EXP = RS-OPE - RS-SUS; magnitude rows equal the norm "
-                    "of the combined components; rows the combination withholds are excluded and listed",
+        "basis_record": REFERENCES_OPE_REF_README, "cases": ["RS-EXP", "RS-OPE-REF", "RS-SUS"],
+        "identity": "on every published signed component row, RS-EXP = RS-OPE-REF - RS-SUS; magnitude rows equal the "
+                    "norm of the combined components; rows the combination withholds are excluded and listed; the "
+                    "identity establishes the combination's algebra and nothing about either solve",
     },
     "EQ-5": {
         "basis_record": REFERENCES_README, "cases": ["RS-dSAM"],
@@ -393,9 +427,10 @@ EXPECTED = {
 CHECKS = {
     "KR-03": {
         "kind": "identity", "test": "tests/test_reference_system_fixture.py", "basis_record": REFERENCES,
-        "check": "in RS-SUS, RS-OPE and RS-SAM RS-CE1's constant_effort_support_applied_load row and its published "
-                 "support_reaction_component_v2 Fz each equal its entered constant_load, 9000 N, and its Fx, Fy, Mx, My "
-                 "and Mz are zero (DEC-049); RS-VS1's load awaits a verified solve, so no value of it is recorded",
+        "check": "in RS-SUS, RS-OPE, RS-SAM and RS-OPE-REF RS-CE1's constant_effort_support_applied_load row and its "
+                 "published support_reaction_component_v2 Fz each equal its entered constant_load, 9000 N, and its Fx, Fy, "
+                 "Mx, My and Mz are zero (DEC-049); the basis record names the first three, and RS-OPE-REF's are compared "
+                 "with the entered load alone; RS-VS1's load awaits a verified solve, so no value of it is recorded",
     },
     "KR-05": {
         "kind": "presence", "test": "tests/test_reference_system_fixture.py",
@@ -669,7 +704,7 @@ def weight_requests():
     return [{"case_id": f"load:{case}", "label": label, "pipe_refs": weighted_pipes(), "gravity": dict(GRAVITY),
              "provenance": f"{PROVENANCE}; W of {case}: self-weight of every member except {REPLACED_SPAN}, "
                            "component weights at their centres of gravity (spec §8.1)"}
-            for case, label, _thermal, _motion in CASES]
+            for case, label, _element_basis, _motion in CASES]
 
 
 def weight_basis(model):
@@ -689,17 +724,19 @@ def weight_basis(model):
     return "sha256:" + hashlib.sha256(json.dumps(basis, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
-def element_states(thermal):
+def element_states(element_basis):
     """RS-OPE: every member selects its modulus at the operating temperature, RS-P180 included (the MBF lane's
     coverage rule); every member but RS-P180 takes the free-length state at it, and RS-P180 keeps zero eigenstrain
-    (spec §5.1). Other cases: the installed point and no thermal state."""
+    (spec §5.1). RS-OPE-REF: the same thermal state on the 20 degC point, each member that has an operating
+    temperature stating its analysis basis (the reason and the record provenance); RS-P180 takes the 20 degC point with
+    no operating temperature and zero eigenstrain. Other cases: the 20 degC point and no thermal state (spec §8.1)."""
     rows = []
     for tag, *_ in MEMBERS:
-        hot = thermal and tag != REPLACED_SPAN
+        hot = element_basis != INSTALLED and tag != REPLACED_SPAN
         row = {"pipe_ref": f"pipe:{tag}"}
         if hot:
             row["operating_temperature"] = q(OPERATING_C, "degC")
-        if thermal:
+        if element_basis == OPERATING:
             row["material_selection"] = {"kind": "temperature_interpolation", "material_ref": f"material:{MATERIAL}",
                                          "temperature": q(OPERATING_C, "degC"), "interpolation": "piecewise_linear",
                                          "extrapolation": "forbidden"}
@@ -708,6 +745,8 @@ def element_states(thermal):
                                          "point_ref": f"point:RS-M1-T{INSTALLATION_C:03d}"}
         if hot:
             row["thermal_state"] = {"kind": "free_length_state", "expansion_law_ref": "law:RS-M1-SECANT"}
+            if element_basis == OPERATING_REFERENCE_MODULUS:
+                row["analysis_basis_override"] = {"reason": REFERENCE_MODULUS_REASON, "provenance": PROVENANCE}
         else:
             reason = ("replaced span RS-P180: zero eigenstrain (spec §5.1)" if tag == REPLACED_SPAN
                       else "no temperature in this case")
@@ -716,7 +755,7 @@ def element_states(thermal):
     return rows
 
 
-def load_case(case, label, thermal, motion, captured):
+def load_case(case, label, element_basis, motion, captured):
     record = dict(captured["case_record"])
     primitives = captured["primitive_loads"]
     record["primitive_loads"] = primitives
@@ -739,7 +778,7 @@ def load_case(case, label, thermal, motion, captured):
     record["analysis_state"] = {
         "contract": "openpipestress.load_reference_state/1.0.0",
         "reference_configuration_ref": "reference:RS-INSTALLED",
-        "element_states": element_states(thermal),
+        "element_states": element_states(element_basis),
         "support_states": states,
         "load_sources": [{"source_ref": p["id"], "factor": 1.0} for p in primitives],
         "history": {"kind": "independent_equilibrium"},
@@ -766,8 +805,8 @@ def read_capture(model):
 def model_document():
     model = base_model()
     captured = read_capture(model)
-    model["load_cases"] = [load_case(case, label, thermal, motion, captured[f"load:{case}"])
-                           for case, label, thermal, motion in CASES]
+    model["load_cases"] = [load_case(case, label, element_basis, motion, captured[f"load:{case}"])
+                           for case, label, element_basis, motion in CASES]
     model["combinations"] = [{"id": f"combination:{tag}", "label": label, "basis": "result_state_subtraction",
                               "minuend_id": f"load:{minuend}", "subtrahend_id": f"load:{subtrahend}",
                               "provenance": PROVENANCE} for tag, label, minuend, subtrahend in COMBINATIONS]
