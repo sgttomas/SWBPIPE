@@ -16,11 +16,13 @@
 (() => {
   const ipc = window.__TAURI_INTERNALS__;
   // The scripted-run build's substitutions for a person's act (DEL-07-11 REQ-010). Each one a step uses is recorded
-  // on that step, so the index can mark it: the file a chooser returns, a native menu command, the print dialog.
+  // on that step, so the index can mark it: the file a chooser returns, a native menu command, a request to quit or
+  // to close the main window, the print dialog.
   let substitutions = null;
   const SUBSTITUTED = {
     native_smoke_choose: (args) => ({ kind: "file chooser", what: `the next file chooser returns ${String(args.path).split("/").pop()}, named by the harness; no chooser is shown` }),
     native_smoke_menu: (args) => ({ kind: "native menu command", what: `${args.commandId} delivered through the menu's own dispatch, not by a click in the menu bar` }),
+    native_smoke_request_close: (args) => ({ kind: "quit or window close request", what: args.kind === "window" ? "the main window asked to close by the window's own close request, not by a click on its close button" : "Quit asked by the menu item's own handling, not by a click in the menu bar or the keyboard shortcut" }),
     native_smoke_take_report_prints: () => ({ kind: "report print dialog", what: "the print document recorded in place of the system print dialog" })
   };
   const call = (command, args) => {

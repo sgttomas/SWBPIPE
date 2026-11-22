@@ -5513,6 +5513,16 @@ fn finish_close<R: tauri::Runtime>(app: &tauri::AppHandle<R>, kind: close_guard:
     }
 }
 
+/// SWBPIPE › Quit SWBPIPE (⌘Q) as the menu click delivers it, and the
+/// scripted-run build's `native_smoke_request_close` the same way: through the
+/// unsaved-changes guard, exiting here only when the guard has already
+/// approved.
+fn request_quit<R: tauri::Runtime>(app: &tauri::AppHandle<R>) {
+    if request_close(app, close_guard::CloseKind::Quit) {
+        app.exit(0);
+    }
+}
+
 /// The webview received an attempt of a close request (`close_guard.rs`).
 /// True when the host accepted it; only then may the webview ask the user.
 #[tauri::command]
@@ -6438,9 +6448,7 @@ pub fn run() {
         .menu(|handle| build_app_menu(handle))
         .on_menu_event(|app, event| {
             if event.id().0 == QUIT_MENU_ID {
-                if request_close(app, close_guard::CloseKind::Quit) {
-                    app.exit(0);
-                }
+                request_quit(app);
                 return;
             }
             restore_native_check_item_after_activation(app, &event.id().0);
@@ -6462,6 +6470,7 @@ pub fn run() {
         native_smoke::native_smoke_choose,
         native_smoke::native_smoke_clear_choices,
         native_smoke::native_smoke_menu,
+        native_smoke::native_smoke_request_close,
         native_smoke::native_smoke_menu_items,
         native_smoke::native_smoke_show_window,
         native_smoke::native_smoke_plan,
@@ -12460,6 +12469,479 @@ mod stored_result_limit_tests {
         assert!(serde_json::to_value(&opened).unwrap().get("stored_result_withheld").is_none());
         drop(opened);
         save_in_place(&store, Value::Null, None).expect("a run the session opened is its to replace");
+    }
+}
+
+/// Source reads of the scripted-run build's quit and window close (`native_smoke_request_close`) beside the menu
+/// click's Quit handling, and the close guard's own states for a quit and a window request. The command is compiled
+/// only into the scripted-run build, so it is read here as source (`syn`, with span locations); none of these tests
+/// runs the command, `request_quit`, the close-requested handler or the web view.
+#[cfg(test)]
+mod scripted_close_route_tests {
+    use crate::close_guard::{CloseDecision, CloseGuard, CloseKind};
+    use std::path::Path;
+    use syn::visit::{self, Visit};
+
+    fn source(file: &str) -> String {
+        std::fs::read_to_string(Path::new(env!("CARGO_MANIFEST_DIR")).join("src").join(file)).unwrap()
+    }
+
+    /// Every `.rs` file under `src/`, at any depth: (path relative to `src/`, text).
+    fn crate_sources() -> Vec<(String, String)> {
+        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
+        let mut files = Vec::new();
+        let mut dirs = vec![root.clone()];
+        while let Some(dir) = dirs.pop() {
+            for entry in std::fs::read_dir(dir).unwrap() {
+                let path = entry.unwrap().path();
+                if path.is_dir() {
+                    dirs.push(path);
+                } else if path.extension().is_some_and(|ext| ext == "rs") {
+                    let relative = path.strip_prefix(&root).unwrap().to_string_lossy().into_owned();
+                    files.push((relative, std::fs::read_to_string(&path).unwrap()));
+                }
+            }
+        }
+        assert!(files.len() > 20, "the walk reads the crate's sources");
+        files
+    }
+
+    fn normalized(text: &str) -> String {
+        text.chars().filter(|c| !c.is_whitespace()).collect()
+    }
+
+    /// The text between two span locations, whitespace removed.
+    fn between(text: &str, start: proc_macro2::LineColumn, end: proc_macro2::LineColumn) -> String {
+        let lines: Vec<&str> = text.lines().collect();
+        let mut out = String::new();
+        for line in start.line..=end.line {
+            let chars: Vec<char> = lines[line - 1].chars().collect();
+            let from = if line == start.line { start.column } else { 0 };
+            let to = if line == end.line { end.column } else { chars.len() };
+            out.extend(chars[from..to].iter());
+        }
+        normalized(&out)
+    }
+
+    fn top_fn<'a>(file: &'a syn::File, name: &str) -> Option<&'a syn::ItemFn> {
+        file.items.iter().find_map(|item| match item {
+            syn::Item::Fn(function) if function.sig.ident == name => Some(function),
+            _ => None,
+        })
+    }
+
+    fn body(text: &str, function: &syn::ItemFn) -> String {
+        let braces = function.block.brace_token.span;
+        between(text, braces.open().start(), braces.close().end())
+    }
+
+    /// The source text between two span locations, exactly as written.
+    fn span_text(text: &str, start: proc_macro2::LineColumn, end: proc_macro2::LineColumn) -> String {
+        let lines: Vec<&str> = text.lines().collect();
+        let mut out = Vec::new();
+        for line in start.line..=end.line {
+            let chars: Vec<char> = lines[line - 1].chars().collect();
+            let from = if line == start.line { start.column } else { 0 };
+            let to = if line == end.line { end.column } else { chars.len() };
+            out.push(chars[from..to].iter().collect::<String>());
+        }
+        out.join("\n")
+    }
+
+    /// A whole function item as written: from its first outer attribute (doc comments included) or, without one, its
+    /// visibility or `fn`, through its closing brace; so its attributes, visibility, qualifiers (`const`, `async`,
+    /// `unsafe`, `extern`), signature and body.
+    fn item_text(text: &str, function: &syn::ItemFn) -> String {
+        let start = match (function.attrs.first(), &function.vis) {
+            (Some(attr), _) => attr.pound_token.span.start(),
+            (None, syn::Visibility::Public(token)) => token.span.start(),
+            (None, _) => function.sig.constness.as_ref().map(|token| token.span.start())
+                .or(function.sig.asyncness.as_ref().map(|token| token.span.start()))
+                .or(function.sig.unsafety.as_ref().map(|token| token.span.start()))
+                .unwrap_or_else(|| function.sig.fn_token.span.start()),
+        };
+        span_text(text, start, function.block.brace_token.span.close().end())
+    }
+
+    /// Source text as tokens, at every depth of its groups: identifiers, punctuation with its spacing, and literals
+    /// exactly as written (a string literal keeps every character between its quotes); whitespace outside literals
+    /// and comments other than doc comments do not count.
+    fn tokens(text: &str) -> Vec<String> {
+        fn walk(stream: proc_macro2::TokenStream, out: &mut Vec<String>) {
+            for token in stream {
+                match token {
+                    proc_macro2::TokenTree::Ident(ident) => out.push(format!("ident {ident}")),
+                    proc_macro2::TokenTree::Punct(punct) => out.push(format!("punct {} {:?}", punct.as_char(), punct.spacing())),
+                    proc_macro2::TokenTree::Literal(literal) => out.push(format!("literal {literal}")),
+                    proc_macro2::TokenTree::Group(group) => {
+                        out.push(format!("open {:?}", group.delimiter()));
+                        walk(group.stream(), out);
+                        out.push(format!("close {:?}", group.delimiter()));
+                    }
+                }
+            }
+        }
+        let mut out = Vec::new();
+        walk(text.parse::<proc_macro2::TokenStream>().unwrap_or_else(|error| panic!("does not lex: {error}")), &mut out);
+        out
+    }
+
+    /// The identifiers in macro tokens, inside their groups at every depth.
+    fn macro_idents(tokens: proc_macro2::TokenStream, out: &mut Vec<String>) {
+        for token in tokens {
+            match token {
+                proc_macro2::TokenTree::Ident(ident) => out.push(ident.to_string()),
+                proc_macro2::TokenTree::Group(group) => macro_idents(group.stream(), out),
+                _ => {}
+            }
+        }
+    }
+
+    /// Every identifier (macro tokens included, at every depth) and the menu event's first `if` (its Quit branch).
+    #[derive(Default)]
+    struct Read {
+        idents: Vec<String>,
+        quit_branch: Option<(proc_macro2::LineColumn, proc_macro2::LineColumn, proc_macro2::LineColumn)>,
+    }
+    impl<'ast> Visit<'ast> for Read {
+        fn visit_ident(&mut self, node: &'ast proc_macro2::Ident) {
+            self.idents.push(node.to_string());
+        }
+        fn visit_macro(&mut self, node: &'ast syn::Macro) {
+            macro_idents(node.tokens.clone(), &mut self.idents);
+            visit::visit_macro(self, node);
+        }
+        fn visit_expr_method_call(&mut self, node: &'ast syn::ExprMethodCall) {
+            if node.method == "on_menu_event" {
+                if let Some(syn::Expr::Closure(closure)) = node.args.first() {
+                    if let syn::Expr::Block(block) = &*closure.body {
+                        if let Some(syn::Stmt::Expr(syn::Expr::If(branch), _)) = block.block.stmts.first() {
+                            let braces = branch.then_branch.brace_token.span;
+                            self.quit_branch = Some((branch.if_token.span.end(), braces.open().start(), braces.close().end()));
+                        }
+                    }
+                }
+            }
+            visit::visit_expr_method_call(self, node);
+        }
+    }
+
+    /// The command as reviewed: the whole item, its doc comment and attributes, visibility, signature and body,
+    /// compared token by token with literals exactly as written ([`tokens`]).
+    const COMMAND: &str = r##"        /// A quit or a close of the main window, delivered by the route a person's takes.
+        ///
+        /// - `"quit"` calls `request_quit`, the function the SWBPIPE › Quit SWBPIPE menu click calls, and then returns
+        ///   `Ok(())`; it has no error of its own. Where the main web view is missing or the close request cannot be
+        ///   dispatched to it, `request_close`'s own fallback applies, as it does for the menu click: the request proceeds
+        ///   without a prompt.
+        /// - `"window"` asks the main window to close, so its close-requested handler runs. Only this arm returns
+        ///   `NATIVE-WINDOW-UNAVAILABLE`, when there is no main window.
+        /// - Any other kind returns `NATIVE-CLOSE-KIND-UNKNOWN`.
+        ///
+        /// Either request meets the unsaved-changes guard (`close_guard.rs`). The prompt is shown and answered in the page
+        /// only where the web view acknowledges the request and its state needs a prompt; an attempt the web view does not
+        /// acknowledge in time proceeds without one. This command answers no prompt, abandons no request and exits nothing
+        /// of its own. Where the app then exits, the caller may never see the reply.
+        #[tauri::command]
+        pub fn native_smoke_request_close(app: AppHandle, kind: String) -> Result<(), String> {
+            match kind.as_str() {
+                "quit" => {
+                    crate::request_quit(&app);
+                    Ok(())
+                }
+                "window" => {
+                    let window = app.get_webview_window("main").ok_or_else(|| "NATIVE-WINDOW-UNAVAILABLE: main webview is not installed".to_string())?;
+                    window.close().map_err(|error| error.to_string())
+                }
+                other => Err(format!("NATIVE-CLOSE-KIND-UNKNOWN: {other:?}; the kind is \"quit\" or \"window\"")),
+            }
+        }"##;
+
+    /// Identifiers the command must not name: it answers no prompt, abandons no request and exits nothing of its own.
+    /// The denylist walks only the command's own body; a helper the command called would not be read. What closes that
+    /// is the exact comparison with [`COMMAND`]: the item can call nothing but what that text calls.
+    const REFUSED: [&str; 18] = [
+        "exit", "process", "destroy", "eval", "finish_close", "request_close", "resolve", "resolve_close_request", "acknowledge", "acknowledge_close_request",
+        "acknowledgement_deadline", "abandon_to_proceed", "CloseGuard", "CloseDecision", "state", "try_state", "emit", "prevent_close",
+    ];
+
+    /// What is wrong with the command in `native_smoke` (the text of `native_smoke.rs`): empty when the whole item is,
+    /// token by token, [`COMMAND`], and its body names nothing on [`REFUSED`].
+    fn command_problems(native_smoke: &str) -> Vec<String> {
+        let file = syn::parse_file(native_smoke).unwrap();
+        let Some(command) = top_fn(&file, "native_smoke_request_close") else { return vec!["no fn native_smoke_request_close".into()] };
+        let mut problems = Vec::new();
+        let found = item_text(native_smoke, command);
+        if tokens(&found) != tokens(COMMAND) {
+            problems.push(format!("the command differs from its reviewed text: {found}"));
+        }
+        let mut read = Read::default();
+        read.visit_block(&command.block);
+        problems.extend(REFUSED.iter().filter(|refused| read.idents.iter().any(|ident| ident == *refused)).map(|refused| format!("the command names {refused}")));
+        problems
+    }
+
+    /// Every place `request_quit` is named outside test-only items, in any file of `files`: as an identifier anywhere
+    /// in the code (a call, a path, a function pointer, an import) or inside macro tokens at any depth. Returns (the
+    /// allowed sites found, each by its name, and every other occurrence as `file:line:column`). The allowed sites
+    /// are three: the `fn request_quit` definition in `lib.rs`, the call in the menu event's Quit branch in `lib.rs`,
+    /// and the `"quit"` arm of `native_smoke_request_close` in `native_smoke.rs`.
+    fn request_quit_uses(files: &[(String, String)]) -> (Vec<String>, Vec<String>) {
+        type At = proc_macro2::LineColumn;
+        #[derive(Default)]
+        struct Uses {
+            at: Vec<At>,
+        }
+        fn macro_uses(stream: proc_macro2::TokenStream, at: &mut Vec<At>) {
+            for token in stream {
+                match token {
+                    proc_macro2::TokenTree::Ident(ident) if ident == "request_quit" => at.push(ident.span().start()),
+                    proc_macro2::TokenTree::Group(group) => macro_uses(group.stream(), at),
+                    _ => {}
+                }
+            }
+        }
+        impl<'ast> Visit<'ast> for Uses {
+            fn visit_item(&mut self, node: &'ast syn::Item) {
+                let attrs: &[syn::Attribute] = match node {
+                    syn::Item::Const(item) => &item.attrs,
+                    syn::Item::Enum(item) => &item.attrs,
+                    syn::Item::Fn(item) => &item.attrs,
+                    syn::Item::Impl(item) => &item.attrs,
+                    syn::Item::Macro(item) => &item.attrs,
+                    syn::Item::Mod(item) => &item.attrs,
+                    syn::Item::Static(item) => &item.attrs,
+                    syn::Item::Struct(item) => &item.attrs,
+                    syn::Item::Trait(item) => &item.attrs,
+                    syn::Item::Type(item) => &item.attrs,
+                    syn::Item::Use(item) => &item.attrs,
+                    _ => &[],
+                };
+                let test_only = attrs.iter().any(|attr| attr.path().is_ident("cfg") && matches!(&attr.meta, syn::Meta::List(list) if list.tokens.to_string() == "test"));
+                if !test_only {
+                    visit::visit_item(self, node);
+                }
+            }
+            fn visit_ident(&mut self, node: &'ast proc_macro2::Ident) {
+                if node == "request_quit" {
+                    self.at.push(node.span().start());
+                }
+            }
+            fn visit_macro(&mut self, node: &'ast syn::Macro) {
+                macro_uses(node.tokens.clone(), &mut self.at);
+                visit::visit_macro(self, node);
+            }
+        }
+        let within = |at: At, open: At, close: At| (open.line, open.column) <= (at.line, at.column) && (at.line, at.column) < (close.line, close.column);
+        let mut allowed = Vec::new();
+        let mut other = Vec::new();
+        for (name, text) in files {
+            let file = syn::parse_file(text).unwrap_or_else(|error| panic!("{name} does not parse: {error}"));
+            let mut uses = Uses::default();
+            uses.visit_file(&file);
+            // The allowed sites of this file, by name and span.
+            let mut sites: Vec<(&str, At, At)> = Vec::new();
+            if name == "lib.rs" {
+                if let Some(function) = top_fn(&file, "request_quit") {
+                    let ident = function.sig.ident.span();
+                    sites.push(("lib.rs definition", ident.start(), ident.end()));
+                }
+                let mut read = Read::default();
+                read.visit_file(&file);
+                if let Some((_, open, close)) = read.quit_branch {
+                    sites.push(("lib.rs menu Quit branch", open, close));
+                }
+            }
+            if name == "native_smoke.rs" {
+                if let Some(command) = top_fn(&file, "native_smoke_request_close") {
+                    for statement in &command.block.stmts {
+                        if let syn::Stmt::Expr(syn::Expr::Match(matched), _) = statement {
+                            for arm in &matched.arms {
+                                let quit = matches!(&arm.pat, syn::Pat::Lit(pattern) if matches!(&pattern.lit, syn::Lit::Str(literal) if literal.value() == "quit"));
+                                if let (true, syn::Expr::Block(block)) = (quit, &*arm.body) {
+                                    let braces = block.block.brace_token.span;
+                                    sites.push(("native_smoke.rs quit arm", braces.open().start(), braces.close().end()));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            for at in uses.at {
+                match sites.iter().find(|(_, open, close)| within(at, *open, *close)) {
+                    Some((site, _, _)) => allowed.push(site.to_string()),
+                    None => other.push(format!("{name}:{}:{}", at.line, at.column + 1)),
+                }
+            }
+        }
+        allowed.sort();
+        (allowed, other)
+    }
+
+    /// Where `lib` (the text of `lib.rs`) names the command: (inside an `app_invoke_handler!` in a `let` gated exactly
+    /// on the native-smoke feature, anywhere else in its code).
+    fn command_naming(lib: &str) -> (usize, usize) {
+        #[derive(Default)]
+        struct Named {
+            depth: usize,
+            gated: usize,
+            other: usize,
+        }
+        impl<'ast> Visit<'ast> for Named {
+            fn visit_local(&mut self, node: &'ast syn::Local) {
+                let gate = node.attrs.iter().any(|attr| {
+                    attr.path().is_ident("cfg") && matches!(&attr.meta, syn::Meta::List(list) if list.tokens.to_string() == "feature = \"native-smoke\"")
+                });
+                self.depth += usize::from(gate);
+                visit::visit_local(self, node);
+                self.depth -= usize::from(gate);
+            }
+            fn visit_ident(&mut self, node: &'ast proc_macro2::Ident) {
+                if node == "native_smoke_request_close" {
+                    self.other += 1;
+                }
+            }
+            fn visit_macro(&mut self, node: &'ast syn::Macro) {
+                let mut idents = Vec::new();
+                macro_idents(node.tokens.clone(), &mut idents);
+                let named = idents.iter().filter(|ident| *ident == "native_smoke_request_close").count();
+                if self.depth > 0 && node.path.is_ident("app_invoke_handler") {
+                    self.gated += named;
+                } else {
+                    self.other += named;
+                }
+                visit::visit_macro(self, node);
+            }
+        }
+        let mut named = Named::default();
+        named.visit_file(&syn::parse_file(lib).unwrap());
+        (named.gated, named.other)
+    }
+
+    #[test]
+    fn the_menu_clicks_quit_branch_calls_request_quit_whose_body_is_the_two_moved_lines() {
+        let lib = source("lib.rs");
+        let file = syn::parse_file(&lib).unwrap();
+        assert_eq!(body(&lib, top_fn(&file, "request_quit").expect("fn request_quit")), "{ifrequest_close(app,close_guard::CloseKind::Quit){app.exit(0);}}");
+        let mut read = Read::default();
+        read.visit_file(&file);
+        let (condition_start, open, close) = read.quit_branch.expect("on_menu_event begins with its Quit branch");
+        assert_eq!(between(&lib, condition_start, open), "event.id().0==QUIT_MENU_ID");
+        assert_eq!(between(&lib, open, close), "{request_quit(app);return;}");
+        // The window's own close-requested handler: a close is held unless request_close approves it.
+        assert!(lib.contains("if window.label() == \"main\" && !request_close(window.app_handle(), close_guard::CloseKind::Window) {\n                    api.prevent_close();"));
+    }
+
+    #[test]
+    fn the_command_is_exactly_its_reviewed_text() {
+        let smoke = source("native_smoke.rs");
+        assert_eq!(command_problems(&smoke), Vec::<String>::new());
+        // One extra statement in the quit arm.
+        let added = smoke.replacen("crate::request_quit(&app);\n", "crate::request_quit(&app);\n            helper(&app);\n", 1);
+        assert_ne!(added, smoke);
+        assert!(command_problems(&added).iter().any(|problem| problem.starts_with("the command differs")));
+        // The other arm changed to answer the guard.
+        let other: String = smoke
+            .lines()
+            .map(|line| if line.trim_start().starts_with("other => Err(format!(\"NATIVE-CLOSE-KIND-UNKNOWN") { "        other => { crate::finish_close(&app, crate::close_guard::CloseKind::Quit); Err(other.to_string()) }" } else { line })
+            .collect::<Vec<_>>()
+            .join("\n");
+        assert_ne!(normalized(&other), normalized(&smoke));
+        let problems = command_problems(&other);
+        assert!(problems.iter().any(|problem| problem.starts_with("the command differs")) && problems.contains(&"the command names finish_close".to_string()), "{problems:?}");
+        // The signature changed.
+        let signature = smoke.replacen("pub fn native_smoke_request_close(app: AppHandle, kind: String)", "pub fn native_smoke_request_close(app: AppHandle, kind: String, proceed: bool)", 1);
+        assert_ne!(signature, smoke);
+        assert!(command_problems(&signature).iter().any(|problem| problem.starts_with("the command differs")));
+        // A string literal changed by one space.
+        let literal = smoke.replacen("app.get_webview_window(\"main\")", "app.get_webview_window(\"main \")", 1);
+        assert_ne!(literal, smoke);
+        assert!(command_problems(&literal).iter().any(|problem| problem.starts_with("the command differs")));
+        // A qualifier added to the signature.
+        let qualified = smoke.replacen("pub fn native_smoke_request_close(", "pub async fn native_smoke_request_close(", 1);
+        assert_ne!(qualified, smoke);
+        assert!(command_problems(&qualified).iter().any(|problem| problem.starts_with("the command differs")));
+        // The attribute removed.
+        let unattributed = smoke.replacen("#[tauri::command]\npub fn native_smoke_request_close(", "pub fn native_smoke_request_close(", 1);
+        assert_ne!(unattributed, smoke);
+        assert!(command_problems(&unattributed).iter().any(|problem| problem.starts_with("the command differs")));
+    }
+
+    #[test]
+    fn macro_tokens_are_read_inside_their_groups() {
+        let file = syn::parse_file("fn f() { m!(a, (b, [{ exit(0) }])); }").unwrap();
+        let mut read = Read::default();
+        read.visit_file(&file);
+        assert!(read.idents.iter().any(|ident| ident == "exit"), "{:?}", read.idents);
+    }
+
+    #[test]
+    fn request_quit_is_named_only_at_its_definition_the_menu_branch_and_the_commands_quit_arm() {
+        let files = crate_sources();
+        let (allowed, other) = request_quit_uses(&files);
+        assert_eq!(allowed, ["lib.rs definition", "lib.rs menu Quit branch", "native_smoke.rs quit arm"]);
+        assert_eq!(other, Vec::<String>::new());
+        // A call, a function pointer and a macro argument in a third file, at any depth of the tree, are each found.
+        for sample in [
+            "fn f(app: &tauri::AppHandle) { crate::request_quit(app); }",
+            "fn f() { let quit = crate::request_quit::<tauri::Wry>; drop(quit); }",
+            "fn f() { some_macro!(request_quit); }",
+            "fn f() { some_macro!(a, (b, [crate::request_quit])); }",
+        ] {
+            let mut with = files.clone();
+            with.push(("embedded_agent/sample.rs".to_string(), sample.to_string()));
+            let (allowed, other) = request_quit_uses(&with);
+            assert_eq!(allowed.len(), 3, "{sample}");
+            assert_eq!(other.len(), 1, "{sample}: {other:?}");
+            assert!(other[0].starts_with("embedded_agent/sample.rs:1:"), "{sample}: {other:?}");
+        }
+        // A second use beside an allowed site, in lib.rs itself, is found too.
+        let lib = files.iter().find(|(name, _)| name == "lib.rs").unwrap().1.clone();
+        let extra = lib.replacen("fn request_quit<", "fn quit_pointer() { let _ = request_quit::<tauri::Wry>; }\nfn request_quit<", 1);
+        assert_ne!(extra, lib);
+        let with: Vec<(String, String)> = files.iter().map(|(name, text)| (name.clone(), if name == "lib.rs" { extra.clone() } else { text.clone() })).collect();
+        assert_eq!(request_quit_uses(&with).1.len(), 1);
+    }
+
+    #[test]
+    fn the_command_is_named_only_in_the_scripted_run_builds_invoke_handler_list() {
+        let lib = source("lib.rs");
+        assert!(lib.contains("#[cfg(feature = \"native-smoke\")]\nmod native_smoke;\n"), "the module is compiled only into the scripted-run build");
+        assert_eq!(command_naming(&lib), (1, 0));
+        // Gated, but in another macro; and in app_invoke_handler, but ungated.
+        assert_eq!(command_naming("fn run() { #[cfg(feature = \"native-smoke\")] let b = other!(native_smoke::native_smoke_request_close); }"), (0, 1));
+        assert_eq!(command_naming("fn run() { let b = app_invoke_handler!(native_smoke::native_smoke_request_close); }"), (0, 1));
+        // No other source of the crate names it but the module that defines it and lib.rs.
+        let naming: Vec<String> = crate_sources().into_iter().filter(|(_, text)| text.contains("native_smoke_request_close")).map(|(name, _)| name).collect::<std::collections::BTreeSet<_>>().into_iter().collect();
+        assert_eq!(naming, ["lib.rs", "native_smoke.rs"]);
+    }
+
+    /// The close guard's own states, driven directly, for a quit and a window request; the two answers are the ones
+    /// the web view gives: keep open (`resolve(.., false)`, as after Cancel in the unsaved-changes prompt) and proceed
+    /// (`resolve(.., true)`, as with no unsaved edits or after Discard). A first request is asked, never approved; an
+    /// acknowledged attempt has no deadline; a repeat is a new attempt of the held request; keeping open proceeds
+    /// nothing and the next request is asked again; proceeding returns the request's kind, after which a request
+    /// proceeds without asking.
+    #[test]
+    fn the_guard_asks_a_first_quit_or_window_request_and_proceeds_only_once_it_is_resolved_to() {
+        for kind in [CloseKind::Quit, CloseKind::Window] {
+            let guard = CloseGuard::default();
+            let CloseDecision::Ask { request_id, attempt, kind: asked } = guard.request(kind) else { panic!("a first request is asked") };
+            assert_eq!(asked, kind);
+            assert!(guard.acknowledge(request_id, attempt));
+            assert_eq!(guard.acknowledgement_deadline(request_id, attempt), None, "an acknowledged attempt has no deadline");
+            let CloseDecision::Ask { request_id: same, attempt: again, .. } = guard.request(CloseKind::Quit) else { panic!("the request is held") };
+            assert_eq!((same, again), (request_id, attempt + 1));
+            assert!(guard.acknowledge(request_id, again));
+            assert_eq!(guard.resolve(request_id, false), None);
+            assert!(matches!(guard.request(kind), CloseDecision::Ask { .. }));
+
+            let guard = CloseGuard::default();
+            let CloseDecision::Ask { request_id, attempt, .. } = guard.request(kind) else { panic!("a first request is asked") };
+            assert!(guard.acknowledge(request_id, attempt));
+            assert_eq!(guard.resolve(request_id, true), Some(kind));
+            assert_eq!(guard.request(kind), CloseDecision::Proceed);
+        }
     }
 }
 

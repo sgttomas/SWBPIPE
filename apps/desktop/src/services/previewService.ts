@@ -5,9 +5,7 @@ import { hasCurrentSourceContract, readerValidate, rememberReceivedText, sourceC
 import { registerSourceRecovery, sameModelData } from '../features/results/resultStanding';
 import { registerRetainedPrecision } from '../features/results/retainedPrecisionStanding';
 import { invoke } from "@tauri-apps/api/core";
-import { invokeWithIngress } from "./nativeIngress";
 import type {
-  AgentProposal,
   AnalysisRunEnvelope,
   CanonicalResultDimension,
   DesignKnowledge,
@@ -16,7 +14,6 @@ import type {
   PreviewModel,
   PreviewComparison,
   ResourceRefusal,
-  SelectedReviewTarget,
   SolveResourceGrant,
   StoredResultWithheld,
 } from "../types";
@@ -1264,29 +1261,6 @@ function safeComparisonToken(value: string): string {
   );
 }
 
-export async function loadSampleProposal(
-  mechanicsResult?: MechanicsResult | null,
-  selectedTarget?: SelectedReviewTarget | null,
-): Promise<AgentProposal> {
-  if (typeof window !== "undefined" && "__TAURI_INTERNALS__" in window) {
-    try {
-      return (
-        await invokeWithIngress<{ proposal: AgentProposal }>("sample_agent_proposal", {
-          mechanicsResult,
-          selectedTarget,
-        })
-      ).proposal;
-    } catch {
-      // Fall through to the local fixture-backed proposal below.
-    }
-  }
-  return buildProposalFromMechanics(
-    mechanicsResult ?? (await loadMechanicsFixture()),
-    await loadAgentProposalFixture(),
-    selectedTarget,
-  );
-}
-
 /** The default session model and the model of the bundled reference results:
  * the valid demo, the invented loop without the retired legacy pressure
  * primitives and the refused expansion joint, which the product solves. */
@@ -1409,12 +1383,6 @@ async function browserSolveUnavailable(model?: PreviewModel | null): Promise<Err
   return new Error(BROWSER_REFERENCE_SOLVE_DIAGNOSTIC);
 }
 
-async function loadAgentProposalFixture(): Promise<AgentProposal> {
-  return (
-    await import("../../../../fixtures/product_preview/invented_agent_proposal.json")
-  ).default as AgentProposal;
-}
-
 function ref(objectType: string, value: string): ObjectRef {
   return { object_type: objectType, ref: value };
 }
@@ -1490,59 +1458,4 @@ async function sha256(payload: string): Promise<string> {
     hash = (hash * 33) ^ payload.charCodeAt(index);
   }
   return `sha256-unavailable-${(hash >>> 0).toString(16).padStart(8, "0")}`;
-}
-
-function buildProposalFromMechanics(
-  result: MechanicsResult,
-  agentProposalFixture: AgentProposal,
-  selectedTarget?: SelectedReviewTarget | null,
-): AgentProposal {
-  const forceResult =
-    result.results.find(
-      (item) => item.id === "result:force:pipe-P-120:axial",
-    ) ??
-    result.results.find((item) => item.kind === "element_local_axial_force");
-  const primaryDiagnostic =
-    result.diagnostics.find(
-      (item) => item.severity === "warning" || item.severity === "blocking",
-    ) ?? result.diagnostics[0];
-  const targetRef =
-    selectedTarget?.id ??
-    forceResult?.id ??
-    primaryDiagnostic?.id ??
-    primaryDiagnostic?.affected_refs?.[0] ??
-    result.summary.max_displacement?.result_ref ??
-    result.results[0]?.id ??
-    "diagnostic:physics:context-unavailable";
-  const targetKind =
-    selectedTarget?.target_type.replaceAll("_", " ") ?? "computed mechanics";
-
-  return {
-    ...agentProposalFixture,
-    proposal_id: "proposal:physics-diagnostic-review",
-    prompt:
-      "Review current computed mechanics diagnostics and suggest a non-mutating follow-up.",
-    operation: {
-      ...agentProposalFixture.operation,
-      operation_id: "op:review-computed-diagnostic",
-      operation_kind: "attach_design_knowledge",
-      affected_entity_ids: [targetRef],
-      changes: [
-        {
-          change_id: "change:add-review-note",
-          change_kind: "attach_design_knowledge",
-          target_ref: targetRef,
-          before: `No review note attached for the selected ${targetKind} context.`,
-          after: `Attach review note referencing the current computed preview ${targetKind} context.`,
-        },
-      ],
-    },
-    rationale: `Generated from current preview mechanics context; selected review reference is ${targetRef}. This narrative is review-only and does not mutate accepted model state.`,
-    validation: {
-      ...agentProposalFixture.validation,
-      unit_validation: "not_required_metadata_review_only",
-      constraint_validation: "warning_computed_context_requires_human_review",
-      diff_preview_status: "generated_from_computed_context",
-    },
-  };
 }
