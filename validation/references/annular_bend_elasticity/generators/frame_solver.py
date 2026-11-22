@@ -47,8 +47,9 @@ Options of `solve` (keyword only; the command line takes the same names with das
   quad            Gauss points along an arc (default 48)
 
 Supported models (anything else is refused with ValueError, never solved approximately)
-  - pressure-free models only: a model with a pressure_contract, pressure_regions on a load case, a load
-    category naming pressure, or any pressure setting (such as pressure elongation) in model_settings is refused;
+  - pressure-free models only: a model with a pressure_contract, a load case with any member naming pressure (such
+    as its pressure regions), a load category naming pressure, or any pressure setting (such as pressure
+    elongation) in model_settings is refused;
   - every material states shear_modulus explicitly (G is never derived from poisson_ratio);
   - supports: family "anchor", "rigid", "guide", "stop", "restraint" or none, each holding its listed
     restraints rigidly; "spring" (one stiffness on one dof); or any support with "stiffness6". Other families,
@@ -437,8 +438,9 @@ def refuse_unsupported(model):
         if "pressure" in k:
             raise ValueError(f"model_settings.{k}: pressure settings are not supported")
     for lc in model["load_cases"]:
-        if "pressure_regions" in lc:
-            raise ValueError(f"load case {lc['id']}: pressure_regions are not supported")
+        for k in lc:
+            if "pressure" in k:
+                raise ValueError(f"load case {lc['id']}: {k}: pressure is not supported")
         for ld in lc["primitive_loads"]:
             if "pressure" in ld["category"] or ld["category"] not in LOAD_CATEGORIES:
                 raise ValueError(f"load case {lc['id']}: load category {ld['category']!r} not supported")
