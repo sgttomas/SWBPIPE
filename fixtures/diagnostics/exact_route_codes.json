@@ -730,13 +730,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/hydrostatic.rs",
-    "line": 476,
+    "line": 493,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/hydrostatic.rs",
-     "line": 476,
+     "line": 493,
      "via": "diag()",
      "severity": "blocking",
      "through": [
@@ -6646,7 +6646,7 @@
     },
     {
      "file": "core/product_physics/src/hydrostatic.rs",
-     "line": 282,
+     "line": 299,
      "via": "case_diag()",
      "severity": "blocking",
      "through": [
@@ -6675,13 +6675,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/hydrostatic.rs",
-    "line": 343,
+    "line": 360,
     "via": "case_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/hydrostatic.rs",
-     "line": 343,
+     "line": 360,
      "via": "case_diag()",
      "severity": "blocking",
      "through": [
@@ -6690,7 +6690,7 @@
     },
     {
      "file": "core/product_physics/src/hydrostatic.rs",
-     "line": 356,
+     "line": 373,
      "via": "case_diag()",
      "severity": "blocking",
      "through": [
@@ -6699,7 +6699,7 @@
     },
     {
      "file": "core/product_physics/src/hydrostatic.rs",
-     "line": 363,
+     "line": 380,
      "via": "case_diag()",
      "severity": "blocking",
      "through": [
@@ -6708,7 +6708,7 @@
     },
     {
      "file": "core/product_physics/src/hydrostatic.rs",
-     "line": 371,
+     "line": 388,
      "via": "case_diag()",
      "severity": "blocking",
      "through": [
@@ -6717,7 +6717,7 @@
     },
     {
      "file": "core/product_physics/src/hydrostatic.rs",
-     "line": 425,
+     "line": 442,
      "via": "case_diag()",
      "severity": "blocking",
      "through": [
@@ -6747,13 +6747,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/hydrostatic.rs",
-    "line": 327,
+    "line": 344,
     "via": "case_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/hydrostatic.rs",
-     "line": 327,
+     "line": 344,
      "via": "case_diag()",
      "severity": "blocking",
      "through": [
@@ -6780,13 +6780,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/hydrostatic.rs",
-    "line": 152,
+    "line": 169,
     "via": "case_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/hydrostatic.rs",
-     "line": 152,
+     "line": 169,
      "via": "case_diag()",
      "severity": "blocking",
      "through": [
@@ -6813,13 +6813,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/hydrostatic.rs",
-    "line": 307,
+    "line": 324,
     "via": "case_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/hydrostatic.rs",
-     "line": 307,
+     "line": 324,
      "via": "case_diag()",
      "severity": "blocking",
      "through": [
@@ -6828,7 +6828,7 @@
     },
     {
      "file": "core/product_physics/src/hydrostatic.rs",
-     "line": 318,
+     "line": 335,
      "via": "case_diag()",
      "severity": "blocking",
      "through": [
@@ -6856,13 +6856,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/hydrostatic.rs",
-    "line": 164,
+    "line": 181,
     "via": "case_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/hydrostatic.rs",
-     "line": 164,
+     "line": 181,
      "via": "case_diag()",
      "severity": "blocking",
      "through": [
@@ -6889,13 +6889,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/hydrostatic.rs",
-    "line": 133,
+    "line": 135,
     "via": "case_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/hydrostatic.rs",
-     "line": 133,
+     "line": 135,
      "via": "case_diag()",
      "severity": "blocking",
      "through": [
@@ -6904,7 +6904,25 @@
     },
     {
      "file": "core/product_physics/src/hydrostatic.rs",
-     "line": 140,
+     "line": 141,
+     "via": "case_diag()",
+     "severity": "blocking",
+     "through": [
+      "const LOAD_CASE_TEST_HELD_SUPPORT_UNFORMED (core/product_physics/src/hydrostatic.rs:46)"
+     ]
+    },
+    {
+     "file": "core/product_physics/src/hydrostatic.rs",
+     "line": 150,
+     "via": "case_diag()",
+     "severity": "blocking",
+     "through": [
+      "const LOAD_CASE_TEST_HELD_SUPPORT_UNFORMED (core/product_physics/src/hydrostatic.rs:46)"
+     ]
+    },
+    {
+     "file": "core/product_physics/src/hydrostatic.rs",
+     "line": 157,
      "via": "case_diag()",
      "severity": "blocking",
      "through": [
@@ -6914,6 +6932,8 @@
    ],
    "messages": [
     "held support `{}` names node `{}`, which the model does not have, so its position from the authored geometry is not determined",
+    "held support `{}` also carries a nonlinear action on the same record, which its rigid replacement would drop; author the spring or constant-effort support and the nonlinear support as separate records",
+    "held support `{}` acts on {} and also restrains {}, which its rigid replacement on {} would drop; author that restraint as a separate support record",
     "held support `{}` cannot be replaced by a rigid restraint: {reason}"
    ],
    "classification": "input_error",
@@ -14259,13 +14279,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/hydrostatic.rs",
-    "line": 391,
+    "line": 408,
     "via": "case_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/hydrostatic.rs",
-     "line": 391,
+     "line": 408,
      "via": "case_diag()",
      "severity": "blocking",
      "through": [
@@ -14388,13 +14408,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/hydrostatic.rs",
-    "line": 384,
+    "line": 401,
     "via": "case_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/hydrostatic.rs",
-     "line": 384,
+     "line": 401,
      "via": "case_diag()",
      "severity": "blocking",
      "through": [
@@ -14527,13 +14547,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/hydrostatic.rs",
-    "line": 397,
+    "line": 414,
     "via": "case_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/hydrostatic.rs",
-     "line": 397,
+     "line": 414,
      "via": "case_diag()",
      "severity": "blocking",
      "through": [
@@ -19711,13 +19731,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/hydrostatic.rs",
-    "line": 664,
+    "line": 681,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/hydrostatic.rs",
-     "line": 664,
+     "line": 681,
      "via": "diag()",
      "severity": "blocking"
     },

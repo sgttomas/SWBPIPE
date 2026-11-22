@@ -143,6 +143,15 @@ def _held_test_none(envelope: dict, model: dict) -> None:
     _mark(envelope)["held_support_refs"] = []
 
 
+def _held_spring_made_nonlinear(envelope: dict, model: dict) -> None:
+    """The model's held spring given a nonlinear action on the same record: the solve refuses such a record
+    (LOAD_CASE_TEST_HELD_SUPPORT_UNFORMED), so no mark of a case holding it is ever published; neither reader
+    leaves it out of the held set and admits the mark."""
+    support = next(s for s in model["supports"] if s["id"] == "support:b")
+    support["nonlinear"] = {"behavior": "gap", "dof": "UY", "initial_state": "inactive", "closes_when": "positive_displacement",
+                            "gap": {"value": 1.0, "unit": "m"}}
+
+
 def _ordinary_row_dropped(envelope: dict, model: dict) -> None:
     envelope["results"] = [r for r in envelope["results"]
                            if not (r["kind"] == APPLIED_LOAD and r.get("basis_ref", {}).get("ref_id") == ORDINARY)]
@@ -165,6 +174,8 @@ FORGERIES = [
      lambda e, m: _mark(e)["held_support_refs"].pop(), "SOURCE_PHYSICS_MODEL_TEST_HELD_SUPPORTS", None),
     ("a held reference added", "journey",
      lambda e, m: _mark(e)["held_support_refs"].append("support:a"), "SOURCE_PHYSICS_MODEL_TEST_HELD_SUPPORTS", None),
+    ("a held spring that also carries a nonlinear action", "journey",
+     _held_spring_made_nonlinear, "SOURCE_PHYSICS_MODEL_TEST_HELD_SUPPORTS", None),
     ("a resolution item dropped", "journey",
      lambda e, m: _mark(e)["contents_resolution"].pop(), "SOURCE_PHYSICS_MODEL_TEST_CONTENTS", None),
     ("a density changed", "journey",

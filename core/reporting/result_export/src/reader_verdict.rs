@@ -317,10 +317,12 @@ const GENERATED_SELF_WEIGHT_METHOD: &str = "pipe_mass_per_length_times_explicit_
 
 /// Whether a model support is of a family a hydrostatic test case holds, by
 /// DEL-05-01 REQ-014 and DEL-04-07 REQ-011 ("each spring, variable spring and
-/// constant-effort support"), as the record states it: linear (no `nonlinear`
-/// member), not a snubber, and a `spring`, or a support whose hanger type (the
+/// constant-effort support"), as the record states it, whatever else it
+/// carries: not a snubber, and a `spring`, or a support whose hanger type (the
 /// hanger's non-blank `hanger_type`, otherwise its family, trimmed) is
-/// `variable_spring_hanger`, `spring_hanger` or `constant_effort_support`.
+/// `variable_spring_hanger`, `spring_hanger` or `constant_effort_support`. A
+/// held record that also carries a `nonlinear` member is one the solve refuses
+/// (`LOAD_CASE_TEST_HELD_SUPPORT_UNFORMED`), so it is never left out of the set.
 fn held_family(support: &Value) -> bool {
     let family = support["family"].as_str();
     let hanger_type = support["hanger"]["hanger_type"]
@@ -328,8 +330,7 @@ fn held_family(support: &Value) -> bool {
         .map(str::trim)
         .filter(|value| !value.is_empty())
         .or_else(|| family.map(str::trim));
-    support.get("nonlinear").is_none_or(Value::is_null)
-        && family != Some("snubber")
+    family != Some("snubber")
         && (family == Some("spring")
             || matches!(hanger_type, Some("variable_spring_hanger" | "spring_hanger" | "constant_effort_support")))
 }
@@ -392,6 +393,14 @@ fn test_condition_model_binding(source: &Value, model: &Value) -> Result<(), Str
         }
         if mark["kind"] != test["kind"] || mark["held_supports"] != test["held_supports"] {
             return fail(PRESENCE);
+        }
+        // A held record that also carries a nonlinear action is refused by the
+        // solve, so no mark of a case holding it can be published.
+        let supports = model["supports"].as_array().map(Vec::as_slice).unwrap_or(&[]);
+        if mark["held_supports"] == "springs_and_constant_effort"
+            && supports.iter().any(|support| held_family(support) && !support["nonlinear"].is_null())
+        {
+            return fail(HELD);
         }
         let held = held_supports(model, declared);
         let refs: Vec<&str> = mark["held_support_refs"].as_array().map(Vec::as_slice).unwrap_or(&[]).iter().filter_map(Value::as_str).collect();

@@ -763,6 +763,62 @@ fn each_refusal_is_raised_by_name_with_no_result() {
     }
 }
 
+/// The four-span reference document with one case of reference `case_id`.
+fn four_span_with(case_id: &str) -> Value {
+    let docs = documents();
+    let mut model = docs["DOC-4S"].0.clone();
+    model["load_cases"] = json!([model["load_cases"].as_array().unwrap().iter().find(|c| c["id"] == case_id).unwrap().clone()]);
+    model
+}
+
+/// A gap on UY, open by far more than the case moves, so its law is solved
+/// and its state published while it carries nothing.
+fn uy_gap() -> Value {
+    json!({"behavior": "gap", "dof": "UY", "initial_state": "inactive", "closes_when": "positive_displacement", "gap": qv(1.0, "m")})
+}
+
+/// A held spring record that also carries a nonlinear action, or restrains a
+/// second degree of freedom, is refused by name with no result: its rigid
+/// replacement on the acted degree of freedom would drop the rest of the
+/// record. The same actions on separate records solve, the spring held and
+/// the nonlinear law solved; the mixed record under `held_supports: none`
+/// holds nothing and solves.
+#[test]
+fn a_held_record_with_another_action_is_refused_and_separate_records_solve() {
+    let mut mixed = four_span_with("HT-4S-TEST-HELD");
+    mixed["supports"].as_array_mut().unwrap().iter_mut().find(|s| s["id"] == "support:b").unwrap()["nonlinear"] = uy_gap();
+    refused(&mixed, "LOAD_CASE_TEST_HELD_SUPPORT_UNFORMED", "a held spring record with a nonlinear action");
+    for mode in MODES {
+        let out = run(&mixed, mode);
+        assert!(out["diagnostics"].as_array().unwrap().iter().any(|d| d["code"] == "LOAD_CASE_TEST_HELD_SUPPORT_UNFORMED"
+            && d["affected_refs"].as_array().unwrap().iter().any(|r| r == "support:b")), "{mode:?}: support:b is named: {:?}", codes(&out));
+    }
+
+    let mut second = four_span_with("HT-4S-TEST-HELD");
+    second["supports"].as_array_mut().unwrap().iter_mut().find(|s| s["id"] == "support:b").unwrap()["restraints"] = json!(["UZ", "UY"]);
+    refused(&second, "LOAD_CASE_TEST_HELD_SUPPORT_UNFORMED", "a held spring record that also restrains UY");
+
+    let mut separate = four_span_with("HT-4S-TEST-HELD");
+    separate["supports"].as_array_mut().unwrap().push(json!({"id": "support:b-gap", "node": "node:b", "family": "nonlinear", "restraints": [],
+        "nonlinear": uy_gap(), "provenance": PROV}));
+    for mode in MODES {
+        let out = solved(&separate, mode, "separate spring and nonlinear records");
+        assert_eq!(nodal_uz(&out, "HT-4S-TEST-HELD", "node:b"), 0.0, "{mode:?}: the spring is held");
+        let held: Vec<&str> = exact_case(&out, "HT-4S-TEST-HELD")["test_condition"]["held_support_refs"].as_array().unwrap().iter()
+            .map(|h| h.as_str().unwrap()).collect();
+        assert!(held.contains(&"support:b") && !held.contains(&"support:b-gap"), "{mode:?}: held {held:?}");
+        assert_eq!(case_rows(&out, "HT-4S-TEST-HELD").filter(|row| row["kind"] == "nonlinear_support_active_set_state_code"
+            && row["entity_ref"] == "support:b-gap").count(), 1, "{mode:?}: the nonlinear law is solved and its state published");
+    }
+
+    let mut unheld = four_span_with("HT-4S-TEST-NONE");
+    unheld["supports"].as_array_mut().unwrap().iter_mut().find(|s| s["id"] == "support:b").unwrap()["nonlinear"] = uy_gap();
+    for mode in MODES {
+        let out = solved(&unheld, mode, "a mixed record under held_supports none");
+        assert_ne!(nodal_uz(&out, "HT-4S-TEST-NONE", "node:b"), 0.0, "{mode:?}: nothing is held");
+    }
+}
+
 // ------------------------------------------------------------------ the certificate
 
 /// A case's certificate as published: its numerical-quality record and its

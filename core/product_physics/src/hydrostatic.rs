@@ -80,10 +80,12 @@ fn case_diag(case: &str, suffix: &str, code: &'static str, message: String, refs
 }
 
 /// Whether a support is of a family a test case holds: a spring, a variable
-/// spring hanger or a constant-effort support, linear (no `nonlinear` member).
-pub(crate) fn is_holdable(support: &PreviewSupport) -> bool {
-    support.nonlinear.is_none()
-        && support.family.as_deref() != Some("snubber")
+/// spring hanger or a constant-effort support, not a snubber, whatever else
+/// its record carries. A held record that also carries a nonlinear action, or
+/// restrains another degree of freedom, is refused by [`held_set`] rather
+/// than left out, so the replacement never drops an action silently.
+pub(crate) fn is_holdable_family(support: &PreviewSupport) -> bool {
+    support.family.as_deref() != Some("snubber")
         && (support.family.as_deref() == Some("spring")
             || crate::is_variable_spring_hanger(support)
             || crate::is_constant_effort_support(support))
@@ -128,15 +130,30 @@ pub(crate) fn held_set(model: &PreviewModel, case: &str) -> (Vec<HeldSupport>, V
     let lead = |message: String| format!("hydrostatic test case `{case}`: {message}; nothing is solved");
     let named = |refs: Vec<String>| std::iter::once(case.to_string()).chain(refs).collect::<Vec<_>>();
     let nodes: HashSet<&str> = model.nodes.iter().map(|node| node.id.as_str()).collect();
-    for support in model.supports.iter().filter(|support| is_holdable(support)) {
+    for support in model.supports.iter().filter(|support| is_holdable_family(support)) {
         if !nodes.contains(support.node.as_str()) {
             refusals.push(case_diag(case, &format!("unformed:{}", stable_suffix(&support.id)), LOAD_CASE_TEST_HELD_SUPPORT_UNFORMED,
                 lead(format!("held support `{}` names node `{}`, which the model does not have, so its position from the authored geometry is not determined", support.id, support.node)),
                 named(vec![support.id.clone(), support.node.clone()])));
             continue;
         }
+        if support.nonlinear.is_some() {
+            refusals.push(case_diag(case, &format!("unformed:{}", stable_suffix(&support.id)), LOAD_CASE_TEST_HELD_SUPPORT_UNFORMED,
+                lead(format!("held support `{}` also carries a nonlinear action on the same record, which its rigid replacement would drop; author the spring or constant-effort support and the nonlinear support as separate records", support.id)),
+                named(vec![support.id.clone()])));
+            continue;
+        }
         match acted_dof(support) {
-            Ok(dof) => held.push(HeldSupport { support_id: support.id.clone(), node: support.node.clone(), dof }),
+            Ok(dof) => {
+                let other = support.restraints.iter().filter_map(|raw| crate::parse_dof(raw).ok()).find(|other| *other != dof);
+                if let Some(other) = other {
+                    refusals.push(case_diag(case, &format!("unformed:{}", stable_suffix(&support.id)), LOAD_CASE_TEST_HELD_SUPPORT_UNFORMED,
+                        lead(format!("held support `{}` acts on {} and also restrains {}, which its rigid replacement on {} would drop; author that restraint as a separate support record", support.id, crate::dof_name(dof), crate::dof_name(other), crate::dof_name(dof))),
+                        named(vec![support.id.clone()])));
+                    continue;
+                }
+                held.push(HeldSupport { support_id: support.id.clone(), node: support.node.clone(), dof })
+            }
             Err(reason) => refusals.push(case_diag(case, &format!("unformed:{}", stable_suffix(&support.id)), LOAD_CASE_TEST_HELD_SUPPORT_UNFORMED,
                 lead(format!("held support `{}` cannot be replaced by a rigid restraint: {reason}", support.id)),
                 named(vec![support.id.clone()]))),
@@ -156,7 +173,7 @@ pub(crate) fn held_set(model: &PreviewModel, case: &str) -> (Vec<HeldSupport>, V
         }
     }
     for support in &held {
-        for other in model.supports.iter().filter(|other| other.id != support.support_id && other.node == support.node && !is_holdable(other)) {
+        for other in model.supports.iter().filter(|other| other.id != support.support_id && other.node == support.node && !is_holdable_family(other)) {
             let rigid = other.family.as_deref() != Some("snubber")
                 && other.restraints.iter().any(|raw| crate::parse_dof(raw).ok() == Some(support.dof));
             let nonlinear = other.nonlinear.as_ref().is_some_and(|nonlinear| crate::parse_dof(&nonlinear.dof).ok() == Some(support.dof));

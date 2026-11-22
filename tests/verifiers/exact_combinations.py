@@ -934,7 +934,7 @@ def validate(source: Mapping[str, Any], table: Mapping[str, Any]) -> None:
 
 def _held_family(support: Any) -> bool:
     """Rust `reader_verdict::held_family`: a family a hydrostatic test case holds (DEL-05-01 REQ-014, DEL-04-07
-    REQ-011): linear, not a snubber, and a spring or a support whose hanger type (the hanger's non-blank hanger_type,
+    REQ-011), whatever else its record carries: not a snubber, and a spring or a support whose hanger type (the hanger's non-blank hanger_type,
     otherwise its family, trimmed) is variable_spring_hanger, spring_hanger or constant_effort_support."""
     if not isinstance(support, Mapping):
         return False
@@ -942,7 +942,7 @@ def _held_family(support: Any) -> bool:
     hanger = support.get("hanger") if isinstance(support.get("hanger"), Mapping) else {}
     declared = hanger.get("hanger_type")
     hanger_type = declared.strip() if isinstance(declared, str) and declared.strip() else (family.strip() if family is not None else None)
-    return (support.get("nonlinear") is None and family != "snubber"
+    return (family != "snubber"
             and (family == "spring" or hanger_type in ("variable_spring_hanger", "spring_hanger", "constant_effort_support")))
 
 

@@ -45,7 +45,7 @@ from typing import Any
 
 from . import compatibility as c
 from . import physics_source, preview_physics_evidence, pressure_3, section_basis as sb, source_blocks
-from .exact_combinations import held_supports
+from .exact_combinations import _held_family, held_supports
 
 ROUTES = ("pressure_source", "preview_physics", "pressure", "retained_preview_physics", "retained_physics")
 READERS = ("preview-physics", "pressure-source", "source-recovery", "pressure")
@@ -520,6 +520,11 @@ def _test_condition_model_binding(source: Mapping[str, Any], model: Mapping[str,
             continue
         if mark.get("kind") != test.get("kind") or mark.get("held_supports") != test.get("held_supports"):
             raise Refused("SOURCE_PHYSICS_MODEL_TEST_CONDITION")
+        # A held record that also carries a nonlinear action is refused by the solve, so no mark of a case holding it
+        # can be published.
+        if mark.get("held_supports") == "springs_and_constant_effort" and any(
+                _held_family(s) and s.get("nonlinear") is not None for s in listed(model.get("supports"))):
+            raise Refused("SOURCE_PHYSICS_MODEL_TEST_HELD_SUPPORTS")
         held = held_supports(model, declared)
         if [r for r in listed(mark.get("held_support_refs")) if isinstance(r, str)] != held:
             raise Refused("SOURCE_PHYSICS_MODEL_TEST_HELD_SUPPORTS")
