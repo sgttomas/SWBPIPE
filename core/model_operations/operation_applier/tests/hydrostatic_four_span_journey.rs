@@ -184,8 +184,8 @@ fn observe(out: &Value, row_id: &str) -> Vec<f64> {
     let component = component.to_ascii_uppercase();
     let found: Vec<f64> = case_rows(out).filter(|row| row["kind"] == "support_reaction_component_v2" && row["entity_ref"] == entity
         && row["metadata"]["component"].as_str().is_some_and(|c| c.eq_ignore_ascii_case(&component))).map(si).collect();
-    assert!(found.len() <= 1, "{entity} {component} published {} times", found.len());
-    vec![found.first().copied().unwrap_or(0.0)]
+    assert_eq!(found.len(), 1, "{entity} {component}: one reaction row, published {} times", found.len());
+    found
 }
 fn scale(row: &Value) -> f64 {
     let reference = reference();

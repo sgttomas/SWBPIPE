@@ -288,9 +288,23 @@ fn observe(out: &Value, case_id: &str, row_id: &str) -> Vec<f64> {
     if component == "uz" {
         return vec![nodal_uz(out, case_id, entity)];
     }
+    if component == "applied_force" {
+        // A support's applied force is its applied-load row; a support that
+        // applies none (held, or not a constant-effort support) publishes none.
+        let applied: Vec<f64> = case_rows(out, case_id)
+            .filter(|row| row["kind"] == "constant_effort_support_applied_load" && row["entity_ref"] == entity).map(si).collect();
+        assert!(applied.len() <= 1, "{case_id}: {entity} applied force published {} times", applied.len());
+        return vec![applied.first().copied().unwrap_or(0.0)];
+    }
+    // A reaction the reference states is published exactly once: a missing row
+    // is a failure, never a zero. `fz.replacement_only` is the same Fz reaction,
+    // as the replacement would report it were the support's own force still
+    // applied beside it.
+    let component = component.strip_suffix(".replacement_only").unwrap_or(component);
     let mut chars = component.chars();
     let component = format!("{}{}", chars.next().unwrap().to_ascii_uppercase(), chars.as_str());
-    vec![support_force(out, case_id, entity, &component).unwrap_or(0.0)]
+    let found = support_force(out, case_id, entity, &component);
+    vec![found.unwrap_or_else(|| panic!("{case_id}: no {component} reaction row for {entity}"))]
 }
 
 fn scale_of(reference: &Value, row: &Value, built: &Built) -> f64 {
