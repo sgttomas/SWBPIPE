@@ -3,8 +3,9 @@
 //! eligible, and derives their standing records under the historical
 //! vocabularies; an inconsistent case record and a code outside the
 //! vocabulary make a result unreadable rather than giving it a known meaning.
+use open_pipe_stress_numerical_vocabulary::{IntegrityBound, IntegrityBoundReason, VocabularyTag};
 use open_pipe_stress_report_standing::reader_readability::{readability, NUMERICAL_CASE_RECORD_INCONSISTENT};
-use open_pipe_stress_result_export::reader_verdict::standing;
+use open_pipe_stress_result_export::reader_verdict::{integrity_bound, standing};
 use open_pipe_stress_report_standing::report_standing::historical_standing_record;
 use serde_json::{json, Value};
 
@@ -24,6 +25,37 @@ fn read(raw: &str, request: &str) -> (Value, Value, Value) {
 
 fn case<'a>(record: &'a Value, id: &str) -> &'a Value {
     record["cases"].as_array().unwrap().iter().find(|c| c["case_id"] == id).unwrap_or_else(|| panic!("no case {id}"))
+}
+
+/// The reader's `integrity_bound` tags are the numerical vocabulary's, one
+/// to one: every tag the reader emits parses back to itself, and every tag
+/// the vocabulary lists is one the reader emits. Every verdict carries the
+/// same bound, on the real witnesses and on an unsupported refusal.
+#[test]
+fn reader_emitted_integrity_bound_tags_match_the_vocabulary() {
+    fn tag<T: VocabularyTag>(text: &str) -> T {
+        T::parse(text).unwrap_or_else(|| panic!("{text} is not in the {} vocabulary", T::VOCABULARY))
+    }
+    let bound = integrity_bound();
+    let (status, reason) = (bound["status"].as_str().unwrap(), bound["reason"].as_str().unwrap());
+    let (parsed_status, parsed_reason) = (tag::<IntegrityBound>(status), tag::<IntegrityBoundReason>(reason));
+    assert_eq!(IntegrityBound::ALL, &[parsed_status]);
+    assert_eq!(IntegrityBoundReason::ALL, &[parsed_reason]);
+    assert_eq!(parsed_status.as_str(), status);
+    assert_eq!(parsed_reason.as_str(), reason);
+    assert_eq!(bound.as_object().unwrap().len(), 2, "{bound}");
+
+    for (raw, request) in [(GAP_RAW, GAP_REQUEST), (FRICTION_RAW, FRICTION_REQUEST)] {
+        let (_, _, standing) = read(raw, request);
+        assert_eq!(standing["integrity_bound"], bound);
+    }
+    let refused = standing(&json!({}), None, None);
+    assert_eq!(refused["route"], "unsupported");
+    assert_eq!(refused["integrity_bound"], bound);
+
+    // Negative controls: a verified bound is not a tag of either vocabulary.
+    assert!(IntegrityBound::parse("verified").is_none());
+    assert!(IntegrityBoundReason::parse("inverse_norm_bound_verified").is_none());
 }
 
 #[test]
