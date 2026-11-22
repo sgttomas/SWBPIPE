@@ -3,8 +3,8 @@
  *
  * A Timoshenko straight member's published nodal rotation is its cross-section's rotation, not the
  * slope of its centreline (DEL-05-03 REQ-011; the results' own formulation basis says so). The
- * sentence shows only when the result on screen was solved with shear deformation in straight
- * members, as the result itself records it, never as the document's present setting states it.
+ * sentence shows only when the result on screen was solved, and solved with shear deformation in
+ * straight members, as the result itself records it, never as the document's present setting states it.
  * `recordedBeamTheory` is the one reading; the sentence and the results headline's theory phrase
  * are both read from it, so they cannot disagree. Used under the Results panel's Rotation group
  * heading (both panels) and appended to the Displacement Extremes boundary text; nowhere else. */
@@ -81,9 +81,10 @@ export function recordedBeamTheory(result: RecordedTheory | null | undefined): R
   return { straightMembers: straight.size === 1 && isTheory(only) ? only : null, realizedArc: sections.some(arc) };
 }
 
-/** Whether the result was solved with shear deformation in its straight members, by its own record. */
+/** Whether the result was solved, and solved with shear deformation in its straight members, by its own
+ * record. A result that is not solved (a blocked or incomplete one) publishes no rotation to describe. */
 export function showsSectionRotationNote(result: RecordedTheory | null | undefined): boolean {
-  return recordedBeamTheory(result).straightMembers === "timoshenko_annulus_energy_v1";
+  return result?.status?.mechanics === "MECHANICS_SOLVED" && recordedBeamTheory(result).straightMembers === "timoshenko_annulus_energy_v1";
 }
 
 /** `text` with the sentence appended when the result shows it. */

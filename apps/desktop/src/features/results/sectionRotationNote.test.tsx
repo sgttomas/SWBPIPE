@@ -37,6 +37,7 @@ const rotations = (result: MechanicsResult): MechanicsResult => ({ ...result, re
 const section = (beamTheory: Record<string, unknown> | undefined) => ({ pipe_id: "pipe:invented", ...(beamTheory ? { beam_theory: beamTheory } : {}) });
 const arc = (beamTheory: Record<string, unknown>) => ({ ...section(beamTheory), member_kind: "realized_arc" });
 const exact = (...sections: Record<string, unknown>[]) => ({ exact_cases: [{ load_case_id: "case:invented", pipe_sections: sections }] });
+const SOLVED = { mechanics: "MECHANICS_SOLVED" } as const;
 
 const TIMOSHENKO_DOCUMENT = { model_settings: { shear_model: "timoshenko_annulus_energy_v1" } } as unknown as PreviewModel;
 const EULER_BERNOULLI_DOCUMENT = { model_settings: { shear_model: "euler_bernoulli" } } as unknown as PreviewModel;
@@ -73,10 +74,22 @@ describe("the rotation sentence's condition", () => {
   it("reads the exact routes' per-member record: Timoshenko straight members show it, a realized arc's record never does", () => {
     const timoshenko = { model: "timoshenko_annulus_energy_v1", shear_factor: 0.5, shear_area_m2: 0.001 };
     const eb = { model: "euler_bernoulli" };
-    expect(showsSectionRotationNote({ contract_evidence: exact(section(timoshenko)) })).toBe(true);
-    expect(showsSectionRotationNote({ contract_evidence: exact(arc(eb), section(timoshenko)) })).toBe(true);
-    expect(showsSectionRotationNote({ contract_evidence: exact(section(eb), arc(eb)) })).toBe(false);
-    expect(showsSectionRotationNote({ contract_evidence: exact(arc(eb)) })).toBe(false);
+    expect(showsSectionRotationNote({ status: SOLVED, contract_evidence: exact(section(timoshenko)) })).toBe(true);
+    expect(showsSectionRotationNote({ status: SOLVED, contract_evidence: exact(arc(eb), section(timoshenko)) })).toBe(true);
+    expect(showsSectionRotationNote({ status: SOLVED, contract_evidence: exact(section(eb), arc(eb)) })).toBe(false);
+    expect(showsSectionRotationNote({ status: SOLVED, contract_evidence: exact(arc(eb)) })).toBe(false);
+    // Two straight members recording different theories: no route publishes that, and it records none.
+    expect(showsSectionRotationNote({ status: SOLVED, contract_evidence: exact(section(eb), section(timoshenko)) })).toBe(false);
+  });
+
+  it("does not show for a result that is not solved, though it records Timoshenko", () => {
+    const blocked = stored("fixtures/results/preview_physics_timoshenko_partial_span_blocked_sparse.json");
+    expect(blocked.status.mechanics).toBe("MODEL_INCOMPLETE");
+    expect(recordedBeamTheory(blocked).straightMembers).toBe("timoshenko_annulus_energy_v1");
+    expect(showsSectionRotationNote(blocked)).toBe(false);
+    expect(withSectionRotationNote("Boundary.", blocked)).toBe("Boundary.");
+    expect(showsSectionRotationNote({ status: { mechanics: "MODEL_INCOMPLETE" }, contract_evidence: exact(section({ model: "timoshenko_annulus_energy_v1" })) })).toBe(false);
+    expect(showsSectionRotationNote({ contract_evidence: exact(section({ model: "timoshenko_annulus_energy_v1" })) })).toBe(false);
   });
 
   it("does not show for a result that records no theory", () => {
@@ -87,8 +100,8 @@ describe("the rotation sentence's condition", () => {
   });
 
   it("appends the sentence to a text only when it shows", () => {
-    expect(withSectionRotationNote("Boundary.", { producer: { semantic_contract_id: PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID } })).toBe(`Boundary. ${SECTION_ROTATION_NOTE}`);
-    expect(withSectionRotationNote("Boundary.", { producer: { semantic_contract_id: PREVIEW_PHYSICS_CONTRACT_ID } })).toBe("Boundary.");
+    expect(withSectionRotationNote("Boundary.", { status: SOLVED, producer: { semantic_contract_id: PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID } })).toBe(`Boundary. ${SECTION_ROTATION_NOTE}`);
+    expect(withSectionRotationNote("Boundary.", { status: SOLVED, producer: { semantic_contract_id: PREVIEW_PHYSICS_CONTRACT_ID } })).toBe("Boundary.");
   });
 });
 
@@ -186,8 +199,20 @@ describe("displacement extremes: the boundary text", () => {
     extremes(withProducer(PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID));
     expect(boundary().textContent).toBe(`${DISPLACEMENT_EXTREMES_BOUNDARY_TEXT} ${SECTION_ROTATION_NOTE}`);
     cleanup();
-    extremes(overlayResult(rows, exact(section({ model: "euler_bernoulli" }), section({ model: "timoshenko_annulus_energy_v1" }))));
+    // One straight Timoshenko member beside a realized arc, which records Euler–Bernoulli.
+    extremes(overlayResult(rows, exact(arc({ model: "euler_bernoulli" }), section({ model: "timoshenko_annulus_energy_v1" }))));
     expect(boundary().textContent).toBe(`${DISPLACEMENT_EXTREMES_BOUNDARY_TEXT} ${SECTION_ROTATION_NOTE}`);
+  });
+
+  it("stays as it is for straight members recording different theories, and for a result that is not solved", () => {
+    extremes(overlayResult(rows, exact(section({ model: "euler_bernoulli" }), section({ model: "timoshenko_annulus_energy_v1" }))));
+    expect(boundary().textContent).toBe(DISPLACEMENT_EXTREMES_BOUNDARY_TEXT);
+    cleanup();
+    // A result that is not solved: the panel says so and gives no boundary text, and no sentence.
+    const unsolved = { ...withProducer(PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID), status: { ...overlayResult(rows).status, mechanics: "MODEL_INCOMPLETE" } } as MechanicsResult;
+    const view = extremes(unsolved);
+    expect(screen.getByTestId("displacement-extremes-unavailable").textContent).toBe("Mechanics not solved");
+    expect(view.container.textContent).not.toContain(SECTION_ROTATION_NOTE);
   });
 
   it("stays exactly as it is for an Euler–Bernoulli result, whatever the document states now", () => {
