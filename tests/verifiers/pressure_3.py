@@ -413,6 +413,41 @@ def equivalent_static_components(case_id: str, entries: Any, inventory: set) -> 
             used.add(i)
 
 
+# DEL-05-01 REQ-014: the method of a test case's contents resolution items (PP hydrostatic::CONTENTS_METHOD).
+TEST_CONTENTS_METHOD = "hydrostatic_test_contents_in_self_weight/v1"
+TEST_CONDITION_KEYS = {"kind", "held_supports", "held_support_refs", "contents_condition", "contents_resolution"}
+TEST_CONTENTS_ITEM_KEYS = {"method", "load_id", "pipe_id", "condition_set_ref", "condition_key", "contents_density",
+                           "mass_kg_per_m", "applied_n_per_m"}
+
+
+def test_condition_record(record: Any) -> None:
+    """Rust `physics_evidence::test_condition_record`: the mark exactly as the result schema declares
+    PressureExactTestCondition, in the same order."""
+    _require(isinstance(record, Mapping) and set(record) == TEST_CONDITION_KEYS, "test_condition shape")
+    _require(record["kind"] == "hydrostatic", "test_condition kind")
+    _require(record["held_supports"] in ("springs_and_constant_effort", "none")
+             and isinstance(record["held_supports"], str), "test_condition held supports")
+    held = record["held_support_refs"]
+    _require(isinstance(held, list), "test_condition shape")
+    seen: set[str] = set()
+    for support in held:
+        _require(_text(support), "test_condition string")
+        _require(support not in seen, "test_condition held support refs")
+        seen.add(support)
+    _require(_text(record["contents_condition"]), "test_condition string")
+    items = record["contents_resolution"]
+    _require(isinstance(items, list) and bool(items), "test_condition shape")
+    for item in items:
+        _require(isinstance(item, Mapping) and set(item) == TEST_CONTENTS_ITEM_KEYS
+                 and isinstance(item["contents_density"], Mapping) and set(item["contents_density"]) == {"value", "unit"},
+                 "test_condition shape")
+        _require(item["method"] == TEST_CONTENTS_METHOD, "test_condition contents method")
+        for member in ("load_id", "pipe_id", "condition_set_ref", "condition_key"):
+            _require(_text(item[member]), "test_condition string")
+        _require(_number(item["contents_density"]["value"]) and _text(item["contents_density"]["unit"])
+                 and _number(item["mass_kg_per_m"]) and _number(item["applied_n_per_m"]), "test_condition number")
+
+
 def _require(condition: bool, detail: str) -> None:
     if not condition:
         raise ValueError(f"SOURCE_PHYSICS_EVIDENCE_INVALID: {detail}")
@@ -986,7 +1021,11 @@ def _physics(source: Mapping[str, Any]) -> None:
         generation = "equivalent_static" in case
         if generation:
             equivalent_static_record(cid, case["equivalent_static"])
-        _shape(case, {"load_case_id", "profile_mode", "material_basis", "pipe_materials", "pipe_sections", "pipe_stress_extrema", "stress_maximum_coverage", "pressure_rhs_assembly"} | ({"intensified_measures"} if directional else set()) | ({"equivalent_static"} if generation else set()), "case shape")
+        # DEL-05-01 REQ-014: a hydrostatic test case's mark.
+        test_case = "test_condition" in case
+        if test_case:
+            test_condition_record(case["test_condition"])
+        _shape(case, {"load_case_id", "profile_mode", "material_basis", "pipe_materials", "pipe_sections", "pipe_stress_extrema", "stress_maximum_coverage", "pressure_rhs_assembly"} | ({"intensified_measures"} if directional else set()) | ({"equivalent_static"} if generation else set()) | ({"test_condition"} if test_case else set()), "case shape")
         _require(case["profile_mode"] == PRESSURE_V3[1] and _text(case["material_basis"]), "case profile/material basis")
         materials[cid] = _indexed(case["pipe_materials"], "pipe_id", "case materials")
         geometries[cid] = _indexed(case["pipe_sections"], "pipe_id", "case sections")
@@ -1940,8 +1979,10 @@ def _ls_prepass(source: Mapping[str, Any]) -> None:
     cases: list[tuple[str, Mapping[str, Any]]] = []
     for case in exact:
         # T4-U4b (§2.6): a case with a directional arc adds intensified_measures (checked by the physics pass).
+        # DEL-05-01 REQ-014: a hydrostatic test case adds its mark (its shape is the physics pass's).
         # DEL-05-01 REQ-008: a generating case adds its equivalent_static record (checked by the physics pass).
         _ls_require(_ls_keys(case, LS_CASE_KEYS + (["intensified_measures"] if isinstance(case, Mapping) and "intensified_measures" in case else [])
+                             + (["test_condition"] if isinstance(case, Mapping) and "test_condition" in case else [])
                              + (["equivalent_static"] if isinstance(case, Mapping) and "equivalent_static" in case else [])), "CASE_SHAPE")
         case_id = _ls_text(case["load_case_id"])
         _ls_require(all(known != case_id for known, _ in cases), "CASE_DUPLICATE")
@@ -2083,8 +2124,10 @@ def _ls_record(record: Mapping[str, Any], cases: list[tuple[str, Mapping[str, An
     # R10 contributions.
     contributions = _ls_array(record["contributions"])
     contribution_ids: list[str] = []
+    # DEL-05-01 REQ-014: a hydrostatic test case's mark names the loads its test contents entered.
+    mark = next((value.get("test_condition") for known, value in cases if known == case_id), None)
     for contribution in contributions:
-        _ls_contribution(contribution)
+        _ls_contribution(contribution, mark)
         source_id = _ls_text(contribution["source_id"])
         _ls_require(source_id not in contribution_ids, "CONTRIBUTION_DUPLICATE")
         contribution_ids.append(source_id)
@@ -2338,7 +2381,7 @@ def _ls_support_component(component: Any) -> None:
     _ls_number(component["prescribed_value"])
 
 
-def _ls_contribution(contribution: Any) -> None:
+def _ls_contribution(contribution: Any, mark: Any = None) -> None:
     kind = _ls_get(contribution, "owner_kind")
     shapes = {
         "stored_primitive": (LS_STORED_KEYS, "ordinary_applied"),
@@ -2364,7 +2407,12 @@ def _ls_contribution(contribution: Any) -> None:
         _ls_text(contribution["dimension"])
         authored = _ls_number(contribution["authored_normalized_magnitude"])
         applied = _ls_number(contribution["applied_magnitude"])
-        _ls_require(applied == authored * factor, "CONTRIBUTION_APPLIED_MAGNITUDE")
+        # DEL-05-01 REQ-014: on a marked case, a stored primitive that one of the mark's contents items names was
+        # applied with the test contents (factor times the item's applied_n_per_m); every other entry: factor times authored.
+        items = _ls_get(mark, "contents_resolution")
+        item = next((item for item in items if isinstance(_ls_get(item, "load_id"), str) and _ls_get(item, "load_id") == contribution["source_id"]), None) if isinstance(items, list) else None
+        base = authored if item is None else _ls_number(_ls_get(item, "applied_n_per_m"))
+        _ls_require(applied == base * factor, "CONTRIBUTION_APPLIED_MAGNITUDE")
     elif kind == "resolved_member_state":
         for reference in _ls_array(contribution["consumed_input_refs"]):
             _ls_text(reference)

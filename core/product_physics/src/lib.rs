@@ -50,6 +50,9 @@ mod timoshenko_product_tests;
 #[cfg(test)]
 mod d5_mass_product_tests;
 #[cfg(test)]
+#[cfg(test)]
+mod hydrostatic_certificate_tests;
+#[cfg(test)]
 mod kd5_nonlinear_tests; #[cfg(test)] mod generated_load_state_tests; // on this line so that no line moves.
 #[cfg(test)]
 mod u4a_tests;
@@ -148,7 +151,7 @@ use std::f64::consts::PI;
 
 mod topology;
 mod validation;
-mod imposed_motion; mod held_status; mod skew; // RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7) and R-6/R-7 S-K1 (DEL-04-03 `skew-restraints.md`), on this line so that no line moves.
+mod imposed_motion; mod held_status; mod skew; pub mod hydrostatic; // RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7) and R-6/R-7 S-K1 (DEL-04-03 `skew-restraints.md`), on this line so that no line moves.
 use validation::validate_model_inputs;
 mod rigid_component; mod seismic_component; mod seismic_warning; // DEL-05-01 static-equivalent seismic component force (LIM-028) and REQ-008's seismic model-check warning, on this line so that no line moves.
 #[cfg(test)]
@@ -263,7 +266,7 @@ pub struct PreviewModel {
     /// The lowering removes them once their rules are judged.
     pub condition_sets: Vec<operating_conditions::ConditionSetInput>,
     /// Model document 0.9.0's `spectra` (`spectra`), read by no solve; the lowering removes them.
-    pub spectra: Vec<spectra::SpectrumInput>,
+    pub spectra: Vec<spectra::SpectrumInput>, #[doc(hidden)] pub(crate) test_contents: Vec<hydrostatic::ContentsResolution>, #[doc(hidden)] pub(crate) declared_test_contents: Vec<hydrostatic::DeclaredContents>, // DEL-05-01 REQ-014: the lowering's contents resolution, applied after the self-weight check; and each test case's declared contents, read from the model before the lowering clears its conditions, for the certificate (`certified_loads::intensity`).
 }
 
 /// One material record as authored: the unchanged `MaterialInput` fields
@@ -401,7 +404,7 @@ impl<'de> Deserialize<'de> for PreviewModel {
             model_settings: wire.model_settings,
             material_expansion_laws,
             request_material_expansion_laws: Vec::new(),
-            condition_sets: wire.condition_sets.unwrap_or_default(),
+            condition_sets: wire.condition_sets.unwrap_or_default(), test_contents: Vec::new(), declared_test_contents: Vec::new(),
             spectra: wire.spectra.unwrap_or_default(),
         })
     }
@@ -1462,7 +1465,7 @@ fn formulation_basis_for_model_with_source(model: &PreviewModel, source_selected
         if model.components.iter().any(is_curved_bend_macro_component) {
             basis.limitations.push(bend_pressure::BEND_LIMITATION.to_string());
         }
-        basis
+        hydrostatic::push_limitation(model, &mut basis.limitations); basis // DEL-05-01 REQ-014: only a document with a test case states the test.
     } else {
         preview_formulation_basis()
     };
@@ -3089,6 +3092,7 @@ fn run_linear_static_preview_observed_inner(
     // lowering judges the 0.9.0 members' document-level rules and S1's interim
     // refusals, then removes the members no later stage reads. Everything after it
     // is the existing pipeline applied to the lowered model.
+    model.declared_test_contents = hydrostatic::declared_contents(&model); // DEL-05-01 REQ-014: before the lowering clears the conditions.
     let condition_added = operating_conditions::lower(&mut model, &mut diagnostics);
     pressure_runtime::validate_profile(&model, &mut diagnostics);
     // RT-A3 increment 1 (D-1): the junction closures' named warnings, once.
@@ -3132,6 +3136,8 @@ fn run_linear_static_preview_observed_inner(
     }
     // DEL-05-01 REQ-008: what the seismic warning prints as entered, and the plan's fresh primitives.
     let seismic_entered = seismic_warning::capture(&model, &condition_added);
+    let test_contents = std::mem::take(&mut model.test_contents);
+    hydrostatic::apply_contents(&mut model, &test_contents); // DEL-05-01 REQ-014: a test case's contents enter its checked self-weight once, after seismic capture.
 
     resolve_shared_sections(&mut model, &mut diagnostics);
     if has_blocking(&diagnostics) {
@@ -3208,56 +3214,17 @@ fn run_linear_static_preview_observed_inner(
     topology::append_topology_diagnostics(&model, &built, &mut diagnostics);
 
     let boundary = prepare_boundary(built.nodes.len(), &built.supports);
-    let potential_contact_dofs = eligible_contact_dofs(
-        built.nodes.len(),
-        &boundary.restrained_dofs,
-        &built.nonlinear_supports,
-        &built.nonlinear_initial_states,
+    // DEL-04-07 REQ-011 & DEL-04-06 REQ-013: the document's own ground
+    // restraints when some case is solved on it, and otherwise the replaced
+    // system's, checked before stiffness formation and per-case basis lookup.
+    check_pre_formation_restraints(
+        &model,
+        &materials,
+        resolved_cases.as_ref().map(|cases| &cases[0].pairs),
+        &built,
+        &boundary,
+        &mut diagnostics,
     );
-    if boundary.restrained_dofs.is_empty()
-        && boundary.springs.is_empty()
-        && potential_contact_dofs.is_none() && built.skew.is_none()
-    {
-        diagnostics.push(diag(
-            "diagnostic:physics:no-restraints",
-            "SUPPORT_INPUT_MISSING",
-            "blocking",
-            "linear-static preview requires explicit support restraints or springs; no automatic boundary conditions are applied",
-            vec!["supports".to_string()],
-        ));
-    }
-
-    // Necessary lower bound only: fewer than six independent ground DOFs
-    // cannot remove six rigid-body modes. Springs count; duplicates do not.
-    // Passing this check never establishes stability: the assembled solve does.
-    let ground_dofs = boundary
-        .restrained_dofs
-        .iter()
-        .copied()
-        .chain(
-            boundary
-                .springs
-                .iter()
-                .filter(|spring| spring.stiffness.value > 0.0)
-                .map(|spring| spring.node_dof.global_index()),
-        )
-        .chain(potential_contact_dofs.iter().flatten().copied())
-        .collect::<HashSet<_>>();
-    let skewed_rows = skew::ground_rows(built.skew.as_ref()); if !(ground_dofs.is_empty() && skewed_rows == 0) && ground_dofs.len() + skewed_rows < DOF_PER_NODE {
-        let (restrained, missing) = support_restraint_summary(&boundary.restrained_dofs); let skewed = if built.skew.is_some() { format!("; skewed constraints: {skewed_rows}") } else { String::new() };
-        diagnostics.push(diag("diagnostic:physics:under-restrained", "SOLVER_SYSTEM_BLOCKED", "blocking",
-            format!("fewer than six independent ground constraints including positive springs: the six rigid-body modes of a connected structure cannot all be removed; directly restrained global DOF classes: {restrained}; global DOF classes with no direct restraint: {missing} (not a rigid-body mode analysis; separated restraints can resist rotations); support contributions: {}{skewed}", support_contribution_summary(&model)),
-            vec!["supports".to_string()]));
-    }
-    for finding in &boundary.findings {
-        diagnostics.push(diag(
-            &format!("diagnostic:support:{}", finding.support_id),
-            "SUPPORT_INPUT_INVALID",
-            "blocking",
-            finding.message.clone(),
-            vec![finding.support_id.clone()],
-        ));
-    }
     if has_blocking(&diagnostics) {
         return blocked_envelope(model, diagnostics);
     }
@@ -3325,9 +3292,9 @@ fn run_linear_static_preview_observed_inner(
         Option<String>,
     )> = vec![(None, materials.clone(), built, stiffness, None)];
     // RT-A5 (operating-case §7.4): this document solve's invocation context.
-    let invocation = held_status::InvocationToken::mint();
+    let invocation = held_status::InvocationToken::mint(); let test_held = if model.load_cases.iter().any(hydrostatic::holds_supports) { hydrostatic::held_set(&model, "").0 } else { Vec::new() }; // DEL-05-01 REQ-014: the supports a test case holds, for its mark.
     let mut load_case_solves = Vec::new();
-    for (case_index, load_case) in model.load_cases.iter().enumerate() {
+    for (case_index, load_case) in model.load_cases.iter().enumerate() { match hydrostatic::solve_held_case(&model, &materials, resolved_cases.as_ref().map(|cases| &cases[case_index]), &consumed_bases, load_case, solver_mode, source_budget, &mut diagnostics, invocation) { hydrostatic::HeldOutcome::NotHeld => {} hydrostatic::HeldOutcome::Solved(solve) => { load_case_solves.push(*solve); if has_blocking(&diagnostics) { return blocked_envelope(model, diagnostics); } continue; } hydrostatic::HeldOutcome::Blocked => return blocked_envelope(model, diagnostics), hydrostatic::HeldOutcome::Failed(error) => return solver_blocked(model, diagnostics, error) } // DEL-04-07 REQ-011: a held test case on its replaced system.
         if let Some(resolved_cases) = &resolved_cases {
             // Each resolved case rebuilds stiffness from its own member pairs;
             // no matrix is reused under an unchanged label when inputs differ.
@@ -3591,7 +3558,7 @@ fn run_linear_static_preview_observed_inner(
         }
         pressure_evidence.extend(solve.pressure_evidence.iter().cloned());
         load_reference_states.extend(solve.load_state_evidence.clone());
-        if let Some(mut evidence) = solve.exact_case_evidence.clone() {
+        if let Some(mut evidence) = solve.exact_case_evidence.clone() { if let Some(mark) = model.load_cases.iter().find(|case| case.id == solve.load_case_id).and_then(|case| hydrostatic::mark(case, &test_held, &test_contents)) { evidence["test_condition"] = mark; } // DEL-05-01 REQ-014: the test mark, on a test case only.
             if source_selected {
                 evidence["recovery_method"] = serde_json::json!(if solve.source_selected {
                     "retained_source_blocks_exact_v1"
@@ -4704,6 +4671,113 @@ enum BasisStiffness {
 /// F1b (ROOT Q2): the basis assembly with K2a's range refusal deferred on a
 /// linear invocation. Every other formation error, and a range refusal on an
 /// invocation with a nonlinear support, blocks the invocation as today.
+/// The necessary ground-restraint checks of a built system before its
+/// stiffness is formed: some explicit restraint, spring or contact
+/// (`SUPPORT_INPUT_MISSING`), and at least six independent ground constraints
+/// (`SOLVER_SYSTEM_BLOCKED`). Run on the document's system and, by
+/// [`hydrostatic::solve_held_case`], on a held test case's replaced one.
+pub(crate) fn check_ground_restraints(
+    model: &PreviewModel,
+    built: &BuiltModel,
+    boundary: &open_pipe_stress_linear_supports::BoundaryPreparation,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    let potential_contact_dofs = eligible_contact_dofs(
+        built.nodes.len(),
+        &boundary.restrained_dofs,
+        &built.nonlinear_supports,
+        &built.nonlinear_initial_states,
+    );
+    if boundary.restrained_dofs.is_empty()
+        && boundary.springs.is_empty()
+        && potential_contact_dofs.is_none() && built.skew.is_none()
+    {
+        diagnostics.push(diag(
+            "diagnostic:physics:no-restraints",
+            "SUPPORT_INPUT_MISSING",
+            "blocking",
+            "linear-static preview requires explicit support restraints or springs; no automatic boundary conditions are applied",
+            vec!["supports".to_string()],
+        ));
+    }
+
+    // Necessary lower bound only: fewer than six independent ground DOFs
+    // cannot remove six rigid-body modes. Springs count; duplicates do not.
+    // Passing this check never establishes stability: the assembled solve does.
+    let ground_dofs = boundary
+        .restrained_dofs
+        .iter()
+        .copied()
+        .chain(
+            boundary
+                .springs
+                .iter()
+                .filter(|spring| spring.stiffness.value > 0.0)
+                .map(|spring| spring.node_dof.global_index()),
+        )
+        .chain(potential_contact_dofs.iter().flatten().copied())
+        .collect::<HashSet<_>>();
+    let skewed_rows = skew::ground_rows(built.skew.as_ref()); if !(ground_dofs.is_empty() && skewed_rows == 0) && ground_dofs.len() + skewed_rows < DOF_PER_NODE {
+        let (restrained, missing) = support_restraint_summary(&boundary.restrained_dofs); let skewed = if built.skew.is_some() { format!("; skewed constraints: {skewed_rows}") } else { String::new() };
+        diagnostics.push(diag("diagnostic:physics:under-restrained", "SOLVER_SYSTEM_BLOCKED", "blocking",
+            format!("fewer than six independent ground constraints including positive springs: the six rigid-body modes of a connected structure cannot all be removed; directly restrained global DOF classes: {restrained}; global DOF classes with no direct restraint: {missing} (not a rigid-body mode analysis; separated restraints can resist rotations); support contributions: {}{skewed}", support_contribution_summary(model)),
+            vec!["supports".to_string()]));
+    }
+}
+
+/// The pre-formation restraint checks shared by the solve
+/// (`run_linear_static_preview_observed_inner`) and on-demand model checks
+/// (`validation::model_checks`): the document's own ground restraints when some
+/// case is solved on it, invalid-support findings on the document boundary, and
+/// — when every case holds supports (DEL-04-07 REQ-011) and no blocking
+/// diagnostic has already been raised — the replaced system's build, boundary
+/// findings and ground restraints, checked once before stiffness formation and
+/// before per-case modulus-basis resolution (DEL-04-06 REQ-013, AC-008).
+pub(crate) fn check_pre_formation_restraints(
+    model: &PreviewModel,
+    materials: &[MaterialInput],
+    member_pairs: Option<&HashMap<String, pressure_exact::IsotropicENu>>,
+    built: &BuiltModel,
+    boundary: &open_pipe_stress_linear_supports::BoundaryPreparation,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    let held_all = hydrostatic::all_cases_held(model);
+    if held_all.is_none() {
+        check_ground_restraints(model, built, boundary, diagnostics);
+    }
+    for finding in &boundary.findings {
+        diagnostics.push(diag(
+            &format!("diagnostic:support:{}", finding.support_id),
+            "SUPPORT_INPUT_INVALID",
+            "blocking",
+            finding.message.clone(),
+            vec![finding.support_id.clone()],
+        ));
+    }
+    if let Some(held) = held_all.filter(|_| !has_blocking(diagnostics)) {
+        let replaced = hydrostatic::held_model(model, &held);
+        let Some(replaced_built) = build_model_for_members(&replaced, materials, member_pairs, diagnostics)
+            .filter(|_| !has_blocking(diagnostics))
+        else {
+            return;
+        };
+        let replaced_boundary = prepare_boundary(replaced_built.nodes.len(), &replaced_built.supports);
+        if !replaced_boundary.findings.is_empty() {
+            for finding in &replaced_boundary.findings {
+                diagnostics.push(diag(
+                    &format!("diagnostic:support:{}", finding.support_id),
+                    "SUPPORT_INPUT_INVALID",
+                    "blocking",
+                    finding.message.clone(),
+                    vec![finding.support_id.clone()],
+                ));
+            }
+            return;
+        }
+        check_ground_restraints(&replaced, &replaced_built, &replaced_boundary, diagnostics);
+    }
+}
+
 fn form_basis_stiffness(
     built: &BuiltModel,
     springs: &[SpringEntry],
@@ -9867,99 +9941,103 @@ fn curved_bend_inconsistent_diag(
 /// Resolution is in-memory only; local supplemental section inputs are retained.
 fn resolve_shared_sections(model: &mut PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
     for pipe in &mut model.pipe_segments {
-        let Some(reference) = &pipe.section_ref else {
-            continue;
-        };
-        let refs = vec![pipe.id.clone(), reference.clone()];
-        let id = format!("diagnostic:section-reference:{}", stable_suffix(&pipe.id));
-        if reference.trim().is_empty() {
-            diagnostics.push(diag(
-                &id,
-                "SECTION_REFERENCE_INVALID",
-                "blocking",
-                "bound section requires an explicit nonblank identity",
-                refs,
-            ));
-            continue;
-        }
-        let matches: Vec<_> = model
-            .sections
-            .iter()
-            .filter(|s| &s.id == reference)
-            .collect();
-        if matches.len() != 1 {
-            diagnostics.push(diag(
-                &id,
-                "SECTION_REFERENCE_INVALID",
-                "blocking",
-                "bound section must exist exactly once",
-                refs,
-            ));
-            continue;
-        }
-        let shared = matches[0];
-        if shared.section_type != "pipe"
-            || shared
-                .properties
-                .keys()
-                .any(|key| key != "outside_diameter" && key != "wall_thickness")
-        {
-            diagnostics.push(diag(&id, "SECTION_BINDING_UNSUPPORTED", "blocking",
-                "binding requires a pipe section with only outside_diameter and wall_thickness properties", refs));
-            continue;
-        }
-        let (Some(od), Some(wall)) = (
-            shared.properties.get("outside_diameter"),
-            shared.properties.get("wall_thickness"),
-        ) else {
-            diagnostics.push(diag(
-                &id,
-                "SECTION_REFERENCE_INVALID",
-                "blocking",
-                "bound section requires explicit outside_diameter and wall_thickness quantities",
-                refs,
-            ));
-            continue;
-        };
-        let mut resolved = pipe.section.clone();
-        resolved.outside_diameter = od.clone();
-        resolved.wall_thickness = wall.clone();
-        let before = diagnostics.len();
-        for quantity in [&mut resolved.outside_diameter, &mut resolved.wall_thickness] {
-            normalize_quantity(quantity, Dimension::Length, &id, refs.clone(), diagnostics);
-        }
-        if let Some(tolerance) = &mut resolved.mill_tolerance {
-            normalize_quantity(tolerance, Dimension::Length, &id, refs.clone(), diagnostics);
-        }
-        if let Some(allowance) = &mut resolved.corrosion_allowance {
-            normalize_quantity(allowance, Dimension::Length, &id, refs.clone(), diagnostics);
-        }
-        if diagnostics.len() != before {
-            continue;
-        }
-        if derive_pipe_section(&resolved, &pipe.id, diagnostics).is_none() {
-            continue;
-        }
-        // Stored cache must preserve the exact source representation used by
-        // operation materialization, so display/export and solver agree.
-        if pipe.section.outside_diameter.value != od.value
-            || pipe.section.outside_diameter.unit != od.unit
-            || pipe.section.wall_thickness.value != wall.value
-            || pipe.section.wall_thickness.unit != wall.unit
-        {
-            diagnostics.push(diag(
-                &id,
-                "SECTION_REFERENCE_CACHE_STALE",
-                "blocking",
-                "inline OD/wall contradict the shared section; explicitly rematerialize before use",
-                refs,
-            ));
-            continue;
-        }
-        // Copy source quantities, leaving all supplemental values untouched.
-        pipe.section.outside_diameter = od.clone();
-        pipe.section.wall_thickness = wall.clone();
+        resolve_shared_section(pipe, &model.sections, diagnostics);
     }
+}
+
+/// [`resolve_shared_sections`] for one pipe against the document's `sections`.
+pub(crate) fn resolve_shared_section(pipe: &mut PreviewPipe, sections: &[PreviewSection], diagnostics: &mut Vec<Diagnostic>) {
+    let Some(reference) = &pipe.section_ref else {
+        return;
+    };
+    let refs = vec![pipe.id.clone(), reference.clone()];
+    let id = format!("diagnostic:section-reference:{}", stable_suffix(&pipe.id));
+    if reference.trim().is_empty() {
+        diagnostics.push(diag(
+            &id,
+            "SECTION_REFERENCE_INVALID",
+            "blocking",
+            "bound section requires an explicit nonblank identity",
+            refs,
+        ));
+        return;
+    }
+    let matches: Vec<_> = sections
+        .iter()
+        .filter(|s| &s.id == reference)
+        .collect();
+    if matches.len() != 1 {
+        diagnostics.push(diag(
+            &id,
+            "SECTION_REFERENCE_INVALID",
+            "blocking",
+            "bound section must exist exactly once",
+            refs,
+        ));
+        return;
+    }
+    let shared = matches[0];
+    if shared.section_type != "pipe"
+        || shared
+            .properties
+            .keys()
+            .any(|key| key != "outside_diameter" && key != "wall_thickness")
+    {
+        diagnostics.push(diag(&id, "SECTION_BINDING_UNSUPPORTED", "blocking",
+            "binding requires a pipe section with only outside_diameter and wall_thickness properties", refs));
+        return;
+    }
+    let (Some(od), Some(wall)) = (
+        shared.properties.get("outside_diameter"),
+        shared.properties.get("wall_thickness"),
+    ) else {
+        diagnostics.push(diag(
+            &id,
+            "SECTION_REFERENCE_INVALID",
+            "blocking",
+            "bound section requires explicit outside_diameter and wall_thickness quantities",
+            refs,
+        ));
+        return;
+    };
+    let mut resolved = pipe.section.clone();
+    resolved.outside_diameter = od.clone();
+    resolved.wall_thickness = wall.clone();
+    let before = diagnostics.len();
+    for quantity in [&mut resolved.outside_diameter, &mut resolved.wall_thickness] {
+        normalize_quantity(quantity, Dimension::Length, &id, refs.clone(), diagnostics);
+    }
+    if let Some(tolerance) = &mut resolved.mill_tolerance {
+        normalize_quantity(tolerance, Dimension::Length, &id, refs.clone(), diagnostics);
+    }
+    if let Some(allowance) = &mut resolved.corrosion_allowance {
+        normalize_quantity(allowance, Dimension::Length, &id, refs.clone(), diagnostics);
+    }
+    if diagnostics.len() != before {
+        return;
+    }
+    if derive_pipe_section(&resolved, &pipe.id, diagnostics).is_none() {
+        return;
+    }
+    // Stored cache must preserve the exact source representation used by
+    // operation materialization, so display/export and solver agree.
+    if pipe.section.outside_diameter.value != od.value
+        || pipe.section.outside_diameter.unit != od.unit
+        || pipe.section.wall_thickness.value != wall.value
+        || pipe.section.wall_thickness.unit != wall.unit
+    {
+        diagnostics.push(diag(
+            &id,
+            "SECTION_REFERENCE_CACHE_STALE",
+            "blocking",
+            "inline OD/wall contradict the shared section; explicitly rematerialize before use",
+            refs,
+        ));
+        return;
+    }
+    // Copy source quantities, leaving all supplemental values untouched.
+    pipe.section.outside_diameter = od.clone();
+    pipe.section.wall_thickness = wall.clone();
 }
 
 fn normalize_node_coordinates(model: &mut PreviewModel, diagnostics: &mut Vec<Diagnostic>) {

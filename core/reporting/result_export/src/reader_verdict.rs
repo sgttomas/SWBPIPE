@@ -319,6 +319,204 @@ pub fn physics_model_checks(source: &Value, model: &Value) -> Result<(), String>
             }
         }
     }
+    // DEL-05-01 REQ-014: each exact case's hydrostatic test mark, bound to the
+    // model's case (`test_condition_model_binding`).
+    if model.get("load_cases").is_some_and(|v| !v.is_null()) {
+        test_condition_model_binding(source, model)?;
+    }
+    Ok(())
+}
+
+/// The self-weight generation method whose loads a test case's contents enter
+/// (PP `self_weight::GENERATED_METHOD`).
+const GENERATED_SELF_WEIGHT_METHOD: &str = "pipe_mass_per_length_times_explicit_axis_acceleration/v2";
+
+/// Whether a model support is of a family a hydrostatic test case holds, by
+/// DEL-05-01 REQ-014 and DEL-04-07 REQ-011 ("each spring, variable spring and
+/// constant-effort support"), as the record states it, whatever else it
+/// carries: not a snubber, and a `spring`, or a support whose hanger type (the
+/// hanger's non-blank `hanger_type`, otherwise its family, trimmed) is
+/// `variable_spring_hanger`, `spring_hanger` or `constant_effort_support`. A
+/// held record that also carries another action is one the solve refuses
+/// (`LOAD_CASE_TEST_HELD_SUPPORT_UNFORMED`; [`held_record_carries_another_action`]),
+/// so it is never left out of the set.
+fn held_family(support: &Value) -> bool {
+    let family = support["family"].as_str();
+    let hanger_type = support["hanger"]["hanger_type"]
+        .as_str()
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .or_else(|| family.map(str::trim));
+    family != Some("snubber")
+        && (family == Some("spring")
+            || matches!(hanger_type, Some("variable_spring_hanger" | "spring_hanger" | "constant_effort_support")))
+}
+
+/// A frame degree of freedom token as the solve reads it (`parse_dof`), named
+/// in upper case; `None` for any other text.
+fn frame_dof(token: &str) -> Option<&'static str> {
+    match token {
+        "UX" | "Ux" | "ux" => Some("UX"),
+        "UY" | "Uy" | "uy" => Some("UY"),
+        "UZ" | "Uz" | "uz" => Some("UZ"),
+        "RX" | "Rx" | "rx" => Some("RX"),
+        "RY" | "Ry" | "ry" => Some("RY"),
+        "RZ" | "Rz" | "rz" => Some("RZ"),
+        _ => None,
+    }
+}
+
+/// Whether a record of a held family ([`held_family`]) carries an action its
+/// rigid replacement would drop, the two reasons the solve refuses a held
+/// record by `LOAD_CASE_TEST_HELD_SUPPORT_UNFORMED` (`hydrostatic::held_set`):
+/// a `nonlinear` member, or a restraint on a frame degree of freedom other than
+/// the one it acts on. The acted degree of freedom is the solve's: for a
+/// constant-effort support its one translational restraint, otherwise the
+/// stiffness degree of freedom (the record's, then its hanger's) or else its
+/// first restraint. A record whose acted degree of freedom the solve cannot
+/// determine is refused by the solve for that reason, not this one.
+fn held_record_carries_another_action(support: &Value) -> bool {
+    if !support["nonlinear"].is_null() {
+        return true;
+    }
+    let raw: Vec<&str> = support["restraints"].as_array().map(Vec::as_slice).unwrap_or(&[]).iter().filter_map(Value::as_str).collect();
+    let hanger_type = support["hanger"]["hanger_type"]
+        .as_str()
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .or_else(|| support["family"].as_str().map(str::trim));
+    let acted = if hanger_type == Some("constant_effort_support") {
+        let Some(dofs) = raw.iter().map(|token| frame_dof(token)).collect::<Option<Vec<_>>>() else { return false };
+        match dofs.iter().filter(|dof| dof.starts_with('U')).collect::<Vec<_>>().as_slice() {
+            [dof] => **dof,
+            _ => return false,
+        }
+    } else {
+        let token = support["stiffness"]["dof"].as_str()
+            .or_else(|| support["hanger"]["stiffness"]["dof"].as_str())
+            .or_else(|| raw.first().copied());
+        let Some(dof) = token.and_then(frame_dof) else { return false };
+        dof
+    };
+    raw.iter().filter_map(|token| frame_dof(token)).any(|dof| dof != acted)
+}
+
+/// The supports the model's load case `case` holds (DEL-05-01 REQ-014): when
+/// its `test_condition` chooses `springs_and_constant_effort`, the identities of
+/// the model's supports of a held family ([`held_family`]), sorted; otherwise
+/// none. The one statement of the held set for the model-bound readers (this
+/// module's mark binding and the constant-effort binding of
+/// `exact_combination_evidence::model_checks`). It binds the model's held set;
+/// it does not establish that the model was solvable as held.
+pub(crate) fn held_supports<'a>(model: &'a Value, case: &Value) -> Vec<&'a str> {
+    if case["test_condition"]["held_supports"] != "springs_and_constant_effort" {
+        return Vec::new();
+    }
+    let mut held: Vec<&str> = model["supports"].as_array().map(Vec::as_slice).unwrap_or(&[]).iter()
+        .filter(|support| held_family(support))
+        .filter_map(|support| support["id"].as_str())
+        .collect();
+    held.sort_unstable();
+    held
+}
+
+/// DEL-05-01 REQ-014: a solved exact case carries `test_condition` exactly when
+/// the model's case declares one, with the case's kind and held choice. Its
+/// held supports are the model's supports of a held family
+/// ([`held_family`]), sorted, when the choice is `springs_and_constant_effort`,
+/// and none otherwise; its contents key is the case's
+/// `condition_use.contents_density`; and its resolution has one item, in the
+/// case's order, for each of the case's loads generated by the self-weight
+/// method on a pipe, and none for any other load: the same load and pipe, the
+/// pipe's condition set, the case's key and that condition's
+/// `contents_density` in the model, bit for bit. The applied load is the item's
+/// mass times the gravity the load's generation evidence records in the model,
+/// in binary64. The reader binds presence, the choice, the held supports, the
+/// contents key and each item's identity, set, key and density, and that the
+/// applied load equals the mass times the model's recorded gravity. It does
+/// not rederive the mass with the test contents (the exact route's mass per
+/// length is the solve's): that rests on the reference comparisons and on the
+/// join with the case's record of load sources. It binds the mark to the
+/// model's held set and does not establish that the model was solvable as
+/// held: the solve's refusals of a held set that cannot be formed are not
+/// repeated here, and a refused case publishes no mark.
+fn test_condition_model_binding(source: &Value, model: &Value) -> Result<(), String> {
+    const PRESENCE: &str = "SOURCE_PHYSICS_MODEL_TEST_CONDITION";
+    const HELD: &str = "SOURCE_PHYSICS_MODEL_TEST_HELD_SUPPORTS";
+    const CONTENTS: &str = "SOURCE_PHYSICS_MODEL_TEST_CONTENTS";
+    let fail = |code: &str| Err::<(), String>(code.to_string());
+    let model_cases = model["load_cases"].as_array().map(Vec::as_slice).unwrap_or(&[]);
+    let cases = source["contract_evidence"]["exact_cases"].as_array().map(Vec::as_slice).unwrap_or(&[]);
+    for case in cases {
+        let Some(declared) = model_cases.iter().find(|c| c["id"] == case["load_case_id"]) else { continue };
+        let test = &declared["test_condition"];
+        let mark = &case["test_condition"];
+        if test.is_null() != mark.is_null() {
+            return fail(PRESENCE);
+        }
+        if test.is_null() {
+            continue;
+        }
+        if mark["kind"] != test["kind"] || mark["held_supports"] != test["held_supports"] {
+            return fail(PRESENCE);
+        }
+        // A held record that also carries a nonlinear action, or restrains a
+        // degree of freedom besides the one it acts on, is refused by the
+        // solve, so no mark of a case holding it can be published.
+        let supports = model["supports"].as_array().map(Vec::as_slice).unwrap_or(&[]);
+        if mark["held_supports"] == "springs_and_constant_effort"
+            && supports.iter().any(|support| held_family(support) && held_record_carries_another_action(support))
+        {
+            return fail(HELD);
+        }
+        let held = held_supports(model, declared);
+        let refs: Vec<&str> = mark["held_support_refs"].as_array().map(Vec::as_slice).unwrap_or(&[]).iter().filter_map(Value::as_str).collect();
+        if refs != held {
+            return fail(HELD);
+        }
+        let key = &declared["condition_use"]["contents_density"];
+        if key.is_null() || mark["contents_condition"] != *key {
+            return fail(CONTENTS);
+        }
+        let generated: Vec<(&Value, Value)> = declared["primitive_loads"].as_array().map(Vec::as_slice).unwrap_or(&[]).iter()
+            .filter_map(|load| {
+                let found = load["provenance"].as_str().and_then(|text| serde_json::from_str::<Value>(text).ok())?;
+                (found["method"] == GENERATED_SELF_WEIGHT_METHOD && load["target"]["type"] == "element").then_some((load, found))
+            })
+            .collect();
+        let items = mark["contents_resolution"].as_array().map(Vec::as_slice).unwrap_or(&[]);
+        if items.len() != generated.len() {
+            return fail(CONTENTS);
+        }
+        for (item, (load, found)) in items.iter().zip(&generated) {
+            let pipe = &load["target"]["pipe"];
+            let set = model["pipe_segments"].as_array().map(Vec::as_slice).unwrap_or(&[]).iter()
+                .find(|segment| segment["id"] == *pipe)
+                .map(|segment| &segment["condition_set_ref"])
+                .filter(|set| !set.is_null());
+            let density = set.and_then(|set| {
+                model["condition_sets"].as_array()?.iter().find(|candidate| candidate["id"] == *set)?["conditions"]
+                    .as_array()?.iter().find(|condition| condition["key"] == *key).map(|condition| &condition["contents_density"])
+            });
+            let bits = |v: &Value| v.as_f64().map(f64::to_bits);
+            let applied = match (item["mass_kg_per_m"].as_f64(), found["normalized_acceleration_m_per_s2"].as_f64()) {
+                (Some(mass), Some(acceleration)) => Some((mass * acceleration).to_bits()),
+                _ => None,
+            };
+            let bound = item["load_id"] == load["id"]
+                && item["pipe_id"] == *pipe
+                && set.is_some_and(|set| item["condition_set_ref"] == *set)
+                && item["condition_key"] == *key
+                && density.is_some_and(|density| {
+                    bits(&density["value"]).is_some() && bits(&density["value"]) == bits(&item["contents_density"]["value"])
+                        && density["unit"] == item["contents_density"]["unit"]
+                })
+                && applied.is_some() && applied == bits(&item["applied_n_per_m"]);
+            if !bound {
+                return fail(CONTENTS);
+            }
+        }
+    }
     Ok(())
 }
 

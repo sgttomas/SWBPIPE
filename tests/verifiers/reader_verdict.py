@@ -38,12 +38,14 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 import json
+import struct
 import math
 import re
 from typing import Any
 
 from . import compatibility as c
 from . import physics_source, preview_physics_evidence, pressure_3, section_basis as sb, source_blocks
+from .exact_combinations import _held_family, _held_record_carries_another_action, held_supports
 
 ROUTES = ("pressure_source", "preview_physics", "pressure", "retained_preview_physics", "retained_physics")
 READERS = ("preview-physics", "pressure-source", "source-recovery", "pressure")
@@ -601,6 +603,84 @@ def physics_model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) ->
         for row in source.get("results") or []:
             if row.get("kind") in _SUPPORT_KINDS and row.get("entity_ref") not in supports:
                 raise Refused("SOURCE_PHYSICS_SUPPORT_BINDING")
+    # DEL-05-01 REQ-014: each exact case's hydrostatic test mark, bound to the model's case.
+    if model.get("load_cases") is not None:
+        _test_condition_model_binding(source, model)
+
+
+# The self-weight generation method whose loads a test case's contents enter (PP self_weight::GENERATED_METHOD).
+_GENERATED_SELF_WEIGHT_METHOD = "pipe_mass_per_length_times_explicit_axis_acceleration/v2"
+
+
+def _binary64_bits(value: Any) -> int | None:
+    if type(value) not in (int, float):
+        return None
+    return struct.unpack("<Q", struct.pack("<d", float(value)))[0]
+
+
+def _test_condition_model_binding(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
+    """Rust `reader_verdict::test_condition_model_binding`, in the same order and with the same codes. It binds
+    presence, the choice, the held supports, the contents key and each item's identity, set, key and density, and that
+    the applied load equals the mass times the model's recorded gravity; it does not rederive the mass with the test
+    contents, which rests on the reference comparisons and on the join with the case's record of load sources."""
+    listed = lambda value: value if isinstance(value, list) else []
+    model_cases = listed(model.get("load_cases"))
+    cases = listed((source.get("contract_evidence") or {}).get("exact_cases"))
+    for case in cases:
+        if not isinstance(case, Mapping):
+            continue
+        declared = next((c for c in model_cases if isinstance(c, Mapping) and c.get("id") == case.get("load_case_id")), None)
+        if declared is None:
+            continue
+        test, mark = declared.get("test_condition"), case.get("test_condition")
+        if (test is None) != (mark is None):
+            raise Refused("SOURCE_PHYSICS_MODEL_TEST_CONDITION")
+        if test is None:
+            continue
+        if mark.get("kind") != test.get("kind") or mark.get("held_supports") != test.get("held_supports"):
+            raise Refused("SOURCE_PHYSICS_MODEL_TEST_CONDITION")
+        # A held record that also carries a nonlinear action, or restrains a degree of freedom besides the one it acts
+        # on, is refused by the solve, so no mark of a case holding it can be published.
+        if mark.get("held_supports") == "springs_and_constant_effort" and any(
+                _held_family(s) and _held_record_carries_another_action(s) for s in listed(model.get("supports"))):
+            raise Refused("SOURCE_PHYSICS_MODEL_TEST_HELD_SUPPORTS")
+        held = held_supports(model, declared)
+        if [r for r in listed(mark.get("held_support_refs")) if isinstance(r, str)] != held:
+            raise Refused("SOURCE_PHYSICS_MODEL_TEST_HELD_SUPPORTS")
+        key = (declared.get("condition_use") or {}).get("contents_density") if isinstance(declared.get("condition_use"), Mapping) else None
+        if key is None or mark.get("contents_condition") != key:
+            raise Refused("SOURCE_PHYSICS_MODEL_TEST_CONTENTS")
+        generated = []
+        for load in listed(declared.get("primitive_loads")):
+            try:
+                found = json.loads(load["provenance"]) if isinstance(load, Mapping) and isinstance(load.get("provenance"), str) else None
+            except ValueError:
+                found = None
+            if isinstance(found, Mapping) and found.get("method") == _GENERATED_SELF_WEIGHT_METHOD \
+                    and isinstance(load.get("target"), Mapping) and load["target"].get("type") == "element":
+                generated.append((load, found))
+        items = listed(mark.get("contents_resolution"))
+        if len(items) != len(generated):
+            raise Refused("SOURCE_PHYSICS_MODEL_TEST_CONTENTS")
+        for item, (load, found) in zip(items, generated):
+            pipe = load["target"].get("pipe")
+            segment = next((p for p in listed(model.get("pipe_segments")) if isinstance(p, Mapping) and p.get("id") == pipe), None)
+            set_ref = segment.get("condition_set_ref") if segment is not None else None
+            density = None
+            if set_ref is not None:
+                found_set = next((c for c in listed(model.get("condition_sets")) if isinstance(c, Mapping) and c.get("id") == set_ref), None)
+                condition = next((c for c in listed((found_set or {}).get("conditions")) if isinstance(c, Mapping) and c.get("key") == key), None)
+                density = condition.get("contents_density") if condition is not None else None
+            mass, acceleration = item.get("mass_kg_per_m"), found.get("normalized_acceleration_m_per_s2")
+            applied = _binary64_bits(float(mass) * float(acceleration)) if _binary64_bits(mass) is not None and _binary64_bits(acceleration) is not None else None
+            stated = item.get("contents_density") if isinstance(item.get("contents_density"), Mapping) else {}
+            bound = (item.get("load_id") == load.get("id") and item.get("pipe_id") == pipe
+                     and set_ref is not None and item.get("condition_set_ref") == set_ref and item.get("condition_key") == key
+                     and isinstance(density, Mapping) and _binary64_bits(density.get("value")) is not None
+                     and _binary64_bits(density.get("value")) == _binary64_bits(stated.get("value")) and density.get("unit") == stated.get("unit")
+                     and applied is not None and applied == _binary64_bits(item.get("applied_n_per_m")))
+            if not bound:
+                raise Refused("SOURCE_PHYSICS_MODEL_TEST_CONTENTS")
 
 
 def _source_validate(source: Any, invocation: Any, context=physics_source.SourceContract.PRESSURE_V3) -> bool:

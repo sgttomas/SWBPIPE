@@ -6,9 +6,10 @@
 //! A set is a source of values; a case's use of it resolves into the per-case
 //! records the solve already consumes. On the pressure-free route S2 resolves
 //! temperature, added weight and wind exposure ([`resolution`]); contents
-//! density and a pressure use stay refused by name there, and on a document with
-//! a pressure contract every use is refused (`LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED`,
-//! until S4). Every set and reference is judged whether or not a case uses it,
+//! density and a pressure use stay refused by name there. On a document with a
+//! pressure contract the only use admitted is a hydrostatic test case's
+//! `contents_density` ([`crate::hydrostatic`]); every other use is refused
+//! (`LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED`). Every set and reference is judged whether or not a case uses it,
 //! so a document's admissibility does not depend on which cases use what.
 //!
 //! [`lower`] runs first in the solve. It applies the document-level rules of
@@ -42,10 +43,11 @@ pub const LOAD_CASE_CONDITION_USE_EMPTY: &str = "LOAD_CASE_CONDITION_USE_EMPTY";
 /// Interim refusal of S1, removed from the solve by S2 (the PF resolution). The
 /// applier still refuses authoring a `condition_use` with it until S3a.
 pub const LOAD_CASE_CONDITION_USE_UNSUPPORTED: &str = "LOAD_CASE_CONDITION_USE_UNSUPPORTED";
-/// Interim until S4: any `condition_use` on a document with `pressure_contract`.
+/// A `condition_use` on a document with `pressure_contract` other than a
+/// hydrostatic test case's contents selection.
 pub const LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED: &str = "LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED";
-/// Interim until RT-A6's build (DEL-05-01 Design `hydrostatic-test.md` §2).
-pub const LOAD_CASE_TEST_CONDITION_UNSUPPORTED: &str = "LOAD_CASE_TEST_CONDITION_UNSUPPORTED";
+/// A test case on the pressure-free route (DEL-05-01 REQ-014), refused by name.
+pub use crate::hydrostatic::LOAD_CASE_TEST_CONDITION_PRESSURE_FREE;
 
 /// The entity name of a condition set in `EMPTY_ID` and `DUPLICATE_ID`.
 pub const CONDITION_SET_ENTITY: &str = "condition-set";
@@ -360,6 +362,10 @@ pub(crate) struct Judgement {
     pub(crate) diagnostics: Vec<Diagnostic>,
     pub(crate) document_refused: bool,
     pub(crate) plan: Option<resolution::ResolutionPlan>,
+    /// The hydrostatic test cases' contents resolution, present only when the
+    /// lowering refuses nothing; the solve applies it after checking the applied
+    /// self-weight against its model (`hydrostatic::apply_contents`).
+    pub(crate) test_contents: Vec<crate::hydrostatic::ContentsResolution>,
 }
 
 /// §1.3 and §1.5 on a model it reads only: the document-level rules of every
@@ -372,6 +378,7 @@ pub(crate) fn judge(model: &PreviewModel) -> Judgement {
             diagnostics: found.into_vec().into_iter().map(|finding| finding.into_diagnostic("blocking")).collect(),
             document_refused: true,
             plan: None,
+            test_contents: Vec::new(),
         };
     }
     let mut diagnostics = Vec::new();
@@ -389,26 +396,24 @@ pub(crate) fn judge(model: &PreviewModel) -> Judgement {
         }
     };
     for case in &model.load_cases {
-        if exact && case.condition_use.is_some() {
+        // DEL-05-01 REQ-014: on the exact route a case's condition use is
+        // admitted only as a hydrostatic test case's contents selection.
+        if exact && !crate::hydrostatic::admits_exact_use(case) {
             diagnostics.push(crate::diag(&format!("diagnostic:load-case:{}:condition-use", crate::stable_suffix(&case.id)),
                 LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED, "blocking",
-                format!("load case `{}` uses operating conditions on a document with a pressure contract; the exact route's condition resolution is not built yet, so nothing is solved", case.id),
+                format!("load case `{}` uses operating conditions on a document with a pressure contract; the exact route resolves only a hydrostatic test case's contents_density, so nothing is solved", case.id),
                 vec![case.id.clone()]));
         }
-        if case.test_condition.is_some() {
-            diagnostics.push(crate::diag(
-                &format!("diagnostic:load-case:{}:test-condition", crate::stable_suffix(&case.id)),
-                LOAD_CASE_TEST_CONDITION_UNSUPPORTED,
-                "blocking",
-                format!("load case `{}` is a hydrostatic test condition; the test-case mechanics (held supports, test contents and pressure) are not built yet, so nothing is solved", case.id),
-                vec![case.id.clone()],
-            ));
-        }
     }
+    // The hydrostatic test cases (DEL-05-01 REQ-014; DEL-04-07 REQ-011): their
+    // refusals by name, and the contents resolution the solve applies.
+    let test_contents = crate::hydrostatic::judge(model, &mut diagnostics);
     crate::document_members::interim_support_refusals(model, &mut diagnostics);
     crate::document_members::interim_exact_combination_refusals(model, &mut diagnostics);
-    let plan = planned.filter(|_| !crate::has_blocking(&diagnostics));
-    Judgement { diagnostics, document_refused: false, plan }
+    let refused = crate::has_blocking(&diagnostics);
+    let plan = planned.filter(|_| !refused);
+    let test_contents = if refused { Vec::new() } else { test_contents };
+    Judgement { diagnostics, document_refused: false, plan, test_contents }
 }
 
 /// §1.5: the lowering. It runs first in the solve, before `validate_profile`:
@@ -425,6 +430,7 @@ pub(crate) fn lower(model: &mut PreviewModel, diagnostics: &mut Vec<Diagnostic>)
         return Vec::new();
     }
     let added = judged.plan.map(|planned| planned.apply(model)).unwrap_or_default();
+    model.test_contents = judged.test_contents;
     // The members no later stage reads.
     model.condition_sets.clear();
     model.spectra.clear();

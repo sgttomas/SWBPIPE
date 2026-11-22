@@ -228,6 +228,12 @@ code_paths:
 # the priced parses are this deliverable's (REQ-008); the solve job's lifecycle in the same files
 # is DEL-07-07's.
 - core/product_physics/**
+# The held replacement of REQ-011: in a hydrostatic test case that holds supports, hydrostatic.rs
+# replaces each held support by a rigid restraint; the journey test solves the four-span model a
+# person opens to the frozen held rows. A held support publishes only its reaction rows in that
+# case. The preload warning and the hanger's stiffness review row are document-level and say
+# nothing about a held case. The test contents and the mark are DEL-05-01's.
+- core/model_operations/operation_applier/tests/hydrostatic_four_span_journey.rs
 - core/solver/nonlinear_integration/**
 - core/model_operations/operation_applier/src/pressure_authoring.rs
 - core/model_operations/operation_applier/src/bend_authoring.rs
@@ -289,6 +295,8 @@ code_paths:
 - validation/platform/windows_worker_fixture/**
 checks:
 - core/product_physics/tests/exact_admission_seam.rs
+- core/product_physics/tests/hydrostatic_test_case.rs
+- core/model_operations/operation_applier/tests/hydrostatic_four_span_journey.rs
 - core/product_physics/tests/arc_tangent_direction_magnitude.rs
 - core/product_physics/tests/rt_a3_tee_references.rs
 - core/product_physics/tests/rt_a3_reducer_references.rs

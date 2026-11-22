@@ -162,6 +162,52 @@ pub(crate) fn equivalent_static_record(case_id: &str, record: &Value) -> Check {
     Ok(())
 }
 
+/// DEL-05-01 REQ-014: the method of each item of a hydrostatic test case's
+/// contents resolution (PP `hydrostatic::CONTENTS_METHOD`).
+pub(crate) const TEST_CONTENTS_METHOD: &str = "hydrostatic_test_contents_in_self_weight/v1";
+
+/// DEL-05-01 REQ-014: a hydrostatic test case's mark, `test_condition`, exactly
+/// as `results_pressure_3.v0.3.schema.json` declares `PressureExactTestCondition`:
+/// closed, kind `hydrostatic`, the held choice, the held supports as unique
+/// non-empty identities, the selected key, and at least one closed resolution
+/// item with the contents method, its non-empty identities, the density as a
+/// closed quantity and its two numbers. Its binding to the model is the
+/// model-bound reader's (`reader_verdict::test_condition_model_binding`).
+pub(crate) fn test_condition_record(record: &Value) -> Check {
+    require(
+        keys(record, &["kind", "held_supports", "held_support_refs", "contents_condition", "contents_resolution"]),
+        "TEST_CONDITION_SHAPE",
+    )?;
+    require(record["kind"] == "hydrostatic", "TEST_CONDITION_KIND")?;
+    require(
+        record["held_supports"] == "springs_and_constant_effort" || record["held_supports"] == "none",
+        "TEST_CONDITION_HELD_SUPPORTS",
+    )?;
+    let mut held = HashSet::new();
+    for support in array(&record["held_support_refs"])? {
+        require(held.insert(text(support)?), "TEST_CONDITION_HELD_SUPPORT_REFS")?;
+    }
+    text(&record["contents_condition"])?;
+    let items = array(&record["contents_resolution"])?;
+    require(!items.is_empty(), "TEST_CONDITION_SHAPE")?;
+    for item in items {
+        require(
+            keys(item, &["method", "load_id", "pipe_id", "condition_set_ref", "condition_key", "contents_density", "mass_kg_per_m", "applied_n_per_m"])
+                && keys(&item["contents_density"], &["value", "unit"]),
+            "TEST_CONDITION_SHAPE",
+        )?;
+        require(item["method"] == TEST_CONTENTS_METHOD, "TEST_CONDITION_CONTENTS_METHOD")?;
+        for member in ["load_id", "pipe_id", "condition_set_ref", "condition_key"] {
+            text(&item[member])?;
+        }
+        number(&item["contents_density"]["value"])?;
+        text(&item["contents_density"]["unit"])?;
+        number(&item["mass_kg_per_m"])?;
+        number(&item["applied_n_per_m"])?;
+    }
+    Ok(())
+}
+
 /// DEL-05-01 (issue 450 item 4): the optional `component_forces` of an
 /// `equivalent_static` record has a closed shape: a nonempty list of entries,
 /// each a component and node reference, a global axis, the factor, the
@@ -979,6 +1025,13 @@ pub(crate) fn validate_physics_evidence_in(
             equivalent_static_record(case_id, &case["equivalent_static"])?;
             require(!composite || case["recovery_method"] != "retained_source_blocks_exact_v1", "CASE_SHAPE")?;
         }
+        // DEL-05-01 REQ-014: a hydrostatic test case's mark; never on a
+        // selected retained case.
+        let test_case = case.get("test_condition").is_some();
+        if test_case {
+            test_condition_record(&case["test_condition"])?;
+            require(!composite || case["recovery_method"] != "retained_source_blocks_exact_v1", "CASE_SHAPE")?;
+        }
         require(
             keys(
                 case,
@@ -997,6 +1050,7 @@ pub(crate) fn validate_physics_evidence_in(
                 .chain(composite.then_some("recovery_method"))
                 .chain(directional.then_some("intensified_measures"))
                 .chain(generation.then_some("equivalent_static"))
+                .chain(test_case.then_some("test_condition"))
                 .collect::<Vec<_>>()
                 .as_slice(),
             ),

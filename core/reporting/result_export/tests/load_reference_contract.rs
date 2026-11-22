@@ -331,9 +331,12 @@ fn current_inputs_table_and_schema_are_pinned() {
     assert_eq!(table["formulation_profile_id"], s::PRESSURE_PROFILE);
     assert!(lr::transport_schema().is_ok());
     // B7b A5: load_reference_state.schema.json lost its v2 definitions.
+    // DEL-04-07 REQ-011 / DEL-05-01 REQ-014: a generated load source's
+    // contribution and a hydrostatic test case's entry descriptions
+    // (was 736769f8... on main, 497caa66... on PR 478, b95947ea... prior).
     assert_eq!(
         lr::TRANSPORT_SCHEMA_SHA256,
-        "736769f842d3ba3b3ded9069a83b7087ae3a21f6510897d8596e7ec190cc4ac9"
+        "c1aae90fe9626666f9e823045225d694e6aad961612c0f3e5df1e127acca8ff9"
     );
     assert_eq!(
         sha(include_bytes!("../../../../schemas/load_reference_state.schema.json")),

@@ -192,3 +192,61 @@ pub(crate) fn read_delivered_source(
     }
     Ok(BoundSource { source, model, model_sha256, standing })
 }
+/// DEL-05-01 REQ-014: the report's native intake of a delivered hydrostatic
+/// test case. The four-span model taken through its journey and its load and
+/// reference-state twin (`fixtures/hydrostatic_test/four_span_reader_models.json`)
+/// with the raw bytes the producer wrote for each
+/// (`fixtures/results/hydrostatic_test_*-sparse_interactive.raw.json`) are read
+/// by [`read_delivered_source`] for the rendered report: the reader reads each
+/// with its model, its mechanics are solved, both digests bind, and no standing
+/// finding concerns the test case. The host's own verdict on a held result is
+/// the same reader's (`native_verdict`, through
+/// `operation_applier::reader_dispatch_json` and `reader_report_standing_json`),
+/// read here on the same texts.
+#[cfg(test)]
+mod hydrostatic_test_intake {
+    use super::*;
+    use open_pipe_stress_product_physics::PreviewSolverMode;
+
+    fn read(path: &str) -> String {
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
+        std::fs::read_to_string(root.join(path)).unwrap_or_else(|e| panic!("{path}: {e}"))
+    }
+
+    fn about_the_test(findings: &Value) -> Vec<String> {
+        findings.as_array().map(Vec::as_slice).unwrap_or(&[]).iter().filter_map(Value::as_str)
+            .filter(|f| f.contains("TEST") || f.contains("CASE_SHAPE") || f.contains("CONSTANT_EFFORT")).map(String::from).collect()
+    }
+
+    #[test]
+    fn a_delivered_hydrostatic_test_case_is_read_for_the_report() {
+        let models: Value = serde_json::from_str(&read("fixtures/hydrostatic_test/four_span_reader_models.json")).unwrap();
+        for (name, raw) in [
+            ("journey", "fixtures/results/hydrostatic_test_journey-sparse_interactive.raw.json"),
+            ("load_state_twin", "fixtures/results/hydrostatic_test_load_state_twin-sparse_interactive.raw.json"),
+        ] {
+            let result_text = read(raw);
+            let model = &models["models"][name];
+            let intake_text = serde_json::to_string(model).unwrap();
+            let source: Value = serde_json::from_str(&result_text).unwrap();
+            let admission = json!({"received_result_sha256": digest(&source).unwrap(), "model_sha256": digest(model).unwrap()});
+            let digests = CustodyDigests {
+                intake_sha256: sha256_in_place(intake_text.as_bytes()),
+                result_sha256: sha256_in_place(result_text.as_bytes()),
+                solver_mode: PreviewSolverMode::SparseInteractive,
+            };
+            let bound = read_delivered_source(&admission, &digests, &result_text, &intake_text)
+                .unwrap_or_else(|refusal| panic!("{name}: {} {}", refusal.code, refusal.message));
+            assert!(bound.source["contract_evidence"]["exact_cases"].as_array().unwrap().iter().any(|c| c["test_condition"]["kind"] == "hydrostatic"), "{name}");
+            assert_eq!(about_the_test(&bound.standing["findings"]), Vec::<String>::new(), "{name}");
+            // The host's verdict on a held result: the same reader on the same texts.
+            let dispatch: Value = serde_json::from_str(&open_pipe_stress_operation_applier::reader_dispatch_json(&result_text, Some(&intake_text), None).unwrap()).unwrap();
+            assert_eq!(dispatch["ok"], true, "{name}: {dispatch}");
+            assert_eq!(dispatch["route"], "pressure", "{name}");
+            assert_eq!(about_the_test(&dispatch["standing"]["findings"]), Vec::<String>::new(), "{name}");
+            let report: Value = serde_json::from_str(&open_pipe_stress_operation_applier::reader_report_standing_json(&result_text, &intake_text, None).unwrap()).unwrap();
+            assert_eq!(report["readability"]["readable"], true, "{name}: {report}");
+            assert_eq!(report["readability"]["solved"], true, "{name}");
+        }
+    }
+}

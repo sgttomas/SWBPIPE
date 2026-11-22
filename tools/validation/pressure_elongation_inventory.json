@@ -28,11 +28,11 @@
    ".json",
    ".jsonl"
   ],
-  "files": 556,
+  "files": 562,
   "claimed_by": {
-   "group": 145,
-   "in_code": 68,
-   "exemption": 343
+   "group": 146,
+   "in_code": 70,
+   "exemption": 346
   }
  },
  "counts": {
@@ -65,6 +65,11 @@
    "files": 1,
    "documents": 1,
    "pressurised_load_cases": 1
+  },
+  "hydrostatic_four_span_reader_models": {
+   "files": 1,
+   "documents": 2,
+   "pressurised_load_cases": 3
   },
   "reference_system": {
    "files": 1,
@@ -1512,6 +1517,46 @@
      "schema_version": "0.9.0",
      "pressurised_load_cases": [
       "load:VACUUM"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "hydrostatic_four_span_reader_models",
+   "group": "hydrostatic_four_span_reader_models",
+   "path": "fixtures/hydrostatic_test/four_span_reader_models.json",
+   "producer": {
+    "kind": "rust_test",
+    "path": "core/model_operations/operation_applier/tests/hydrostatic_four_span_journey.rs",
+    "write": "OPENPIPESTRESS_WRITE_HYDROSTATIC_READER_MODELS=1 with the_reader_models_are_current",
+    "switch_plumbed": false,
+    "switch_route": "takes the committed four-span test model through the operation route; re-produce that source with the switch, then re-run this writer"
+   },
+   "pinned_by": [
+    "core/model_operations/operation_applier/tests/hydrostatic_four_span_journey.rs",
+    "core/product_physics/tests/hydrostatic_test_case.rs",
+    "core/product_physics/src/hydrostatic_certificate_tests.rs",
+    "tests/test_hydrostatic_test_readers.py",
+    "apps/desktop/src/features/results/hydrostaticTestReaders.test.tsx",
+    "apps/desktop/src-tauri/src/exact_source_binding.rs"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   },
+   "documents": [
+    {
+     "pointer": "/models/journey",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "HT-4S-TEST"
+     ]
+    },
+    {
+     "pointer": "/models/load_state_twin",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "HT-4S-TEST",
+      "HT-4S-OPERATING"
      ]
     }
    ]
@@ -11220,6 +11265,15 @@
   },
   {
    "paths": [
+    "core/product_physics/tests/hydrostatic_test_case.rs"
+   ],
+   "reference": "validation/references/hydrostatic_test",
+   "expectations": "reference_file",
+   "cases_named": "none",
+   "detail": "hydrostatic_test frozen references, every case under its own test pressure; unnamed by design: every row it compares is marked independent of the case's pressure elongation (the reference's conventions.pressure_elongation)"
+  },
+  {
+   "paths": [
     "core/product_physics/tests/exact_load_state_generated_references.rs"
    ],
    "reference": "validation/references/exact_load_state_equivalent_static",
@@ -11423,6 +11477,15 @@
   },
   {
    "paths": [
+    "core/model_operations/operation_applier/tests/hydrostatic_four_span_journey.rs"
+   ],
+   "reference": "validation/references/hydrostatic_test",
+   "expectations": "reference_file",
+   "cases_named": "none",
+   "detail": "the committed four-span test model taken through self-weight, region, test condition and contents, against the hydrostatic_test held four-span rows; unnamed by design: every row it compares is marked independent of the case's pressure elongation"
+  },
+  {
+   "paths": [
     "core/model_operations/operation_applier/tests/l_line_authoring.rs"
    ],
    "reference": "validation/references/t4_i7",
@@ -11606,6 +11669,7 @@
    "paths": [
     "core/product_physics/src/case_state/resolve.rs",
     "core/product_physics/src/exact_admission.rs",
+    "core/product_physics/src/hydrostatic.rs",
     "core/product_physics/src/joint.rs",
     "core/product_physics/src/lib.rs",
     "core/product_physics/src/retained_memory.rs",
@@ -11616,6 +11680,7 @@
    "files": [
     "core/product_physics/src/case_state/resolve.rs",
     "core/product_physics/src/exact_admission.rs",
+    "core/product_physics/src/hydrostatic.rs",
     "core/product_physics/src/joint.rs",
     "core/product_physics/src/lib.rs",
     "core/product_physics/src/retained_memory.rs",
@@ -11849,6 +11914,7 @@
    "reason": "every region list it builds is empty, absent or at zero pressure, so no case carries pressure",
    "paths": [
     "core/model_operations/operation_applier/tests/condition_set_authoring.rs",
+    "core/model_operations/operation_applier/tests/hydrostatic_test_authoring.rs",
     "core/product_physics/src/d5_mass_product_tests.rs",
     "core/product_physics/src/modal/tests.rs",
     "core/product_physics/src/retained_facade_tests.rs",
@@ -11881,6 +11947,7 @@
    ],
    "files": [
     "core/model_operations/operation_applier/tests/condition_set_authoring.rs",
+    "core/model_operations/operation_applier/tests/hydrostatic_test_authoring.rs",
     "core/product_physics/src/d5_mass_product_tests.rs",
     "core/product_physics/src/modal/tests.rs",
     "core/product_physics/src/retained_facade_tests.rs",
@@ -12221,7 +12288,8 @@
     "validation/references/rt_a3_s6/requests/ls1_*.json",
     "validation/references/t4_i12/u3_reference_cases.json",
     "validation/references/t4_u8/requests/LOAD-STATE-PER-CASE-NU-*.request.json",
-    "validation/references/t4_u8/requests/S-*.request.json"
+    "validation/references/t4_u8/requests/S-*.request.json",
+    "fixtures/model_operations/condition_set_contract_corpus.json"
    ],
    "files": [
     "core/product_physics/src/source_recovery/j7_i12_request.json",
@@ -12235,6 +12303,7 @@
     "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz.request.json",
     "core/runner/headless/tests/t4_u5b_requests/MO-F.request.json",
     "core/runner/headless/tests/t4_u5b_requests/MO-T.request.json",
+    "fixtures/model_operations/condition_set_contract_corpus.json",
     "fixtures/model_operations/contract_corpus/case_82_accept_insert_bend_at_corner.json",
     "fixtures/model_operations/contract_corpus/case_83_accept_set_field_bend_realization.json",
     "fixtures/model_operations/contract_corpus/case_84_block_agent_bend_flexibility.json",

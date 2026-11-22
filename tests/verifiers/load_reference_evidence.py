@@ -22,7 +22,9 @@ from pathlib import Path
 from collections.abc import Mapping
 from typing import Any
 
-TRANSPORT_SCHEMA_SHA256 = "736769f842d3ba3b3ded9069a83b7087ae3a21f6510897d8596e7ec190cc4ac9"
+# DEL-04-07 REQ-011 / DEL-05-01 REQ-014: a generated load source's contribution and a hydrostatic test case's entry
+# descriptions (was 736769f8... on main, 497caa66... on PR 478, b95947ea... prior).
+TRANSPORT_SCHEMA_SHA256 = "c1aae90fe9626666f9e823045225d694e6aad961612c0f3e5df1e127acca8ff9"
 TRANSPORT_SCHEMA_PATH = Path(__file__).resolve().parents[2] / "schemas" / "load_reference_state.schema.json"
 
 RECORD_CONTRACT = "openpipestress.load_reference_state/1.0.0"
@@ -273,10 +275,13 @@ def _prepass(source: Mapping[str, Any], raw: bool, method: str) -> None:
     cases: list[tuple[str, Mapping[str, Any]]] = []
     case_keys = CASE_KEYS + (["recovery_method"] if joined else [])
     for case in exact:
+        # DEL-05-01 REQ-014: a hydrostatic test case adds its mark, never on the joined composite (its
+        # shape is the physics pass's).
+        test_case = not joined and isinstance(case, Mapping) and "test_condition" in case
         # DEL-05-01 REQ-008: a generating case adds its `equivalent_static`
         # record (checked by the physics pass).
         generating = isinstance(case, Mapping) and "equivalent_static" in case
-        _require(_keys(case, case_keys + (["equivalent_static"] if generating else [])), "CASE_SHAPE")
+        _require(_keys(case, case_keys + (["test_condition"] if test_case else []) + (["equivalent_static"] if generating else [])), "CASE_SHAPE")
         case_id = _text(case["load_case_id"])
         _require(all(known != case_id for known, _ in cases), "CASE_DUPLICATE")
         _require(_eq(case["material_basis"], MATERIAL_BASIS), "MATERIAL_BASIS")
@@ -422,8 +427,10 @@ def _validate_record(record: Mapping[str, Any], cases: list[tuple[str, Mapping[s
     # R10 contributions.
     contributions = _array(record["contributions"])
     contribution_ids: list[str] = []
+    # DEL-05-01 REQ-014: a hydrostatic test case's mark names the loads its test contents entered.
+    mark = next((value.get("test_condition") for known, value in cases if known == case_id), None)
     for contribution in contributions:
-        _validate_contribution(contribution)
+        _validate_contribution(contribution, mark)
         source_id = _text(contribution["source_id"])
         _require(source_id not in contribution_ids, "CONTRIBUTION_DUPLICATE")
         contribution_ids.append(source_id)
@@ -677,7 +684,7 @@ def _validate_support_component(component: Any) -> None:
     _number(component["prescribed_value"])
 
 
-def _validate_contribution(contribution: Any) -> None:
+def _validate_contribution(contribution: Any, mark: Any = None) -> None:
     kind = _get(contribution, "owner_kind")
     shapes = {
         "stored_primitive": (STORED_KEYS, "ordinary_applied"),
@@ -703,7 +710,12 @@ def _validate_contribution(contribution: Any) -> None:
         _text(contribution["dimension"])
         authored = _number(contribution["authored_normalized_magnitude"])
         applied = _number(contribution["applied_magnitude"])
-        _require(applied == authored * factor, "CONTRIBUTION_APPLIED_MAGNITUDE")
+        # DEL-05-01 REQ-014: on a marked case, a stored primitive that one of the mark's contents items names was
+        # applied with the test contents (factor times the item's applied_n_per_m); every other entry: factor times authored.
+        items = _get(mark, "contents_resolution")
+        item = next((item for item in items if isinstance(_get(item, "load_id"), str) and _get(item, "load_id") == contribution["source_id"]), None) if isinstance(items, list) else None
+        base = authored if item is None else _number(_get(item, "applied_n_per_m"))
+        _require(applied == base * factor, "CONTRIBUTION_APPLIED_MAGNITUDE")
     elif kind == "resolved_member_state":
         for reference in _array(contribution["consumed_input_refs"]):
             _text(reference)

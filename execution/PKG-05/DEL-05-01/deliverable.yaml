@@ -141,13 +141,39 @@ code_paths:
 - validation/references/w16_exact_equivalent_static/**
 - validation/references/w16_timoshenko_partial_wind/**
 - validation/references/rt_g5_s2_conditions/**
-# Frozen before the engine work they judge: wind and seismic beside a temperature state on the
-# exact route, which exact_load_state_generated_references.rs reads, and the hydrostatic test
-# case, which no product test reads yet.
+# Wind and seismic beside a temperature state on the exact route, read by
+# exact_load_state_generated_references.rs.
 - validation/references/exact_load_state_equivalent_static/**
-- validation/references/hydrostatic_test/**
 - tests/test_exact_load_state_equivalent_static_references.py
+# The hydrostatic test case (REQ-014, AC-010): the test condition's admission, its contents entering
+# the case's generated self-weight once, and its result mark (PressureExactTestCondition in the
+# pressure-3 result schema). The held replacement in hydrostatic.rs is DEL-04-07's (REQ-011); the
+# authoring operations are DEL-02-01's. The product test reads the frozen references; the cases
+# with an acting variable spring are compared without their vertical rows, since the product does
+# not apply that hanger's cold load (DEL-04-03). The hanger's stiffness review row and its
+# preload warning (SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD) are document-level, outside any
+# case: the review row once per support, the warning once per support for each nonzero entered
+# installed, cold or hot load, up to three per support. Neither is a statement about a case that
+# holds the support, whose treatment the mark states. The four-span
+# model a person opens holds no case; its journey test takes it through the admitted order.
+- core/product_physics/src/hydrostatic.rs
+- core/product_physics/tests/hydrostatic_test_case.rs
+# The certificate of a test case's generated self-weight takes the contents the model declares for
+# it, captured before the lowering clears the conditions; its mutations edit one side at a time.
+- core/product_physics/src/hydrostatic_certificate_tests.rs
+- validation/references/hydrostatic_test/**
 - tests/test_hydrostatic_test_references.py
+- fixtures/hydrostatic_test/**
+- tests/test_hydrostatic_four_span_model.py
+- core/model_operations/operation_applier/tests/hydrostatic_four_span_journey.rs
+- core/model_operations/operation_applier/tests/hydrostatic_test_authoring.rs
+- schemas/results_pressure_3.v0.3.schema.json
+# The mark read back: the solved four-span documents (the journey's, and its load and reference-state
+# twin with an ordinary case beside the test case) through each reader that admits an exact result.
+# The readers' admission and binding of the mark are DEL-05-02's (reader_verdict.rs).
+- tests/test_hydrostatic_test_readers.py
+- fixtures/results/hydrostatic_test_*-sparse_interactive.raw.json
+- apps/desktop/src/features/results/hydrostaticTestReaders.test.tsx
 # Frozen before the engine work it judges: static seismic using the route's pipe mass basis and
 # replacing an eligible mapped pipe's load with the component's entered force times its g-factor
 # and the resulting eccentric moment. The product test reproduces every row of each of the package's
@@ -182,6 +208,13 @@ checks:
 - core/product_physics/src/operating_conditions/resolution_tests.rs
 - core/model_operations/operation_applier/tests/generated_self_weight.rs
 - core/loads/self_weight_wasm/tests/applied_self_weight.rs
+- core/product_physics/tests/hydrostatic_test_case.rs
+- core/product_physics/src/hydrostatic_certificate_tests.rs
+- core/model_operations/operation_applier/tests/hydrostatic_four_span_journey.rs
+- core/model_operations/operation_applier/tests/hydrostatic_test_authoring.rs
+- tests/test_hydrostatic_four_span_model.py
+- tests/test_hydrostatic_test_readers.py
+- apps/desktop/src/features/results/hydrostaticTestReaders.test.tsx
 - core/product_physics/tests/reference_system_generated_weight_standing.rs
 - core/product_physics/tests/seismic_component_weight.rs
 # The seismic component's unit tests: its range refusals, and the binding of each prepared force and

@@ -15,13 +15,12 @@
 //! - the model build (element formation inputs);
 //! - constant-effort consumption, the W-8 topology checks
 //!   (`topology::append_topology_diagnostics`);
-//! - the restraint pre-checks: no support, fewer than six ground constraints,
-//!   and invalid support input.
+//! - the restraint pre-checks (`check_pre_formation_restraints`), shared directly
+//!   with the solve.
 //!
 //! It adds no rule and changes no number. Each check is the function the solve
 //! calls, with the same arguments; the only copies are the diagnostics the
-//! solve builds inline (document kind, schema version and the three restraint
-//! pre-checks). Where the solve
+//! solve builds inline (document kind and schema version). Where the solve
 //! stops at a blocking diagnostic, this stops too, so every finding listed is
 //! one the solve itself would publish before it forms a stiffness.
 //! `tests/model_checks_runtime.rs` holds the two in step: the findings equal the
@@ -59,6 +58,7 @@ fn pre_formation_checks(request: LinearStaticPreviewRequest) -> Vec<Diagnostic> 
     let mut diagnostics = Vec::new();
 
     // Model document 0.9.0: the solve's lowering, first, as in the solve.
+    model.declared_test_contents = crate::hydrostatic::declared_contents(&model);
     let condition_added = crate::operating_conditions::lower(&mut model, &mut diagnostics);
     pressure_runtime::validate_profile(&model, &mut diagnostics);
     case_state::resolve::validate_document(&model, request_materials_supplied, &mut diagnostics);
@@ -97,6 +97,8 @@ fn pre_formation_checks(request: LinearStaticPreviewRequest) -> Vec<Diagnostic> 
     }
     // DEL-05-01 REQ-008, as in the solve.
     let seismic_entered = crate::seismic_warning::capture(&model, &condition_added);
+    let test_contents = std::mem::take(&mut model.test_contents);
+    crate::hydrostatic::apply_contents(&mut model, &test_contents);
     resolve_shared_sections(&mut model, &mut diagnostics);
     if has_blocking(&diagnostics) {
         return diagnostics;
@@ -153,53 +155,16 @@ fn pre_formation_checks(request: LinearStaticPreviewRequest) -> Vec<Diagnostic> 
     append_constant_effort_consumption_diagnostics(&model, &mut diagnostics);
     topology::append_topology_diagnostics(&model, &built, &mut diagnostics);
 
-    // The restraint pre-checks, as the solve states them before forming the stiffness.
+    // The restraint pre-checks, via the solve's own shared pre-formation check
+    // (DEL-04-07 REQ-011, DEL-04-06 REQ-013, AC-008).
     let boundary = prepare_boundary(built.nodes.len(), &built.supports);
-    let potential_contact_dofs = eligible_contact_dofs(
-        built.nodes.len(),
-        &boundary.restrained_dofs,
-        &built.nonlinear_supports,
-        &built.nonlinear_initial_states,
+    check_pre_formation_restraints(
+        &model,
+        &materials,
+        resolved_cases.as_ref().map(|cases| &cases[0].pairs),
+        &built,
+        &boundary,
+        &mut diagnostics,
     );
-    if boundary.restrained_dofs.is_empty()
-        && boundary.springs.is_empty()
-        && potential_contact_dofs.is_none()
-    {
-        diagnostics.push(diag(
-            "diagnostic:physics:no-restraints",
-            "SUPPORT_INPUT_MISSING",
-            "blocking",
-            "linear-static preview requires explicit support restraints or springs; no automatic boundary conditions are applied",
-            vec!["supports".to_string()],
-        ));
-    }
-    let ground_dofs = boundary
-        .restrained_dofs
-        .iter()
-        .copied()
-        .chain(
-            boundary
-                .springs
-                .iter()
-                .filter(|spring| spring.stiffness.value > 0.0)
-                .map(|spring| spring.node_dof.global_index()),
-        )
-        .chain(potential_contact_dofs.iter().flatten().copied())
-        .collect::<HashSet<_>>();
-    if !ground_dofs.is_empty() && ground_dofs.len() < DOF_PER_NODE {
-        let (restrained, missing) = support_restraint_summary(&boundary.restrained_dofs);
-        diagnostics.push(diag("diagnostic:physics:under-restrained", "SOLVER_SYSTEM_BLOCKED", "blocking",
-            format!("fewer than six independent ground constraints including positive springs: the six rigid-body modes of a connected structure cannot all be removed; directly restrained global DOF classes: {restrained}; global DOF classes with no direct restraint: {missing} (not a rigid-body mode analysis; separated restraints can resist rotations); support contributions: {}", support_contribution_summary(&model)),
-            vec!["supports".to_string()]));
-    }
-    for finding in &boundary.findings {
-        diagnostics.push(diag(
-            &format!("diagnostic:support:{}", finding.support_id),
-            "SUPPORT_INPUT_INVALID",
-            "blocking",
-            finding.message.clone(),
-            vec![finding.support_id.clone()],
-        ));
-    }
     diagnostics
 }

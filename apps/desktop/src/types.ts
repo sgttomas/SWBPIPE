@@ -1253,7 +1253,10 @@ export type EditorOperationIntent = {
       | "delete_condition_set"
       | "assign_condition_set"
       | "set_load_case_condition_use"
-      | "clear_load_case_condition_use";
+      | "clear_load_case_condition_use"
+      // DEL-05-01 REQ-014: a case's hydrostatic test condition.
+      | "set_load_case_test_condition"
+      | "clear_load_case_test_condition";
     field_label: string;
     field_path: string;
     before: string;

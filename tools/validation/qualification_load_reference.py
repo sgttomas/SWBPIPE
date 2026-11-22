@@ -81,7 +81,10 @@ MODULE = 'core/reporting/result_export/src/load_reference.rs'
 # S6: the reviewed support law/source/classification join and transport schema binding.
 # DEL-05-01 re-pin: the case shape admits a generating case's `equivalent_static` (was 66470124...).
 # DEL-04-07 REQ-011 re-pin: a generated load source's contribution and its coverage and binding checks (was 4a26e591...).
-MODULE_SHA256 = 'a1444d4ebc905edca47fc91afbefd3cbd405d1ea402d8eff01acdcb98f7cac23'
+# DEL-05-01 REQ-014: the case shape also admits the hydrostatic test mark `test_condition`, never on the joined
+# composite, and on a marked case a stored primitive a contents item names is applied as that item's weight times its
+# factor; the transport schema pin restated (was a1444d4e... on main, 3391f7db... on PR 478).
+MODULE_SHA256 = 'b9190361cdde1ba01e69b64c05d931698f823fe94ed4e552a4cd7a13d5ded6dc'
 UNITS = physics.UNITS
 DEPENDENCIES = {
     MODULE: MODULE_SHA256,

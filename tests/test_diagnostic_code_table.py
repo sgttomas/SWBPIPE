@@ -87,13 +87,15 @@ UNSURE_PIN = 39
 # WEIGHT_SUPPORT_STATE_UNSUPPORTED (+2), each only partly named by LIM-008/009.
 # 60 -> 59 (PR 479): retire EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED; generation is admitted on a load and
 # reference-state document. A refusal was removed.
-UNNAMED_ABSENT_CAPABILITY_PIN = 59
+# 59 -> 58 (PR 478): COMBINATION_HYDROSTATIC_TEST_WITHHELD is named wholly by LIM-003, LOAD_CASE_TEST_CONDITION_PRESSURE_FREE by LIM-044; LOAD_CASE_TEST_CONDITION_UNSUPPORTED is retired. No refusal changed except the retired one, which the test case now replaces.
+UNNAMED_ABSENT_CAPABILITY_PIN = 58
 # 47 -> 52 (review of d776be92e): the same four, and CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE, whose product
 # text describes its gate only partially (F7). 52 -> 57 (completeness review): the same five.
 # 57 -> 56: the same code, named wholly by LIM-020. 56 -> 55: the skew code above, named wholly by LIM-030.
 # 55 -> 56 (PR 272): the same retirement and two partially named, double-use codes;
 # neither new code has a whole in-product statement covering both uses.
-NAMED_NOWHERE_TODAY_PIN = 56
+# 56 -> 55 (PR 478): the same three codes, for the same reasons.
+NAMED_NOWHERE_TODAY_PIN = 55
 
 REFRESH = 'run `python3 tools/validation/diagnostic_codes.py --write` and classify the new records by hand'
 COVERAGE = ('whole', 'partial')

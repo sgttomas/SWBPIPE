@@ -1163,7 +1163,9 @@ pub(crate) fn resolve_case(
         included.magnitude.value *= source.factor;
         contributions.push(json!({"source_id": load.id, "owner_kind": "stored_primitive", "classification": "ordinary_applied",
             "factor": source.factor, "category": load.category, "dimension": load.dimension,
-            "authored_normalized_magnitude": load.magnitude.value, "applied_magnitude": included.magnitude.value}));
+            // DEL-05-01 REQ-014: the document's magnitude, also where a test case's contents replaced it.
+            "authored_normalized_magnitude": crate::hydrostatic::authored_magnitude(model, &case.id, load),
+            "applied_magnitude": included.magnitude.value}));
         effective_case.primitive_loads.push(included);
     }
     for region in case.pressure_regions.iter().flatten() {
