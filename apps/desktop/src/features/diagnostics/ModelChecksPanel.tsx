@@ -11,6 +11,8 @@ export const MODEL_CHECKS_ARIA_SHORTCUTS = "Shift+Meta+M Shift+Control+M";
 const GROUP_ORDER: readonly ModelCheckGroupId[] = ["solve", "slots", "library"];
 /** The runs whose outcome has had keyboard focus once. */
 const announcedRuns = new WeakSet<ModelCheckRun>();
+/** The focus requests already answered, so a panel shown again does not answer one twice. */
+const handledFocusRequests = new WeakSet<object>();
 
 /**
  * On-demand model checks. The
@@ -23,6 +25,7 @@ const announcedRuns = new WeakSet<ModelCheckRun>();
 export function ModelChecksPanel({
   model,
   run,
+  focusRequest = null,
   busy = false,
   onRun,
   onSelectEntity
@@ -30,6 +33,8 @@ export function ModelChecksPanel({
   model: PreviewModel;
   /** The last run of the checks in this session; null before the first. */
   run: ModelCheckRun | null;
+  /** A Solve withheld by `run` asks for focus on its outcome: each new token once. */
+  focusRequest?: object | null;
   /** A run is in progress (the native check is admitted and running). */
   busy?: boolean;
   onRun: () => void;
@@ -43,12 +48,16 @@ export function ModelChecksPanel({
   // region). A run the session published by itself (`focusSummary: false`: the
   // automatic check, a refresh of the library-reference findings) leaves focus
   // where it is, an editor's field say, and showing an earlier run again (the
-  // drawer reopened) does not move it either.
+  // drawer reopened) does not move it either. A Solve the run withholds moves it
+  // each time (`focusRequest`), though the run's outcome was shown before.
   useEffect(() => {
-    if (run === null || announcedRuns.has(run)) return;
+    if (run === null) return;
+    const announce = !announcedRuns.has(run) && run.focusSummary !== false;
     announcedRuns.add(run);
-    if (run.focusSummary !== false) summaryRef.current?.focus();
-  }, [run]);
+    const requested = focusRequest !== null && !handledFocusRequests.has(focusRequest);
+    if (focusRequest !== null) handledFocusRequests.add(focusRequest);
+    if (announce || requested) summaryRef.current?.focus();
+  }, [run, focusRequest]);
 
   const grouped = useMemo(() => GROUP_ORDER.map((group) => [group, run?.findings.filter((item) => item.group === group) ?? []] as const), [run]);
   const stale = run !== null && run.model !== model;

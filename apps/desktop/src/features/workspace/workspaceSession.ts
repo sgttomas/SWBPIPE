@@ -1454,6 +1454,9 @@ export function useWorkspaceSession() {
       if (reading.kind !== "withheld") return { kind: "proceed", reading };
       solveRunGate.current.finish(runGeneration);
       setIssuesDrawerOpen(true);
+      // Focus goes to the Model checks outcome, also where the run that withholds was
+      // published earlier (the opening check) and its outcome has been shown before.
+      setModelCheckFocusRequest({});
       return { kind: "withheld", reading };
     };
     const published = modelCheckRunRef.current;
@@ -4443,6 +4446,9 @@ export function useWorkspaceSession() {
     setModelCheckRunState(run);
   }
   const [modelCheckBusy, setModelCheckBusy] = useState(false);
+  // A Solve withheld by the checks asks, with a fresh token each time, for keyboard focus
+  // on the Model checks outcome (`ModelChecksPanel`'s `focusRequest`).
+  const [modelCheckFocusRequest, setModelCheckFocusRequest] = useState<object | null>(null);
   const modelCheckRequest = useRef(0);
   // Who started the newest model-check request: the person (Run model checks),
   // the re-check after an edit while Solve is withheld, or a Solve request (by its
@@ -5409,6 +5415,7 @@ export function useWorkspaceSession() {
       issuesDrawerOpen, setIssuesDrawerOpen,
       modelCheckRun,
       modelCheckBusy,
+      modelCheckFocusRequest,
       handleRunModelChecks,
       stageSurface,
       stageViewMemory, setStageViewMemory,
