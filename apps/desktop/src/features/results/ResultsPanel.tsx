@@ -71,26 +71,42 @@ const EMPTY_RESULT_FAMILY_COUNTS: ResultFamilyCounts = {
 const RESULT_UNIT_DISPLAY_ORDER = ["MPa", "N", "N*m", "mm", "rad"];
 
 /** A view of the results table another surface asks for (A6): the rows of one exact kind for one
- * run, with the rows the asking surface's standing withholds and its reason for each. */
-export type ResultsViewRequest = Readonly<{ serial: number; runId: string; kind: string; withheld: Readonly<Record<string, string>> }>;
+ * run, with the rows the asking surface's standing withholds and its reason for each. The run is
+ * named by `viewKey`, the result's own `resultViewIdentity(result)` (issue 588: distinct runs share
+ * a run id, so `runId` is descriptive only and never admits a request). */
+export type ResultsViewRequest = Readonly<{ serial: number; runId: string; viewKey: string; kind: string; withheld: Readonly<Record<string, string>> }>;
 
-let resultObjectSerial = 0;
-const resultObjectKeys = new WeakMap<object, string>();
+const resultContentKeys = new WeakMap<object, string>();
+/** Two 53-bit string hashes (cyrb53 with two seeds): a content fingerprint for view state only. */
+function contentFingerprint(text: string): string {
+  const hash = (seed: number) => {
+    let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+    for (let i = 0; i < text.length; i += 1) {
+      const ch = text.charCodeAt(i);
+      h1 = Math.imul(h1 ^ ch, 2654435761);
+      h2 = Math.imul(h2 ^ ch, 1597334677);
+    }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
+  };
+  return `${text.length.toString(36)}.${hash(0)}.${hash(0x9e3779b9)}`;
+}
 /** The identity a results panel holds its transient view state (page, kind filter, navigator
  * entity) under (issue 588). The engine publishes one fixed run id for distinct runs, so a bare
  * `run_id` would carry one run's view onto another's rows. A caller that knows the run's stored
  * identity passes it (`runIdentityKey`, `HistoricalRunContext.viewKey`); otherwise a native handle
- * is its own job id, and a full result is its object (every solve, reopen or reference publishes a
- * new object, and a re-render of the same run keeps it). */
+ * is its own job id, and a full result is its content (read once per object): a re-delivery of the
+ * same run as a new object keeps its view, and a run with any other content, its run id the same
+ * or not, has its own. */
 export function resultViewIdentity(result: SessionResult | null, runIdentityKey?: string | null): string | null {
   if (!result) return null;
   if (runIdentityKey) return `run:${runIdentityKey}`;
   if (isNativeResult(result)) return `native-handle:${nativeCustody(result).jobId}`;
-  let key = resultObjectKeys.get(result);
+  let key = resultContentKeys.get(result);
   if (!key) {
-    resultObjectSerial += 1;
-    key = `result-object:${resultObjectSerial}`;
-    resultObjectKeys.set(result, key);
+    key = `result-content:${contentFingerprint(JSON.stringify(result))}`;
+    resultContentKeys.set(result, key);
   }
   return key;
 }
@@ -138,7 +154,7 @@ function FullResultsPanel({
   /** The workspace's primary selection. With "Selected entity only" on, the
    * table shows only the rows stated for it. */
   selectedEntity?: EntityRef | null;
-  /** A6: once per `serial`, for the run it names, shows only the
+  /** A6: once per `serial`, for the result it names (`viewKey`), shows only the
    * rows of exactly `kind`, marks the rows it lists as withheld, and returns every other filter to its
    * default. A request for another run is ignored. The user clears the kind filter. */
   viewRequest?: ResultsViewRequest | null;
@@ -166,7 +182,6 @@ function FullResultsPanel({
   // (issue 588: never its run id, which distinct runs share). Any other run reads as page 1 in
   // the very render that first shows it. A reset effect would run only after commit, so a click
   // landing in between (a busy main thread) had its page change undone by the late reset.
-  const runId = result?.run_id ?? null;
   const viewKey = resultViewIdentity(result, runIdentityKey);
   const [pagePosition, setPagePosition] = useState<{ viewKey: string | null; index: number }>({ viewKey, index: 0 });
   const pageIndex = pagePosition.viewKey === viewKey ? pagePosition.index : 0;
@@ -195,9 +210,9 @@ function FullResultsPanel({
   const [caseFilter, setCaseFilter] = useState<string>(ALL_CASES);
   // Applied during render, as a filter change would be, so the first render that shows the
   // request already shows its rows.
-  // A request names its run by id, which distinct runs share; its producer binds it to the result
-  // object it was made for (`useKeyResultsSession`), and its kind filter is held with this view.
-  if (viewRequest && viewRequest.serial !== appliedRequest && viewRequest.runId === runId) {
+  // A request names the result it was made for by its own identity (never the run id distinct runs
+  // share), so a request made for another run, seen or unseen, is ignored.
+  if (viewRequest && viewRequest.serial !== appliedRequest && viewRequest.viewKey === resultViewIdentity(result)) {
     setAppliedRequest(viewRequest.serial);
     setKindFilter({ viewKey, kind: viewRequest.kind, withheld: viewRequest.withheld });
     setFilterText("");

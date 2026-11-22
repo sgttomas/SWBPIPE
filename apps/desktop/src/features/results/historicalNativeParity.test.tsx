@@ -245,6 +245,10 @@ describe("a reopened run reads alike held whole and held natively (C1 review F2,
     const result = native.mechanicsResult!;
     expect(isNativeResult(result)).toBe(true);
     expect(native.recordedTableRead).toEqual(table);
+    // Issue 588: both reopens hold their view under the renderable result's identity in its project.
+    expect(whole.viewKey).toMatch(/^saved-result-sha256:[^:]+:[0-9a-f]{64}$/u);
+    // (The emulated native reopen states a placeholder result hash, not a SHA-256.)
+    expect(native.viewKey).toMatch(/^saved-result-sha256:[^:]+:.+$/u);
     const route = displayRoute(whole.mechanicsResult!, table);
     expect(displayRoute(result, table)).toBe(route);
 

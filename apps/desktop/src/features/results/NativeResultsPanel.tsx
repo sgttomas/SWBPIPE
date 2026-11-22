@@ -165,7 +165,6 @@ export function NativeResultsPanel({
   const semanticsOf = (ordinals: readonly number[]): Promise<readonly RowSemanticsOutcome[]> =>
     tableAgrees ? readNativeRowSemantics(result, ordinals) : Promise.resolve(ordinals.map(() => RECORDED_TABLE_REFUSED));
   const tables = custody.summary.header.tables.results_panel as Json;
-  const runId = result.run_id;
   // Issue 588: the page, kind filter and navigator entity are held with this view's identity (the
   // run's stored identity, else this handle's job id), never the run id distinct runs share.
   const viewKey = resultViewIdentity(result, runIdentityKey)!;
@@ -184,7 +183,8 @@ export function NativeResultsPanel({
   const [appliedRequest, setAppliedRequest] = useState<number | null>(null);
   const [requestedKind, setKindFilter] = useState<{ viewKey: string; kind: string; withheld: Readonly<Record<string, string>> } | null>(null);
   const kindFilter = requestedKind && requestedKind.viewKey === viewKey ? requestedKind : null;
-  if (viewRequest && viewRequest.serial !== appliedRequest && viewRequest.runId === runId) {
+  // A request is admitted for the result it names by its own identity, never by the shared run id.
+  if (viewRequest && viewRequest.serial !== appliedRequest && viewRequest.viewKey === resultViewIdentity(result)) {
     setAppliedRequest(viewRequest.serial);
     setKindFilter({ viewKey, kind: viewRequest.kind, withheld: viewRequest.withheld });
     setFilterText("");

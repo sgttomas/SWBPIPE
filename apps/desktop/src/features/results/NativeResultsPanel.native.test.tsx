@@ -27,7 +27,7 @@ import { createSolveJobTransport, nativeMechanicsReplayPair, REPLAY_COMMANDS, so
 import { rememberReceivedText } from "./resultReader";
 import { semanticLabels } from "./resultSemantics";
 import { firstRowOf, navigatorEntities, rowCaseKey } from "./resultsNavigator";
-import { ResultsPanel, rowsUnderFilters, countResultFrames, standaloneNumericalHealth } from "./ResultsPanel";
+import { ResultsPanel, resultViewIdentity, rowsUnderFilters, countResultFrames, standaloneNumericalHealth } from "./ResultsPanel";
 import type { NumericalHealthView } from "./numericalHealth";
 import type { MechanicsResult, PreviewModel } from "../../types";
 
@@ -417,15 +417,24 @@ describe("the native panel's view identity", () => {
 
   it("resets the kind filter on a direct swap to run B, even with run A's request still given", async () => {
     const { a, b, full } = await twoRuns();
-    const request = { serial: 1, runId: a.run_id, kind: full.results[0].kind, withheld: {} };
+    const request = { serial: 1, runId: a.run_id, viewKey: resultViewIdentity(a)!, kind: full.results[0].kind, withheld: {} };
     const { rerender } = render(<View result={a} request={request} />);
     expect(screen.getByTestId("results-kind-filter")).toBeInTheDocument();
     rerender(<View result={a} request={request} />);
     expect(screen.getByTestId("results-kind-filter")).toBeInTheDocument();
     rerender(<View result={b} request={request} />);
     expect(screen.queryByTestId("results-kind-filter")).toBeNull();
-    rerender(<View result={b} request={{ ...request, serial: 2 }} />);
+    rerender(<View result={b} request={{ ...request, serial: 2, viewKey: resultViewIdentity(b)! }} />);
     expect(screen.getByTestId("results-kind-filter")).toBeInTheDocument();
+    await act(async () => { await disposeDeliveredMechanicsResult(a); await disposeDeliveredMechanicsResult(b); });
+  }, 120_000);
+
+  it("never applies a request made for run A to a newly shown run B that has seen no request", async () => {
+    const { a, b, full } = await twoRuns();
+    const forA = { serial: 1, runId: a.run_id, viewKey: resultViewIdentity(a)!, kind: full.results[0].kind, withheld: {} };
+    render(<View result={b} request={forA} />);
+    await waitFor(() => expect(summary()).toMatch(/page 1 of \d+$/u));
+    expect(screen.queryByTestId("results-kind-filter")).toBeNull();
     await act(async () => { await disposeDeliveredMechanicsResult(a); await disposeDeliveredMechanicsResult(b); });
   }, 120_000);
 });
