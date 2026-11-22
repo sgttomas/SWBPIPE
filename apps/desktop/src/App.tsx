@@ -475,7 +475,8 @@ function AppSession() {
             })}
           />
       </ShellToolbar>
-      <ReportOutputStatus outcomes={reportOutput.outcomes} entries={reportOutput.entries} currentSequence={reportOutput.sequence} />
+      <ReportOutputStatus outcomes={reportOutput.outcomes} entries={reportOutput.entries} currentSequence={reportOutput.sequence}
+        currentProjectId={model?.project.id ?? null} />
 
       <div className="shell-body">
         <StageRail issueCount={issueCount} />
@@ -916,7 +917,7 @@ function AppSession() {
                   pressure-free Timoshenko result whatever its standing), which its package save and user
                   release also take on the exact route. */}
               <C2ResultGate result={renderableSolvedResult} analysisRun={analysisRun} feature="the rendered report"
-                withheld={reportPackageRoute ? <ReportPackageSaveStatus route={reportPackageRoute} announce /> : null}>
+                withheld={reportPackageRoute ? <ReportPackageSaveStatus route={reportPackageRoute} /> : null}>
                 {(full) => (
                   <RenderedReportPanel
                     model={model}

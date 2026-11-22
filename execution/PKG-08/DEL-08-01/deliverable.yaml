@@ -300,6 +300,7 @@ checks:
 - apps/desktop/src/features/workspace/userReleaseSave.session.test.tsx
 - apps/desktop/src/features/workspace/reportPackageAdmission.session.test.tsx
 - apps/desktop/src/test/reportPackageDeniedStates.ts
+- apps/desktop/src/features/workspace/reportPackageOutcomes.session.test.tsx
 - apps/desktop/src/features/workspace/reportPackageRedactionRecords.session.test.tsx
 - apps/desktop/src/features/results/outputPolicy.test.ts
 - apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx

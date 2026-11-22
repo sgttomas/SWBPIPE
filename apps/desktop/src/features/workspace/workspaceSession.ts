@@ -47,6 +47,7 @@ import {
 import { ResourceUnavailableError } from "../../services/memoryPool";
 import {
   createNativeAnalysisRun,
+  describeFullResultRefused,
   FullResultRefused,
   isFreshNativeResult,
   isNativeAnalysisRun,
@@ -289,7 +290,18 @@ import { EXPENSIVE_LIFECYCLE_SECTIONS } from "./workspaceSections";
 import { createSessionEventChannel } from "./sessionEvents";
 import type { WorkspaceSectionId } from "./workspaceSections";
 import { useReportSourceSequence, useSequencedState } from "./reportSourceSequence";
-import { useReportOutputOutcomes } from "../report/reportOutputOutcomes";
+import {
+  PROJECT_OPERATION_OPEN_REFUSAL,
+  packageFailureSettlement,
+  packageNotSentSettlement,
+  packageReceiptSettlement,
+  packageRetiredSettlement,
+  reportOutputBasisOf,
+  useReportOutputOutcomes,
+  type ReportOutputBasis,
+  type ReportPackageKind,
+  type ReportPackageSettlement
+} from "../report/reportOutputOutcomes";
 
 /** W-13 §3.5 / W-17 §2.7: the model's library references checked against the
  * local store at open and load. Warnings only; the recorded versions stand. */
@@ -4212,11 +4224,75 @@ export function useWorkspaceSession() {
     return null;
   }
 
+  /** DEL-08-01 REQ-022 (issue 508): one package save's entry in the session's outcome list, on
+   * the basis taken when the save began. It is begun when the request is sent (`sending` wraps
+   * the guard that runs immediately before each send) and settled from the native reply or
+   * rejection whatever has happened to the workspace since; a save that ends before anything was
+   * sent is recorded as not sent (`notSent`, `failed`; `end` records a basis that retired). */
+  function reportPackageOutput(kind: ReportPackageKind, basis: ReportOutputBasis) {
+    const owner = reportOutputs.owner;
+    let entry: number | null = null;
+    let settled = false;
+    const settle = (settlement: ReportPackageSettlement) => {
+      if (settled) return;
+      settled = true;
+      if (entry === null) owner.record(kind, basis, settlement);
+      else owner.settle(entry, settlement);
+    };
+    return {
+      sending(current: boolean): boolean {
+        if (current && entry === null) entry = owner.begin(kind, basis);
+        return current;
+      },
+      settle,
+      notSent: (reason: unknown) => settle(packageNotSentSettlement(reason)),
+      failed(error: unknown) {
+        if (error instanceof IngressRequestRetiredError) settle(packageRetiredSettlement(entry !== null));
+        else settle(entry === null ? packageNotSentSettlement(error) : packageFailureSettlement(error));
+      },
+      end: () => settle(packageRetiredSettlement(entry !== null))
+    };
+  }
+
+  /** The size refusal a package save's full copy would meet, known before anything is read: the
+   * result's length from its native custody, then
+   * the record's stored length from its native preview header, under the conditions `loadC2Full`
+   * checks before its copy. Null where both fit (the save then proceeds as before). */
+  function reportPackageSizeRefusal(target: SessionResult): FullResultRefused | null {
+    if (!isNativeResult(target)) return null;
+    const limit = RESULT_DETAIL_WEBVIEW_LIMIT_BYTES;
+    const resultBytes = nativeCustody(target).resultBytes;
+    if (resultBytes > limit) {
+      return new FullResultRefused(RESULT_DETAIL_WEBVIEW_LIMIT, resultBytes, limit,
+        `${RESULT_DETAIL_WEBVIEW_LIMIT} (result_bytes=${resultBytes}, limit_bytes=${limit}): the result is above the size the webview can hold whole.`, "result");
+    }
+    const run = analysisRunRef.current;
+    if (!run || !isNativeAnalysisRun(run) || run.analysis_run.run_id !== target.run_id || !nativeRunInputs.current.get(run)) return null;
+    const recordBytes = nativeRunPreview(run).record_bytes;
+    if (recordBytes <= limit) return null;
+    return new FullResultRefused(RESULT_DETAIL_WEBVIEW_LIMIT, recordBytes, limit,
+      `${RESULT_DETAIL_WEBVIEW_LIMIT} (record_bytes=${recordBytes}, limit_bytes=${limit}): the run record is above the size the webview can hold whole.`, "record");
+  }
+  /** Both package commands' words for that refusal: the C2 gates' sentence, for the report package. */
+  const reportPackageSizeText = (refusal: FullResultRefused) => describeFullResultRefused(refusal, "the report package");
+
   async function handleSaveReportPackage() {
     const refusal = reportPackageRequestRefusal();
     if (refusal !== null) { setReportPackageRoute({ route: "not_requested", diagnostic: refusal }); return; }
     if (!model || !renderableSolvedResult || !analysisRun || !inputManifest || running || reportPackageBusy) return;
+    // The entry's basis: the committed report source this press was made on.
+    const outputBasis = reportOutputBasisOf(reportSource.sequence, model.project, projectSummary?.project_name, analysisRun.analysis_run.run_id);
+    // A result or record too large for the full copy is refused here: nothing is read or chosen.
+    const sizeRefusal = reportPackageSizeRefusal(renderableSolvedResult);
+    if (sizeRefusal) {
+      const text = reportPackageSizeText(sizeRefusal);
+      reportPackageOutput("report_package", outputBasis).notSent(text);
+      setReportPackageRedaction(null);
+      setReportPackageRoute({ route: "redaction_blocked", diagnostic: text });
+      return;
+    }
     const generation = ++reportPackageRequestGenerationRef.current;
+    const output = reportPackageOutput("report_package", outputBasis);
     const basis = {
       projectSessionGeneration: projectSessionGenerationRef.current,
       modelRevision: uiModelRevisionRef.current,
@@ -4268,12 +4344,13 @@ export function useWorkspaceSession() {
       // The session's package state keeps the control result (`controlAndPrepareReportPackageSave`).
       const screened = await controlAndPrepareReportPackageSave(request, basis.privateIntent, basis.model, basis.inputManifest.manifest, {
         keep: setReportPackageRedaction,
-        blocked: (diagnostic) => setReportPackageRoute({ route: "redaction_blocked", diagnostic })
+        blocked: (diagnostic) => { output.notSent(diagnostic); setReportPackageRoute({ route: "redaction_blocked", diagnostic }); }
       });
       if (screened === null) return;
       const { prepared, exactSubmission } = screened;
       if (!isCurrent()) return;
       if (prepared.route !== "ready") {
+        output.notSent(prepared.diagnostic);
         setReportPackageRoute(prepared);
         return;
       }
@@ -4282,10 +4359,13 @@ export function useWorkspaceSession() {
         try { reportPackageExactSubmission(request); return true; } catch { return false; }
       };
       // The last guard runs inside the invocation, immediately before each send.
-      const saved = await invokeReportPackageSave(prepared, () => isCurrent() && exactStillCurrent());
+      const saved = await invokeReportPackageSave(prepared, () => output.sending(isCurrent() && exactStillCurrent()));
+      // The outcome is kept whatever has happened to the workspace since the save began.
+      if (saved.route === "tauri_report_package_save") output.settle(packageReceiptSettlement(saved.receipt));
       if (!isCurrent()) return;
       setReportPackageRoute(saved);
     } catch (error) {
+      output.failed(error);
       // A basis retired before a send: nothing was sent, and the newer basis owns the state.
       if (error instanceof IngressRequestRetiredError || !isCurrent()) return;
       setReportPackageRedaction(null);
@@ -4294,6 +4374,7 @@ export function useWorkspaceSession() {
         diagnostic: localPrivateSaveFailureText(error)
       });
     } finally {
+      output.end();
       if (isCurrent()) {
         reportPackageBusyGenerationRef.current = null;
         setReportPackageBusy(false);
@@ -4312,6 +4393,8 @@ export function useWorkspaceSession() {
     inputManifest: CurrentSessionInputManifestEvidence;
     analysisRun: SessionAnalysisRun;
     reportComposition: ReportComposition | null;
+    /** The outcome entry's basis (issue 508): the committed report source the dialog opened on. */
+    output: ReportOutputBasis;
   };
   const userReleaseBasisCurrent = (basis: UserReleaseBasis) =>
     projectSessionGenerationRef.current === basis.projectSessionGeneration &&
@@ -4328,10 +4411,21 @@ export function useWorkspaceSession() {
    * statement. Nothing happens while another project operation or modal is open, a solve runs
    * or a package is being saved. */
   async function requestSaveShareableReportPackage() {
-    const refusal = reportPackageRequestRefusal() ?? (projectSessionBusy() ? "Not saved: another project operation or dialog was open." : null);
+    const refusal = reportPackageRequestRefusal() ?? (projectSessionBusy() ? PROJECT_OPERATION_OPEN_REFUSAL : null);
     if (refusal !== null) { setReportPackageRoute({ route: "not_requested", diagnostic: refusal }); return; }
     if (!model || !renderableSolvedResult || !analysisRun || !inputManifest || running || reportPackageBusyGenerationRef.current !== null) return;
     if (projectSessionBusy()) return;
+    // A result or record too large for the full copy is refused before the dialog: no statement is
+    // asked for a save that cannot proceed.
+    const sizeRefusal = reportPackageSizeRefusal(renderableSolvedResult);
+    if (sizeRefusal) {
+      const text = reportPackageSizeText(sizeRefusal);
+      reportPackageOutput("shareable_report_package",
+        reportOutputBasisOf(reportSource.sequence, model.project, projectSummary?.project_name, analysisRun.analysis_run.run_id)).notSent(text);
+      setReportPackageRedaction(null);
+      setReportPackageRoute({ route: "redaction_blocked", diagnostic: `${SHAREABLE_SAVE_NOT_WRITTEN} ${text}` });
+      return;
+    }
     // Captured before the workspace turns inert, which drops its focus.
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const basis: UserReleaseBasis = {
@@ -4341,7 +4435,8 @@ export function useWorkspaceSession() {
       result: renderableSolvedResult,
       inputManifest,
       analysisRun,
-      reportComposition
+      reportComposition,
+      output: reportOutputBasisOf(reportSource.sequence, model.project, projectSummary?.project_name, analysisRun.analysis_run.run_id)
     };
     const modelDocumentSha256 = await canonicalSha256Hex(basis.model);
     // The words are the renderer's, from the native host; the webview composes none.
@@ -4388,7 +4483,14 @@ export function useWorkspaceSession() {
   /** The one save the dialog's confirmation starts, on route `DREP-PACKAGE-USER-RELEASE-010`.
    * Its status and evidence use the package's status line; nothing outlives the save. */
   async function handleSaveShareableReportPackage(confirmation: UserReleaseConfirmation, basis: UserReleaseBasis) {
-    if (running || reportPackageBusyGenerationRef.current !== null || !userReleaseBasisCurrent(basis)) return;
+    // The entry's basis was taken when the dialog opened, never at this confirmation.
+    const output = reportPackageOutput("shareable_report_package", basis.output);
+    if (running || reportPackageBusyGenerationRef.current !== null || !userReleaseBasisCurrent(basis)) {
+      // The person confirmed this save: one that does not start says so.
+      if (!userReleaseBasisCurrent(basis)) output.end();
+      else output.notSent(running ? "a solve was running" : "a report package was already being saved");
+      return;
+    }
     const generation = ++reportPackageRequestGenerationRef.current;
     const isCurrent = () =>
       reportPackageRequestGenerationRef.current === generation &&
@@ -4417,6 +4519,7 @@ export function useWorkspaceSession() {
       // local to the preparation and the send; nothing of it is kept in session state.
       setReportPackageRedaction(null);
       if (prepared.route !== "ready") {
+        output.notSent(prepared.diagnostic);
         setReportPackageRoute({ route: "redaction_blocked", diagnostic: `${SHAREABLE_SAVE_NOT_WRITTEN} ${prepared.diagnostic}` });
         return;
       }
@@ -4427,17 +4530,21 @@ export function useWorkspaceSession() {
       // The guard runs after the arguments are encoded and immediately before each send
       // (`invokeWithIngress`), so `sent` marks the bytes leaving, not the call.
       const saved = await invokeUserReleasedReportPackageSave(prepared, () => {
-        const current = isCurrent() && exactStillCurrent();
+        const current = output.sending(isCurrent() && exactStillCurrent());
         if (current) sent = true;
         return current;
       });
+      // The outcome is kept whatever has happened to the workspace since the save began.
+      if (saved.route === "tauri_report_package_save") output.settle(packageReceiptSettlement(saved.receipt));
       if (!isCurrent()) return;
       setReportPackageRoute(saved);
     } catch (error) {
+      output.failed(error);
       if (error instanceof IngressRequestRetiredError || !isCurrent()) return;
       setReportPackageRedaction(null);
       setReportPackageRoute({ route: "redaction_blocked", diagnostic: `${shareableSaveFailureStatement(error, sent)} ${formatPackageSaveError(error)}` });
     } finally {
+      output.end();
       // Released whenever this save still holds the busy mark, even when its basis moved on (a
       // rule-check record landing mid-save retires it without invalidating the package state).
       if (reportPackageBusyGenerationRef.current === generation) {
@@ -4446,6 +4553,20 @@ export function useWorkspaceSession() {
       }
     }
   }
+  // Issue 508: a "not requested" reason says why a request could not proceed. It is shown while it
+  // is still true: while the session, as it now is, would refuse a request for that same reason
+  // (the refusal the two package commands compute, then the shareable command's "another project
+  // operation or dialog" check). It goes, for good, once it is not: when the solve has ended
+  // however it ended, a result has arrived, the save in progress has ended, or a different reason
+  // applies. A change that leaves the same reason true leaves it shown.
+  const notRequestedNow = reportPackageRoute?.route === "not_requested"
+    ? reportPackageRequestRefusal() ?? (projectSessionBusy() ? PROJECT_OPERATION_OPEN_REFUSAL : null)
+    : null;
+  const notRequestedSpent = reportPackageRoute?.route === "not_requested" && reportPackageRoute.diagnostic !== notRequestedNow ? reportPackageRoute : null;
+  useEffect(() => {
+    if (notRequestedSpent) setReportPackageRoute((route) => (route === notRequestedSpent ? null : route));
+  }, [notRequestedSpent, setReportPackageRoute]);
+  const shownReportPackageRoute = notRequestedSpent ? null : reportPackageRoute;
 
   // B11 on-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`):
   // the session's last run, shown in the Issues drawer. The checks read the
@@ -5293,7 +5414,7 @@ export function useWorkspaceSession() {
       reportPackagePrivateIntent, setReportPackagePrivateIntent,
       reportPackageBusy,
       reportPackageRedaction,
-      reportPackageRoute,
+      reportPackageRoute: shownReportPackageRoute,
       handleRun,
       /** A Solve request with the gate's outcome and the solve's receipt (`SolveRequestOutcome`). */
       handleSolveRequest,

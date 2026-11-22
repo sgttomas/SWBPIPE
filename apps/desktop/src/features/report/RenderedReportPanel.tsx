@@ -42,6 +42,7 @@ import { currentLibraryRefFindings, NO_LIBRARY_REF_FINDINGS, type LibraryRefFind
 import {
   notSentSettlement,
   printSettlement,
+  reportOutputBasisOf,
   saveSettlement,
   type ReportOutputBasis,
   type ReportOutputOutcomes
@@ -127,27 +128,24 @@ const LOCAL_PRIVATE_REPORT_WARNING =
 
 /** The outcome of a report-package save (receipt, cancellation, refusal). The panel shows it; where
  * the rendered report's gate withholds the panel, the gate shows it in the panel's place, so a save
- * started from the File menu still says what happened. */
-export function ReportPackageSaveStatus({ route, announce = false }: {
-  route: ReportPackageSaveRoute | null;
-  /** Each outcome's element is a status (announced once), as where the gate shows it in the
-   * panel's place. The panel leaves it unset and its elements stay as they are. */
-  announce?: boolean;
-}) {
-  const role = announce ? "status" : undefined;
+ * started from the File menu still says what happened. Every outcome a save reached is also kept
+ * in the session's report output strip (`ReportOutputStatus`), which is mounted before the outcome
+ * exists and announces it (issue 508), so here it is shown and not announced again. A request that
+ * did not proceed has no strip entry, so its reason is announced here. */
+export function ReportPackageSaveStatus({ route }: { route: ReportPackageSaveRoute | null }) {
   return (
     <>
       {route?.route === "unavailable_browser" ? (
-        <p role={role} data-testid="report-package-save-status">{route.diagnostic}</p>
+        <p data-testid="report-package-save-status">{route.diagnostic}</p>
       ) : null}
       {route?.route === "redaction_blocked" ? (
-        <p role={role} data-testid="report-package-save-status">{route.diagnostic}</p>
+        <p data-testid="report-package-save-status">{route.diagnostic}</p>
       ) : null}
       {route?.route === "not_requested" ? (
         <p role="status" data-testid="report-package-save-status">{route.diagnostic}</p>
       ) : null}
       {route?.route === "tauri_report_package_save" ? (
-        <div className="report-list" role={role} data-testid="report-package-save-status">
+        <div className="report-list" data-testid="report-package-save-status">
           {cancelledStatement(route.receipt) ? (
             <span data-testid="report-package-save-cancelled">{cancelledStatement(route.receipt)}</span>
           ) : null}
@@ -482,11 +480,8 @@ export function RenderedReportPanel({
     const stillCurrent = () => renderGeneration.current === generation;
     const renderedFor = renderState.source;
     const viewSequence = reportSourceSequence;
-    const basis: ReportOutputBasis = {
-      sequence: renderedFor.sequence,
-      model: model.project.name ?? model.project.id,
-      run: analysisRun?.analysis_run.run_id ?? result?.run_id ?? null
-    };
+    const basis: ReportOutputBasis = reportOutputBasisOf(renderedFor.sequence, model.project, projectSummary?.project_name,
+      analysisRun?.analysis_run.run_id ?? result?.run_id ?? null);
     // The session's outcome entry: started now, settled on every return or rejection,
     // whether or not this panel is still mounted.
     const operation = reportOutputs?.begin(kind, basis) ?? null;
