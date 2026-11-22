@@ -3,7 +3,8 @@ import { isNativeResult, lookupNativeRows, type SessionResult } from "../../serv
 import { nativeFailureText } from "../../services/nativeIngress";
 import { QuantityReadout } from "../display-units";
 import { BookOpen } from "lucide-react";
-import type { DesignKnowledge, KnowledgeRecord, MechanicsResult } from "../../types";
+import type { DesignKnowledge, KnowledgeRecord, MechanicsResult, PreviewModel } from "../../types";
+import { designKnowledgeRecords } from "../../services/designKnowledge";
 import { presentedResultDiagnostics } from "../results/suppliedDiagnostics";
 
 const RESULT_UNIT_DISPLAY_ORDER = ["MPa", "N", "N*m", "mm", "rad"];
@@ -35,10 +36,12 @@ export function useKnowledgeAxialRow(result: SessionResult | null): { row: Row |
   return found && found.of === result ? { row: found.row, reading: false, refused: found.refused } : { row: null, reading: true, refused: null };
 }
 
-export function KnowledgePanel({ knowledge, result }: { knowledge: DesignKnowledge | null; result: SessionResult | null }) {
+/** The design knowledge's records are listed only for the model the knowledge is bound to
+ * (`designKnowledgeRecords`); the computed records are the result's. */
+export function KnowledgePanel({ knowledge, model, result }: { knowledge: DesignKnowledge | null; model: PreviewModel | null; result: SessionResult | null }) {
   const axial = useKnowledgeAxialRow(result);
   const computedRecords = physicsRecords(result, axial.row);
-  const records = [...(knowledge?.records ?? []), ...computedRecords];
+  const records = [...designKnowledgeRecords(knowledge, model), ...computedRecords];
   const unitContext = computedKnowledgeUnitContext(result, axial.row);
   return (
     <section className="panel knowledge-panel" aria-label="Design knowledge" data-testid="knowledge-panel">
@@ -68,6 +71,8 @@ export function KnowledgePanel({ knowledge, result }: { knowledge: DesignKnowled
             </article>
           ))}
         </div>
+      ) : knowledge ? (
+        <p className="muted" data-testid="knowledge-none-for-model">No design knowledge records for this model.</p>
       ) : (
         <p className="muted">Loading local invented knowledge records.</p>
       )}
