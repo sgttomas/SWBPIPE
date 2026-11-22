@@ -9852,99 +9852,103 @@ fn curved_bend_inconsistent_diag(
 /// Resolution is in-memory only; local supplemental section inputs are retained.
 fn resolve_shared_sections(model: &mut PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
     for pipe in &mut model.pipe_segments {
-        let Some(reference) = &pipe.section_ref else {
-            continue;
-        };
-        let refs = vec![pipe.id.clone(), reference.clone()];
-        let id = format!("diagnostic:section-reference:{}", stable_suffix(&pipe.id));
-        if reference.trim().is_empty() {
-            diagnostics.push(diag(
-                &id,
-                "SECTION_REFERENCE_INVALID",
-                "blocking",
-                "bound section requires an explicit nonblank identity",
-                refs,
-            ));
-            continue;
-        }
-        let matches: Vec<_> = model
-            .sections
-            .iter()
-            .filter(|s| &s.id == reference)
-            .collect();
-        if matches.len() != 1 {
-            diagnostics.push(diag(
-                &id,
-                "SECTION_REFERENCE_INVALID",
-                "blocking",
-                "bound section must exist exactly once",
-                refs,
-            ));
-            continue;
-        }
-        let shared = matches[0];
-        if shared.section_type != "pipe"
-            || shared
-                .properties
-                .keys()
-                .any(|key| key != "outside_diameter" && key != "wall_thickness")
-        {
-            diagnostics.push(diag(&id, "SECTION_BINDING_UNSUPPORTED", "blocking",
-                "binding requires a pipe section with only outside_diameter and wall_thickness properties", refs));
-            continue;
-        }
-        let (Some(od), Some(wall)) = (
-            shared.properties.get("outside_diameter"),
-            shared.properties.get("wall_thickness"),
-        ) else {
-            diagnostics.push(diag(
-                &id,
-                "SECTION_REFERENCE_INVALID",
-                "blocking",
-                "bound section requires explicit outside_diameter and wall_thickness quantities",
-                refs,
-            ));
-            continue;
-        };
-        let mut resolved = pipe.section.clone();
-        resolved.outside_diameter = od.clone();
-        resolved.wall_thickness = wall.clone();
-        let before = diagnostics.len();
-        for quantity in [&mut resolved.outside_diameter, &mut resolved.wall_thickness] {
-            normalize_quantity(quantity, Dimension::Length, &id, refs.clone(), diagnostics);
-        }
-        if let Some(tolerance) = &mut resolved.mill_tolerance {
-            normalize_quantity(tolerance, Dimension::Length, &id, refs.clone(), diagnostics);
-        }
-        if let Some(allowance) = &mut resolved.corrosion_allowance {
-            normalize_quantity(allowance, Dimension::Length, &id, refs.clone(), diagnostics);
-        }
-        if diagnostics.len() != before {
-            continue;
-        }
-        if derive_pipe_section(&resolved, &pipe.id, diagnostics).is_none() {
-            continue;
-        }
-        // Stored cache must preserve the exact source representation used by
-        // operation materialization, so display/export and solver agree.
-        if pipe.section.outside_diameter.value != od.value
-            || pipe.section.outside_diameter.unit != od.unit
-            || pipe.section.wall_thickness.value != wall.value
-            || pipe.section.wall_thickness.unit != wall.unit
-        {
-            diagnostics.push(diag(
-                &id,
-                "SECTION_REFERENCE_CACHE_STALE",
-                "blocking",
-                "inline OD/wall contradict the shared section; explicitly rematerialize before use",
-                refs,
-            ));
-            continue;
-        }
-        // Copy source quantities, leaving all supplemental values untouched.
-        pipe.section.outside_diameter = od.clone();
-        pipe.section.wall_thickness = wall.clone();
+        resolve_shared_section(pipe, &model.sections, diagnostics);
     }
+}
+
+/// [`resolve_shared_sections`] for one pipe against the document's `sections`.
+pub(crate) fn resolve_shared_section(pipe: &mut PreviewPipe, sections: &[PreviewSection], diagnostics: &mut Vec<Diagnostic>) {
+    let Some(reference) = &pipe.section_ref else {
+        return;
+    };
+    let refs = vec![pipe.id.clone(), reference.clone()];
+    let id = format!("diagnostic:section-reference:{}", stable_suffix(&pipe.id));
+    if reference.trim().is_empty() {
+        diagnostics.push(diag(
+            &id,
+            "SECTION_REFERENCE_INVALID",
+            "blocking",
+            "bound section requires an explicit nonblank identity",
+            refs,
+        ));
+        return;
+    }
+    let matches: Vec<_> = sections
+        .iter()
+        .filter(|s| &s.id == reference)
+        .collect();
+    if matches.len() != 1 {
+        diagnostics.push(diag(
+            &id,
+            "SECTION_REFERENCE_INVALID",
+            "blocking",
+            "bound section must exist exactly once",
+            refs,
+        ));
+        return;
+    }
+    let shared = matches[0];
+    if shared.section_type != "pipe"
+        || shared
+            .properties
+            .keys()
+            .any(|key| key != "outside_diameter" && key != "wall_thickness")
+    {
+        diagnostics.push(diag(&id, "SECTION_BINDING_UNSUPPORTED", "blocking",
+            "binding requires a pipe section with only outside_diameter and wall_thickness properties", refs));
+        return;
+    }
+    let (Some(od), Some(wall)) = (
+        shared.properties.get("outside_diameter"),
+        shared.properties.get("wall_thickness"),
+    ) else {
+        diagnostics.push(diag(
+            &id,
+            "SECTION_REFERENCE_INVALID",
+            "blocking",
+            "bound section requires explicit outside_diameter and wall_thickness quantities",
+            refs,
+        ));
+        return;
+    };
+    let mut resolved = pipe.section.clone();
+    resolved.outside_diameter = od.clone();
+    resolved.wall_thickness = wall.clone();
+    let before = diagnostics.len();
+    for quantity in [&mut resolved.outside_diameter, &mut resolved.wall_thickness] {
+        normalize_quantity(quantity, Dimension::Length, &id, refs.clone(), diagnostics);
+    }
+    if let Some(tolerance) = &mut resolved.mill_tolerance {
+        normalize_quantity(tolerance, Dimension::Length, &id, refs.clone(), diagnostics);
+    }
+    if let Some(allowance) = &mut resolved.corrosion_allowance {
+        normalize_quantity(allowance, Dimension::Length, &id, refs.clone(), diagnostics);
+    }
+    if diagnostics.len() != before {
+        return;
+    }
+    if derive_pipe_section(&resolved, &pipe.id, diagnostics).is_none() {
+        return;
+    }
+    // Stored cache must preserve the exact source representation used by
+    // operation materialization, so display/export and solver agree.
+    if pipe.section.outside_diameter.value != od.value
+        || pipe.section.outside_diameter.unit != od.unit
+        || pipe.section.wall_thickness.value != wall.value
+        || pipe.section.wall_thickness.unit != wall.unit
+    {
+        diagnostics.push(diag(
+            &id,
+            "SECTION_REFERENCE_CACHE_STALE",
+            "blocking",
+            "inline OD/wall contradict the shared section; explicitly rematerialize before use",
+            refs,
+        ));
+        return;
+    }
+    // Copy source quantities, leaving all supplemental values untouched.
+    pipe.section.outside_diameter = od.clone();
+    pipe.section.wall_thickness = wall.clone();
 }
 
 fn normalize_node_coordinates(model: &mut PreviewModel, diagnostics: &mut Vec<Diagnostic>) {

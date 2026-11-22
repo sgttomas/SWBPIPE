@@ -495,14 +495,15 @@ pub(crate) fn mass_with_contents(model: &PreviewModel, pipe_id: &str, contents: 
         invalid(&mut d, pipe_id, "selected pipe must resolve exactly once");
         return Err(d);
     };
-    let mut subset = model.clone();
-    subset.pipe_segments = vec![pipe.clone()];
-    resolve_shared_sections(&mut subset, &mut d);
+    // The one pipe resolved against the document's sections, as the plan
+    // resolves every selected pipe, with no copy of the rest of the model.
+    let mut pipe = pipe.clone();
+    super::resolve_shared_section(&mut pipe, &model.sections, &mut d);
     if !d.is_empty() {
         return Err(d);
     }
     let exact = super::pressure_runtime::is_exact(model);
-    let pipe = &mut subset.pipe_segments[0];
+    let pipe = &mut pipe;
     pipe.section.contents_density = Some(contents.clone());
     normalize_mass_inputs(&mut pipe.section, &pipe.id, exact, &mut d);
     if !d.is_empty() {

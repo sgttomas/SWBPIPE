@@ -138,9 +138,11 @@ code_paths:
 # pressure-3 result schema). The held replacement in hydrostatic.rs is DEL-04-07's (REQ-011); the
 # authoring operations are DEL-02-01's. The product test reads the frozen references; the cases
 # with an acting variable spring are compared without their vertical rows, since the product does
-# not apply that hanger's cold load (DEL-04-03). The preload warning and the hanger's stiffness
-# review row are document-level, published once per support outside any case: neither is a
-# statement about a case that holds the support, whose treatment the mark states. The four-span
+# not apply that hanger's cold load (DEL-04-03). The hanger's stiffness review row and its
+# preload warning (SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD) are document-level, outside any
+# case: the review row once per support, the warning once per support for each nonzero entered
+# installed, cold or hot load, up to three per support. Neither is a statement about a case that
+# holds the support, whose treatment the mark states. The four-span
 # model a person opens holds no case; its journey test takes it through the admitted order.
 - core/product_physics/src/hydrostatic.rs
 - core/product_physics/tests/hydrostatic_test_case.rs
