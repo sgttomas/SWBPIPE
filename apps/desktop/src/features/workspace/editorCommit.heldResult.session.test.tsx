@@ -139,6 +139,7 @@ async function commitWithFailingListener(thrown: () => unknown) {
   const state = await solvedSession();
   const held = state().results;
   expect([held.result, held.analysisRun, held.inputManifest, held.ruleCheckAggregate].map((value) => value !== null)).toEqual([true, true, true, true]);
+  expect([held.proposal, held.selectedReviewTarget]).toEqual([null, null]);
   state().operations.sessionEvents.listen((event) => event.type === "checkpoint" ? () => { throw thrown(); } : undefined);
   const ruleGate = vi.spyOn(RuleRevisionGenerationGate.prototype, "invalidate");
   const node = state().model.model!.nodes[1];
@@ -149,9 +150,9 @@ async function commitWithFailingListener(thrown: () => unknown) {
   // The ten clears: the report package's computed state, the rule revision gate, the historical run, the result,
   // the analysis run, the input manifest, the rule-check aggregate, the proposal, the selected review target and the
   // solve job. The model write does not invalidate the rule revision gate, so its call here is the commit's clear.
-  // The proposal and selected review target are set only by opening or creating a project that carries them (the
-  // sample proposal buttons are removed, issue 512), which this fresh-solve harness does not do; both are asserted
-  // as left clear here and cleared from held values on an opened project in the test below.
+  // The solve clears proposal and selectedReviewTarget, nothing in the desktop makes a sample proposal (issue 512),
+  // and this fresh-solve harness selects neither a result nor a diagnostic; both start null above and remain null
+  // here, while the reopen test below verifies held non-null proposal and selectedReviewTarget transition to null.
   expect({ busy: after.reportPackageBusy, redaction: after.reportPackageRedaction, route: after.reportPackageRoute }).toEqual({ busy: false, redaction: null, route: null });
   expect(ruleGate).toHaveBeenCalled();
   expect([after.historicalRun, after.result, after.analysisRun, after.inputManifest, after.ruleCheckAggregate, after.proposal, after.selectedReviewTarget])

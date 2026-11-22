@@ -1459,4 +1459,3 @@ async function sha256(payload: string): Promise<string> {
   }
   return `sha256-unavailable-${(hash >>> 0).toString(16).padStart(8, "0")}`;
 }
-
