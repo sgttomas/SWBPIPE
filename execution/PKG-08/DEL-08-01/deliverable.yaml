@@ -211,6 +211,7 @@ code_paths:
 - fixtures/reports/standing_statements.json
 - fixtures/reports/numerical_vocabulary.json
 - fixtures/reports/invented/report_standing_witnesses/**
+- fixtures/reports/invented/pf_timoshenko_not_eligible/**
 - core/reporting/numerical_vocabulary/**
 - core/reporting/report_renderer/tests/standing_statements.rs
 - apps/desktop/src/features/report/reportStandingWitness.test.tsx
@@ -257,6 +258,7 @@ checks:
 - tests/test_headless_runner_contract.py
 - tests/test_report_sections_provenance_records.py
 - apps/desktop/src-tauri/src/report_render_exact_tests.rs
+- apps/desktop/src-tauri/src/report_render_pf_timoshenko_tests.rs
 - apps/desktop/src-tauri/src/report_session_diagnostics_tests.rs
 - apps/desktop/src-tauri/src/object_form_tests.rs
 - apps/desktop/src-tauri/src/user_release_admission_tests.rs
@@ -267,6 +269,8 @@ checks:
 - apps/desktop/src/features/report/renderedReportNativeRoutes.test.tsx
 - apps/desktop/src/features/report/pfTimoshenkoRenderRows.test.tsx
 - apps/desktop/src/features/report/renderedReportGate.app.test.tsx
+- apps/desktop/src/features/report/timoshenkoReportAnyStanding.app.test.tsx
+- apps/desktop/src/features/report/reportPackageStandingRefusal.test.ts
 - apps/desktop/src/features/report/restoredRunReportWords.app.test.tsx
 - apps/desktop/src/features/report/withheldPackageStatus.app.test.tsx
 - apps/desktop/src/features/report/reportOutputOutcomes.test.ts
