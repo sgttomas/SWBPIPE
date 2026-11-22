@@ -1,4 +1,4 @@
-import { selectCompactOption } from "./workspace-driver";
+import { selectCompactOption, viewportControl, expectNotOfferedByView } from "./workspace-driver";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 const defaultPreviewModel = JSON.parse(readFileSync(fileURLToPath(
@@ -20,6 +20,7 @@ import {
   currentModelHashThroughVisibleExport,
   ensureRail,
   expectCenterUnobscured,
+  expectViewportLabelTargets,
   expectPassiveOrientationFrame,
   expectClearOfClosedRailHandles,
   expectContentFits,
@@ -139,7 +140,7 @@ test("[preflight] production dist exposes compact command groups and keyboard me
   await expect(inspector.getByTestId("inspector-frozen-task-target")).toHaveCount(0);
   await expect(inspector.getByTestId("task-action-footer")).toHaveCount(0);
   await expect(inspector.getByTestId("cancel-editor-intent")).toHaveCount(0);
-  await activateWithKeyboard(page, page.getByTestId("viewport-fit-selection"));
+  await activateWithKeyboard(page, await viewportControl(page, page.getByTestId("viewport-fit-selection")));
   const readout = await keyboardMeasureTargets(page, [`Select ${pipe.label} in viewport`]);
   await expect(page.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", "false");
   await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "false");
@@ -163,7 +164,7 @@ test("[visual-clarification] measurement and real pipe task remain unobscured as
   const pipe = model.pipe_segments[10];
   await selectTreeRow(page, "pipe", pipe.id);
   await page.getByTestId("clear-model-tree-filter").click();
-  await activateWithKeyboard(page, page.getByTestId("viewport-fit-selection"));
+  await activateWithKeyboard(page, await viewportControl(page, page.getByTestId("viewport-fit-selection")));
   const target = page.getByRole("button", { name: `Select ${pipe.label} in viewport`, exact: true });
   const readout = await keyboardMeasureTargets(page, [`Select ${pipe.label} in viewport`]);
 
@@ -197,7 +198,7 @@ test("[visual-clarification] measurement and real pipe task remain unobscured as
   await expect(page.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", "false");
   await expect(inspector.getByTestId("editor-intent-value")).toHaveValue("Retained through measurement drawer close");
   await captureState(page, testInfo, "visual-clarification-1024x768-inspector-only-measurement-pipe-task-footer");
-  const measure = page.getByRole("button", { name: "Measure", exact: true });
+  const measure = (await viewportControl(page, page.getByRole("button", { name: "Measure", exact: true })));
   await activateWithKeyboard(page, measure);
   await expect(measure).toHaveAttribute("aria-pressed", "false");
   await ensureRail(page, "inspector", true);
@@ -284,7 +285,7 @@ test("[rail-clearance] closed rail handles leave active viewport controls and co
   await inspector.getByTestId("editor-intent-value").fill("Retained across Measure rail cycles");
   await expect(inspector.getByTestId("inspector-frozen-task-target")).toContainText(`pipe: ${pipe.id}`);
 
-  const measure = page.getByRole("button", { name: "Measure", exact: true });
+  const measure = (await viewportControl(page, page.getByRole("button", { name: "Measure", exact: true })));
   await activateWithKeyboard(page, measure);
   await expect(measure).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", "false");
@@ -307,8 +308,8 @@ test("[rail-clearance] closed rail handles leave active viewport controls and co
   await expectClearOfClosedRailHandles(page, [
     { name: "Node toolbar action", locator: page.getByTestId("command-node") },
     { name: "Load toolbar action", locator: page.getByTestId("command-load") },
-    { name: "selection filter", locator: page.getByTestId("viewport-selection-filter") },
-    { name: "Actual OD control", locator: page.getByTestId("viewport-geometry-actual-od") },
+    { name: "selection filter", locator: (await viewportControl(page, page.getByTestId("viewport-selection-filter"))) },
+    { name: "Actual OD control", locator: (await viewportControl(page, page.getByTestId("viewport-geometry-actual-od"))) },
     { name: "Measure control", locator: measure },
     { name: "Isometric camera control", locator: page.getByTestId("viewport-view-isometric") },
     { name: "measurement target text", locator: readout.locator(":scope > strong") },
@@ -374,7 +375,7 @@ for (const theme of APPEARANCE_THEMES) for (const density of APPEARANCE_DENSITIE
       await activateWithKeyboard(page, inspector.getByRole("tab", { name: "Task", exact: true }));
       await activateWithKeyboard(page, inspector.getByTestId("inspector-start-task"));
       await inspector.getByTestId("editor-intent-value").fill(`Retained ${content} measurement task`);
-      await activateWithKeyboard(page, page.getByTestId("viewport-fit-selection"));
+      await activateWithKeyboard(page, await viewportControl(page, page.getByTestId("viewport-fit-selection")));
       const readout = await keyboardMeasureTargets(page, [`Select ${pipe.label} in viewport`]);
       const target = page.getByRole("button", { name: `Select ${pipe.label} in viewport`, exact: true });
       const readSizes = () => page.evaluate(() => {
@@ -544,7 +545,7 @@ for (const width of [1024, 1440] as const) {
     for (const railOpen of width < 1280 ? [false, true] : [true]) {
       await ensureRail(page, "inspector", railOpen);
       for (const [drawerId, toggleId] of [
-        ["issues-home", "issues-drawer-toggle"], ["audit-boundary-drawer", "audit-drawer-toggle"],
+        ["issues-home", "issues-drawer-toggle"],
       ]) {
         await page.getByTestId(toggleId).click();
         const drawer = page.getByTestId(drawerId);
@@ -575,14 +576,15 @@ for (const width of [1024, 1440] as const) {
           expect(hit.owned, `${phase} owns real drawer/workspace intersection`).toBe(true);
         };
         await page.getByTestId("menu-view").click();
-        await expectCenterUnobscured(page.getByTestId("menu-item-view.section.operations"), { minimumTarget: true });
+        // A View-menu section command (Review changes is no longer listed: the rail and its tab reach it).
+        await expectCenterUnobscured(page.getByTestId("menu-item-view.section.libraries"), { minimumTarget: true });
         await assertOwner('[data-testid="app-menu-backdrop"]', "menu-backdrop");
         await page.mouse.click(point.x, point.y);
         await expect(page.getByTestId("app-menu-backdrop")).toHaveCount(0);
         await expect(drawer).toBeVisible();
         await page.getByTestId("menu-view").click();
-        await page.getByTestId("menu-item-view.section.operations").click();
-        await expect(page.getByTestId("workspace-section-operations")).toBeVisible();
+        await page.getByTestId("menu-item-view.section.libraries").click();
+        await expect(page.getByTestId("workspace-section-libraries")).toBeVisible();
         await expect(drawer).toBeVisible();
         await page.getByTestId("toolkit-entry").click();
         const dialog = page.getByRole("dialog", { name: "Find a modeling tool" });
@@ -784,9 +786,9 @@ for (const theme of APPEARANCE_THEMES) {
           },
         ]));
         await expectFlatTokenBorders(page, [
-          page.getByTestId("viewport-box-select"),
-          page.getByTestId("viewport-selection-filter"),
-          page.getByTestId("viewport-geometry-actual-od"),
+          (await viewportControl(page, page.getByTestId("viewport-box-select"))),
+          (await viewportControl(page, page.getByTestId("viewport-selection-filter"))),
+          (await viewportControl(page, page.getByTestId("viewport-geometry-actual-od"))),
           inspector.getByRole("tab", { name: "Properties", exact: true }),
           inspector.getByRole("tab", { name: "Task", exact: true }),
         ]);
@@ -869,17 +871,21 @@ for (const theme of APPEARANCE_THEMES) {
         await activateWithKeyboard(page, issuesClose);
         await expect(issues).toHaveCount(0);
 
-        // These enabled status labels remain ordinary text even when there
-        // are no deformation results. Exercise the disclosure through its
-        // keyboard control and measure its actual composited backgrounds.
-        const deformation = page.getByTestId("viewport-deformation-status");
-        const deformationSummary = deformation.locator(":scope > summary");
-        await expect(deformation).not.toHaveAttribute("open", "");
-        await expect(deformationSummary).toBeEnabled();
+        // With no result the view offers no Deformation control. The armed creation tool is stated
+        // by its pressed insert control (its "… tool armed" text is a visually hidden status), so
+        // the insert controls' composited contrast is measured.
+        await expectNotOfferedByView(page, page.getByTestId("viewport-deformation-status"));
+        // Each drawn entity label is a target of at least 24 by 24 CSS pixels that nothing covers.
+        await expect.poll(() => page.locator(".viewport-selection-layer .viewport-select-target:visible").count()).toBeGreaterThan(0);
+        const labelTargetWitness = await expectViewportLabelTargets(page);
+        await testInfo.attach(`viewport-label-targets-${theme}-${density}-${viewport.width}x${viewport.height}`, {
+          body: JSON.stringify(labelTargetWitness, null, 2),
+          contentType: "application/json",
+        });
+        const pressedInsert = page.getByTestId("command-bar").locator('.command-buttons button[aria-pressed="true"]');
         const statusContrastWitnesses = [
           ...await expectResolvedContrast([
-            { name: "Armed creation tool status", locator: page.getByTestId("armed-creation-tool"), minimum: 4.5 },
-            { name: "Closed enabled deformation summary", locator: deformationSummary, minimum: 4.5 },
+            { name: "Insert control (armed tool or Node)", locator: await pressedInsert.count() ? pressedInsert.first() : page.getByTestId("command-node"), minimum: 4.5 },
           ]),
         ];
         const menuSurfaceWitness = await page.locator(".app-menu-bar").evaluate((element) => {
@@ -906,17 +912,6 @@ for (const theme of APPEARANCE_THEMES) {
         expect(menuSurfaceWitness.border, "menubar uses the active theme divider").toBe(menuSurfaceWitness.expectedDivider);
         expect(parseFloat(menuSurfaceWitness.borderWidth)).toBeGreaterThan(0);
         expect(menuSurfaceWitness.borderStyle).toBe("solid");
-        await activateWithKeyboard(page, deformationSummary);
-        await expect(deformation).toHaveAttribute("open", "");
-        statusContrastWitnesses.push(...await expectResolvedContrast([
-          { name: "Expanded deformation strong text", locator: page.getByTestId("viewport-deformation-summary"), minimum: 4.5 },
-          { name: "Expanded deformation small text", locator: page.getByTestId("viewport-deformation-boundary"), minimum: 4.5 },
-        ]));
-        await captureState(page, testInfo, `expanded-deformation-${theme}-${density}-${viewport.width}x${viewport.height}`);
-        await activateWithKeyboard(page, deformationSummary);
-        await expect(deformation).not.toHaveAttribute("open", "");
-        await expect(deformationSummary).toBeFocused();
-        await expect(page.getByTestId("viewport-deformation-summary")).toBeHidden();
         await expect(page.getByTestId("viewport-canvas")).toBeVisible();
         await expectWorkspaceGeometry(page, viewport);
         await ensureRail(page, "inspector", true);
@@ -924,7 +919,7 @@ for (const theme of APPEARANCE_THEMES) {
         await expectCenterUnobscured(inspector.getByTestId("task-action-footer"));
         if (viewport.width < 1280) await ensureRail(page, "inspector", false);
         await testInfo.attach(`resolved-dark-status-${theme}-${density}-${viewport.width}x${viewport.height}`, {
-          body: JSON.stringify({ statusContrastWitnesses, menuSurfaceWitness, keyboardDisclosureClosed: true }, null, 2),
+          body: JSON.stringify({ statusContrastWitnesses, menuSurfaceWitness }, null, 2),
           contentType: "application/json",
         });
         await captureState(page, testInfo, `unobscured-authoring-${theme}-${density}-${viewport.width}x${viewport.height}`);
@@ -961,7 +956,8 @@ test("production browser keeps bundled reference separate through solve refusal,
   await activateWithKeyboard(page, page.getByTestId("run-mechanics-preview"));
   await expectBrowserSolveRefusal(page, "BROWSER_SOLVE_BACKEND_REQUIRED_REFERENCE_ONLY");
   await inspectBundledReference(page);
-  await expect(page.getByTestId("viewport-deformation-summary")).toContainText("result rows=0");
+  // No current result: the view offers no Deformation control, so it claims no deformed shape.
+  await expectNotOfferedByView(page, page.getByTestId("viewport-deformation-status"));
   await openWorkspaceSection(page, "evidence");
   await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
   // Reference/history lights no Current stage chip and cannot change the model or undo.
@@ -990,7 +986,8 @@ test("production browser keeps bundled reference separate through solve refusal,
   await expect(page.getByTestId("historical-run-context")).toHaveCount(0);
   await expect(page.getByTestId("results-panel").locator("tbody tr")).toHaveCount(0);
   await expect(page.getByTestId("comparison-summary")).toHaveCount(0);
-  await expect(page.getByTestId("viewport-deformation-summary")).toContainText("result rows=0");
+  // No current result: the view offers no Deformation control, so it claims no deformed shape.
+  await expectNotOfferedByView(page, page.getByTestId("viewport-deformation-status"));
   await openWorkspaceSection(page, "evidence");
   await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
   await openWorkspaceSection(page, "exports");
@@ -1278,7 +1275,7 @@ test("narrow canvas fits visible and selected envelopes in every view preset", a
   for (const preset of ["Front", "Top", "Isometric"]) {
     await activateWithKeyboard(page, page.getByRole("button", { name: preset, exact: true }));
     for (const command of ["Fit Visible", "Fit Selection"]) {
-      await activateWithKeyboard(page, page.getByRole("button", { name: command, exact: true }));
+      await activateWithKeyboard(page, await viewportControl(page, page.getByRole("button", { name: command, exact: true })));
       const points = (command === "Fit Visible" ? model.nodes : model.nodes.filter((node: any) => node.id === pipe.from || node.id === pipe.to)).map((node: any) => node.position);
       const witness = await page.evaluate((points) => {
         const api = globalThis.__openPipeStressUiDiagnosticsV1;
@@ -1404,7 +1401,7 @@ for (const viewport of [{ width: 1440, height: 920 }, { width: 1280, height: 800
       for (const preset of ["Front", "Top", "Isometric"]) {
         await page.getByRole("button", { name: preset, exact: true }).click();
         for (const command of ["Fit Visible", "Fit Selection"]) {
-          await page.getByRole("button", { name: command, exact: true }).click();
+          await (await viewportControl(page, page.getByRole("button", { name: command, exact: true }))).click();
           const points = (command === "Fit Visible" ? model.nodes : model.nodes.filter((node: any) => node.id === pipe.from || node.id === pipe.to)).map((node: any) => node.position);
           const fit = await page.evaluate((points) => {
             const api = globalThis.__openPipeStressUiDiagnosticsV1;
@@ -1604,17 +1601,17 @@ test("empty ordered selection publishes independently from project inspector", a
   const selected = await identity([node], node, node);
   expect(selected.viewport.inspector.publicationSequence).toBeGreaterThan(baseline.viewport.inspector.publicationSequence);
   await capturePresented("selected-node-presentation");
-  await activateWithKeyboard(page, page.getByRole("button", { name: "Hide", exact: true }));
+  await activateWithKeyboard(page, (await viewportControl(page, page.getByRole("button", { name: "Hide", exact: true }))));
   await identity([node], node, node);
   await capturePresented("hidden-selected-node-presentation");
-  await activateWithKeyboard(page, page.getByRole("button", { name: "Show All", exact: true }));
+  await activateWithKeyboard(page, (await viewportControl(page, page.getByRole("button", { name: "Show all", exact: true }))));
   await identity([node], node, node);
   await selectTreeRow(page, node.type, node.id, { toggle: true });
   const empty = await identity([], null, project);
   await capturePresented("empty-after-node-presentation");
   expect(empty.viewport.selection.actionSequence).toBeGreaterThan(selected.viewport.selection.actionSequence);
-  await activateWithKeyboard(page, page.getByTestId("viewport-box-select"));
-  await page.getByTestId("viewport-selection-filter").selectOption("components");
+  await activateWithKeyboard(page, (await viewportControl(page, page.getByTestId("viewport-box-select"))));
+  await (await viewportControl(page, page.getByTestId("viewport-selection-filter"))).selectOption("components");
   const canvas = page.getByTestId("viewport-canvas").locator("canvas");
   const rect = await canvas.boundingBox();
   expect(rect).not.toBeNull();
@@ -1643,7 +1640,7 @@ test("empty ordered selection publishes independently from project inspector", a
   await dragEmpty(); await dragEmpty();
   await selectTreeRow(page, node.type, node.id); await identity([node], node, node);
   await dragEmpty("Shift"); await dragEmpty("Control");
-  await activateWithKeyboard(page, page.getByTestId("viewport-box-select"));
+  await activateWithKeyboard(page, (await viewportControl(page, page.getByTestId("viewport-box-select"))));
   await selectTreeRow(page, node.type, node.id);
   await identity([node], node, node);
   await selectTreeRow(page, project.type, project.id);
@@ -1701,17 +1698,17 @@ test("decorative viewport overlays pass real canvas gestures while view controls
   await expect(page.getByTestId("toggle-viewport-labels")).toHaveAttribute("aria-pressed", "false");
   const canvas = page.getByTestId("viewport-canvas").locator("canvas");
   const axis = page.getByRole("img", { name: "Orientation gizmo showing X, Y, Z axes", exact: true });
-  const scale = page.getByTestId("viewport-scale-bar");
-  await expect(axis).toBeVisible(); await expect(scale).toHaveText(/1\s*m/);
+  await expect(axis).toBeVisible();
   const rect = (await canvas.boundingBox())!;
   expect({ width: rect.width, height: rect.height }).toEqual({ width: 794, height: 559 });
   const axisRect = (await axis.boundingBox())!;
-  const scaleRect = (await scale.boundingBox())!;
   // Preserve both frozen Box16 endpoints. This component-free control fixture
   // supplies an independent empty expectation; it is not a cohort replay.
   const start = { x: rect.x + rect.width * 0.29, y: rect.y + rect.height * 0.58 };
   const end = { x: rect.x + rect.width * 0.08, y: rect.y + rect.height * 0.81 };
-  const scalePoint = { x: scaleRect.x + scaleRect.width / 2, y: scaleRect.y + scaleRect.height / 2 };
+  // Where the withdrawn "1 m" box's centre stood: 67 px in from the canvas's right edge and 29 px up
+  // from its foot. The gesture there is the same; it now begins on the canvas itself.
+  const scalePoint = { x: rect.x + rect.width - 67, y: rect.y + rect.height - 29 };
   expect(end.x).toBeGreaterThan(axisRect.x); expect(end.x).toBeLessThan(axisRect.x + axisRect.width);
   expect(end.y).toBeGreaterThan(axisRect.y); expect(end.y).toBeLessThan(axisRect.y + axisRect.height);
   await page.evaluate(() => {
@@ -1733,7 +1730,7 @@ test("decorative viewport overlays pass real canvas gestures while view controls
   // so the unpatched failure includes actual pointer ownership, not CSS inspection.
   for (const point of [end, scalePoint]) { await page.mouse.move(point.x, point.y); await page.mouse.down(); await page.mouse.up(); }
   const pointerPreconditions = await page.evaluate(() => (globalThis as any).__decorativePointerWitness);
-  await testInfo.attach("decorative-pointer-preconditions", { body: JSON.stringify({ rect, axisRect, scaleRect, hits, pointerPreconditions }, null, 2), contentType: "application/json" });
+  await testInfo.attach("decorative-pointer-preconditions", { body: JSON.stringify({ rect, axisRect, scalePoint, hits, pointerPreconditions }, null, 2), contentType: "application/json" });
   expect(hits.every((hit) => hit.mainCanvas), JSON.stringify(hits)).toBe(true);
   expect(pointerPreconditions.every((event: any) => event.trusted && event.mainCanvas)).toBe(true);
   const read = async () => page.evaluate(() => {
@@ -1745,8 +1742,8 @@ test("decorative viewport overlays pass real canvas gestures while view controls
     await expect.poll(async () => (await read()).resources.ownedPendingRafCount).toBe(0);
     return read();
   };
-  await activateWithKeyboard(page, page.getByTestId("viewport-box-select"));
-  await page.getByTestId("viewport-selection-filter").selectOption("components");
+  await activateWithKeyboard(page, (await viewportControl(page, page.getByTestId("viewport-box-select"))));
+  await (await viewportControl(page, page.getByTestId("viewport-selection-filter"))).selectOption("components");
   const beforeBox = await settled();
   await page.mouse.move(start.x, start.y); await page.mouse.down();
   await page.mouse.move(end.x, end.y, { steps: 6 }); await page.mouse.up();
@@ -1755,7 +1752,7 @@ test("decorative viewport overlays pass real canvas gestures while view controls
   expect(afterBox.box).toMatchObject({ orderedRefs: [], primaryRef: null, direction: "right-to-left", filter: "components" });
   expect(afterBox.selection.orderedRefs).toEqual([]); expect(afterBox.selection.primaryRef).toBeNull();
   expect(afterBox.camera).toEqual(beforeBox.camera); expect(afterBox.canvas).toEqual(beforeBox.canvas);
-  await activateWithKeyboard(page, page.getByTestId("viewport-box-select"));
+  await activateWithKeyboard(page, (await viewportControl(page, page.getByTestId("viewport-box-select"))));
   const orbitBefore = await settled();
   await page.mouse.move(end.x, end.y); await page.mouse.down();
   await page.mouse.move(end.x + 42, end.y - 28, { steps: 8 }); await page.mouse.up();
@@ -1829,8 +1826,8 @@ async function setup(page: Page) {
   return model;
 }
 async function begin(page: Page) {
-  await activateWithKeyboard(page, page.getByTestId("viewport-box-select"));
-  await page.getByTestId("viewport-selection-filter").selectOption("components");
+  await activateWithKeyboard(page, (await viewportControl(page, page.getByTestId("viewport-box-select"))));
+  await (await viewportControl(page, page.getByTestId("viewport-selection-filter"))).selectOption("components");
   const rect = (await page.getByTestId("viewport-canvas").locator("canvas").boundingBox())!;
   const start = { x: rect.x + .29 * rect.width, y: rect.y + .58 * rect.height };
   const end = { x: rect.x + .08 * rect.width, y: rect.y + .81 * rect.height };
@@ -1938,16 +1935,16 @@ for (const route of ["Select", "New blank"] as const) test(`${route} retires cap
 for (const route of ["Measure", "palette Node and Select"] as const) test(`${route} cannot revive a captured Box through a mode ABA`, async ({ page }, info) => {
   await setup(page); const input = await begin(page);
   if (route === "Measure") {
-    await page.getByRole("button", { name: "Measure", exact: true }).focus(); await page.keyboard.press("Enter");
-    await expect(page.getByRole("button", { name: "Measure", exact: true })).toHaveAttribute("aria-pressed", "true");
+    await (await viewportControl(page, page.getByRole("button", { name: "Measure", exact: true }))).focus(); await page.keyboard.press("Enter");
+    await expect((await viewportControl(page, page.getByRole("button", { name: "Measure", exact: true })))).toHaveAttribute("aria-pressed", "true");
   } else {
     await choosePaletteNodeThenSelectWithFocusEvidence(page, info);
   }
   const exited = await read(page);
-  if (await page.getByTestId("viewport-box-select").getAttribute("aria-pressed") !== "true") {
-    await page.getByTestId("viewport-box-select").focus(); await page.keyboard.press("Enter");
+  if (await (await viewportControl(page, page.getByTestId("viewport-box-select"))).getAttribute("aria-pressed") !== "true") {
+    await (await viewportControl(page, page.getByTestId("viewport-box-select"))).focus(); await page.keyboard.press("Enter");
   }
-  await expect(page.getByTestId("viewport-box-select")).toHaveAttribute("aria-pressed", "true");
+  await expect((await viewportControl(page, page.getByTestId("viewport-box-select")))).toHaveAttribute("aria-pressed", "true");
   const after = await finish(page, input.end);
   await info.attach("mode-aba", { body: JSON.stringify({ input, exited, after }, null, 2), contentType: "application/json" });
   expect.soft(exited.rectangleCount).toBe(0);
@@ -1961,7 +1958,7 @@ for (const route of ["Measure", "palette Node and Select"] as const) test(`${rou
 for (const captured of [false, true]) test(`workspace Escape event ownership body ${captured ? "captured" : "idle"}`, async ({ page }, info) => {
   await setup(page);
   const input = captured ? await begin(page) : null;
-  if (!captured) await activateWithKeyboard(page, page.getByTestId("viewport-box-select"));
+  if (!captured) await activateWithKeyboard(page, (await viewportControl(page, page.getByTestId("viewport-box-select"))));
   const before = input?.before ?? await settle(page);
   // Deliberate browser focus setup; the subsequent Escape is trusted keyboard input.
   await page.evaluate(() => (document.activeElement as HTMLElement)?.blur());
@@ -1969,7 +1966,7 @@ for (const captured of [false, true]) test(`workspace Escape event ownership bod
   await page.keyboard.press("Escape");
   const cancelled = await read(page);
   expect.soft(cancelled.rectangleCount).toBe(0);
-  await expect.soft(page.getByTestId("viewport-box-select")).toHaveAttribute("aria-pressed", "false");
+  await expect.soft((await viewportControl(page, page.getByTestId("viewport-box-select")))).toHaveAttribute("aria-pressed", "false");
   await expect.soft(page.getByTestId("workspace-select")).toBeFocused();
   const after = input ? await finish(page, input.end) : await settle(page);
   await info.attach("body-Escape", { body: JSON.stringify({ before, cancelled, after }, null, 2), contentType: "application/json" });
@@ -1984,7 +1981,7 @@ for (const captured of [false, true]) test(`workspace Escape event ownership bod
 });
 for (const surface of ["palette", "drawer"] as const) test(`workspace Escape event ownership consumed ${surface}`, async ({ page }, info) => {
   if (surface === "drawer") await page.setViewportSize({ width: 1024, height: 768 });
-  await setup(page); await activateWithKeyboard(page, page.getByTestId("viewport-box-select"));
+  await setup(page); await activateWithKeyboard(page, (await viewportControl(page, page.getByTestId("viewport-box-select"))));
   const before = await settle(page);
   if (surface === "palette") {
     await activateWithKeyboard(page, page.getByTestId("toolkit-entry"));
@@ -1997,14 +1994,14 @@ for (const surface of ["palette", "drawer"] as const) test(`workspace Escape eve
   if (surface === "palette") await expect(page.getByRole("dialog", { name: "Find a modeling tool" })).toHaveCount(0);
   else await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "false");
   await expect(page.getByTestId(surface === "palette" ? "toolkit-entry" : "toggle-inspector")).toBeFocused();
-  await expect(page.getByTestId("viewport-box-select")).toHaveAttribute("aria-pressed", "true");
+  await expect((await viewportControl(page, page.getByTestId("viewport-box-select")))).toHaveAttribute("aria-pressed", "true");
   const consumed = await settle(page);
   expect(consumed.snapshot.viewport.selection.orderedRefs).toEqual(before.snapshot.viewport.selection.orderedRefs);
   expect(consumed.snapshot.viewport.selection.actionSequence).toBe(before.snapshot.viewport.selection.actionSequence);
   await page.evaluate(() => (document.activeElement as HTMLElement)?.blur());
   expect(await page.evaluate(() => document.activeElement === document.body)).toBe(true);
   await page.keyboard.press("Escape");
-  await expect(page.getByTestId("viewport-box-select")).toHaveAttribute("aria-pressed", "false");
+  await expect((await viewportControl(page, page.getByTestId("viewport-box-select")))).toHaveAttribute("aria-pressed", "false");
   await expect(page.getByTestId("workspace-select")).toBeFocused();
   await info.attach("consumed-Escape", { body: JSON.stringify({ before, consumed, after: await settle(page) }, null, 2), contentType: "application/json" });
 });

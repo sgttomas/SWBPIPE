@@ -226,7 +226,12 @@ PRINT_CSV_COVERAGE = _coverage()
 def read_caepipe_print_csv(path: str | Path) -> dict[str, Any]:
     """Read and parse a Print > To File CSV, decoding it as cp1252 (latin-1 if cp1252 cannot decode it)."""
 
-    data = Path(path).read_bytes()
+    return parse_caepipe_print_bytes(Path(path).read_bytes())
+
+
+def parse_caepipe_print_bytes(data: bytes) -> dict[str, Any]:
+    """Parse the bytes of a Print > To File CSV, decoding them as cp1252 (latin-1 if cp1252 cannot decode them)."""
+
     try:
         return parse_caepipe_print_csv(data.decode("cp1252"))
     except UnicodeDecodeError as error:
@@ -597,6 +602,20 @@ def _verdict(label: str | None, system: str | None, tokens: list[Mapping[str, An
     if max(nonzero) < decimals:
         return _unresolved(SHORTER_THAN_FORMAT, f"print shows at most {max(nonzero)} places, format expects {decimals}")
     return {"resolution": _to_output(float(Fraction(1, 10 ** decimals)), label)}
+
+
+def candidate_resolution(label: str | None, system: str | None) -> float | None:
+    """One printed unit at the candidate places for a unit label (PRINTED_DECIMALS), in the parser's output unit, or
+    None when the label has none. A candidate, not an established resolution: the comparison uses it only under its
+    zero-against-zero rule (benchmark.ZERO_AGAINST_ZERO), which states it."""
+    decimals = PRINTED_DECIMALS.get((system, label)) if label is not None else None
+    return None if decimals is None else _to_output(float(Fraction(1, 10 ** decimals)), label)
+
+
+def printed_zero(entry: Mapping[str, Any]) -> bool:
+    """Whether every printed token of a value is a fixed-point zero (a blank token is not a printed zero)."""
+    tokens = entry.get("tokens") or []
+    return bool(tokens) and all(token.get("form") == "fixed" and not token.get("nonzero") for token in tokens)
 
 
 def resolve_section(entries: list[Mapping[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, int]]:

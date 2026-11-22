@@ -279,9 +279,7 @@ def inspect_directed_helpers(snapshot):
 # retained-pricing-rules.md §8.62): lib.rs CE-projected, as B7a SOURCE_FILES. Previous value fd6fc92e…
 # DEL-04-09 M4 on PR-A: the merged lib.rs preserves every main byte and appends the experimental
 # entry. Re-derived with ce_fallback_model.s6_bytes; all other PR-A pins and existing keys are retained.
-# Hanger admission on the combined modal source: append only pub mod source_admission;
-# after the modal entry; CE-projected binding rederived from these complete source bytes.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = '299029bea729a86c22066c3fa34bfe9c126163e0d9a083f2bb63b017e0170e50'
+B7A_PRIMITIVE_LIB_SOURCE_PIN = '3f7e7e84f8cd9e8c0aa3019b430584e6e31d2bf73b744381b041af10f648cfb1'
 
 
 def _ce_fallback():

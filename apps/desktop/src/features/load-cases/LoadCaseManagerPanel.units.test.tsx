@@ -30,6 +30,7 @@ describe("primitive unit readiness", () => {
   it("renders an existing primitive and retains its entered magnitude unit", async () => {
     convert.mockResolvedValue([{ id: "primitive-unit", status: "converted", value: 1, unit: "N" }]);
     mount(true);
+    fireEvent.click(screen.getAllByTestId(/^load-manager-primitive-/)[0]);
     expect(screen.getByTestId("load-manager-magnitude-unit")).toHaveValue("kN");
     expect(screen.getByTestId("load-manager-magnitude-value")).toHaveValue("20");
     await waitFor(() => expect(screen.getByTestId("queue-create-primitive-intent")).toBeEnabled());

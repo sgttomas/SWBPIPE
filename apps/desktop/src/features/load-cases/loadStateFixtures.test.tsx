@@ -43,8 +43,8 @@ describe("committed load/reference-state request models render unmodified in the
         const raw = loadCase as unknown as Record<string, unknown>;
         // Display only: an absent label shows the id; absent kind/status show "not set".
         expect(within(row).getByText(typeof raw.label === "string" && raw.label ? raw.label : loadCase.id, { selector: "strong" })).toBeInTheDocument();
-        expect(row).toHaveTextContent(`${loadCase.id}; ${typeof raw.kind === "string" ? raw.kind : "not set"}; ${typeof raw.status === "string" ? raw.status : "not set"};`);
-        expect(screen.getByTestId("load-manager-selected-case")).toHaveTextContent(`current=${typeof raw.status === "string" ? raw.status : "not set"}`);
+        expect(row).toHaveTextContent(`${typeof raw.kind === "string" && raw.kind ? raw.kind : "not set"} · `);
+        expect(screen.getByTestId("load-manager-selected-case")).toHaveTextContent(`${typeof raw.kind === "string" && raw.kind ? raw.kind : "not set"} · ${typeof raw.status === "string" && raw.status ? raw.status : "not set"}`);
         expect(screen.getByTestId("load-state-analysis-state")).toHaveTextContent(`Analysis state — ${typeof raw.label === "string" && raw.label ? raw.label : loadCase.id}`);
         expect(screen.getByTestId("readiness-diagnostics")).toBeInTheDocument();
         view.unmount();

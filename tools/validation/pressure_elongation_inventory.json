@@ -28,11 +28,11 @@
    ".json",
    ".jsonl"
   ],
-  "files": 542,
+  "files": 551,
   "claimed_by": {
    "group": 143,
-   "in_code": 65,
-   "exemption": 334
+   "in_code": 67,
+   "exemption": 341
   }
  },
  "counts": {
@@ -69,7 +69,7 @@
   "reference_system": {
    "files": 1,
    "documents": 1,
-   "pressurised_load_cases": 3
+   "pressurised_load_cases": 4
   },
   "caepipe_benchmark": {
    "files": 22,
@@ -1537,7 +1537,8 @@
      "pressurised_load_cases": [
       "load:RS-SUS",
       "load:RS-OPE",
-      "load:RS-SAM"
+      "load:RS-SAM",
+      "load:RS-OPE-REF"
      ]
     }
    ]
@@ -6323,7 +6324,7 @@
    "documents": [],
    "held_documents": [
     {
-     "pointer": "/requests/37/args/modelJson",
+     "pointer": "/requests/38/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6334,7 +6335,7 @@
      ]
     },
     {
-     "pointer": "/requests/61/args/invocationJson",
+     "pointer": "/requests/63/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6344,7 +6345,7 @@
      ]
     },
     {
-     "pointer": "/requests/87/args/modelJson",
+     "pointer": "/requests/89/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6354,7 +6355,7 @@
      ]
     },
     {
-     "pointer": "/requests/98/args/invocationJson",
+     "pointer": "/requests/100/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6364,7 +6365,7 @@
      ]
     },
     {
-     "pointer": "/requests/129/args/invocationJson",
+     "pointer": "/requests/133/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6374,7 +6375,7 @@
      ]
     },
     {
-     "pointer": "/requests/134/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/138/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6385,7 +6386,7 @@
      ]
     },
     {
-     "pointer": "/requests/185/args/invocationJson",
+     "pointer": "/requests/193/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6395,7 +6396,7 @@
      ]
     },
     {
-     "pointer": "/requests/187/args/modelJson",
+     "pointer": "/requests/197/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6405,7 +6406,7 @@
      ]
     },
     {
-     "pointer": "/requests/217/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/227/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6415,7 +6416,7 @@
      ]
     },
     {
-     "pointer": "/requests/225/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/235/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6425,7 +6426,7 @@
      ]
     },
     {
-     "pointer": "/requests/230/args/modelJson",
+     "pointer": "/requests/240/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6436,7 +6437,7 @@
      ]
     },
     {
-     "pointer": "/requests/263/args/modelJson",
+     "pointer": "/requests/275/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6446,7 +6447,7 @@
      ]
     },
     {
-     "pointer": "/requests/263/args/invocationJson",
+     "pointer": "/requests/275/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6456,7 +6457,7 @@
      ]
     },
     {
-     "pointer": "/requests/294/args/modelJson",
+     "pointer": "/requests/306/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6466,7 +6467,7 @@
      ]
     },
     {
-     "pointer": "/requests/314/args/modelJson",
+     "pointer": "/requests/326/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6476,7 +6477,7 @@
      ]
     },
     {
-     "pointer": "/requests/330/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/342/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6487,7 +6488,7 @@
      ]
     },
     {
-     "pointer": "/requests/339/args/modelJson",
+     "pointer": "/requests/351/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6497,7 +6498,7 @@
      ]
     },
     {
-     "pointer": "/requests/341/args/modelJson",
+     "pointer": "/requests/353/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6507,7 +6508,7 @@
      ]
     },
     {
-     "pointer": "/requests/341/args/invocationJson",
+     "pointer": "/requests/353/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6517,7 +6518,7 @@
      ]
     },
     {
-     "pointer": "/requests/350/args/modelJson",
+     "pointer": "/requests/362/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6528,7 +6529,7 @@
      ]
     },
     {
-     "pointer": "/requests/362/args/invocationJson",
+     "pointer": "/requests/374/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6538,7 +6539,7 @@
      ]
     },
     {
-     "pointer": "/requests/420/args/invocationJson",
+     "pointer": "/requests/433/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6548,7 +6549,7 @@
      ]
     },
     {
-     "pointer": "/requests/428/args/modelJson",
+     "pointer": "/requests/442/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6558,7 +6559,7 @@
      ]
     },
     {
-     "pointer": "/requests/438/args/modelJson",
+     "pointer": "/requests/453/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6568,7 +6569,7 @@
      ]
     },
     {
-     "pointer": "/requests/444/args/modelJson",
+     "pointer": "/requests/460/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6578,7 +6579,7 @@
      ]
     },
     {
-     "pointer": "/requests/477/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/494/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6588,7 +6589,7 @@
      ]
     },
     {
-     "pointer": "/requests/520/args/modelJson",
+     "pointer": "/requests/539/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6598,7 +6599,7 @@
      ]
     },
     {
-     "pointer": "/requests/524/args/modelJson",
+     "pointer": "/requests/543/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6609,7 +6610,7 @@
      ]
     },
     {
-     "pointer": "/requests/532/args/modelJson",
+     "pointer": "/requests/552/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6619,7 +6620,7 @@
      ]
     },
     {
-     "pointer": "/requests/560/args/modelJson",
+     "pointer": "/requests/580/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6629,7 +6630,7 @@
      ]
     },
     {
-     "pointer": "/requests/560/args/invocationJson",
+     "pointer": "/requests/580/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6639,7 +6640,7 @@
      ]
     },
     {
-     "pointer": "/requests/567/args/modelJson",
+     "pointer": "/requests/587/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6649,7 +6650,7 @@
      ]
     },
     {
-     "pointer": "/requests/572/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/592/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6659,7 +6660,7 @@
      ]
     },
     {
-     "pointer": "/requests/579/args/modelJson",
+     "pointer": "/requests/599/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6669,7 +6670,7 @@
      ]
     },
     {
-     "pointer": "/requests/598/args/modelJson",
+     "pointer": "/requests/618/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6679,7 +6680,7 @@
      ]
     },
     {
-     "pointer": "/requests/603/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/623/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6689,7 +6690,7 @@
      ]
     },
     {
-     "pointer": "/requests/642/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/663/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6699,7 +6700,7 @@
      ]
     },
     {
-     "pointer": "/requests/661/args/modelJson",
+     "pointer": "/requests/682/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6709,23 +6710,13 @@
      ]
     },
     {
-     "pointer": "/requests/661/args/invocationJson",
+     "pointer": "/requests/682/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
      "schema_version": "0.9.0",
      "pressurised_load_cases": [
       "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/688/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:closed-pressure"
      ]
     },
     {
@@ -6739,7 +6730,17 @@
      ]
     },
     {
-     "pointer": "/requests/721/args/modelJson",
+     "pointer": "/requests/731/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:closed-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/744/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6750,7 +6751,7 @@
      ]
     },
     {
-     "pointer": "/requests/722/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/745/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6760,7 +6761,7 @@
      ]
     },
     {
-     "pointer": "/requests/736/args/modelJson",
+     "pointer": "/requests/760/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6770,7 +6771,7 @@
      ]
     },
     {
-     "pointer": "/requests/738/args/modelJson",
+     "pointer": "/requests/762/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6781,7 +6782,7 @@
      ]
     },
     {
-     "pointer": "/requests/756/args/modelJson",
+     "pointer": "/requests/780/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6791,7 +6792,7 @@
      ]
     },
     {
-     "pointer": "/requests/790/args/modelJson",
+     "pointer": "/requests/818/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6801,7 +6802,7 @@
      ]
     },
     {
-     "pointer": "/requests/794/args/modelJson",
+     "pointer": "/requests/822/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6811,7 +6812,7 @@
      ]
     },
     {
-     "pointer": "/requests/798/args/modelJson",
+     "pointer": "/requests/827/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6821,7 +6822,7 @@
      ]
     },
     {
-     "pointer": "/requests/847/args/modelJson",
+     "pointer": "/requests/877/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6831,7 +6832,7 @@
      ]
     },
     {
-     "pointer": "/requests/869/args/invocationJson",
+     "pointer": "/requests/899/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6841,7 +6842,7 @@
      ]
     },
     {
-     "pointer": "/requests/921/args/modelJson",
+     "pointer": "/requests/955/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6851,7 +6852,7 @@
      ]
     },
     {
-     "pointer": "/requests/929/args/modelJson",
+     "pointer": "/requests/963/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6861,7 +6862,7 @@
      ]
     },
     {
-     "pointer": "/requests/944/args/modelJson",
+     "pointer": "/requests/978/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6871,7 +6872,7 @@
      ]
     },
     {
-     "pointer": "/requests/987/args/invocationJson",
+     "pointer": "/requests/1022/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6881,7 +6882,7 @@
      ]
     },
     {
-     "pointer": "/requests/988/args/modelJson",
+     "pointer": "/requests/1023/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6891,7 +6892,7 @@
      ]
     },
     {
-     "pointer": "/requests/1002/args/modelJson",
+     "pointer": "/requests/1038/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6901,7 +6902,7 @@
      ]
     },
     {
-     "pointer": "/requests/1013/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/1050/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -9085,6 +9086,14 @@
   },
   {
    "paths": [
+    "core/product_physics/tests/combined_connector_export.rs"
+   ],
+   "expectations": "no_response_value",
+   "cases_named": "all",
+   "detail": "the T4-U5a J3-3 free pressurized chain (untied constant-area joint) in two pressurised cases, both named, in five combinations; asserts reader admission and the export's disposition and metadata of every combined connector row, no response value"
+  },
+  {
+   "paths": [
     "core/product_physics/tests/common/frozen_rows.rs"
    ],
    "reference": "validation/references/t4_u6, validation/references/t4_i8, validation/references/t4_u8",
@@ -9420,6 +9429,14 @@
   },
   {
    "paths": [
+    "tests/test_caepipe_stated_bases.py"
+   ],
+   "expectations": "closed_form",
+   "cases_named": "some",
+   "detail": "CAEPIPE benchmark stated-bases tests. Named: elongation-on series documents (cpb-p1-01, cpb-p1-04, cpb-p2-01, cpb-p2-03, cpb-p4-01, cpb-p5-01) solved directly and transformed by stated_bases.realize (which removes pressure_elongation and places free-strain thermal loads), judged against closed forms and product superposition. Unnamed: default-series documents (cpb-p1-01, cpb-p1-04, cpb-p2-01, cpb-p2-03, cpb-p3-01..04, cpb-p4-01, cpb-p5-01), judged against closed-end zero-reaction, open-end p A_i and thin-wall strain closed forms and product superposition"
+  },
+  {
+   "paths": [
     "tests/test_caepipe_mbf_round_trip.py"
    ],
    "expectations": "product_output",
@@ -9585,6 +9602,7 @@
    "paths": [
     "apps/desktop/src/features/caepipe-mbf/mbfImport.ts",
     "apps/desktop/src/features/geometry-tools/geometryDraft.ts",
+    "apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
     "apps/desktop/src/features/model-settings/modelSettingsIntents.ts",
     "apps/desktop/src/features/native-package/NativePackagePanel.tsx",
     "apps/desktop/src/features/pressure-authoring/PressureAuthoringPanel.tsx",
@@ -9596,6 +9614,7 @@
    "files": [
     "apps/desktop/src/features/caepipe-mbf/mbfImport.ts",
     "apps/desktop/src/features/geometry-tools/geometryDraft.ts",
+    "apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
     "apps/desktop/src/features/model-settings/modelSettingsIntents.ts",
     "apps/desktop/src/features/native-package/NativePackagePanel.tsx",
     "apps/desktop/src/features/pressure-authoring/PressureAuthoringPanel.tsx",
@@ -9611,6 +9630,7 @@
     "apps/desktop/src/features/bend-authoring/BendAuthoringForms.test.tsx",
     "apps/desktop/src/features/bend-authoring/lLineAuthoring.test.tsx",
     "apps/desktop/src/features/caepipe-mbf/mbfImport.test.ts",
+    "apps/desktop/src/features/load-cases/LoadCaseManagerPanel.test.tsx",
     "apps/desktop/src/features/load-cases/referenceSystemFills.engine.test.tsx",
     "apps/desktop/src/features/model-settings/ModelSettingsPressureElongation.test.tsx",
     "apps/desktop/src/features/native-package/NativePackagePanel.test.ts",
@@ -9622,6 +9642,7 @@
     "apps/desktop/src/features/bend-authoring/BendAuthoringForms.test.tsx",
     "apps/desktop/src/features/bend-authoring/lLineAuthoring.test.tsx",
     "apps/desktop/src/features/caepipe-mbf/mbfImport.test.ts",
+    "apps/desktop/src/features/load-cases/LoadCaseManagerPanel.test.tsx",
     "apps/desktop/src/features/load-cases/referenceSystemFills.engine.test.tsx",
     "apps/desktop/src/features/model-settings/ModelSettingsPressureElongation.test.tsx",
     "apps/desktop/src/features/native-package/NativePackagePanel.test.ts",
@@ -9838,6 +9859,15 @@
    "files": [
     "core/product_physics/tests/w16_exact_equivalent_static.rs",
     "core/product_physics/tests/w16_timoshenko_partial_wind.rs"
+   ]
+  },
+  {
+   "reason": "its exact-route documents carry only empty pressure-region lists (the seismic_component_weight package has no internal pressure), so no solved case carries pressure",
+   "paths": [
+    "core/product_physics/tests/seismic_component_weight.rs"
+   ],
+   "files": [
+    "core/product_physics/tests/seismic_component_weight.rs"
    ]
   },
   {
@@ -10091,12 +10121,15 @@
     "fixtures/product_preview/pressure_source/o4/o4_source_controls.json",
     "fixtures/product_preview/pressure_source/physics_source/fields.request.json",
     "fixtures/product_preview/pressure_source/physics_source/n0*.request.json",
+    "fixtures/reports/invented/exact_report_package_requests/pressure_2_connector_combinations.json",
     "fixtures/reports/invented/exact_report_package_requests/pressure_source_1.json",
+    "fixtures/reports/invented/exact_report_witness_inputs/pressure_2_connector_combinations.request.json",
     "fixtures/reports/invented/user_release_exact/pressure_source_1.json",
     "fixtures/results/j7_rf_census_inputs.json",
     "fixtures/results/modal_*.request.json",
     "fixtures/results/retained_precision_cases.json",
     "fixtures/results/retained_precision_*_successor_*.json",
+    "fixtures/results/seismic_component_record_corpus.json",
     "validation/qualification/fixtures/first_static/*.json",
     "validation/qualification/fixtures/load_reference/*.json",
     "validation/references/inverse_norm_witness/requests/linear.request.json",
@@ -10139,7 +10172,9 @@
     "fixtures/product_preview/pressure_source/physics_source/n05_unicode.request.json",
     "fixtures/product_preview/pressure_source/physics_source/n05_units.request.json",
     "fixtures/product_preview/pressure_source/physics_source/n06.request.json",
+    "fixtures/reports/invented/exact_report_package_requests/pressure_2_connector_combinations.json",
     "fixtures/reports/invented/exact_report_package_requests/pressure_source_1.json",
+    "fixtures/reports/invented/exact_report_witness_inputs/pressure_2_connector_combinations.request.json",
     "fixtures/reports/invented/user_release_exact/pressure_source_1.json",
     "fixtures/results/j7_rf_census_inputs.json",
     "fixtures/results/modal_ex_n05.request.json",
@@ -10151,6 +10186,7 @@
     "fixtures/results/retained_precision_o4_w1e_successor_dense_scrutiny.json",
     "fixtures/results/retained_precision_o4_w1e_successor_sparse_interactive.json",
     "fixtures/results/retained_precision_o4_w1e_unavailable_successor_sparse_interactive.json",
+    "fixtures/results/seismic_component_record_corpus.json",
     "validation/qualification/fixtures/first_static/axial.runner_input.candidate.json",
     "validation/qualification/fixtures/first_static/bending_torsion.runner_input.candidate.json",
     "validation/qualification/fixtures/load_reference/coefficient_definition.preview_request.json",
@@ -10369,6 +10405,15 @@
    ],
    "files": [
     "apps/desktop/src/services/embeddedAgentSession.test.ts"
+   ]
+  },
+  {
+   "reason": "the benchmark stated-bases helper: transforms caller-supplied benchmark documents (claimed by caepipe_benchmark or its test) and calls a caller-supplied solve; it owns no model or response expectation",
+   "paths": [
+    "tools/caepipe_correlation/stated_bases.py"
+   ],
+   "files": [
+    "tools/caepipe_correlation/stated_bases.py"
    ]
   }
  ]

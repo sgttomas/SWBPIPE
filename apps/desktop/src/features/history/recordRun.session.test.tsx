@@ -17,7 +17,9 @@ import { createSolveJobTransport, nativeMechanicsReplayPair } from "../../test/n
 import { createNativePersistenceFake, isNativePersistenceCommand } from "../../test/nativePersistenceFake";
 import { nativePersistenceReplay } from "../../test/nativePersistenceReplay";
 import { NATIVE_RECORD_RUN_COMMAND, NATIVE_SAVE_PROJECT_COMMAND } from "../../services/nativePersistence";
-import { isNativeResult } from "../../services/nativeResult";
+import * as nativeResult from "../../services/nativeResult";
+import { isNativeResult, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES } from "../../services/nativeResult";
+import { CURRENT_RUN_ID } from "../comparison/runComparisonSides";
 import { getLocalStorageCapability, type StoredProjectEntry } from "../../services/projectService";
 import { loadDesignKnowledge, resetSessionResultCustodyForTests } from "../../services/previewService";
 import * as previewService from "../../services/previewService";
@@ -395,5 +397,28 @@ describe("Save Project and Record Run of a native result (C1 slice 5)", () => {
     expect(state().project.projectOperation).toBe("save_failed");
     expect(state().project.projectMessage).toMatch(/^Save failed: NATIVE-PERSISTENCE-CUSTODY: /);
     expect(store.savedEnvelopes).toHaveLength(0);
+  });
+});
+
+describe("Compare… of the current run with a recorded run, for a run record above the webview's limit", () => {
+  it("is refused for the record by name before the current result is copied", async () => {
+    const { state, transport } = await session();
+    await solve(state);
+    await act(async () => { await history(state).recordRun({ labels: LABELS, snapshotName: "After solve" }); });
+    await waitFor(() => expect(history(state).runs).toHaveLength(1));
+    const copies = () => transport.commands().filter((name) => name === "read_preview_mechanics_job_rows_all").length;
+    expect(copies()).toBe(0);
+    const preview = nativeResult.nativeRunPreview;
+    vi.spyOn(nativeResult, "nativeRunPreview").mockImplementation((run) => ({ ...preview(run), record_bytes: RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1 }));
+    let compared = true;
+    await act(async () => { compared = await history(state).compareRuns(CURRENT_RUN_ID, history(state).runs![0].recording_id); });
+    expect(compared).toBe(false);
+    expect(history(state).historyOperation).toBe("compare_runs_failed");
+    // Said as the other C2 consumers say it (`describeFullResultRefused`): no class name, no key=value form.
+    const refusal = new nativeResult.FullResultRefused(nativeResult.RESULT_DETAIL_WEBVIEW_LIMIT, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES, "", "record");
+    expect(history(state).historyMessage).toBe(`Not compared: ${nativeResult.describeFullResultRefused(refusal, "the comparison")}`);
+    expect(history(state).historyMessage).not.toMatch(/FullResultRefused|Error:|record_bytes=|limit_bytes=/);
+    expect(copies()).toBe(0);
+    expect(history(state).runComparison).toBeNull();
   });
 });

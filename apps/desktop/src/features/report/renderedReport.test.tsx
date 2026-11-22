@@ -1296,8 +1296,8 @@ describe("numerical health report line", () => {
   const healthOf = (result: MechanicsResult, eligible: boolean) =>
     numericalHealthView(readNumericalHealth(result, numericalResultStanding(result).findings), { eligible, verdictHold: false });
   const LINES = [
-    { row_id: "numerical-health:load:é", label: "Numerical health of the ordinary solve: checks passed.", case_ref: "load_case:load:é", quantity_display: "", source_ref: "diagnostic:numerical-integrity:load:é" },
-    { row_id: "numerical-health:load:𝔫", label: "Numerical health of the ordinary solve: checks passed.", case_ref: "load_case:load:𝔫", quantity_display: "", source_ref: "diagnostic:numerical-integrity:load:𝔫" }
+    { row_id: "numerical-health:load:é", label: "Numerical health of the ordinary solve: solver checks found no problem.", case_ref: "load_case:load:é", quantity_display: "", source_ref: "diagnostic:numerical-integrity:load:é" },
+    { row_id: "numerical-health:load:𝔫", label: "Numerical health of the ordinary solve: solver checks found no problem.", case_ref: "load_case:load:𝔫", quantity_display: "", source_ref: "diagnostic:numerical-integrity:load:𝔫" }
   ];
 
   it("appends one line per load case after the result rows, so before the diagnostics section, and only when supplied", async () => {
@@ -1353,7 +1353,7 @@ describe("numerical health report line", () => {
   it("shows the line in the report packet body before its diagnostics lines", () => {
     unredacted();
     render(reportPanel(generic(), true));
-    expect(screen.getByTestId("report-numerical-health-load:é")).toHaveTextContent("Numerical health of the ordinary solve: checks passed.");
+    expect(screen.getByTestId("report-numerical-health-load:é")).toHaveTextContent("Numerical health of the ordinary solve: solver checks found no problem.");
     const body = screen.getByTestId("report-packet-body").textContent ?? "";
     expect(body.indexOf("Numerical health of the ordinary solve")).toBeLessThan(body.indexOf("Diagnostic scope"));
   });
@@ -1783,7 +1783,7 @@ describe("FR-REP-003 disposition and context boundary (W-11 slice (c), §4.3, §
     ["rejected", { review_status: "rejected" }]
   ];
 
-  it("carries each record's disposition verbatim to the native render, which refuses the blocking ones", async () => {
+  it("carries each record's disposition verbatim to the render input, and under local-private intent the webview's control refuses the blocking ones and passes the private and unknown ones through", async () => {
     for (const [name, record] of CLASSES) {
       const input = await buildFor(dispositionModel(record));
       const note = input.report_sections.provenance_notes.find((item) => item.source_name === "Invented steel datasheet")!;
@@ -1791,16 +1791,22 @@ describe("FR-REP-003 disposition and context boundary (W-11 slice (c), §4.3, §
       expect(note).toMatchObject(record);
       expect(value.provenance).toMatchObject(record);
       if ("review_status" in record) expect(value.review_status).toBe(record.review_status);
-      // The webview's local-private control under the panel's intent passes the record
-      // through unchanged (its route projection makes it opaque leaves); the native renderer
-      // refuses quarantined, rejected and protected_suspected records in every context, and
-      // shows an unknown one with a non-blocking warning only under local_private (owner
-      // ruling on #1639, "C1 b, C2 a"; `report_renderer` tests
+      // The webview's local-private control under the panel's intent refuses a quarantined,
+      // rejected or protected_suspected record (DEL-12-02 AC-003, every context) and passes a
+      // private or unknown one through unchanged; the native renderer refuses the same three in
+      // every context, and shows an unknown one with a non-blocking warning only under
+      // local_private (owner ruling on #1639, "C1 b, C2 a"; `report_renderer` tests
       // `fr_rep_003_records_render_only_locally_and_refuse_blocking_dispositions_in_every_context`,
       // `an_unresolved_record_warns_in_local_private_and_blocks_elsewhere`).
       const controlled = reportRedactionProjector.controlReportRendererInput(input, true);
-      expect(controlled.blocked, name).toBe(false);
-      expect(JSON.stringify(controlled.payload)).toContain(JSON.stringify(record).slice(1, -1));
+      const blocking = ["protected_suspected", "quarantined", "rejected"].includes(name);
+      expect(controlled.blocked, name).toBe(blocking);
+      if (blocking) {
+        expect(controlled.payload, name).toBeNull();
+        expect(controlled.findings.some((finding) => finding.code === "PROTECTED_CONTENT_BLOCKED"), name).toBe(true);
+      } else {
+        expect(JSON.stringify(controlled.payload)).toContain(JSON.stringify(record).slice(1, -1));
+      }
     }
   });
 
@@ -1823,8 +1829,10 @@ describe("FR-REP-003 disposition and context boundary (W-11 slice (c), §4.3, §
       expect(value.provenance, name).toMatchObject(carried);
       expect(input.report_sections.provenance_notes, name).toContainEqual(value.provenance);
       if (carried.review_status) expect(value.review_status, name).toBe(carried.review_status);
-      // The webview's own control passes it on; the native renderer refuses it.
-      expect(reportRedactionProjector.controlReportRendererInput(input, true).blocked, name).toBe(false);
+      // The webview's own control refuses it (DEL-12-02 AC-003), as the native renderer does.
+      const controlled = reportRedactionProjector.controlReportRendererInput(input, true);
+      expect(controlled.blocked, name).toBe(true);
+      expect(controlled.findings.some((finding) => finding.code === "PROTECTED_CONTENT_BLOCKED"), name).toBe(true);
     }
     // A malformed disposition member refuses the build, naming the entity and member.
     const malformed: [(model: PreviewModel) => void, string][] = [

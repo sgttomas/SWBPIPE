@@ -1,4 +1,4 @@
-import { selectCompactOption } from "./workspace-driver";
+import { selectCompactOption, expectNotOfferedByView } from "./workspace-driver";
 import { expect, test, type Page, type Locator } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -177,15 +177,6 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   await expect(solvedIssues.getByTestId("missing-data-boundary")).toContainText("auto_fill=false");
   await solvedIssues.getByRole("button", { name: /Close/i }).click();
 
-  await page.getByTestId("audit-drawer-toggle").click();
-  const initialAudit = page.getByTestId("audit-boundary-drawer");
-  for (const boundaryValue of Object.values(modelFixture.data_boundary)) {
-    await expect(initialAudit.getByTitle(boundaryValue)).toBeVisible();
-  }
-  await expect(initialAudit.getByTestId("local-project-status")).toContainText("network=false");
-  await expect(initialAudit.getByTestId("local-project-status")).toContainText("telemetry=false");
-  await initialAudit.getByRole("button", { name: /Close/i }).click();
-
   // Return to the full-height authoring layout, then check actual control
   // actionability and containment instead of an obsolete fixed rail width.
   // Slice B3: Results is a stage surface with no close control; the full authoring layout is the
@@ -251,11 +242,8 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   await expect(page.getByTestId("readiness-mechanics")).toContainText("preview run not started");
   // Slice B3: the Analyze page lies over the stage's surfaces; close it to read the canvas's status.
   await page.getByTestId("workspace-dock-close").click();
-  const resetViewportStatus = page.getByTestId("viewport-deformation-status");
-  await expect(resetViewportStatus).toBeVisible();
-  await setDisclosure(resetViewportStatus);
-  await expect(resetViewportStatus).toContainText("not started; result rows=0");
-  await setDisclosure(resetViewportStatus, false);
+  // No result: the view offers no Deformation control, so it claims no deformed shape.
+  await expectNotOfferedByView(page, page.getByTestId("viewport-deformation-status"));
   await openWorkspaceSection(page, "results");
   await expect(page.getByTestId("results-panel")).toContainText(
     "Run the bounded preview mechanics path to populate result summaries."
@@ -294,9 +282,7 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   await page.getByTestId("run-mechanics-preview").click();
   await expectBackendRefusal(page, true);
   await page.getByTestId("workspace-dock-close").click();
-  await setDisclosure(page.getByTestId("viewport-deformation-status"));
-  await expect(page.getByTestId("viewport-deformation-status")).toContainText("not started; result rows=0");
-  await setDisclosure(page.getByTestId("viewport-deformation-status"), false);
+  await expectNotOfferedByView(page, page.getByTestId("viewport-deformation-status"));
   await page.getByTestId("issues-drawer-toggle").click();
   const blockedIssues = page.getByTestId("issues-home");
   await expect(page.getByTestId("diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL")).toHaveCount(0);
@@ -309,20 +295,15 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   await expect(page.getByTestId("results-panel")).toContainText("Run the bounded preview mechanics path to populate result summaries.");
   await expect(page.getByTestId("historical-run-context")).toHaveCount(0);
 
-  await page.getByTestId("audit-drawer-toggle").click();
-  const finalAudit = page.getByTestId("audit-boundary-drawer");
-  await expect(finalAudit).toBeVisible();
-  for (const boundaryValue of Object.values(modelFixture.data_boundary)) {
-    await expect(finalAudit.getByTitle(boundaryValue)).toBeVisible();
-  }
-  await expect(finalAudit.getByTestId("local-project-status")).toContainText("network=false");
-  await expect(finalAudit.getByTestId("local-project-status")).toContainText("telemetry=false");
+  // Telemetry's state is on the Evidence page (the Audit and Boundaries drawer is not in v1.0).
+  // The local store's network boundary is asserted where it is produced, in App.test.tsx.
+  await openWorkspaceSection(page, "evidence");
+  await expect(page.getByTestId("telemetry-boundary-state")).toHaveText(/^Telemetry: off, /);
   expect(externalRequests).toEqual([]);
 });
 
 for (const { drawerId, toggleId, contentId, contentText } of [
-  { drawerId: "issues-home", toggleId: "issues-drawer-toggle", contentId: "missing-data-summary", contentText: "solve_blocked=false" },
-  { drawerId: "audit-boundary-drawer", toggleId: "audit-drawer-toggle", contentId: "local-project-status", contentText: "network=false" }
+  { drawerId: "issues-home", toggleId: "issues-drawer-toggle", contentId: "missing-data-summary", contentText: "solve_blocked=false" }
 ]) {
   test(`shared drawer menu overlap preserves ordinary Close and active menu priority: ${drawerId}`, async ({ page }, testInfo) => {
     await page.goto("/");
@@ -396,8 +377,9 @@ for (const { drawerId, toggleId, contentId, contentText } of [
     await expect(page.getByTestId("menu-view")).toHaveAttribute("aria-expanded", "true");
     await expect(menu).toHaveCSS("z-index", "50");
     await measure("active-view-command");
-    await page.getByTestId("menu-item-view.section.operations").click();
-    await expect(page.getByTestId("workspace-section-operations")).toBeVisible();
+    // A View-menu section command (Review changes is no longer listed: the rail and its tab reach it).
+    await page.getByTestId("menu-item-view.section.libraries").click();
+    await expect(page.getByTestId("workspace-section-libraries")).toBeVisible();
     await expect(page.getByTestId("menu-dropdown-view")).toHaveCount(0);
     await expect(drawer).toBeVisible();
     await page.getByTestId("menu-view").click();

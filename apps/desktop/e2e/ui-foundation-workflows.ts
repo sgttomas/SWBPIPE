@@ -1,3 +1,4 @@
+import { viewportControl } from "./workspace-driver";
 import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
 import { readFile } from "node:fs/promises";
@@ -210,10 +211,13 @@ export async function setAppearance(
 export async function openWorkspaceSection(page: Page, id: string): Promise<Locator> {
   const section = page.getByTestId(`workspace-section-${id}`);
   if (!await section.isVisible()) {
-    // Review changes is a tab of the Model stage's strip; from another stage it is summoned by the
-    // section command, as every other section is.
-    if (id === "operations" && await page.getByTestId("workspace-review").isVisible()) {
-      await activateWithKeyboard(page, page.getByTestId("workspace-review"));
+    // Review changes and Load Cases are reached as a person reaches them, by the rail and the
+    // stage tab; the View menu lists only the sections the rail does not reach in every state.
+    const route = ({ operations: { stage: "model", tab: "workspace-review" }, loads: { stage: "loads", tab: "stage-tab-load-cases" } } as Record<string, { stage: string; tab: string }>)[id];
+    if (route) {
+      await activateWithKeyboard(page, page.getByTestId(`rail-stage-${route.stage}`));
+      const tab = page.getByTestId(route.tab);
+      if (await tab.getAttribute("aria-pressed") !== "true") await activateWithKeyboard(page, tab);
     } else {
       await activateWithKeyboard(page, page.getByTestId("menu-view"));
       await activateWithKeyboard(page, page.getByTestId(`menu-item-view.section.${id}`));
@@ -340,9 +344,11 @@ export async function expectResolvedStyleAndTargets(page: Page): Promise<void> {
     // Inspector toggle is then the enabled panel toggle on screen.
     const treeToggleEnabled = document.querySelector('[data-testid="toggle-tree"]')?.getAttribute("aria-disabled") !== "true";
     return {
-      // The command witness is a toolbar command with a control boundary, on screen in every stage
-      // (Review changes became a borderless tab of the Model stage's strip).
-      command: measure('[data-testid="toolbar-issues"]'),
+      // The command witness is an enabled command on screen in every stage: the agent strip's Agent
+      // control, the one Agent control since the toolbar's Agent button was removed (Review changes
+      // became a borderless tab of the Model stage's strip; the toolbar's Issues button was removed
+      // as a duplicate of the rail's).
+      command: measure('[data-testid="agent-strip-open"]'),
       focus: measure('[data-testid="workspace-select"]'),
       treeToggle: measure(treeToggleEnabled ? '[data-testid="toggle-tree"]' : '[data-testid="toggle-inspector"]'),
       disabled: measure('[data-testid="workspace-undo"]'),
@@ -722,6 +728,47 @@ export async function expectPassiveOrientationFrame(page: Page, testInfo: TestIn
   return witness;
 }
 
+/**
+ * Every drawn entity label in the view has a pointer target at least 24 by 24 CSS pixels (2.5.8),
+ * centred on its small plate, and nothing covers it: the topmost element at the centre and at each
+ * corner of that 24-pixel box is the label itself.
+ */
+export async function expectViewportLabelTargets(page: Page) {
+  const witness = await page.evaluate(() => {
+    const labels = [...document.querySelectorAll<HTMLElement>(".viewport-selection-layer .viewport-select-target")]
+      .filter((label) => getComputedStyle(label).visibility !== "hidden" && label.getBoundingClientRect().width > 0);
+    return labels.map((label) => {
+      const plate = label.getBoundingClientRect();
+      const width = Math.max(24, plate.width);
+      const height = Math.max(24, plate.height);
+      const left = plate.left + plate.width / 2 - width / 2;
+      const top = plate.top + plate.height / 2 - height / 2;
+      const inset = 0.5;
+      const points = [
+        [left + width / 2, top + height / 2],
+        [left + inset, top + inset], [left + width - inset, top + inset],
+        [left + inset, top + height - inset], [left + width - inset, top + height - inset],
+      ];
+      const covered = points.flatMap(([x, y]) => {
+        const owner = document.elementFromPoint(x, y);
+        if (owner instanceof Node && (owner === label || label.contains(owner))) return [];
+        const name = owner instanceof Element
+          ? owner.getAttribute("data-testid") ?? (typeof owner.className === "string" && owner.className.trim() ? `.${owner.className.trim().replace(/\s+/g, ".")}` : owner.tagName)
+          : "nothing";
+        return [`${Math.round(x)},${Math.round(y)} owned by ${name}`];
+      });
+      return { label: label.textContent?.trim() ?? "", plate: { width: plate.width, height: plate.height }, target: { width, height }, covered };
+    });
+  });
+  expect(witness.length, "drawn entity labels in the view").toBeGreaterThan(0);
+  for (const entry of witness) {
+    expect(entry.target.width, `${entry.label} label target width`).toBeGreaterThanOrEqual(24);
+    expect(entry.target.height, `${entry.label} label target height`).toBeGreaterThanOrEqual(24);
+    expect(entry.covered, `${entry.label} label target is covered: ${entry.covered.join("; ")}`).toEqual([]);
+  }
+  return witness;
+}
+
 export async function expectCenterUnobscured(
   locator: Locator,
   options: Readonly<{ minimumTarget?: boolean }> = {},
@@ -824,7 +871,7 @@ export async function captureElementState(locator: Locator, testInfo: TestInfo, 
 }
 
 export async function keyboardMeasureTargets(page: Page, labels: readonly string[]): Promise<Locator> {
-  const measure = page.getByRole("button", { name: "Measure", exact: true });
+  const measure = (await viewportControl(page, page.getByRole("button", { name: "Measure", exact: true })));
   await activateWithKeyboard(page, measure);
   await expect(measure).toHaveAttribute("aria-pressed", "true");
   for (const label of labels) {

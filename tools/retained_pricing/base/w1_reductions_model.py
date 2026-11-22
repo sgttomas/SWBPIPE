@@ -120,9 +120,7 @@ REDUCED_PINS = {
     # PR-A (DEL-04-07 *Blocked document* and *Published displacement*; diffs from main fe01013f4 read before re-binding;
     # retained-pricing-rules.md §8.62): lib.rs and certified_recovery.rs as B7a; no reduction's owner
     # or lifetime changes and the L5 texts are unchanged. Previous values fd6fc92e… and ef58e6c2…
-    # Hanger admission on the combined modal source: append only pub mod source_admission;
-    # after the modal entry; CE-projected binding rederived from these complete source bytes.
-    "core/product_physics/src/lib.rs": "299029bea729a86c22066c3fa34bfe9c126163e0d9a083f2bb63b017e0170e50",
+    "core/product_physics/src/lib.rs": "3f7e7e84f8cd9e8c0aa3019b430584e6e31d2bf73b744381b041af10f648cfb1",
     "core/product_physics/src/retained_wire.rs": "ca982a664d0c3f30dd510182c402785cb11baee1ef8d567c522351332892e9f7",
     "core/product_physics/src/certified_publication.rs": "088fbf78c977abbcc3c28c7cb38d74bf14b7f7adfac48c21f8010a4020d0cfc2",
     "core/product_physics/src/certified_loads.rs": "6a1e5f45998fe2c6360bbd661bf58afe04cac39a40f106b39559614865e501ac",

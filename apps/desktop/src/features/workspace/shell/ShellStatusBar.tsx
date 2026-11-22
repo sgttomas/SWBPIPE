@@ -1,6 +1,7 @@
 import { useId, useState } from "react";
-import { Flag, Info } from "lucide-react";
+import { Flag } from "lucide-react";
 import { useDisplayUnits } from "../../display-units";
+import { entityRefFromKey } from "../selectionState";
 import { shellLocation, statusChipInputsFromCells, statusChipText, statusChips } from "../shellLayout";
 import type { StatusChip } from "../shellLayout";
 import type { StatusAuthorityDomain } from "../statusLabels";
@@ -23,15 +24,18 @@ const DISPLAY_UNIT_FACES = { entered: "Entered", SI: "SI", US: "US" } as const;
 
 /**
  * The status bar: the chips of the policy, the
- * issues count, the selection, the display units and the About control.
+ * issues count, the selection and the display units.
  * Nothing else lives here. A chip is read, never clicked to change anything:
  * the click opens its popover with the raw token and the domain.
  */
 export function ShellStatusBar({ issueCount }: { issueCount: number }) {
   const { model } = useSessionModel();
   const { result, currentSolvedResult, numericalHealthHold, historicalRun, solveJob, ruleCheckAggregate } = useSessionResults();
-  const { selection, orderedSelection } = useSessionSelection();
-  const { activeSection, stageSurface, auditDrawerOpen, setAuditDrawerOpen, issuesDrawerOpen, setIssuesDrawerOpen } = useSessionChrome();
+  // The ordered selection's primary: with nothing selected the bar names nothing (never the
+  // inspector's fallback project); a project a person selected is named.
+  const { orderedSelection } = useSessionSelection();
+  const selection = orderedSelection.primaryKey ? entityRefFromKey(orderedSelection.primaryKey) : null;
+  const { activeSection, stageSurface, issuesDrawerOpen, setIssuesDrawerOpen } = useSessionChrome();
   const { preference } = useDisplayUnits();
   const [openChip, setOpenChip] = useState<string | null>(null);
   const location = shellLocation(activeSection, stageSurface);
@@ -63,21 +67,16 @@ export function ShellStatusBar({ issueCount }: { issueCount: number }) {
       >
         <Flag size={12} aria-hidden="true" /> {issueCount} Issues
       </button>
-      <span className="shell-status-selection" data-testid="status-selection" title="Selection">
-        {selection ? <><span className="shell-status-selection-type">{selection.type}:</span> <span className="shell-status-selection-id">{selection.id}</span></> : null}{count > 1 ? ` · ${count} selected` : ""}
+      {/* The primary selection, typed, with how many are selected. Its title is the whole of it; when
+          the bar is narrow the type and the count give way before the identifier does. */}
+      <span
+        className="shell-status-selection"
+        data-testid="status-selection"
+        title={selection ? `${selection.type}: ${selection.id}${count > 1 ? ` · ${count} selected` : ""}` : undefined}
+      >
+        {selection ? <><span className="shell-status-selection-type">{selection.type}:</span> <span className="shell-status-selection-id">{selection.id}</span></> : null}{count > 1 ? <span className="shell-status-selection-count">{` · ${count} selected`}</span> : null}
       </span>
       <span className="shell-status-units" data-testid="status-display-units" title="Display units">{DISPLAY_UNIT_FACES[preference]}</span>
-      <button
-        type="button"
-        className="status-drawer-button shell-about"
-        data-testid="audit-drawer-toggle"
-        aria-expanded={auditDrawerOpen}
-        aria-label="About SWBPIPE…"
-        title="About SWBPIPE…"
-        onClick={() => setAuditDrawerOpen((open) => !open)}
-      >
-        <Info size={14} aria-hidden="true" />
-      </button>
     </footer>
   );
 }

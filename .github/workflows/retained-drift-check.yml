@@ -1,0 +1,47 @@
+name: retained-drift-check
+# The retained registration drift check (docs/CI_STRATEGY.md, "Retained registration drift check"; DEL-04-08
+# REQ-004), a plain red or green run. A green run shows that no committed digest pin or reviewed input has drifted
+# from the registration at the checked revision, the dispatched ref; it does not compare a premise pin's expected text
+# with its source, which only the pricing driver does, and it runs no four-point pricing of any revision. By
+# dispatch on any ref, and it adds no required check; a pull request that changes the pricing tool or the registration
+# runs both parts in its own harness. It has no schedule until the solver freeze's registration, when one is added.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: retained-drift-check-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  python:
+    name: Retained drift check, pricing tool tests (${{ matrix.shard }}/4)
+    runs-on: ubuntu-latest
+    # About 3.4 worker-hours of recorded test time over four shards of four workers.
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          filter: blob:none
+          # As in the product Python job: declarative specifications are not product inputs.
+          sparse-checkout: |
+            /*
+            !/execution/
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install Python check dependencies
+        run: python3 -m pip install -r requirements-dev.txt
+      - name: Retained drift check shard
+        env:
+          SHARD: ${{ matrix.shard }}
+        run: python3 tools/ci/python_ci.py --drift-check --shard-index "$SHARD" --shard-count 4
+  rust:
+    # The registration's Rust part, the same called job a registration-path pull request runs.
+    uses: ./.github/workflows/retained-registration-rust.yml

@@ -40,27 +40,9 @@ def main_source(tmp_path):
     return snap
 
 
-MAIN_LIB_PIN = "3f7e7e84f8cd9e8c0aa3019b430584e6e31d2bf73b744381b041af10f648cfb1"   # the tool's lib.rs binding at MAIN
-LIB_PIN_FILES = ("base/b7a_domain_model.py", "base/kd5_text_model.py", "base/w1_reductions_model.py")
-
-
-def main_tool(tmp_path):
-    """The scratch tool for MAIN's source (the README's step-5 restoration): its resource.rs pin, and the whole-file
-    binding of core/product_physics/src/lib.rs in each file that holds it, restored to MAIN's. A source later than
-    MAIN may have moved that binding; MAIN's own lib.rs must still meet the value it was priced under."""
-    tool = tool_with_pin(tmp_path, MAIN_RS_PIN)
-    held = re.search(r"^B7A_PRIMITIVE_LIB_SOURCE_PIN = '([0-9a-f]{64})'$",
-                     (tool / LIB_PIN_FILES[1]).read_text(encoding="utf-8"), re.M).group(1)
-    for rel in LIB_PIN_FILES:
-        text = (tool / rel).read_text(encoding="utf-8")
-        assert text.count(held) == 1, (rel, held)
-        (tool / rel).write_text(text.replace(held, MAIN_LIB_PIN), encoding="utf-8")
-    return tool
-
-
 def test_the_historical_absence_is_admitted_only_for_its_source_state(tmp_path, monkeypatch):
     snap = main_source(tmp_path)
-    tool = main_tool(tmp_path)
+    tool = tool_with_pin(tmp_path, MAIN_RS_PIN)
     d = decisions(monkeypatch, snap, tool=tool)
     assert [(u["file"], u["name"], u["state"]) for u in d["O10_UNREACHED_FNS"]] == [(RB, "lift_into", "reviewed-absent")]
     # The same source with the function's text present (here only in a comment) is not that state.

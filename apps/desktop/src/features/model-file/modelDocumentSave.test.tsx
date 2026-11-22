@@ -142,7 +142,7 @@ describe("Save Model Document…: admission in the webview", () => {
 });
 
 describe("Save Model Document…: disposition screening", () => {
-  it("is needed: the generic route projection passes a quarantined provenance record through", () => {
+  it("the generic route projection blocks a quarantined provenance record too, at the record (DEL-12-02 AC-003)", () => {
     const quarantined = everySlot();
     quarantined.materials[0].provenance_record.review_status = "quarantined";
     const generic = controlRouteExport(quarantined, {
@@ -151,7 +151,13 @@ describe("Save Model Document…: disposition screening", () => {
       explicitLocalPrivateIntent: true,
       requireLosslessMaterialization: true
     });
-    expect(generic.blocked).toBe(false);
+    expect(generic.blocked).toBe(true);
+    expect(generic.payload).toBeNull();
+    expect(
+      generic.findings
+        .filter((finding) => finding.code === "PROTECTED_CONTENT_BLOCKED")
+        .map((finding) => finding.path.replaceAll("__route_key__", ""))
+    ).toEqual(["$.materials[0].provenance_record"]);
   });
 
   type Doc = Record<string, any>;

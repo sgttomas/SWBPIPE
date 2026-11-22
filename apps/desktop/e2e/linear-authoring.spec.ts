@@ -1,6 +1,8 @@
-import { selectCompactOption } from "./workspace-driver";
+import { selectCompactOption, expectNotOfferedByView } from "./workspace-driver";
 import { expect, test, type Page } from "@playwright/test";
 import {
+  openLoadsDisclosure,
+  openLoadsForm,
   chooseVirtualTarget,
   closeWorkspacePanels,
   expectStatusChip,
@@ -208,6 +210,8 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await applyQueued(page);
 
   await openWorkspaceSection(page, "loads");
+  await openLoadsForm(page, "load-manager-new-case");
+  await openLoadsDisclosure(page, "load-manager-create-load-more");
   await page.getByTestId("load-manager-create-load-id").fill("load:UI-A");
   await page.getByTestId("load-manager-create-load-label").fill("Invented Phase A force");
   await page.getByTestId("load-manager-create-load-kind").fill("primitive_user_load");
@@ -216,6 +220,9 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await page.getByTestId("queue-create-load-case-intent").click();
   await applyQueued(page);
   await openWorkspaceSection(page, "loads");
+  await page.getByTestId("load-manager-case-load:UI-A").click();
+  await openLoadsForm(page, "load-manager-add-load");
+  await openLoadsDisclosure(page, "load-manager-create-primitive-more");
   await chooseVirtualTarget(page, "load-manager-create-primitive-load-case", "load:UI-A");
   await page.getByTestId("load-manager-create-primitive-category").selectOption("concentrated_force");
   await page.getByTestId("load-manager-create-primitive-id").fill("load:UI-A-FY");
@@ -235,12 +242,8 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await expectStatusChip(page, "status-pill-mechanics", "failed", "Solver · Not solved", "Solve job state");
   // Slice B3: the Analyze page lies over the stage's surfaces; close it to reach the canvas.
   await showCanvas(page);
-  await page.getByTestId("viewport-deformation-status").locator(":scope > summary").click();
-  await expect(page.getByTestId("viewport-deformation-summary")).toBeVisible();
-  await expect(page.getByTestId("viewport-deformation-summary")).toHaveText("not started; result rows=0");
-  await expect(page.getByTestId("viewport-deformation-boundary")).toHaveText("scale=not_generated; professional_claim=false");
-  await page.getByTestId("viewport-deformation-status").locator(":scope > summary").click();
-  await expect(page.getByTestId("viewport-deformation-summary")).toBeHidden();
+  // No result: the view offers no Deformation control, so it claims no deformed shape.
+  await expectNotOfferedByView(page, page.getByTestId("viewport-deformation-status"));
   await openWorkspaceSection(page, "solve");
   await expect(page.getByTestId("rule-check-run")).toBeDisabled();
   await projectCommand(page, "save-local");
@@ -252,13 +255,8 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await expect(page.getByTestId("results-panel")).toContainText("Run the bounded preview mechanics path to populate result summaries.");
   await expect(page.getByTestId("historical-run-context")).toHaveCount(0);
   expect(await currentModelHash(page)).toBe(baseline350Hash);
-  await page.getByTestId("viewport-deformation-status").locator(":scope > summary").click();
-  await expect(page.getByTestId("viewport-deformation-summary")).toBeVisible();
-  await expect(page.getByTestId("viewport-deformation-summary")).toHaveText("not started; result rows=0");
-  await expect(page.getByTestId("viewport-deformation-boundary")).toHaveText("scale=not_generated; professional_claim=false");
-
-  await page.getByTestId("viewport-deformation-status").locator(":scope > summary").click();
-  await expect(page.getByTestId("viewport-deformation-summary")).toBeHidden();
+  // No result: the view offers no Deformation control, so it claims no deformed shape.
+  await expectNotOfferedByView(page, page.getByTestId("viewport-deformation-status"));
 
   // Fresh-task helpers require the separately sealed workspace-driver patch.
   const inspector = await startPropertyTaskFromTreeEntity(page, "load", "load:UI-A");

@@ -34,7 +34,7 @@ use crate::user_release::{self, ProducerEntry, USER_RELEASED_CONTEXT, USER_RELEA
 use crate::wire::{LinkedSolverIdentity, ReportPackageRequest};
 use open_pipe_stress_audit_manifest as audit;
 use open_pipe_stress_canonical_json::canonical_number;
-use open_pipe_stress_result_export::derivative::{digest, guard_json, validate_document};
+use open_pipe_stress_result_export::derivative::{digest, guard_json, validate_document_naming_row};
 use open_pipe_stress_result_export::semantic_contract::for_source;
 use serde_json::{json, Value};
 use std::collections::BTreeSet;
@@ -114,7 +114,7 @@ fn status_set(items: &[Value]) -> BTreeSet<String> {
 
 /// The section-basis label suffix of a row (W-11, DEL-08-01 Design
 /// `exact-route-report-sections.md` §3.4): `metadata.basis` split on ";", each
-/// token trimmed. Exactly one `section_basis=nominal_section` token adds
+/// token trimmed as JavaScript's `trim` does. Exactly one `section_basis=nominal_section` token adds
 /// " [nominal section]", exactly one `section_basis=reduced_section` adds
 /// " [reduced section]", and no `section_basis=` token adds nothing. Any other
 /// value, or more than one such token, refuses. No preview-physics-2 row
@@ -125,7 +125,7 @@ fn section_basis_suffix(id: &str, metadata: &Value) -> Result<&'static str, Stri
     };
     let tokens: Vec<&str> = basis
         .split(';')
-        .map(str::trim)
+        .map(crate::user_release::js_trim)
         .filter_map(|token| token.strip_prefix("section_basis="))
         .collect();
     match tokens.as_slice() {
@@ -234,8 +234,9 @@ pub fn check_unit_display_summary(report: &Value, source: &Value) -> Result<(), 
     require(display["quantity_display_policy"] == QUANTITY_DISPLAY_POLICY, "unit display quantity_display_policy")?;
     require(display["conversion_performed"] == source_displays_scaled_value(source), "unit display conversion_performed")?;
     let rows = array(source, "/results");
-    let units: BTreeSet<&str> = rows.iter().filter_map(|row| row["unit"].as_str()).filter(|unit| !unit.is_empty()).collect();
-    require(display["result_units"] == json!(units.into_iter().collect::<Vec<_>>()), "unit display result_units")
+    // Each once, in UTF-16 code unit order: the desktop's default sort.
+    let units = crate::user_release::sorted_unique(rows.iter().filter_map(|row| row["unit"].as_str()).filter(|unit| !unit.is_empty()).map(str::to_string));
+    require(display["result_units"] == json!(units), "unit display result_units")
 }
 
 /// The remediation text the desktop gives each result diagnostic in the
@@ -460,7 +461,7 @@ pub(crate) fn check_request_in(
     // against it (row accounting, witnesses, origin and carrier hash).
     let (source_table, _) = for_source(source).map_err(|detail| format!("{SOURCE_INVALID}: {detail}"))?;
     require(std::ptr::eq(source_table, header_table), "the source and the document select different tables")?;
-    validate_document(document, source).map_err(|detail| format!("{SOURCE_INVALID}: {detail}"))?;
+    validate_document_naming_row(document, source).map_err(|detail| format!("{SOURCE_INVALID}: {detail}"))?;
     // Every checksum record names the subject its location derives (§2.4,
     // "Checksum subjects"); `validate_document` binds the row records to the
     // origin's carrier reference, and this binds that reference.

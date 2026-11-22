@@ -1002,6 +1002,7 @@ pub(crate) const TARGETS: [(&str, &[(&str, &str, &str)]); 5] = [
             ("test", "reader", "report_package/tests/reader.rs"),
             ("test", "reader_allocation", "report_package/tests/reader_allocation.rs"),
             ("test", "report_diagnostics_parity", "report_package/tests/report_diagnostics_parity.rs"),
+            ("test", "report_members_parity", "report_package/tests/report_members_parity.rs"),
             ("test", "report_rows_parity", "report_package/tests/report_rows_parity.rs"),
             ("test", "schema_eval", "report_package/tests/schema_eval.rs"),
             ("test", "user_release_derivation", "report_package/tests/user_release_derivation.rs"),

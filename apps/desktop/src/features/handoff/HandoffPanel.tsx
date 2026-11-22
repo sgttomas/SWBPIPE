@@ -16,6 +16,7 @@ import type {
 } from "../../types";
 import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
 import { recordRulePackRefAnnotations, rulePackRefAnnotationsToAdd } from "../../services/rulePackRefDiagnostics";
+import { designKnowledgeDiagnostics } from "../../services/designKnowledge";
 
 type HandoffUnitPreservationWitness = {
   witness_id: string;
@@ -219,7 +220,7 @@ export function buildHandoffPackage({
   // The run record's rule-pack reference diagnostics (references the solve excluded), named
   // after the others by id, each once.
   const rulePackExclusions = recordRulePackRefAnnotations(run.diagnostics, result.diagnostics.length);
-  const carried = [...model.diagnostics, ...(knowledge?.diagnostics ?? []), ...result.diagnostics];
+  const carried = [...model.diagnostics, ...designKnowledgeDiagnostics(knowledge, model), ...result.diagnostics];
   const diagnosticRefs = carried.map((item) => item.id ?? item.code);
   for (const annotation of rulePackRefAnnotationsToAdd(rulePackExclusions, carried)) {
     if (!diagnosticRefs.includes(annotation.id)) diagnosticRefs.push(annotation.id);

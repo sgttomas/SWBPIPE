@@ -20,7 +20,8 @@ exchange folder: the host reads a completed attempt's files and stores them in
 back to MBF (`caepipe_out/exported.mbf`) for the DEL-17-04 import regression, is
 held: the guest script refuses it. Everything it writes under
 `caepipe_out/` is CAEPIPE output or derived from it and stays private.
-Its records are regression and handoff evidence only.
+Its records are private validation evidence (docs/PRD.md §22.5), never professional
+acceptance or code compliance.
 
 An optional `settings_guard` in the configuration names the guest registry key under
 which the user's tool keeps its saved settings. When it is set, no round trip starts
@@ -40,6 +41,7 @@ tool that could be changing its settings at the same time.
 
 from __future__ import annotations
 
+import dataclasses
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 import base64
@@ -84,7 +86,7 @@ WRITE_SCRIPT_REPOSITORY_PATH = "core/handoff/caepipe_external/guest/Write-Swbpip
 HARNESS_DIR = "_harness"
 RUN_RECORD_KIND = "openpipestress.caepipe_harness_run_record"
 BATCH_COMMAND_SHAPE = '<exe> "<mbf>";batchmode=yes'
-BOUNDARY_NOTE = "regression/handoff evidence only; not validation, compatibility proof or professional acceptance"
+BOUNDARY_NOTE = "private validation evidence; not compatibility proof, code compliance or professional acceptance"
 CASE_LAYERS = ("swbpipe", "caepipe_in", "caepipe_out", "parsed", "comparison")
 OUTPUT_NAMES = ("model.res", "model.mod")
 # The batch print written with a .txt extension (the tool's saved print-file extension); accepted only when its
@@ -158,6 +160,28 @@ TRANSPORT_LINES = ("PrlJob_GetResult: Invalid argument. An invalid argument was 
                    "PrlJob_GetRetCode: Invalid argument. An invalid argument was passed.")
 # The guest's answer to `ver`: the one line a Windows guest prints (liveness).
 VER_LINE = re.compile(r"^Microsoft Windows \[Version [0-9]+(?:\.[0-9]+)+\]\Z")
+# A live run's opening liveness (`await_guest_alive`): at most this many checks in all, this far apart. A guest
+# resumed from a long suspend can let the first short call run out its time.
+SESSION_LIVENESS_CHECKS = 4
+SESSION_LIVENESS_WAIT_S = 30.0
+# A drive mapping line of `net use` (`parse_net_use`): an optional status word, the drive letter and colon, then the
+# rest of the line, which is read only against the one remote wanted, never by a general pattern for a share name.
+NET_USE_DRIVE = re.compile(r"^\s*(?:(?P<status>\S+)\s+)?(?P<letter>[A-Za-z]):\s+(?P<rest>\S.*)\Z")
+# A connection line of `net use` with no drive letter (an optional status word, then the remote): a row of its own,
+# never a continuation of the line above it.
+NET_USE_DEVICELESS = re.compile(r"^\s*(?:\S+\s+)?\\\\\S")
+# The network column `net use` prints for the host's shared folders; it follows the remote after white space, or sits
+# alone on the next line when a long remote wraps the line.
+NET_USE_NETWORK = "Parallels Shared Folders"
+# The English form of a `net use` listing (`exchange_share_letter`): its last line, and its column header when it
+# lists any connection.
+NET_USE_DONE = "The command completed successfully."
+NET_USE_EMPTY = "There are no entries in the list."
+NET_USE_HEADER = re.compile(r"^Status\s+Local\s+Remote\s+Network\Z")
+# A mapping's status that leaves the share usable: OK, or none printed. `net use` prints a status for connections of
+# the Windows network provider; a mapping through another provider, as the host's shared folders are, has a blank
+# Status column, so a blank status is this share's ordinary state, not a failure.
+NET_USE_USABLE = ("OK", "")
 # One attempt per token: a fresh, unguessable token for each dispatch of the attempt operation (lower-case hex).
 ATTEMPT_TOKEN_PATTERN = re.compile(r"^[0-9a-f]{32}\Z")
 # At most this many dispatches of the attempt operation per round trip; the second only after an established
@@ -259,6 +283,9 @@ class HarnessConfig:
     checked: tuple[str, ...] = ()
     warnings: tuple[str, ...] = field(default_factory=tuple)
     settings_guard: "SettingsGuard | None" = None
+    # Set only by `open_live_session`: the guest's own letter for the exchange share beside the configured root, which
+    # every run record states (`configuration_surface.exchange_share`). None: the configured root, unexamined.
+    exchange_share: "Mapping[str, Any] | None" = field(default=None, hash=False)
 
 
 @dataclass(frozen=True)
@@ -1690,6 +1717,187 @@ def check_guest_alive(config: HarnessConfig, *, timeout_s: float = GUARD_CALL_TI
     return {"status": "alive"}
 
 
+def await_guest_alive(config: HarnessConfig, *, checks: int = SESSION_LIVENESS_CHECKS,
+                      wait_s: float = SESSION_LIVENESS_WAIT_S,
+                      liveness: Callable[[HarnessConfig], dict[str, Any]] | None = None,
+                      sleep: Callable[[float], None] | None = None) -> dict[str, Any]:
+    """The run's opening liveness: `check_guest_alive` up to `checks` times, `wait_s` apart, until the guest answers.
+    A guest resumed from a long suspend can let the first short call run out its time; it is asked again, never more
+    than `checks` times in all. `alive` with each check's outcome, or `guest_unreachable` with the last one's reason.
+    Starts and stops nothing."""
+
+    liveness = liveness or check_guest_alive
+    sleep = sleep or _backoff
+    outcomes: list[dict[str, Any]] = []
+    for number in range(1, checks + 1):
+        if number > 1:
+            sleep(wait_s)
+        outcome = liveness(config)
+        outcomes.append({"check": number, "status": outcome.get("status")}
+                        | ({"reason": outcome["reason"]} if outcome.get("reason") else {}))
+        if outcome.get("status") == "alive":
+            return {"status": "alive", "checks": outcomes}
+    return {"status": "guest_unreachable", "checks": outcomes,
+            "reason": f"the guest did not answer {checks} liveness checks {wait_s:g} s apart "
+                      f"(last: {outcomes[-1].get('reason', outcomes[-1]['status'])}); nothing was staged"}
+
+
+def _same_share_name(given: str, wanted: str) -> bool:
+    """Whether two share remotes are one name, letter by letter without regard to case (each letter compared alone,
+    so a letter never stands for two, and `Strasse` is not `Straße`)."""
+    return len(given) == len(wanted) and all(a == b or a.lower() == b.lower() for a, b in zip(given, wanted))
+
+
+def _net_use_row(line: str) -> bool:
+    return bool(NET_USE_DRIVE.match(line.rstrip()) or NET_USE_DEVICELESS.match(line))
+
+
+def net_use_rows(text: str) -> list[str] | None:
+    """The table body of a `net use` listing in its English form, or None when the reply is not one.
+
+    The form is either the column header `NET_USE_HEADER` (once), with the body after it (past a dashed separator,
+    when present) up to the last line `NET_USE_DONE`; or the last line `NET_USE_EMPTY` with no header and no body.
+    A connection line outside the body (before the header, or in an empty listing) makes the reply contradictory, so
+    not in form. Blank lines are dropped."""
+    lines = [line.rstrip() for line in text.splitlines() if line.strip()]
+    if not lines:
+        return None
+    last, earlier = lines[-1].strip(), lines[:-1]
+    if any(line.strip() in (NET_USE_DONE, NET_USE_EMPTY) for line in earlier):
+        return None
+    headers = [index for index, line in enumerate(earlier) if NET_USE_HEADER.match(line.strip())]
+    if last == NET_USE_EMPTY:
+        return [] if not headers and not any(_net_use_row(line) for line in earlier) else None
+    if last != NET_USE_DONE or len(headers) != 1 or any(_net_use_row(line) for line in earlier[:headers[0]]):
+        return None
+    body = earlier[headers[0] + 1:]
+    if body and set(body[0].strip()) == {"-"}:
+        body = body[1:]
+    return body
+
+
+def parse_net_use(text: str, share_name: str) -> list[dict[str, Any]]:
+    """The guest's mappings of the host share `share_name` in the table body of `net use` output (`net_use_rows`; none
+    when the reply is not a listing in its English form).
+
+    A line maps the share when, after an optional status word and the drive letter and colon, the rest of the line is
+    exactly `\\\\Mac\\<share name>` (`_same_share_name`), followed by the end of the line, or by white space and
+    then exactly the network column `NET_USE_NETWORK`. Anything else after the name (a further path, another word) is
+    not the share. The lines after a row, up to the next row, continue it. A mapping whose reading the layout leaves
+    open is returned with `ambiguous` set: a row with its network column on the line and a continuation too (the name
+    could end in the column's text, or the provider be the wrapped one); a row ending at the name whose continuation is
+    anything but the network column alone; or a share name that itself contains the network column's text. A drive
+    letter is returned upper-case with its colon."""
+
+    body = net_use_rows(text) or []
+    wanted = f"\\\\Mac\\{share_name}"
+    found = []
+    for index, line in enumerate(body):
+        match = NET_USE_DRIVE.match(line)
+        if not match:
+            continue
+        rest = match.group("rest")
+        if _same_share_name(rest, wanted):
+            remote, inline = rest, False
+        elif (rest.endswith(NET_USE_NETWORK) and rest[:-len(NET_USE_NETWORK)][-1:].isspace()
+              and _same_share_name(rest[:-len(NET_USE_NETWORK)].rstrip(), wanted)):
+            remote, inline = rest[:-len(NET_USE_NETWORK)].rstrip(), True
+        else:
+            continue
+        following = []
+        for other in body[index + 1:]:
+            if _net_use_row(other):
+                break
+            following.append(other.strip())
+        ambiguous = (NET_USE_NETWORK.lower() in share_name.lower()
+                     or (following != [] if inline else following not in ([], [NET_USE_NETWORK])))
+        found.append({"status": match.group("status") or "", "letter": match.group("letter").upper() + ":",
+                      "remote": remote, "ambiguous": ambiguous})
+    return found
+
+
+def net_use_form(text: str) -> bool:
+    """Whether a reply is a `net use` listing in its English form (`net_use_rows`)."""
+    return net_use_rows(text) is not None
+
+
+def exchange_share_letter(config: HarnessConfig, *, timeout_s: float | None = None,
+                          runner: Callable[..., subprocess.CompletedProcess] = subprocess.run) -> dict[str, Any]:
+    """The guest's own drive letter for the exchange folder's share, read from `net use` (read only, retried like a
+    guard read on a transport answer). The share is named by the host exchange folder's name. `mapped` with the
+    letter and the configured root, or `share_unmapped` (no letter), `share_ambiguous` (more than one letter),
+    `share_unavailable` (the one mapping's status is neither OK nor blank) or `share_unknown` (the reply is not a
+    `net use` listing in its English form, or a line of it cannot be read one way) with the reason. Starts and stops
+    nothing."""
+
+    if timeout_s is None:
+        timeout_s = config.settings_guard.call_timeout_s if config.settings_guard else GUARD_CALL_TIMEOUT_S
+    share = config.exchange_root.name
+    base = {"share_name": share, "remote": f"\\\\Mac\\{share}", "configured_root": config.guest_exchange_root}
+    steps: list[dict[str, Any]] = []
+    try:
+        record = _guest_read(config, runner, timeout_s, steps, "exchange_share", "net use")
+    except Exception as failure:
+        return base | {"status": "share_unknown", "reason": f"the share mapping call failed: {type(failure).__name__}"}
+    if not (_answered(record) and net_use_form(record["stdout"])):
+        return base | {"status": "share_unknown",
+                       "reason": f"the guest did not answer `net use` in its form (exit status "
+                                 f"{record['exit_status']}); nothing was staged"}
+    mappings = parse_net_use(record["stdout"], share)
+    if any(mapping["ambiguous"] for mapping in mappings):
+        return base | {"status": "share_unknown",
+                       "reason": f"a `net use` line for {base['remote']} can be read more than one way in its column "
+                                 "layout; nothing was staged"}
+    letters = sorted({mapping["letter"] for mapping in mappings})
+    if not letters:
+        return base | {"status": "share_unmapped",
+                       "reason": f"the guest maps no drive letter to {base['remote']}; nothing was staged"}
+    if len(letters) > 1:
+        return base | {"status": "share_ambiguous", "letters": letters,
+                       "reason": f"the guest maps more than one drive letter to {base['remote']} "
+                                 f"({', '.join(letters)}); nothing was staged"}
+    unusable = sorted({mapping["status"] for mapping in mappings if mapping["status"] not in NET_USE_USABLE})
+    if unusable:
+        return base | {"status": "share_unavailable", "letter": letters[0], "mapping_status": unusable[0],
+                       "reason": f"the guest's mapping of {base['remote']} at {letters[0]} has the status "
+                                 f"{', '.join(unusable)}, not OK; nothing was staged"}
+    return base | {"status": "mapped", "letter": letters[0], "mapping_status": mappings[0]["status"],
+                   "root": letters[0], "differs_from_configured": letters[0].casefold()
+                   != config.guest_exchange_root.casefold()}
+
+
+def open_live_session(config: HarnessConfig, *, runner: Callable[..., subprocess.CompletedProcess] = subprocess.run,
+                      liveness: Callable[[HarnessConfig], dict[str, Any]] | None = None,
+                      share: Callable[[HarnessConfig], dict[str, Any]] | None = None,
+                      sleep: Callable[[float], None] | None = None) -> tuple[HarnessConfig | None, dict[str, Any]]:
+    """Before the first guest step of a live run, and before anything is staged: the guest's liveness
+    (`await_guest_alive`), then the exchange share's drive letter (`exchange_share_letter`). Returns the configuration
+    the run uses, in memory only, with `guest_exchange_root` the guest's own letter for the share and `exchange_share`
+    stating it beside the configured root (every run record carries it), and the session record; or None and the
+    record of why the run stops (`guest_unreachable`, `share_unmapped`, `share_ambiguous`, `share_unavailable`,
+    `share_unknown`, `share_root_refused`). The configuration file is never read again or written."""
+
+    alive = await_guest_alive(config, liveness=liveness or (lambda c: check_guest_alive(c, runner=runner)),
+                              sleep=sleep)
+    record: dict[str, Any] = {"liveness": alive}
+    if alive["status"] != "alive":
+        return None, record | {"status": alive["status"], "reason": alive["reason"]}
+    mapped = (share or (lambda c: exchange_share_letter(c, runner=runner)))(config)
+    record["exchange_share"] = mapped
+    if mapped.get("status") != "mapped":
+        return None, record | {"status": mapped.get("status", "share_unknown"),
+                               "reason": mapped.get("reason", "the share mapping was not established")}
+    root = mapped["root"]
+    if not isinstance(root, str) or not valid_guest_path(root + "\\", directory=True):
+        return None, record | {"status": "share_root_refused", "reason": f"the guest's root for the share ({root!r}) "
+                                                                        "is not an allow-listed guest path; nothing "
+                                                                        "was staged"}
+    stated = {key: mapped[key] for key in ("share_name", "remote", "configured_root", "letter", "mapping_status",
+                                           "differs_from_configured")}
+    session = dataclasses.replace(config, guest_exchange_root=root, exchange_share=stated)
+    return session, record | {"status": "ready"}
+
+
 def _owned_processes(config: HarnessConfig, step: Callable[[str, str], dict[str, Any]], work: str,
                      guest_log: Any) -> dict[str, Any]:
     """Whether every process the guest script started has exited, and no other instance of the tool appeared.
@@ -2900,6 +3108,9 @@ def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, paths: 
                 "config_file": CONFIG_NAME,
                 "checked": list(config.checked),
                 "warnings": list(config.warnings),
+                # The guest's own letter for the exchange share, used for this run in place of the configured root
+                # where they differ; the configuration file is not changed (`open_live_session`).
+                **({"exchange_share": dict(config.exchange_share)} if config.exchange_share is not None else {}),
             },
             "executable_path_as_configured": config.guest_executable,
             ACKNOWLEDGEMENT_KEY: config.acknowledged,

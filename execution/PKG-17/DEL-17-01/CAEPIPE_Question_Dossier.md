@@ -6,7 +6,7 @@ This dossier records clarification questions for the CAEPIPE developer/support t
 
 ## Question Register
 
-All open questions are TBD/gated items. Until answered by a public-citable source, an explicit project profile decision, or private support response with a recorded public-use boundary, downstream deliverables must carry the relevant TBD forward and avoid proprietary-format or target-coverage inference.
+All open questions are TBD/gated items. Each closes under DEL-17-01's closure rule (`ScopeOfWork.md`): a recorded answer from a public-citable source or a private support response, with its recorded public-use decision; for a question about the program's observable behaviour, a recorded observation of the user's licensed CAEPIPE; or Agent 0's recorded selection of a bounded profile. Until then, downstream deliverables carry the relevant TBD forward and avoid proprietary-format or target-coverage inference.
 
 | Question ID | Linked TBD | Question | Current Public Basis and Location | Affected Deliverables | Gating Impact | Status |
 |---|---|---|---|---|---|---|

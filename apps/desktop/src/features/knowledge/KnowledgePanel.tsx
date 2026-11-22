@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { isNativeResult, lookupNativeRows, type SessionResult } from "../../services/nativeResult";
 import { nativeFailureText } from "../../services/nativeIngress";
 import { QuantityReadout } from "../display-units";
 import { BookOpen } from "lucide-react";
-import type { DesignKnowledge, KnowledgeRecord, MechanicsResult } from "../../types";
+import type { DesignKnowledge, KnowledgeRecord, MechanicsResult, PreviewModel } from "../../types";
+import { designKnowledgeRecords } from "../../services/designKnowledge";
 import { presentedResultDiagnostics } from "../results/suppliedDiagnostics";
+import { SOLVER_MESSAGES_HEADING } from "../results/integrityStatus";
 
 const RESULT_UNIT_DISPLAY_ORDER = ["MPa", "N", "N*m", "mm", "rad"];
 
@@ -35,10 +37,15 @@ export function useKnowledgeAxialRow(result: SessionResult | null): { row: Row |
   return found && found.of === result ? { row: found.row, reading: false, refused: found.refused } : { row: null, reading: true, refused: null };
 }
 
-export function KnowledgePanel({ knowledge, result }: { knowledge: DesignKnowledge | null; result: SessionResult | null }) {
+/** The design knowledge's records are listed only for the model the knowledge is bound to
+ * (`designKnowledgeRecords`); the computed records are the result's. */
+export function KnowledgePanel({ knowledge, model, result }: { knowledge: DesignKnowledge | null; model: PreviewModel | null; result: SessionResult | null }) {
   const axial = useKnowledgeAxialRow(result);
   const computedRecords = physicsRecords(result, axial.row);
-  const records = [...(knowledge?.records ?? []), ...computedRecords];
+  const records = [...designKnowledgeRecords(knowledge, model), ...computedRecords];
+  // The records made from solver messages lead the computed records (`physicsRecords`); the sentence
+  // stands once, directly before the first of them, and not at all where there is none.
+  const firstSolverRecord = solverMessageRecords(result).length > 0 ? computedRecords[0] : null;
   const unitContext = computedKnowledgeUnitContext(result, axial.row);
   return (
     <section className="panel knowledge-panel" aria-label="Design knowledge" data-testid="knowledge-panel">
@@ -58,7 +65,9 @@ export function KnowledgePanel({ knowledge, result }: { knowledge: DesignKnowled
       {records.length > 0 ? (
         <div className="record-list">
           {records.map((record) => (
-            <article key={record.id} className="record-row" data-testid={`knowledge-record-${record.id}`}>
+            <Fragment key={record.id}>
+            {record === firstSolverRecord ? <p className="muted" data-testid="knowledge-solver-messages-heading">{SOLVER_MESSAGES_HEADING}</p> : null}
+            <article className="record-row" data-testid={`knowledge-record-${record.id}`}>
               <div>
                 <strong>{record.title}</strong>
                 <small>{record.kind} · {record.status}</small>
@@ -66,13 +75,33 @@ export function KnowledgePanel({ knowledge, result }: { knowledge: DesignKnowled
               <p><KnowledgeSummary record={record} result={result} computed={computedRecords.includes(record)} axialRow={axial.row} /></p>
               <span>{record.provenance}</span>
             </article>
+            </Fragment>
           ))}
         </div>
+      ) : knowledge ? (
+        <p className="muted" data-testid="knowledge-none-for-model">No design knowledge records for this model.</p>
       ) : (
         <p className="muted">Loading local invented knowledge records.</p>
       )}
     </section>
   );
+}
+
+/** The records made from the solver's diagnostics (its warnings and blocking findings), each
+ * summarised by its presented message. */
+function solverMessageRecords(result: SessionResult | null): KnowledgeRecord[] {
+  if (!result) return [];
+  return presentedResultDiagnostics(result)
+    .filter((diagnostic) => diagnostic.severity === "warning" || diagnostic.severity === "blocking")
+    .map((diagnostic) => ({
+      id: `knowledge:${diagnostic.id ?? diagnostic.code}`,
+      kind: "computed_mechanics_context",
+      title: diagnostic.code.replaceAll("_", " "),
+      summary: diagnostic.message,
+      affected_refs: diagnostic.affected_refs ?? [],
+      provenance: "computed_preview_result",
+      status: diagnostic.severity
+    }));
 }
 
 /** The computed knowledge records of a result. A diagnostic's summary is its presented message
@@ -84,17 +113,7 @@ export function KnowledgePanel({ knowledge, result }: { knowledge: DesignKnowled
 export function physicsRecords(result: SessionResult | null, axialRow?: Row | null): KnowledgeRecord[] {
   if (!result) return [];
 
-  const records: KnowledgeRecord[] = presentedResultDiagnostics(result)
-    .filter((diagnostic) => diagnostic.severity === "warning" || diagnostic.severity === "blocking")
-    .map((diagnostic) => ({
-      id: `knowledge:${diagnostic.id ?? diagnostic.code}`,
-      kind: "computed_mechanics_context",
-      title: diagnostic.code.replaceAll("_", " "),
-      summary: diagnostic.message,
-      affected_refs: diagnostic.affected_refs ?? [],
-      provenance: "computed_preview_result",
-      status: diagnostic.severity
-    }));
+  const records: KnowledgeRecord[] = solverMessageRecords(result);
 
   if (result.summary.max_displacement) {
     records.push({

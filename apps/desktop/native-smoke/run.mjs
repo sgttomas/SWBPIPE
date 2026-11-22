@@ -144,7 +144,7 @@ import {
 } from "./launch-env.mjs";
 import { newNonce } from "./launch-outcome.mjs";
 import { judgedPhase, phaseContinuation } from "./judged-launch.mjs";
-import { judgeReportPrint } from "./report-print-evidence.mjs";
+import { NO_STANDING_LINE, judgeReportPrint } from "./report-print-evidence.mjs";
 import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, exitAfterSignals, processStartTime, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "../scripts/worktreeBuildLock.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -617,7 +617,10 @@ const namesMissingInputs = (rules) => Boolean(rules?.aggregate?.includes("RULE_I
   // (`report-print-evidence.mjs`). The native-smoke build substitutes the system dialog with a record of the print
   // document: no dialog appearance, preview composition or job outcome is observed or claimed.
   const printed = first.report_print;
-  for (const item of judgeReportPrint("demo local-private report print", printed, { canonicalHtml: printed?.canonical_html, shownHash: printed?.shown_hash }))
+  // The demonstration model states no shear selection and solves as the pressure-free Euler-Bernoulli kind, whose
+  // report carries no numerical standing record, so its document is rightly without a standing line: stated here as
+  // the expectation, not left unsaid. A change that gives this report a standing line changes this to the line's lead.
+  for (const item of judgeReportPrint("demo local-private report print", printed, { canonicalHtml: printed?.canonical_html, shownHash: printed?.shown_hash, expectStanding: NO_STANDING_LINE }))
     check(item.name, item.ok, item.detail);
   check("demo local-private report print: the document printed is the one rendered and shown", printed?.shown_hash === render?.hash, { printed: printed?.shown_hash ?? null, rendered: render?.hash ?? null });
   const rules = first.rule_checks;
@@ -681,7 +684,7 @@ const signedTip = (observed) => {
   check("from blank: node, material, pipe, support, load case and force authored through the GUI", blank?.steps?.length === 8, blank?.steps);
   const solved = blank?.solve;
   check("from blank: native solve completed, its proof bound to the session's project", solved?.solve_job_summary?.includes("state=completed") && solved.proof_project === blankId && solved.solve_proof?.includes("identity=match"), solved?.solve_job_summary);
-  check("from blank: numerical integrity checks passed", solved?.standing?.startsWith("Numerical integrity: checks_passed."), solved?.standing?.slice(0, 60));
+  check("from blank: solver checks found no problem", solved?.standing?.startsWith("Numerical health: solver checks found no problem."), solved?.standing?.slice(0, 60));
   check("from blank: the unfiltered results count every solved row", solved && solved.proof_rows > 0 && solved.all_rows_summary === `${solved.proof_rows} of ${solved.proof_rows} results match filter`, `${solved?.proof_rows}; ${solved?.all_rows_summary}`);
   check("from blank: deformation overlay available for both nodes", solved?.deformation?.startsWith("available; nodes=2;"), solved?.deformation);
   check(`from blank: tip deflection magnitude equals PL^3/3EI = ${blankTipMm} mm within 1e-9 relative`, withinCriterion(tipMm(solved)), solved?.probe_entered);

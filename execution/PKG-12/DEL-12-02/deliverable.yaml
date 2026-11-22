@@ -77,6 +77,9 @@ code_paths:
 - core/security/redaction/**
 - apps/desktop/src/features/redaction-controls/**
 - core/runner/headless/src/redaction_binding.rs
+# The types and the traits a native caller of the content rule uses: the request, the content
+# or its source, the decision and its outcome, and the rule's refusals.
+- core/security/export_decision/**
 # Route admission. The file sits beside DEL-12-01's storage guard, which it applies. DEL-08-04
 # lists it too, for the CSV route's entry in the catalogue.
 - core/security/local_first_storage/route_control.py
@@ -92,6 +95,12 @@ code_paths:
 # Only the admission of route DREP-HTML-SAVE-005 (the record's context, the intent, the evidence and
 # the refusal of a blocked render) is this deliverable's; the HTML save and the print are DEL-08-01's.
 - apps/desktop/src-tauri/src/rendered_report_routes.rs
+# The maintained sessions the whole-output tests of the Report Packet and handoff links build from.
+- apps/desktop/src/test/wholeOutputSessions.ts
+# Only the Report Packet's control of its packet and the link it gives that packet are this
+# deliverable's; the panel and its packet are DEL-08-01's, which lists both files too.
+- apps/desktop/src/features/report/ReportPanel.tsx
+- apps/desktop/src/features/report/reportRedactionProjector.ts
 checks:
 - tests/security/test_redaction_export_controls.py
 - tests/security/test_redaction_input_contract_sweep.py
@@ -102,6 +111,9 @@ checks:
 - apps/desktop/src/features/redaction-controls/redactionValueRecords.test.ts
 - apps/desktop/src/features/redaction-controls/redactionPlainDataGate.test.ts
 - apps/desktop/src/features/redaction-controls/ControlledExportLink.test.tsx
+- apps/desktop/src/features/redaction-controls/nestedStatementDestinations.test.tsx
+- apps/desktop/src/features/report/reportPanelExportLink.test.tsx
 - apps/desktop/src/services/reportPackageSaveService.test.ts
 - apps/desktop/src-tauri/src/rendered_report_routes.rs
 - core/runner/headless/src/redaction_binding.rs
+- core/security/export_decision/tests/interface.rs

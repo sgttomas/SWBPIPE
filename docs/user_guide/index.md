@@ -248,9 +248,10 @@ data folder for its bundle identifier, `com.chirality.swbpipe`:
 `-shm` sidecar files beside it. If a store from an earlier preview build exists
 under the former identifier `org.openpipestress.technical-preview`, the app
 copies it forward once on first launch and never overwrites an existing store.
-Saved project packages, reports and exports go wherever you choose to save them.
-Back up the store folder like any other private data. Nothing in it is sent
-anywhere: the product is local-only.
+Saved report packages, reports and exports go wherever you choose to save them.
+Back up the store folder like any other private data. A copy of it is a backup,
+not a way to move a project to another machine (`docs/RELEASE_LIMITATIONS_v1.0.md`
+LIM-045). Nothing in it is sent anywhere: the product is local-only.
 
 For project storage:
 
@@ -326,8 +327,8 @@ In the desktop app the workflow is:
 
 1. Start a project: File › New Blank Project (an empty model) or Open Model
    Document…. The project lives in the local SQLite store (§3.2). Storage
-   roots for other operating systems and a portable project export/copy
-   remain `TBD`.
+   roots for other operating systems remain `TBD`. A portable project export
+   or copy is not provided in v1.0 (`docs/RELEASE_LIMITATIONS_v1.0.md` LIM-045).
 2. Choose the units. New Blank Project opens a units dialog: SI (the
    default), US customary, or a custom unit per key (length, force, moment,
    pressure, stress, temperature, angle) from the unit catalog. Values are
@@ -1145,8 +1146,9 @@ The following remain explicit limitations or open decisions:
 - canonical DEC-022 typed-AST rule grammar is fixed; a writable text syntax is
   deferred by DEC-037, while final evaluator/library integration and the
   private rule-pack storage workflow remain `TBD`;
-- storage roots for platforms other than macOS (§3.2), product/DB migration
-  tooling, and portable project export/copy workflow;
+- storage roots for platforms other than macOS (§3.2) and product/DB migration
+  tooling; a portable project export or copy is not provided in v1.0
+  (`docs/RELEASE_LIMITATIONS_v1.0.md` LIM-045);
 - public API transport, endpoint syntax, plugin loader, and concrete
   target-field coverage for the accepted adapter/export families;
 - target field coverage, source confirmations, stable-ID carriage, and loss
