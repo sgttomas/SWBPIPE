@@ -5483,12 +5483,16 @@ fn solve_prepared_load_case(
     mut role: held_status::CaseRole<'_, '_>,
 ) -> Result<LoadCaseSolve, FrameKernelError> {
     let loads = build_load_case_primitive_loads(model, load_case, diagnostics);
+    let before_collisions = diagnostics.len();
     if let Some(state) = load_state {
         refuse_load_state_generated_collisions(model, load_case, state, &loads, diagnostics);
     }
-    refuse_document_generated_collisions(model, load_case, &loads, diagnostics);
-    let load_application = prepare_loads(built.nodes.len(), built.pipes.len(), &loads);
-    for finding in &load_application.findings {
+    refuse_document_generated_collisions(model, materials, load_case, &loads, diagnostics);
+    // A refused generated identity never reaches load preparation: the case
+    // takes the blocked return below without preparing its loads.
+    let collided = has_blocking(&diagnostics[before_collisions..]);
+    let load_application = (!collided).then(|| prepare_loads(built.nodes.len(), built.pipes.len(), &loads));
+    for finding in load_application.iter().flat_map(|application| &application.findings) {
         diagnostics.push(diag(
             &format!("diagnostic:load:{}", finding.load_id),
             "LOAD_INPUT_INVALID",
@@ -5517,6 +5521,7 @@ fn solve_prepared_load_case(
             nonlinear_state: None,
         });
     }
+    let load_application = load_application.expect("loads are prepared when no collision blocks the case");
 
     let pipe_map = model
         .pipe_segments
@@ -11482,12 +11487,12 @@ fn append_equivalent_static_generated_loads(
             return;
         }
         let direction_value = wind.direction.as_deref().expect("checked above");
-        let direction = match parse_direction(direction_value) {
-            Ok(
-                direction @ (LoadDirection::GlobalX
-                | LoadDirection::GlobalY
-                | LoadDirection::GlobalZ),
-            ) => direction,
+        // Exactly the model schema's tokens, which the readers form the
+        // generated identities from (an upper-case spelling is refused).
+        let direction = match direction_value {
+            "global_x" => LoadDirection::GlobalX,
+            "global_y" => LoadDirection::GlobalY,
+            "global_z" => LoadDirection::GlobalZ,
             _ => {
                 diagnostics.push(diag(
                     &equivalent_static_diag_id(case_id, "wind:direction"),
@@ -11766,13 +11771,22 @@ fn refuse_load_state_generated_collisions(
     }
 }
 
+/// The identities a load/reference-state case's record synthesizes, by prefix
+/// and by the owner kind its record of load sources names
+/// (`case_state::resolve`).
+const SYNTHESIZED_PREFIXES: [&str; 3] = ["member_state:", "support_state:", "pressure_region:"];
+const SYNTHESIZED_KINDS: [&str; 3] = ["resolved_member_state", "support_state", "pressure_region"];
+
 /// DEL-05-01 REQ-008 (issue 452, the identity domain; SWBPIPE's Agent 0): a
 /// generated identity names one source in the whole document, on plain and
 /// load/reference-state documents alike. Run in each case's solve, after its
 /// generation and before its assembly, beside the case-local scans: a
 /// generated identity equal to a stored primitive of another case of the
 /// (lowered) model, a primitive a lowering added included, or to an identity
-/// another case generates, is refused by name. A generated identity is
+/// another case generates, or, on a load/reference-state document, to an
+/// identity another case's record synthesizes (`member_state:<pipe>`,
+/// `support_state:<support>:<DOF>` or `pressure_region:<region id>`, read from
+/// that case's resolved record), is refused by name. A generated identity is
 /// `<case>:generated:<tail>`, so another case B can generate the same identity
 /// only when B is the identity cut at another occurrence of the marker
 /// `:generated:` (in a case id or a component identity); only such a case's
@@ -11781,6 +11795,7 @@ fn refuse_load_state_generated_collisions(
 /// refused and the document with it.
 fn refuse_document_generated_collisions(
     model: &PreviewModel,
+    materials: &[MaterialInput],
     load_case: &PreviewLoadCase,
     loads: &[PrimitiveLoad],
     diagnostics: &mut Vec<Diagnostic>,
@@ -11789,9 +11804,16 @@ fn refuse_document_generated_collisions(
         return;
     }
     const MARKER: &str = ":generated:";
+    // An identity the case-local scans already refused keeps their one
+    // finding: a synthesized identity of the case's own record is also met
+    // here, in every other case's record that synthesizes it too.
     let mut refuse = |id: &str, message: String| {
+        let diag_id = equivalent_static_diag_id(&load_case.id, &format!("collision:{}", stable_suffix(id)));
+        if diagnostics.iter().any(|existing| existing.id == diag_id) {
+            return;
+        }
         diagnostics.push(diag(
-            &equivalent_static_diag_id(&load_case.id, &format!("collision:{}", stable_suffix(id))),
+            &diag_id,
             "EQUIVALENT_STATIC_GENERATED_ID_COLLISION",
             "blocking",
             message,
@@ -11811,8 +11833,34 @@ fn refuse_document_generated_collisions(
             ));
             continue;
         }
+        // On a load/reference-state document every other case's record
+        // synthesizes identities of its own (`member_state:`, `support_state:`,
+        // `pressure_region:`). Only an identity with one of those prefixes can
+        // equal one, so only then is each other case's record resolved again,
+        // with its own findings discarded, and read.
+        if case_state::is_load_state(model) && SYNTHESIZED_PREFIXES.iter().any(|prefix| id.starts_with(prefix)) {
+            let found = model.load_cases.iter().filter(|case| case.id != load_case.id).find_map(|case| {
+                let mut scratch = Vec::new();
+                let resolved = case_state::resolve::resolve_case(model, materials, case, &mut scratch)?;
+                let kind = resolved.evidence["contributions"].as_array()?.iter().find_map(|contribution| {
+                    let kind = contribution["owner_kind"].as_str()?;
+                    (SYNTHESIZED_KINDS.contains(&kind) && contribution["source_id"] == id).then(|| kind.to_string())
+                })?;
+                Some((case, kind))
+            });
+            if let Some((other, kind)) = found {
+                refuse(id, format!(
+                    "the synthesized identity {id} of the {} source of load case {} has the id of a load the equivalent_static generation of load case {} produces; one identity cannot name two sources in a document, so rename a load case or the {} (generated ids are <case>:generated:<kind>:...)",
+                    kind, other.id, load_case.id, kind.replace('_', " ")
+                ));
+                continue;
+            }
+        }
         let own = load_case.id.len();
-        for (at, _) in id.match_indices(MARKER).filter(|(at, _)| *at != own) {
+        // Every occurrence, overlapping ones included: two markers can share
+        // a colon (`…:generated:generated:…`), which a non-overlapping scan
+        // would step over.
+        for at in (0..id.len()).filter(|&at| at != own && id.is_char_boundary(at) && id[at..].starts_with(MARKER)) {
             let prefix = &id[..at];
             let Some(other) = model.load_cases.iter().find(|case| case.id == prefix && case.equivalent_static.is_some()) else { continue };
             let mut scratch = Vec::new();

@@ -1012,11 +1012,15 @@ fn generated_identities_are_refused_document_wide() {
     // `valve:c:generated:...` equals case X's item for `valve:d` when X is B's
     // identity cut where that component id begins. Each case's solve meets
     // the coincidence; the solve stops at the first blocked case, so in
-    // either order the first case is refused.
-    for (route, x_first) in [(Route::Exact, false), (Route::Exact, true), (Route::Preview, false), (Route::Preview, true)] {
-        let (b, name2) = ("case:b", "valve:d");
-        let name = format!("valve:c:generated:seismic:global-y:component:{}:{name2}", name2.len());
-        let x = format!("{b}:generated:seismic:global-y:component:{}:valve:c", name.len());
+    // either order the first case is refused. The second pair names B and
+    // the component's head with the marker's word at their ends, so markers
+    // in the identity share a colon (`…:generated:generated:…`).
+    for ((b, head), (route, x_first)) in [("case:b", "valve:c"), ("case:b:generated", "valve:c:generated")].into_iter().flat_map(|names| {
+        [(Route::Exact, false), (Route::Exact, true), (Route::Preview, false), (Route::Preview, true)].map(|order| (names, order))
+    }) {
+        let name2 = "valve:d";
+        let name = format!("{head}:generated:seismic:global-y:component:{}:{name2}", name2.len());
+        let x = format!("{b}:generated:seismic:global-y:component:{}:{head}", name.len());
         let shared = format!("{x}:generated:seismic:global-y:component:{}:{name2}:force", name2.len());
         assert_eq!(shared, format!("{b}:generated:seismic:global-y:component:{}:{name}:force", name.len()));
         let span = length() / 3.0;
@@ -1028,7 +1032,7 @@ fn generated_identities_are_refused_document_wide() {
             "geometry": {"rigid_pipe_ref": replaced, "weight": qv(2350.0, "N"), "center_of_gravity": {"x": 0.0, "y": 0.0, "z": 0.0, "unit": "m"}},
             "mechanics_interface": {"solver_consumption": "mechanics_geometry_only"}, "provenance": PROV});
         wire["model"]["components"] = json!([valve(&name, "node:c", "pipe:b-c"), valve(name2, "node:d", "pipe:c-d")]);
-        let what = format!("{route:?} two generating cases, {} first", if x_first { "X" } else { "B" });
+        let what = format!("{route:?} two generating cases {b} and {head}, {} first", if x_first { "X" } else { "B" });
         let found = refused(&wire, "EQUIVALENT_STATIC_GENERATED_ID_COLLISION", &what);
         expect(&found, &[b, &x], &shared, &what);
         let named = found.iter().map(|d| d["affected_refs"][0].as_str().unwrap().to_string()).collect::<Vec<_>>();
@@ -1040,6 +1044,115 @@ fn generated_identities_are_refused_document_wide() {
             let out = run(&renamed, mode);
             assert!(!codes(&out).iter().any(|c| c == "EQUIVALENT_STATIC_GENERATED_ID_COLLISION"), "{route:?} renamed: {:?}", blocking(&out));
         }
+    }
+}
+
+/// Round 1 review of pull request 479: on a load/reference-state document a
+/// generated identity equal to the identity another case's record
+/// synthesizes for one of its pressure regions (`pressure_region:<region
+/// id>`) is refused by EQUIVALENT_STATIC_GENERATED_ID_COLLISION, naming both
+/// cases. The generating case is named `pressure_region` and the other case's
+/// region `generated:seismic:global-y:element-0`; renaming the region removes
+/// the coincidence.
+#[test]
+fn a_generated_identity_equal_to_another_cases_region_identity_is_refused() {
+    let (_, plain) = reference_request(&case_ref("W16C-SEISMIC-EX-EB"));
+    let base = load_state_document_of(&plain);
+    let renamed = serde_json::to_string(&base).unwrap().replace(&format!("\"{CASE}\""), "\"pressure_region\"");
+    let mut wire: Value = serde_json::from_str(&renamed).unwrap();
+    let region_id = "generated:seismic:global-y:element-0";
+    let generated = format!("pressure_region:{region_id}");
+    let model = &mut wire["model"];
+    let pipes = model["pipe_segments"].as_array().unwrap().iter().map(|p| p["id"].clone()).collect::<Vec<_>>();
+    let mut other = model["load_cases"][0].clone();
+    other["id"] = json!("case:other");
+    other.as_object_mut().unwrap().remove("equivalent_static");
+    other["primitive_loads"] = json!([]);
+    let terminal = |node: &str| json!({"node_ref": node, "closure_transfer": "transfers_to_wall", "provenance": PROV});
+    other["pressure_regions"] = json!([{"id": region_id, "member_pipe_ids": pipes, "pressure_basis": "internal_differential_zero_external_v1",
+        "pressure": qv(1.5e6, "Pa"), "terminals": [terminal("node:a"), terminal("node:b")], "provenance": PROV}]);
+    model["load_cases"].as_array_mut().unwrap().push(other);
+    let found = refused(&wire, "EQUIVALENT_STATIC_GENERATED_ID_COLLISION", "another case's region identity");
+    let named = found.iter().filter(|d| d["affected_refs"] == json!(["pressure_region", generated])).collect::<Vec<_>>();
+    assert_eq!(named.len(), 1, "{found:?}");
+    for case in ["pressure_region", "case:other"] {
+        assert!(named[0]["message"].as_str().unwrap().contains(case), "{}", named[0]["message"]);
+    }
+    let mut apart = wire.clone();
+    apart["model"]["load_cases"][1]["pressure_regions"][0]["id"] = json!("region:other");
+    for mode in MODES {
+        let out = run(&apart, mode);
+        assert!(!codes(&out).iter().any(|c| c == "EQUIVALENT_STATIC_GENERATED_ID_COLLISION"), "renamed region: {:?}", blocking(&out));
+    }
+}
+
+/// The cross-case scan compares a generated identity with every identity
+/// another case's record synthesizes, read from that case's resolved record.
+/// - `member_state:<pipe>`: every case states every pipe, so the generating
+///   case's own record synthesizes it too. With a second case beside it, the
+///   generating case is refused with one finding.
+/// - `support_state:<support>:<DOF>`: the identity ends in an upper-case DOF,
+///   which no generated identity does. A case named `support_state` whose
+///   rigid component `foo:UX` generates
+///   `support_state:generated:seismic:global-y:component:6:foo:UX:force` sits
+///   beside a case whose support `generated:seismic:global-y:component:6:foo`
+///   moves on UX, so that case's record synthesizes the generated identity
+///   without its `:force` tail. The two stay apart and the document solves.
+#[test]
+fn every_synthesized_identity_of_another_case_is_compared() {
+    let (_, plain) = reference_request(&case_ref("W16C-SEISMIC-EX-EB"));
+    let pipe_id = "generated:seismic:global-y:element-0";
+    let text = serde_json::to_string(&load_state_document_of(&plain)).unwrap()
+        .replace("\"pipe:a-b\"", &format!("\"{pipe_id}\"")).replace(&format!("\"{CASE}\""), "\"member_state\"");
+    let mut wire: Value = serde_json::from_str(&text).unwrap();
+    let mut other = wire["model"]["load_cases"][0].clone();
+    other["id"] = json!("case:other");
+    other.as_object_mut().unwrap().remove("equivalent_static");
+    wire["model"]["load_cases"].as_array_mut().unwrap().push(other);
+    let found = refused(&wire, "EQUIVALENT_STATIC_GENERATED_ID_COLLISION", "member_state beside another case");
+    assert_eq!(found.len(), 1, "one finding: {found:?}");
+    assert_eq!(found[0]["affected_refs"], json!(["member_state", format!("member_state:{pipe_id}")]));
+
+    let component = "foo:UX";
+    let support = format!("generated:seismic:global-y:component:{}:foo", component.len());
+    let generated = format!("support_state:generated:seismic:global-y:component:{}:{component}:force", component.len());
+    let synthesized = format!("support_state:{support}:UX");
+    assert_eq!(format!("{synthesized}:force"), generated);
+    let span = length() / 3.0;
+    let mut wire = document(Route::Exact, EULER_BERNOULLI,
+        vec![node("node:a", 0.0), node("node:b", span), node("node:c", 2.0 * span), node("node:d", 3.0 * span)],
+        vec![pipe("pipe:a-b", "node:a", "node:b", Route::Exact), pipe("pipe:b-c", "node:b", "node:c", Route::Exact), pipe("pipe:c-d", "node:c", "node:d", Route::Exact)],
+        vec![case("support_state", Some(seismic()), vec![]), case("case:other", None, vec![])]);
+    wire["model"]["components"] = json!([{"id": component, "kind": "valve", "node": "node:c",
+        "geometry": {"rigid_pipe_ref": "pipe:b-c", "weight": qv(2350.0, "N"), "center_of_gravity": {"x": 0.0, "y": 0.0, "z": 0.0, "unit": "m"}},
+        "mechanics_interface": {"solver_consumption": "mechanics_geometry_only"}, "provenance": PROV}]);
+    let text = serde_json::to_string(&load_state_document_of(&wire)).unwrap().replace("\"support:a\"", &format!("\"{support}\""));
+    let mut wire: Value = serde_json::from_str(&text).unwrap();
+    wire["model"]["load_cases"][1]["analysis_state"]["support_states"][0]["boundary_motion"] =
+        json!([{"dof": "UX", "value": qv(1.0, "mm"), "meaning": "absolute_reference_displacement"}]);
+    for mode in MODES {
+        let out = solved(&wire, Route::Exact, mode, "support_state lookalike");
+        let records = out["contract_evidence"]["load_reference_states"].as_array().unwrap();
+        let ids = |case: &str| records.iter().find(|r| r["load_case_id"] == case).unwrap()["contributions"].as_array().unwrap()
+            .iter().map(|c| c["source_id"].as_str().unwrap().to_string()).collect::<Vec<_>>();
+        assert!(ids("support_state").contains(&generated), "{mode:?}: {:?}", ids("support_state"));
+        assert!(ids("case:other").contains(&synthesized), "{mode:?}: {:?}", ids("case:other"));
+    }
+}
+
+/// Round 1 review of pull request 479: the wind direction is exactly one of
+/// the model schema's tokens (`global_x`, `global_y`, `global_z`), from which
+/// both readers form the generated identities. An upper-case spelling is
+/// refused by EQUIVALENT_STATIC_INPUT_INVALID on the wind direction, on a
+/// plain and a load/reference-state document, in both modes.
+#[test]
+fn an_upper_case_wind_direction_is_refused() {
+    let mut generation = wind(&["pipe:a-b"], vec![]);
+    generation["wind"]["direction"] = json!("GLOBAL_Y");
+    let plain = cantilever(Route::Exact, EULER_BERNOULLI, vec![case(CASE, Some(generation), vec![])]);
+    for (what, wire) in [("plain", plain.clone()), ("load-state", load_state_document_of(&plain))] {
+        let found = refused(&wire, "EQUIVALENT_STATIC_INPUT_INVALID", &format!("{what} GLOBAL_Y"));
+        assert!(found.iter().any(|d| d["affected_refs"] == json!([CASE, "wind.direction"])), "{what}: {found:?}");
     }
 }
 
@@ -1123,7 +1236,9 @@ fn a_generating_case_without_its_analysis_state_is_refused_by_name() {
 ///   the moments with a nonzero lever;
 /// - whole-span wind in marking order;
 /// - partial extents whose fractions are whole numbers, short decimals and
-///   long ones.
+///   long ones, and one exactly halfway between its two shortest decimals
+///   (513/1048576, which Rust writes 0.0004892349243164063);
+/// - a zero g-factor, an entered axis whose terms are all zero.
 /// The generator forms exactly those identities in both modes, the Rust
 /// reader rederives them, and the reader admits the solved envelope and
 /// refuses it with two identities swapped or one missing. Rust's Display of
@@ -1137,7 +1252,7 @@ fn the_reader_rederives_the_generated_identities_the_generator_forms() {
         assert_eq!(format!("{}", fraction["value"].as_f64().unwrap()), fraction["display"].as_str().unwrap(), "{fraction}");
     }
     let cases = doc["cases"].as_array().unwrap();
-    assert_eq!(cases.len(), 6);
+    assert_eq!(cases.len(), 8);
     for item in cases {
         let model = &doc["models"][item["model"].as_str().unwrap()];
         let id = item["load_case_id"].as_str().unwrap();
@@ -1145,7 +1260,7 @@ fn the_reader_rederives_the_generated_identities_the_generator_forms() {
         let case = model["load_cases"].as_array().unwrap().iter().find(|c| c["id"] == id).unwrap();
         let expected = &item["generated_load_ids"];
         assert!(!expected.as_array().unwrap().is_empty());
-        assert_eq!(&json!(expected_generated_load_ids(model, case)), expected, "{what}: the reader's identities");
+        assert_eq!(&json!(expected_generated_load_ids(model, case).unwrap()), expected, "{what}: the reader's identities");
         for mode in MODES {
             let out = solved(&json!({"model": model, "materials": []}), Route::Exact, mode, &what);
             let record = &exact_case(&out, id)["equivalent_static"];
@@ -1161,6 +1276,71 @@ fn the_reader_rederives_the_generated_identities_the_generator_forms() {
                 assert_eq!(reader_verdict::physics_model_checks(&forged, model), Err("SOURCE_PHYSICS_EQUIVALENT_STATIC_GENERATED_MODEL_MISMATCH".to_string()), "{what} {mode:?}: {how}");
             }
         }
+    }
+}
+
+/// Round 1 review of pull request 479: the model-bound reader checks the
+/// model's generation as the product reads it. A solved envelope bound to a
+/// model whose case states its generation in another form than an object
+/// (text, a list or a boolean) is refused with
+/// SOURCE_PHYSICS_EQUIVALENT_STATIC_GENERATED_MODEL_MISMATCH, never left
+/// unchecked. One bound to a model in which two rigid-family components map
+/// the same member, a conflict the product refuses
+/// (RIGID_COMPONENT_MAPPING_CONFLICT), is refused with
+/// SOURCE_PHYSICS_EQUIVALENT_STATIC_COMPONENT_MODEL_MISMATCH, never read as a
+/// member no component replaces.
+#[test]
+fn the_reader_refuses_a_malformed_generation_and_a_conflicted_model() {
+    use open_pipe_stress_result_export::reader_verdict;
+    let doc: Value = serde_json::from_str(IDENTITIES).unwrap();
+    for mode in MODES {
+        let frame = &doc["models"]["frame"];
+        let out = solved(&json!({"model": frame, "materials": []}), Route::Exact, mode, "frame");
+        reader_verdict::physics_model_checks(&out, frame).unwrap();
+        for form in [json!("not-an-object"), json!([]), json!(true)] {
+            let mut forged = frame.clone();
+            forged["load_cases"][0]["equivalent_static"] = form.clone();
+            assert_eq!(reader_verdict::physics_model_checks(&out, &forged),
+                Err("SOURCE_PHYSICS_EQUIVALENT_STATIC_GENERATED_MODEL_MISMATCH".to_string()), "{mode:?} {form}");
+        }
+        let components = &doc["models"]["components"];
+        let out = solved(&json!({"model": components, "materials": []}), Route::Exact, mode, "components");
+        reader_verdict::physics_model_checks(&out, components).unwrap();
+        let mut conflicted = components.clone();
+        let mut second = conflicted["components"][1].clone();
+        second["id"] = json!("component:second-on-b-c");
+        second["geometry"]["rigid_pipe_ref"] = conflicted["components"][0]["geometry"]["rigid_pipe_ref"].clone();
+        second["node"] = conflicted["components"][0]["node"].clone();
+        conflicted["components"].as_array_mut().unwrap().push(second);
+        assert_eq!(reader_verdict::physics_model_checks(&out, &conflicted),
+            Err("SOURCE_PHYSICS_EQUIVALENT_STATIC_COMPONENT_MODEL_MISMATCH".to_string()), "{mode:?} conflicted");
+        assert!(run(&json!({"model": conflicted, "materials": []}), mode)["diagnostics"].as_array().unwrap()
+            .iter().any(|d| d["code"] == "RIGID_COMPONENT_MAPPING_CONFLICT"), "{mode:?}: the product refuses the conflicted model");
+    }
+}
+
+/// Round 1 review of pull request 479: a zero g-factor on a
+/// load/reference-state document is an entered axis. The case solves in both
+/// modes; its record names the identities the reader rederives, each entering
+/// the case's record of load sources once at factor 1; and the model-bound
+/// reader admits the envelope.
+#[test]
+fn a_zero_g_factor_on_a_load_state_document_generates_its_identities() {
+    use open_pipe_stress_result_export::{expected_generated_load_ids, reader_verdict};
+    let (_, plain) = reference_request(&case_ref("W16C-SEISMIC-EX-EB"));
+    let mut wire = load_state_document_of(&plain);
+    wire["model"]["load_cases"][0]["equivalent_static"]["seismic"]["g_factor_y"] = qv(0.0, "1");
+    let model = wire["model"].clone();
+    let expected = json!(expected_generated_load_ids(&model, &model["load_cases"][0]).unwrap());
+    assert!(!expected.as_array().unwrap().is_empty());
+    for mode in MODES {
+        let out = solved(&wire, Route::Exact, mode, "zero g-factor");
+        assert_eq!(exact_case(&out, CASE)["equivalent_static"]["generated_load_ids"], expected, "{mode:?}");
+        let record = out["contract_evidence"]["load_reference_states"].as_array().unwrap().iter().find(|r| r["load_case_id"] == CASE).unwrap();
+        let generated = record["contributions"].as_array().unwrap().iter().filter(|c| c["owner_kind"] == "generated_equivalent_static").collect::<Vec<_>>();
+        assert_eq!(json!(generated.iter().map(|c| c["source_id"].clone()).collect::<Vec<_>>()), expected, "{mode:?}");
+        assert!(generated.iter().all(|c| c["factor"] == json!(1.0)), "{mode:?}");
+        reader_verdict::physics_model_checks(&out, &model).unwrap_or_else(|e| panic!("{mode:?}: {e}"));
     }
 }
 
@@ -1200,7 +1380,9 @@ fn load_state_generated_case_commits_whole_or_not_at_all() {
 /// the document solves, and then the seismic case's every row must equal, bit
 /// for bit, the same document without the test case. On a head that admits
 /// the test case, the refused arm and its two codes are removed and the
-/// document must solve.
+/// document must solve. Until pull request 478 lifts
+/// LOAD_CASE_TEST_CONDITION_UNSUPPORTED on the exact route, the solved arm
+/// below is unreachable here, and only the refused arm runs.
 #[test]
 fn a_hydrostatic_test_case_does_not_put_its_contents_into_a_seismic_case() {
     let (_, plain) = reference_request(&case_ref("W16C-SEISMIC-EX-EB"));
@@ -1369,18 +1551,21 @@ fn the_companion_binding_reforms_the_generated_sources_of_a_load_state_case() {
     seismic_case["analysis_state"]["load_sources"] = json!([]);
     seismic_case["equivalent_static"] = seismic();
     source["model"]["load_cases"].as_array_mut().unwrap().push(seismic_case);
-    let envelope = run(&source, PreviewSolverMode::SparseInteractive);
-    assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{:?}", blocking(&envelope));
-    assert_eq!(envelope["producer"]["semantic_contract_id"], SOURCE_SEMANTICS);
-    let records = envelope["contract_evidence"]["load_reference_states"].as_array().unwrap();
-    let index = records.iter().position(|r| r["load_case_id"] == "case:seismic").unwrap();
-    let generated = records[index]["contributions"].as_array().unwrap().iter().filter(|c| c["owner_kind"] == "generated_equivalent_static").count();
-    assert_eq!(generated, 1, "one seismic load on {pipe}");
-    physics_source::validate(&envelope, None).expect("the source reader admits the generating companion");
-    let mut forged = envelope.clone();
-    let at = records[index]["contributions"].as_array().unwrap().iter().position(|c| c["owner_kind"] == "generated_equivalent_static").unwrap();
-    forged["contract_evidence"]["load_reference_states"][index]["contributions"][at]["factor"] = json!(2.0);
-    assert!(physics_source::validate(&forged, None).is_err(), "a forged factor is refused");
+    for mode in MODES {
+        let envelope = run(&source, mode);
+        assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}: {:?}", blocking(&envelope));
+        assert_eq!(envelope["producer"]["semantic_contract_id"], SOURCE_SEMANTICS, "{mode:?}");
+        let records = envelope["contract_evidence"]["load_reference_states"].as_array().unwrap();
+        let index = records.iter().position(|r| r["load_case_id"] == "case:seismic").unwrap();
+        let generated = records[index]["contributions"].as_array().unwrap().iter().filter(|c| c["owner_kind"] == "generated_equivalent_static").count();
+        assert_eq!(generated, 1, "{mode:?}: one seismic load on {pipe}");
+        physics_source::validate(&envelope, None).unwrap_or_else(|e| panic!("{mode:?}: the source reader admits the generating companion: {e}"));
+        let mut forged = envelope.clone();
+        let at = records[index]["contributions"].as_array().unwrap().iter().position(|c| c["owner_kind"] == "generated_equivalent_static").unwrap();
+        forged["contract_evidence"]["load_reference_states"][index]["contributions"][at]["factor"] = json!(2.0);
+        assert_eq!(physics_source::validate(&forged, None), Err("SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR".to_string()),
+            "{mode:?}: a generated entry is at factor 1, so a forged factor is refused by its factor");
+    }
 }
 
 /// the retained sub-route keeps declining generation; the ordinary

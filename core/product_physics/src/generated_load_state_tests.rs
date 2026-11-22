@@ -162,6 +162,29 @@ fn the_nodal_ledger_reads_the_effective_case() {
     }
 }
 
+/// Round 1 review of pull request 479, end to end: a stored primitive whose
+/// identity resembles a generated one (`case:join:generated:seismic:global-y:
+/// element-9`, an element load the witness with its valve does not form) but
+/// equals no identity the generation forms, listed in the ledger at 1.25, is an
+/// authored source. The document solves in both modes with no collision, and
+/// the case's record of load sources names it once as a stored primitive at
+/// its ledger factor.
+#[test]
+fn a_listed_lookalike_that_collides_with_nothing_solves_as_an_authored_source() {
+    let lookalike = "case:join:generated:seismic:global-y:element-9";
+    let wire = with_valve(request(lookalike, Some(1.25)));
+    for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+        let out = serde_json::to_value(run_linear_static_preview_value_with_mode(wire.clone(), mode).unwrap()).unwrap();
+        assert_eq!(out["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}: {}", out["diagnostics"]);
+        assert!(out["diagnostics"].as_array().unwrap().iter().all(|d| d["code"] != "EQUIVALENT_STATIC_GENERATED_ID_COLLISION"), "{mode:?}");
+        let record = out["contract_evidence"]["load_reference_states"].as_array().unwrap().iter().find(|r| r["load_case_id"] == "case:join").unwrap();
+        let named = record["contributions"].as_array().unwrap().iter().filter(|c| c["source_id"] == lookalike).collect::<Vec<_>>();
+        assert_eq!(named.len(), 1, "{mode:?}: {named:?}");
+        assert_eq!(named[0]["owner_kind"], "stored_primitive", "{mode:?}");
+        assert_eq!(named[0]["factor"], json!(1.25), "{mode:?}");
+    }
+}
+
 /// The certified intensity producer (`certified_loads::intensity`) and the
 /// operand bound it feeds (`add_uniform_element_loads`) judge the origin on
 /// the same effective case: a generated element load takes the generator's
