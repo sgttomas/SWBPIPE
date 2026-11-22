@@ -106,7 +106,7 @@ async function session(handle = HANDLE, override?: (command: string, args: Json)
   function Harness() {
     current = useWorkspaceSession();
     const history = current.results.historicalRun;
-    return history ? <HistoricalRunPanel key={history.runId} context={history} /> : null;
+    return history ? <HistoricalRunPanel key={history.viewKey} context={history} /> : null;
   }
   const view = render(<Harness />);
   await waitFor(() => expect(current.model.model).not.toBeNull());

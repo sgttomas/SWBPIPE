@@ -27,7 +27,7 @@ import { createSolveJobTransport, nativeMechanicsReplayPair, REPLAY_COMMANDS, so
 import { rememberReceivedText } from "./resultReader";
 import { semanticLabels } from "./resultSemantics";
 import { firstRowOf, navigatorEntities, rowCaseKey } from "./resultsNavigator";
-import { ResultsPanel, rowsUnderFilters, countResultFrames, standaloneNumericalHealth } from "./ResultsPanel";
+import { ResultsPanel, resultViewIdentity, rowsUnderFilters, countResultFrames, standaloneNumericalHealth } from "./ResultsPanel";
 import type { NumericalHealthView } from "./numericalHealth";
 import type { MechanicsResult, PreviewModel } from "../../types";
 
@@ -368,4 +368,77 @@ describe("a native group's CSV through the native stream", () => {
       await disposeDeliveredMechanicsResult(result);
     }, 120_000);
   }
+});
+
+// Issue 588: two native runs publishing the same run id (two jobs of one source). Swapped directly
+// from run A to run B, the panel shows run B's own default view: page 1, every kind, no navigator
+// entity; a re-render of run A keeps run A's view.
+describe("the native panel's view identity", () => {
+  async function twoRuns(): Promise<{ a: NativeResult; b: NativeResult; full: MechanicsResult }> {
+    const text = SOURCES.paged;
+    install(text);
+    const read = async () => {
+      const started = await startPreviewMechanicsJob(pair.model, "sparse_interactive", { custody: "native" });
+      if (started.mode !== "backend_job") throw new Error("not a backend job");
+      const terminal = await awaitPreviewMechanicsJob(started.job_id);
+      return (await readNativeFreshResult(started.job_id, terminal.result_bytes ?? 0, { standingModel: pair.model, summaryModel: pair.model })).result;
+    };
+    const a = await read();
+    const b = await read();
+    const full = JSON.parse(text) as MechanicsResult;
+    rememberReceivedText(full, text);
+    expect(b.run_id).toBe(a.run_id);
+    expect(nativeCustody(b).jobId).not.toBe(nativeCustody(a).jobId);
+    return { a, b, full };
+  }
+  function View({ result, request = null }: { result: NativeResult; request?: import("./ResultsPanel").ResultsViewRequest | null }) {
+    return <ResultsPanel result={result as never} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => undefined} model={pair.model} viewRequest={request} />;
+  }
+  const summary = () => screen.getByTestId("result-page-summary").textContent ?? "";
+
+  it("resets the page index and navigator entity on a direct swap to run B, and keeps them across a re-render of run A", async () => {
+    const { a, b, full } = await twoRuns();
+    const { rerender } = render(<View result={a} />);
+    const entities = navigatorEntities(rowsUnderFilters(full.results, semanticLabels(full), { filterText: "", familyFilter: "all", frame: "all", caseKey: "all" }));
+    await waitFor(() => expect(position("entity")).toBe(`None chosen; ${entities.length} in this table`));
+    fireEvent.click(screen.getByTestId("results-navigator-entity-next"));
+    expect(position("entity")).toBe(`${entities[0]} (1 of ${entities.length})`);
+    await waitFor(() => expect(screen.getByTestId("next-result-page")).not.toBeDisabled());
+    fireEvent.click(screen.getByTestId("next-result-page"));
+    await waitFor(() => expect(summary()).toMatch(/page 2 of \d+$/u));
+    rerender(<View result={a} />);
+    expect(summary()).toMatch(/page 2 of \d+$/u);
+    expect(position("entity")).toBe(`${entities[0]} (1 of ${entities.length})`);
+    rerender(<View result={b} />);
+    // Run B's own first page, read and populated (not the empty "page 1 of 1" of a pending read).
+    const total = full.results.length;
+    expect(total).toBeGreaterThan(50);
+    await waitFor(() => expect(summary()).toBe(`Showing 1 to 50 of ${total} matching results; page 1 of ${Math.ceil(total / 50)}`));
+    expect(document.querySelectorAll("tr[data-testid^='result-row-']").length).toBe(50);
+    await waitFor(() => expect(position("entity")).toBe(`None chosen; ${entities.length} in this table`));
+    await act(async () => { await disposeDeliveredMechanicsResult(a); await disposeDeliveredMechanicsResult(b); });
+  }, 120_000);
+
+  it("resets the kind filter on a direct swap to run B, even with run A's request still given", async () => {
+    const { a, b, full } = await twoRuns();
+    const request = { serial: 1, runId: a.run_id, viewKey: resultViewIdentity(a)!, kind: full.results[0].kind, withheld: {} };
+    const { rerender } = render(<View result={a} request={request} />);
+    expect(screen.getByTestId("results-kind-filter")).toBeInTheDocument();
+    rerender(<View result={a} request={request} />);
+    expect(screen.getByTestId("results-kind-filter")).toBeInTheDocument();
+    rerender(<View result={b} request={request} />);
+    expect(screen.queryByTestId("results-kind-filter")).toBeNull();
+    rerender(<View result={b} request={{ ...request, serial: 2, viewKey: resultViewIdentity(b)! }} />);
+    expect(screen.getByTestId("results-kind-filter")).toBeInTheDocument();
+    await act(async () => { await disposeDeliveredMechanicsResult(a); await disposeDeliveredMechanicsResult(b); });
+  }, 120_000);
+
+  it("never applies a request made for run A to a newly shown run B that has seen no request", async () => {
+    const { a, b, full } = await twoRuns();
+    const forA = { serial: 1, runId: a.run_id, viewKey: resultViewIdentity(a)!, kind: full.results[0].kind, withheld: {} };
+    render(<View result={b} request={forA} />);
+    await waitFor(() => expect(summary()).toBe(`Showing 1 to 50 of ${full.results.length} matching results; page 1 of ${Math.ceil(full.results.length / 50)}`));
+    expect(screen.queryByTestId("results-kind-filter")).toBeNull();
+    await act(async () => { await disposeDeliveredMechanicsResult(a); await disposeDeliveredMechanicsResult(b); });
+  }, 120_000);
 });

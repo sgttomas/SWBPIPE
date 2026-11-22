@@ -4,7 +4,7 @@ import { healthStanding, row } from "../../test-support/resultOverlayFixtures";
 import { COMBINED, keyResult, keyRows } from "../../test-support/keyResultsFixtures";
 import { SUPPORT_LOAD_WITHHELD_NO_STATE, supportLoadWithheldStateText } from "./supportLoadSummary";
 import { SUPPORT_STATE_ROW_KIND, withheldSupportStateRows } from "./keyResults";
-import { ResultsPanel, type ResultsViewRequest } from "./ResultsPanel";
+import { ResultsPanel, resultViewIdentity, type ResultsViewRequest } from "./ResultsPanel";
 
 // A6's results-table request: "Show contact and
 // lift-off state" shows exactly the support-state rows of this run, with every other filter at its
@@ -16,18 +16,20 @@ const COLLIDING = row(`decoy:${SUPPORT_STATE_ROW_KIND}`, "displacement_magnitude
   metadata: { component: SUPPORT_STATE_ROW_KIND, coordinate_system: "global", location: "node", basis: "invented", sign_convention: SUPPORT_STATE_ROW_KIND }
 });
 
-function request(serial: number, overrides: Partial<ResultsViewRequest> = {}): ResultsViewRequest {
+/** A request for the mounted result (its `viewKey` is filled in by `mount` unless given). */
+type Request = Omit<ResultsViewRequest, "viewKey"> & { viewKey?: string };
+function request(serial: number, overrides: Partial<ResultsViewRequest> = {}): Request {
   return { serial, runId: "run:invented", kind: SUPPORT_STATE_ROW_KIND, withheld: {}, ...overrides };
 }
 
-function mount(next: ResultsViewRequest | null, rows = [...keyRows(), COLLIDING]) {
+function mount(next: Request | null, rows = [...keyRows(), COLLIDING]) {
   const result = keyResult(rows);
   const onSelectResult = vi.fn();
-  const view = (value: ResultsViewRequest | null) => (
-    <ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={onSelectResult} viewRequest={value} />
+  const view = (value: Request | null) => (
+    <ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={onSelectResult} viewRequest={value && { viewKey: resultViewIdentity(result)!, ...value }} />
   );
   const rendered = render(view(next));
-  return { result, onSelectResult, rerender: (value: ResultsViewRequest | null) => rendered.rerender(view(value)) };
+  return { result, onSelectResult, rerender: (value: Request | null) => rendered.rerender(view(value)) };
 }
 
 const filter = () => screen.getByRole("searchbox", { name: /filter/iu });
@@ -71,8 +73,8 @@ describe("ResultsPanel view request", () => {
     expect(screen.getByTestId("results-kind-filter")).toBeInTheDocument();
   });
 
-  it("ignores a request for another run", () => {
-    mount(request(1, { runId: "run:other" }));
+  it("ignores a request for another run, even one publishing the same run id", () => {
+    mount(request(1, { viewKey: resultViewIdentity(keyResult())! }));
     expect(screen.queryByTestId("results-kind-filter")).toBeNull();
     expect(rowIds()).toContain(COLLIDING.id);
   });

@@ -18,7 +18,7 @@ import { createNativePersistenceFake, isNativePersistenceCommand } from "../../t
 import { nativePersistenceReplay } from "../../test/nativePersistenceReplay";
 import { NATIVE_RECORD_RUN_COMMAND, NATIVE_SAVE_PROJECT_COMMAND } from "../../services/nativePersistence";
 import * as nativeResult from "../../services/nativeResult";
-import { isNativeResult, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES } from "../../services/nativeResult";
+import { isNativeResult, nativeCustody, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES, type NativeResult } from "../../services/nativeResult";
 import { CURRENT_RUN_ID } from "../comparison/runComparisonSides";
 import { getLocalStorageCapability, type StoredProjectEntry } from "../../services/projectService";
 import { loadDesignKnowledge, resetSessionResultCustodyForTests } from "../../services/previewService";
@@ -319,22 +319,30 @@ describe("Record Run in the session (W-12 S2)", () => {
     expect(store.records).toHaveLength(0);
   });
 
-  it("keeps the user's result page across Record Run and a re-solve: S2 gives runs no new identity the results view keys on", async () => {
+  it("keeps the user's result page across Record Run, and a re-solve opens on page 1: its new native handle is a new view though the producer's run id is unchanged (issue 588)", async () => {
     const { state } = await session({ stored: true });
     await solve(state);
     fireEvent.click(await screen.findByTestId("next-result-page"));
     await waitFor(() => expect(screen.getByTestId("result-page-summary")).toHaveTextContent(/page 2 of/));
+    const pages = Number(/page 2 of (\d+)$/u.exec(screen.getByTestId("result-page-summary").textContent ?? "")?.[1]);
+    expect(pages).toBeGreaterThan(1);
     const runId = state().results.result!.run_id;
     await act(async () => { await history(state).recordRun({ labels: LABELS, snapshotName: "After solve" }); });
     expect(history(state).historyOperation).toBe("record_run_with_snapshot");
     expect(screen.getByTestId("result-page-summary")).toHaveTextContent(/page 2 of/);
-    // A re-solve delivers a new result object with the producer's same run id.
+    // Record Run keeps the result and its native handle, so the view is the same one.
     const before = state().results.result;
+    expect(isNativeResult(before)).toBe(true);
+    // A re-solve delivers a new native handle with the producer's same run id. The run id is
+    // shared by distinct runs, so the results view keys on the handle and opens on page 1.
     await solve(state);
     // Identity only: a deep comparison would read the native handles' guarded members.
     expect(state().results.result !== before).toBe(true);
     expect(state().results.result!.run_id).toBe(runId);
-    await waitFor(() => expect(screen.getByTestId("result-page-summary")).toHaveTextContent(/page 2 of/));
+    expect(nativeCustody(state().results.result as NativeResult).jobId).not.toBe(nativeCustody(before as NativeResult).jobId);
+    // The new run's own first page, read and populated (not the empty "page 1 of 1" of a pending read).
+    await waitFor(() => expect(screen.getByTestId("result-page-summary").textContent).toMatch(new RegExp(`^Showing 1 to [1-9]\\d* of \\d+ matching results; page 1 of ${pages}$`, "u")));
+    expect(document.querySelectorAll("tr[data-testid^='result-row-']").length).toBeGreaterThan(0);
   });
 });
 
