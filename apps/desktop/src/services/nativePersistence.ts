@@ -175,11 +175,13 @@ function decodeSave(value: unknown, restored: RestoredRun | null, keptStoredProp
   if (!isObject(summary) || typeof summary.project_id !== "string" || typeof summary.message !== "string") fail("the summary is not a project summary");
   const envelope = value.project_envelope_hash;
   if (!(isObject(envelope) && typeof envelope.value === "string") && !(restored && envelope === null)) fail("the envelope hash is not one");
-  // Issue 519: a kept save leaves the stored proposal in the store; its reply carries none, and the
-  // envelope hash the store computed over what it stores is a SHA-256 digest.
+  // Issue 519: a kept save leaves the stored proposal in the store; its reply carries none, and an
+  // envelope hash the store computed over what it stores is a SHA-256 digest. A reopened saved run's
+  // unchanged re-save that kept its basis preserves the stored claim as stored (stale or none).
   if (keptStoredProposal) {
     if (value.proposal !== null) fail("a kept save's reply must carry a null proposal");
-    if (isObject(envelope) && !/^sha256:[0-9a-f]{64}$/.test(envelope.value as string)) fail("a kept save's envelope hash is not a SHA-256 digest");
+    const preservedClaim = restored !== null && isObject(value.restored) && value.restored.envelope_basis_kept === true;
+    if (isObject(envelope) && !preservedClaim && !/^sha256:[0-9a-f]{64}$/.test(envelope.value as string)) fail("a kept save's envelope hash is not a SHA-256 digest");
   }
   if (typeof value.stored_model_hash !== "string" || !/^sha256:[0-9a-f]{64}$/.test(value.stored_model_hash)) fail("the stored model hash is not one");
   const result = value.result;

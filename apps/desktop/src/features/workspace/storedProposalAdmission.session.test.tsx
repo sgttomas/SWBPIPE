@@ -504,6 +504,28 @@ describe("a kept save of a reopened saved run on the browser preview's store (is
   });
 });
 
+describe("a kept save of a reopened saved run stored without an envelope claim (issue 519 review 2)", () => {
+  it("is never a save in place on the browser preview's store: the store asks for a Replace, which keeps nothing", async () => {
+    const hook = await readySession();
+    const model = structuredClone(hook.result.current.model.model!);
+    model.project.id = "project:issue-519-r2-no-claim";
+    const modelHash = await computeModelHash(model);
+    const run = savedRun(model.project.id) as never;
+    await createLocalProject(model, [], UNADMITTED as never, null, run, null, modelHash, null);
+    const stored = (await openLocalProject(model.project.id))!;
+    expect(stored.project_envelope_hash).toBeNull();
+    const payloadHash = (await computeProjectEnvelopeHash({ model, editor_intents: [], proposal: UNADMITTED as never, selected_review_target: null, mechanics_result: run, analysis_run: null, model_hash: modelHash }))!.value;
+    const historical = { basis: { payloadHash, envelopeHash: null }, readHistory: vi.fn(async () => {}) };
+    // The session's base of a project stored without a claim is null (and no stored value is ""): either asks.
+    for (const [base, refusal] of [[null, "PROJECT-ID-EXISTS"], ["", "PROJECT-BASE-MOVED"]] as const) {
+      await expect(saveLocalProjectKeepingStoredProposal(stored.model, [], null, run, null, stored.model_hash, null, base, historical))
+        .rejects.toThrow(new RegExp(`^${refusal}: `));
+    }
+    expect(historical.readHistory).not.toHaveBeenCalled();
+    expect((await openLocalProject(model.project.id))!).toEqual(stored);
+  });
+});
+
 describe("a kept save's reply (issue 519 review 2, item 3)", () => {
   /** The keeping save's reply, as `change` makes it from the store's. */
   function keptReplyChanged(change: (reply: Json) => Json) {

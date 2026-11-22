@@ -783,8 +783,8 @@ export async function saveLocalProjectKeepingStoredProposal(
     // An unchanged re-save of a reopened saved run keeps the stored claim it opened with, stale or
     // not (the historical evidence stands as stored); any other save writes the hash over what it stores.
     const basis = historical?.basis;
-    const projectEnvelopeHash = basis?.envelopeHash && basis.payloadHash !== null && computed?.value === basis.payloadHash
-      ? structuredClone(basis.envelopeHash) : computed;
+    const projectEnvelopeHash = basis && basis.payloadHash !== null && computed?.value === basis.payloadHash
+      ? (basis.envelopeHash ? structuredClone(basis.envelopeHash) : null) : computed;
     const next = envelope(model, editorIntents, null, selectedReviewTarget, mechanicsResult, analysisRun, modelHash, projectEnvelopeHash,
       "Saved local browser-preview project snapshot without external file copies.");
     // The stored value itself, not a copy of it.

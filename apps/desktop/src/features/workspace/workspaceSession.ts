@@ -217,7 +217,7 @@ import {
   deriveModelHashIntegrity,
   deriveProjectEnvelopeHashIntegrity
 } from "./projectPersistenceIntegrity";
-import { persistenceHashesMatch } from "./savedModelBasis";
+import { modelHashClaimMatches, persistenceHashesMatch } from "./savedModelBasis";
 import { useModelStateHistory, type LandedProjectSave, type ProjectBinding } from "../history/useModelStateHistory";
 import { unsavedChangesRefusal, useUnsavedChangesGuard } from "../project-storage/unsavedChangesGuard";
 import { openAutosaveSource, useAutosave } from "../autosave";
@@ -1250,10 +1250,12 @@ export function useWorkspaceSession() {
   }
 
   /** Issue 519: a plain kept save's returned claim may be accepted: the history's stored claim, kept as
-   * it was on an unchanged re-save, or a claim of the form the store computes for the project. Its
-   * digest is not recomputed (the kept proposal never reaches the webview). */
-  function validPlainKeptEnvelopeClaim(claim: ProjectEnvelopeHashEvidence | null, projectModel: PreviewModel, historicalClaim: ProjectEnvelopeHashEvidence | null): boolean {
-    if (!claim) return false;
+   * it was on an unchanged re-save (none, where the reopened project was stored without one), or a
+   * claim of the form the store computes for the project. Its digest is not recomputed (the kept
+   * proposal never reaches the webview). */
+  function validPlainKeptEnvelopeClaim(claim: ProjectEnvelopeHashEvidence | null, projectModel: PreviewModel, history: HistoricalRunContext | null): boolean {
+    const historicalClaim = history?.envelopeHash ?? null;
+    if (!claim) return history !== null && historicalClaim === null;
     if (historicalClaim && Object.keys({ ...claim, ...historicalClaim }).every((key) => Reflect.get(claim, key) === Reflect.get(historicalClaim, key))) return true;
     return wellFormedEnvelopeHashClaim(claim, projectModel.project.id)
       && Object.entries(projectEnvelopeHashEvidence(projectModel, claim.value)).every(([key, value]) => Reflect.get(claim, key) === value);
@@ -3995,12 +3997,19 @@ export function useWorkspaceSession() {
       const responseModelChanged = returnedModelHash?.value !== actualRequestModelHash?.value;
       // A plain kept save's claim stands in for the comparison only when it has the store's form (or is
       // the history's stored claim, kept on an unchanged re-save); it never enters the integrity record.
-      const keptClaim = plainKept && saved.proposal == null && validPlainKeptEnvelopeClaim(saved.project_envelope_hash ?? null, requestModel, requestHistoricalRun?.envelopeHash ?? null)
-        ? saved.project_envelope_hash! : null;
+      // A preserved absent claim has no envelope half to compare: the model claim alone is checked, and
+      // the integrity record stays `not_persisted`.
+      const retainedModelHash = !responseModelChanged ? requestHistoricalRun?.modelHash ?? null : null;
+      const keptClaimAccepted = plainKept && saved.proposal == null && validPlainKeptEnvelopeClaim(saved.project_envelope_hash ?? null, requestModel, requestHistoricalRun);
+      const hashesMatch = !plainKept
+        ? persistenceHashesMatch(saved, returnedModelHash, recomputedReturnedEnvelopeHash, retainedModelHash)
+        : keptClaimAccepted && (saved.project_envelope_hash
+          ? persistenceHashesMatch(saved, returnedModelHash, saved.project_envelope_hash, retainedModelHash)
+          : modelHashClaimMatches(saved, returnedModelHash, retainedModelHash));
       const verifiedResponse = Boolean(actualRequestModelHash && returnedModelHash &&
         saved.model.project.id === requestModel.project.id &&
         saved.summary.project_id === requestModel.project.id &&
-        persistenceHashesMatch(saved, returnedModelHash, plainKept ? keptClaim : recomputedReturnedEnvelopeHash, !responseModelChanged ? requestHistoricalRun?.modelHash ?? null : null) &&
+        hashesMatch &&
         !responseModelChanged);
       // Backup reads the verified saved model from native storage. It runs
       // independently of save completion and autosave cleanup; failures have

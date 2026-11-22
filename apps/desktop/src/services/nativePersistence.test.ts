@@ -153,4 +153,19 @@ describe("a reopened saved run's re-save", () => {
     invokeMock.mockResolvedValueOnce({ ...RESAVED, proposal: { proposal_id: "proposal:carried" } });
     await expect(saveRestoredLocalProject(RESTORED, basis, fields)).rejects.toThrow(NATIVE_PROJECT_SAVE_MALFORMED);
   });
+
+  it("reads a kept unchanged re-save that preserved a stale stored claim, and refuses a non-digest claim it computed (issue 519 review 2)", async () => {
+    const basis = { payload_sha256: RESTORED.findings.envelope_payload_hash, evidence: reopen.open.reply.value.project_envelope_hash };
+    const fields = { mode: "save" as const, model: MODEL, editorIntents: [], proposal: null, selectedReviewTarget: null, modelHash: null, confirmedRevision: null, expectedBase: "sha256:base", keepStoredProposal: true as const };
+    const stale = { ...RESAVED, proposal: null, project_envelope_hash: { ...RESAVED.project_envelope_hash, value: "sha256:stale-historical" } };
+    // The basis kept: the stored claim is the history's, preserved as stored, whatever its value.
+    invokeMock.mockResolvedValueOnce({ ...stale, restored: { ...RESAVED.restored, envelope_basis_kept: true } });
+    await expect(saveRestoredLocalProject(RESTORED, basis, fields)).resolves.toMatchObject({ project_envelope_hash: { value: "sha256:stale-historical" } });
+    // A fresh claim is the store's digest, or the reply is not read.
+    invokeMock.mockResolvedValueOnce({ ...stale, restored: { ...RESAVED.restored, envelope_basis_kept: false } });
+    await expect(saveRestoredLocalProject(RESTORED, basis, fields)).rejects.toThrow(NATIVE_PROJECT_SAVE_MALFORMED);
+    // A carried proposal is refused whatever the basis.
+    invokeMock.mockResolvedValueOnce({ ...stale, proposal: { proposal_id: "proposal:carried" }, restored: { ...RESAVED.restored, envelope_basis_kept: true } });
+    await expect(saveRestoredLocalProject(RESTORED, basis, fields)).rejects.toThrow(NATIVE_PROJECT_SAVE_MALFORMED);
+  });
 });
