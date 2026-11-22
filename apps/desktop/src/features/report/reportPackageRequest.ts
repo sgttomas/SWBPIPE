@@ -10,7 +10,9 @@ import type { ReportComposition } from "./reportComposition";
 //
 // A Current pressure-free (preview-physics-2) result is admitted, and, since the owner
 // opened exact-route packages (W-11, DEL-08-01 Design `exact-route-report-sections.md`
-// §5.1; owner, 2026-10-26), an eligible pressure-2 or pressure-source-1 result: the
+// §5.1; owner, 2026-10-26), a pressure-2 or pressure-source-1 result the reader reads with
+// its mechanics solved, whatever its numerical standing, which the package's report states
+// (DEL-08-01 REQ-024, "Package and user release"): the
 // output policy's `report-package` cell admits the three routes, the identity check
 // admits `REPORT_PACKAGE_ADMITTED_CONTRACT_IDS`, and the producer's Rust boundary admits
 // the same three identities. The retained successors stay refused by the cell.
@@ -97,8 +99,9 @@ export function reportPackageUnavailableReason(result: SessionResult | null | un
 
 /** The identities a shareable (user-released, route `DREP-PACKAGE-USER-RELEASE-010`) package
  * admits: a pressure-free `preview-physics-2` result (record 1.0.0), and, since D-6 (owner,
- * 2026-10-29; DEL-08-01 Design `report-user-release.md` §11), an eligible `pressure-2` or
- * `pressure-source-1` result (record 1.1.0). Native admission and the derivation
+ * 2026-10-29; DEL-08-01 Design `report-user-release.md` §11), a `pressure-2` or
+ * `pressure-source-1` result (record 1.2.0) the reader reads with its mechanics solved,
+ * whatever its numerical standing (DEL-08-01 REQ-024). Native admission and the derivation
  * (`report_package::user_release`) admit the same three and refuse the pressure-free
  * Timoshenko identity, which the local-private package admits. */
 export const USER_RELEASED_ADMITTED_CONTRACT_IDS: readonly string[] = Object.freeze([
@@ -110,14 +113,14 @@ export const USER_RELEASED_ADMITTED_CONTRACT_IDS: readonly string[] = Object.fre
 /** The route-010 cell (§2.2): synchronous, for the dialog. The package cell's refusal (the
  * retained routes), else a result whose identity a shareable package does not admit
  * (`USER_RELEASED_ADMITTED_CONTRACT_IDS`), else null. An exact-route result is admitted here;
- * its eligible standing and live custody are the builder's Export Result JSON admission's
- * and native admission's to decide. */
+ * its readability, solved mechanics and live custody are the builder's Export Result JSON
+ * admission's and native admission's to decide. */
 export function userReleasedReportPackageUnavailableReason(result: SessionResult | null | undefined): string | null {
   const refused = reportPackageUnavailableReason(result);
   if (refused) return refused;
   const identity = result?.producer?.semantic_contract_id;
   if (typeof identity === "string" && !USER_RELEASED_ADMITTED_CONTRACT_IDS.includes(identity)) {
-    return `${REPORT_PACKAGE_ROUTE_NOT_ADMITTED}: a shareable report package carries pressure-free (preview-physics-2) results and eligible exact pressure route (pressure-3, pressure-source-1) results; this result is ${identity}. It can be saved in a local private package.`;
+    return `${REPORT_PACKAGE_ROUTE_NOT_ADMITTED}: a shareable report package carries pressure-free (preview-physics-2) results and exact pressure route (pressure-3, pressure-source-1) results; this result is ${identity}. It can be saved in a local private package.`;
   }
   return null;
 }
@@ -259,9 +262,10 @@ async function assembleReportPackageRequest(input: ReportPackageRequestInput, ad
     throw ruleCheckMismatch("the rule-check run's aggregate is not the session's aggregate.");
   }
 
-  // An exact source takes the Export Result JSON admission; its document is the result
-  // member. A pressure-free source keeps the result-export builder's document.
-  const exactInputs = isExactReportSource(result) ? { model, result, analysisRun, inputManifest } : null;
+  // An exact source takes the Export Result JSON admission for a report (any solved result
+  // the reader reads; DEL-08-01 REQ-024); its document is the result member. A pressure-free
+  // source keeps the result-export builder's document and its eligible standing.
+  const exactInputs: ExactReportAdmissionInputs | null = isExactReportSource(result) ? { model, result, analysisRun, inputManifest, purpose: "report" } : null;
   const admission = exactInputs ? await admitExactReportSource(exactInputs) : null;
   const document: ResultDocument = admission ? admission.document : await buildCurrentResultExport({ model, result, analysisRun, inputManifest });
   const envelope = document.result_envelope as JsonRecord;
@@ -370,7 +374,8 @@ export type UserReleasedReportPackageRequestInput = {
 };
 
 /** The user-released request's assembly (§2.6; scope R, §2.1): the Export Result JSON
- * document of a pressure-free or eligible exact result, the minimal renderer input, an
+ * document of an eligible pressure-free result or of an exact result the reader reads with
+ * its mechanics solved, whatever its numerical standing (DEL-08-01 REQ-024), the minimal renderer input, an
  * audit manifest with no rule-pack reference or asset, and no state/comparison/handoff
  * record. The run record carries the solve's own rule status. The native host derives the
  * same request from its bound basis and requires canonical equality
@@ -389,7 +394,7 @@ async function assembleUserReleased(
   recordFor: (document: ResultDocument) => Promise<UserReleaseRecordValue> | UserReleaseRecordValue
 ) {
   const { model, result, analysisRun, inputManifest, reportComposition = null } = input;
-  const exactInputs = isExactReportSource(result) ? { model, result, analysisRun, inputManifest } : null;
+  const exactInputs: ExactReportAdmissionInputs | null = isExactReportSource(result) ? { model, result, analysisRun, inputManifest, purpose: "report" } : null;
   const admission = exactInputs ? await admitExactReportSource(exactInputs) : null;
   const document: ResultDocument = admission ? admission.document : await buildCurrentResultExport({ model, result, analysisRun, inputManifest });
   const envelope = document.result_envelope as JsonRecord;
@@ -520,10 +525,13 @@ export function userReleaseModelRefusal(model: unknown, inputManifest?: CurrentS
 /** The record's constants (§2.3), as `report_renderer`'s `USER_RELEASE_*` constants. */
 export const USER_RELEASE_STATEMENT = "I hold the right to share this project's data, and I release my project data in this report for sharing.";
 const USER_RELEASE_STATEMENT_BASIS = "docs/IP_AND_DATA_BOUNDARY.md §6: a user intentionally exports their own data with documented redistribution rights";
+/** What a user-released package does not carry, on every record version. None names a result
+ * as not carried on the ground of its numerical standing (DEL-08-01 REQ-024). */
 const USER_RELEASE_NOT_CARRIED = ["rule_pack_references", "user_rule_outcomes", "run_comparisons", "handoff_records", "library_records", "audit_assets"];
-/** Record 1.0.0 (pressure-free) and the D-6 widened record 1.1.0 (exact routes, §11). */
+/** Record 1.0.0 (pressure-free) and the exact-route record 1.2.0 (D-6, §11; widened by DEL-08-01
+ * REQ-024 to every exact-route result the rendered report admits). */
 const USER_RELEASE_RECORD_VERSION = "1.0.0";
-const USER_RELEASE_EXACT_RECORD_VERSION = "1.1.0";
+const USER_RELEASE_EXACT_RECORD_VERSION = "1.2.0";
 
 /** The application clock's reading as the record's `user_released_at` (UTC, whole seconds). */
 export function userReleasedAtOf(date: Date): string {
@@ -531,7 +539,7 @@ export function userReleasedAtOf(date: Date): string {
 }
 
 /** The user's record U (§2.3) for one report, bound to the session's identities and the
- * result document the package carries. Record 1.1.0 for an exact-route document (§11), else
+ * result document the package carries. Record 1.2.0 for an exact-route document (§11), else
  * 1.0.0. Native admission re-derives and binds every member but `user_released_at`. */
 export async function userReleaseRecord(args: {
   model: PreviewModel;
@@ -558,7 +566,7 @@ export async function userReleaseRecord(args: {
       report_id: `report:${run}`,
       package_id: `desktop-user-released-report-${safeId(run)}`,
       user_released_data_class: "private_project_data",
-      not_carried: exact ? [...USER_RELEASE_NOT_CARRIED, "ineligible_exact_route_results"] : [...USER_RELEASE_NOT_CARRIED]
+      not_carried: [...USER_RELEASE_NOT_CARRIED]
     },
     bound_to: {
       model_ref: model.project.id,
@@ -580,7 +588,7 @@ export type UserReleasedReportPackageBuildInput = Omit<UserReleasedReportPackage
 };
 
 /** Builds the route-010 request (§2.2, §2.6): the user-release cell, the early model check,
- * the package surface's eligible standing, then the assembly with the record bound to the
+ * the package surface's route check, then the assembly with the record bound to the
  * session and the document it carries. Refusals throw with their own codes; nothing here
  * grants export authority (native admission derives the whole request and decides). */
 export async function buildUserReleasedReportPackageRequest(input: UserReleasedReportPackageBuildInput) {

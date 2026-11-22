@@ -10,11 +10,11 @@
   },
   "hand_entry": {
     "base_rule": "model is the WRITTEN BASE: the case's SWBPIPE model with the member's support records left out; hand_entry_model appends them to model.supports and changes nothing else",
-    "expected_status": {},
-    "held": {
-      "case:sustained": "captured at the sitting and HELD, stored sealed, and not compared, until an independently justified one-parameter series supplying the evidence REQ-019 requires for the input constant_support_load, which no series does yet, as well as SWBPIPE's own result for this case and this load case published by the product as checks passed and the capture's binding to the model actually run; the series's load values are never fitted to the captured result",
-      "operating": "captured at the sitting and HELD, stored sealed, and not compared, until an independently justified one-parameter series supplying the evidence REQ-019 requires for the input constant_support_load, which no series does yet, as well as SWBPIPE's own result for this case and this load case published by the product as checks passed and the capture's binding to the model actually run; the series's load values are never fitted to the captured result"
+    "comparison": {
+      "case:sustained": "captured at the sitting and compared with SWBPIPE's solve of this case and this load case at a named commit, each comparison stating the numerical standing the product published for that solve (LIM-026), and naming the input constant_support_load, to which the difference it carries is attributed until an independently justified one-parameter series supplying the evidence REQ-019 requires for the input constant_support_load, which no series does yet; the series's load values are never fitted to the captured result",
+      "operating": "captured at the sitting and compared with SWBPIPE's solve of this case and this load case at a named commit, each comparison stating the numerical standing the product published for that solve (LIM-026), and naming the input constant_support_load, to which the difference it carries is attributed until an independently justified one-parameter series supplying the evidence REQ-019 requires for the input constant_support_load, which no series does yet; the series's load values are never fitted to the captured result"
     },
+    "expected_status": {},
     "member": [
       {
         "family": "constant_effort_support",

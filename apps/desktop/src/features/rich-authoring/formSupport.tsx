@@ -227,6 +227,7 @@ export function useRichQueue(props: RichFormProps) {
     error,
     notice,
     setError,
+    setNotice,
     queue
   };
 }

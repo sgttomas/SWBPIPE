@@ -78,6 +78,8 @@ mod report_render_exact_tests;
 #[cfg(test)]
 mod report_render_pf_timoshenko_tests;
 #[cfg(test)]
+mod report_standing_package_tests;
+#[cfg(test)]
 mod object_form_tests;
 mod rule_solver_selection;
 mod result_text_digest;
@@ -239,6 +241,10 @@ async fn save_report_package_decoded(
     })
 }
 
+/// The file type the report package saves' chooser names: the file is a
+/// report package, not the project's portable package (issue 509).
+const REPORT_PACKAGE_FILE_TYPE: &str = "SWBPIPE Report Package";
+
 fn choose_report_package_save_path(app: &AppHandle, file_name: &str) -> Option<Result<PathBuf, String>> {
     #[cfg(feature = "native-smoke")]
     if let Some(path) = native_smoke::take_chosen_path(app, "choose_report_package_save_path") {
@@ -247,7 +253,7 @@ fn choose_report_package_save_path(app: &AppHandle, file_name: &str) -> Option<R
     app.dialog()
         .file()
         .set_file_name(file_name)
-        .add_filter("SWBPIPE Project Package", &["opsproj"])
+        .add_filter(REPORT_PACKAGE_FILE_TYPE, &["opsproj"])
         .blocking_save_file()
         .map(|selected| selected.into_path().map_err(|error| error.to_string()))
 }
@@ -12382,3 +12388,7 @@ mod stored_result_limit_tests {
         save_in_place(&store, Value::Null, None).expect("a run the session opened is its to replace");
     }
 }
+
+#[cfg(test)]
+#[path = "model_settings_persistence_tests.rs"]
+mod model_settings_persistence_tests;

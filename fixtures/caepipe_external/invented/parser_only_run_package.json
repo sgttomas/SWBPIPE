@@ -2,7 +2,7 @@
   "boundary_notes": [
     "CAEPIPE external execution is optional and user-owned.",
     "Public tests use skipped or parser-only evidence and do not require a CAEPIPE executable.",
-    "Parsed CSV output is regression and handoff evidence only.",
+    "Parsed CSV output, compared with SWBPIPE's results, is validation evidence (PRD 22.5).",
     "Evidence does not assert CAEPIPE compatibility, solver validation, release readiness, code compliance, or professional reliance."
   ],
   "checksums": [

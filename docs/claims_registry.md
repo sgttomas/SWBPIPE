@@ -167,22 +167,25 @@ design are right."
 
 **Display forms:**
 
-- "Numerical health: checks passed", "Numerical health: sensitive",
-  "Numerical health: quality unresolved", "Numerical health: solve failed"
-  and "Numerical health: not assessed";
+- "Numerical health: solver checks found no problem", "Numerical health:
+  sensitive", "Numerical health: quality unresolved", "Numerical health: solve
+  failed" and "Numerical health: not assessed". "Solver checks found no
+  problem" is the display form of the solver's checks-passed verdict: it says
+  what was checked and found, and the product verifies the bound those checks
+  rest on for no case (LIM-026);
 - the prefix "Ordinary solve —", on routes whose standing comes from other
   evidence;
 - the result header's count form, "Numerical health: {n} {state}, …".
 
 They report the solver's existing integrity verdicts (`M03-INTEGRITY-v1`) for
 each load case. They are numerical-quality indicators, not analysis statuses
-or evidence-status labels (§2.1), and they never use "verified", "certified",
-"bound", "guaranteed", "valid", "approved", "compliant", "correct" or
-"reliable".
+or evidence-status labels (§2.1), and no state is worded or styled as a
+pass, a certificate or an approval.
 
 **Belongs on:** the desktop's numerical-health indicator, and the
-numerical-health line of generated reports. The canonical sentence accompanies
-the checks-passed state.
+numerical-health line of generated reports. On the desktop's indicator the
+canonical sentence accompanies every state; on a generated report's line it
+accompanies a verdict of checks passed.
 
 ### EV-FIGURE — evidence status of a numerical figure, state or comparison
 
@@ -204,14 +207,13 @@ They state the evidence status of a solver figure, support state or rule compari
 
 **Canonical:** "Standard claim fence applies (claims taxonomy per DEC-081)."
 
-**Belongs on:** new governance artifacts — scopes of work, packets, status
-entries, run records, receipts — wherever an author would previously have
-restated the claims litany. PRD §21 and OPS-K-AUTH-1
-(`docs/CONTRACT.md`) are the governing definitions; this token cites them and
-never replaces them. Never used on product surfaces. Artifacts written before
-2026-10-23 carry the earlier form, "Standard claim fence applies (F-PIP-2;
-claims taxonomy per DEC-081)."; it is left in place and not used on new
-artifacts (the owner retired F-PIP-1, -2 and -4 and DEC-043 on 2026-10-23).
+**Retired 2026-11-21.** The token is no longer written into new files, and
+where a file that carries it is edited, the token need not be kept. Files that
+carry it are otherwise left as they are. It cited PRD §21 and OPS-K-AUTH-1
+(`docs/CONTRACT.md`), which remain the governing definitions, and it was never
+used on product surfaces. The earlier form, "Standard claim fence applies
+(F-PIP-2; claims taxonomy per DEC-081).", is retired in the same way (the
+owner retired F-PIP-1, -2 and -4 and DEC-043 on 2026-10-23).
 
 ## 2. Evidence-status labels
 
@@ -280,13 +282,13 @@ statement (or a listed short variant) verbatim — one surface, one boundary.
 for the live `ScopeOfWork.md` files that already carry it, and where it has
 been withdrawn nothing is written in its place.
 Do not compose ad-hoc prohibition lists; do not restate PRD §21 or
-OPS-K-AUTH-1 as a litany — cite GF-TOKEN. Deliverable-specific exclusions
+OPS-K-AUTH-1 as a litany; where a citation is needed, cite them by name
+(GF-TOKEN is retired). Deliverable-specific exclusions
 ("does not implement a parser/harness/API...") are scope statements, not
 claims language, and stay as ordinary prose. Structured metadata fields
 (e.g. `professional_boundary` booleans, `software_makes_certification_claim`)
-are data contracts, not prose — they are outside this registry. Receipts may
-use GF-TOKEN in boundary lines going forward; the D-44 receipt contract is
-unchanged.
+are data contracts, not prose — they are outside this registry. The D-44
+receipt contract is unchanged.
 
 ## 5. Out of scope / exclusions
 

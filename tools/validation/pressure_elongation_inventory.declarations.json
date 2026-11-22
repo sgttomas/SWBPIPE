@@ -415,6 +415,26 @@
    }
   },
   {
+   "id": "report_standing_package_inputs",
+   "paths": [
+    "fixtures/reports/invented/report_standing_witnesses/pressure_3_*.package.json"
+   ],
+   "producer": {
+    "kind": "ts_test",
+    "path": "apps/desktop/src/features/report/reportStandingWitness.test.tsx",
+    "write": "its write mode (OPENPIPESTRESS_WRITE_REPORT_STANDING_RENDER_INPUTS), beside the render inputs, from request_path and raw_path",
+    "switch_plumbed": false,
+    "switch_route": "copies its model from a committed source: re-produce that source with the switch, then re-run this writer"
+   },
+   "pinned_by": [
+    "apps/desktop/src-tauri/src/report_standing_package_tests.rs"
+   ],
+   "anchor": {
+    "kind": "excluded",
+    "reason": "the model is held inside the input manifest of package-request witness inputs, beside the render inputs that hold it as intake text"
+   }
+  },
+  {
    "id": "report_standing_app_render_request",
    "paths": [
     "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive.app_render_request.json"
@@ -1481,6 +1501,14 @@
   },
   {
    "paths": [
+    "tests/test_caepipe_stated_bases.py"
+   ],
+   "expectations": "closed_form",
+   "cases_named": "some",
+   "detail": "CAEPIPE benchmark stated-bases tests. Named: elongation-on series documents (cpb-p1-01, cpb-p1-04, cpb-p2-01, cpb-p2-03, cpb-p4-01, cpb-p5-01) solved directly and transformed by stated_bases.realize (which removes pressure_elongation and places free-strain thermal loads), judged against closed forms and product superposition. Unnamed: default-series documents (cpb-p1-01, cpb-p1-04, cpb-p2-01, cpb-p2-03, cpb-p3-01..04, cpb-p4-01, cpb-p5-01), judged against closed-end zero-reaction, open-end p A_i and thin-wall strain closed forms and product superposition"
+  },
+  {
+   "paths": [
     "tests/test_caepipe_mbf_round_trip.py"
    ],
    "expectations": "product_output",
@@ -1744,6 +1772,12 @@
    ]
   },
   {
+   "reason": "its exact-route documents carry only empty pressure-region lists (the seismic_component_weight package has no internal pressure), so no solved case carries pressure",
+   "paths": [
+    "core/product_physics/tests/seismic_component_weight.rs"
+   ]
+  },
+  {
    "reason": "producer of a data group above; its committed documents are claimed by that group",
    "paths": [
     "fixtures/reference_system/generate_reference_system.py",
@@ -1863,6 +1897,7 @@
     "fixtures/results/modal_*.request.json",
     "fixtures/results/retained_precision_cases.json",
     "fixtures/results/retained_precision_*_successor_*.json",
+    "fixtures/results/seismic_component_record_corpus.json",
     "validation/qualification/fixtures/first_static/*.json",
     "validation/qualification/fixtures/load_reference/*.json",
     "validation/references/inverse_norm_witness/requests/linear.request.json",
@@ -1930,6 +1965,12 @@
    "reason": "session tests of the agent's bounded record read: the committed reference system's load cases read back across pages, and invented cases that name pressure regions as a held text; no mechanics solve is performed",
    "paths": [
     "apps/desktop/src/services/embeddedAgentSession.test.ts"
+   ]
+  },
+  {
+   "reason": "the benchmark stated-bases helper: transforms caller-supplied benchmark documents (claimed by caepipe_benchmark or its test) and calls a caller-supplied solve; it owns no model or response expectation",
+   "paths": [
+    "tools/caepipe_correlation/stated_bases.py"
    ]
   }
  ],
