@@ -1887,6 +1887,7 @@ mod tests {
     const BINARY64_ENV: &str = "SWBPIPE_WRITE_HANDOFF_BINARY64_WITNESS";
     const VECTORS: &str = include_str!("../../../../fixtures/handoff/canonical_text_vectors.json");
     const VECTORS_ENV: &str = "SWBPIPE_WRITE_HANDOFF_CANONICAL_VECTORS";
+    const SUGGESTED_NAME_CASES: &str = include_str!("../../../../fixtures/file_names/suggested_name_cases.json");
     const BASE: &str = "invented-envelope-base";
     const CREATED_AT: &str = "2026-10-24T12:00:00.000-06:00";
 
@@ -2878,12 +2879,23 @@ mod tests {
             serde_json::to_value(HandoffSaveOutcome::refused_one(LABEL_INVALID, "m")).unwrap(),
             json!({"outcome": "refused", "diagnostics": [{"code": LABEL_INVALID, "path": "", "message": "m"}]})
         );
+        let cases: Value = serde_json::from_str(SUGGESTED_NAME_CASES).unwrap();
+        let native_case = cases["name_cases"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|item| item["case_id"] == "native_handoff_package")
+            .expect("native_handoff_package case in fixtures/file_names/suggested_name_cases.json");
+        assert_eq!(SUGGESTED_PACKAGE_KIND, native_case["kind"].as_str().unwrap());
+        assert_eq!(publish::PACKAGE_EXTENSION, native_case["extension"].as_str().unwrap());
+        assert!(native_case["qualifier"].is_null());
+        let expected_name = native_case["expected_name"].as_str().unwrap();
         for (id, name) in [
             ("project:invented-demo-loop-01", "Invented Utility Loop Demo"),
             ("project:wren-ferrule-9x2q", "Quokka Larch Bay 4417"),
         ] {
             let suggested = suggested_package_name(&json!({"project": {"id": id, "name": name}}));
-            assert_eq!(suggested, "handoff-package.swbhandoff");
+            assert_eq!(suggested, expected_name);
             let lower = suggested.to_lowercase();
             assert!(!lower.contains(&name.to_lowercase()));
             assert!(!lower.contains(&name.to_lowercase().replace(' ', "-")));

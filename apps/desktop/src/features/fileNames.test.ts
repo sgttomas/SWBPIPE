@@ -2,7 +2,15 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import nameCases from "../../../../fixtures/file_names/suggested_name_cases.json";
-import { FILE_KINDS, FILE_NAME_EXCEPTIONS, RESERVED_KINDS, fileNameOf, qualifierSlug, suggestedFileName } from "./fileNames";
+import {
+  FILE_KINDS,
+  FILE_NAME_EXCEPTIONS,
+  NATIVE_FILE_NAME_EXCEPTIONS,
+  RESERVED_KINDS,
+  fileNameOf,
+  qualifierSlug,
+  suggestedFileName
+} from "./fileNames";
 
 // The rule for every suggested file name (DEL-07-11 REQ-009). Its cases are the shared fixture, which a native
 // implementation of the rule reads too.
@@ -36,9 +44,10 @@ describe("the suggested file name of a kind in the table", () => {
   });
 });
 
-// No file under the desktop's sources composes a suggested name with the product's prefix or "preview" for itself,
+// No file under the desktop's sources composes a suggested name with either product prefix or "preview" for itself,
 // apart from the names in FILE_NAME_EXCEPTIONS, each as many times as its entry says.
 const SRC = path.resolve(__dirname, "..");
+const REPO_ROOT = path.resolve(SRC, "../../..");
 
 function sources(directory: string): string[] {
   return readdirSync(directory).flatMap((entry) => {
@@ -48,14 +57,63 @@ function sources(directory: string): string[] {
   });
 }
 
-/** The names a source composes with the product's prefix or, in a download attribute, "preview": each literal once,
- * however both patterns find it. */
+function stripJsComments(text: string): string {
+  let out = "";
+  for (let i = 0; i < text.length; ) {
+    const ch = text[i];
+    const next = text[i + 1] ?? "";
+    if (ch === "/" && next === "/") {
+      out += "  ";
+      i += 2;
+      while (i < text.length && text[i] !== "\n") {
+        out += " ";
+        i += 1;
+      }
+    } else if (ch === "/" && next === "*") {
+      out += "  ";
+      i += 2;
+      while (i < text.length && !(text[i] === "*" && text[i + 1] === "/")) {
+        out += text[i] === "\n" ? "\n" : " ";
+        i += 1;
+      }
+      if (i < text.length) {
+        out += "  ";
+        i += 2;
+      }
+    } else if (ch === '"' || ch === "'" || ch === "`") {
+      const quote = ch;
+      out += ch;
+      i += 1;
+      while (i < text.length) {
+        const c = text[i];
+        out += c;
+        if (c === "\\" && i + 1 < text.length) {
+          out += text[i + 1];
+          i += 2;
+          continue;
+        }
+        i += 1;
+        if (c === quote) break;
+      }
+    } else {
+      out += ch;
+      i += 1;
+    }
+  }
+  return out;
+}
+
+/** The names a source composes with either product prefix (`openpipestress-` or `swbpipe-`) or, in a download
+ * attribute, "preview": each literal once, however the patterns find it. */
 function composedNames(text: string): string[] {
+  const code = stripJsComments(text);
   const names = new Map<number, string>();
-  // A string or template literal that starts with the product's prefix and ends in a file extension.
-  for (const match of text.matchAll(/[`"'](openpipestress-[^`"'\n]*\.(?:json|csv|pcf|html|mbf|gltf\.json))[`"']/g)) names.set(match.index!, match[1]);
+  // A string or template literal that starts with either product prefix and ends in a file extension.
+  for (const match of code.matchAll(/[`"']((?:openpipestress-|swbpipe-)[^`"'\n]*\.(?:json|csv|pcf|html|mbf|opsproj|swbhandoff|gltf\.json))[`"']/g)) names.set(match.index!, match[1]);
+  // A template literal starting with `swbpipe-${...}` whose extension or suffix is added by its caller.
+  for (const match of code.matchAll(/`(swbpipe-\$\{[^`\n]*\})`/g)) names.set(match.index!, match[1]);
   // A download attribute whose literal name holds "preview".
-  for (const match of text.matchAll(/download=\{?\s*([`"'])([^`"'\n]*)[`"']/g)) {
+  for (const match of code.matchAll(/download=\{?\s*([`"'])([^`"'\n]*)[`"']/g)) {
     if (/preview/i.test(match[2])) names.set(match.index! + match[0].indexOf(match[1]), match[2]);
   }
   return [...names.values()];
@@ -75,7 +133,7 @@ function namesOutOfRule(file: string, text: string, exceptions: typeof FILE_NAME
   return problems;
 }
 
-describe("the product's prefix and \"preview\" in suggested file names", () => {
+describe("the product's prefixes and \"preview\" in suggested file names", () => {
   const invented: typeof FILE_NAME_EXCEPTIONS = [{ file: "invented.tsx", starts: "openpipestress-preview-invented-", count: 1, reason: "invented" }];
   const source = "const x = 1;\n<a download={`openpipestress-preview-invented-${id}.json`} />\n";
 
@@ -90,11 +148,39 @@ describe("the product's prefix and \"preview\" in suggested file names", () => {
     expect(namesOutOfRule("other.tsx", source, invented)).toEqual(["other.tsx: openpipestress-preview-invented-${id}.json"]);
   });
 
+  it("flags swbpipe- regressions outside exceptions and ignores comments", () => {
+    expect(namesOutOfRule("other.tsx", 'const a = "swbpipe-report.opsproj";', [])).toEqual(["other.tsx: swbpipe-report.opsproj"]);
+    expect(namesOutOfRule("other.tsx", 'const a = "swbpipe-pkg.swbhandoff";', [])).toEqual(["other.tsx: swbpipe-pkg.swbhandoff"]);
+    expect(namesOutOfRule("other.tsx", 'const a = "swbpipe-model.mbf";', [])).toEqual(["other.tsx: swbpipe-model.mbf"]);
+    expect(namesOutOfRule("other.tsx", "const a = `swbpipe-${kind}`;", [])).toEqual(["other.tsx: swbpipe-${kind}"]);
+    expect(namesOutOfRule("other.tsx", "/** `swbpipe-foo.csv` */ // swbpipe-bar.mbf\nconst a = 1;", [])).toEqual([]);
+  });
+
   it("do not come back: no source composes such a name outside the exceptions", () => {
     const problems: string[] = [];
     for (const file of sources(SRC)) problems.push(...namesOutOfRule(path.relative(SRC, file).split(path.sep).join("/"), readFileSync(file, "utf8"), FILE_NAME_EXCEPTIONS));
     // Every exception names a file that exists, and was counted above.
     for (const item of FILE_NAME_EXCEPTIONS) expect(statSync(path.join(SRC, item.file)).isFile(), item.file).toBe(true);
     expect(problems).toEqual([]);
+  });
+
+  it("accounts for every native and cross-boundary file name exception on disk", () => {
+    for (const item of NATIVE_FILE_NAME_EXCEPTIONS) {
+      const full = path.join(REPO_ROOT, item.file);
+      expect(statSync(full).isFile(), item.file).toBe(true);
+      const raw = readFileSync(full, "utf8");
+      const prod = item.file.endsWith(".rs")
+        ? raw.slice(0, raw.search(/^#\[cfg\(test\)\]\s*\nmod tests\s*\{/m) === -1 ? raw.length : raw.search(/^#\[cfg\(test\)\]\s*\nmod tests\s*\{/m))
+        : stripJsComments(raw);
+      let count = 0;
+      let from = 0;
+      while (true) {
+        const hit = prod.indexOf(item.marker, from);
+        if (hit === -1) break;
+        count += 1;
+        from = hit + item.marker.length;
+      }
+      expect(count, `${item.file} (${item.starts})`).toBe(item.count);
+    }
   });
 });

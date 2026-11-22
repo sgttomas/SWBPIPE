@@ -155,8 +155,6 @@ function regionBodyNotices(result: MechanicsResult, packet: ReturnType<typeof bu
   return componentBodyNotices(result, { pipeIds: selected.element_ids, resultIds: selected.result_ids });
 }
 
-/** The region the handoff names, for its file name: none where the result summary left the region's selection
- * incomplete (its LOCAL-FEA-RESULT-SUMMARY-REF-MISSING finding). */
 /** The handoff's suggested name, qualified by its local region: the model's own element and node ids that the
  * region is drawn from (its id without the "local-region:" type word). With no region drawn from the result's
  * summary, the name has no qualifier. */

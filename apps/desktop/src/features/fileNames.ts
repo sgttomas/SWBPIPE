@@ -37,6 +37,7 @@ export const FILE_KINDS = Object.freeze({
   localFeaHandoff: { kind: "local-fea-handoff", extension: "json" },
   missingData: { kind: "missing-data", extension: "json" },
   nativePackage: { kind: "native-package", extension: "json" },
+  operationCapabilities: { kind: "piping-operation-capabilities", extension: "json" },
   operationDiff: { kind: "operation-diff", extension: "json" },
   operationLedger: { kind: "operation-ledger", extension: "json" },
   pcfPackage: { kind: "pcf-package", extension: "json" },
@@ -61,13 +62,89 @@ export const RESERVED_KINDS: ReadonlyArray<string> = Object.freeze(["report", "l
 /** The suggested names not yet built by this rule, each with the reason: the file, the beginning of the name, and
  * how many places in that file compose a name with that beginning. The lane that owns each removes its entry when
  * its native change lands. A test fails if a file holds a different number of such places, or if any other source
- * composes a name with the product's prefix or "preview". */
+ * composes a name with either product prefix (`openpipestress-` or `swbpipe-`) or `"preview"`. */
 export const FILE_NAME_EXCEPTIONS: ReadonlyArray<{ file: string; starts: string; count: number; reason: string }> = Object.freeze([
   { file: "features/report/RenderedReportPanel.tsx", starts: "openpipestress-local-private-report-", count: 1, reason: "the local-private rendered report's download; another lane decides its form (reserved kind local-private-report)" },
   { file: "features/report/RenderedReportPanel.tsx", starts: "openpipestress-report-", count: 1, reason: "the rendered report's download; another lane decides its form (reserved kind report)" },
   { file: "features/result-export/ResultExportPanel.tsx", starts: "openpipestress-preview-results-", count: 1, reason: "the result JSON; its native save checks this prefix (nativeResultSave.ts and native_result_download.rs; reserved kind result)" },
   { file: "features/stress-neutral/StressNeutralExportPanel.tsx", starts: "openpipestress-preview-stress-neutral-", count: 1, reason: "the stress-neutral JSON; its native save checks this prefix (nativeResultSave.ts and native_result_download.rs; reserved kind stress-neutral)" },
-  { file: "features/review-geometry/ReviewGeometryPanel.tsx", starts: "openpipestress-preview-review-geometry-", count: 2, reason: "the review geometry download, the twin of the name its package records and its native save forms; and the review geometry package's member file name, which the download repeats (reserved kind review-geometry)" }
+  { file: "features/review-geometry/ReviewGeometryPanel.tsx", starts: "openpipestress-preview-review-geometry-", count: 2, reason: "the review geometry download, the twin of the name its package records and its native save forms; and the review geometry package's member file name, which the download repeats (reserved kind review-geometry)" },
+  { file: "features/result-export/csvTable.ts", starts: "swbpipe-", count: 1, reason: "results and comparison CSV table exports (swbpipe-<kind>[-<qualifier>].csv; paired with csvSave.ts and native_result_download.rs)" },
+  { file: "features/caepipe-mbf/mbfExport.ts", starts: "swbpipe-model", count: 2, reason: "native CAEPIPE MBF export suggested name (swbpipe-model[-<slug>].mbf; paired with MbfExportDialog.tsx and mbf_export.rs)" }
+]);
+
+/** Native and cross-boundary suggested file names outside `fileNames.ts`, checked against their source files on
+ * disk (production code only) so files and counts cannot silently drift. */
+export const NATIVE_FILE_NAME_EXCEPTIONS: ReadonlyArray<{
+  file: string;
+  starts: string;
+  marker: string;
+  count: number;
+  reason: string;
+}> = Object.freeze([
+  {
+    file: "apps/desktop/src-tauri/src/rendered_report_routes.rs",
+    starts: "openpipestress-local-private-report-",
+    marker: '"openpipestress-local-private-report-',
+    count: 1,
+    reason: "native rendered local-private HTML report save chooser name (twin of RenderedReportPanel.tsx)"
+  },
+  {
+    file: "apps/desktop/src-tauri/src/rendered_report_routes.rs",
+    starts: "openpipestress-report-",
+    marker: '"openpipestress-report-',
+    count: 1,
+    reason: "native rendered HTML report save chooser name (twin of RenderedReportPanel.tsx)"
+  },
+  {
+    file: "apps/desktop/src-tauri/src/report_package_save.rs",
+    starts: "desktop-report- / desktop-user-released-report- (.opsproj)",
+    marker: "choose(&admitted.package.container_file_name)",
+    count: 1,
+    reason: "native .opsproj report package save chooser passes container_file_name built from package_id (core/reporting/report_package/src/lib.rs)"
+  },
+  {
+    file: "apps/desktop/src/features/report/reportPackageRequest.ts",
+    starts: "desktop-report-",
+    marker: "`desktop-report-",
+    count: 1,
+    reason: "local-private report package_id feeding .opsproj container_file_name in report_package_save.rs"
+  },
+  {
+    file: "apps/desktop/src/features/report/reportPackageRequest.ts",
+    starts: "desktop-user-released-report-",
+    marker: "`desktop-user-released-report-",
+    count: 2,
+    reason: "user-released report package_id feeding .opsproj container_file_name in report_package_save.rs"
+  },
+  {
+    file: "apps/desktop/src-tauri/src/native_result_download.rs",
+    starts: "openpipestress-preview-results-",
+    marker: '"openpipestress-preview-results-"',
+    count: 1,
+    reason: "native result JSON save validator prefix (paired with ResultExportPanel.tsx and nativeResultSave.ts)"
+  },
+  {
+    file: "apps/desktop/src-tauri/src/native_result_download.rs",
+    starts: "openpipestress-preview-stress-neutral-",
+    marker: '"openpipestress-preview-stress-neutral-"',
+    count: 1,
+    reason: "native stress-neutral JSON save validator prefix (paired with StressNeutralExportPanel.tsx and nativeResultSave.ts)"
+  },
+  {
+    file: "apps/desktop/src-tauri/src/native_result_download.rs",
+    starts: "swbpipe-",
+    marker: '"swbpipe-"',
+    count: 1,
+    reason: "native CSV table save validator prefix (paired with csvTable.ts, csvSave.ts, and nativeResultSave.ts)"
+  },
+  {
+    file: "apps/desktop/src-tauri/src/mbf_export.rs",
+    starts: "swbpipe-model",
+    marker: '"swbpipe-model"',
+    count: 1,
+    reason: "native CAEPIPE MBF save validator prefix (paired with mbfExport.ts and MbfExportDialog.tsx)"
+  }
 ]);
 
 export type FileKind = keyof typeof FILE_KINDS;
