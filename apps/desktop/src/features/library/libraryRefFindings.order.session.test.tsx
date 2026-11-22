@@ -343,3 +343,27 @@ it("a check begun only if its project is active neither changes the active proje
   expect(first).not.toBeNull();
   expect(publishLibraryRefFindingsIfCurrent(PROJECT_A, first!, finding)).toBe(true);
 });
+
+it("after Save as a new project, a Library Manager refresh checks the copy and publishes its warning", async () => {
+  const a = await referencedModel(PROJECT_A);
+  vi.spyOn(libraryImportService, "listLocalLibraries").mockResolvedValue({ route: "tauri_backend", entries: [] });
+  const checks = vi.spyOn(libraryImportService, "checkModelLibraryRefs").mockImplementation(async (projectId) => {
+    const copy = session.current.model.model!;
+    return { route: "tauri_backend", findings: projectId === PROJECT_A ? [] : changed(copy) };
+  });
+  const session = await workspace(a);
+
+  // A is stored; storing it again asks, and Save as a new project adopts the copy under an unused id.
+  await act(async () => { await session.current.project.handleCreateProject(); });
+  let creating: Promise<unknown> = Promise.resolve();
+  act(() => { creating = session.current.project.handleCreateProject(); });
+  await waitFor(() => expect(session.current.project.replaceProjectPrompt).not.toBeNull());
+  await act(async () => { session.current.project.replaceProjectPrompt!.choose("save-as-new"); await creating; });
+  const copyId = session.current.model.model!.project.id;
+  expect(copyId).toMatch(new RegExp(`^${PROJECT_A}:copy-`));
+
+  await act(async () => { refreshButton().click(); });
+  await waitFor(() => expect(checks.mock.calls.map(([projectId]) => projectId)).toContain(copyId));
+  await waitFor(() => expect(refreshButton().disabled).toBe(false));
+  await expectWarningStands(session, copyId);
+});

@@ -2850,6 +2850,9 @@ export function useWorkspaceSession() {
   }
 
   function adoptSavedAsNewModel(renamed: PreviewModel) {
+    // The copy is the session's project now: a library-reference check in flight for the
+    // old id publishes nothing, and the copy's own checks begin.
+    setActiveLibraryRefProject(renamed.project.id);
     commitModel(renamed);
     storedBaseRef.current = null;
     preserveAndPruneSelection(renamed);
