@@ -14,8 +14,8 @@
 // state Timoshenko; a document that states no choice reads as Euler–Bernoulli and
 // says so. There is no reset: a stated choice is changed, never cleared. On a
 // document with a pressure contract the control shows one line only: that document's
-// beam theory is `pressure_contract.shear_model` (read by `documentShearModel`), set in
-// the pressure panel; no choice, Effective line or note speaks for it.
+// beam theory is `pressure_contract.shear_model` (read by `documentShearModel`), set with
+// its pressure profile (Loads › Analysis settings); no choice, Effective line or note speaks for it.
 //
 // On a document with a pressure contract it also holds Pressure elongation (Bourdon)
 // (DEL-04-07): one switch, "Include pressure
@@ -61,7 +61,7 @@ export const SHEAR_MODEL_UNSTATED = "Not included (Euler–Bernoulli). This docu
 export const SHEAR_MODEL_NOTE =
   "Applies to every straight member, tee leg, valve, flange or other rigid component, and geometry-only bend; realized arcs stay Euler–Bernoulli. The shear factor is the energy-matched one for an annular section, and Poisson's ratio is E/(2G) − 1 from each case's moduli, not an entered value.";
 export const SHEAR_MODEL_EXACT_NOTE =
-  "This document has a pressure contract, so its beam theory is the pressure contract's shear model: set it in the Pressure panel.";
+  "This model's beam theory is set with its pressure profile: Loads › Analysis settings.";
 /** The one line a document with a pressure contract shows here: its theory as the contract states it (read by
  * `documentShearModel`), never the pressure-free setting, which such a document does not hold. */
 export function shearModelExactLine(theory: ShearModel | null): string {
@@ -234,8 +234,7 @@ export function ModelSettingsSection(props: ModelSettingsSectionProps) {
           Effective: <strong>{effectiveNodeProximityTolerance(model)}</strong>
         </p>
         <p className="model-data-note">
-          Distinct nodes that no element joins and that lie no farther apart than this are reported before
-          solving as near duplicates (NODE_NEAR_DUPLICATE). The warning changes no solved value.
+          Unjoined nodes this close are reported as near duplicates before solving; no solved value changes.
         </p>
         <label>Tolerance
           <input
@@ -295,7 +294,7 @@ export function ModelSettingsSection(props: ModelSettingsSectionProps) {
           Effective: <strong>{effectiveShear}</strong>
         </p>
         <p className="model-data-note" data-testid="model-settings-shear-model-note">{SHEAR_MODEL_NOTE}</p>
-        <div role="radiogroup" aria-label={SHEAR_MODEL_LABEL}>
+        <div role="radiogroup" aria-label={SHEAR_MODEL_LABEL} className="model-settings-choices">
           {SHEAR_MODEL_CHOICES.map((choice) => (
             <label key={choice.value}>
               <input
@@ -307,7 +306,7 @@ export function ModelSettingsSection(props: ModelSettingsSectionProps) {
                 {...disabledBy(working, [exactDocument, SHEAR_MODEL_EXACT_NOTE], [authoredShear === choice.value, "This choice is already set."])}
                 onChange={() => void submit((canon) => setShearModelIntent(canon, model, choice.value), SHEAR_MODEL_PATH)}
               />
-              {choice.label}
+              <span>{choice.label}</span>
             </label>
           ))}
         </div>

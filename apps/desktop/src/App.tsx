@@ -1062,6 +1062,9 @@ function AppSession() {
               getPreparationEpoch={getPreparationEpoch}
               model={model}
               onSelectReference={(entity) => { handleSelectEntity(entity); }}
+              onChangeSelected={openBulkChange}
+              armedCreationTool={armedCreationTool}
+              onArmCreationTool={handleArmCreationTool}
               onQueueIntent={handleQueueEditorIntent}
               onValidateIntent={handleValidateIntent}
               onApplyIntent={handleApplyIntent}
