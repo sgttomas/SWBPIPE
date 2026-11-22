@@ -175,6 +175,10 @@ def control_route_export(
     result = redact_route_projection(
         projected,
         export_context=export_context,
+        # Blocking statements are read from the input as received: removing a payload intent
+        # member from the controlled copy exempts no object inside it (DEL-12-02 AC-004).
+        statement_source=_strip_source_intent(source, strip=False),
+        route_item=_is_route_item,
         explicit_local_private_intent=normalized_local_private_intent,
         explicit_user_release_intent=normalized_release_intent,
     )
@@ -275,25 +279,29 @@ def _assert_generic_route_export(route_id: Any, export_context: Any) -> None:
         )
 
 
-def _strip_source_intent(value: Any) -> Any:
+def _strip_source_intent(value: Any, *, strip: bool = True) -> Any:
+    """A plain copy of ``value``: mappings as dicts with text keys, lists and tuples as lists.
+    With ``strip``, the payload intent members are removed at every depth and from
+    ``export_policy``; without it, the copy keeps them, for the statement reading."""
+
     if isinstance(value, Mapping):
         output: dict[str, Any] = {}
         for key, item in value.items():
-            if str(key) in INTENT_KEYS:
+            if strip and str(key) in INTENT_KEYS:
                 continue
-            if key == "export_policy" and isinstance(item, Mapping):
+            if strip and key == "export_policy" and isinstance(item, Mapping):
                 output[str(key)] = {
                     str(policy_key): _strip_source_intent(policy_value)
                     for policy_key, policy_value in item.items()
                     if str(policy_key) not in INTENT_KEYS
                 }
             else:
-                output[str(key)] = _strip_source_intent(item)
+                output[str(key)] = _strip_source_intent(item, strip=strip)
         return output
     if isinstance(value, list):
-        return [_strip_source_intent(item) for item in value]
+        return [_strip_source_intent(item, strip=strip) for item in value]
     if isinstance(value, tuple):
-        return [_strip_source_intent(item) for item in value]
+        return [_strip_source_intent(item, strip=strip) for item in value]
     return copy.deepcopy(value)
 
 
@@ -303,7 +311,7 @@ def _project(
     if isinstance(value, Mapping):
         # Existing metadata-bearing items remain contract-native leaves.  They
         # have already had all payload-carried intent removed.
-        if "value" in value and _has_contract_metadata(value):
+        if _is_route_item(value):
             return copy.deepcopy(dict(value))
         # A value record (HELP_HUMAN decision, 2026-10-28: "take the stricter decision per
         # case"): a scalar ``value`` with other metadata but no scalar label.  The redaction
@@ -413,7 +421,12 @@ def _leaf_classification(
         leaf_segment == token or leaf_segment.endswith(f"_{token}")
         for token in PRIVATE_PATH_TOKENS
     )
-    if any(token in lowered for token in PRIVATE_PATH_TOKENS):
+    # As TypeScript's projector (`privateValue`): the leaf segment, read with brackets taken as
+    # separators and a closing bracket removed, labels the value private as well as a token held
+    # anywhere in the path. The checksum and unit-map exemptions bear only on the leaf reading.
+    # The generic projector has no structural public path, so nothing sets the token reading aside.
+    private_value = private_value_leaf or any(token in lowered for token in PRIVATE_PATH_TOKENS)
+    if private_value:
         return "private_project_data", "private_only", "accepted"
     if public_basis:
         return "public_metadata", "public_permissive", "accepted"
@@ -423,6 +436,13 @@ def _leaf_classification(
 def _field_class(path: str) -> str:
     leaf = path.rsplit(".", 1)[-1]
     return leaf.split("[", 1)[0] or "unknown"
+
+
+def _is_route_item(value: Mapping[str, Any]) -> bool:
+    """The projector's item test: a record it keeps whole, unprefixed, for the walk to decide
+    as one item.  Identical in redactionExportControls.ts (``isRouteItem``)."""
+
+    return "value" in value and _has_contract_metadata(value)
 
 
 def _has_contract_metadata(value: Mapping[str, Any]) -> bool:
