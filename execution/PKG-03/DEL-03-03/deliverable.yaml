@@ -59,6 +59,14 @@ needs:
     bends among its members.
   gating: true
   when: Examining the reference system's bends on the exact route.
+- from: DEL-17-05
+  condition: >-
+    The invented benchmark model documents matching
+    validation/caepipe_benchmark/models/cpb-g[234]-*.json (DEL-17-05 OUT-002) are maintained as
+    public model inputs carrying realized bends, material properties and bend flexibility factors;
+    only model documents are read, never external-prover results.
+  gating: false
+  when: Recomputing LIM-021's benchmark-system comparison in the annular bend elasticity reference check
 code_paths:
 # The arc element: this deliverable's definition, examined under its criteria. DEL-04-01 lists the
 # same crate with the frame kernel's code, which assembles the element into the global stiffness
@@ -74,8 +82,14 @@ code_paths:
 # Shared with DEL-02-01, which owns the document: the bend members of a component and the
 # curved_bend_macro_element consumption value in it are this deliverable's.
 - schemas/model.schema.yaml
+# The evidence for the method's application range (LIM-021): an elasticity reference of the annular bend's interior,
+# a frame solver comparing the bend's formulations, and every figure LIM-021 states, with the check that recomputes
+# them in the package's own environment (its workflow, .github/workflows/annular-bend-reference.yml).
+- validation/references/annular_bend_elasticity/**
+- .github/workflows/annular-bend-reference.yml
 checks:
 - core/solver/curved_bend/src/lib.rs
 - core/product_physics/tests/t4_u1_reference.rs
 - tests/test_component_section_schema.py
 - apps/desktop/src/features/bend-authoring/BendAuthoringForms.test.tsx
+- validation/references/annular_bend_elasticity/generators/annular_reference.py

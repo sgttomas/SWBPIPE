@@ -1,5 +1,6 @@
-import { isNativeAnalysisRun, isNativeResult, resultRowCount, resultUnits as resultUnitsOf, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
+import { isNativeAnalysisRun, isNativeResult, nativeCustody, resultRowCount, resultUnits as resultUnitsOf, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
 import { pressureElongationLabel } from "./pressureElongationLabel";
+import { viewFingerprint, viewIdentityText } from "./viewIdentity";
 import { NativeResultsPanel } from "./NativeResultsPanel";
 import { PhysicsSourceEvidencePanel } from "./PhysicsSourceEvidencePanel";
 import { isRetainedRoute } from "./numericalResultQuality";
@@ -73,8 +74,34 @@ const EMPTY_RESULT_FAMILY_COUNTS: ResultFamilyCounts = {
 const RESULT_UNIT_DISPLAY_ORDER = ["MPa", "N", "N*m", "mm", "rad"];
 
 /** A view of the results table another surface asks for (A6): the rows of one exact kind for one
- * run, with the rows the asking surface's standing withholds and its reason for each. */
-export type ResultsViewRequest = Readonly<{ serial: number; runId: string; kind: string; withheld: Readonly<Record<string, string>> }>;
+ * run, with the rows the asking surface's standing withholds and its reason for each. The run is
+ * named by `viewKey`, the view's `resultViewIdentity(result, runIdentityKey)` as the panel showing
+ * it computes it (issue 588: distinct runs share a run id, so `runId` is descriptive only and never
+ * admits a request). */
+export type ResultsViewRequest = Readonly<{ serial: number; runId: string; viewKey: string; kind: string; withheld: Readonly<Record<string, string>> }>;
+
+const resultContentKeys = new WeakMap<object, string>();
+let unreadableResults = 0;
+
+/** The identity a results panel holds its transient view state (page, kind filter, navigator
+ * entity) under (issue 588). The engine publishes one fixed run id for distinct runs, so a bare
+ * `run_id` would carry one run's view onto another's rows. A caller that knows the run's stored
+ * identity passes it (`runIdentityKey`, `HistoricalRunContext.viewKey`); otherwise a native handle
+ * is its own job id, and a full result is its content (`viewIdentityText`, read once per object): a
+ * re-delivery of the same run as a new object keeps its view, and a run with any other content
+ * (a signed zero included), its run id the same or not, has its own. */
+export function resultViewIdentity(result: SessionResult | null, runIdentityKey?: string | null): string | null {
+  if (!result) return null;
+  if (runIdentityKey) return `run:${runIdentityKey}`;
+  if (isNativeResult(result)) return `native-handle:${nativeCustody(result).jobId}`;
+  let key = resultContentKeys.get(result);
+  if (!key) {
+    try { key = `result-content:${viewFingerprint(viewIdentityText(result))}`; }
+    catch { unreadableResults += 1; key = `result-unreadable:${unreadableResults}`; }
+    resultContentKeys.set(result, key);
+  }
+  return key;
+}
 
 /** The results panel: a native result's (C1, `NativeResultsPanel`: S's counts and bounded native
  * pages) or a full result's (historical, reference) as before. */
@@ -98,6 +125,7 @@ function FullResultsPanel({
   model = null,
   exportAnalysisRun = null,
   recordedTableRead = null,
+  runIdentityKey = null,
   supportModel = null
 }: {
   result: MechanicsResult | null;
@@ -119,7 +147,7 @@ function FullResultsPanel({
   /** The workspace's primary selection. With "Selected entity only" on, the
    * table shows only the rows stated for it. */
   selectedEntity?: EntityRef | null;
-  /** A6: once per `serial`, for the run it names, shows only the
+  /** A6: once per `serial`, for the result it names (`viewKey`), shows only the
    * rows of exactly `kind`, marks the rows it lists as withheld, and returns every other filter to its
    * default. A request for another run is ignored. The user clears the kind filter. */
   viewRequest?: ResultsViewRequest | null;
@@ -128,6 +156,9 @@ function FullResultsPanel({
   /** RT-R6: the result's own analysis-run record (the current solved run's), for the CSV
    * preamble's result hash; null for any other result. */
   exportAnalysisRun?: AnalysisRunEnvelope | null;
+  /** Issue 588: the run's stored identity (`HistoricalRunContext.viewKey`), under which the
+   * panel's view state is held; absent, `resultViewIdentity` derives one. Never the bare run id. */
+  runIdentityKey?: string | null;
   /** Release exit criterion 18: the model a reopened or bundled result is read with (the saved,
    * recorded or bundled model), for its own indicator's support-state lines only. It is read for
    * nothing else: no standing, admission or use of the result changes with it. */
@@ -144,24 +175,24 @@ function FullResultsPanel({
   // selection restriction; the text, family and frame filters still apply.
   const selectionOnlyWithoutEntity = selectionOnly && selectionEntityId === null;
   const [familyFilter, setFamilyFilter] = useState<ResultFamilyFilter>("all");
-  // The page is the user's position in one run's rows, held with that run's id.
-  // Any other run reads as page 1 in the very render that first shows it. A
-  // reset effect would run only after commit, so a click landing in between
-  // (a busy main thread) had its page change undone by the late reset.
-  const runId = result?.run_id ?? null;
-  const [pagePosition, setPagePosition] = useState<{ runId: string | null; index: number }>({ runId, index: 0 });
-  const pageIndex = pagePosition.runId === runId ? pagePosition.index : 0;
+  // The page is the user's position in one run's rows, held with that run's view identity
+  // (issue 588: never its run id, which distinct runs share). Any other run reads as page 1 in
+  // the very render that first shows it. A reset effect would run only after commit, so a click
+  // landing in between (a busy main thread) had its page change undone by the late reset.
+  const viewKey = resultViewIdentity(result, runIdentityKey);
+  const [pagePosition, setPagePosition] = useState<{ viewKey: string | null; index: number }>({ viewKey, index: 0 });
+  const pageIndex = pagePosition.viewKey === viewKey ? pagePosition.index : 0;
   function setPageIndex(next: number | ((current: number) => number)) {
     setPagePosition((current) => {
-      const index = current.runId === runId ? current.index : 0;
-      return { runId, index: typeof next === "function" ? next(index) : next };
+      const index = current.viewKey === viewKey ? current.index : 0;
+      return { viewKey, index: typeof next === "function" ? next(index) : next };
     });
   }
   const [pageSize, setPageSize] = useState<number>(DEFAULT_RESULT_PAGE_SIZE);
   const [appliedRequest, setAppliedRequest] = useState<number | null>(null);
-  // Held with the run it was asked for, as the page is: another run shows every kind.
-  const [requestedKind, setKindFilter] = useState<{ runId: string; kind: string; withheld: Readonly<Record<string, string>> } | null>(null);
-  const kindFilter = requestedKind && requestedKind.runId === (result?.run_id ?? null) ? requestedKind : null;
+  // Held with the view it was asked for, as the page is: another run shows every kind.
+  const [requestedKind, setKindFilter] = useState<{ viewKey: string | null; kind: string; withheld: Readonly<Record<string, string>> } | null>(null);
+  const kindFilter = requestedKind && requestedKind.viewKey === viewKey ? requestedKind : null;
   // One reading of the source's row semantics per result, for every row.
   const labels = useMemo(() => (result ? semanticLabels(result, recordedTableRead) : null), [result, recordedTableRead]);
   const familyCounts = useMemo(
@@ -176,15 +207,17 @@ function FullResultsPanel({
   const [caseFilter, setCaseFilter] = useState<string>(ALL_CASES);
   // Applied during render, as a filter change would be, so the first render that shows the
   // request already shows its rows.
-  if (viewRequest && viewRequest.serial !== appliedRequest && viewRequest.runId === runId) {
+  // A request names the view it was made for (never the run id distinct runs share), so a request
+  // made for another run or stored identity, seen or unseen, is ignored.
+  if (viewRequest && viewRequest.serial !== appliedRequest && viewRequest.viewKey === viewKey) {
     setAppliedRequest(viewRequest.serial);
-    setKindFilter({ runId: viewRequest.runId, kind: viewRequest.kind, withheld: viewRequest.withheld });
+    setKindFilter({ viewKey, kind: viewRequest.kind, withheld: viewRequest.withheld });
     setFilterText("");
     setFamilyFilter("all");
     setCaseFilter(ALL_CASES);
     setFrameFilter(ALL_FRAMES);
     setSelectionOnly(false);
-    setPagePosition({ runId, index: 0 });
+    setPagePosition({ viewKey, index: 0 });
   }
   const activeCase = caseFilter !== ALL_CASES && cases.some((item) => item.key === caseFilter) ? caseFilter : ALL_CASES;
   // The rows every filter but "Selected entity only" admits: the navigator's supports and elements.
@@ -282,14 +315,14 @@ function FullResultsPanel({
   // The navigator's support or element: the one a step chose, else the session's. A newly
   // selected result row, or a new selection, made anywhere moves it; a new run clears it.
   const selectedRow = selectedResultId && result ? result.results.find((row) => row.id === selectedResultId) ?? null : null;
-  const [tracked, setTracked] = useState(() => ({ entity: selectedRow?.entity_ref ?? selectionEntityId, selection: selectionEntityId, resultId: selectedResultId, runId }));
+  const [tracked, setTracked] = useState(() => ({ entity: selectedRow?.entity_ref ?? selectionEntityId, selection: selectionEntityId, resultId: selectedResultId, viewKey }));
   let navEntity = tracked.entity;
-  if (tracked.selection !== selectionEntityId || tracked.resultId !== selectedResultId || tracked.runId !== runId) {
-    let entity = tracked.runId !== runId ? null : tracked.entity;
+  if (tracked.selection !== selectionEntityId || tracked.resultId !== selectedResultId || tracked.viewKey !== viewKey) {
+    let entity = tracked.viewKey !== viewKey ? null : tracked.entity;
     if (tracked.resultId !== selectedResultId && selectedRow) entity = selectedRow.entity_ref;
     else if (tracked.selection !== selectionEntityId) entity = selectionEntityId;
     navEntity = entity;
-    setTracked({ entity, selection: selectionEntityId, resultId: selectedResultId, runId });
+    setTracked({ entity, selection: selectionEntityId, resultId: selectedResultId, viewKey });
   }
   const entities = useMemo(() => navigatorEntities(navigatorRows), [navigatorRows]);
   const currentRow = selectedRow && selectedRow.entity_ref === navEntity && navigatorRows.includes(selectedRow)

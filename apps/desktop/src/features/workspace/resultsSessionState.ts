@@ -253,14 +253,17 @@ export function useResultsSessionState(advanceReportSource?: () => number) {
     requested: boolean;
     dispatched: boolean;
   }>());
-  // The fixed pair's comparison (or its refusal record): what the packages carry
-  // without a choice, exactly as before S3c.
+  // The fixed pair's comparison (or its unavailable record, when a basis has no result
+  // rows or the builder refuses it): what the packages carry without a choice. Nothing
+  // (no record, no notice) when neither fixed basis is in the solved model, has rows or
+  // was withheld by the solve (Agent 0's absent-pair rule).
   // A native result's comparisons read its C2 full copy, once loaded (never at first paint).
   const comparedResult: MechanicsResult | null = currentSolvedResult && nativeCustodyOf(currentSolvedResult)
     ? (fullResultCopy?.of === currentSolvedResult ? fullResultCopy.copy : null)
     : currentSolvedResult as MechanicsResult | null;
   const comparedRun = comparedResult ? analysisRun : null;
-  const fixedPair = useMemo(() => fixedPairComparison(comparedResult, comparedRun), [comparedRun, comparedResult]);
+  const solvedModel = inputManifest?.manifest.model_basis.model_payload ?? null;
+  const fixedPair = useMemo(() => fixedPairComparison(comparedResult, comparedRun, solvedModel), [comparedRun, comparedResult, solvedModel]);
   // "Within this run" (W-12 S3c): the user's load case and combination. The choice
   // stays across solves, edits and replacements and is revalidated against each
   // Current run; when that run does not offer one of its bases, it is dropped here,
@@ -268,7 +271,10 @@ export function useResultsSessionState(advanceReportSource?: () => number) {
   // the next choice (never silently carried or reset).
   const [heldWithinRunSelection, setHeldWithinRunSelection, dropWithinRunSelection] = useSequencedState<HeldWithinRunSelection | null>(null, advanceReportSource);
   const [droppedWithinRunBases, setDroppedWithinRunBases] = useState<string[] | null>(null);
-  const solvedModel = inputManifest?.manifest.model_basis.model_payload ?? null;
+  // The held choice as the latest render has it, for a report-package save's currency
+  // check across its awaits (`workspaceSession.ts` `handleSaveReportPackage`).
+  const heldWithinRunSelectionRef = useRef<HeldWithinRunSelection | null>(heldWithinRunSelection);
+  heldWithinRunSelectionRef.current = heldWithinRunSelection;
   const withinRunOptions = useMemo(
     () => (comparedResult && comparedRun ? withinRunBasisOptions(comparedResult, solvedModel) : null),
     [comparedRun, comparedResult, solvedModel]
@@ -286,7 +292,7 @@ export function useResultsSessionState(advanceReportSource?: () => number) {
   );
   const withinRun = resolvedWithinRun.view;
   // The report, handoff and export packages: the choice's comparison (or its
-  // refusal record) when a choice applies, else the fixed pair's, as before.
+  // unavailable record) when a choice applies, else the fixed pair's.
   const packagedWithinRun = packagedComparison(resolvedWithinRun, fixedPair);
   const comparison = packagedWithinRun?.comparison ?? null;
   const comparisonUnavailable = packagedWithinRun?.unavailable ?? null;
@@ -338,6 +344,8 @@ export function useResultsSessionState(advanceReportSource?: () => number) {
     packagedWithinRun,
     withinRun,
     droppedWithinRunBases: withinRunOptions ? droppedWithinRunBases : null,
+    heldWithinRunSelection,
+    heldWithinRunSelectionRef,
     setHeldWithinRunSelection,
     setDroppedWithinRunBases
   };

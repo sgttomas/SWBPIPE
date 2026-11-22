@@ -1,12 +1,15 @@
 import { expect, test, type Page } from "@playwright/test";
-import { confirmProjectUnits, openWorkspaceSection, projectCommand } from "./workspace-driver";
+import { confirmProjectUnits, openStorageRecord, openWorkspaceSection, projectCommand } from "./workspace-driver";
 import { attachBrowserIdentity } from "./ui-foundation-workflows";
 
 test.beforeAll(async ({ browser }, info) => {
   await attachBrowserIdentity(browser, info);
 });
 
+// Both packets are in the Project page's storage record, a closed disclosure: it is opened
+// (when it is not already) before the consent box is ticked.
 async function packet(page: Page, kind: "validation" | "storage") {
+  await openStorageRecord(page);
   const id = `project-${kind}-export-link`;
   await page.getByTestId(`${id}-local-private-intent`).check();
   const href = await page.getByTestId(id).getAttribute("href");

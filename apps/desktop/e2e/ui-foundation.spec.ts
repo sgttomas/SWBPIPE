@@ -1162,7 +1162,7 @@ test("an unqueued rich Properties draft survives aggregate inspection with mutat
   await selectTreeRow(page, "node", peer.id, { toggle: true });
   const aggregate = inspector.getByTestId("aggregate-property-inspector");
   await expect(aggregate).toBeVisible();
-  await expect(aggregate).toContainText("Aggregate inspection is read-only");
+  await expect(aggregate).toContainText("Select one entity to edit its properties");
   await expect(aggregate.getByRole("button", { name: "Start property task", exact: true })).toBeDisabled();
   await expect(provenance).toBeDisabled();
   await expect(queue).toBeDisabled();
@@ -2291,7 +2291,7 @@ for (const surface of ["palette", "drawer"] as const) test(`workspace Escape eve
     await expect(page.getByRole("searchbox", { name: "Find a tool" })).toBeFocused();
   } else {
     await activateWithKeyboard(page, page.getByTestId("toggle-inspector"));
-    await page.getByTestId("property-inspector").getByRole("button", { name: "Queue delete node", exact: true }).focus();
+    await page.getByTestId("property-inspector").getByRole("button", { name: "Delete node", exact: true }).focus();
   }
   await page.keyboard.press("Escape");
   if (surface === "palette") await expect(page.getByRole("dialog", { name: "Find a modeling tool" })).toHaveCount(0);

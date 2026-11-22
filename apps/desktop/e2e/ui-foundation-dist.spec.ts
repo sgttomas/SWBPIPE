@@ -1529,7 +1529,7 @@ for (const route of ["toolbar", "Insert menu"] as const) {
     await expect(inspector.getByRole("tab", { name: "Properties", exact: true })).toHaveAttribute("aria-selected", "true");
     await expect(page.getByTestId("create-support-id")).toBeFocused();
     await expect(page.getByTestId("create-support-id")).toBeVisible();
-    await expect(page.getByTestId("create-support-id").locator("xpath=ancestor::details[1]")).toHaveAttribute("open", "");
+    await expect(inspector.getByTestId("inspector-creation-support")).toBeVisible();
     await expect(page.getByTestId("command-selection-readout")).toHaveText(selected);
     await activateWithKeyboard(page, inspector.getByRole("tab", { name: "Task", exact: true }));
     await expect(inspector.getByTestId("inspector-frozen-task-target")).toHaveText(frozenTarget);
@@ -1988,7 +1988,7 @@ for (const surface of ["palette", "drawer"] as const) test(`workspace Escape eve
     await expect(page.getByRole("searchbox", { name: "Find a tool" })).toBeFocused();
   } else {
     await activateWithKeyboard(page, page.getByTestId("toggle-inspector"));
-    await page.getByTestId("property-inspector").getByRole("button", { name: "Queue delete node", exact: true }).focus();
+    await page.getByTestId("property-inspector").getByRole("button", { name: "Delete node", exact: true }).focus();
   }
   await page.keyboard.press("Escape");
   if (surface === "palette") await expect(page.getByRole("dialog", { name: "Find a modeling tool" })).toHaveCount(0);

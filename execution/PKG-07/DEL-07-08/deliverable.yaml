@@ -133,9 +133,11 @@ needs:
     name on open.
   gating: false
 code_paths:
-# The comparison views. In this folder stateComparison.ts is DEL-14-03's; runComparison.ts,
-# runComparisonSides.ts, withinRunComparison.ts and ComparisonPackageNotice.tsx are DEL-14-04's;
-# runComparisonCsv.ts and stateComparisonCsv.ts are DEL-08-04's.
+# The comparison views. In this folder stateComparison.ts is DEL-14-03's; runComparison.ts and
+# runComparisonSides.ts are DEL-14-04's (the comparison of two runs); runComparisonCsv.ts and
+# stateComparisonCsv.ts are DEL-08-04's. withinRunComparison.ts and ComparisonPackageNotice.tsx
+# are the within-run load-case and combination comparison and its package notice, listed for
+# relevance here and in DEL-14-04, pending owner allocation.
 - apps/desktop/src/features/comparison/**
 # The state and run browser. useModelStateHistory.ts is shared with DEL-14-01.
 - apps/desktop/src/features/history/**
