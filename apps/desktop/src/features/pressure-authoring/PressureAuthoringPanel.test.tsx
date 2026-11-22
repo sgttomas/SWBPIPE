@@ -1,11 +1,12 @@
-import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { afterEach, expect, it, vi } from "vitest";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MaterialConstitutiveForm, PRESSURE_REGION_DEFINITION, PressureAuthoringPanel, pressureOpenItems, pressureProfileLine, pressureRegionsCountLine, pressureRegionsFact } from "./PressureAuthoringPanel";
 import { pressureProfileTarget, SHEAR_MODEL_CHOICES, SHEAR_MODEL_LABEL } from "./pressureContract";
 import { MaterialTemperatureForm } from "../material-temperature/MaterialTemperatureForm";
 import type { PreviewModel, EditorOperationIntent } from "../../types";
 import fixture from "../../../../../fixtures/model_operations/exact_pressure_authoring_model.json";
 vi.mock("../../services/hashService", () => ({ canonicalJsonString: vi.fn(async (value: unknown) => JSON.stringify(value)) }));
+import { canonicalJsonString } from "../../services/hashService";
 afterEach(cleanup);
 // B7b: the fixture is the current exact-contract document (0.9.0, 3.0.0/exact_pressure_v3
 // with an explicit euler_bernoulli selection); a pressure-free document is the same 0.8.0
@@ -338,7 +339,7 @@ it("lists, under the activated line, what the document lacks before it will solv
 });
 it("states the change of theory under the selector only where the pick differs, and queues a stated model's change with the activation", async () => {
   const line = () => screen.queryByTestId("pressure-shear-selection-line")?.textContent ?? null;
-  const mount = (current: PreviewModel, onQueueBatch = vi.fn(), queue = vi.fn()) => {
+  const mount = (current: PreviewModel, onQueueBatch = vi.fn(async (_batch: unknown) => true), queue = vi.fn()) => {
     render(<PressureAuthoringPanel model={current} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={queue} onQueueBatch={onQueueBatch} />);
     return { onQueueBatch, queue };
   };
@@ -450,4 +451,84 @@ it("states under the regions heading what the case has and what a region is, and
   for (const gone of ["Terminal order and closure transfer are user-authored.", "The solver checks continuity", "refused as a mitre", "No pressure-region declaration has been applied.", "applied regions."]) {
     expect(screen.getByRole("region", { name: "Case pressure regions" }).textContent).not.toContain(gone);
   }
+});
+/** The batch path's guards: a pick that differs from the stated model, with canonicalization held until released. */
+describe("the shear change and activation batch", () => {
+  const stated = () => { const free = pressureFree(); free.model_settings = { ...free.model_settings, shear_model: "euler_bernoulli" }; return free; };
+  let release: () => void = () => undefined;
+  beforeEach(() => {
+    const gate = new Promise<void>(resolve => { release = resolve; });
+    vi.mocked(canonicalJsonString).mockImplementation(async (value: unknown) => { await gate; return JSON.stringify(value); });
+  });
+  afterEach(() => {
+    release();
+    vi.mocked(canonicalJsonString).mockImplementation(async (value: unknown) => JSON.stringify(value));
+  });
+  const props = (model: PreviewModel, onQueueBatch: (batch: unknown) => Promise<boolean | undefined>, epoch = 1) =>
+    ({ model, selection: { type: "load" as const, id: model.load_cases[0].id }, onQueueIntent: vi.fn(), onQueueBatch, preparationEpoch: epoch });
+  const pick = () => { change("Pressure profile", "exact_pressure_v3"); change("Shear deformation in straight members", "timoshenko_annulus_energy_v1"); };
+  const press = () => fireEvent.click(screen.getByRole("button", { name: "Queue pressure profile" }));
+  const notice = () => screen.queryByTestId("pressure-shear-batch-notice");
+
+  it("submits once when pressed twice while the batch is formed, and is disabled meanwhile", async () => {
+    const onQueueBatch = vi.fn(async () => true);
+    const model = stated();
+    render(<PressureAuthoringPanel {...props(model, onQueueBatch)} />);
+    pick();
+    press();
+    expect(screen.getByRole("button", { name: "Queue pressure profile" })).toBeDisabled();
+    press();
+    await act(async () => { release(); });
+    await waitFor(() => expect(onQueueBatch).toHaveBeenCalledTimes(1));
+    expect(await screen.findByTestId("pressure-shear-batch-notice")).toHaveTextContent("Shear deformation change and pressure profile queued for validation and review.");
+    expect(screen.getByRole("button", { name: "Queue pressure profile" })).toBeEnabled();
+  });
+
+  it("submits nothing after unmount, or once the preparation epoch moved, while the batch was formed", async () => {
+    const onQueueBatch = vi.fn(async () => true);
+    const model = stated();
+    const view = render(<PressureAuthoringPanel {...props(model, onQueueBatch)} />);
+    pick();
+    press();
+    view.unmount();
+    await act(async () => { release(); });
+    expect(onQueueBatch).not.toHaveBeenCalled();
+    // The epoch moves before the batch is formed: refused, and said.
+    const gate = new Promise<void>(resolve => { release = resolve; });
+    vi.mocked(canonicalJsonString).mockImplementation(async (value: unknown) => { await gate; return JSON.stringify(value); });
+    const second = render(<PressureAuthoringPanel {...props(model, onQueueBatch, 1)} />);
+    pick();
+    press();
+    second.rerender(<PressureAuthoringPanel {...props(model, onQueueBatch, 2)} />);
+    await act(async () => { release(); });
+    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("The model or pending changes changed. Review this choice and queue it again."));
+    expect(onQueueBatch).not.toHaveBeenCalled();
+    expect(notice()).toBeNull();
+  });
+
+  it("says the batch was queued only when it was registered, and a later single change clears that", async () => {
+    const model = stated();
+    for (const answer of [false, undefined]) {
+      const refused = vi.fn(async () => answer);
+      render(<PressureAuthoringPanel {...props(model, refused)} />);
+      pick();
+      press();
+      await act(async () => { release(); });
+      await waitFor(() => expect(refused).toHaveBeenCalledOnce());
+      expect(notice()).toBeNull();
+      cleanup();
+    }
+    const registered = vi.fn(async () => true);
+    const queue = vi.fn();
+    render(<PressureAuthoringPanel {...props(model, registered)} onQueueIntent={queue} />);
+    pick();
+    press();
+    await act(async () => { release(); });
+    expect(await screen.findByTestId("pressure-shear-batch-notice")).toBeInTheDocument();
+    // Back to the stated model: a single profile change, and the batch notice goes.
+    change("Shear deformation in straight members", "euler_bernoulli");
+    press();
+    expect(notice()).toBeNull();
+    await waitFor(() => expect(queue).toHaveBeenCalledOnce());
+  });
 });

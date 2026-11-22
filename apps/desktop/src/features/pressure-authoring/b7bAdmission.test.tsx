@@ -152,7 +152,7 @@ it("a pick that differs from the stated model queues the setting's change, then 
     // Three review rows: the setting changed, then the activation and the setting's move into the contract.
     const rows = reviewed.operation_outcomes.flatMap(step => step.diff_preview.map(row => [row.field_path, row.before, row.after]));
     expect(rows).toEqual([
-      ["model_settings.shear_model", JSON.stringify(stated), pick],
+      ["model_settings.shear_model", JSON.stringify(stated), JSON.stringify(pick)],
       ["pressure_profile", batch.operations[1].change.before, batch.operations[1].change.after],
       ["model_settings.shear_model", JSON.stringify(pick), "not_present"]]);
     const applied = await applyOperationBatch(current, batch, hash);

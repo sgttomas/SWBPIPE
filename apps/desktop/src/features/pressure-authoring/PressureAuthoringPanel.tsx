@@ -177,9 +177,23 @@ export async function shearChangeAndActivationBatch(model: PreviewModel, pick: S
   return { batch_id: `batch:pressure-profile-shear:${model.project.id}`, operations: [setting, profile] };
 }
 
+/** What a batch handler answers: true where the batch was registered for review. */
+export type QueueBatchResult = void | boolean | Promise<void | boolean>;
 /** `onSelect` is the load manager's: a case the open items name is a press that selects it. */
-export function PressureAuthoringPanel(props: RichFormProps & { loadCaseId?: string; onQueueBatch?: (batch: OperationBatch) => void | Promise<void>; onSelect?: (selection: EntityRef) => void }) {
+export function PressureAuthoringPanel(props: RichFormProps & { loadCaseId?: string; onQueueBatch?: (batch: OperationBatch) => QueueBatchResult; onSelect?: (selection: EntityRef) => void }) {
   const state = useRichQueue(props);
+  // The batch path's own guards, as useRichQueue keeps for a single intent: one submission at a time, nothing
+  // after unmount, and nothing once the model, pending changes or preparation epoch moved while it was formed.
+  const latest = useRef(props);
+  latest.current = props;
+  const live = useRef(false);
+  useEffect(() => {
+    live.current = true;
+    return () => { live.current = false; };
+  }, []);
+  const batchPending = useRef(false);
+  const [batchBusy, setBatchBusy] = useState(false);
+  const epochOf = (current: typeof props) => current.getPreparationEpoch?.() ?? current.preparationEpoch;
   const [profile, setProfile] = useState("");
   // T4-U8 (D-6/O3): null until the user changes the selector, so the queued profile
   // keeps the document's own selection (a pressure-free one is carried into the
@@ -191,25 +205,39 @@ export function PressureAuthoringPanel(props: RichFormProps & { loadCaseId?: str
   const [batchNotice, setBatchNotice] = useState("");
   // A pick that differs from the stated model queues the setting's change and the activation as one batch.
   async function queueProfile() {
+    setBatchNotice("");
     const current = { schema_version: props.model.schema_version, ...(Object.hasOwn(props.model, "pressure_contract") ? { pressure_contract: props.model.pressure_contract } : {}) };
     if (stated === null || stated === shearModel || !props.onQueueBatch) {
       await state.queue({ object_type: "Model", ref: props.model.project.id }, "set_field", "pressure_profile", current, pressureProfileTarget(props.model, shearChoice ?? undefined), "Pressure profile");
       return;
     }
-    setBatchNotice("");
+    if (batchPending.current || props.operationBusy) return;
+    const captured = props;
+    const capturedEpoch = epochOf(captured);
+    batchPending.current = true;
+    setBatchBusy(true);
     state.setError("");
     try {
       if (props.queuedIntents?.some(i => i.change.field_path === "pressure_profile" || i.change.field_path === "model_settings.shear_model"))
         throw new Error("Review or remove the pending pressure profile or shear deformation change before queuing another.");
-      await props.onQueueBatch(await shearChangeAndActivationBatch(props.model, shearModel));
-      setBatchNotice("Shear deformation change and pressure profile queued for validation and review.");
+      const batch = await shearChangeAndActivationBatch(captured.model, shearModel);
+      if (!live.current) return;
+      const now = latest.current;
+      if (epochOf(now) !== capturedEpoch || now.model !== captured.model || now.queuedIntents !== captured.queuedIntents || now.operationBusy || !now.onQueueBatch)
+        throw new Error("The model or pending changes changed. Review this choice and queue it again.");
+      const registered = await now.onQueueBatch(batch);
+      if (live.current && registered === true)
+        setBatchNotice("Shear deformation change and pressure profile queued for validation and review.");
     } catch (e) {
-      state.setError(e instanceof Error ? e.message : String(e));
+      if (live.current) state.setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      batchPending.current = false;
+      if (live.current) setBatchBusy(false);
     }
   }
   const profileReasonId = useId();
   const missingAllowance = props.model.pipe_segments.some(pipe => !Object.hasOwn(pipe.section, "corrosion_allowance"));
-  const profileDisabledReason = state.busy ? "Wait for the current change to finish queuing."
+  const profileDisabledReason = state.busy || batchBusy ? "Wait for the current change to finish queuing."
     : missingAllowance ? "Enter an explicit corrosion allowance on every member section before activating pressure; zero must be entered."
     : profile !== PRESSURE_V3.mode ? "Select a pressure profile before queuing this change." : undefined;
   const loadCase = props.model.load_cases.find(c => c.id === props.loadCaseId);
@@ -230,7 +258,7 @@ export function PressureAuthoringPanel(props: RichFormProps & { loadCaseId?: str
           ? <button type="button" className="link-button" onClick={() => onSelect({ type: "load", id: item.id! })}>{item.text}</button>
           : item.text}</li>)}
     </ul></div> : null}
-    <fieldset disabled={state.busy}>
+    <fieldset disabled={state.busy || batchBusy}>
       <TextField label="Pressure profile" value={profile} choices={[PRESSURE_V3.mode]} onChange={setProfile} />
       <label className="form-field">{SHEAR_MODEL_LABEL}
         <select ref={shearSelectRef} aria-label={SHEAR_MODEL_LABEL} value={shearModel} onChange={e => { const value = e.target.value; if (isShearModel(value)) setShearChoice(value); }}>
