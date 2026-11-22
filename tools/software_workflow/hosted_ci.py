@@ -345,26 +345,32 @@ def desktop_rust_references(root: Path) -> frozenset[str]:
     return frozenset(references)
 
 
-def desktop_rust_dependency_reads(root: Path, crates: frozenset[str], profile: dict) -> frozenset[str]:
-    """Declared runtime reads of the path dependencies' `src/` and `build.rs`.
+def desktop_rust_dependency_reads(root: Path, crates: frozenset[str], profile: dict) -> tuple[frozenset[str], tuple[str, ...]]:
+    """Declared runtime reads of the path dependencies' `src/` and `build.rs`,
+    and those declarations whose derived fingerprints are stale.
 
     The numerical selector's own check validates the declarations first; a
-    stale or missing declaration fails selection.
+    missing or malformed declaration fails selection.
     """
     return declared_compiled_reads(root, crates, json.dumps(profile.get("piping_runtime_reads", {}), sort_keys=True))
 
 
 @functools.lru_cache(maxsize=None)
-def declared_compiled_reads(root: Path, crates: frozenset[str], declarations_json: str) -> frozenset[str]:
+def declared_compiled_reads(root: Path, crates: frozenset[str], declarations_json: str) -> tuple[frozenset[str], tuple[str, ...]]:
+    """The files the `src/` and `build.rs` declarations of `crates` read (a scan's
+    files as the tree has them), and which of those declarations are stale: a
+    stale declaration may read a file it does not list."""
     module = numerical_module(root)
     project = (root / PIPING).resolve()
     declarations = json.loads(declarations_json)
-    module.source_read_dependencies(project, module.readiness.discover_cargo_manifests(project), declarations)
-    reads = set()
-    for source, declaration in declarations["reads"].items():
+    _, stale, derived = module.runtime_read_index(project, module.readiness.discover_cargo_manifests(project), declarations)
+    reads, stale_sources = set(), set()
+    for source in declarations["reads"]:
         if any(source == crate + "/build.rs" or source.startswith(crate + "/src/") for crate in crates):
-            reads.update(name for entry in declaration["inputs"] for name in entry["files"])
-    return frozenset(reads)
+            reads.update(name for entry in derived["reads"][source]["inputs"] for name in entry["resolved"])
+            if source in stale:
+                stale_sources.add(source)
+    return frozenset(reads), tuple(sorted(stale_sources))
 
 
 def desktop_rust_cargo_control(relative: str) -> bool:
@@ -394,11 +400,13 @@ def desktop_rust_plan(root: Path, paths: list[str], selection: dict, profile: di
     try:
         crates, compile_reads = compiled_crate_inputs(root, (DESKTOP_RUST_CRATE + "/Cargo.toml",), True, "desktop Rust")
         references = desktop_rust_references(root)
-        runtime_reads = desktop_rust_dependency_reads(root, crates, profile)
+        runtime_reads, stale_reads = desktop_rust_dependency_reads(root, crates, profile)
     except (ValueError, OSError, KeyError, TypeError, AttributeError, ImportError, tomllib.TOMLDecodeError) as exc:
         return {"classification": "full-fallback", "reasons": [], "fallback_reasons": [str(exc)]}
     dependencies = crates - {DESKTOP_RUST_CRATE}
-    reasons = []
+    # A stale declaration in a path dependency may read a file it does not list:
+    # these tests run in every selection until the refresh lands.
+    reasons = [{"source": source, "kind": "stale-path-dependency-runtime-read"} for source in stale_reads]
     for path in candidates:
         relative = path[len(PIPING):]
         if shared_input(path):

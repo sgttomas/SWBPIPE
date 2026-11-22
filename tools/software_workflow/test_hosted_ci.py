@@ -1,5 +1,6 @@
 """Real-diff routing and aggregate failures for hosted Piping coverage and detached App paths."""
 from fnmatch import fnmatchcase
+import copy
 import json
 import os
 from pathlib import Path
@@ -37,7 +38,7 @@ def shared_numerical_module(root):
     per distinct input. A changed declaration is a new key; a scan or derivation
     that fails is never kept; a fixture checkout is scanned and derived every time."""
     module = load_numerical_module(root)
-    scan = module.source_read_dependencies
+    scan = module.runtime_read_index
     derive = module.artifact_producers
 
     def artifact_producers(project, manifests, readers, inputs=module.UNDECLARED):
@@ -50,16 +51,19 @@ def shared_numerical_module(root):
             ARTIFACT_DERIVATIONS[key] = derive(project, manifests, readers, inputs)
         return ARTIFACT_DERIVATIONS[key]
 
-    def source_read_dependencies(project, manifests, declarations=None):
+    def runtime_read_index(project, manifests, declarations=None):
         resolved = Path(project).resolve()
         if not resolved.is_relative_to(SOURCE_ROOT.resolve()):
             return scan(project, manifests, declarations)
         key = (resolved, tuple(Path(m).as_posix() for m in manifests), json.dumps(declarations, sort_keys=True))
         if key not in SOURCE_READS:
             SOURCE_READS[key] = scan(project, manifests, declarations)
-        return {path: set(readers) for path, readers in SOURCE_READS[key].items()}
+        resources, stale, derived = SOURCE_READS[key]
+        return ({path: set(readers) for path, readers in resources.items()},
+                {source: {'manifests': set(entry['manifests']), 'reasons': list(entry['reasons'])}
+                 for source, entry in stale.items()}, copy.deepcopy(derived))
 
-    module.source_read_dependencies = source_read_dependencies
+    module.runtime_read_index = runtime_read_index
     module.artifact_producers = artifact_producers
     return module
 
@@ -581,12 +585,22 @@ class HostedCITests(unittest.TestCase):
         selection = select_paths(['tests/test_release_candidate_scan.py'], PROFILE, self.root)
         self.assertEqual(selection['modes']['piping-desktop-rust'], 'full')
         self.assertEqual(selection['piping_desktop_rust_selection']['classification'], 'full-fallback')
-        # A stale runtime-read declaration in a path dependency also fails toward the tests.
+        # A stale runtime-read declaration in a path dependency selects the tests, and the numerical
+        # selection widens to that reader's crate and Rust callers, not to every crate.
         profile = json.loads(json.dumps(PROFILE))
-        profile['piping_runtime_reads']['reads']['core/rules/rule_pack_lifecycle/src/lib.rs']['sha256'] = '0' * 64
+        source = 'core/rules/rule_pack_lifecycle/src/lib.rs'
+        profile['piping_runtime_reads']['reads'][source]['sha256'] = '0' * 64
         selection = select_paths(['tests/test_release_candidate_scan.py'], profile)
-        self.assertEqual(selection['piping_desktop_rust_selection']['classification'], 'full-fallback')
-        self.assertIn('stale runtime read declaration', selection['piping_desktop_rust_selection']['fallback_reasons'][0])
+        self.assertEqual(selection['modes']['piping-desktop-rust'], 'full')
+        self.assertEqual(selection['piping_desktop_rust_selection']['classification'], 'reachability')
+        self.assertIn({'source': source, 'kind': 'stale-path-dependency-runtime-read'},
+                      selection['piping_desktop_rust_selection']['reasons'])
+        numerical = selection['piping_numerical_selection']
+        self.assertEqual(numerical['classification'], 'reachability')
+        callers = profile['piping_runtime_reads']['reads'][source]['source_trees']
+        self.assertTrue(set(callers) <= set(numerical['manifests']))
+        self.assertIn({'kind': 'stale-runtime-read', 'source': source, 'manifests': callers,
+                       'stale': ['reader source changed']}, numerical['reasons'])
 
     def test_desktop_rust_closure_is_every_path_dependency_the_crate_compiles(self):
         import tomllib

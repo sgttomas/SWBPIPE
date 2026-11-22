@@ -191,7 +191,9 @@ tests cover; it builds no frontend. It restores the main-scoped
   slot), which is how its tests read fixtures at run time.
 
 Other Python, Rust, desktop TypeScript and docs changes do not select it. An
-unreadable crate, compile read or stale runtime-read declaration selects it.
+unreadable crate or compile read selects it, and so does a stale runtime-read
+declaration in `src/` or `build.rs` of a crate it compiles, in every selection
+until the refresh below lands.
 Dispatch runs it. The selection's reasons are in the plan artifact.
 The literal scan finds fixture paths written as one path-like string or format
 template. A test that assembled a fixture path from fragments (`join` of
@@ -203,22 +205,34 @@ Cargo path dependencies, including dev, build, target and workspace dependencies
 An exact changed fixture or included source selects its actual readers and their
 Cargo consumers; a fixture read does not create a supplier-crate dependency.
 Literal compile reads are resolved from the source file. Dynamic runtime reads
-have explicit exact-file declarations bound to source anchors, source scans and
-Rust caller trees. The caller trees are bound by the `source_trees` digests in
-`tools/hosted-ci-routing.json`. A change to any `.rs` file in a crate that has
-runtime-read declarations therefore refreshes that crate's digest in the same
-change. Without the refresh, `tests/test_ci_numerical.py` fails, and hosted
-selection falls back to every crate. The required `harness` check does not catch
-a missing refresh (it passed on #1511's first head, `c42f11bdf7`, which lacked
-one), so run that test, or the full registered pytest, before asking for merge.
-New or removed Rust files and Cargo manifests also refresh the declared runtime
-`scan.files` inventories, including project-wide scans that cover fixture-only
-crates with no runtime-read declaration of their own. Validate the regenerated
-inventories with `numerical_ci.source_read_dependencies` and run both
-`tests/test_ci_numerical.py` and local `tools/software_workflow/test_hosted_ci.py`
-before integrating such changes. Stale declarations, missing inputs, unresolved dependencies,
-unknown paths and shared execution controls select all discovered crates. Existing
-numerical oracles remain unchanged. Python coverage is gated independently.
+have explicit exact-file declarations in `piping_runtime_reads` of
+`tools/hosted-ci-routing.json`, bound to source anchors, source scans and Rust
+caller trees. Their authored fields (each declaration, its inputs, anchors,
+bases, exact files, scan rules, audits and external-read audits) are written by
+the change that adds or alters a read, and a semantic error in them selects every
+crate: a malformed shape, an unresolved filesystem API, an escaping path, a
+missing exact input file, a runtime read with no declaration, an unused or
+unknown declaration or an anchor absent from compiled source. Their derived
+fingerprints (the reader's and anchor sources' `sha256`/`source_sha256`, each
+declaration's caller crates and their `source_trees` Rust tree digests, and each
+scan's `files` inventory) are not refreshed by ordinary changes. A declaration
+whose fingerprints differ from the tree is stale: it may now read a file it does
+not list, so its reader crate and Rust callers (and their Cargo consumers) are
+added to every selection, with a `stale-runtime-read` reason, until a refresh
+lands. A scan's files are also read from the tree, so a file it has gained is a
+resource at once and a declared file it has lost still selects its reader.
+Staleness alone never selects every crate and fails no check. The refresh is one
+command, run as its own pull request on a schedule and at the solver freeze and
+the release candidate:
+
+```sh
+python3 tools/ci/numerical_ci.py --refresh-runtime-reads   # rewrites the fingerprints
+python3 tools/ci/numerical_ci.py --check-runtime-reads     # lists stale declarations; exit 1 if any
+```
+
+Missing inputs, unresolved dependencies, unknown paths and shared execution
+controls select all discovered crates. Existing numerical oracles remain
+unchanged. Python coverage is gated independently.
 
 The standalone required repository job runs the bounded tool/routing suite and
 `tests/test_ci_numerical.py` on every product-route pull request or merge-queue group and every
@@ -237,8 +251,8 @@ workflow (`repository-checks-run: true`), the Python product job leaves that rou
 out to avoid running it twice; a direct dispatch keeps it. This closes the former
 monorepo's routing-self-test selection
 gap. The local `tools/tools-test-routing.json` records this bounded estate; it
-does not import the former combined repository's unrelated tool suites. Numerical inventory/source-digest
-refresh and product-selection failure propagation remain required.
+does not import the former combined repository's unrelated tool suites. Product-selection
+failure propagation remains required.
 
 The job's whole list (selection, the bounded suite, the routing invariants, the deliverable check, the execution-boundary and
 changed-specification check, and the conflict and run-record checks) is one
@@ -260,7 +274,8 @@ python3 tools/ci/repository_checks.py --event pull_request --base origin/main --
 It runs the steps in order, names each, stops at the first failure and writes
 `repository-ci-plan.json` and `deliverable-check.json` at the root. It validates
 inventories and digests and never refreshes them: where a check finds one stale,
-the run fails, and its owning tool refreshes it deliberately. A base that names no commit is
+the run fails, and its owning tool refreshes it deliberately. The runtime-read
+fingerprints above are the exception: stale ones widen selection instead. A base that names no commit is
 replaced by `HEAD^1` for the documents and conflict checks, except in a merge
 queue, which fails closed. `.gitignore` names both output files, so a local run
 leaves the checkout clean.

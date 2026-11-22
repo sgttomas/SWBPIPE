@@ -39,7 +39,7 @@ from software_workflow_common import load_profile
 def real_graph():
     project = MODULE.parents[2]
     manifests = ci.readiness.discover_cargo_manifests(project)
-    return ci.source_read_dependencies(project, manifests), ci.cargo_dependencies(project, manifests)
+    return ci.runtime_read_index(project, manifests), ci.cargo_dependencies(project, manifests)
 
 
 @cache
@@ -68,7 +68,7 @@ def real_snapshot():
     (about a second each to compute, and some tests route hundreds of paths), while exercising routing for each path.
     Only the real declaration's derivation on this snapshot's root is reused; any other declaration or root is derived
     afresh, and tests that build or change a tree call the selector directly, outside this helper."""
-    resources, dependencies = real_graph()
+    index, dependencies = real_graph()
     readers, inputs, derivation = real_artifact_derivation()
     derive = ci.artifact_producers
     def producers(project, manifests, declared_readers, declared_inputs=ci.UNDECLARED):
@@ -76,7 +76,7 @@ def real_snapshot():
             return derivation
         return derive(project, manifests, declared_readers, declared_inputs)
     with patch.object(hosted_ci, 'numerical_module', return_value=ci), \
-         patch.object(ci, 'source_read_dependencies', return_value=resources), \
+         patch.object(ci, 'runtime_read_index', return_value=index), \
          patch.object(ci, 'cargo_dependencies', return_value=dependencies), \
          patch.object(ci, 'artifact_producers', side_effect=producers):
         yield
@@ -626,13 +626,149 @@ class ReachabilitySafetyTests(unittest.TestCase):
             self.assertEqual(result['manifests'], sorted([reader.as_posix(), consumer.as_posix()]))
             original = (project / consumer.parent / 'src/lib.rs').read_text()
             (project / consumer.parent / 'src/lib.rs').write_text(original + '\nfn new_caller() { reader::read("../../../fixtures/new.json"); }')
-            result = ci.numerical_selection(project, manifests, [path], declaration)
-            self.assertEqual(result['classification'], 'full-fallback')
-            self.assertIn('caller boundaries', result['fallback_reasons'][0])
+            # A changed caller tree leaves the declaration stale: its reader and callers run, not every crate.
+            result = ci.numerical_selection(project, manifests, [ci.PROJECT + 'core/unrelated/src/lib.rs'], declaration)
+            self.assertEqual(result['classification'], 'reachability')
+            self.assertEqual(result['manifests'], sorted(m.as_posix() for m in manifests))
+            self.assertIn({'kind': 'stale-runtime-read', 'source': source.relative_to(project).as_posix(),
+                           'manifests': sorted([reader.as_posix(), consumer.as_posix()]),
+                           'stale': ['caller Rust tree changed: ' + consumer.as_posix()]}, result['reasons'])
             (project / consumer.parent / 'src/lib.rs').write_text(original)
             declaration['reads'][source.relative_to(project).as_posix()]['inputs'][0]['anchor'] = 'absent-from-source.json'
             result = ci.numerical_selection(project, manifests, [path], declaration)
             self.assertIn('anchor absent', result['fallback_reasons'][0])
+
+    def stale_fixture(self, project):
+        """A src reader with a Rust caller, two crates outside it, and a scanned fixture directory."""
+        reader = self.crate(project, 'reader')
+        consumer = self.crate(project, 'consumer', '[dependencies]\nreader={path="../reader"}\n')
+        unrelated = self.crate(project, 'unrelated')
+        other = self.crate(project, 'other')
+        source = project / reader.parent / 'src/lib.rs'
+        source.write_text('pub fn read(name: &str) { std::fs::read_to_string(format!("../../fixtures/cases/{name}.json")); }\n')
+        (project / 'fixtures/cases').mkdir(parents=True)
+        (project / 'fixtures/cases/a.json').write_text('{}')
+        (project / 'fixtures/single.json').write_text('{}')
+        test = project / other.parent / 'tests/read.rs'
+        test.parent.mkdir()
+        test.write_text('#[test] fn t() { std::fs::read("../../fixtures/single.json"); }\n')
+        local, test_local = source.relative_to(project).as_posix(), test.relative_to(project).as_posix()
+        declaration = wrapped_reads({
+            local: {'sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
+                    'source_trees': {m.as_posix(): ci.rust_tree_digest(project, m) for m in [reader, consumer]},
+                    'inputs': [{'anchor': '../../fixtures/cases/{name}.json', 'base': 'manifest',
+                                'files': ['fixtures/cases/a.json'], 'scan': {'suffix': '.json'}, 'audit': 'every case'}]},
+            test_local: {'sha256': hashlib.sha256(test.read_bytes()).hexdigest(),
+                         'source_trees': {other.as_posix(): ci.rust_tree_digest(project, other)},
+                         'inputs': [{'anchor': '../../fixtures/single.json', 'base': 'manifest',
+                                     'files': ['fixtures/single.json']}]}})
+        return [reader, consumer, unrelated, other], source, declaration
+
+    def test_stale_runtime_read_selects_its_reader_and_callers_on_an_unrelated_change_and_never_every_crate(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            manifests, source, declaration = self.stale_fixture(project)
+            reader, consumer, unrelated, other = manifests
+            local = source.relative_to(project).as_posix()
+            unrelated_change = [ci.PROJECT + 'core/unrelated/src/lib.rs']
+            # Fresh: an unrelated change selects only its own crate.
+            result = ci.numerical_selection(project, manifests, unrelated_change, declaration)
+            self.assertEqual((result['classification'], result['manifests']), ('reachability', [unrelated.as_posix()]))
+            self.assertEqual(ci.runtime_read_index(project, manifests, declaration)[1], {})
+            callers = sorted([reader.as_posix(), consumer.as_posix()])
+            def stale_selection(reasons):
+                result = ci.numerical_selection(project, manifests, unrelated_change, declaration)
+                self.assertEqual(result['classification'], 'reachability')
+                self.assertEqual(result['fallback_reasons'], [])
+                self.assertEqual(result['manifests'], sorted(callers + [unrelated.as_posix()]))
+                self.assertNotIn(other.as_posix(), result['manifests'])
+                self.assertIn({'kind': 'stale-runtime-read', 'source': local, 'manifests': callers, 'stale': reasons},
+                              result['reasons'])
+            # The reader's own source changed (it may now read a file it does not list).
+            original = source.read_text()
+            source.write_text(original + 'pub fn also() { std::fs::read("../../fixtures/undeclared.json"); }\n')
+            stale_selection(['reader source changed', 'caller Rust tree changed: ' + reader.as_posix()])
+            source.write_text(original)
+            # A caller's Rust tree changed.
+            caller = project / consumer.parent / 'src/lib.rs'
+            caller.write_text('pub fn call() { reader::read("b"); }')
+            stale_selection(['caller Rust tree changed: ' + consumer.as_posix()])
+            caller.write_text('pub fn value() {}')
+            # A new caller crate: the computed callers, which include it, run.
+            late = self.crate(project, 'late', '[dependencies]\nconsumer={path="../consumer"}\n')
+            result = ci.numerical_selection(project, manifests + [late], unrelated_change, declaration)
+            self.assertEqual(result['classification'], 'reachability')
+            self.assertEqual(result['manifests'], sorted(callers + [late.as_posix(), unrelated.as_posix()]))
+            # Missing fingerprints are stale, not errors.
+            entry = declaration['reads'][local]
+            saved = {key: entry.pop(key) for key in ('sha256', 'source_trees')}
+            result = ci.numerical_selection(project, manifests, unrelated_change, declaration)
+            self.assertEqual(result['manifests'], sorted(callers + [unrelated.as_posix()]))
+            entry.update(saved)
+            # The refresh clears it; the refreshed record selects as the fresh one did.
+            source.write_text(original + 'pub fn also() { std::fs::read("../../fixtures/cases/a.json"); }\n')
+            self.assertIn(local, ci.runtime_read_index(project, manifests, declaration)[1])
+            refreshed = ci.refresh_runtime_reads(project, manifests, declaration)
+            self.assertEqual(ci.runtime_read_index(project, manifests, refreshed)[1], {})
+            self.assertEqual(refreshed['reads'][local]['inputs'][0]['anchor'], entry['inputs'][0]['anchor'])
+            self.assertEqual(ci.numerical_selection(project, manifests, unrelated_change, refreshed)['manifests'],
+                             [unrelated.as_posix()])
+
+    def test_stale_scan_inventory_reads_the_tree_and_selects_its_reader_and_callers(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            manifests, source, declaration = self.stale_fixture(project)
+            reader, consumer, unrelated, other = manifests
+            callers = sorted([reader.as_posix(), consumer.as_posix()])
+            local = source.relative_to(project).as_posix()
+            # A file the scan has gained is read from the tree before the refresh lands.
+            (project / 'fixtures/cases/b.json').write_text('{}')
+            resources, stale, _ = ci.runtime_read_index(project, manifests, declaration)
+            self.assertEqual(stale[local]['reasons'], ['scan inventory changed: ../../fixtures/cases/{name}.json'])
+            self.assertEqual(resources['fixtures/cases/b.json'], {reader})
+            result = ci.numerical_selection(project, manifests, [ci.PROJECT + 'fixtures/cases/b.json'], declaration)
+            self.assertEqual((result['classification'], result['manifests']), ('reachability', callers))
+            # A declared file the scan has lost still selects its reader, and is not an unresolved read.
+            (project / 'fixtures/cases/b.json').unlink()
+            (project / 'fixtures/cases/a.json').unlink()
+            result = ci.numerical_selection(project, manifests, [ci.PROJECT + 'fixtures/cases/a.json'], declaration)
+            self.assertEqual((result['classification'], result['manifests']), ('reachability', callers))
+            refreshed = ci.refresh_runtime_reads(project, manifests, declaration)
+            self.assertEqual(refreshed['reads'][local]['inputs'][0]['files'], [])
+            self.assertEqual(ci.runtime_read_index(project, manifests, refreshed)[1], {})
+
+    def test_semantic_runtime_read_errors_still_select_every_crate(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            manifests, source, declaration = self.stale_fixture(project)
+            change = [ci.PROJECT + 'core/unrelated/src/lib.rs']
+            test_local = 'core/other/tests/read.rs'
+            def fallback(reads, message):
+                result = ci.numerical_selection(project, manifests, change, reads)
+                self.assertEqual(result['classification'], 'full-fallback')
+                self.assertEqual(result['manifests'], sorted(m.as_posix() for m in manifests))
+                self.assertIn(message, result['fallback_reasons'][0])
+            # A missing exact input file.
+            (project / 'fixtures/single.json').unlink()
+            fallback(declaration, 'Unresolved Rust read')
+            (project / 'fixtures/single.json').write_text('{}')
+            # An escaping path.
+            escaping = json.loads(json.dumps(declaration))
+            escaping['reads'][test_local]['inputs'][0]['files'] = ['../outside.json']
+            fallback(escaping, 'escapes')
+            # An undeclared reader, an unused or unknown declaration, an absent anchor, a malformed shape.
+            undeclared = json.loads(json.dumps(declaration))
+            del undeclared['reads'][test_local]
+            fallback(undeclared, 'Missing runtime read declaration')
+            unknown = json.loads(json.dumps(declaration))
+            unknown['reads']['core/other/tests/gone.rs'] = unknown['reads'][test_local]
+            fallback(unknown, 'Unknown runtime read declarations')
+            absent = json.loads(json.dumps(declaration))
+            absent['reads'][test_local]['inputs'][0]['anchor'] = 'absent.json'
+            fallback(absent, 'anchor absent')
+            fallback({'reads': declaration['reads']}, 'declaration shape')
+            (project / 'core/other/tests/read.rs').write_text('#[test] fn t() {}\n')
+            fallback(declaration, 'Unused runtime read declaration')
 
     def test_unsupported_compiled_and_aliased_runtime_reads_select_full(self):
         with tempfile.TemporaryDirectory() as tmp:
