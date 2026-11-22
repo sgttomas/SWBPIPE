@@ -42,7 +42,8 @@
 //! session mints at the first held save of a document session and returns in
 //! the receipt's `saved_package_entry.holder`. A later package save presents
 //! the token to join the same holder; an unknown token is not joined (a new
-//! one is minted). Listing, checking and removing a held entry need its
+//! one is minted), and a save presenting another project's live token keeps
+//! no entry. Listing, checking and removing a held entry need its
 //! token; without it a caller sees stored entries only, so a second document
 //! with the same project id neither sees nor inherits the first one's held
 //! entries. No project save writes held entries: the page calls
@@ -161,6 +162,12 @@ pub(crate) struct EntryProblem {
 }
 
 const STORE_FAILED: EntryProblem = EntryProblem { code: ENTRY_STORE_FAILED, message: STORE_FAILED_SENTENCE };
+/// The keep command's memory was refused before it wrote: nothing was
+/// written, and the entries can be written again.
+const MEMORY_REFUSED: EntryProblem = EntryProblem {
+    code: stored_read::STORE_READ_MEMORY_UNAVAILABLE,
+    message: "The held entries could not be written within the memory available; nothing was written, and they can be written again.",
+};
 const PROJECT_NOT_STORED: EntryProblem = EntryProblem { code: ENTRY_PROJECT_NOT_SAVED, message: PROJECT_NOT_STORED_SENTENCE };
 
 /// The basis the native save bound: the model text's SHA-256 (the audit model
@@ -633,19 +640,34 @@ const HELD_BEFORE_FIRST_SAVE: &str =
 const HELD_WITH_EARLIER: &str =
     "The package was saved. Its entry is held by the session with this document's earlier entries, which could not yet be written to the project; they are written together when the page writes its held entries.";
 
-/// Keeps a published package's entry (REQ-023 "Entry", "Before the first
-/// project save"). `holder` is the token the page presents, if any; a token
-/// the session did not mint for this project, or has retired, is not joined.
-///
-/// - With a token the session holds, the entry is held under it with the
-///   holder's other entries, whether or not the store holds the project:
-///   another document of the same id may have created it, and only the
-///   page's call after its own first save writes the holder's entries
-///   ([`keep_held_entries`]). Nothing is written here.
-/// - Otherwise, if the store holds the project, the entry is written and
-///   kept; if it does not, the session holds the entry under a token minted
-///   now, which the outcome returns.
+/// Keeps a published package's entry in the store at `path`
+/// ([`keep_or_hold_in`]).
 pub(crate) fn keep_or_hold(path: &Path, session: &SessionHeldEntries, holder: Option<&str>, published: &PublishedPackage) -> SavedPackageEntryOutcome {
+    keep_or_hold_in(Ok(path.to_path_buf()), session, holder, published)
+}
+
+/// Keeps a published package's entry (REQ-023 "Entry", "Before the first
+/// project save"). `holder` is the token the page presents, if any. The
+/// session's live tokens are read, under its lock, before the store:
+///
+/// - With a live token the session minted for this project, the entry is
+///   held under it with the holder's other entries, whether or not the store
+///   holds the project or can be found: another document of the same id may
+///   have created it, and only the page's call after its own first save
+///   writes the holder's entries ([`keep_held_entries`]). Nothing is written
+///   here.
+/// - With a live token minted for another project, the entry is `not_kept`;
+///   nothing is written and that project's held entries are untouched.
+/// - Otherwise (no token, or one retired or unknown), a store that cannot be
+///   found is `not_kept`; if the store holds the project, the entry is
+///   written and kept; if it does not, the session holds the entry under a
+///   token minted now, which the outcome returns.
+pub(crate) fn keep_or_hold_in(
+    store: Result<PathBuf, String>,
+    session: &SessionHeldEntries,
+    holder: Option<&str>,
+    published: &PublishedPackage,
+) -> SavedPackageEntryOutcome {
     let basis = match entry_basis(published) {
         Ok(basis) => basis.clone(),
         Err(outcome) => return outcome,
@@ -661,7 +683,13 @@ pub(crate) fn keep_or_hold(path: &Path, session: &SessionHeldEntries, holder: Op
         let message = if earlier_unwritten { HELD_WITH_EARLIER } else { HELD_BEFORE_FIRST_SAVE };
         return SavedPackageEntryOutcome::held(entry_id, token, message);
     }
-    match write_entries(path, project_id, &[(&entry_id, published, &basis)]) {
+    if holder.is_some_and(|token| held.holders.iter().any(|(_, live)| live == token)) {
+        return not_kept_failure();
+    }
+    let Ok(path) = store else {
+        return not_kept_failure();
+    };
+    match write_entries(&path, project_id, &[(&entry_id, published, &basis)]) {
         Ok(Kept::Written) => SavedPackageEntryOutcome::kept(entry_id),
         Ok(Kept::ProjectNotStored) => {
             let Some(token) = fresh_holder() else {
@@ -672,20 +700,6 @@ pub(crate) fn keep_or_hold(path: &Path, session: &SessionHeldEntries, holder: Op
             SavedPackageEntryOutcome::held(entry_id, token, HELD_BEFORE_FIRST_SAVE)
         }
         Err(WriteFailed) => not_kept_failure(),
-    }
-}
-
-/// [`keep_or_hold`] for the application's store; a store path that cannot be
-/// found is `not_kept`.
-pub(crate) fn keep_or_hold_in(
-    store: Result<PathBuf, String>,
-    session: &SessionHeldEntries,
-    holder: Option<&str>,
-    published: &PublishedPackage,
-) -> SavedPackageEntryOutcome {
-    match store {
-        Ok(path) => keep_or_hold(&path, session, holder, published),
-        Err(_) => not_kept_failure(),
     }
 }
 
@@ -728,7 +742,10 @@ fn keep_work_bytes(count: u64, text_bytes: u64, reply_bytes: u64) -> u64 {
 /// order kept, in one transaction, and answers for each. Its working space
 /// and its reply are reserved in `memory` under the session's lock before
 /// any entry is copied or the transaction is opened: a refusal writes
-/// nothing and leaves every entry held. Written entries leave the session
+/// nothing, leaves every entry held and the token live, and marks the
+/// entries with [`MEMORY_REFUSED`] (a fixed code and sentence, no
+/// allocation), so a later save presenting the token says its earlier
+/// entries are not yet written. Written entries leave the session
 /// once the commit returns, and the holder's token is retired; if the store
 /// cannot be found or written, or does not hold the project, they stay held,
 /// each with that reason, and this can be called again. Nothing is written
@@ -744,8 +761,16 @@ pub(crate) fn keep_held_entries(
     let mut held = session.lock();
     let (count, text_bytes) = held.measure(project_id, holder);
     let reply_bytes = keep_reply_bytes(&held, project_id, holder)?;
-    let work = memory.reserve("writing the session's held saved-package entries", keep_work_bytes(count, text_bytes, reply_bytes))?;
-    let reply = memory.reserve("the response to keep_held_saved_package_entries", stored_read::exact_text_bytes(reply_bytes))?;
+    let reserved = memory
+        .reserve("writing the session's held saved-package entries", keep_work_bytes(count, text_bytes, reply_bytes))
+        .and_then(|work| Ok((work, memory.reserve("the response to keep_held_saved_package_entries", stored_read::exact_text_bytes(reply_bytes))?)));
+    let (work, reply) = match reserved {
+        Ok(reserved) => reserved,
+        Err(error) => {
+            held.mark(project_id, holder, MEMORY_REFUSED);
+            return Err(error);
+        }
+    };
     let pending = held.of(project_id, holder);
     let written = if pending.is_empty() {
         Ok(Kept::Written)

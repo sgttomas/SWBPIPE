@@ -1721,3 +1721,61 @@ impl ReadMemory for Recording {
         UnmeteredReadMemory.reserve(what, bytes)
     }
 }
+
+// --- Review round 3 ------------------------------------------------------------
+
+/// Round 3 (Finding 1): a package save of stored project B that presents a
+/// live token minted for project A is not kept: nothing is written into B,
+/// and A's held entries are as they were.
+#[test]
+fn a_save_presenting_another_projects_live_token_is_not_kept_and_writes_nothing() {
+    let (dir, path, package) = unsaved("r4-other-project-token");
+    let session = SessionHeldEntries::default();
+    let (first, token) = held(&keep_or_hold(&path, &session, None, &package));
+    let other = json!({ "schema_version": open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION, "project": { "id": "project:b", "name": "B" } });
+    write_project(&path, "project:b", &other);
+    let before = listed(&path, &session, PROJECT, Some(&token)).entries;
+    let outcome = keep_or_hold(&path, &session, Some(&token), &published("project:b", &dir.join("b.opsproj"), b"b", true, 2));
+    assert_eq!((outcome.status.as_str(), outcome.code.as_str(), outcome.holder.as_deref()), ("not_kept", ENTRY_NOT_KEPT, None), "{outcome:?}");
+    assert!(stored(&path, "project:b").is_empty(), "nothing was written into B");
+    assert!(entry_rows(&path).is_empty(), "nothing was written at all");
+    let after = listed(&path, &session, PROJECT, Some(&token)).entries;
+    assert_eq!(after, before, "A's held entries are as they were");
+    assert_eq!(ids(&after), [first]);
+}
+
+/// Round 3 (Finding 1): a package save presenting this project's live token
+/// is held under it even when the store cannot be found.
+#[test]
+fn a_save_presenting_a_live_token_is_held_when_the_store_cannot_be_found() {
+    let (dir, path, package) = unsaved("r4-token-no-store");
+    let session = SessionHeldEntries::default();
+    let (first, token) = held(&keep_or_hold(&path, &session, None, &package));
+    let outcome = keep_or_hold_in(Err("no store".to_string()), &session, Some(&token), &published(PROJECT, &dir.join("second.opsproj"), b"second", true, 2));
+    assert_eq!((outcome.status.as_str(), outcome.holder.as_deref()), ("held", Some(token.as_str())), "{outcome:?}");
+    assert_eq!(ids(&listed(&path, &session, PROJECT, Some(&token)).entries), [first, outcome.entry_id.clone()]);
+}
+
+/// Round 3 (Finding 2): a keep refused for its memory marks the holder's
+/// entries, keeps them held and the token live; the next save presenting the
+/// token says the earlier entries are not yet written; a retry with enough
+/// memory writes them all and retires the token.
+#[test]
+fn a_keep_refused_for_memory_marks_the_entries_and_a_retry_writes_them_all() {
+    let (dir, path, package) = unsaved("r4-keep-refused");
+    let session = SessionHeldEntries::default();
+    let (first, token) = held(&keep_or_hold(&path, &session, None, &package));
+    write_project(&path, PROJECT, &invented_model());
+    let refused = keep_held_entries(Ok(path.clone()), &session, PROJECT, &token, &Refusing).map(drop).unwrap_err();
+    assert!(refused.starts_with(stored_read::STORE_READ_MEMORY_UNAVAILABLE), "{refused}");
+    assert!(entry_rows(&path).is_empty(), "nothing was written");
+    let list = listed(&path, &session, PROJECT, Some(&token));
+    assert_eq!(ids(&list.entries), [first.clone()]);
+    assert!(list.entries.iter().all(|entry| entry.kept == "held_by_session" && entry.write_failure.is_some()), "{:?}", list.entries);
+    withholds_location(&serde_json::to_string(&list).unwrap());
+    let second = keep_or_hold(&path, &session, Some(&token), &published(PROJECT, &dir.join("second.opsproj"), b"second", true, 2));
+    assert_eq!((second.status.as_str(), second.holder.as_deref(), second.message.as_str()), ("held", Some(token.as_str()), HELD_WITH_EARLIER));
+    assert_eq!(all_kept(&keep_held(Ok(path.clone()), &session, PROJECT, &token)), [first.clone(), second.entry_id.clone()]);
+    let third = kept(&keep_or_hold(&path, &session, Some(&token), &published(PROJECT, &dir.join("third.opsproj"), b"third", true, 3)));
+    assert_eq!(ids(&stored(&path, PROJECT)), [first, second.entry_id, third], "the token was retired once they were written");
+}
