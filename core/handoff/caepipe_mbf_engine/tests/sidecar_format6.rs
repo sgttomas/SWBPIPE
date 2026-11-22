@@ -502,7 +502,8 @@ fn a_contract_only_pair_edited_to_no_contract_imports_as_that_document_and_the_d
     // The original document, designated: it reproduces the genuine identity file, and not the edited one.
     let source_bytes = mbf::ports::dumps_sorted(&source).expect("a canonical model").into_bytes();
     let genuine = writer.sidecar_bytes(&common::sha(&data)).expect("the genuine identity file");
+    assert_eq!(mbf::canonical_bytes(&sidecar).expect("the unedited identity file"), genuine);
     assert_eq!(mbf::evaluate_designated_source(&source_bytes, &data, Some(&genuine)).reasons, Vec::<&str>::new());
-    let edited_bytes = mbf::ports::dumps_sorted(&edited).expect("a canonical identity file").into_bytes();
+    let edited_bytes = mbf::canonical_bytes(&edited).expect("the edited identity file");
     assert_eq!(mbf::evaluate_designated_source(&source_bytes, &data, Some(&edited_bytes)).reasons, ["rerender_identity_file_differs"]);
 }
