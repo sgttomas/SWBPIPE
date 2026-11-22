@@ -7,6 +7,7 @@ import type { EntityRef, OperationOutcome, PreviewModel } from "../../types";
 export type SessionModelCheckpoint = {
   checkpoint_id: string;
   operation_id: string;
+  submitted_id?: string;
   model: PreviewModel;
   selection: EntityRef;
 };

@@ -37,7 +37,7 @@ from collections.abc import Mapping
 from typing import Any
 
 from . import section_basis as sb
-from .pressure_3 import ARC_GEOMETRY_KEYS, case_elongation, cap_remainder_warnings, rhs_screen, rhs_screen_keys, elongation_included, elongation_statement, equivalent_static_record, poisson_coefficient, rhs_elongation
+from .pressure_3 import ARC_GEOMETRY_KEYS, case_elongation, cap_remainder_warnings, rhs_screen, rhs_screen_keys, elongation_included, elongation_statement, equivalent_static_record, poisson_coefficient, rhs_elongation, test_condition_record
 
 PRESSURE_V3 = ("3.0.0", "exact_pressure_v3")
 PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-3"
@@ -154,7 +154,12 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any, contr
         if generation:
             equivalent_static_record(cid, case["equivalent_static"])
             _require(context is None or case.get("recovery_method") != context.EXACT, "case shape")
-        _shape(case, {"load_case_id", "profile_mode", "material_basis", "pipe_materials", "pipe_sections", "pipe_stress_extrema", "stress_maximum_coverage", "pressure_rhs_assembly"} | ({"recovery_method"} if context is not None else set()) | ({"equivalent_static"} if generation else set()), "case shape")
+        # DEL-05-01 REQ-014: a hydrostatic test case's mark, never on a selected retained case.
+        test_case = isinstance(case, Mapping) and "test_condition" in case
+        if test_case:
+            test_condition_record(case["test_condition"])
+            _require(context is None or case.get("recovery_method") != context.EXACT, "case shape")
+        _shape(case, {"load_case_id", "profile_mode", "material_basis", "pipe_materials", "pipe_sections", "pipe_stress_extrema", "stress_maximum_coverage", "pressure_rhs_assembly"} | ({"recovery_method"} if context is not None else set()) | ({"equivalent_static"} if generation else set()) | ({"test_condition"} if test_case else set()), "case shape")
         _require(case["profile_mode"] == contract[1] and _text(case["material_basis"]), "case profile/material basis")
         materials[cid] = _indexed(case["pipe_materials"], "pipe_id", "case materials")
         geometries[cid] = _indexed(case["pipe_sections"], "pipe_id", "case sections")

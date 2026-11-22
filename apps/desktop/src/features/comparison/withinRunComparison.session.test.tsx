@@ -2,7 +2,8 @@
 // the choice is held with the run it was made on. A new solve, a model edit (which
 // retires the result) and a project replacement each read the default again; the
 // choice is refused while the session is busy; and without a choice the session's
-// packaged comparison is the fixed-pair comparison exactly as before. The run is the
+// packages carry the fixed pair's build: here, where the solve withheld C-OPER-ALT, its
+// unavailable record, not an empty comparison. The run is the
 // producer's range-envelope output replayed through the native solve-job transport
 // (unit transport replay; NOT a native UI qualification witness). Invented data only.
 // C1 (DEL-04-05 `c1-native-custody-plan.md` slice 4): the session holds a fresh result natively,
@@ -18,7 +19,9 @@ import { resolve } from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import type { PreviewModel } from "../../types";
 import { getLocalStorageCapability } from "../../services/projectService";
-import { buildPreviewComparison, loadDesignKnowledge } from "../../services/previewService";
+import * as previewService from "../../services/previewService";
+import { loadDesignKnowledge } from "../../services/previewService";
+import { COMPARISON_BASIS_WITHOUT_ROWS } from "./withinRunComparison";
 import { canonicalJsonString } from "../../services/hashService";
 import { createSolveJobTransport } from "../../test/nativeMechanicsReplay";
 import { createNativePersistenceFake, isNativePersistenceCommand } from "../../test/nativePersistenceFake";
@@ -39,7 +42,13 @@ afterEach(() => {
   for (const hook of liveHooks) { try { hook.unmount(); } catch { /* already unmounted */ } }
   liveHooks.clear();
   invokeMock.mockReset(); window.localStorage.clear(); delete (window as Json).__TAURI_INTERNALS__;
+  vi.restoreAllMocks();
+  saves.length = 0;
 });
+
+/** The arguments of each `save_report_package` the session sends; the invented native side
+ * performs no save (it refuses after recording what was sent). */
+const saves: Json[] = [];
 
 async function currentSession(answer: (bytes: string) => string | Promise<string> = (bytes) => bytes) {
   // `answer` maps the producer's bytes to what the replayed job returns.
@@ -69,6 +78,7 @@ async function currentSession(answer: (bytes: string) => string | Promise<string
     if (command === "load_design_knowledge") return knowledge;
     if (command === "sync_native_shell_state") return null;
     if (command === "load_preview_model" && args === undefined) return structuredClone(MODEL);
+    if (command === "save_report_package") { saves.push(args); throw new Error("INVENTED_SAVE_NOT_PERFORMED"); }
     return transport.invoke(command, args, options);
   });
   (window as Json).__TAURI_INTERNALS__ = {};
@@ -103,10 +113,10 @@ it("carries the choice across solves that offer its bases, and packages follow i
   const results = () => hook.result.current.results;
   // The default: the fixed pair is not offered (C-OPER-ALT has no rows), so the first offered.
   expect(pairOf(results())).toEqual({ left: "load:L-100", right: RANGE, source: "default" });
-  // Without a choice, the packaged comparison is the fixed-pair comparison exactly as before.
-  const today = buildPreviewComparison({ result: results().fullResult!, analysisRun: results().analysisRun! });
-  expect(JSON.stringify(results().comparison)).toBe(JSON.stringify(today));
-  expect(results().comparisonUnavailable).toBeNull();
+  // Without a choice, the packages carry the fixed pair's build: C-OPER-ALT has no rows (the
+  // solve withheld it), so its unavailable record and no comparison.
+  expect(results().comparison).toBeNull();
+  expect(results().comparisonUnavailable).toMatchObject({ status: "unavailable", left_basis_ref: "load:L-100", right_basis_ref: "combination:C-OPER-ALT", reason_code: COMPARISON_BASIS_WITHOUT_ROWS });
 
   act(() => results().handleSelectWithinRunBases({ left: "load:L-200", right: RANGE }));
   expect(pairOf(results())).toEqual({ left: "load:L-200", right: RANGE, source: "selected" });
@@ -169,4 +179,111 @@ it("refuses a choice while a solve runs, and states the reason", async () => {
   // The new run's comparison copy, requested: no refused choice was held for it.
   await act(async () => { await results().loadC2Full(results().currentSolvedResult!); });
   expect(pairOf(results())).toEqual({ left: "load:L-100", right: RANGE, source: "default" });
+});
+
+/** A new solve whose comparison copy is not requested: the session compares nothing yet. */
+async function freshSolve(hook: { result: { current: ReturnType<typeof useWorkspaceSession> } }) {
+  const before = hook.result.current.results.currentSolvedResult;
+  await act(async () => { await hook.result.current.results.handleRun(); });
+  await waitFor(() => expect(hook.result.current.results.currentSolvedResult).not.toBeNull());
+  expect(hook.result.current.results.currentSolvedResult !== before).toBe(true);
+  expect(hook.result.current.results.withinRun).toEqual({ status: "no_result" });
+  expect(hook.result.current.results.comparison).toBeNull();
+  expect(hook.result.current.results.comparisonUnavailable).toBeNull();
+}
+
+/** The comparison members of the last request the session sent. */
+function sentComparison() {
+  expect(saves.length).toBeGreaterThan(0);
+  const request = JSON.parse(saves[saves.length - 1].requestCanonicalText);
+  const record = request.state_comparison_handoff_records[0];
+  return { unavailable: record.comparison_unavailable ?? null, sections: record.sections.comparison_sections };
+}
+
+it("File > Save Report Package on a fresh native solve, before its comparison copy is loaded, carries the comparison the session resolves", async () => {
+  const hook = await currentSession();
+  const results = () => hook.result.current.results;
+  await freshSolve(hook);
+  act(() => results().setReportPackagePrivateIntent(true));
+  await act(async () => { await results().handleSaveReportPackage(); });
+  expect(saves).toHaveLength(1);
+  // Without a choice, the fixed pair: C-OPER-ALT is withheld here, so its unavailable record
+  // (not two absent members, and not an empty comparison).
+  const sent = sentComparison();
+  expect(sent.sections).toEqual([]);
+  expect(sent.unavailable).toMatchObject({ left_basis_ref: "load:L-100", right_basis_ref: "combination:C-OPER-ALT", reason_code: COMPARISON_BASIS_WITHOUT_ROWS });
+  // The save read the report run's full copy; the session's own comparison is now the same.
+  expect(results().comparisonUnavailable).toEqual(sent.unavailable);
+});
+
+it("the same save carries a choice held from an earlier run, and a choice attempted during the save neither applies nor changes the package", async () => {
+  const hook = await currentSession();
+  const results = () => hook.result.current.results;
+  act(() => results().handleSelectWithinRunBases({ left: "load:L-200", right: RANGE }));
+  expect(results().heldWithinRunSelection).toEqual({ left: "load:L-200", right: RANGE });
+  await freshSolve(hook);
+  act(() => results().setReportPackagePrivateIntent(true));
+  let saving!: Promise<void>;
+  act(() => { saving = results().handleSaveReportPackage(); });
+  // Refused while the package is being prepared: the held choice stays the save's basis.
+  act(() => results().handleSelectWithinRunBases({ left: "load:L-100", right: RANGE }));
+  await act(async () => { await saving; });
+  expect(results().heldWithinRunSelection).toEqual({ left: "load:L-200", right: RANGE });
+  expect(saves).toHaveLength(1);
+  // The held choice's outcome: the unchanged builder refuses the producer's range-envelope rows.
+  expect(sentComparison().unavailable).toMatchObject({ left_basis_ref: "load:L-200", right_basis_ref: RANGE, reason_code: "ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED" });
+});
+
+it("a save whose report run is refused after a concurrent comparison read dropped the held choice states the refusal and releases its controls", async () => {
+  const hook = await currentSession();
+  const results = () => hook.result.current.results;
+  await freshSolve(hook);
+  // A choice this run does not offer, held before its options are known (no full copy yet).
+  act(() => results().handleSelectWithinRunBases({ left: "load:L-999", right: RANGE }));
+  expect(results().heldWithinRunSelection).toEqual({ left: "load:L-999", right: RANGE });
+  act(() => results().setReportPackagePrivateIntent(true));
+  // The save's run record is built on the full copy; that build is held, then refused.
+  let release!: () => void;
+  const held = new Promise<void>((resolve) => { release = resolve; });
+  const real = previewService.buildAnalysisRunPreview;
+  let refusals = 0;
+  vi.spyOn(previewService, "buildAnalysisRunPreview").mockImplementation(async (...args) => {
+    if (refusals++ > 0) return real(...args);
+    await held;
+    throw new Error("INVENTED-RECORD-REFUSED: the run record was not built.");
+  });
+  let saving!: Promise<void>;
+  act(() => { saving = results().handleSaveReportPackage(); });
+  // A concurrent comparison read (without the record) loads the full copy: the session drops the
+  // held choice, which this run does not offer, before the save's record build is refused.
+  await act(async () => { await results().loadC2Full(results().currentSolvedResult!, { record: false }); });
+  await waitFor(() => expect(results().heldWithinRunSelection).toBeNull());
+  expect(results().droppedWithinRunBases).toEqual(["load:L-999"]);
+  await act(async () => { release(); await saving; });
+  expect(saves).toHaveLength(0);
+  expect(results().reportPackageRoute).toMatchObject({ route: "redaction_blocked", diagnostic: expect.stringContaining("INVENTED-RECORD-REFUSED") });
+  expect(results().reportPackageBusy).toBe(false);
+  // A retry proceeds (and sends).
+  await act(async () => { await results().handleSaveReportPackage(); });
+  expect(saves).toHaveLength(1);
+});
+
+it("a choice made in the same tick as File > Save Report Package retires that save, releases its controls, and a retry saves the choice", async () => {
+  const hook = await currentSession();
+  const results = () => hook.result.current.results;
+  act(() => results().setReportPackagePrivateIntent(true));
+  let saving!: Promise<void>;
+  // Both from one render, before React commits the choice: the save's basis holds the earlier one.
+  act(() => {
+    const current = results();
+    current.handleSelectWithinRunBases({ left: "load:L-200", right: RANGE });
+    saving = current.handleSaveReportPackage();
+  });
+  await act(async () => { await saving; });
+  expect(results().heldWithinRunSelection).toEqual({ left: "load:L-200", right: RANGE });
+  expect(saves).toHaveLength(0);
+  expect(results().reportPackageBusy).toBe(false);
+  await act(async () => { await results().handleSaveReportPackage(); });
+  expect(saves).toHaveLength(1);
+  expect(sentComparison().unavailable).toMatchObject({ left_basis_ref: "load:L-200", right_basis_ref: RANGE });
 });

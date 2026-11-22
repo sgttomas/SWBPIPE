@@ -7,6 +7,7 @@ import {
   RULE_PACK_BACKEND_DIAGNOSTIC
 } from "../../services/rulePackService";
 import type { MechanicsResult, PreviewModel } from "../../types";
+import { PAGE_WORDS } from "./rulePackWords";
 
 // Phase C2 slice 1 (TP-C2-EDITOR-001). jsdom has no Tauri runtime, so these
 // tests pin the honest browser-preview seam: drafts stay in memory and
@@ -28,21 +29,21 @@ describe("RulePackManagerPanel", () => {
     cleanup();
 
     render(<RulePackManagerPanel model={modelStub} />);
-    expect(screen.getByTestId("rule-pack-scope-status").textContent).toContain(
+    // One line in a person's words; the project's identifier is not shown.
+    expect(screen.getByTestId("rule-pack-scope-status").textContent).toBe(PAGE_WORDS.scope);
+    expect(screen.getByTestId("rule-pack-scope-status").textContent).not.toContain(
       "project:invented-panel-test"
-    );
-    expect(screen.getByTestId("rule-pack-scope-status").textContent).toContain(
-      "local SQLite only"
     );
   });
 
   it("creates a private-by-default draft and supports discard", () => {
     render(<RulePackManagerPanel model={modelStub} />);
-    const textarea = screen.getByTestId("rule-pack-draft-json") as HTMLTextAreaElement;
-    expect(textarea.disabled).toBe(true);
-    expect(screen.getByTestId("rule-pack-validate")).toHaveProperty("disabled", true);
+    // Nothing of the editor until a pack is started or opened.
+    expect(screen.queryByTestId("rule-pack-draft-json")).toBeNull();
+    expect(screen.queryByTestId("rule-pack-validate")).toBeNull();
 
     fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
+    const textarea = screen.getByTestId("rule-pack-draft-json") as HTMLTextAreaElement;
     expect(textarea.disabled).toBe(false);
     const draft = JSON.parse(textarea.value) as Record<string, unknown>;
     expect(draft.rule_pack_kind).toBe("open_pipe_stress_rule_pack");
@@ -50,12 +51,11 @@ describe("RulePackManagerPanel", () => {
     const classification = draft.classification as Record<string, unknown>;
     expect(classification.privacy_class).toBe("private_user_data");
     expect(classification.redistribution_status).toBe("private_only");
-    expect(screen.getByTestId("rule-pack-action-status").textContent).toContain(
-      "private_user_data"
-    );
+    expect(screen.getByTestId("rule-pack-action-status").textContent).toContain("private to you");
+    expect(screen.getByTestId("rule-pack-action-status").title).toContain("private_user_data");
 
     fireEvent.click(screen.getByTestId("rule-pack-discard-draft"));
-    expect((screen.getByTestId("rule-pack-draft-json") as HTMLTextAreaElement).value).toBe("");
+    expect(screen.queryByTestId("rule-pack-draft-json")).toBeNull();
     expect(screen.getByTestId("rule-pack-action-status").textContent).toContain(
       "Draft discarded"
     );
@@ -67,25 +67,23 @@ describe("RulePackManagerPanel", () => {
 
     fireEvent.click(screen.getByTestId("rule-pack-validate"));
     await waitFor(() =>
-      expect(screen.getByTestId("rule-pack-action-status").textContent).toContain(
+      expect(screen.getByTestId("rule-pack-action-status").title).toContain(
         "RULE-PACK-BACKEND-DESKTOP-ONLY"
       )
     );
+    expect(screen.getByTestId("rule-pack-action-status").textContent).toContain("desktop app");
 
-    fireEvent.click(screen.getByTestId("rule-pack-refresh-list"));
+    // The list is read when the page opens, without a press.
     await waitFor(() =>
-      expect(screen.getByTestId("rule-pack-list-status").textContent).toContain(
-        "RULE-PACK-BACKEND-DESKTOP-ONLY"
-      )
+      expect(screen.getByTestId("rule-pack-list-status").textContent).toBe(PAGE_WORDS.listUnavailable)
     );
-    expect(screen.getByTestId("rule-pack-list-status").textContent).toBe(
-      RULE_PACK_BACKEND_DIAGNOSTIC
-    );
+    expect(screen.getByTestId("rule-pack-list-status").title).toBe(RULE_PACK_BACKEND_DIAGNOSTIC);
   });
 
   it("routes compute-checksum and save to the desktop-only seam from a clean draft state", async () => {
     render(<RulePackManagerPanel model={modelStub} />);
-    const status = () => screen.getByTestId("rule-pack-action-status").textContent ?? "";
+    // The words are the status line's text; the code it stands for is its title.
+    const status = () => screen.getByTestId("rule-pack-action-status").title ?? "";
 
     // compute-checksum: transition is observable from the create message.
     fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
@@ -118,10 +116,11 @@ describe("RulePackManagerPanel", () => {
     fireEvent.change(textarea, { target: { value: "{not json" } });
     fireEvent.click(screen.getByTestId("rule-pack-validate"));
     await waitFor(() =>
-      expect(screen.getByTestId("rule-pack-action-status").textContent).toContain(
+      expect(screen.getByTestId("rule-pack-action-status").title).toContain(
         "RULE-PACK-DRAFT-JSON-INVALID"
       )
     );
+    expect(screen.getByTestId("rule-pack-action-status").textContent).toContain("not valid JSON");
   });
 
   it("keeps the DEC-037 boundary visible and carries no acceptance sentence", () => {
@@ -137,9 +136,9 @@ describe("RulePackManagerPanel", () => {
 
   it("reveals the structured composer only with a draft and writes edits back into the document", () => {
     render(<RulePackManagerPanel model={modelStub} />);
-    // No draft: a hint stands in for the composer; no composer surface yet.
-    expect(screen.getByTestId("rule-pack-composer-no-draft")).toBeTruthy();
+    // No draft: no composer surface and no editor field yet.
     expect(screen.queryByTestId("rule-pack-expression-composer")).toBeNull();
+    expect(screen.queryByTestId("rule-pack-draft-json")).toBeNull();
 
     fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
     expect(screen.getByTestId("rule-pack-expression-composer")).toBeTruthy();

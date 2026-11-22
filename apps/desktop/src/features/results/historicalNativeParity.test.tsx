@@ -31,7 +31,7 @@ import { resetNativeReopenEmulation } from "../../test/nativeReopenEmulation";
 import { DisplayUnitsProvider } from "../display-units";
 import type { DisplayQuantityRequest, DisplayQuantityResult } from "../../services/displayQuantityService";
 import { buildHistoricalRunContext, buildNativeHistoricalRunContext, HistoricalRunPanel, type HistoricalRunContext } from "./HistoricalRunContext";
-import { NUMERICAL_HEALTH_STATE_TEXT } from "./numericalHealthText";
+import { NUMERICAL_HEALTH_STATE_TEXT, numericalHealthHeadline } from "./numericalHealthText";
 import { N_HEADLINE, N_INTENSIFIED, PREVIEW_INTENSIFIED_KIND, PREVIEW_MAXIMUM_KIND } from "./knownSemanticLimitations";
 import { isRetainedRoute } from "./numericalResultQuality";
 import { displayRoute } from "./resultReader";
@@ -241,10 +241,20 @@ describe("a reopened run reads alike held whole and held natively (C1 review F2,
     const table = item.table ? { id: stored.source.producer!.semantic_contract_id, sha256: item.table } : null;
     expect(whole.recordedTableRead).toEqual(table);
     (window as Json).__TAURI_INTERNALS__ = {};
-    const native = (await buildNativeHistoricalRunContext((await openLocalProjectNative(null))!))!;
+    const opened = (await openLocalProjectNative(null))!;
+    const native = (await buildNativeHistoricalRunContext(opened))!;
     const result = native.mechanicsResult!;
     expect(isNativeResult(result)).toBe(true);
     expect(native.recordedTableRead).toEqual(table);
+    // Issue 588: both reopens hold their view under the renderable result's identity in the stored
+    // project: the native one under the stored bytes' hash the reopen states (the emulation's is a
+    // placeholder, not a SHA-256), the whole one under its view text's SHA-256.
+    const project = encodeURIComponent(envelope.model.project.id);
+    expect(opened.stored_run.state === "restored" && opened.stored_run.source.project_id).toBe(envelope.model.project.id);
+    const resultHash = opened.stored_run.state === "restored" ? opened.stored_run.source.result_sha256 : "";
+    expect(native.viewKey).toBe(`saved-result-sha256:${project}:${encodeURIComponent(resultHash)}`);
+    expect(whole.viewKey.startsWith(`saved-result-view-sha256:${project}:`)).toBe(true);
+    expect(whole.viewKey.slice(`saved-result-view-sha256:${project}:`.length)).toMatch(/^[0-9a-f]{64}$/u);
     const route = displayRoute(whole.mechanicsResult!, table);
     expect(displayRoute(result, table)).toBe(route);
 
@@ -282,11 +292,22 @@ describe("a reopened run reads alike held whole and held natively (C1 review F2,
       expect(expected.shown.health).toBeNull();
     } else {
       expect(expected.shown.health).not.toBeNull();
-      expect(expected.shown.rows.some(([, cell]) => Object.values(NUMERICAL_HEALTH_STATE_TEXT).some((state) => cell.includes(state)))).toBe(true);
+      // Each row's health mark, by state. A row whose case the solver's checks found no problem with
+      // carries none; a sensitive, unresolved or failed case's rows carry its state.
+      const rowMarks = expected.shown.rows.flatMap(([, cell]) => (Object.keys(NUMERICAL_HEALTH_STATE_TEXT) as (keyof typeof NUMERICAL_HEALTH_STATE_TEXT)[]).filter((state) => cell.includes(NUMERICAL_HEALTH_STATE_TEXT[state])));
+      expect(rowMarks).not.toContain("checks_passed");
+      const troubled = (["sensitive", "quality_unresolved", "solve_failed"] as const).filter((state) => expected.shown.health!.includes(NUMERICAL_HEALTH_STATE_TEXT[state]));
       if (item.quality !== "as recorded") {
         const state = NUMERICAL_HEALTH_STATE_TEXT[STATE[item.quality]];
         expect(expected.shown.health).toContain(state);
+        expect(rowMarks).toContain(STATE[item.quality]);
         expect([...expected.csv.values()].some((csv) => csv.includes(`,${state},`))).toBe(true);
+      } else if (expected.shown.health === numericalHealthHeadline("checks_passed")) {
+        // The run's own record: every case found no problem, so no row is marked.
+        expect(rowMarks).toEqual([]);
+      } else {
+        expect(troubled.length, expected.shown.health!).toBeGreaterThan(0);
+        for (const state of troubled) expect(rowMarks).toContain(state);
       }
     }
     // F3: a preview statement's, and a reopened preview successor's, headline and intensified rows

@@ -1163,7 +1163,9 @@ pub(crate) fn resolve_case(
         included.magnitude.value *= source.factor;
         contributions.push(json!({"source_id": load.id, "owner_kind": "stored_primitive", "classification": "ordinary_applied",
             "factor": source.factor, "category": load.category, "dimension": load.dimension,
-            "authored_normalized_magnitude": load.magnitude.value, "applied_magnitude": included.magnitude.value}));
+            // DEL-05-01 REQ-014: the document's magnitude, also where a test case's contents replaced it.
+            "authored_normalized_magnitude": crate::hydrostatic::authored_magnitude(model, &case.id, load),
+            "applied_magnitude": included.magnitude.value}));
         effective_case.primitive_loads.push(included);
     }
     for region in case.pressure_regions.iter().flatten() {
@@ -1183,8 +1185,12 @@ pub(crate) fn resolve_case(
     // if its loads had been solved, so it is refused by name. An action is an
     // included stored primitive, a boundary motion, a pressure region, a
     // member state with nonzero eigenstrain, or a model-level preload. A
-    // case already refused for another reason is not judged here.
+    // case already refused for another reason is not judged here. A case's
+    // static-equivalent generation is an action too: it is formed beside the
+    // declared ledger in the case's solve, so a generation-only case whose
+    // ledger selects no stored primitive reaches assembly (DEL-05-01 REQ-008).
     let applies_action = !effective_case.primitive_loads.is_empty()
+        || case.equivalent_static.is_some()
         || !prescribed.is_empty()
         || !ground_motion.is_empty()
         || !spring_base.is_empty()

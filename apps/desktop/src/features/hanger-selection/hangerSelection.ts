@@ -78,21 +78,23 @@ export function rustTrim(text: string): string {
   return points.slice(start, end).join("");
 }
 
-/** How the engine classifies a support value: one of its two hanger kinds, `document_refused` where its typed decode
- * (core/product_physics/src/lib.rs, `PreviewSupport` and `SpringHangerInput`) refuses the members it reads (a `hanger`
- * that is not an object or null, or a `hanger_type` or `family` that is not a text or null), or null for none. */
-export type EngineHangerKind = "variable_spring" | "constant_effort" | "document_refused" | null;
+/** The desktop's mirror of how the engine classifies a support value: one of the engine's two hanger kinds, null for
+ * neither, or `unclassified` where the mirror does not classify the value: a `hanger` that is present and not an object
+ * or null, or a `hanger_type` or `family` that is present and not a text or null. The gate refuses an unclassified value
+ * as a hanger write; the mirror states nothing of how the engine treats it. */
+export type EngineHangerKind = "variable_spring" | "constant_effort" | "unclassified" | null;
 
 /** The engine's classification of a support value, mirroring `support_hanger_type`: the Rust-trimmed
  * `hanger.hanger_type` when it is a text that is not blank, else the Rust-trimmed `family`; then the names above. A
- * member the engine's decode refuses is `document_refused`, never a fall back to another member. */
+ * value whose `hanger`, `hanger_type` or `family` is of another kind is `unclassified`, never a fall back to another
+ * member. */
 export function engineHangerKind(value: unknown): EngineHangerKind {
   if (!isRecord(value)) return null;
   const hanger = value.hanger;
-  if (hanger !== undefined && hanger !== null && !isRecord(hanger)) return "document_refused";
+  if (hanger !== undefined && hanger !== null && !isRecord(hanger)) return "unclassified";
   const hangerType = isRecord(hanger) ? hanger.hanger_type : undefined;
-  if (hangerType !== undefined && hangerType !== null && typeof hangerType !== "string") return "document_refused";
-  if (value.family !== undefined && value.family !== null && typeof value.family !== "string") return "document_refused";
+  if (hangerType !== undefined && hangerType !== null && typeof hangerType !== "string") return "unclassified";
+  if (value.family !== undefined && value.family !== null && typeof value.family !== "string") return "unclassified";
   const trimmedType = typeof hangerType === "string" ? rustTrim(hangerType) : "";
   const effective = trimmedType !== "" ? trimmedType : typeof value.family === "string" ? rustTrim(value.family) : null;
   if (effective === null) return null;
@@ -120,7 +122,7 @@ function changeValue(text: unknown): { kind: "absent" } | { kind: "value"; value
 }
 
 /** Whether a value written or replaced on a support is a hanger: it has a `hanger` member at all (any value), or the
- * engine classifies it as one, or the engine's decode refuses a member it reads (`document_refused`). A value that is unreadable, or not a support object (such as a label text where a
+ * mirror classifies it as one, or the mirror does not classify it (`unclassified`). A value that is unreadable, or not a support object (such as a label text where a
  * support was expected), counts as a hanger: it fails closed. */
 function isHangerValue(read: ReturnType<typeof changeValue>): boolean {
   if (read.kind === "absent") return false;

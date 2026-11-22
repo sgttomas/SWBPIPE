@@ -122,6 +122,15 @@ fn corpus() -> Vec<(&'static str, Value)> {
     cases.push(("a zero-length pipe", zero_length));
     cases.push(("an unknown support family with a stale generated self-weight load", intermediate_stop()));
     cases.extend(solve_input_cases());
+    // DEL-05-01 REQ-008 (issue 452 decision 7): a seismic case with an entered
+    // weight load, whose warning is raised before formation by both.
+    let mut seismic = cantilever();
+    seismic["model"]["pipe_segments"][0]["section"]["material_density"] = json!({"value":7850.0,"unit":"kg/m^3"});
+    seismic["model"]["load_cases"] = json!([{"id":"case:eq","provenance":"checks","primitive_loads":[
+        {"id":"load:entered-weight","category":"weight","target":{"type":"element","pipe":"pipe:a-b"},"direction":"global_z",
+         "magnitude":{"value":-10.0,"unit":"N/m"},"dimension":"force_per_length","provenance":"checks"}],
+        "equivalent_static":{"seismic":{"gravity_acceleration":{"value":9.81,"unit":"m/s^2"},"g_factor_x":{"value":0.3,"unit":"1"}},"provenance":"checks"}}]);
+    cases.push(("a seismic case with an entered weight load", seismic));
     cases
 }
 
@@ -160,7 +169,7 @@ fn the_checks_are_the_solves_leading_diagnostics() {
     for code in [
         "MODEL_TOPOLOGY_DISCONNECTED", "NODE_COINCIDENT", "NODE_NEAR_DUPLICATE", "BRANCH_TOPOLOGY_INVALID",
         "SUPPORT_INPUT_MISSING", "SOLVER_SYSTEM_BLOCKED", "PIPE_ENDPOINT_UNKNOWN", "PIPE_ELEMENT_INPUT_INVALID",
-        "SUPPORT_FAMILY_INVALID", "MODEL-SETTING-TOLERANCE-NOT-POSITIVE",
+        "SUPPORT_FAMILY_INVALID", "MODEL-SETTING-TOLERANCE-NOT-POSITIVE", "EQUIVALENT_STATIC_SEISMIC_WEIGHT_LOAD_ENTERED",
     ] {
         assert!(codes_seen.contains(code), "the corpus reaches {code}; seen {codes_seen:?}");
     }

@@ -1,5 +1,6 @@
 """Numerical CI contracts, without executing Cargo or browser tools."""
 import errno
+import os
 import importlib.util
 import io
 from contextlib import contextmanager
@@ -35,11 +36,35 @@ import hosted_ci
 from software_workflow_common import load_profile
 
 
+COMMITTED_READS = load_profile(ROOT / 'tools/hosted-ci-routing.json')[1]['piping_runtime_reads']
+INDEX = ci.runtime_read_index
+
+
+def declared_index(project, manifests, declarations=None):
+    """`runtime_read_index`, reading this repository's committed attestations as confirmed.
+
+    A stale committed attestation fails `test_runtime_read_attestations_match_their_sources`, which names
+    it; the other routing tests of this tree check what its declarations select, so they leave that
+    staleness out rather than fail with it. A declaration a test alters keeps its own."""
+    resources, stale, derived = INDEX(project, manifests, declarations)
+    if Path(project).resolve() == ROOT.resolve():
+        reads = COMMITTED_READS if declarations is None else declarations
+        stale = {source: entry for source, entry in stale.items()
+                 if reads['reads'].get(source) != COMMITTED_READS['reads'].get(source)}
+    return resources, stale, derived
+
+
+@pytest.fixture(autouse=True)
+def committed_reads_as_refreshed(monkeypatch):
+    monkeypatch.setattr(ci, 'runtime_read_index', declared_index)
+    monkeypatch.setattr(hosted_ci, 'numerical_module', lambda root: ci)
+
+
 @cache
 def real_graph():
     project = MODULE.parents[2]
     manifests = ci.readiness.discover_cargo_manifests(project)
-    return ci.source_read_dependencies(project, manifests), ci.cargo_dependencies(project, manifests)
+    return declared_index(project, manifests), ci.cargo_dependencies(project, manifests)
 
 
 @cache
@@ -68,7 +93,7 @@ def real_snapshot():
     (about a second each to compute, and some tests route hundreds of paths), while exercising routing for each path.
     Only the real declaration's derivation on this snapshot's root is reused; any other declaration or root is derived
     afresh, and tests that build or change a tree call the selector directly, outside this helper."""
-    resources, dependencies = real_graph()
+    index, dependencies = real_graph()
     readers, inputs, derivation = real_artifact_derivation()
     derive = ci.artifact_producers
     def producers(project, manifests, declared_readers, declared_inputs=ci.UNDECLARED):
@@ -76,7 +101,7 @@ def real_snapshot():
             return derivation
         return derive(project, manifests, declared_readers, declared_inputs)
     with patch.object(hosted_ci, 'numerical_module', return_value=ci), \
-         patch.object(ci, 'source_read_dependencies', return_value=resources), \
+         patch.object(ci, 'runtime_read_index', return_value=index), \
          patch.object(ci, 'cargo_dependencies', return_value=dependencies), \
          patch.object(ci, 'artifact_producers', side_effect=producers):
         yield
@@ -86,6 +111,72 @@ def numerical_input(path):
     # These exhaustive existing assertions inspect one immutable repository snapshot.
     with real_snapshot():
         return hosted_ci.select_paths([path], load_profile(ROOT / 'tools/hosted-ci-routing.json')[1])['modes']['piping-numerical'] == 'full'
+
+
+def numerical_manifests(path):
+    """The crates a change to `path` runs on this snapshot (every crate on a fallback)."""
+    with real_snapshot():
+        return hosted_ci.select_paths([path], load_profile(ROOT / 'tools/hosted-ci-routing.json')[1])['piping_numerical_selection']['manifests']
+
+
+RESOURCE_ROOTS = ('fixtures/', 'schemas/', 'examples/', 'validation/')
+
+
+def literal_selection_gaps(project, manifests, declarations, select=None):
+    """[(source, path, missing crates)]: each existing file a Rust string literal names (normalized, `./` and
+    `../` resolved, from the project, the crate or the source directory, and lying under a resource root) whose
+    change does not select the crate whose source names it and every crate in that crate's Cargo dependency
+    closure that holds a runtime-read declaration: the literal may be passed to any such reader, whatever its
+    declaration lists. `select(path)` gives the crates a change to `path` runs; by default the selector's own
+    answer, every crate on a fallback."""
+    project = Path(project).resolve()
+    select = select or (lambda path: ci.numerical_selection(project, manifests, [path], declarations)['manifests'])
+    dependencies = ci.cargo_dependencies(project, manifests)
+    def owner(path):
+        return max((m for m in manifests if path.is_relative_to(project / m.parent)), key=lambda m: len(m.parts), default=None)
+    declared = {owner(project / local) for local in declarations['reads']} - {None}
+    gaps, references, selections = [], set(), {}
+    for source in sorted(p for p in project.rglob('*.rs') if not {'target', 'node_modules', '.git'} & set(p.relative_to(project).parts)):
+        crate = owner(source)
+        if crate is None:
+            continue
+        reach, pending = set(), [crate]
+        while pending:
+            current = pending.pop()
+            if current not in reach:
+                reach.add(current)
+                pending.extend(dependencies.get(current, ()))
+        required_crates = {crate} | (reach - {crate}) & declared
+        text = source.read_text()
+        values = set()
+        for match in re.finditer(r'"((?:\\[\s\S]|[^"\\])*)"', text):
+            try:
+                values.add(json.loads('"' + re.sub(r'\\\r?\n\s*', '', match.group(1)) + '"'))
+            except ValueError:
+                pass
+        values |= {ci.rust_literal(m.group()) for m in ci.RUST_STRING.finditer(ci.rust_source(text))}
+        for value in values:
+            if '/' not in value or '\0' in value or len(value) > 4096:
+                continue
+            for base in (project, source.parent, project / crate.parent):
+                path = Path(os.path.normpath(base / value))
+                try:
+                    present = path.is_relative_to(project) and path.is_file()
+                except OSError as error:  # a prose literal longer than a path component
+                    if error.errno != errno.ENAMETOOLONG:
+                        raise
+                    present = False
+                relative = path.relative_to(project).as_posix() if present else ''
+                if not relative.startswith(RESOURCE_ROOTS):
+                    continue
+                references.add(relative)
+                if relative not in selections:
+                    selections[relative] = {Path(m) for m in select(relative)}
+                missing = sorted(m.as_posix() for m in required_crates - selections[relative])
+                if missing:
+                    gaps.append((source.relative_to(project).as_posix(), relative, missing))
+    literal_selection_gaps.references = references
+    return [(s, p, list(m)) for s, p, m in sorted({(s, p, tuple(m)) for s, p, m in gaps})]
 
 
 class NumericalTests(unittest.TestCase):
@@ -401,42 +492,27 @@ class NumericalTests(unittest.TestCase):
         self.assertIn(ci.PROJECT + 'validation/evidence/comparison_measurement/DEL0904_VD_20260811/CURRENT_25_FIXTURE_RUNNER_OUTPUT.json', references)
 
     def test_real_rust_runtime_resource_literals_require_numerical(self):
-        project, sources = self.rust_sources()
-        repo = project
-        references = set()
-        for source in sources:
-            for match in re.finditer(r'"((?:\\[\s\S]|[^"\\])*)"', source.read_text()):
-                raw = match.group(1)
-                if not re.match(r'^(?:\.\./)*(?:fixtures|schemas|examples|validation)/', raw):
-                    continue
-                value = self.rust_path_literal(raw)
-                # Runtime paths use either the project root, source directory,
-                # or CARGO_MANIFEST_DIR; inspect only real contained targets.
-                crate = next(parent for parent in source.parents if (parent / 'Cargo.toml').is_file())
-                candidates = {base.joinpath(value).resolve() for base in (project, source.parent, crate)}
-                for path in candidates:
-                    if not path.is_relative_to(project):
-                        continue
-                    # Every literal with a resource prefix is probed, prose included: a
-                    # provenance sentence such as connector_readers.rs's corpus `inputs`
-                    # (written into a committed corpus) has a path component longer than
-                    # the filesystem allows, and `exists()` raises ENAMETOOLONG instead of
-                    # answering. A name the filesystem cannot hold is no runtime resource;
-                    # any other error is raised, never read as an absent resource.
-                    try:
-                        present = path.exists()
-                    except OSError as error:
-                        if error.errno != errno.ENAMETOOLONG:
-                            raise
-                        present = False
-                    if not present:
-                        continue
-                    relative = path.relative_to(repo).as_posix()
-                    self.assertTrue(numerical_input(relative), f'Runtime resource omitted by numerical policy: {source} -> {relative}')
-                    references.add(relative)
+        # Every file a Rust literal names selects the crate whose source names it, and each declared reader
+        # (in that crate or one it depends on) whose anchor covers it: a caller that names a new fixture for a
+        # reader fails on its own pull request. Paths assembled from fragments or the environment are the
+        # named limit (docs/CI_STRATEGY.md).
+        profile = load_profile(ROOT / 'tools/hosted-ci-routing.json')[1]
+        manifests = ci.readiness.discover_cargo_manifests(ROOT)
+        gaps = literal_selection_gaps(ROOT, manifests, profile['piping_runtime_reads'], numerical_manifests)
+        self.assertEqual(gaps, [], 'Rust-named files whose change misses the naming or reading crate')
+        references = literal_selection_gaps.references
         self.assertTrue(references, 'Real runtime resource coverage must be nonempty')
         for prefix in ('fixtures/', 'schemas/', 'examples/', 'validation/'):
             self.assertTrue(any(path.startswith(ci.PROJECT + prefix) for path in references), prefix)
+
+    def test_runtime_read_attestations_match_their_sources(self):
+        # A pull request that changes a declared reader or anchor source updates that declaration's
+        # sha256 or source_sha256 after confirming its inputs; until then this fails (its own selection
+        # widens to the reader and callers meanwhile).
+        _, stale, derived = INDEX(ROOT, ci.readiness.discover_cargo_manifests(ROOT), COMMITTED_READS)
+        self.assertEqual({source: (entry['reasons'], derived['reads'][source]['sha256'])
+                          for source, entry in stale.items()}, {},
+                         'Confirm each listed declaration\'s inputs, then set its attestation to the current hash')
 
     def test_gate_requires_exact_numerical_state(self):
         for mode, expected in [('full', 'success'), ('not-applicable', 'skipped')]:
@@ -626,13 +702,425 @@ class ReachabilitySafetyTests(unittest.TestCase):
             self.assertEqual(result['manifests'], sorted([reader.as_posix(), consumer.as_posix()]))
             original = (project / consumer.parent / 'src/lib.rs').read_text()
             (project / consumer.parent / 'src/lib.rs').write_text(original + '\nfn new_caller() { reader::read("../../../fixtures/new.json"); }')
-            result = ci.numerical_selection(project, manifests, [path], declaration)
-            self.assertEqual(result['classification'], 'full-fallback')
-            self.assertIn('caller boundaries', result['fallback_reasons'][0])
+            # Callers come from the tree: a caller's change selects that caller, and its literals are
+            # checked by the literal-coverage test, not by a committed caller digest.
+            result = ci.numerical_selection(project, manifests, [ci.PROJECT + 'core/unrelated/src/lib.rs'], declaration)
+            self.assertEqual((result['classification'], result['manifests']), ('reachability', [unrelated.as_posix()]))
             (project / consumer.parent / 'src/lib.rs').write_text(original)
             declaration['reads'][source.relative_to(project).as_posix()]['inputs'][0]['anchor'] = 'absent-from-source.json'
             result = ci.numerical_selection(project, manifests, [path], declaration)
             self.assertIn('anchor absent', result['fallback_reasons'][0])
+
+    def runtime_fixture(self, project):
+        """A src reader with a Rust caller, two crates outside it, a scanned fixture directory and a test reader."""
+        reader = self.crate(project, 'reader')
+        consumer = self.crate(project, 'consumer', '[dependencies]\nreader={path="../reader"}\n')
+        unrelated = self.crate(project, 'unrelated')
+        other = self.crate(project, 'other')
+        source = project / reader.parent / 'src/lib.rs'
+        source.write_text('pub fn read(name: &str) { std::fs::read_to_string(format!("../../fixtures/cases/{name}.json")); }\n')
+        (project / 'fixtures/cases').mkdir(parents=True)
+        (project / 'fixtures/cases/a.json').write_text('{}')
+        (project / 'fixtures/single.json').write_text('{}')
+        test = project / other.parent / 'tests/read.rs'
+        test.parent.mkdir()
+        test.write_text('#[test] fn t() { std::fs::read("../../fixtures/single.json"); }\n')
+        local, test_local = source.relative_to(project).as_posix(), test.relative_to(project).as_posix()
+        declaration = {'reads': {
+            local: {'sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
+                    'inputs': [{'anchor': '../../fixtures/cases/{name}.json', 'base': 'manifest',
+                                'scan': {'suffix': '.json'}, 'audit': 'every case'}]},
+            test_local: {'sha256': hashlib.sha256(test.read_bytes()).hexdigest(),
+                         'inputs': [{'anchor': '../../fixtures/single.json', 'base': 'manifest',
+                                     'files': ['fixtures/single.json']}]}}}
+        return [reader, consumer, unrelated, other], source, declaration
+
+    def test_a_stale_per_file_attestation_selects_its_reader_and_callers_and_never_every_crate(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            manifests, source, declaration = self.runtime_fixture(project)
+            reader, consumer, unrelated, other = manifests
+            local = source.relative_to(project).as_posix()
+            change = [ci.PROJECT + 'core/unrelated/src/lib.rs']
+            result = ci.numerical_selection(project, manifests, change, declaration)
+            self.assertEqual((result['classification'], result['manifests']), ('reachability', [unrelated.as_posix()]))
+            self.assertEqual(ci.runtime_read_index(project, manifests, declaration)[1], {})
+            # The authoring PR edits the reader without confirming its declaration: the reader and its
+            # callers run on that PR (the attestation test fails it), never every crate.
+            source.write_text(source.read_text() + 'pub fn also() { std::fs::read("../../fixtures/undeclared.json"); }\n')
+            result = ci.numerical_selection(project, manifests, change, declaration)
+            self.assertEqual((result['classification'], result['fallback_reasons']), ('reachability', []))
+            self.assertEqual(result['manifests'], sorted([reader.as_posix(), consumer.as_posix(), unrelated.as_posix()]))
+            self.assertIn({'kind': 'stale-runtime-read', 'source': local, 'manifests': [reader.as_posix()],
+                           'stale': ['reader source changed']}, result['reasons'])
+            self.assertIn({'kind': 'cargo-consumer', 'manifest': consumer.as_posix(), 'dependencies': [reader.as_posix()]},
+                          result['reasons'])
+            # Confirming it (the author updates the hash) clears it.
+            declaration['reads'][local]['sha256'] = hashlib.sha256(source.read_bytes()).hexdigest()
+            self.assertEqual(ci.numerical_selection(project, manifests, change, declaration)['manifests'], [unrelated.as_posix()])
+            # A crate's own test reader reaches its crate only.
+            test = project / other.parent / 'tests/read.rs'
+            test.write_text(test.read_text() + '// edited\n')
+            result = ci.numerical_selection(project, manifests, change, declaration)
+            self.assertEqual(result['manifests'], sorted([other.as_posix(), unrelated.as_posix()]))
+            # A missing attestation is stale too, not an error.
+            del declaration['reads'][local]['sha256']
+            self.assertIn(reader.as_posix(), ci.numerical_selection(project, manifests, change, declaration)['manifests'])
+
+    def test_caller_trees_and_inventories_are_computed_and_need_no_record_edit(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            manifests, source, declaration = self.runtime_fixture(project)
+            reader, consumer, unrelated, other = manifests
+            local = source.relative_to(project).as_posix()
+            # Callers change, crates gain Rust files, and retained digests or inventories are wrong: nothing is stale.
+            (project / consumer.parent / 'src/lib.rs').write_text('pub fn call() { reader::read("a"); }')
+            (project / reader.parent / 'src/extra.rs').write_text('pub fn extra() {}')
+            declaration['source_trees'] = {reader.as_posix(): '0' * 64}
+            declaration['reads'][local]['source_trees'] = ['core/gone/Cargo.toml']
+            declaration['reads'][local]['inputs'][0]['files'] = ['fixtures/cases/gone.json']
+            resources, stale, _ = ci.runtime_read_index(project, manifests, declaration)
+            self.assertEqual(stale, {})
+            self.assertEqual(resources['fixtures/cases/a.json'], {reader})
+            self.assertNotIn('fixtures/cases/gone.json', resources)
+            # A new fixture under the scan selects the reader and its callers at once.
+            (project / 'fixtures/cases/b.json').write_text('{}')
+            result = ci.numerical_selection(project, manifests, [ci.PROJECT + 'fixtures/cases/b.json'], declaration)
+            self.assertEqual((result['classification'], result['manifests']), ('reachability', sorted([reader.as_posix(), consumer.as_posix()])))
+            # Deleting a scanned fixture selects every crate, as before.
+            (project / 'fixtures/cases/a.json').unlink()
+            result = ci.numerical_selection(project, manifests, [ci.PROJECT + 'fixtures/cases/a.json'], declaration)
+            self.assertEqual(result['classification'], 'full-fallback')
+            self.assertIn('deleted path a runtime read covers', result['fallback_reasons'][0])
+            # A scan that finds nothing has lost its boundary or rule: a semantic error.
+            (project / 'fixtures/cases/b.json').unlink()
+            result = ci.numerical_selection(project, manifests, [ci.PROJECT + 'core/unrelated/src/lib.rs'], declaration)
+            self.assertEqual(result['classification'], 'full-fallback')
+            self.assertIn('scan finds no files', result['fallback_reasons'][0])
+
+    def test_new_rust_file_under_a_scan_selects_its_readers(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            reader = self.crate(project, 'reader')
+            unrelated = self.crate(project, 'unrelated')
+            source = project / reader.parent / 'tests/walk.rs'
+            source.parent.mkdir()
+            source.write_text('#[test] fn t() { std::fs::read_dir("../../core"); }\n')
+            declaration = {'reads': {source.relative_to(project).as_posix(): {
+                'sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
+                'inputs': [{'anchor': '../../core', 'base': 'manifest', 'scan': {'suffix': '.rs'}, 'audit': 'walks every Rust file'}]}}}
+            new = project / unrelated.parent / 'src/new.rs'
+            new.write_text('pub fn new() {}')
+            path = ci.PROJECT + new.relative_to(project).as_posix()
+            result = ci.numerical_selection(project, [reader, unrelated], [path], declaration)
+            self.assertEqual(result['classification'], 'reachability')
+            self.assertIn({'path': path, 'kind': 'exact-file-reader', 'manifest': reader.as_posix()}, result['reasons'])
+
+    def test_anchor_moved_without_a_declaration_update_selects_every_crate(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            manifests, _, declaration = self.runtime_fixture(project)
+            (project / 'fixtures/moved.json').write_text('{}')
+            (project / 'core/other/tests/read.rs').write_text('#[test] fn t() { std::fs::read("../../fixtures/moved.json"); }\n')
+            result = ci.numerical_selection(project, manifests, [ci.PROJECT + 'core/unrelated/src/lib.rs'], declaration)
+            self.assertEqual(result['classification'], 'full-fallback')
+            self.assertIn('anchor absent', result['fallback_reasons'][0])
+
+    def test_a_cargo_library_outside_src_reaches_its_consumers(self):
+        # Review of #611, finding 2: library membership follows Cargo targets and module edges, not directories.
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            library = self.crate(project, 'library')
+            caller = self.crate(project, 'caller', '[dev-dependencies]\nlibrary={path="../library"}\n')
+            unrelated = self.crate(project, 'unrelated')
+            manifests = [library, caller, unrelated]
+            (project / 'fixtures').mkdir()
+            (project / 'fixtures/one.json').write_text('{}')
+            change = [ci.PROJECT + 'core/unrelated/src/lib.rs']
+            def check(reader, library_source):
+                local = reader.relative_to(project).as_posix()
+                anchor = '../../../../fixtures/one.json' if 'support' in local else '../../fixtures/one.json'
+                declaration = {'reads': {local: {'sha256': hashlib.sha256(reader.read_bytes()).hexdigest(),
+                                                 'inputs': [{'anchor': anchor, 'base': 'source' if 'support' in local else 'manifest',
+                                                             'files': ['fixtures/one.json']}]}}}
+                _, stale, derived = ci.runtime_read_index(project, manifests, declaration)
+                self.assertEqual((stale, derived['reads'][local]['library']), ({}, library_source))
+                # The fixture selects the reader and its consumers; a stale attestation widens the same way.
+                result = ci.numerical_selection(project, manifests, [ci.PROJECT + 'fixtures/one.json'], declaration)
+                self.assertIn(caller.as_posix(), result['manifests'])
+                reader.write_text(reader.read_text() + '// edited\n')
+                result = ci.numerical_selection(project, manifests, change, declaration)
+                self.assertEqual(caller.as_posix() in result['manifests'], library_source, local)
+            # A `[lib] path` under tests/.
+            (project / library).write_text('[package]\nname="library"\nversion="0.1.0"\n[lib]\npath="tests/runtime.rs"\n')
+            runtime = project / library.parent / 'tests/runtime.rs'
+            runtime.parent.mkdir()
+            runtime.write_text('pub fn one() { std::fs::read("../../fixtures/one.json"); }\n')
+            check(runtime, True)
+            # A plain test file is its crate's alone.
+            (project / library).write_text('[package]\nname="library"\nversion="0.1.0"\n')
+            runtime.write_text('#[test] fn one() { std::fs::read("../../fixtures/one.json"); }\n')
+            check(runtime, False)
+            runtime.unlink()
+            # A #[path] library module under tests/ with an ordinary child module that reads.
+            (project / library.parent / 'src/lib.rs').write_text('#[path = "../tests/support/mod.rs"] mod support;\n')
+            (project / library.parent / 'tests/support').mkdir()
+            (project / library.parent / 'tests/support/mod.rs').write_text('mod child;\n')
+            child = project / library.parent / 'tests/support/child.rs'
+            child.write_text('pub fn one() { std::fs::read("../../../../fixtures/one.json"); }\n')
+            check(child, True)
+
+    def test_a_crate_whose_module_edges_do_not_resolve_counts_every_source_as_a_library(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            library = self.crate(project, 'library')
+            (project / library.parent / 'src/lib.rs').write_text('mod missing;\n')
+            self.assertFalse(ci.compile_graph(project, library)[3])
+            caller = self.crate(project, 'caller', '[dev-dependencies]\nlibrary={path="../library"}\n')
+            (project / 'fixtures').mkdir()
+            (project / 'fixtures/one.json').write_text('{}')
+            test = project / library.parent / 'tests/read.rs'
+            test.parent.mkdir()
+            test.write_text('#[test] fn one() { std::fs::read("../../fixtures/one.json"); }\n')
+            local = test.relative_to(project).as_posix()
+            declaration = {'reads': {local: {'sha256': '0' * 64, 'inputs': [
+                {'anchor': '../../fixtures/one.json', 'base': 'manifest', 'files': ['fixtures/one.json']}]}}}
+            result = ci.numerical_selection(project, [library, caller], [ci.PROJECT + 'README.md'], declaration)
+            self.assertIn(caller.as_posix(), result['manifests'])
+
+    def test_compile_graph_follows_inline_path_and_include_edges_in_any_order(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            crate = self.crate(project, 'graph')
+            root = project / crate.parent
+            (root / 'src/lib.rs').write_text('pub mod outer { pub mod inner; }\n#[path = "../shared/helper.rs"] mod helper;\n'
+                                             'const DATA: &str = include_str!("../data.txt");\n')
+            (root / 'src/outer').mkdir()
+            (root / 'src/outer/inner.rs').write_text('mod leaf;\n')
+            (root / 'src/outer/inner').mkdir()
+            (root / 'src/outer/inner/leaf.rs').write_text('include!("../../../generated/code.rs");\n')
+            (root / 'generated').mkdir()
+            (root / 'generated/code.rs').write_text('pub fn code() {}')
+            (root / 'shared').mkdir()
+            (root / 'shared/helper.rs').write_text('mod child;\n')
+            (root / 'shared/child.rs').write_text('pub fn child() {}')
+            (root / 'data.txt').write_text('x')
+            (root / 'build.rs').write_text('fn main() {}')
+            compiled, test_only, data, certain = ci.compile_graph(project, crate)
+            self.assertTrue(certain)
+            self.assertEqual({p.relative_to(project.resolve()).as_posix() for p in compiled},
+                             {'core/graph/' + p for p in ('src/lib.rs', 'src/outer/inner.rs', 'src/outer/inner/leaf.rs',
+                                                          'generated/code.rs', 'shared/helper.rs', 'shared/child.rs', 'build.rs')})
+            self.assertEqual({p.name for p in data}, {'data.txt'})
+
+    def test_only_a_test_cfg_predicate_confines_a_module_to_unit_tests(self):
+        # Review of #611, round 3, finding 4: `cfg(test_support)` matched the test-only pattern.
+        for attributes, test_only in (('#[cfg(test)]', True), ('# [ cfg ( test ) ]', True), ('#[cfg(all(test, feature = "x"))]', True),
+                                      ('#[cfg(all(feature = "x", test))]', True), ('#[allow(dead_code)]\n#[cfg(test)]', True),
+                                      ('#[cfg(test_support)]', False), ('#[cfg(feature = "test")]', False),
+                                      ('#[cfg(any(test, feature = "x"))]', False), ('#[cfg(not(test))]', False),
+                                      ('#[cfg(all(test_support, x))]', False), ('#[cfg(all(any(test, x), y))]', False),
+                                      ('#[cfg_attr(test, path = "a.rs")]', False), ('#[cfg(test', False), ('', False)):
+            with self.subTest(attributes=attributes):
+                self.assertEqual(ci.test_only_attributes(attributes), test_only)
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            crate = self.crate(project, 'graph')
+            root = project / crate.parent
+            (root / 'src/lib.rs').write_text('#[cfg(test_support)] mod support;\n#[cfg(test)] mod tests;\n'
+                                             '#[cfg(feature = "x")] mod inline { mod leaf; }\n')
+            for name in ('support.rs', 'tests.rs'):
+                (root / 'src' / name).write_text('')
+            (root / 'src/inline').mkdir()
+            (root / 'src/inline/leaf.rs').write_text('')
+            compiled, test_only, _, certain = ci.compile_graph(project, crate)
+            self.assertTrue(certain)
+            self.assertEqual({p.name for p in test_only}, {'tests.rs'})
+            self.assertTrue({'support.rs', 'leaf.rs'} <= {p.name for p in compiled})
+
+    def test_misspelt_or_malformed_scan_or_key_is_a_semantic_error(self):
+        # Review of #611, finding 4: an authored scan's shape is checked strictly, as before.
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            manifests, source, declaration = self.runtime_fixture(project)
+            local = source.relative_to(project).as_posix()
+            change = [ci.PROJECT + 'core/unrelated/src/lib.rs']
+            for scan in ({'sufix': '.json'}, {'suffix': 'json'}, {'suffix': '.json', 'name': 'a.json'}, {},
+                         {'suffix': '.json', 'exclude': 'target'}, {'suffix': '.json', 'hidden': 'yes'}, ['.json'], None):
+                with self.subTest(scan=scan):
+                    broken = json.loads(json.dumps(declaration))
+                    broken['reads'][local]['inputs'][0]['scan'] = scan
+                    result = ci.numerical_selection(project, manifests, change, broken)
+                    self.assertEqual(result['classification'], 'full-fallback')
+                    self.assertIn('runtime source scan', result['fallback_reasons'][0])
+            for key, where in (('surprise', 'inputs'), ('sha265', 'declaration'), ('unread_paths', 'declaration')):
+                broken = json.loads(json.dumps(declaration))
+                (broken['reads'][local]['inputs'][0] if where == 'inputs' else broken['reads'][local])[key] = 'x'
+                self.assertEqual(ci.numerical_selection(project, manifests, change, broken)['classification'], 'full-fallback')
+
+    def test_literal_coverage_requires_the_readers_crate_for_a_callers_literal(self):
+        # Round-2 finding: a caller passes a new literal fixture to an unchanged reader in another crate.
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            manifests, source, declaration = self.runtime_fixture(project)
+            reader, consumer, unrelated, other = manifests
+            # The scanned directory: any fixture there is the reader's. Make the anchor an exact list instead.
+            local = source.relative_to(project).as_posix()
+            declaration['reads'][local]['inputs'][0] = {'anchor': '../../fixtures/cases/{name}.json', 'base': 'manifest',
+                                                        'files': ['fixtures/cases/a.json']}
+            (project / 'fixtures/cases/b.json').write_text('{}')
+            # The fixture is one path rules give to other checks, so the numerical selector sees no reader of it.
+            def select(path):
+                return ci.numerical_selection(project, manifests, [path], declaration, ignored_paths=[path])['manifests']
+            self.assertEqual(literal_selection_gaps(project, manifests, declaration, select), [])
+            (project / consumer.parent / 'tests').mkdir()
+            (project / consumer.parent / 'tests/call.rs').write_text('#[test] fn t() { reader::read_path("fixtures/cases/b.json"); }\n')
+            # The check names what a selector that ignored the literal would miss; the selector does not.
+            self.assertIn(('core/consumer/tests/call.rs', 'fixtures/cases/b.json', [consumer.as_posix(), reader.as_posix()]),
+                          literal_selection_gaps(project, manifests, declaration, lambda path: []))
+            self.assertEqual(literal_selection_gaps(project, manifests, declaration, select), [])
+            declaration['reads'][local]['inputs'][0]['files'].append('fixtures/cases/b.json')
+            self.assertEqual(literal_selection_gaps(project, manifests, declaration, select), [])
+
+    def test_deleting_a_file_under_a_populated_scan_selects_every_crate(self):
+        # Review of #611, round 3, finding 1: a deleted Rust file under a crate's populated `.rs` scan selected
+        # its crate and consumers only, omitting the scan's reader. A deleted path that any scan covers, or
+        # that a declaration lists, selects every crate, as on main.
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            reader = self.crate(project, 'reader')
+            physics = self.crate(project, 'physics')
+            consumer = self.crate(project, 'consumer', '[dependencies]\nphysics={path="../physics"}\n')
+            unrelated = self.crate(project, 'unrelated')
+            manifests = [reader, physics, consumer, unrelated]
+            source = project / reader.parent / 'tests/walk.rs'
+            source.parent.mkdir()
+            source.write_text('#[test] fn t() { std::fs::read_dir("../physics/src"); }\n')
+            declaration = {'reads': {source.relative_to(project).as_posix(): {
+                'sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
+                'inputs': [{'anchor': '../physics/src', 'base': 'manifest', 'scan': {'suffix': '.rs'}, 'audit': 'walks its sources'}]}}}
+            deleted = ci.PROJECT + physics.parent.as_posix() + '/src/review611_delete.rs'
+            # Present, the file selects its reader, its crate and their consumers.
+            (project / deleted).write_text('pub fn gone() {}')
+            result = ci.numerical_selection(project, manifests, [deleted], declaration)
+            self.assertEqual(result['manifests'], sorted(m.as_posix() for m in (reader, physics, consumer)))
+            (project / deleted).unlink()
+            result = ci.numerical_selection(project, manifests, [deleted], declaration)
+            self.assertEqual((result['classification'], result['manifests']), ('full-fallback', sorted(m.as_posix() for m in manifests)))
+            self.assertEqual(result['fallback_reasons'], ['A deleted path a runtime read covers: ' + deleted])
+            # A deleted path outside every scan and list keeps its ordinary routing.
+            (project / unrelated.parent / 'src/old.rs').write_text('')
+            (project / unrelated.parent / 'src/old.rs').unlink()
+            result = ci.numerical_selection(project, manifests, [ci.PROJECT + 'core/unrelated/src/old.rs'], declaration)
+            self.assertEqual((result['classification'], result['manifests']), ('reachability', [unrelated.as_posix()]))
+
+    def test_real_deleted_file_under_a_populated_scan_selects_every_crate(self):
+        # Review of #611, round 3, finding 1, on this tree: core/product_physics/src is scanned.
+        manifests = ci.readiness.discover_cargo_manifests(ROOT)
+        self.assertEqual(numerical_manifests(ci.PROJECT + 'core/product_physics/src/review611_delete.rs'),
+                         sorted(m.as_posix() for m in manifests))
+
+    def literal_fixture(self, project):
+        """An unchanged library reader with an exact anchor, a declared caller crate that depends on it, a
+        consumer of the reader, and an unrelated crate."""
+        reader = self.crate(project, 'canonical_json')
+        manifest = Path('core/rules/rule_pack_lifecycle/Cargo.toml')
+        (project / manifest).parent.mkdir(parents=True)
+        (project / manifest).write_text('[package]\nname="rule_pack_lifecycle"\nversion="0.1.0"\n'
+                                        '[dependencies]\ncanonical_json={path="../../canonical_json"}\n')
+        (project / manifest.with_name('Cargo.lock')).write_text('version = 4\n')
+        (project / manifest.parent / 'src').mkdir()
+        other = self.crate(project, 'other_consumer', '[dependencies]\ncanonical_json={path="../canonical_json"}\n')
+        unrelated = self.crate(project, 'unrelated')
+        (project / 'fixtures/review611').mkdir(parents=True)
+        (project / 'fixtures/review611/a.json').write_text('{}')
+        source = project / reader.parent / 'src/lib.rs'
+        source.write_text('pub const DEFAULT: &str = "fixtures/review611/a.json";\n'
+                          'pub fn read(path: &str) -> Vec<u8> { std::fs::read(path).unwrap() }\n')
+        caller = project / manifest.parent / 'src/lib.rs'
+        caller.write_text('pub fn load() -> Vec<u8> { std::fs::read("../../../fixtures/review611/a.json").unwrap(); '
+                          'canonical_json::read("fixtures/review611/a.json") }\n')
+        declaration = {'reads': {
+            source.relative_to(project).as_posix(): {
+                'sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
+                'inputs': [{'anchor': 'fixtures/review611/a.json', 'base': 'project', 'files': ['fixtures/review611/a.json']}]},
+            caller.relative_to(project).as_posix(): {
+                'sha256': hashlib.sha256(caller.read_bytes()).hexdigest(),
+                'inputs': [{'anchor': '../../../fixtures/review611/a.json', 'base': 'manifest',
+                            'files': ['fixtures/review611/a.json']}]}}}
+        return [reader, manifest, other, unrelated], caller, declaration
+
+    def assert_literal_caller_selects_its_reader(self, literal):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            manifests, caller, declaration = self.literal_fixture(project)
+            reader, lifecycle, other, unrelated = manifests
+            (project / 'fixtures/review611/b.json').write_text('{}')
+            # The caller changes the literal it passes; only its own attestation is updated, so nothing is stale.
+            caller.write_text(caller.read_text().replace('canonical_json::read("fixtures/review611/a.json")',
+                                                         f'canonical_json::read("{literal}")'))
+            declaration['reads'][caller.relative_to(project).as_posix()]['sha256'] = hashlib.sha256(caller.read_bytes()).hexdigest()
+            self.assertEqual(ci.runtime_read_index(project, manifests, declaration)[1], {})
+            fixture = ci.PROJECT + 'fixtures/review611/b.json'
+            source = ci.PROJECT + caller.relative_to(project).as_posix()
+            # Path rules give the fixture to other checks, so no declared reader lists it.
+            for plan in ([source, fixture], [fixture]):  # the authoring plan, then a later fixture-only plan
+                with self.subTest(literal=literal, plan=plan):
+                    result = ci.numerical_selection(project, manifests, plan, declaration, ignored_paths=[fixture])
+                    self.assertEqual(result['classification'], 'reachability')
+                    self.assertEqual(result['manifests'], sorted([reader.as_posix(), lifecycle.as_posix()]))
+                    self.assertIn({'path': fixture, 'kind': 'literal-reader-dependency', 'manifest': reader.as_posix()},
+                                  result['reasons'])
+            select = lambda path: ci.numerical_selection(project, manifests, [path], declaration, ignored_paths=[path])['manifests']
+            self.assertEqual(literal_selection_gaps(project, manifests, declaration, select), [])
+            self.assertIn('fixtures/review611/b.json', literal_selection_gaps.references)
+
+    def test_a_callers_new_literal_for_an_exact_anchor_reader_selects_the_reader(self):
+        # Review of #611, round 3, finding 2: an unchanged library reader with the exact anchor a.json; a caller
+        # in another crate changes its literal from fixtures/review611/a.json to b.json. Later fixture-only plans
+        # omitted the reader's crate.
+        self.assert_literal_caller_selects_its_reader('fixtures/review611/b.json')
+
+    def test_a_dot_slash_literal_selects_the_reader(self):
+        # Review of #611, round 3, finding 3: `./` evaded the literal check.
+        self.assert_literal_caller_selects_its_reader('./fixtures/review611/b.json')
+
+    def test_a_parent_relative_literal_selects_the_reader(self):
+        # Review of #611, round 3, finding 3: `./../../../` from the crate evaded the literal check.
+        self.assert_literal_caller_selects_its_reader('./../../../fixtures/review611/b.json')
+
+    def test_semantic_runtime_read_errors_still_select_every_crate(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            manifests, source, declaration = self.runtime_fixture(project)
+            change = [ci.PROJECT + 'core/unrelated/src/lib.rs']
+            test_local = 'core/other/tests/read.rs'
+            def fallback(reads, message):
+                result = ci.numerical_selection(project, manifests, change, reads)
+                self.assertEqual(result['classification'], 'full-fallback')
+                self.assertEqual(result['manifests'], sorted(m.as_posix() for m in manifests))
+                self.assertIn(message, result['fallback_reasons'][0])
+            # A missing exact input file.
+            (project / 'fixtures/single.json').unlink()
+            fallback(declaration, 'Unresolved Rust read')
+            (project / 'fixtures/single.json').write_text('{}')
+            # An escaping path.
+            escaping = json.loads(json.dumps(declaration))
+            escaping['reads'][test_local]['inputs'][0]['files'] = ['../outside.json']
+            fallback(escaping, 'escapes')
+            # An undeclared reader, an unused or unknown declaration, an absent anchor, a malformed shape.
+            undeclared = json.loads(json.dumps(declaration))
+            del undeclared['reads'][test_local]
+            fallback(undeclared, 'Missing runtime read declaration')
+            unknown = json.loads(json.dumps(declaration))
+            unknown['reads']['core/other/tests/gone.rs'] = unknown['reads'][test_local]
+            fallback(unknown, 'Unknown runtime read declarations')
+            absent = json.loads(json.dumps(declaration))
+            absent['reads'][test_local]['inputs'][0]['anchor'] = 'absent.json'
+            fallback(absent, 'anchor absent')
+            fallback({'source_trees': {}}, 'declaration shape')
+            (project / 'core/other/tests/read.rs').write_text('#[test] fn t() {}\n')
+            fallback(declaration, 'Unused runtime read declaration')
 
     def test_unsupported_compiled_and_aliased_runtime_reads_select_full(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -660,9 +1148,18 @@ class ReachabilitySafetyTests(unittest.TestCase):
         # Each selection below is its named direct readers plus every crate that depends on
         # one of them or on product_physics, computed from the Cargo graph: a new caller joins
         # without an edited count (report_standing depends on result_export and not on
-        # product_physics), and an omitted reader or caller still fails.
+        # product_physics), and an omitted reader or caller still fails. A crate beyond those is
+        # only a declared reader that a crate naming a changed file by a literal depends on.
         manifests = ci.readiness.discover_cargo_manifests(ROOT)
         dependencies = ci.cargo_dependencies(ROOT, manifests)
+        declared = {max((m for m in manifests if (ROOT / local).is_relative_to(ROOT / m.parent)), key=lambda m: len(m.parts)).as_posix()
+                    for local in profile['piping_runtime_reads']['reads']}
+        def assert_readers_and_product_callers(selected, readers):
+            expected = readers_and_product_callers(readers)
+            extra = sorted(set(selected['manifests']) - set(expected))
+            literal = {r['manifest'] for r in selected['reasons'] if r.get('kind') == 'literal-reader-dependency'}
+            self.assertEqual(sorted(set(expected) - set(selected['manifests'])), [])
+            self.assertEqual([m for m in extra if m not in literal or m not in declared], [])
         def readers_and_product_callers(readers):
             callers = {Path('core/product_physics/Cargo.toml')} | {Path(r) for r in readers}
             while True:
@@ -682,7 +1179,7 @@ class ReachabilitySafetyTests(unittest.TestCase):
             self.assertEqual(selected['classification'], 'reachability', selected['fallback_reasons'])
             # #1246 also edits the desktop manifest read by VR's feature guard.
             extra = ['validation/benchmarks/numerical_robustness/Cargo.toml'] if head == 'c986759b21605293e29383dd2b660ab5acb7c3fb' else []
-            self.assertEqual(sorted(selected['manifests']), readers_and_product_callers(readers + extra))
+            assert_readers_and_product_callers(selected, readers + extra)
             self.assertIn('core/reporting/result_export/Cargo.toml', selected['manifests'])
             # Named literally, not only through the Cargo graph the planner also reads: a
             # dependent of result_export outside product_physics' callers (#328's review).
@@ -698,7 +1195,7 @@ class ReachabilitySafetyTests(unittest.TestCase):
         selected = hosted_ci.select_paths([ci.PROJECT + 'fixtures/results/retained_precision_cases.json'], profile)['piping_numerical_selection']
         self.assertEqual(selected['classification'], 'reachability')
         # Its readers, and every caller of product_physics, one of them.
-        self.assertEqual(sorted(selected['manifests']), readers_and_product_callers(readers))
+        assert_readers_and_product_callers(selected, readers)
         self.assertIn('core/reporting/result_export/Cargo.toml', selected['manifests'])
         # The retired snapshot has no current reader edge; unknown reads stay full.
         retired = hosted_ci.select_paths([ci.PROJECT + 'fixtures/results/retained_precision_cases_07o.json'], profile)['piping_numerical_selection']

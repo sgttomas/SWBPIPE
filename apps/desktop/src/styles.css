@@ -1726,7 +1726,7 @@ fieldset.viewport-intent-controls {
 
 .agent-action-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 7px;
 }
 
@@ -3392,6 +3392,131 @@ tbody tr:hover { background-image: linear-gradient(var(--hover-wash), var(--hove
   border-left: 2px solid #eef1ef;
 }
 
+/* The Rules page: the project's packs as a short list, one button to start a
+   pack, and an open pack's parts as closed lines that open in place. */
+.rule-pack-manager-panel {
+  gap: var(--space-4);
+}
+
+.rule-pack-scope,
+.rule-pack-node-note,
+.rule-pack-row-state,
+.rule-pack-part-summary {
+  color: var(--ui-muted);
+}
+
+.rule-pack-actions,
+.rule-pack-save-controls,
+.rule-pack-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.rule-pack-primary {
+  color: var(--ui-accent-text);
+  background: var(--ui-accent);
+  border-color: var(--ui-accent);
+}
+
+.rule-pack-list {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.rule-pack-list-row,
+.rule-pack-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-5);
+}
+
+.rule-pack-list-row {
+  padding: var(--space-2) 0;
+  border-bottom: var(--border-width-hairline) solid var(--ui-divider);
+}
+
+.rule-pack-list-row .rule-pack-row-actions {
+  margin-left: auto;
+}
+
+.rule-pack-open {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: var(--border-width-hairline) solid var(--ui-divider);
+}
+
+.rule-pack-findings-words ul {
+  margin: var(--space-1) 0 0;
+  padding-left: var(--space-7);
+  color: var(--ui-error-text);
+  font-size: var(--type-size-body);
+}
+
+.rule-pack-part {
+  border-bottom: var(--border-width-hairline) solid var(--ui-divider);
+}
+
+.rule-pack-part > summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-5);
+  padding: var(--space-3) 0;
+  cursor: pointer;
+}
+
+.rule-pack-part > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* A flex summary loses the browser's marker; the line still says it opens. */
+.rule-pack-part > summary::before {
+  content: "\25B8";
+  color: var(--ui-muted);
+}
+
+.rule-pack-part[open] > summary::before {
+  content: "\25BE";
+}
+
+.rule-pack-part-title {
+  font-weight: var(--type-weight-semibold);
+}
+
+.rule-pack-part-fault,
+.rule-pack-refusal {
+  color: var(--ui-error-text);
+}
+
+.rule-pack-part-body {
+  display: grid;
+  gap: var(--space-4);
+  padding: 0 0 var(--space-4) var(--space-5);
+}
+
+.rule-pack-subheading {
+  font-size: var(--type-size-body);
+}
+
+.rule-pack-disclosure > summary {
+  color: var(--ui-muted);
+  font-size: var(--type-size-body);
+  cursor: pointer;
+}
+
+.rule-pack-disclosure[open] {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.rule-pack-reads-as {
+  font-size: var(--type-size-body);
+}
+
 /* Accepted vocabulary navigation; forms continue to own draft and operation state. */
 .toolkit-palette { position: relative; padding: 0.45rem 0.7rem; border-bottom: 1px solid var(--border, #344152); }
 .toolkit-commands { padding: 0.7rem 0; max-height: min(60vh, 36rem); overflow: auto; }
@@ -4472,6 +4597,18 @@ body { min-width: 760px; min-height: 540px; }
 /* The units dialog's Preset line: the label and its select side by side with a gap, so that the
    select's focus ring does not cover the label. */
 .project-units-dialog .project-units-preset { display: inline-flex; align-items: center; gap: var(--space-4); }
+/* The dialog's starting model: a two-option radio group with one help line, drawn from the
+   theme's own text and border tokens so it reads in the light and dark themes alike. */
+.project-units-dialog .project-units-kind {
+  display: flex; flex-direction: column; gap: var(--space-1);
+  margin: 0 0 var(--space-3); padding: var(--space-2) var(--space-3);
+  border: var(--border-width-hairline) solid var(--border-hairline); border-radius: var(--radius-card);
+  color: var(--text-primary);
+}
+.project-units-dialog .project-units-kind legend { padding: 0 var(--space-1); font-weight: var(--type-weight-semibold); color: var(--text-primary); }
+.project-units-dialog .project-units-kind label { display: flex; align-items: baseline; gap: var(--space-2); cursor: pointer; }
+.project-units-dialog .project-units-kind input[type="radio"] { margin: 0; accent-color: var(--selection-bar); }
+.project-units-dialog .project-units-kind p { margin: var(--space-1) 0 0; font-size: var(--type-size-caption); color: var(--text-secondary); }
 
 /* DEL-07-05 numerical health badges: the state text is always shown; colour only repeats it. */
 .numerical-health-badge {
@@ -4481,12 +4618,6 @@ body { min-width: 760px; min-height: 540px; }
   border-radius: 3px;
   font-weight: 600;
   white-space: normal;
-}
-.numerical-health-green {
-  color: var(--text-primary);
-  border-color: var(--cat-3);
-  box-shadow: inset 3px 0 0 var(--cat-3);
-  background: var(--surface-panel);
 }
 .numerical-health-red {
   color: var(--status-failedInk);
@@ -4881,6 +5012,11 @@ body { min-width: 760px; min-height: 540px; }
   inset: min(-1px, calc((100% - 24px) / 2)) min(-1px, calc((100% - 24px) / 2));
 }
 
+/* Human controls: the table drawer's chevron, where the drawer collapses, carries its name
+   ("Show tree and tables"), so the tree is not behind an unlabelled glyph. */
+.app-shell .shell-tab-strip .shell-drawer-chevron { display: inline-flex; align-items: center; gap: var(--space-2); }
+.app-shell .shell-tab-strip .shell-drawer-chevron-label { font-size: var(--type-size-caption); white-space: nowrap; }
+
 /* A page or pane that could not be shown (`PartErrorBoundary.tsx`): its message stands in the part's
    place, no larger than the part, and the rest of the window keeps working. The window's own
    message (`WindowErrorBoundary`) stands alone in the document, outside `.app-shell`. */
@@ -4900,4 +5036,41 @@ body { min-width: 760px; min-height: 540px; }
 .shell-window-error button {
   padding: var(--space-3) var(--space-5); color: var(--text-primary); font: inherit; background: var(--surface-raised);
   border: 1px solid var(--border-strong); border-radius: var(--radius-card); cursor: pointer;
+}
+
+/* The Project page (ProjectPage.tsx): one column, what a person came for first, the
+   storage record last behind one closed disclosure. */
+.workspace-dock-section[data-testid="workspace-section-project"]:not(.inactive) { display: block; }
+.project-page { display: flex; flex-direction: column; gap: var(--space-4); max-width: 960px; padding: var(--space-3) var(--space-4); }
+.project-page-head h3 { margin: 0; font-size: var(--type-size-body); font-weight: var(--type-weight-semibold); color: var(--ui-text); overflow-wrap: anywhere; }
+.project-page-head p { margin: var(--space-1) 0 0; color: var(--ui-muted); }
+.project-page-recover { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2); }
+.project-page-saved h4 { margin: 0 0 var(--space-2); font-size: var(--type-size-caption); font-weight: var(--type-weight-semibold); color: var(--ui-text); }
+.project-page-saved ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+.project-page-saved li button { display: inline-flex; align-items: baseline; gap: var(--space-2); max-width: 100%; text-align: left; }
+.project-page-saved .project-saved-name { overflow-wrap: anywhere; }
+.project-page-saved p { margin: 0; }
+.project-storage-record { border-top: var(--border-width-hairline) solid var(--ui-divider); padding-top: var(--space-2); }
+.project-storage-record > summary { cursor: pointer; color: var(--ui-muted); }
+.project-storage-record-body { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap: var(--space-2); margin-top: var(--space-2); align-items: start; }
+.project-storage-record-body > .panel { min-width: 0; }
+
+/* Persistent report output outcomes live region (DEL-08-01 REQ-022): kept mounted
+   outside the dormant Report section so screen readers monitor polite live updates
+   before any outcome exists. When empty it takes no layout space and stays non-visible
+   to checkVisibility({ checkOpacity: true }) without display:none or visibility:hidden. */
+.report-output-status-region {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0;
+}
+.report-output-status:empty {
+  height: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
 }

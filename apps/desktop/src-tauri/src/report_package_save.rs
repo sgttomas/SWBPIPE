@@ -47,7 +47,8 @@
 //! carries `exact_route`, is bound to its source natively right after the
 //! request text is parsed and before the other content checks: the named
 //! job's custody, the resubmitted result and intake texts against the digests
-//! the host recorded for that job, the native reader's eligible standing, the
+//! the host recorded for that job, the native reader's reading of a solved
+//! result (whatever its numerical standing, DEL-08-01 REQ-024), the
 //! admission's digests, then the request's source and the model text against
 //! the delivered result and the solved model (`exact_source_binding.rs`).
 //! Custody is checked again after the save dialog and before the write.
@@ -99,6 +100,7 @@ use crate::export_disposition_screen::{
 use crate::exact_source_binding::{self as exact_binding, ExactRefusal};
 use crate::report_package_bridge::{self, ReportPackageRequest};
 use crate::memory_pool::{Lease, ResourceRefusal};
+use crate::saved_package_entries::{self, EntryBasis, PublishedPackage, SavedPackageBasis, SavedPackageEntryOutcome};
 use crate::solve_attestation::SolveAttestation;
 use crate::solve_jobs::{CustodyDigests, SolveJobError, SolveJobRegistry};
 use crate::user_release_admission::{self as user_release_native, LibraryRefusal};
@@ -114,6 +116,9 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::BTreeSet;
 use std::path::PathBuf;
+
+/// The export context of a route-009 package (its report context's).
+pub(crate) const LOCAL_PRIVATE_CONTEXT: &str = "local_private";
 
 /// The governed local-first route of this save.
 pub const REPORT_PACKAGE_SAVE_ROUTE_ID: &str = "DREP-PACKAGE-SAVE-009";
@@ -259,10 +264,54 @@ pub struct ReportPackageSaveRequest {
     /// delivered and the model text the job was sent.
     pub exact_result_text: Option<String>,
     pub exact_intake_text: Option<String>,
-    /// W-18b (§2.5 step 2): on route 010 only, the solve's DEL-14-02 0.3.0
-    /// transient run record as its canonical text; a validation input only,
-    /// never saved.
+    /// W-18b (§2.5 step 2): the solve's DEL-14-02 0.3.0 transient run
+    /// record as its canonical text; a validation input only, never saved.
+    /// Route 010 requires it. On route 009 it is optional and decides only
+    /// the saved-package entry's basis (DEL-08-01 REQ-023): it never refuses
+    /// or fails the save.
     pub analysis_run_text: Option<String>,
+    /// The saved-package entry holder token the page presents
+    /// (`savedPackageEntryHolder`), from an earlier held save of the same
+    /// document session (DEL-08-01 REQ-023 "Before the first project save").
+    pub saved_package_entry_holder: Option<String>,
+    /// Route 009: a run record was given and dropped after the raw ingress,
+    /// the save's growth not fitting its budget with it
+    /// ([`Self::drop_route_009_record_for_memory`]); the entry is then not
+    /// checked ([`EntryBasis::NotChecked`]). Never decoded from the arguments.
+    pub analysis_run_dropped_for_memory: bool,
+}
+
+impl ReportPackageSaveRequest {
+    /// Drops route 009's optional run record for memory (DEL-08-01 REQ-023:
+    /// the record never refuses the save) and returns the bytes the raw
+    /// ingress priced for its decoded text (the prescan's allocation envelope
+    /// of its length), which the caller releases; `None` on route 010 or with
+    /// no record. Admission then records [`EntryBasis::NotChecked`].
+    pub(crate) fn drop_route_009_record_for_memory(&mut self) -> Option<u64> {
+        if SaveRoute::of(self) != SaveRoute::LocalPrivate {
+            return None;
+        }
+        let text = self.analysis_run_text.take()?;
+        self.analysis_run_dropped_for_memory = true;
+        Some(crate::ingress::allocation_envelope(text.len() as u64).unwrap_or(0))
+    }
+
+    /// The bytes the request's decoded texts still hold, priced as the
+    /// prescan prices each (its allocation envelope).
+    pub(crate) fn texts_bytes(&self) -> u64 {
+        [
+            Some(&self.request_text),
+            Some(&self.model_text),
+            Some(&self.input_manifest_text),
+            self.exact_result_text.as_ref(),
+            self.exact_intake_text.as_ref(),
+            self.analysis_run_text.as_ref(),
+            self.saved_package_entry_holder.as_ref(),
+        ]
+        .into_iter()
+        .flatten()
+        .fold(0u64, |bytes, text| bytes.saturating_add(crate::ingress::allocation_envelope(text.len() as u64).unwrap_or(u64::MAX)))
+    }
 }
 
 /// The custody lookup of the native source binding: the registry's
@@ -288,6 +337,8 @@ pub(crate) fn save_report_package_args(args: &mut Args) -> Result<ReportPackageS
         exact_result_text: args.decode("exactResultText")?,
         exact_intake_text: args.decode("exactIntakeText")?,
         analysis_run_text: args.decode("analysisRunCanonicalText")?,
+        saved_package_entry_holder: args.decode("savedPackageEntryHolder")?,
+        analysis_run_dropped_for_memory: false,
     })
 }
 
@@ -344,6 +395,10 @@ pub struct ReportPackageSaveReceipt {
     /// and "" on a cancelled dialog.
     pub user_release_recorded: bool,
     pub user_release_model_document_sha256: String,
+    /// DEL-08-01 REQ-023 "Entry": the entry-storage outcome, reported apart
+    /// from the package's (`outcome`, `code`, `durability`). It never names
+    /// the saved location.
+    pub saved_package_entry: crate::saved_package_entries::SavedPackageEntryOutcome,
 }
 
 #[derive(Debug, Serialize)]
@@ -581,11 +636,122 @@ fn analysis_run_text_of(analysis_run_text: Option<&str>) -> Result<&str, ReportP
     Ok(text)
 }
 
+/// Route 009's run record, checked natively for the package's
+/// saved-package entry with route 010's verification
+/// ([`user_release_native::verify_run_record`], with the solve builder's
+/// status rule; DEL-08-01 REQ-023 "Basis"). The record is optional to the save, so
+/// nothing here refuses or fails it:
+/// - an absent record is [`EntryBasis::NoRunRecord`];
+/// - a text above [`MAX_ANALYSIS_RUN_TEXT_BYTES`], or one the
+///   allocation-free ingress prescan refuses, is [`EntryBasis::Unverified`]
+///   and is never handed to the JSON parser;
+/// - the text's priced parse is then taken as an extra growth of the
+///   command's lease (`session`), apart from the save's own; if the pool
+///   refuses it, or refuses a reservation of the check, the record is
+///   [`EntryBasis::NotChecked`] and the package is saved exactly as without
+///   it;
+/// - a record that is not canonical or does not verify, or whose recomputed
+///   hash is not the package's own analysis-record checksum (`run_hashes`,
+///   the entry naming its run as an `AnalysisRun`, as
+///   `report_package::bindings` reads it), is [`EntryBasis::Unverified`].
+///
+/// The basis is the model text's SHA-256 and the verified record's run id,
+/// the record hash the verification recomputed, and its received-result
+/// checksum.
+fn route_009_entry_basis(
+    text: String,
+    project_id: &str,
+    source: &Value,
+    run_hashes: Option<&Value>,
+    input_manifest: &Value,
+    input_manifest_hex: &str,
+    model_hex: &str,
+    session: Option<&mut UserReleaseSession<'_>>,
+) -> EntryBasis {
+    if text.len() as u64 > MAX_ANALYSIS_RUN_TEXT_BYTES {
+        return EntryBasis::Unverified;
+    }
+    let Ok(priced) = text_parse_bytes(&text, ArgsDecoding::Moved) else {
+        return EntryBasis::Unverified;
+    };
+    let verify = |memory: &dyn crate::stored_read::ReadMemory| {
+        let Ok(record) = parse_canonical("analysis_run", &text) else {
+            return EntryBasis::Unverified;
+        };
+        match user_release_native::verify_run_record(
+            project_id,
+            &record,
+            source,
+            input_manifest,
+            input_manifest_hex,
+            user_release_native::RunRecordStatus::RecordRun,
+            memory,
+        ) {
+            Ok(run_record_sha256) => {
+                let run_id = text_at(&record, "/analysis_run/run_id").unwrap_or_default();
+                if package_record_checksum(run_hashes, run_id) != Some(run_record_sha256.as_str()) {
+                    return EntryBasis::Unverified;
+                }
+                EntryBasis::Bound(SavedPackageBasis {
+                    model_hash: model_hex.to_string(),
+                    received_result_sha256: received_result_checksum(&record),
+                    run_id: run_id.to_string(),
+                    run_record_sha256,
+                })
+            }
+            Err(error) if error.contains(crate::stored_read::STORE_READ_MEMORY_UNAVAILABLE) => EntryBasis::NotChecked,
+            Err(_) => EntryBasis::Unverified,
+        }
+    };
+    match session {
+        Some(session) => {
+            if session.lease.grow_to(session.lease.bytes().saturating_add(priced)).is_err() {
+                return EntryBasis::NotChecked;
+            }
+            let memory = crate::stored_read::PoolReadMemory::new(session.registry, &*session.lease);
+            verify(&memory as &dyn crate::stored_read::ReadMemory)
+        }
+        None => verify(&crate::stored_read::UnmeteredReadMemory),
+    }
+}
+
+/// The analysis-record checksum a package's result document carries for
+/// `run_id`: the value of its `run_hashes` entry whose `payload_ref` is
+/// exactly `{ref_type: "AnalysisRun", ref_id: run_id}`.
+fn package_record_checksum<'a>(run_hashes: Option<&'a Value>, run_id: &str) -> Option<&'a str> {
+    run_hashes?
+        .as_array()?
+        .iter()
+        .find(|hash| {
+            hash.get("payload_ref").and_then(Value::as_object).is_some_and(|reference| {
+                reference.len() == 2
+                    && reference.get("ref_type").and_then(Value::as_str) == Some("AnalysisRun")
+                    && reference.get("ref_id").and_then(Value::as_str) == Some(run_id)
+            })
+        })?
+        .get("value")?
+        .as_str()
+}
+
+/// A checked run record's received-result checksum value.
+fn received_result_checksum(record: &Value) -> String {
+    record
+        .pointer("/analysis_run/hashes")
+        .and_then(Value::as_array)
+        .and_then(|hashes| hashes.iter().find(|hash| hash.get("payload_scope").and_then(Value::as_str) == Some("received_result")))
+        .and_then(|hash| hash.get("value"))
+        .and_then(Value::as_str)
+        .unwrap_or_default()
+        .to_string()
+}
+
 /// The command's route-aware ingress lease growth (W-18b, DEL-08-01 Design
 /// `report-user-release.md` §2.5, "The outer command"), after the evidence:
 /// - route 009: [`parse_lease_bytes_with_exact`] and the session Diagnostics
-///   check's provision ([`session_check_lease_bytes`]); a run record text is
-///   refused (it is route 010's);
+///   check's provision ([`session_check_lease_bytes`]); its optional run
+///   record is not priced here: admission takes its parse as an extra growth
+///   of its own, which the pool may refuse without refusing the save
+///   (`route_009_entry_basis`);
 /// - route 010: D-6 adds the exact texts' capped, priced parse through
 ///   [`parse_lease_bytes_with_exact`], retaining the ordinary reservation over the
 ///   request, model and input-manifest texts and the run record text's
@@ -607,9 +773,6 @@ fn analysis_run_text_of(analysis_run_text: Option<&str>) -> Result<&str, ReportP
 pub fn ingress_lease_bytes(request: &ReportPackageSaveRequest) -> Result<u64, ReportPackageSaveCommandError> {
     validate_report_package_save_evidence(&request.screening, request.local_first.as_ref())?;
     if request.screening.route_id != REPORT_PACKAGE_USER_RELEASE_ROUTE_ID {
-        if request.analysis_run_text.is_some() {
-            return Err(refuse(REQUEST_INVALID, "/analysis_run", "Only route DREP-PACKAGE-USER-RELEASE-010 carries a run record text."));
-        }
         return Ok(parse_lease_bytes_with_exact(
             &request.request_text,
             &request.model_text,
@@ -729,6 +892,12 @@ pub struct AdmittedReportPackage {
     /// W-18b (§2.3): the model document SHA-256 a route-010 package's
     /// user-release record is bound to; `None` on route 009.
     pub user_release_model_document_sha256: Option<String>,
+    /// DEL-08-01 REQ-023: what admission bound for the package's
+    /// saved-package entry: the model text's project id, the export context
+    /// of the route, and the basis.
+    pub(crate) entry_project_id: String,
+    pub(crate) entry_export_context: &'static str,
+    pub(crate) entry_basis: crate::saved_package_entries::EntryBasis,
 }
 
 fn text_at<'a>(value: &'a Value, pointer: &str) -> Option<&'a str> {
@@ -1099,7 +1268,6 @@ fn bind_exact_save_source(
         &digests,
         exact_result_text.unwrap_or(""),
         exact_intake_text.unwrap_or(""),
-        exact_binding::SourceAdmission::Eligible,
     )
     .map_err(|refusal| exact_refused(refusal, ADMISSION))?;
     // The save's own equalities: the request's source is the delivered result,
@@ -1114,8 +1282,9 @@ fn bind_exact_save_source(
         return Err(exact_refused(exact_binding::not_delivered("model"), "/model"));
     }
     // DEL-08-01 REQ-024: the packaged report states the standing record the reader
-    // derives from the bound result and model, exactly, after the
-    // save's own equalities above.
+    // derives from the bound result and model, exactly, after the save's own
+    // equalities above, for every result the binding admits: numerical standing
+    // is stated here, never a ground for refusing the save or the user release.
     let derived = open_pipe_stress_report_standing::report_standing::historical_standing_record(&bound.source, &bound.model, &bound.standing).ok();
     if derived.is_none() || request.pointer("/report/numerical_standing") != derived.as_ref() {
         return Err(exact_refused(exact_binding::sections_mismatch("numerical_standing"), "/request/report/numerical_standing"));
@@ -1216,9 +1385,10 @@ pub fn save_report_package_session(
     custody: &CustodyLookup<'_>,
     session: &mut UserReleaseSession<'_>,
     choose: impl FnOnce(&str) -> Option<Result<PathBuf, String>>,
+    keep: &mut dyn FnMut(&PublishedPackage) -> SavedPackageEntryOutcome,
 ) -> Result<ReportPackageSaveReceipt, SaveRefusal> {
     let admitted = admit_both_routes(request, software, lookup, custody, Some(session))?;
-    Ok(save_admitted_report_package_in(admitted, custody, choose)?)
+    Ok(save_admitted_report_package_keeping(admitted, custody, choose, keep)?)
 }
 
 /// The route a save command's outcome leaves under, read from the screening
@@ -1455,6 +1625,8 @@ fn admit_both_routes(
         exact_result_text,
         exact_intake_text,
         analysis_run_text,
+        saved_package_entry_holder: _,
+        analysis_run_dropped_for_memory,
     } = request;
     validate_report_package_save_evidence(&screening, local_first.as_ref())?;
     let user_release_route = screening.route_id == REPORT_PACKAGE_USER_RELEASE_ROUTE_ID;
@@ -1464,10 +1636,9 @@ fn admit_both_routes(
         check_exact_text_sizes(exact_result_text.as_deref(), exact_intake_text.as_deref())?;
         analysis_run_text_of(analysis_run_text.as_deref())?;
     } else {
+        // Route 009's run record text is checked for the entry only, after
+        // the package's own admission, and never refuses the save.
         check_exact_text_sizes(exact_result_text.as_deref(), exact_intake_text.as_deref())?;
-        if analysis_run_text.is_some() {
-            return Err(refuse(REQUEST_INVALID, "/analysis_run", "Only route DREP-PACKAGE-USER-RELEASE-010 carries a run record text.").into());
-        }
     }
 
     // Canonical binding: the evidence names exactly this request text.
@@ -1483,6 +1654,9 @@ fn admit_both_routes(
     let request_value = parse_canonical("request", &request_text)?;
     drop(request_text);
     check_request_object_form(&request_value)?;
+    if user_release_route {
+        check_user_release_record_version(&request_value)?;
+    }
     // D-6: both routes require W-11's exact source binding below. Route 010
     // additionally retains its solve attestation and whole-request derivation.
     // W-11 (§3.6): the native source binding of an exact-route request, before
@@ -1548,12 +1722,15 @@ fn admit_both_routes(
     }
     check_manifest_model(&input_manifest_value, &model_value, &model_hex)?;
     let solve_packs = solve_rule_packs(&input_manifest_value)?;
-    // Route 010 keeps the input manifest for its derivation (step 9).
-    let input_manifest_value = if user_release_route {
-        Some(input_manifest_value)
+    // Route 010 keeps the input manifest for its derivation (step 9); route
+    // 009 keeps it only to check a run record it was given (REQ-023).
+    let (input_manifest_value, route_009_manifest) = if user_release_route {
+        (Some(input_manifest_value), None)
+    } else if analysis_run_text.is_some() {
+        (None, Some(input_manifest_value))
     } else {
         drop(input_manifest_value);
-        None
+        (None, None)
     };
 
     // Disposition screening of both values, then the context bindings.
@@ -1587,7 +1764,7 @@ fn admit_both_routes(
     check_rule_packs_agree(&request_value, &solve_packs, user_release_route)?;
     drop(solve_packs);
 
-    let (package, user_release_model_document_sha256) = match (model_value, input_manifest_value) {
+    let (package, user_release_model_document_sha256, entry_basis) = match (model_value, input_manifest_value) {
         (Some(model_value), Some(input_manifest_value)) => {
             let session = session.ok_or_else(|| {
                 SaveRefusal::from(refuse(RESULT_NOT_ATTESTED, "/request/source_results/0", "No session attestation table is available to this admission."))
@@ -1601,17 +1778,45 @@ fn admit_both_routes(
                 project_id: &project_id,
             };
             let run_text = analysis_run_text.expect("checked at step 2");
-            (admit_user_released(request_value, bound, run_text, software, session)?, Some(model_hex.clone()))
+            let (package, basis) = admit_user_released(request_value, bound, run_text, software, session)?;
+            (package, Some(model_hex.clone()), EntryBasis::Bound(basis))
         }
         _ => {
-            // Typed conversion and the shared producer (§2.3).
-            (report_package_bridge::assemble_request(typed_request(request_value)?).map_err(ReportPackageSaveCommandError::bridge)?, None)
+            // The entry's basis (REQ-023), from a run record checked against
+            // this request's source result; then, unchanged, the typed
+            // conversion and the shared producer (§2.3).
+            let basis = match (&route_009_manifest, analysis_run_text) {
+                (Some(manifest), Some(text)) => {
+                    let source = request_value.pointer("/source_results/0").unwrap_or(&Value::Null);
+                    let run_hashes = request_value.pointer("/result_documents/0/result_envelope/reproducibility/run_hashes");
+                    route_009_entry_basis(text, &project_id, source, run_hashes, manifest, &input_manifest_hex, &model_hex, session)
+                }
+                _ if analysis_run_dropped_for_memory => EntryBasis::NotChecked,
+                _ => EntryBasis::NoRunRecord,
+            };
+            drop(route_009_manifest);
+            (
+                report_package_bridge::assemble_request(typed_request(request_value)?).map_err(ReportPackageSaveCommandError::bridge)?,
+                None,
+                basis,
+            )
         }
     };
+    let entry_export_context = if user_release_route { USER_RELEASED_CONTEXT } else { LOCAL_PRIVATE_CONTEXT };
     if package.export_blocked {
         return Err(ReportPackageSaveCommandError::bridge(format!("{PRODUCER_BLOCKED}: {}", package.blocking_reasons.join(" | "))).into());
     }
-    Ok(AdmittedReportPackage { package, screening, local_first, warnings, exact_custody, user_release_model_document_sha256 })
+    Ok(AdmittedReportPackage {
+        package,
+        screening,
+        local_first,
+        warnings,
+        exact_custody,
+        user_release_model_document_sha256,
+        entry_project_id: project_id,
+        entry_export_context,
+        entry_basis,
+    })
 }
 
 /// What route 010's steps 4-9 read, bound by the earlier steps.
@@ -1651,6 +1856,24 @@ fn refused_sized(code: &str, path: &str, detail: &str) -> ReportPackageSaveComma
 /// Step 4 (§2.5): the record is of its form (§2.3; no `content_binding`) and
 /// each bound member equals a value admission itself computed or already
 /// bound, never another caller field alone.
+/// DEL-08-01 REQ-024: the user-release record's version, first among route 010's
+/// checks of the request, before the exact source binding and every check that
+/// speaks of the route: a retired version is refused for its version, and the
+/// version follows the request's result natively, pressure-free with record
+/// 1.0.0 and exact with 1.2.0 (`user_release::check_record_version`). The
+/// record's other members are step 4's ([`check_user_release_record`]).
+fn check_user_release_record_version(request: &Value) -> Result<(), ReportPackageSaveCommandError> {
+    const VERSION: &str = "/request/report/report_context/user_release/record_version";
+    let Some(version) = text_at(request, "/report/report_context/user_release/record_version") else {
+        return Ok(());
+    };
+    user_release::check_record_version(version, Some(exact_request(request))).map_err(|message| {
+        // The library's refusal is "CODE: text", its code one of the two version codes.
+        let (code, text) = message.split_once(": ").unwrap_or((user_release::RECORD_VERSION_RETIRED, message.as_str()));
+        refuse(code, VERSION, text.to_string())
+    })
+}
+
 fn check_user_release_record(
     request: &Value,
     bound: &UserReleaseBound<'_>,
@@ -1700,7 +1923,7 @@ fn admit_user_released(
     run_text: String,
     software: &ExpectedSoftware,
     session: &mut UserReleaseSession<'_>,
-) -> Result<open_pipe_stress_report_package::ReportPackageContainerOutcome, SaveRefusal> {
+) -> Result<(open_pipe_stress_report_package::ReportPackageContainerOutcome, SavedPackageBasis), SaveRefusal> {
     // Step 4: the record's form and bindings.
     let record = check_user_release_record(&request, &bound)?;
     // Step 5: the reference refusals (§2.7).
@@ -1731,11 +1954,30 @@ fn admit_user_released(
     // Step 8: the run record.
     let run_record = parse_canonical("analysis_run", &run_text)?;
     drop(run_text);
-    {
+    let entry_basis = {
         let memory = crate::stored_read::PoolReadMemory::new(session.registry, session.lease);
-        user_release_native::check_run_record(bound.project_id, &run_record, source, &bound.input_manifest, bound.input_manifest_hex, &memory)
-            .map_err(|message| coded("/analysis_run", &message))?;
-    }
+        // DEL-08-01 REQ-023 "Basis", from the record just verified: its run
+        // id, the record hash the verification recomputed, and its
+        // received-result checksum, which the check found equal to the source
+        // result's checked SHA-256.
+        let run_record_sha256 = user_release_native::verify_run_record(
+            bound.project_id,
+            &run_record,
+            source,
+            &bound.input_manifest,
+            bound.input_manifest_hex,
+            user_release_native::RunRecordStatus::SolvesOwn,
+            &memory,
+        )
+        .map_err(|message| coded("/analysis_run", &message))?;
+        let received_result_sha256 = received_result_checksum(&run_record);
+        SavedPackageBasis {
+            model_hash: bound.model_hex.to_string(),
+            received_result_sha256,
+            run_id: text_at(&run_record, "/analysis_run/run_id").unwrap_or_default().to_string(),
+            run_record_sha256,
+        }
+    };
     // Step 9: the derivation and the producer, in one call.
     let identity = SoftwareIdentity { name: software.name.clone(), version: software.version.clone() };
     let inputs = user_release::UserReleaseInputs {
@@ -1745,12 +1987,37 @@ fn admit_user_released(
         software: &identity,
         record: &record,
     };
-    Ok(report_package_bridge::assemble_user_released_request(request, &inputs, &bound.input_manifest).map_err(ReportPackageSaveCommandError::bridge)?)
+    let package = report_package_bridge::assemble_user_released_request(request, &inputs, &bound.input_manifest).map_err(ReportPackageSaveCommandError::bridge)?;
+    Ok((package, entry_basis))
 }
 
 impl AdmittedReportPackage {
-    fn receipt(self, outcome: &str, stage: &str, code: String, written: Option<atomic_report_package_save::AtomicSaveOutcome>) -> ReportPackageSaveReceipt {
-        let Self { package, screening, local_first, warnings, exact_custody: _, user_release_model_document_sha256 } = self;
+    /// The package as published at `location`, for its saved-package entry
+    /// (DEL-08-01 REQ-023): built from the package this save wrote, the
+    /// writer's durability and what admission bound.
+    pub(crate) fn published(&self, location: &std::path::Path, written: &atomic_report_package_save::AtomicSaveOutcome, saved_at: String) -> PublishedPackage {
+        PublishedPackage {
+            project_id: self.entry_project_id.clone(),
+            package_identity_sha256: self.package.package_identity_sha256_hex.clone(),
+            container_sha256: self.package.container_sha256_hex.clone(),
+            container_byte_count: self.package.container_bytes.len() as u64,
+            location: location.to_path_buf(),
+            saved_at,
+            export_context: self.entry_export_context.to_string(),
+            durability_confirmed: written.durability == "durable",
+            basis: self.entry_basis.clone(),
+        }
+    }
+
+    fn receipt(
+        self,
+        outcome: &str,
+        stage: &str,
+        code: String,
+        written: Option<atomic_report_package_save::AtomicSaveOutcome>,
+        saved_package_entry: SavedPackageEntryOutcome,
+    ) -> ReportPackageSaveReceipt {
+        let Self { package, screening, local_first, warnings, exact_custody: _, user_release_model_document_sha256, .. } = self;
         let byte_count = if written.is_some() { package.container_bytes.len() } else { 0 };
         // The package records the user release only once it is written: a
         // cancelled dialog writes nothing and records nothing (REQ-019, AC-010).
@@ -1803,6 +2070,7 @@ impl AdmittedReportPackage {
             warnings,
             user_release_recorded: user_release_model_document_sha256.is_some(),
             user_release_model_document_sha256: user_release_model_document_sha256.unwrap_or_default(),
+            saved_package_entry,
         }
     }
 }
@@ -1821,13 +2089,37 @@ pub fn save_admitted_report_package(
 /// [`save_admitted_report_package`] with the registry's custody lookup: an
 /// exact-route package's custody is checked again after the dialog returns
 /// and before the write, against the digests its binding checked (§3.6).
+/// It keeps no saved-package entry: a published package's entry outcome says
+/// so. The command saves through [`save_admitted_report_package_keeping`].
+#[cfg_attr(not(test), allow(dead_code))]
 pub fn save_admitted_report_package_in(
     admitted: AdmittedReportPackage,
     custody: &CustodyLookup<'_>,
     choose: impl FnOnce(&str) -> Option<Result<PathBuf, String>>,
 ) -> Result<ReportPackageSaveReceipt, ReportPackageSaveCommandError> {
+    save_admitted_report_package_keeping(admitted, custody, choose, &mut keep_no_entry)
+}
+
+/// The keeper of a save path that has no project store.
+#[cfg_attr(not(test), allow(dead_code))]
+pub(crate) fn keep_no_entry(_: &PublishedPackage) -> SavedPackageEntryOutcome {
+    SavedPackageEntryOutcome::not_kept(saved_package_entries::ENTRY_NOT_KEPT, "The package was saved, but this save path keeps no entry in a project.")
+}
+
+/// [`save_admitted_report_package_in`], then, once the package is published
+/// and only then, its saved-package entry through `keep` (DEL-08-01 REQ-023
+/// "Entry"). A cancelled, refused or failed save calls no keeper. The
+/// keeper's outcome is the receipt's `saved_package_entry`, apart from the
+/// package's outcome; a keeper that panics is reported as an entry not kept,
+/// and the published package is neither deleted nor rewritten.
+pub fn save_admitted_report_package_keeping(
+    admitted: AdmittedReportPackage,
+    custody: &CustodyLookup<'_>,
+    choose: impl FnOnce(&str) -> Option<Result<PathBuf, String>>,
+    keep: &mut dyn FnMut(&PublishedPackage) -> SavedPackageEntryOutcome,
+) -> Result<ReportPackageSaveReceipt, ReportPackageSaveCommandError> {
     let Some(selected) = choose(&admitted.package.container_file_name) else {
-        return Ok(admitted.receipt("cancelled", "picker", "REPORT-PACKAGE-SAVE-CANCELLED".to_string(), None));
+        return Ok(admitted.receipt("cancelled", "picker", "REPORT-PACKAGE-SAVE-CANCELLED".to_string(), None, SavedPackageEntryOutcome::not_applicable()));
     };
     if let Some((job, digests)) = &admitted.exact_custody {
         if custody(job) != Some(*digests) {
@@ -1836,8 +2128,16 @@ pub fn save_admitted_report_package_in(
     }
     let destination = selected.map_err(|error| ReportPackageSaveCommandError::bridge(format!("{PICKER_PATH_INVALID}: {error}")))?;
     let save = atomic_report_package_save::atomic_save_bytes(&destination, &admitted.package.container_bytes)?;
+    let published = admitted.published(&destination, &save, saved_package_entries::save_time());
+    let entry = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| keep(&published))).unwrap_or_else(|_| {
+        SavedPackageEntryOutcome::not_kept(
+            saved_package_entries::ENTRY_NOT_KEPT,
+            "The package was saved, but keeping its entry in the project did not complete, so it is not known to be kept.",
+        )
+    });
+    drop(published);
     let code = if save.durability == "durable" { "REPORT-PACKAGE-SAVED" } else { "REPORT-PACKAGE-SAVED-DURABILITY-UNCERTAIN" };
-    Ok(admitted.receipt("saved", "complete", code.to_string(), Some(save)))
+    Ok(admitted.receipt("saved", "complete", code.to_string(), Some(save), entry))
 }
 
 /// The shared invented report-package basis builder (DEL-08-01 Design §2.7),
@@ -2022,6 +2322,8 @@ pub(crate) mod test_support {
             exact_result_text: None,
             exact_intake_text: None,
             analysis_run_text: None,
+            saved_package_entry_holder: None,
+            analysis_run_dropped_for_memory: false,
         }
     }
 
@@ -2778,7 +3080,7 @@ mod tests {
             path_containment: crate::atomic_report_package_save::PATH_CONTAINMENT.to_string(),
             limitation: crate::atomic_report_package_save::TOCTOU_LIMITATION.to_string(),
         };
-        let receipt = admitted.receipt("saved", "complete", "REPORT-PACKAGE-SAVED-DURABILITY-UNCERTAIN".to_string(), Some(written));
+        let receipt = admitted.receipt("saved", "complete", "REPORT-PACKAGE-SAVED-DURABILITY-UNCERTAIN".to_string(), Some(written), SavedPackageEntryOutcome::not_applicable());
         assert_eq!((receipt.outcome.as_str(), receipt.durability.as_str()), ("saved", "saved_durability_uncertain"));
         assert!(receipt.byte_count > 0);
         assert_eq!((receipt.user_release_recorded, receipt.user_release_model_document_sha256.as_str()), (true, bound.as_str()));

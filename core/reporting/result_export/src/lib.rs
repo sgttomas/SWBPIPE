@@ -1700,6 +1700,10 @@ mod physics_evidence;
 /// presence, message and references the pressure readers bind to the exception record; the
 /// report quotes it as product text (`report_package::bindings`; desktop `suppliedDiagnostics.ts`).
 pub use physics_evidence::{cap_remainder_warning_message, CAP_REMAINDER_WARNING_CODE, CAP_REMAINDER_WARNING_MESSAGE};
+/// DEL-05-01 REQ-008 (issue 452): the generated-load identities the
+/// model-bound reader rederives for a case, which the product test compares
+/// with the generator's.
+pub use physics_evidence::expected_generated_load_ids;
 // W-16 slice b (DEL-05-02 Design `exact-combinations.md` §6): the pressure-2
 // reader's combination pass.
 mod exact_combination_evidence;

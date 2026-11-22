@@ -1296,8 +1296,8 @@ describe("numerical health report line", () => {
   const healthOf = (result: MechanicsResult, eligible: boolean) =>
     numericalHealthView(readNumericalHealth(result, numericalResultStanding(result).findings), { eligible, verdictHold: false });
   const LINES = [
-    { row_id: "numerical-health:load:é", label: "Numerical health of the ordinary solve: checks passed.", case_ref: "load_case:load:é", quantity_display: "", source_ref: "diagnostic:numerical-integrity:load:é" },
-    { row_id: "numerical-health:load:𝔫", label: "Numerical health of the ordinary solve: checks passed.", case_ref: "load_case:load:𝔫", quantity_display: "", source_ref: "diagnostic:numerical-integrity:load:𝔫" }
+    { row_id: "numerical-health:load:é", label: "Numerical health of the ordinary solve: solver checks found no problem.", case_ref: "load_case:load:é", quantity_display: "", source_ref: "diagnostic:numerical-integrity:load:é" },
+    { row_id: "numerical-health:load:𝔫", label: "Numerical health of the ordinary solve: solver checks found no problem.", case_ref: "load_case:load:𝔫", quantity_display: "", source_ref: "diagnostic:numerical-integrity:load:𝔫" }
   ];
 
   it("appends one line per load case after the result rows, so before the diagnostics section, and only when supplied", async () => {
@@ -1353,7 +1353,7 @@ describe("numerical health report line", () => {
   it("shows the line in the report packet body before its diagnostics lines", () => {
     unredacted();
     render(reportPanel(generic(), true));
-    expect(screen.getByTestId("report-numerical-health-load:é")).toHaveTextContent("Numerical health of the ordinary solve: checks passed.");
+    expect(screen.getByTestId("report-numerical-health-load:é")).toHaveTextContent("Numerical health of the ordinary solve: solver checks found no problem.");
     const body = screen.getByTestId("report-packet-body").textContent ?? "";
     expect(body.indexOf("Numerical health of the ordinary solve")).toBeLessThan(body.indexOf("Diagnostic scope"));
   });
@@ -1761,7 +1761,7 @@ describe("library-reference findings in the captured report source (DEL-08-01 RE
     expect(reportDiagnostics(next)).toHaveLength(1);
     // The earlier selected report saved after the change: its outcome says the workspace changed.
     const outcomes = current.reportOutputs;
-    const id = outcomes.begin("save", { sequence: capturedSequence, model: model.project.id, run: inputs.result.run_id });
+    const id = outcomes.begin("save", { sequence: capturedSequence, projectId: model.project.id, model: model.project.id, run: inputs.result.run_id });
     outcomes.settle(id, saveSettlement({ kind: "done", receipt: { outcome: "saved", route_id: "DREP-HTML-SAVE-005", export_context: "local_private", sha256_hex: "b".repeat(64), byte_count: 42, file_name: "invented.html", replaced_existing: false, durability: "durable" } }));
     expect(reportOutputText(outcomes.snapshot().at(-1)!, current.reportSourceSequence)).toContain("Saved the selected report. The workspace has changed since it was prepared.");
     hook.unmount();

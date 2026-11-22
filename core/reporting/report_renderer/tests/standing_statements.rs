@@ -127,3 +127,82 @@ fn a_record_carrying_a_tag_outside_the_vocabulary_is_refused_by_name() {
         assert!(error.contains(&format!("NUMERICAL_TAG_UNSUPPORTED: {vocabulary}")), "{pointer}: {error}");
     }
 }
+
+/// DEL-08-01 REQ-024, "Package and user release": the frame's two statements, each its
+/// own line. SUPPORT-STATES-FRAME is absent without a nonlinear support, and, where supports
+/// are not confirmed, states each one's reviewed reason (its support row's wording) once, in
+/// the order first met: the gap family fact for a gap support, else the support row's
+/// statement of the case's outcome. No case-table sentence appears in it, so nothing promises
+/// a quotation the frame does not carry. KEPT-FOR-INSPECTION-FRAME
+/// follows only where a load case carries the solver's recovery-basis mark, by its cause or
+/// by its integrity code; a gap support without the mark does not bring it.
+#[test]
+fn the_frame_states_support_states_and_kept_for_inspection_as_separate_lines() {
+    use open_pipe_stress_numerical_vocabulary::HistoricalCause;
+    // The support rows' reviewed reasons, as `support_reason` gives them for a non-gap support.
+    const ESTABLISHED: &str = "Not confirmed: the solver's confirmation reports this state established, conditional on the solver's inverse-norm step. This result does not publish the deciding quantity or its interval.";
+    const NO_RECORD: &str = "Not confirmed: the result records no support-state confirmation for this load case.";
+    const NOT_ESTABLISHED: &str = "Not confirmed: the solver's confirmation did not establish the support states of this load case.";
+    use open_pipe_stress_report_renderer::standing::{
+        cause_statement, frame_statements, kept_for_inspection_frame_statement, support_states_frame_statement, NumericalStanding,
+        GAP_NOT_CONFIRMED, KEPT_FOR_INSPECTION, SUPPORT_STATES_NOT_CONFIRMED,
+    };
+    let case = |id: &str, outcome: &str, behaviors: &[&str], code: Option<&str>, causes: &[&str]| {
+        serde_json::json!({
+            "case_id": id, "health": "sensitive", "integrity_code": code, "integrity_diagnostic_id": null,
+            "causes": causes.iter().map(|c| serde_json::json!({"cause": c, "diagnostic_id": null, "locations": []})).collect::<Vec<_>>(),
+            "confirmation": {"outcome": outcome, "detail": null, "status": null, "premises": []},
+            "supports": behaviors.iter().enumerate().map(|(i, b)| serde_json::json!({
+                "support_id": format!("support:{i}"), "behavior": b, "friction_normal": null, "state": "active", "state_row_id": null
+            })).collect::<Vec<_>>(),
+        })
+    };
+    let record = |cases: Vec<Value>| -> NumericalStanding {
+        serde_json::from_value(serde_json::json!({
+            "record_version": "historical_1", "evidence_member": "absent",
+            "figures": {"status": "unavailable", "reason": "older_document"},
+            "standing_findings": [], "counts": [], "cases": cases,
+        }))
+        .unwrap()
+    };
+    let kept = format!("{KEPT_FOR_INSPECTION} {}", cause_statement(HistoricalCause::RecoveryBasisUnqualified));
+    let linear = record(vec![case("load:A", "not_applicable", &[], Some("NUMERICAL_INTEGRITY_CHECKS_PASSED"), &[])]);
+    assert_eq!(frame_statements(&linear), Vec::<String>::new());
+
+    // The gap witness's form: the mark by cause and by code on each case; both lines, separately.
+    // A case with a gap and a one-way support gives both supports' reasons, each once.
+    let marked = record(vec![
+        case("load:A", "no_confirmation_record", &["gap", "one_way"], Some("NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED"), &["recovery_basis_unqualified"]),
+        case("load:B", "no_confirmation_record", &["gap"], Some("NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED"), &["recovery_basis_unqualified"]),
+    ]);
+    assert_eq!(frame_statements(&marked), vec![format!("{SUPPORT_STATES_NOT_CONFIRMED} {GAP_NOT_CONFIRMED} {NO_RECORD}"), kept.clone()]);
+
+    // Nonlinear supports without the mark: the first line only.
+    let unmarked = record(vec![
+        case("load:A", "solver_reported_established", &["friction"], Some("NUMERICAL_INTEGRITY_SENSITIVE"), &["formation_recovery"]),
+        case("load:B", "not_applicable", &[], None, &[]),
+        case("load:C", "no_confirmation_record", &["one_way"], None, &[]),
+        case("load:D", "solver_reported_established", &["one_way"], None, &[]),
+    ]);
+    assert_eq!(frame_statements(&unmarked), vec![format!("{SUPPORT_STATES_NOT_CONFIRMED} {ESTABLISHED} {NO_RECORD}")]);
+
+    // The detailed non-establishment outcome: the support row's statement, which promises no
+    // quotation; the case table's sentence, which does, never appears in a frame line.
+    let detailed = record(vec![case("load:A", "not_established_detail_quoted", &["one_way", "lift_off"], None, &[])]);
+    assert_eq!(frame_statements(&detailed), vec![format!("{SUPPORT_STATES_NOT_CONFIRMED} {NOT_ESTABLISHED}")]);
+    // Supports under a not-applicable outcome are not confirmed, with the support rows' words.
+    let not_applicable = record(vec![case("load:A", "not_applicable", &["one_way"], None, &[])]);
+    assert_eq!(frame_statements(&not_applicable), vec![format!("{SUPPORT_STATES_NOT_CONFIRMED} Not confirmed.")]);
+    for line in [&marked, &unmarked, &detailed, &not_applicable].into_iter().flat_map(|r| frame_statements(r)) {
+        assert!(!line.contains("quoted below") && !line.contains("No nonlinear supports"), "{line}");
+    }
+
+    // A gap support is not the mark; either form of the mark alone brings the line.
+    assert_eq!(kept_for_inspection_frame_statement(&record(vec![case("load:A", "no_confirmation_record", &["gap"], None, &[])])), None);
+    assert_eq!(kept_for_inspection_frame_statement(&record(vec![case("load:A", "no_confirmation_record", &[], None, &["recovery_basis_unqualified"])])), Some(kept.clone()));
+    assert_eq!(
+        kept_for_inspection_frame_statement(&record(vec![case("load:A", "no_confirmation_record", &[], Some("NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED"), &[])])),
+        Some(kept)
+    );
+    assert_eq!(support_states_frame_statement(&linear), None);
+}

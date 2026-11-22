@@ -24,7 +24,7 @@ export type SplitPartsOpenRequest = { pipeId: string; serial: number };
 
 type Props = {
   model: PreviewModel;
-  onQueueBatch: (batch: OperationBatch) => void | Promise<void>;
+  onQueueBatch: (batch: OperationBatch) => void | Promise<unknown>;
   busy?: boolean;
   selectedPipeRefs?: readonly string[];
   openRequest?: SplitPartsOpenRequest | null;

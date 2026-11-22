@@ -24,6 +24,19 @@ describe("the solve timeline's code table", () => {
     }
   });
 
+  it("prefixes physics_evidence require checks even when written with a trailing comma", () => {
+    for (const code of [
+      "SOURCE_PHYSICS_TEST_CONDITION_HELD_SUPPORTS",
+      "SOURCE_PHYSICS_TERMINAL_SHAPE",
+      "SOURCE_PHYSICS_MATERIAL_G_BINDING",
+    ]) {
+      expect(READER_VERDICT_CODES).toContain(code);
+    }
+    for (const bare of ["TEST_CONDITION_HELD_SUPPORTS", "TERMINAL_SHAPE"]) {
+      expect(READER_VERDICT_CODES).not.toContain(bare);
+    }
+  });
+
   it("lists exactly the solver modes and job states as its lower-case codes", () => {
     expect([...LOWER_CODES].sort()).toEqual([...PREVIEW_SOLVER_MODES, ...BACKEND_JOB_STATES].sort());
   });

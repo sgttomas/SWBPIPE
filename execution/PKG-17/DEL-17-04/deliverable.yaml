@@ -117,6 +117,7 @@ checks:
 - core/handoff/caepipe_mbf_engine/tests/import_review.rs
 - core/handoff/caepipe_mbf_engine/tests/designation.rs
 - core/handoff/caepipe_mbf_engine/tests/sidecar_format6.rs
+- core/handoff/caepipe_mbf_engine/tests/pressure_free_shear_model.rs
 - core/handoff/caepipe_mbf_wasm/tests/export.rs
 - apps/desktop/src/services/mbfEngine.test.ts
 - apps/desktop/src-tauri/src/mbf_export.rs

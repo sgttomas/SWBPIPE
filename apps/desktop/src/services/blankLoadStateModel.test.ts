@@ -1,7 +1,7 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import {
-  BLANK_LOAD_STATE_MODEL_SCHEMA_VERSION, buildBlankLoadStateModelDocument, buildBlankLocalModelDocument, createLocalProject,
+  BLANK_LOAD_STATE_MODEL_SCHEMA_VERSION, BLANK_PROJECT_MESSAGE, buildBlankLoadStateModelDocument, buildBlankLocalModelDocument, createLocalProject,
   openLocalProject, MODEL_SCHEMA_VERSION
 } from "./projectService";
 import { canonicalSha256Hex, computeModelHash } from "./hashService";
@@ -18,16 +18,28 @@ const AT = new Date("2026-06-12T00:00:00Z");
 // = rad and changes nothing else (projectUnitSelection.test.ts checks that the
 // blank without angle still hashes to the previous pin). Model document 0.8.0 re-pinned
 // it by its version token only (the blank at 0.7.0 gives the former pin), and so did model
-// document 0.9.0 (the blank at 0.8.0 gives 76093a1c…).
-const BASE_BLANK_SHA256 = "db1df563735f7efdada01a59c2efde767e30a8023ac99cf63b2d8079b7115c07";
+// document 0.9.0 (the blank at 0.8.0 gives 76093a1c…). Re-pinned when a new document began to state its
+// shear model (`model_settings.shear_model`, timoshenko_annulus_energy_v1) and its diagnostic began to say so;
+// the blank without that record and with the former message gives the former pin, PRE_SHEAR_BLANK_SHA256, so
+// nothing else changed.
+const BASE_BLANK_SHA256 = "2ef27b28582fa6d15148b832fa6268ad0ee7347e2f1cab34f7be75c1c2942e22";
+const PRE_SHEAR_BLANK_SHA256 = "db1df563735f7efdada01a59c2efde767e30a8023ac99cf63b2d8079b7115c07";
+const FORMER_BLANK_MESSAGE = "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.";
 // T4-U8 (D-6/O3): the blank's contract carries the authoring default shear model.
 const CONTRACT = { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "timoshenko_annulus_energy_v1" };
 
 // The load/reference-state blank is the one current version, 0.9.0, with the exact
 // contract the group requires and an empty reference-configuration list (0.4.0 is retired).
 describe("blank load/reference-state model (T1 WP3 item 2; current model 0.9.0)", () => {
-  it("leaves the existing blank builder byte-identical", async () => {
-    expect(await canonicalSha256Hex(buildBlankLocalModelDocument(AT))).toBe(BASE_BLANK_SHA256);
+  it("leaves the existing blank builder byte-identical but for the stated shear model", async () => {
+    const blank = buildBlankLocalModelDocument(AT);
+    expect(await canonicalSha256Hex(blank)).toBe(BASE_BLANK_SHA256);
+    const { model_settings: settings, ...withoutSettings } = blank;
+    expect(settings).toEqual({ shear_model: "timoshenko_annulus_energy_v1" });
+    expect(blank.diagnostics.map(d => d.message)).toEqual([BLANK_PROJECT_MESSAGE]);
+    expect(BLANK_PROJECT_MESSAGE).toBe("Blank local model document is intentionally incomplete; no fixture entities, hidden loads or engineering values were inserted. Its one stated setting is shear deformation in straight members, included (Timoshenko), which the person can change.");
+    const former = { ...withoutSettings, diagnostics: withoutSettings.diagnostics.map(d => ({ ...d, message: FORMER_BLANK_MESSAGE })) };
+    expect(await canonicalSha256Hex(former)).toBe(PRE_SHEAR_BLANK_SHA256);
   });
 
   it("builds a 0.9.0 document with the current pressure contract (3.0.0/exact_pressure_v3) and no engineering content", async () => {
@@ -39,9 +51,12 @@ describe("blank load/reference-state model (T1 WP3 item 2; current model 0.9.0)"
     for (const key of ["materials", "sections", "nodes", "pipe_segments", "supports", "components", "load_cases", "combinations", "reference_configurations"] as const)
       expect(model[key]).toEqual([]);
     for (const key of ["rule_packs", "library_refs"]) expect(Object.hasOwn(model, key)).toBe(false);
-    // Only the contract, the empty reference configurations and the project name differ from the blank path.
+    // Only the contract, the empty reference configurations and the project name differ from the blank path,
+    // and the blank's stated shear model, which the exact contract holds instead (no document holds both).
     const { pressure_contract, reference_configurations, project, ...rest } = model;
-    const { project: blankProject, ...blankRest } = blank;
+    const { project: blankProject, model_settings: blankSettings, ...blankRest } = blank;
+    expect(blankSettings).toEqual({ shear_model: "timoshenko_annulus_energy_v1" });
+    expect(Object.hasOwn(model, "model_settings")).toBe(false);
     expect([pressure_contract, reference_configurations]).toEqual([CONTRACT, []]);
     expect(rest).toEqual(blankRest);
     expect({ ...project, name: blankProject.name }).toEqual(blankProject);
