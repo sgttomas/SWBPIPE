@@ -1140,48 +1140,92 @@ fn every_synthesized_identity_of_another_case_is_compared() {
     }
 }
 
-/// Round 2 review of pull request 479, the phase boundary: a generation that
-/// formation refuses never reaches load preparation. A stored nodal force
-/// whose dimension is not a moment's, on a rotation, is reported by load
-/// preparation (LOAD_INPUT_INVALID) when nothing else refuses the case. Beside
-/// (a) a listed stored primitive of the same case under a generated identity
-/// (EQUIVALENT_STATIC_GENERATED_ID_COLLISION) or (b) the wind direction
-/// `GLOBAL_Y` (EQUIVALENT_STATIC_INPUT_INVALID), the case is refused by that
-/// finding alone: the loads were not prepared, so LOAD_INPUT_INVALID is absent.
+/// Rounds 2 and 3 of the review of pull request 479, the phase boundary: a
+/// generation that formation refuses never reaches load preparation. A stored
+/// nodal force whose dimension is not a moment's, on a rotation, is reported
+/// by load preparation (LOAD_INPUT_INVALID) when nothing else refuses the
+/// case; each pair below first shows that on its control document. Its
+/// refused document differs only in the generation, which formation refuses
+/// by one of its EQUIVALENT_STATIC_* blockers: (a) a stored primitive of the
+/// same case under a generated identity (EQUIVALENT_STATIC_GENERATED_ID_COLLISION),
+/// listed on a load-state document and on a plain one; (b) the wind direction
+/// `GLOBAL_Y` (EQUIVALENT_STATIC_INPUT_INVALID), on a plain and a load-state
+/// document; (c) valid seismic inputs beside a wind input without its shape
+/// factor (EQUIVALENT_STATIC_INPUT_MISSING); (d) a rigid component's seismic
+/// force that rounds to zero (EQUIVALENT_STATIC_COMPONENT_RANGE_INVALID); and
+/// (e) valid seismic inputs beside wind marked on a connector-replaced span
+/// (EQUIVALENT_STATIC_WIND_SPAN_REPLACED). The case is refused by that finding
+/// alone: the loads, the seismic loads that did form among them, were not
+/// prepared, so LOAD_INPUT_INVALID is absent, in both modes.
 #[test]
 fn a_generation_refused_at_formation_never_reaches_load_preparation() {
     let unprepared = json!({"id": "load:unprepared", "category": "concentrated_force", "target": {"type": "node", "node": "node:b"},
         "direction": "rotation_x", "magnitude": qv(10.0, "N"), "dimension": "force", "provenance": PROV});
-    let codes_of = |wire: &Value, mode| codes(&run(wire, mode));
     let generated = format!("{CASE}:generated:seismic:global-y:element-0");
-    let (_, plain) = reference_request(&case_ref("W16C-SEISMIC-EX-EB"));
-    let ledger = |stored: Vec<Value>| {
-        let mut wire = load_state_document_of(&plain);
-        let case = &mut wire["model"]["load_cases"][0];
-        case["analysis_state"]["load_sources"] =
-            json!(stored.iter().map(|load| json!({"source_ref": load["id"], "factor": 1.0})).collect::<Vec<_>>());
-        case["primitive_loads"] = json!(stored);
+    // A load/reference-state document whose ledger lists every stored load.
+    let listed = |wire: &Value| {
+        let mut wire = load_state_document_of(wire);
+        for case in wire["model"]["load_cases"].as_array_mut().unwrap() {
+            let sources = case["primitive_loads"].as_array().unwrap().iter()
+                .map(|load| json!({"source_ref": load["id"], "factor": 1.0})).collect::<Vec<_>>();
+            case["analysis_state"]["load_sources"] = json!(sources);
+        }
         wire
+    };
+    let seismic_and_wind = |wind_input: Value| {
+        let mut generation = seismic();
+        generation["wind"] = wind_input["wind"].clone();
+        generation
     };
     let wind_case = |direction: &str| {
         let mut generation = wind(&["pipe:a-b"], vec![]);
         generation["wind"]["direction"] = json!(direction);
         cantilever(Route::Exact, EULER_BERNOULLI, vec![case(CASE, Some(generation), vec![unprepared.clone()])])
     };
-    for mode in MODES {
-        for (what, wire) in [("load-state", ledger(vec![unprepared.clone()])), ("wind global_y", wind_case("global_y"))] {
-            let found = codes_of(&wire, mode);
-            assert!(found.iter().any(|c| c == "LOAD_INPUT_INVALID"), "{what} {mode:?}: preparation reports the load: {found:?}");
+    let seismic_case = |stored: Vec<Value>| cantilever(Route::Exact, EULER_BERNOULLI, vec![case(CASE, Some(seismic()), stored)]);
+    let without_shape_factor = {
+        let mut input = wind(&["pipe:a-b"], vec![]);
+        input["wind"].as_object_mut().unwrap().remove("shape_factor");
+        input
+    };
+    let missing = |shape_factor: bool| {
+        let input = if shape_factor { wind(&["pipe:a-b"], vec![]) } else { without_shape_factor.clone() };
+        cantilever(Route::Exact, EULER_BERNOULLI, vec![case(CASE, Some(seismic_and_wind(input)), vec![unprepared.clone()])])
+    };
+    let component = |weight: f64| {
+        let span = length() / 3.0;
+        let mut generation = seismic();
+        generation["seismic"]["g_factor_x"] = qv(1.0e-30, "1");
+        let mut wire = document(Route::Exact, EULER_BERNOULLI,
+            vec![node("node:a", 0.0), node("node:b", span), node("node:c", 2.0 * span), node("node:d", 3.0 * span)],
+            vec![pipe("pipe:a-b", "node:a", "node:b", Route::Exact), pipe("pipe:b-c", "node:b", "node:c", Route::Exact), pipe("pipe:c-d", "node:c", "node:d", Route::Exact)],
+            vec![case(CASE, Some(generation), vec![unprepared.clone()])]);
+        wire["model"]["components"] = json!([{"id": "component:valve", "kind": "valve", "node": "node:c",
+            "geometry": {"rigid_pipe_ref": "pipe:b-c", "weight": qv(weight, "N"), "center_of_gravity": {"x": 0.0, "y": 0.12, "z": 0.0, "unit": "m"}},
+            "mechanics_interface": {"solver_consumption": "mechanics_geometry_only"}, "provenance": PROV}]);
+        wire
+    };
+    let replaced = |exposed: &str| with_replaced_tail(vec![case(CASE, Some(seismic_and_wind(wind(&[exposed], vec![]))), vec![unprepared.clone()])]);
+    let collided = vec![distributed(&generated, "pipe:a-b", "global_z", 250.0), unprepared.clone()];
+    let pairs = [
+        ("a listed same-case collision", listed(&seismic_case(vec![unprepared.clone()])), listed(&seismic_case(collided.clone())), "EQUIVALENT_STATIC_GENERATED_ID_COLLISION"),
+        ("a plain same-case collision", seismic_case(vec![unprepared.clone()]), seismic_case(collided), "EQUIVALENT_STATIC_GENERATED_ID_COLLISION"),
+        ("wind GLOBAL_Y", wind_case("global_y"), wind_case("GLOBAL_Y"), "EQUIVALENT_STATIC_INPUT_INVALID"),
+        ("load-state wind GLOBAL_Y", listed(&wind_case("global_y")), listed(&wind_case("GLOBAL_Y")), "EQUIVALENT_STATIC_INPUT_INVALID"),
+        ("seismic beside wind without a shape factor", missing(true), missing(false), "EQUIVALENT_STATIC_INPUT_MISSING"),
+        ("load-state seismic beside wind without a shape factor", listed(&missing(true)), listed(&missing(false)), "EQUIVALENT_STATIC_INPUT_MISSING"),
+        ("a component force that rounds to zero", component(2350.0), component(1.0e-300), "EQUIVALENT_STATIC_COMPONENT_RANGE_INVALID"),
+        ("seismic beside wind on a replaced span", replaced("pipe:a-b"), replaced("pipe:b-c"), "EQUIVALENT_STATIC_WIND_SPAN_REPLACED"),
+    ];
+    for (what, control, wire, code) in pairs {
+        for mode in MODES {
+            let found = codes(&run(&control, mode));
+            assert!(found.iter().any(|c| c == "LOAD_INPUT_INVALID"), "{what} control {mode:?}: preparation reports the load: {found:?}");
+            assert!(!found.iter().any(|c| c.starts_with("EQUIVALENT_STATIC_")), "{what} control {mode:?}: the generation forms: {found:?}");
         }
-    }
-    let collided = ledger(vec![distributed(&generated, "pipe:a-b", "global_z", 250.0), unprepared.clone()]);
-    for (what, wire, code) in [
-        ("a listed same-case collision", collided, "EQUIVALENT_STATIC_GENERATED_ID_COLLISION"),
-        ("wind GLOBAL_Y", wind_case("GLOBAL_Y"), "EQUIVALENT_STATIC_INPUT_INVALID"),
-    ] {
         refused(&wire, code, what);
         for mode in MODES {
-            let found = codes_of(&wire, mode);
+            let found = codes(&run(&wire, mode));
             assert!(!found.iter().any(|c| c == "LOAD_INPUT_INVALID"), "{what} {mode:?}: loads were prepared: {found:?}");
         }
     }

@@ -5489,15 +5489,17 @@ fn solve_prepared_load_case(
         refuse_load_state_generated_collisions(model, load_case, state, &loads, diagnostics);
     }
     refuse_document_generated_collisions(model, materials, load_case, &loads, diagnostics);
-    // A refused generated identity, and a generation input the formation
-    // refused (a wind direction outside the schema's tokens among them), never
+    // A refused generated identity, and a generation the formation refused
+    // (a wind direction outside the schema's tokens, a missing input, a
+    // component outside its range, a wind marking on a replaced span), never
     // reach load preparation: the case takes the blocked return below without
-    // preparing its loads. Formation's refusals of the generation are its
-    // EQUIVALENT_STATIC_* blockers; every finding of the scans after it counts.
-    let generation_refused = diagnostics[before_build..before_collisions].iter().any(|finding| {
-        finding.severity == "blocking"
-            && matches!(finding.code.as_str(), "EQUIVALENT_STATIC_GENERATED_ID_COLLISION" | "EQUIVALENT_STATIC_INPUT_INVALID")
-    });
+    // preparing its loads, so the part of a generation that did form (the
+    // seismic loads beside a refused wind input) is never prepared either.
+    // Formation's refusals of the generation are its EQUIVALENT_STATIC_*
+    // blockers; every finding of the scans after it counts.
+    let generation_refused = diagnostics[before_build..before_collisions]
+        .iter()
+        .any(|finding| finding.severity == "blocking" && finding.code.starts_with("EQUIVALENT_STATIC_"));
     let collided = generation_refused || has_blocking(&diagnostics[before_collisions..]);
     let load_application = (!collided).then(|| prepare_loads(built.nodes.len(), built.pipes.len(), &loads));
     for finding in load_application.iter().flat_map(|application| &application.findings) {
