@@ -32,7 +32,7 @@ afterEach(() => {
 const NO_RUN = {
   render: "Disabled: rendering needs a completed mechanics preview and its analysis-run record in this session. Open the Solve section and run the mechanics preview first.",
   line: "Solve first: rendering needs a mechanics result and analysis-run record.",
-  package: "Solve first: report-package save needs the current mechanics result and analysis-run record."
+  package: "No current result. Solve the model first."
 };
 const RESTORED = {
   render: "This run was restored from the saved project and cannot be rendered. Solve the model again to render its report.",

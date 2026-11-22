@@ -68,10 +68,14 @@ function setterNames(slice: Record<string, unknown>): string[] {
 }
 
 describe("the session's key set", () => {
-  it("has exactly seven slices and exposes exactly the named setters", async () => {
+  it("has exactly the seven view slices plus the root-only editorBinding, and exposes exactly the named setters", async () => {
     const { result } = await readySession();
     const session = result.current;
-    expect(Object.keys(session)).toEqual([...SLICES]);
+    // editorBinding is the one root-only key returned beside the seven view slices (DEL-16-03): the application root
+    // takes it and strips it from what the context provider is given; it holds the two bind functions and no setter.
+    expect(Object.keys(session)).toEqual(["agent", "editorBinding", "model", "selection", "results", "operations", "project", "chrome"]);
+    expect(Object.keys(session.editorBinding)).toEqual(["bindCommit", "bindDialog"]);
+    expect(setterNames(session.editorBinding as Record<string, unknown>)).toEqual([]);
     for (const slice of SLICES) {
       expect(setterNames(session[slice] as Record<string, unknown>), slice).toEqual(SESSION_SETTERS[slice]);
     }

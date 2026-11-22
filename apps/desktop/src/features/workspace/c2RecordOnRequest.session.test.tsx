@@ -75,6 +75,9 @@ function resultLength(bytes: number) {
 }
 /** The record-size refusal's own words, as a caller's status carries them. */
 const RECORD_REFUSAL = `RESULT-DETAIL-WEBVIEW-LIMIT (record_bytes=${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1}, limit_bytes=${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES})`;
+/** The same refusal in the C2 gates' words, as both package saves show it (sizes in bytes and MiB). */
+const PACKAGE_RECORD_REFUSAL = nativeResult.describeFullResultRefused(
+  new FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES, "", "record"), "the report package");
 const failure = (promise: Promise<unknown>) => promise.then(() => null, (error: unknown) => error);
 
 describe("a consumer that does not ask for the run record (the change)", () => {
@@ -162,18 +165,17 @@ describe("the limit's boundaries", () => {
 });
 
 describe("the session's callers that use the record, with a fitting result and a record above the limit", () => {
-  it("the shareable (user-released) package save is refused for the record before the copy, and builds no record", async () => {
+  it("the shareable (user-released) package save is refused for the record before its dialog and the copy, and builds no record", async () => {
     const { hook, copies } = await solvedSession();
     await waitFor(() => expect(hook.result.current.results.currentSolvedResult).not.toBeNull());
     const builds = vi.spyOn(previewService, "buildAnalysisRunPreview");
     recordAboveLimit();
     await act(async () => { await hook.result.current.results.requestSaveShareableReportPackage(); });
-    expect(hook.result.current.results.userReleaseRequest).not.toBeNull();
-    await act(async () => { hook.result.current.results.userReleaseRequest!.save({ userReleasedAt: "2026-11-21T00:00:00Z" }); });
+    expect(hook.result.current.results.userReleaseRequest).toBeNull();
     await waitFor(() => expect(hook.result.current.results.reportPackageRoute).not.toBeNull());
     const route = hook.result.current.results.reportPackageRoute as { route: string; diagnostic: string };
     expect(route.route).toBe("redaction_blocked");
-    expect(route.diagnostic).toContain(RECORD_REFUSAL);
+    expect(route.diagnostic).toContain(PACKAGE_RECORD_REFUSAL);
     expect(copies()).toBe(0);
     expect(builds).not.toHaveBeenCalled();
     expect(invokeMock.mock.calls.some(([command]) => command === "save_report_package")).toBe(false);
@@ -187,7 +189,7 @@ describe("the session's callers that use the record, with a fitting result and a
     await waitFor(() => expect(hook.result.current.results.reportPackageRoute).not.toBeNull());
     const route = hook.result.current.results.reportPackageRoute as { route: string; diagnostic: string };
     expect(route.route).toBe("redaction_blocked");
-    expect(route.diagnostic).toContain(RECORD_REFUSAL);
+    expect(route.diagnostic).toBe(PACKAGE_RECORD_REFUSAL);
     expect(copies()).toBe(0);
   }, 60_000);
 

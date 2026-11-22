@@ -1,9 +1,10 @@
 /** The precondition's deadline (DEL-07-11, the queue precondition): "A precondition that fails, or does not answer
  * within the session's stated finite bound, refuses, and an answer that comes after the bound is not accepted." The
- * bound is measured on a monotonic clock from when the precondition is asked; an answer is judged by the time it
- * arrives, not by whether the bound's timer callback has run yet. */
+ * bound is measured on a monotonic clock from when the helper is entered to when it observes the answer; an answer is
+ * judged by the time it is observed, not by whether the bound's timer callback has run yet. The session's own helper
+ * fixes the bound and the clock; these tests inject both through its test-only export. */
 import { describe, expect, it } from "vitest";
-import { checkBatchPrecondition, PRECONDITION_UNCHECKED_REASON } from "./workspaceSession";
+import { checkBatchPreconditionWithinForTestsOnly as checkBatchPrecondition, PRECONDITION_UNCHECKED_REASON } from "./workspaceSession";
 
 /** Holds the thread for `ms` of real time without yielding, so no timer callback can run meanwhile. */
 function busy(ms: number) {

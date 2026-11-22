@@ -42,7 +42,7 @@ import {
   requireRouteHeaderAgreement,
   type NativeResult
 } from "./nativeResult";
-import type { ReaderDispatch } from "../features/results/resultReader";
+import type { IntegrityBound, ReaderDispatch, StandingStatus } from "../features/results/resultReader";
 export { configureMemoryPool, describeResourceRefusal, getMemoryPoolStatus, ResourceUnavailableError } from "./memoryPool";
 
 async function invokeOrFixture<T>(
@@ -605,10 +605,10 @@ function nativeEnvelopeRefusal(envelope: { model_ref?: unknown; producer?: { sem
 }
 
 /** The presented standing of a native verdict (`numericalResultStanding`'s shape). */
-export type NativeStanding = { contract: string; status: "integrity_checked" | "needs_recompute"; eligible: boolean; findings: string[] };
+export type NativeStanding = { contract: string; status: StandingStatus; eligible: boolean; findings: string[]; integrity_bound: IntegrityBound | null };
 function presentedStanding(dispatch: ReaderDispatch): NativeStanding {
   const standing = dispatch.standing;
-  return { contract: standing.route, status: standing.status, eligible: standing.eligible, findings: [...standing.findings] };
+  return { contract: standing.route, status: standing.status, eligible: standing.eligible, findings: [...standing.findings], integrity_bound: standing.integrity_bound };
 }
 
 /** What a fresh native reading established, besides the handle. */

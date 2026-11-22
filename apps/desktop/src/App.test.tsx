@@ -536,6 +536,15 @@ function renderedVendorNameMentions(panel: HTMLElement): string[] {
   return Array.from(new Set((copy.textContent ?? "").match(/[^\s;=]*caepipe[^\s;=]*/gi) ?? []));
 }
 
+
+/** With no current result to draw, the view offers no Deformation control and draws no deformation
+ * factor on the canvas. (Its old summary for this state, "not started; result rows=0", told a person
+ * nothing and went with the control; a solve's failure is stated where the solve is.) */
+function expectNoDeformationOffered() {
+  expect(screen.queryByTestId("viewport-deformation-status")).not.toBeInTheDocument();
+  expect(screen.queryByTestId("viewport-deflection-label")).not.toBeInTheDocument();
+}
+
 describe("SWBPIPE desktop preview", () => {
   it("suppresses solve proof unless the completed job, result, and exact model version remain bound", async () => {
     // Pure proof-format unit simulation using a genuine paired producer record.
@@ -626,7 +635,7 @@ describe("SWBPIPE desktop preview", () => {
     // C-120 fix: the demo drops the elbow-placed tee component:C-120 and its 4 intensified rows (P-120 end_i and P-110 end_j, 2 cases); no other row moved.
     expect(within(reference).getByTestId("result-page-summary")).toHaveTextContent("Showing 1 to 50 of 837 matching results; page 1 of 17");
     expect(screen.queryByTestId("status-pill-solve-proof")).not.toBeInTheDocument();
-    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("result rows=0");
+    expectNoDeformationOffered();
     const solve = openWorkspaceSection("solve");
     expect(within(solve).getByTestId("rule-check-run")).toBeDisabled();
     expect(renderedReportButton()).toBeDisabled();
@@ -742,9 +751,7 @@ describe("SWBPIPE desktop preview", () => {
         "state=not_started",
       ),
     );
-    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent(
-      "not started; result rows=0",
-    );
+    expectNoDeformationOffered();
     expect(screen.queryByText(/identity=match/)).not.toBeInTheDocument();
     expect(screen.getAllByText(/project:invented-race-safe-open/).length).toBeGreaterThan(0);
   });
@@ -809,9 +816,7 @@ describe("SWBPIPE desktop preview", () => {
         ),
       );
       expect(screen.queryByText(/invented late failure/)).not.toBeInTheDocument();
-      expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent(
-        "not started; result rows=0",
-      );
+      expectNoDeformationOffered();
     },
   );
 
@@ -886,9 +891,7 @@ describe("SWBPIPE desktop preview", () => {
         "state=cancelled",
       ),
     );
-    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent(
-      "not started; result rows=0",
-    );
+    expectNoDeformationOffered();
   });
 
   it("dispatches detached pre-start cancellation once after native open invalidates the run", async () => {
@@ -956,9 +959,7 @@ describe("SWBPIPE desktop preview", () => {
       invokeMock.mock.calls.some(([command]) => command === "poll_preview_mechanics_job"),
     ).toBe(false);
     expect(solveJobSummary()).toHaveTextContent("state=not_started");
-    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent(
-      "not started; result rows=0",
-    );
+    expectNoDeformationOffered();
     expect(screen.queryByText(/identity=match/)).not.toBeInTheDocument();
   });
 
@@ -1204,9 +1205,7 @@ describe("SWBPIPE desktop preview", () => {
       await screen.findByTestId("desktop-preview-shell"),
     ).toBeInTheDocument();
     expect(within(openWorkspaceSection("solve")).getByTestId("solve-panel")).toBeInTheDocument();
-    expect(
-      screen.getByTestId("viewport-deformation-status").textContent,
-    ).toContain("not started; result rows=0");
+    expectNoDeformationOffered();
     const initialReadiness = screen.getByTestId("solve-readiness-summary");
     expect(
       within(initialReadiness).getByTestId("readiness-mechanics").textContent,
@@ -2855,14 +2854,14 @@ describe("SWBPIPE desktop preview", () => {
       screen.getByTestId("local-project-review-context").textContent,
     ).toContain("0 pending operations");
     fireEvent.click(
-      within(commandBar).getByTestId("queue-armed-creation-intent"),
+      screen.getByTestId("queue-armed-creation-intent"),
     );
     fireEvent.click(within(commandBar).getByRole("button", { name: /Pipe/i }));
     expect(
       within(commandBar).getByTestId("armed-creation-tool"),
     ).toHaveTextContent("Pipe tool armed");
     fireEvent.click(
-      within(commandBar).getByTestId("queue-armed-creation-intent"),
+      screen.getByTestId("queue-armed-creation-intent"),
     );
     fireEvent.click(
       within(commandBar).getByRole("button", { name: /Component/i }),
@@ -2871,7 +2870,7 @@ describe("SWBPIPE desktop preview", () => {
       within(commandBar).getByTestId("armed-creation-tool"),
     ).toHaveTextContent("Component tool armed");
     fireEvent.click(
-      within(commandBar).getByTestId("queue-armed-creation-intent"),
+      screen.getByTestId("queue-armed-creation-intent"),
     );
 
     const nodeIntent = within(intentPanel).getByTestId(
@@ -3956,8 +3955,8 @@ describe("SWBPIPE desktop preview", () => {
     expectVirtualTargetValue(manager, "load-manager-create-primitive-load-case", "load:L-100");
     expectVirtualTargetValue(manager, "load-manager-create-primitive-pipe", "pipe:P-100");
     expect(
-      within(manager).getByTestId("load-manager-create-primitive-direction"),
-    ).toHaveValue("global_z");
+      within(manager).queryByTestId("load-manager-create-primitive-direction"),
+    ).toBeNull();
     expect(
       within(manager).getByTestId("load-manager-create-primitive-unit"),
     ).toHaveValue("degC");
@@ -4001,7 +4000,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(manager).getByTestId("load-manager-primitive-load:L-100-T300").closest("tr")!
         .textContent,
-    ).toContain("ThermalP-100Global Z12.5degC");
+    ).toContain("ThermalP-100—12.5degC");
     expect(
       within(manager).getByTestId("load-manager-primitive-load:L-100-T300"),
     ).toHaveAttribute("title", "load:L-100-T300");
@@ -5196,8 +5195,7 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("editor-intent-1");
 
     await inspectBundledReference();
-    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("result rows=0");
-    expect(screen.getByTestId("viewport-deformation-boundary")).toHaveTextContent("scale=not_generated");
+    expectNoDeformationOffered();
     const report = reportPanel();
     expect(within(report).queryByTestId("report-editor-intent-summary")).not.toBeInTheDocument();
     expect(renderedReportButton()).toBeDisabled();
@@ -7694,7 +7692,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(solveJobSummary()).toHaveTextContent("result_rows=0");
     const historical = screen.getByTestId("historical-run-context");
     expect(historical).toHaveTextContent("HISTORICAL_INPUT_MANIFEST_MISSING");
-    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("result rows=0");
+    expectNoDeformationOffered();
     expect(screen.getByTestId("rule-check-run")).toBeDisabled();
     expect(screen.queryByTestId("comparison-summary")).not.toBeInTheDocument();
     results = within(historical).getByTestId("results-panel");
@@ -8769,8 +8767,8 @@ describe("SWBPIPE desktop preview", () => {
   });
 
   it("reads recorded knowledge quantities from reference results without invoking a solver", async () => {
-    const reference = await loadBundledMechanicsReference(), knowledge = await loadDesignKnowledge();
-    render(<KnowledgePanel knowledge={knowledge} result={reference.source} />);
+    const reference = await loadBundledMechanicsReference(), knowledge = await loadDesignKnowledge(), model = await loadPreviewModel();
+    render(<KnowledgePanel knowledge={knowledge} model={model} result={reference.source} />);
     const panel = screen.getByLabelText("Design knowledge");
     expect(within(panel).getByTestId("knowledge-unit-context")).toHaveTextContent("computed_unit_refs=2");
     expect(within(panel).getByTestId("knowledge-unit-context")).toHaveTextContent("units=N,mm");
@@ -9121,7 +9119,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(editedSolvePacket.error_message).not.toContain("SOLVE-PRODUCER-CONTRACT-UNSUPPORTED");
     expect(editedSolvePacket.analysis_run_ref).toBeNull();
     expect(screen.queryByTestId("status-pill-solve-proof")).not.toBeInTheDocument();
-    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("rows=0");
+    expectNoDeformationOffered();
 
     fireEvent.click(screen.getByRole("button", { name: /Save local/i }));
     await waitFor(() =>
@@ -9389,6 +9387,9 @@ describe("SWBPIPE desktop preview", () => {
 
     const tree = await screen.findByLabelText("Model tree");
     selectTreeRow("node", "node:N-100");
+    // The New support form opens from Insert > Support.
+    fireEvent.click(screen.getByTestId("menu-insert"));
+    fireEvent.click(screen.getByTestId("menu-item-insert.support"));
     const inspector = screen.getByLabelText("Property inspector");
     const createSupportPanel = within(inspector).getByLabelText(
       "Create support intent",
@@ -10468,7 +10469,7 @@ describe("SWBPIPE desktop preview", () => {
       within(commandBar).getByTestId("armed-creation-tool"),
     ).toHaveTextContent("Node tool armed");
     fireEvent.click(
-      within(commandBar).getByTestId("queue-armed-creation-intent"),
+      screen.getByTestId("queue-armed-creation-intent"),
     );
 
     const applyPanel = operationApplyPanel();
@@ -10489,6 +10490,12 @@ describe("SWBPIPE desktop preview", () => {
       screen.getByTestId("local-project-review-context").textContent,
     ).toContain("1 pending operation");
   });
+
+  /** Opens the inspector's New component form as a person does: the command box's Components command. */
+  function openComponentForm() {
+    fireEvent.click(screen.getByTestId("toolkit-entry"));
+    fireEvent.click(screen.getByTestId("toolkit-build.component"));
+  }
 
   function setComponentField(panel: HTMLElement, testId: string, value: string) {
     setControlValue(panel, testId, value);
@@ -10571,6 +10578,7 @@ describe("SWBPIPE desktop preview", () => {
       render(<App />);
 
       const inspector = await screen.findByLabelText("Property inspector");
+      openComponentForm();
       const panel = within(inspector).getByLabelText("Create component intent");
       const queueButton = within(panel).getByTestId("queue-create-component-intent");
       setComponentField(panel, "create-component-kind", "expansion_joint");
@@ -10646,6 +10654,7 @@ describe("SWBPIPE desktop preview", () => {
       render(<App />);
 
       const inspector = await screen.findByLabelText("Property inspector");
+      openComponentForm();
       const panel = within(inspector).getByLabelText("Create component intent");
       const queueButton = within(panel).getByTestId("queue-create-component-intent");
       setComponentField(panel, "create-component-kind", kind);
@@ -10712,6 +10721,7 @@ describe("SWBPIPE desktop preview", () => {
       render(<App />);
 
       const inspector = await screen.findByLabelText("Property inspector");
+      openComponentForm();
       const panel = within(inspector).getByLabelText("Create component intent");
       fillComponentForm(panel, "create", kind);
       const queueButton = within(panel).getByTestId("queue-create-component-intent");
@@ -10780,6 +10790,7 @@ describe("SWBPIPE desktop preview", () => {
     render(<App />);
 
     const inspector = await screen.findByLabelText("Property inspector");
+    openComponentForm();
     const panel = within(inspector).getByLabelText("Create component intent");
     fillComponentForm(panel, "create", kind);
 
@@ -10854,6 +10865,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(within(viewportPanel).getByTestId("queue-explicit-component-intent")).toBeDisabled();
 
     const inspector = screen.getByLabelText("Property inspector");
+    openComponentForm();
     const panel = within(inspector).getByLabelText("Create component intent");
     setComponentField(panel, "create-component-kind", "expansion_joint");
     expect(within(panel).getByTestId("create-component-connector-unavailable")).toBeInTheDocument();
@@ -10891,6 +10903,7 @@ describe("SWBPIPE desktop preview", () => {
     );
 
     const inspector = screen.getByLabelText("Property inspector");
+    openComponentForm();
     const componentPanel = within(inspector).getByLabelText("Create component intent");
     setComponentField(componentPanel, "create-component-kind", "tee");
     setComponentField(componentPanel, "create-component-node", "node:N-110");
@@ -12150,8 +12163,10 @@ describe("persistent modeling workspace", () => {
     }
     if (selectedId !== "project") fireEvent.click(screen.getByTestId(`viewport-select-${selectedId}`));
     const target = screen.getByTestId("create-support-id");
-    const disclosure = target.closest("details");
-    expect(disclosure).not.toHaveAttribute("open");
+    // The New support form is not shown until a command asks for it.
+    const form = target.closest<HTMLElement>('[data-testid="inspector-creation-support"]');
+    expect(form).not.toBeNull();
+    expect(form).toHaveAttribute("hidden");
     const viewport = screen.getByTestId("viewport-canvas");
     const selectionBefore = screen.getByTestId("command-selection-readout").textContent;
     if (route === "toolbar") fireEvent.click(screen.getByTestId("command-support"));
@@ -12161,7 +12176,7 @@ describe("persistent modeling workspace", () => {
     }
     expect(screen.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "true");
     expect(within(screen.getByTestId("property-inspector")).getByRole("tab", { name: /^Properties$/ })).toHaveAttribute("aria-selected", "true");
-    expect(disclosure).toHaveAttribute("open");
+    expect(form).not.toHaveAttribute("hidden");
     expect(target).toHaveFocus();
     expect(screen.getByTestId("armed-creation-tool")).toHaveTextContent("Support tool armed");
     expect(screen.getByTestId("command-selection-readout").textContent).toBe(selectionBefore);
@@ -12274,8 +12289,7 @@ describe("workflow current and historical result boundaries", () => {
     fireEvent.click(await runMechanicsButton());
     await waitFor(() => expect(solveJobSummary()).toHaveTextContent("state=failed"));
     expect(screen.getByTestId("readiness-mechanics")).toHaveTextContent("Solve job state: failed");
-    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("rows=0");
-    expect(screen.getByTestId("viewport-deformation-boundary")).toHaveTextContent("scale=not_generated");
+    expectNoDeformationOffered();
     expect(solveJobSummary()).toHaveTextContent("result_rows=0");
     expect(renderedReportButton()).toBeDisabled();
     expect(screen.getByTestId("rendered-report-precondition")).toBeInTheDocument();
@@ -12310,7 +12324,7 @@ describe("workflow current and historical result boundaries", () => {
     await waitFor(() => expect(screen.getByTestId("historical-run-context")).toHaveTextContent(envelope.mechanics_result!.run_id));
     expect(screen.getByTestId("historical-run-context")).toHaveTextContent("HISTORICAL_INPUT_MANIFEST_MISSING");
     expect(screen.getByTestId("historical-run-context")).toHaveTextContent("HISTORICAL_MODEL_HASH_MISMATCH");
-    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("not started; result rows=0");
+    expectNoDeformationOffered();
     expect(buildDeformationOverlay(envelope.model, null).nodePositions.size).toBe(0);
     expect(within(screen.getByTestId("historical-run-context")).getByTestId("result-unit-policy")).toHaveTextContent(`${envelope.mechanics_result!.results.length} rows`);
     act(() => nativeMenuCommand("view.section.report"));
@@ -12601,8 +12615,24 @@ describe("workflow current and historical result boundaries", () => {
       expect(within(report).getByTestId("report-package-save")).toHaveTextContent("Saving report package");
       expect(within(report).getByTestId("report-package-redaction-summary").textContent).toBe(currentRedaction);
       expect(within(report).queryByTestId("report-package-save-status")).not.toBeInTheDocument();
-      expect(document.body).not.toHaveTextContent("stale-route");
-      expect(document.body).not.toHaveTextContent("STALE-REPORT-PACKAGE-ERROR");
+      expect(report).not.toHaveTextContent("stale-route");
+      expect(report).not.toHaveTextContent("STALE-REPORT-PACKAGE-ERROR");
+      // DEL-08-01 REQ-022 (issue 508): the earlier sent save settles in the persistent
+      // outcome strip marked as an earlier run, without touching the open panel or the
+      // newer in-flight save.
+      const strip = screen.getByTestId("report-output-status");
+      const staleEntry = within(strip).getByTestId("report-output-1");
+      expect(staleEntry).toHaveAttribute("data-workspace-changed", "true");
+      expect(within(staleEntry).getByTestId("report-output-1-text")).toHaveTextContent("It is of an earlier run:");
+      if (staleOutcome === "success") {
+        expect(staleEntry).toHaveAttribute("data-state", "saved");
+        expect(within(staleEntry).getByTestId("report-output-1-text")).toHaveTextContent("stale-route.opsreport");
+      } else {
+        expect(staleEntry).toHaveAttribute("data-state", "unknown");
+        expect(within(staleEntry).getByTestId("report-output-1-details")).toHaveTextContent("STALE-REPORT-PACKAGE-ERROR");
+      }
+      expect(within(strip).getByTestId("report-output-2")).toHaveAttribute("data-state", "pending");
+      expect(within(strip).getByTestId("report-output-2")).toHaveAttribute("data-workspace-changed", "false");
 
       await act(async () => {
         currentSave.resolve(reportPackageSaveReceipt("current-route"));
@@ -13132,7 +13162,7 @@ describe("historical lifecycle history transitions", () => {
     expect(screen.queryByTestId("historical-run-context")).not.toBeInTheDocument();
     fireEvent.click(reviewControl("redo-session-model-edit"));
     expect(await snapshotHash()).toBe(editedHash);
-    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("result rows=0");
+    expectNoDeformationOffered();
     expect(screen.queryByTestId("comparison-summary")).not.toBeInTheDocument();
   });
 

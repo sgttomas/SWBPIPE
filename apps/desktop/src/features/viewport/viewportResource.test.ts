@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { entityKey } from "../workspace/selectionState";
 import {
   applyPalettePresentation,
@@ -23,9 +24,11 @@ import {
   ViewportInvalidationScheduler,
   ViewportOwnershipLedger,
   ViewportResource,
+  INPUT_TRAVEL_DEVICE_PX,
   ViewportResourceRegistry
 } from "./viewportResource";
 import { createFigureMaterial } from "./viewportFigureMaterial";
+import { standardViewPose, type StandardView } from "./viewportCameraRule";
 import { viewportRoleHex, viewportShadeRatio, viewportTokenColour } from "./viewportPalette";
 
 // Selection is a halo (`viewportHalo.ts`, tested in `viewportHalo.test.ts`): a selected element is
@@ -159,6 +162,190 @@ describe("viewport resource primitives", () => {
     expect(cancelNavigation).toHaveBeenCalledTimes(1);
   });
 
+  it("serves the furniture's size watches through the view's one ResizeObserver", () => {
+    const observer = { observe: vi.fn(), unobserve: vi.fn() };
+    const resize = vi.fn();
+    const host = document.createElement("div");
+    const fake = Object.assign(Object.create(ViewportResource.prototype), {
+      disposed: false, resizeObserver: observer, host, sizeWatchers: new Map(), resize
+    }) as unknown as { observeSize(element: Element, callback: () => void): () => void; deliverSizes(entries: { target: Element }[]): void };
+    const bar = document.createElement("div");
+    const legend = document.createElement("div");
+    const onBar = vi.fn();
+    const onLegend = vi.fn();
+    const stopBar = fake.observeSize(bar, onBar);
+    const stopBarAgain = fake.observeSize(bar, onLegend);
+    fake.observeSize(legend, onLegend);
+    expect(observer.observe).toHaveBeenCalledTimes(2);
+    fake.deliverSizes([{ target: host }, { target: bar }, { target: legend }]);
+    expect(resize).toHaveBeenCalledTimes(1);
+    expect(onBar).toHaveBeenCalledTimes(1);
+    expect(onLegend).toHaveBeenCalledTimes(1);
+    stopBar();
+    expect(observer.unobserve).not.toHaveBeenCalled();
+    stopBarAgain();
+    expect(observer.unobserve).toHaveBeenCalledWith(bar);
+    // The host is the resource's own; a watch on it is refused.
+    fake.observeSize(host, onBar);
+    expect(observer.observe).toHaveBeenCalledTimes(2);
+  });
+
+  describe("the person's move is decided from their input", () => {
+    type GestureFake = {
+      notePointerDown(event: { pointerId: number; clientX: number; clientY: number }): void;
+      notePointerMove(event: { pointerId: number; clientX: number; clientY: number }): void;
+      notePointerUp(event: { pointerId: number }): void;
+      noteWheel(event: { deltaY: number }): void;
+      noteGestureStart(): void;
+      noteGestureEnd(): void;
+      render(time: number): boolean;
+      cancelNavigation(options?: { keepGesture?: boolean }): void;
+      navigationAdvancing: boolean;
+    };
+    const bounds = { min: { x: -20, y: 0, z: 0 }, max: { x: 20, y: 3, z: 0 } };
+
+    function gestureFake(view: StandardView) {
+      const camera = new THREE.PerspectiveCamera(42, 603 / 743, 0.1, 10_000);
+      const pose = standardViewPose(view, bounds, 42, 603 / 743);
+      const controls = new OrbitControls(camera, document.createElement("div"));
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.08;
+      camera.position.set(pose.position.x, pose.position.y, pose.position.z);
+      controls.target.set(pose.target.x, pose.target.y, pose.target.z);
+      camera.lookAt(controls.target);
+      const onCameraMovedByPerson = vi.fn();
+      const fake = Object.assign(Object.create(ViewportResource.prototype), {
+        disposed: false,
+        contextStatus: "ready",
+        navigationAdvancing: false,
+        suppressControlsChange: false,
+        gesture: null,
+        inputMoved: false,
+        pointersDown: new Map(),
+        controls,
+        camera,
+        renderer: {
+          setScissorTest: vi.fn(), setViewport: vi.fn(), render: vi.fn(), info: { memory: {}, render: {} }
+        },
+        host: { clientWidth: 603, clientHeight: 743 },
+        scene: new THREE.Scene(),
+        frameSubmissionSequence: 0,
+        options: { onCameraMovedByPerson },
+        invalidate: vi.fn(),
+        markCameraProjectionChanged: vi.fn(),
+        renderGizmo: vi.fn(), labelUpdater: null
+      }) as unknown as GestureFake;
+      // What the canvas's listeners and the controls' start and end handlers do (the handlers are
+      // instance fields, absent from this fake), in the order a press delivers them.
+      const down = (x = 100, y = 100) => { fake.notePointerDown({ pointerId: 1, clientX: x, clientY: y }); fake.noteGestureStart(); fake.navigationAdvancing = true; };
+      const frame = () => { fake.render(1); };
+      const up = () => { fake.notePointerUp({ pointerId: 1 }); fake.noteGestureEnd(); fake.navigationAdvancing = true; fake.render(2); };
+      // What the controls' pointer and wheel handlers ask of their next update.
+      const internals = controls as unknown as { _rotateLeft(angle: number): void; _dollyIn(scale: number): void };
+      const orbitBy = (angle: number) => internals._rotateLeft(angle);
+      const dollyIn = (scale: number) => internals._dollyIn(scale);
+      return { fake, camera, controls, onCameraMovedByPerson, down, frame, up, orbitBy, dollyIn };
+    }
+
+    for (const view of ["front", "top", "side", "iso"] as const) {
+      it(`a press that does not move the pointer is not a move, in the ${view} view, though the controls round the pose`, () => {
+        const { fake, camera, onCameraMovedByPerson, down, frame, up } = gestureFake(view);
+        const before = camera.position.clone();
+        down();
+        fake.notePointerMove({ pointerId: 1, clientX: 101, clientY: 100 });
+        frame();
+        up();
+        expect(onCameraMovedByPerson).not.toHaveBeenCalled();
+        // Looking straight down, the controls' own normalisation moves the camera.
+        if (view === "top") expect(camera.position.distanceTo(before)).toBeGreaterThan(1e-9 * 40);
+      });
+    }
+
+    it("a drag past the travel threshold is the person's move, reported once", () => {
+      const { fake, onCameraMovedByPerson, down, frame, up, orbitBy } = gestureFake("front");
+      down();
+      fake.notePointerMove({ pointerId: 1, clientX: 100 + INPUT_TRAVEL_DEVICE_PX + 1, clientY: 100 });
+      orbitBy(0.1);
+      frame();
+      orbitBy(0.1);
+      frame();
+      up();
+      expect(onCameraMovedByPerson).toHaveBeenCalledTimes(1);
+    });
+
+    it("a refit between pointer-down and the drag's first movement keeps the gesture: the drag is the person's", () => {
+      const { fake, camera, controls, onCameraMovedByPerson, down, frame, up, orbitBy } = gestureFake("front");
+      down();
+      // The canvas changed size: the view refits programmatically while the pointer is pressed.
+      fake.cancelNavigation();
+      camera.position.set(0, 1.5, 70);
+      controls.target.set(0, 1.5, 0);
+      camera.lookAt(controls.target);
+      fake.navigationAdvancing = true;
+      frame();
+      expect(onCameraMovedByPerson).not.toHaveBeenCalled();
+      fake.notePointerMove({ pointerId: 1, clientX: 120, clientY: 100 });
+      orbitBy(0.2);
+      frame();
+      up();
+      expect(onCameraMovedByPerson).toHaveBeenCalledTimes(1);
+    });
+
+    it("a pose applied while the drag is held re-arms the gesture: the drag after it is the person's again", () => {
+      const { fake, onCameraMovedByPerson, down, frame, up, orbitBy } = gestureFake("front");
+      down();
+      fake.notePointerMove({ pointerId: 1, clientX: 110, clientY: 100 });
+      orbitBy(0.1);
+      frame();
+      expect(onCameraMovedByPerson).toHaveBeenCalledTimes(1);
+      // A standard view pressed from the keyboard while the button is held: a programmatic pose.
+      fake.cancelNavigation();
+      // Movement within the travel threshold of where the pointer was at the pose is not a move.
+      fake.notePointerMove({ pointerId: 1, clientX: 111, clientY: 100 });
+      orbitBy(0.01);
+      frame();
+      expect(onCameraMovedByPerson).toHaveBeenCalledTimes(1);
+      fake.notePointerMove({ pointerId: 1, clientX: 130, clientY: 100 });
+      orbitBy(0.1);
+      frame();
+      up();
+      expect(onCameraMovedByPerson).toHaveBeenCalledTimes(2);
+    });
+
+    it("a horizontal-only wheel, which the controls do not consume, is not a move, even in Top", () => {
+      const { fake, camera, onCameraMovedByPerson, frame } = gestureFake("top");
+      const before = camera.position.clone();
+      fake.noteWheel({ deltaY: 0 });
+      fake.noteGestureStart();
+      fake.navigationAdvancing = true;
+      frame();
+      fake.noteGestureEnd();
+      fake.navigationAdvancing = true;
+      frame();
+      expect(onCameraMovedByPerson).not.toHaveBeenCalled();
+      // The controls' normalisation looking straight down did move the camera.
+      expect(camera.position.distanceTo(before)).toBeGreaterThan(0);
+    });
+
+    it("a wheel is the person's move; a programmatic pose afterwards is not", () => {
+      const { fake, onCameraMovedByPerson, frame, dollyIn } = gestureFake("front");
+      fake.noteWheel({ deltaY: -100 });
+      fake.noteGestureStart();
+      fake.navigationAdvancing = true;
+      dollyIn(1.2);
+      frame();
+      fake.noteGestureEnd();
+      expect(onCameraMovedByPerson).toHaveBeenCalledTimes(1);
+      // A programmatic pose, and the change event the controls would send for it.
+      fake.cancelNavigation();
+      dollyIn(1.2);
+      fake.navigationAdvancing = true;
+      frame();
+      (fake as unknown as { noteGestureMove(): void }).noteGestureMove();
+      expect(onCameraMovedByPerson).toHaveBeenCalledTimes(1);
+    });
+  });
+
   it("clears retained controls movement while preserving the exact public camera pose and input mapping", () => {
     const camera = new THREE.PerspectiveCamera();
     camera.position.set(4, 3, 7);
@@ -186,6 +373,7 @@ describe("viewport resource primitives", () => {
       disposed: false,
       navigationAdvancing: true,
       suppressControlsChange: false,
+      pointersDown: new Map(),
       camera,
       controls
     }) as ViewportResource;
@@ -594,7 +782,8 @@ describe("viewport resource primitives", () => {
     const host = { replaceChildren: vi.fn() };
     const teardownGeneration = (currentOwnedViewportResourceSnapshot()?.context.generation ?? 0) + 1_000_000;
     const ownership = new ViewportOwnershipLedger(teardownGeneration);
-    ownership.createLifecycle({ controls: 1, eventBindings: 7, resizeObservers: 1 });
+    // As the constructor accounts: seven bindings, and the canvas's five input listeners.
+    ownership.createLifecycle({ controls: 1, eventBindings: 12, resizeObservers: 1 });
     const removeWindowListener = vi.spyOn(window, "removeEventListener");
     const removeDocumentListener = vi.spyOn(document, "removeEventListener");
     const resource = Object.assign(Object.create(ViewportResource.prototype), {
@@ -604,6 +793,7 @@ describe("viewport resource primitives", () => {
       contextRestoredCount: 0,
       scheduler,
       resizeObserver,
+      sizeWatchers: new Map(),
       controls,
       renderer,
       host,
@@ -629,7 +819,8 @@ describe("viewport resource primitives", () => {
     expect(resizeObserver.disconnect).toHaveBeenCalledTimes(1);
     expect(controls.removeEventListener).toHaveBeenCalledTimes(3);
     expect(controls.dispose).toHaveBeenCalledTimes(1);
-    expect(canvas.removeEventListener).toHaveBeenCalledTimes(2);
+    // The two context listeners and the five input listeners.
+    expect(canvas.removeEventListener).toHaveBeenCalledTimes(7);
     expect(removeWindowListener).toHaveBeenCalledWith("resize", expect.any(Function));
     expect(removeDocumentListener).toHaveBeenCalledWith("visibilitychange", expect.any(Function));
     expect(host.replaceChildren).toHaveBeenCalledTimes(1);

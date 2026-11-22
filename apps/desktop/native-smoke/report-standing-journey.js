@@ -174,19 +174,29 @@
       });
       return { precondition: Boolean(byTestId("rendered-report-precondition", panel())), render_enabled: byTestId("rendered-report-render", panel())?.disabled === false, package_buttons };
     });
-    await step("package-refusals", async () => {
-      const statuses = [];
-      for (const command of ["file.save-report-package", "file.save-shareable-report-package"]) {
-        const before = text("report-package-save-status", panel());
-        await menu(command);
-        // The second command repeats the first's line; the wait is for a line, then a short settle for any dialog.
-        statuses.push(await waitFor(`${command}: status`, () => {
-          const now = text("report-package-save-status", panel());
-          return now && (now !== before || statuses.length === 1) ? now : null;
-        }, 30000));
-        await sleep(500);
-      }
-      return { statuses, dialog: Boolean(byTestId("user-release-dialog")) };
+    await step("package-dialog", async () => {
+      // DEL-08-01 REQ-024: both package saves are offered for this result (the report-gate step records the buttons).
+      // The shareable command opens the user-release dialog, which states the report frame's lines, from the native
+      // host, before the user's statement; the journey cancels the dialog and goes on. Save Report Package… is not
+      // invoked: it would open a save chooser, which this run's strict chooser answers only with a queued path.
+      const before = text("report-package-save-status", panel());
+      await menu("file.save-shareable-report-package");
+      const dialog = await waitFor("the user-release dialog", () => byTestId("user-release-dialog"), 30000);
+      const block = byTestId("user-release-frame-statements", dialog);
+      const statement = byTestId("user-release-statement", dialog);
+      const frame_lines = [...dialog.querySelectorAll('[data-testid="user-release-frame-statement"]')].map((line) => line.textContent.trim());
+      const observed = {
+        frame_lines,
+        frame_before_statement: Boolean(block && statement && (block.compareDocumentPosition(statement) & Node.DOCUMENT_POSITION_FOLLOWING)),
+        refusal: text("user-release-refusal-reason", dialog),
+        statement_present: Boolean(statement),
+        statement_checked: statement?.checked ?? null,
+        confirm_disabled: byTestId("user-release-confirm", dialog)?.disabled ?? null
+      };
+      click("user-release-cancel", dialog);
+      await waitFor("the dialog closed", () => !byTestId("user-release-dialog"), 10000);
+      await sleep(500);
+      return { ...observed, dialog_closed: !byTestId("user-release-dialog"), status_unchanged: text("report-package-save-status", panel()) === before };
     });
     await step("other-outputs", async () => {
       await showSection("exports");

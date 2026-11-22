@@ -44,6 +44,17 @@ needs:
     it admits or refuses it by name.
   gating: false
   when: Solving the product-route benchmarks and the reference system.
+- from: DEL-04-07
+  condition: >-
+    On a load/reference-state document, an element state that selects a material point at a
+    temperature other than its member's operating temperature solves when it records an
+    analysis-basis override with its reason and provenance, and the published load reference
+    state gives, for each member it publishes, the consumed material point, modulus, shear
+    modulus, analysis-basis reason and thermal strain. It publishes 25 of a case's 26 members:
+    the replaced span RS-P180's record is removed before publication, though the member is still
+    resolved. The independent reference derives all 26.
+  gating: true
+  when: Solving the reference system's RS-OPE-REF and reading its members' states.
 - from: DEL-10-05
   condition: >-
     The headless runner solves a model document in either solver mode and returns the published
@@ -87,6 +98,8 @@ needs:
     self-weight plan create materials, sections, components, load cases, pressure regions,
     reference configurations, analysis states and combinations through the operation route,
     with the controls, labels, fills and copies that the reference system's run sheet names.
+    The analysis-state editor enters an element state's analysis-basis override, reason and
+    provenance, row by row; fill and copy do not carry it.
   gating: false
   when: Maintaining the reference system's run sheet.
 code_paths:
@@ -122,6 +135,9 @@ code_paths:
 # Frozen before the fixture solve that adopted RS-R1 and RS-CE1: EQ-1, EQ-2, EQ-5 and RS-CE1's support action
 # with both in the fixture, and the tranche-1 inputs from which the two earlier packages are reproduced.
 - validation/references/reference_system_r1_ce/**
+# Frozen before the fixture solve that adopted RS-OPE-REF: its member states and RS-OPE's from the material table
+# and expansion law, EQ-1 and EQ-2 bound to it from reference_system_r1_ce, and EQ-3 on RS-OPE-REF - RS-SUS.
+- validation/references/reference_system_ope_ref/**
 # Per-load and warning references for RS-WIN and the three static seismic cases.
 # `reference_system_pending_cases` remains the EQ-6 reference.
 - validation/references/reference_system_generated_loads/**

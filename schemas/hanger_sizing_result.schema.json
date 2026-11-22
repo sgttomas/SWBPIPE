@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openpipestress.org/schemas/hanger_sizing_result.schema.json",
   "title": "OpenPipeStress hanger sizing result 1.0.0",
-  "description": "DEL-04-11 slice 1d-α: a hanger-sizing result published as its own closed document, not as rows of a mechanics envelope and not as an analysis-run record. Every object is closed; the only map with dynamic keys is each solve's states. Two variants, discriminated by status: sized (the algorithm completed; no engineering acceptance) and refused (no table was formed). Every hash is the SHA-256 of the openpipestress_jcs_ijson_v1 canonical text; the hashes identify inputs and authenticate no origin. Numbers are inside that profile: finite, and integral values within ±(2^53 − 1). Cross-field rules JSON Schema cannot state (per-case lists against result.cases, the standing against outcomes, the assumption's numbers against the selection, a constant load_n equal to w_n, bytewise order) are the readers' closure (§8.3.7).",
+  "description": "DEL-04-11: a hanger-sizing result, on either solve route, published as its own closed document, not as rows of a mechanics envelope and not as an analysis-run record. Every object is closed; the only map with dynamic keys is each solve's states. Two variants, discriminated by status: sized (the algorithm completed; no engineering acceptance) and refused (no table was formed). Every hash is the SHA-256 of the openpipestress_jcs_ijson_v1 canonical text; the hashes identify inputs and authenticate no origin. Numbers are inside that profile: finite, and integral values within ±(2^53 − 1). Cross-field rules JSON Schema cannot state (per-case lists against result.cases, the standing against outcomes, the assumption's numbers against the selection, a constant load_n equal to w_n, bytewise order, a per-solve disclosure's label among result.solves and each (code, label) pair once) are the readers' closure (§8.3.7).",
   "oneOf": [
     {
       "$ref": "#/$defs/SizedDocument"
@@ -56,10 +56,10 @@
           "const": "Sized means the sizing algorithm completed. A candidate may have no fitting record, and the verification may be conditional; both are stated in the result."
         },
         {
-          "const": "Loads and positions come from derived solves of the bound solve request and inherit every premise of those solves; nonlinear supports take each case's own converged state."
+          "const": "Loads and positions come from derived solves of the bound solve request and inherit every premise of those solves; SWBPIPE does not verify an error bound for the ordinary solve's values (integrity_bound: not_verified, inverse_norm_bound_not_verified), and nonlinear supports take each case's own converged state without an independently verified confirmation bound."
         },
         {
-          "const": "Hanger sizing is published on the pressure-free route only."
+          "const": "The stated route is the bound solve request's own, on which every derived solve runs; sizing changes only the candidates' roles and adds no mechanics of its own, so pressure enters a sized value only as those solves include it."
         }
       ],
       "items": false,
@@ -78,6 +78,13 @@
       "items": false,
       "minItems": 2
     },
+    "Route": {
+      "description": "The route the derived solves run on: pressure_free (a model with no pressure_contract) or exact_pressure (3.0.0/exact_pressure_v3), the tokens the product's modal result document uses.",
+      "enum": [
+        "pressure_free",
+        "exact_pressure"
+      ]
+    },
     "Identity": {
       "type": "object",
       "properties": {
@@ -91,7 +98,15 @@
           "const": "openpipestress.result_semantics/hanger-sizing-1"
         },
         "route": {
-          "const": "pressure_free"
+          "description": "A sized document states the route its solves ran on; a refused one states its solve request's route, or null when no model was read.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Route"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "limitations": {
           "$ref": "#/$defs/Limitations"
@@ -381,7 +396,6 @@
         "HANGER_SIZING_DERIVED_DOCUMENT_NOT_HASHABLE",
         "HANGER_SIZING_DERIVED_SOLVE_FAILED",
         "HANGER_SIZING_DESIGN_OPERATING_CASE_REQUIRED",
-        "HANGER_SIZING_EXACT_ROUTE_PENDING",
         "HANGER_SIZING_FAMILY_POLICY_REQUIRED",
         "HANGER_SIZING_ID_COLLISION",
         "HANGER_SIZING_INPUT_NOT_ADMITTED",
@@ -983,17 +997,128 @@
             "$ref": "#/$defs/StateCode"
           },
           "description": "Each nonlinear support's state in this solve; empty when the model has none."
+        },
+        "solver_standing": {
+          "$ref": "#/$defs/SolverStanding"
+        },
+        "support_state_confirmation": {
+          "$ref": "#/$defs/SupportStateConfirmation"
         }
       },
       "required": [
         "label",
         "case",
         "derived_document_sha256",
-        "states"
+        "states",
+        "solver_standing",
+        "support_state_confirmation"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "if": {
+        "properties": {
+          "states": {
+            "maxProperties": 0
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "support_state_confirmation": {
+            "properties": {
+              "outcome": {
+                "const": "not_applicable"
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "support_state_confirmation": {
+            "properties": {
+              "outcome": {
+                "not": {
+                  "const": "not_applicable"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "SolverStanding": {
+      "description": "The solver's numerical-integrity standing of this derived solve, stated positively for every solve. solver_checks_passed is the solver's report that its own checks found nothing; it asserts no verified error bound (integrity_bound). Each other token is also disclosed by HANGER_SIZING_DERIVED_SOLVE_INTEGRITY naming this solve, and solver_checks_passed is not; that pairing compares sibling members and is the readers' closure.",
+      "enum": [
+        "solver_checks_passed",
+        "not_assessed",
+        "sensitive",
+        "unresolved",
+        "failed"
+      ]
+    },
+    "SupportStateConfirmation": {
+      "type": "object",
+      "description": "What the solver's integrity record of this solve's case states of its support-state confirmation, read from the producer's fixed text as the report standing reads it, except that the producer's relative-displacement clause after the confirmed line is recognised and a blank reason is no_confirmation_record. not_applicable exactly when the solve publishes no nonlinear-support state. solver_reported_established is the solver's report, not an independently verified confirmation bound. detail quotes the solver's reason exactly when the outcome is not_established_detail_quoted, and is null otherwise; a quoted detail has at least one character outside the 30 blank code points (U+0009..U+000D, U+001C..U+0020, U+0085, U+00A0, U+1680, U+2000..U+200A, U+2028, U+2029, U+202F, U+205F, U+3000, U+FEFF).",
+      "properties": {
+        "outcome": {
+          "enum": [
+            "solver_reported_established",
+            "not_attempted_reason_not_recorded",
+            "not_established_detail_quoted",
+            "no_confirmation_record",
+            "not_applicable"
+          ]
+        },
+        "detail": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "outcome",
+        "detail"
+      ],
+      "additionalProperties": false,
+      "if": {
+        "properties": {
+          "outcome": {
+            "const": "not_established_detail_quoted"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "detail": {
+            "type": "string",
+            "pattern": "[^\\u0009-\\u000D\\u001C-\\u0020\\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "detail": {
+            "type": "null"
+          }
+        }
+      }
     },
     "Disclosure": {
+      "description": "A state disclosure (each code at most once per document) or a per-solve disclosure (each code at most once per solve label of the document, naming that one label). Neither refuses.",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/StateDisclosure"
+        },
+        {
+          "$ref": "#/$defs/SolveIntegrityDisclosure"
+        },
+        {
+          "$ref": "#/$defs/CorrectionUnavailableDisclosure"
+        }
+      ]
+    },
+    "StateDisclosure": {
       "type": "object",
       "properties": {
         "code": {
@@ -1022,6 +1147,69 @@
       ],
       "additionalProperties": false
     },
+    "SolveIntegrityDisclosure": {
+      "type": "object",
+      "description": "A derived solve whose standing is not solver_checks_passed; the message begins with that exact token and states the unverified bound.",
+      "properties": {
+        "code": {
+          "const": "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY"
+        },
+        "names": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": {
+            "$ref": "#/$defs/SolveLabel"
+          }
+        },
+        "message": {
+          "enum": [
+            "not_assessed: the solver's numerical-integrity status for this derived solve is not_assessed, not solver_checks_passed; every value sizing takes from it carries that standing (integrity_bound: not_verified, inverse_norm_bound_not_verified)",
+            "sensitive: the solver's numerical-integrity status for this derived solve is sensitive, not solver_checks_passed; every value sizing takes from it carries that standing (integrity_bound: not_verified, inverse_norm_bound_not_verified)",
+            "unresolved: the solver's numerical-integrity status for this derived solve is unresolved, not solver_checks_passed; every value sizing takes from it carries that standing (integrity_bound: not_verified, inverse_norm_bound_not_verified)",
+            "failed: the solver's numerical-integrity status for this derived solve is failed, not solver_checks_passed; every value sizing takes from it carries that standing (integrity_bound: not_verified, inverse_norm_bound_not_verified)"
+          ]
+        }
+      },
+      "required": [
+        "code",
+        "names",
+        "message"
+      ],
+      "additionalProperties": false
+    },
+    "CorrectionUnavailableDisclosure": {
+      "type": "object",
+      "description": "The product's DISPLACEMENT_CORRECTION_UNAVAILABLE warning of a derived solve, its message unchanged.",
+      "properties": {
+        "code": {
+          "const": "DISPLACEMENT_CORRECTION_UNAVAILABLE"
+        },
+        "names": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": {
+            "$ref": "#/$defs/SolveLabel"
+          }
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "code",
+        "names",
+        "message"
+      ],
+      "additionalProperties": false
+    },
+    "SolveLabel": {
+      "type": "string",
+      "pattern": "^(S_W|S_C|V_C|[SV]_O[1-9][0-9]*)$",
+      "description": "A solve label. That it is a label of this document's solves, and that each (code, label) pair occurs once, are the readers' closure."
+    },
     "Refusal": {
       "type": "object",
       "properties": {
@@ -1046,6 +1234,23 @@
       ],
       "additionalProperties": false
     },
+    "IntegrityBound": {
+      "type": "object",
+      "description": "SWBPIPE verifies no error bound for the ordinary solve's values (LIM-026, release exit criterion 18); every sized result states the bound as not verified, whatever its solves' standings.",
+      "properties": {
+        "status": {
+          "const": "not_verified"
+        },
+        "reason": {
+          "const": "inverse_norm_bound_not_verified"
+        }
+      },
+      "required": [
+        "status",
+        "reason"
+      ],
+      "additionalProperties": false
+    },
     "Result": {
       "type": "object",
       "properties": {
@@ -1054,6 +1259,9 @@
             "unconditional",
             "conditional"
           ]
+        },
+        "integrity_bound": {
+          "$ref": "#/$defs/IntegrityBound"
         },
         "cases": {
           "type": "array",
@@ -1080,14 +1288,15 @@
         },
         "disclosures": {
           "type": "array",
-          "maxItems": 2,
           "items": {
             "$ref": "#/$defs/Disclosure"
-          }
+          },
+          "description": "The two state disclosures first, then each derived solve's disclosures in solve order."
         }
       },
       "required": [
         "verification_standing",
+        "integrity_bound",
         "cases",
         "candidates",
         "solves",
@@ -1103,6 +1312,9 @@
         }
       ],
       "properties": {
+        "route": {
+          "$ref": "#/$defs/Route"
+        },
         "status": {
           "const": "sized"
         },

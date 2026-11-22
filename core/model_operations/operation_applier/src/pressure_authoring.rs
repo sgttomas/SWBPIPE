@@ -148,6 +148,21 @@ fn projection(v: &Value, keys: &[&str]) -> Value {
             .collect(),
     )
 }
+/// The pressure-free route's shear selection, `model_settings.shear_model`, when the
+/// document states one.
+pub(crate) fn stated_free_shear_model(model: &Value) -> Option<&Value> {
+    model.pointer("/model_settings/shear_model")
+}
+/// The path whose removal takes the pressure-free selection out of the document: the
+/// whole `model_settings` record when the selection is its only member (an emptied
+/// record is removed, as clearing a setting removes it), else the member alone.
+pub(crate) fn free_shear_model_removal(model: &Value) -> Vec<String> {
+    if model["model_settings"].as_object().is_some_and(|settings| settings.len() == 1) {
+        vec!["model_settings".into()]
+    } else {
+        vec!["model_settings".into(), "shear_model".into()]
+    }
+}
 pub(crate) fn owns(object_type: &str, path: &str) -> bool {
     matches!(
         (object_type, path),
@@ -317,6 +332,23 @@ pub(crate) fn resolve(
                     return Err(err("Corrosion allowance must be nonnegative"));
                 }
             }
+            // A pressure-free selection (`model_settings.shear_model`) is the user's
+            // choice for the straight members, and the exact route holds that choice in
+            // the contract: activation carries it there and removes it from the model
+            // settings in the same operation, so no document holds both. A contract that
+            // names the other model is refused rather than overwriting the choice.
+            let stated = stated_free_shear_model(model);
+            if let Some(stated) = stated {
+                if after["pressure_contract"]["shear_model"] != *stated {
+                    return Err(RichError {
+                        code: "OP-PRESSURE-PROFILE-SHEAR-MODEL-CONFLICT",
+                        message: format!(
+                            "The document's model settings select shear model {stated} for its straight members; activation carries that selection into pressure_contract.shear_model, so a contract naming {} is refused. Author {stated}, or change the selection in model settings first",
+                            after["pressure_contract"]["shear_model"]
+                        ),
+                    });
+                }
+            }
             let mut candidate = model.clone();
             candidate["pressure_contract"] = after["pressure_contract"].clone();
             for case in model["load_cases"]
@@ -331,10 +363,14 @@ pub(crate) fn resolve(
                     return Err(err("Exact profile admits no pressure primitives, including zero. Review and remove those loads explicitly before changing profile"));
                 }
             }
-            PROFILE_KEYS
+            let mut writes: Vec<(Vec<String>, Option<Value>)> = PROFILE_KEYS
                 .iter()
                 .map(|k| (vec![(*k).into()], after.get(*k).cloned()))
-                .collect()
+                .collect();
+            if stated.is_some() {
+                writes.push((free_shear_model_removal(model), None));
+            }
+            writes
         }
         "Material" => {
             object(&after, MATERIAL_KEYS)?;

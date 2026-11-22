@@ -81,10 +81,13 @@ pub(crate) fn reply(registry: &SolveJobRegistry, command: &str, args: &Value) ->
     let text = |outcome: Result<String, CommandError<String>>| match outcome {
         Ok(text) => {
             let mut value: Value = serde_json::from_str(&text).unwrap();
-            if command == native_verdict::COMMAND && args["operation"] == "route_header" {
+            if command == native_verdict::COMMAND
+                && (args["operation"] == "route_header" || args["operation"] == native_verdict::REPORT_FRAME_STATEMENTS)
+            {
                 assert_eq!(value["job_id"], args["jobId"], "the real reply must name its requested held job");
                 // Only the launch-local handle is substituted for TypeScript's
-                // replay job. Metadata/refusals remain the actual Rust reply.
+                // replay job (the route header's and the report frame statements').
+                // Metadata/refusals remain the actual Rust reply.
                 value["job_id"] = json!(JOB);
             }
             json!({"ok": true, "body": "json", "value": value})

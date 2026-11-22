@@ -256,6 +256,16 @@
       "statement": "No error figure: this result has no numerical evidence member from which this reader can derive an error figure here. These values are shown for inspection with their load case's numerical health.",
       "tag": "older_document",
       "vocabulary": "no_figure_reason"
+    },
+    {
+      "statement": "Reported by the solver; not verified by SWBPIPE.",
+      "tag": "not_verified",
+      "vocabulary": "integrity_bound"
+    },
+    {
+      "statement": "SWBPIPE has not verified an error bound for the ordinary solve's values.",
+      "tag": "inverse_norm_bound_not_verified",
+      "vocabulary": "integrity_bound_reason"
     }
   ],
   "version": 1
