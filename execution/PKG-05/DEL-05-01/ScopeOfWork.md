@@ -69,7 +69,6 @@ For v1.0, SWBPIPE's Agent 0 decided on 2026-11-18 that AC-007's partial-span Tim
 
 **Not met.**
 
-- REQ-008's seismic model-check warning is not met. The product raises no seismic model-check warning under REQ-008.
 - REQ-008's per-load account of generation inputs and basis remains incomplete. The exact route publishes generated IDs and the mass method, and for each generated component force its component, node, axis, g-factor, weight in newtons, centre-of-gravity offset, force and moments. The pressure-free route does not publish an equivalent generation record.
 - AC-007 is not met. The reference system does not yet carry its wind case and its three seismic cases: it is a load and reference-state document, on which a case with static-equivalent generation is refused by name (`EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED`). That refusal also prevents the full one-document comparisons in AC-010 and AC-011. The fixture contains no hydrotest case. The product currently refuses an authored test condition on either route with `LOAD_CASE_TEST_CONDITION_UNSUPPORTED`.
 
