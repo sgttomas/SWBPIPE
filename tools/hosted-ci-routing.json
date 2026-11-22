@@ -5099,6 +5099,7 @@
               "fixtures/embedded_agent/use_cases/missing-data/start_model.json",
               "fixtures/export_adapter_sdk/invented/export_adapter_sdk_package.json",
               "fixtures/export_adapter_sdk/invented/source_adapter_sdk_payload.json",
+              "fixtures/file_names/suggested_name_cases.json",
               "fixtures/gui/invented/viewport_editor_session.json",
               "fixtures/handoff/canonical_text_vectors.json",
               "fixtures/handoff/invented_binary64_witness.swbhandoff/handoff_package.json",

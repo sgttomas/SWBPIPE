@@ -101,7 +101,7 @@ export const NATIVE_FILE_NAME_EXCEPTIONS: ReadonlyArray<{
     starts: "desktop-report- / desktop-user-released-report- (.opsproj)",
     marker: "choose(&admitted.package.container_file_name)",
     count: 1,
-    reason: "native .opsproj report package save chooser passes container_file_name built from package_id (core/reporting/report_package/src/lib.rs)"
+    reason: "native .opsproj report package save chooser passes container_file_name built from package_id (report_package crate)"
   },
   {
     file: "apps/desktop/src/features/report/reportPackageRequest.ts",
