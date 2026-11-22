@@ -214,6 +214,8 @@ describe("sizeHangers", () => {
       reply.document.result.solves[2].support_state_confirmation = { outcome, detail: null };
       return reply;
     };
+    /** The well-formed correction-unavailable disclosure of S_O1 a reply carries. */
+    const unavailableOf = (reply: Tamperable) => structuredClone(reply.document.result.disclosures[1]) as Record<string, unknown>;
     host(() => Promise.resolve(withS_O1("solver_reported_established")));
     const completion = await service.sizeHangers(input());
     expect(completion.kind).toBe("failed");
@@ -223,6 +225,24 @@ describe("sizeHangers", () => {
     }
     host(() => Promise.resolve(withS_O1("no_confirmation_record")));
     expect((await service.sizeHangers(input())).kind).toBe("replied");
+    // A malformed or repeated correction-unavailable disclosure is not read either.
+    const unavailable = unavailableOf(withS_O1("no_confirmation_record"));
+    const malformed: Array<[string, Record<string, unknown>, string]> = [
+      ["orphan label", { ...unavailable, names: ["S_O99"] }, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_MALFORMED: disclosures[2]"],
+      ["multi-label", { ...unavailable, names: ["S_O1", "S_O2"] }, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_MALFORMED: disclosures[2]"],
+      ["empty message", { ...unavailable, message: "" }, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_MALFORMED: disclosures[2]"],
+      ["repeated", unavailable, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_DUPLICATE: S_O1"]
+    ];
+    for (const [name, extra, fault] of malformed) {
+      const reply = withS_O1("no_confirmation_record");
+      reply.document.result.disclosures.push(extra);
+      host(() => Promise.resolve(reply));
+      const done = await service.sizeHangers(input());
+      expect(done.kind, name).toBe("failed");
+      if (done.kind !== "failed") continue;
+      expect(done.code, name).toBe(service.HANGER_SIZING_REPLY_UNREADABLE);
+      expect(done.message, name).toBe(`the native reply's sized document is not readable here (${fault}).`);
+    }
   });
 
   it("refuses in the browser preview without sending anything", async () => {

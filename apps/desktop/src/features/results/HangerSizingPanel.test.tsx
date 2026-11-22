@@ -317,6 +317,24 @@ describe("HangerSizingPanel: basis, solves, standing and disclosures", () => {
     await waitFor(() => expect(saved.length).toBe(2));
     const solves = readCsv(saved.find((item) => item.fileName === "swbpipe-hanger-sizing-solves.csv")!.text);
     expect(solves.rows[2][solves.header.indexOf("Support-state confirmation")]).toBe(CONFIRMATION_STATEMENTS.no_confirmation_record);
+    cleanup();
+    // A malformed or repeated correction-unavailable disclosure renders no sized view and no export either.
+    const unavailable = { code: "DISPLACEMENT_CORRECTION_UNAVAILABLE", names: ["S_O1"], message: "Load case load:OPERATING: the corrected displacement of node:A:UX could not be certified (invented); no published result of this case relies on the member-relative formation check." };
+    const malformed: [string, Record<string, unknown>, string][] = [
+      ["orphan label", { ...unavailable, names: ["S_O99"] }, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_MALFORMED: disclosures[2]"],
+      ["multi-label", { ...unavailable, names: ["S_O1", "S_O2"] }, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_MALFORMED: disclosures[2]"],
+      ["empty message", { ...unavailable, message: "" }, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_MALFORMED: disclosures[2]"],
+      ["repeated", unavailable, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_DUPLICATE: S_O1"]
+    ];
+    for (const [name, extra, fault] of malformed) {
+      const document = withS_O1("no_confirmation_record") as unknown as { result: { disclosures: unknown[] } };
+      document.result.disclosures.push(extra);
+      render(<HangerSizingPanel document={document as unknown as HangerSizingDocument} />);
+      expect((await screen.findByTestId("hanger-sizing-error")).textContent, name).toBe(`The sizing result could not be displayed: ${fault}`);
+      expect(screen.queryByTestId("hanger-sizing-sized"), name).toBeNull();
+      expect(screen.queryByRole("button", { name: /^Export CSV/ }), name).toBeNull();
+      cleanup();
+    }
   });
 
   it("shows a sensitive weight solve with the engine's exact integrity message, disclosed and not refused, and exports it", async () => {

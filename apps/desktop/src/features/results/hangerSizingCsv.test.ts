@@ -446,10 +446,25 @@ describe("hanger-sizing CSV: failing closed on a tampered view", () => {
     const contradicted = { ...view, solves: view.solves.map((solve, i) => (i === 2 ? { ...solve, supportStateConfirmation: { outcome: "solver_reported_established" as const, detail: null } } : solve)) };
     const input = await context(contradicted);
     for (const build of builders) expect(() => build(input)).toThrow(fault);
-    // And a malformed correction-unavailable disclosure is refused the same way.
-    const orphan = { ...view, disclosures: [...view.disclosures, { code: "DISPLACEMENT_CORRECTION_UNAVAILABLE", names: ["S_O99"], message: UNAVAILABLE_MESSAGE }] };
-    const orphaned = await context(orphan);
-    for (const build of builders) expect(() => build(orphaned)).toThrow("HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_MALFORMED: disclosures[2]");
+    // And a malformed or repeated correction-unavailable disclosure is refused the same way.
+    const unavailable = { code: "DISPLACEMENT_CORRECTION_UNAVAILABLE", names: ["S_O1"], message: UNAVAILABLE_MESSAGE };
+    const malformed: [string, HangerSizingSizedView["disclosures"][number], string][] = [
+      ["orphan label", { ...unavailable, names: ["S_O99"] }, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_MALFORMED: disclosures[2]"],
+      ["multi-label", { ...unavailable, names: ["S_O1", "S_O2"] }, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_MALFORMED: disclosures[2]"],
+      ["no label", { ...unavailable, names: [] }, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_MALFORMED: disclosures[2]"],
+      ["empty message", { ...unavailable, message: "" }, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_MALFORMED: disclosures[2]"],
+      ["repeated", unavailable, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_DUPLICATE: S_O1"]
+    ];
+    for (const [name, extra, malformedFault] of malformed) {
+      const tampered = await context({ ...view, disclosures: [...view.disclosures, extra] });
+      for (const build of builders) expect(() => build(tampered), name).toThrow(malformedFault);
+    }
+    // The same document carrying them builds no view to export.
+    for (const [name, extra, malformedFault] of malformed) {
+      const document = withS_O1("no_confirmation_record") as unknown as { result: { disclosures: unknown[] } };
+      document.result.disclosures.push(extra);
+      await expect(exports(document as unknown as HangerSizingSizedDocument), name).rejects.toThrow(malformedFault);
+    }
   });
 
   it("builds no view to export from a document tampered the same way", async () => {
@@ -502,6 +517,28 @@ describe("hanger-sizing CSV provenance and file names", () => {
     }
     // A view whose document could not be hashed records not_recorded.
     expect(hangerSizingViewCsvProvenance({ view: { ...view, documentSha256: null } }).resultHash).toBe(CSV_NOT_RECORDED);
+  });
+
+  it("stamps the view's own result_hash and analysis_route whatever provenance a direct caller passes, keeping its model hash", async () => {
+    const document = twoSpan();
+    const view = await sized(document);
+    // Changed synchronously after the view was formed; the direct caller then takes the changed document's provenance.
+    (document as unknown as { result: { integrity_bound: { status: string } } }).result.integrity_bound.status = "verified";
+    (document as unknown as { semantic_contract_id: string }).semantic_contract_id = "mutated";
+    const modelHash = `sha256:${"ef".repeat(32)}`;
+    const mutatedProvenance = await hangerSizingCsvProvenance({ document, modelHash });
+    expect(mutatedProvenance.resultHash).not.toBe(`sha256:${TWO_SPAN_SHA256}`);
+    expect(mutatedProvenance.analysisRoutes).toEqual(["mutated"]);
+    for (const provenance of [mutatedProvenance, await hangerSizingCsvProvenance({ document })]) {
+      const input = { view, provenance, softwareVersion: CSV_SOFTWARE_VERSION };
+      for (const build of [hangerSizingCandidatesCsv, hangerSizingSolvesCsv]) {
+        const csv = readCsv(serializeCsvTable(build(input).table));
+        expect(preambleValue(csv, "result_hash"), build.name).toBe(`sha256:${TWO_SPAN_SHA256}`);
+        expect(preambleValue(csv, "analysis_route"), build.name).toBe("openpipestress.result_semantics/hanger-sizing-1");
+        expect(preambleValue(csv, "model_hash"), build.name).toBe(provenance === mutatedProvenance ? modelHash : CSV_NOT_RECORDED);
+        for (const row of csv.rows) expect(textField(csv, row, "Integrity bound"), build.name).toBe("not_verified (inverse_norm_bound_not_verified)");
+      }
+    }
   });
 
   it("reads the document's hash and contract as the document provenance is called", async () => {

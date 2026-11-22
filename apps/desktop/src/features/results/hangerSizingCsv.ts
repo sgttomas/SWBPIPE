@@ -20,6 +20,7 @@ import {
   csvText,
   type CsvCell,
   type CsvColumn,
+  type CsvPreamble,
   type CsvProvenance
 } from "../result-export/csvTable";
 import { canonicalSha256HexCheckedV1 } from "../../services/hashService";
@@ -76,6 +77,8 @@ export const hangerSizingNotShown = (reason: RecordNotShownReason): string => `n
 export const HANGER_SIZING_VARIABLE_COUNT_KEYS = ["E1", "E2", "V0", "L", "T", "V"] as const;
 export const HANGER_SIZING_CONSTANT_COUNT_KEYS = ["E1", "L", "T"] as const;
 
+/** What a caller hands either builder. Only `provenance.modelHash` is taken from `provenance`: `result_hash` and
+ * `analysis_route` are always the view's own (`hangerSizingViewCsvProvenance`), whatever a direct caller passes. */
 type Context = Readonly<{ view: HangerSizingSizedView; provenance: CsvProvenance; softwareVersion: string }>;
 
 const recordedModelHash = (modelHash: string | null | undefined): string =>
@@ -317,19 +320,34 @@ function candidateLines(view: HangerSizingSizedView): Line[] {
     : [{ row, caseId: null }]));
 }
 
+/** The checked view and the preamble of either file. The view is checked first (`checked`); `model_hash` is the
+ * caller's, and `result_hash` and `analysis_route` are the view's own (`hangerSizingViewCsvProvenance`), so a direct
+ * caller's provenance of another or a since-changed document cannot stamp either file. */
+function prepared(input: Context, caseOrFilter: string): Readonly<{ view: HangerSizingSizedView; preamble: CsvPreamble }> {
+  const view = checked(input.view);
+  const own = hangerSizingViewCsvProvenance({ view });
+  return {
+    view,
+    preamble: {
+      table: HANGER_SIZING_CSV_KIND,
+      softwareVersion: input.softwareVersion,
+      modelHash: input.provenance.modelHash,
+      resultHash: own.resultHash,
+      analysisRoutes: own.analysisRoutes,
+      caseOrFilter,
+      unitBasis: HANGER_SIZING_CSV_UNIT_BASIS
+    }
+  };
+}
+
 /** The candidates table: one row per candidate and operating case. */
 export function hangerSizingCandidatesCsv(input: Context): CsvExport {
-  const lines = candidateLines(checked(input.view));
-  const q = qualifications(input.view);
+  const { view, preamble } = prepared(input, HANGER_SIZING_CANDIDATES_FILTER);
+  const lines = candidateLines(view);
+  const q = qualifications(view);
   return {
     table: {
-      preamble: {
-        table: HANGER_SIZING_CSV_KIND,
-        softwareVersion: input.softwareVersion,
-        ...input.provenance,
-        caseOrFilter: HANGER_SIZING_CANDIDATES_FILTER,
-        unitBasis: HANGER_SIZING_CSV_UNIT_BASIS
-      },
+      preamble,
       columns: [...CANDIDATE_SPECS.map((spec) => spec.column), ...QUALIFICATION_COLUMNS],
       rows: lines.map((line) => [...CANDIDATE_SPECS.map((spec) => spec.cell(line)), ...qualificationCells(q)])
     },
@@ -362,19 +380,14 @@ function confirmationText(solve: SolveView): string {
  * key order; a solve of a model with no nonlinear support is one row stating so. Each row carries its
  * solve's standing and support-state confirmation. */
 export function hangerSizingSolvesCsv(input: Context): CsvExport {
-  const lines: SolveLine[] = checked(input.view).solves.flatMap<SolveLine>((solve) => (solve.states.length > 0
+  const { view, preamble } = prepared(input, HANGER_SIZING_SOLVES_FILTER);
+  const lines: SolveLine[] = view.solves.flatMap<SolveLine>((solve) => (solve.states.length > 0
     ? solve.states.map((state) => ({ solve, state }))
     : [{ solve, state: null }]));
-  const q = qualifications(input.view);
+  const q = qualifications(view);
   return {
     table: {
-      preamble: {
-        table: HANGER_SIZING_CSV_KIND,
-        softwareVersion: input.softwareVersion,
-        ...input.provenance,
-        caseOrFilter: HANGER_SIZING_SOLVES_FILTER,
-        unitBasis: HANGER_SIZING_CSV_UNIT_BASIS
-      },
+      preamble,
       columns: [...SOLVE_COLUMNS, ...QUALIFICATION_COLUMNS],
       rows: lines.map(({ solve, state }) => [
         csvText(solve.label),
