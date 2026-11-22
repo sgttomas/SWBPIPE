@@ -115,10 +115,11 @@ test("01 orientation: every menu, stage and page as first met", async ({ page })
     });
   }
 
-  // A dialog in each theme: the units dialog of File > New Blank Project, with the theme set as a
-  // person sets it (View > Dark, View > Light) and the page's colour scheme emulated to match.
+  // A dialog in each theme: the New blank project dialog of File > New Blank Project (its starting
+  // model and units), with the theme set as a person sets it (View > Dark, View > Light) and the
+  // page's colour scheme emulated to match.
   for (const theme of ["dark", "light"] as const) {
-    await journey.step(`dialog-${theme}`, `The units dialog of File > New Blank Project in the ${theme} theme`, async () => {
+    await journey.step(`dialog-${theme}`, `The New blank project dialog (starting model and units) of File > New Blank Project in the ${theme} theme`, async () => {
       await page.emulateMedia({ colorScheme: theme });
       await menu(page, "view", `view.theme.${theme}`);
       await projectCommand(page, "new-blank");

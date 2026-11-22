@@ -13,6 +13,7 @@ import { applyModelOperation } from "./services/operationService";
 import { designKnowledgeDiagnostics } from "./services/designKnowledge";
 import { getLocalStorageCapability } from "./services/projectService";
 import { confirmProjectUnits } from "./test-support/workspaceTestControls";
+import { formatAutosaveTime } from "./features/autosave/autosaveRecovery";
 import type {
   EditorOperationIntent,
   LocalProjectEnvelope,
@@ -143,10 +144,11 @@ async function runMechanicsButton() {
   return within(openWorkspaceSection("solve")).getByTestId("run-mechanics-preview");
 }
 
-const PROJECT_CONTROL_NAMES = [/^Create local$/, /^New blank$/, /^Open local$/, /^List local$/, /^Save local$/];
+// The Project page's header buttons; the File menu holds the rest of the project commands.
+const PROJECT_CONTROL_IDS = ["project-new", "open-model-document", "project-save"];
 
 function projectControls() {
-  return PROJECT_CONTROL_NAMES.map((name) => screen.getByRole("button", { name }));
+  return PROJECT_CONTROL_IDS.map((id) => screen.getByTestId(id));
 }
 
 function issueCountShown(): number {
@@ -292,7 +294,7 @@ describe("project handlers: listing does not release a busy state it does not ow
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
     setTauriRuntime(true);
-    fireEvent.click(screen.getByRole("button", { name: /^Save local$/ }));
+    fireEvent.click(screen.getByTestId("project-save"));
     await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("save_local_project", expect.any(Object)));
     for (const control of projectControls()) expect(control).toBeDisabled();
     const messageBeforeList = projectMessage().textContent;
@@ -312,7 +314,7 @@ describe("project handlers: listing does not release a busy state it does not ow
       pendingSave.resolve(saved);
       await pendingSave.promise;
     });
-    await waitFor(() => expect(screen.getByRole("button", { name: /^Save local$/ })).toBeEnabled());
+    await waitFor(() => expect(screen.getByTestId("project-save")).toBeEnabled());
     for (const control of projectControls()) expect(control).toBeEnabled();
     expect(projectMessage()).toHaveTextContent(saved.summary.message);
     expect(lastProjectOperation()).toBe("save");
@@ -334,7 +336,7 @@ describe("project handlers: listing does not release a busy state it does not ow
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
     setTauriRuntime(true);
-    fireEvent.click(screen.getByRole("button", { name: /^List local$/ }));
+    act(() => nativeMenuCommand("file.list-local"));
     await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("list_local_projects"));
     for (const control of projectControls()) expect(control).toBeDisabled();
 
@@ -342,7 +344,7 @@ describe("project handlers: listing does not release a busy state it does not ow
     await flushPendingWork();
     expect(saveRequest).toBeUndefined();
     await act(async () => { pendingList.resolve([]); await pendingList.promise; });
-    await waitFor(() => expect(screen.getByRole("button", { name: /^Save local$/ })).toBeEnabled());
+    await waitFor(() => expect(screen.getByTestId("project-save")).toBeEnabled());
     act(() => nativeMenuCommand("file.save-local"));
     await waitFor(() => expect(saveRequest).toBeDefined());
     for (const control of projectControls()) expect(control).toBeDisabled();
@@ -352,7 +354,7 @@ describe("project handlers: listing does not release a busy state it does not ow
       pendingSave.resolve(saved);
       await pendingSave.promise;
     });
-    await waitFor(() => expect(screen.getByRole("button", { name: /^Save local$/ })).toBeEnabled());
+    await waitFor(() => expect(screen.getByTestId("project-save")).toBeEnabled());
     for (const control of projectControls()) expect(control).toBeEnabled();
     expect(projectMessage()).toHaveTextContent(saved.summary.message);
     expect(lastProjectOperation()).toBe("save");
@@ -1146,6 +1148,150 @@ describe("B3A baseline ownership after asynchronous persistence", () => {
   });
 });
 
+// PR 584 round 1, findings 1 and 2, and round 3: the Project page's line and rows say which
+// stored project the session is bound to, whether this window has edited it, and when the store
+// last saved it, through the session's own transitions. All data are invented.
+describe("the Project page's stored-project binding", () => {
+  const SAVED_AT = 1_790_000_000;
+  const listing = (model: PreviewModel, updated = SAVED_AT) => [{
+    project_id: model.project.id, project_name: model.project.name, storage_mode: "local_sqlite", created_at_unix: SAVED_AT, updated_at_unix: updated
+  }];
+  // Under the native runtime the page is opened as the native menu opens it.
+  const projectPage = () => {
+    if (screen.getByTestId("workspace-section-project").classList.contains("inactive")) act(() => nativeMenuCommand("view.section.project"));
+    return within(screen.getByTestId("workspace-section-project")).getByTestId("project-page");
+  };
+  const savedLine = () => within(projectPage()).getByTestId("project-page-saved-line");
+
+  it("keeps the stored binding when an edit lands during a first save: saved, edited in this window", async () => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    setTauriRuntime(true);
+    const pendingSave = deferred<LocalProjectEnvelope>();
+    let saveRequest: Record<string, unknown> | undefined;
+    invokeMock.mockImplementation((command: string, args?: { request?: Record<string, unknown> }) => {
+      if (command === "save_local_project") { saveRequest = args?.request; return pendingSave.promise; }
+      if (command === "list_local_projects") return Promise.resolve(saveRequest ? listing(model) : []);
+      return Promise.resolve({});
+    });
+    expect(savedLine()).toHaveTextContent(/^Not saved as a project\.$/);
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(saveRequest).toBeDefined());
+    await applyGridEditWhilePending();
+    await act(async () => {
+      pendingSave.resolve(savedEnvelopeFor(model, saveRequest!, "Saved invented project under a first-save edit."));
+      await pendingSave.promise;
+    });
+    await flushPendingWork();
+    await waitFor(() => expect(savedLine()).toHaveTextContent(`Saved project; edited in this window. Latest in store: ${formatAutosaveTime(SAVED_AT * 1000)}.`));
+    expect(within(projectPage()).getByTestId(`project-saved-open-${model.project.id}`)).toHaveTextContent("open now");
+    expect(screen.getByTestId("project-edited")).toBeInTheDocument();
+  });
+
+  it("keeps the stored binding when an edit lands during Save as New Local Project: saved, edited in this window", async () => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    setTauriRuntime(true);
+    const pendingCreate = deferred<LocalProjectEnvelope>();
+    let createRequest: Record<string, unknown> | undefined;
+    // `create_local_project` takes its fields flat, not under `request`.
+    invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
+      if (command === "create_local_project") { createRequest = args; return pendingCreate.promise; }
+      if (command === "list_local_projects") return Promise.resolve(createRequest ? listing(model) : []);
+      return Promise.resolve({});
+    });
+    expect(savedLine()).toHaveTextContent(/^Not saved as a project\.$/);
+    act(() => nativeMenuCommand("file.new-local"));
+    await waitFor(() => expect(createRequest).toBeDefined());
+    await applyGridEditWhilePending();
+    await act(async () => {
+      pendingCreate.resolve(savedEnvelopeFor(model, createRequest!, "Created invented project under a model edit."));
+      await pendingCreate.promise;
+    });
+    await flushPendingWork();
+    await waitFor(() => expect(savedLine()).toHaveTextContent(`Saved project; edited in this window. Latest in store: ${formatAutosaveTime(SAVED_AT * 1000)}.`));
+    expect(within(projectPage()).getByTestId(`project-saved-open-${model.project.id}`)).toHaveTextContent("open now");
+    expect(screen.getByTestId("project-edited")).toBeInTheDocument();
+  });
+
+  it("unbinds a model file opened over its stored project: not saved, and its stored row not open", async () => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    setTauriRuntime(true);
+    invokeMock.mockImplementation((command: string, args?: { request?: Record<string, unknown> }) => {
+      if (command === "save_local_project") return Promise.resolve(savedEnvelopeFor(model, args!.request!, "Saved invented project."));
+      if (command === "list_local_projects") return Promise.resolve(listing(model));
+      if (command === "open_model_document_file") {
+        return Promise.resolve({ outcome: "opened", file_name: "same-id.json", byte_count: 1234, schema_status: "current", document: JSON.parse(JSON.stringify(model)) });
+      }
+      return Promise.resolve({});
+    });
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Saved invented project."));
+    await waitFor(() => expect(within(projectPage()).getByTestId(`project-saved-open-${model.project.id}`)).toHaveTextContent("open now"));
+    act(() => nativeMenuCommand("file.open-model"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Opened model document same-id.json"));
+    await waitFor(() => expect(savedLine()).toHaveTextContent(/^Not saved as a project\.$/));
+    await waitFor(() => expect(within(projectPage()).getByTestId(`project-saved-open-${model.project.id}`)).not.toHaveTextContent("open now"));
+  });
+
+  it("names a second window's later save as the store's latest, apart from this window's own edits, on re-entering Project", async () => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    setTauriRuntime(true);
+    // This window saves revision 1 at T1; another window then saves revision 2 of the same project at T2.
+    let updated = SAVED_AT;
+    invokeMock.mockImplementation((command: string, args?: { request?: Record<string, unknown> }) => {
+      if (command === "save_local_project") return Promise.resolve(savedEnvelopeFor(model, args!.request!, "Saved invented revision 1."));
+      if (command === "list_local_projects") return Promise.resolve(listing(model, updated));
+      return Promise.resolve({});
+    });
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Saved invented revision 1."));
+    await waitFor(() => expect(savedLine()).toHaveTextContent(`Saved project; no edits in this window. Latest in store: ${formatAutosaveTime(SAVED_AT * 1000)}.`));
+    act(() => nativeMenuCommand("view.section.loads"));
+    await waitFor(() => expect(screen.getByTestId("workspace-section-project")).toHaveClass("inactive"));
+    const later = SAVED_AT + 3_600;
+    updated = later;
+    await waitFor(() => expect(savedLine()).toHaveTextContent(`Saved project; no edits in this window. Latest in store: ${formatAutosaveTime(later * 1000)}.`));
+    // The line does not say this window's revision 1 is the store's latest.
+    expect(savedLine()).not.toHaveTextContent(/No changes since/);
+    expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument();
+  });
+
+  it("never moves the Saved time on a refused save after a successful one; the line and the row agree", async () => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    setTauriRuntime(true);
+    let refuse = false;
+    invokeMock.mockImplementation((command: string, args?: { request?: Record<string, unknown> }) => {
+      if (command === "save_local_project") {
+        const saved = savedEnvelopeFor(model, args!.request!, refuse ? "Refused invented save." : "Saved invented project.");
+        // The refused reply names another project: the session refuses it by name and the store is unchanged.
+        if (refuse) saved.summary = { ...saved.summary, project_id: "project:invented-other" };
+        return Promise.resolve(saved);
+      }
+      if (command === "list_local_projects") return Promise.resolve(listing(model));
+      return Promise.resolve({});
+    });
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Saved invented project."));
+    const time = formatAutosaveTime(SAVED_AT * 1000);
+    await waitFor(() => expect(savedLine()).toHaveTextContent(`Saved project; no edits in this window. Latest in store: ${time}.`));
+    refuse = true;
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Save failed: PROJECT-PERSISTENCE-RESPONSE-INTEGRITY"));
+    await flushPendingWork();
+    expect(savedLine()).toHaveTextContent(`Saved project; no edits in this window. Latest in store: ${time}.`);
+    expect(within(projectPage()).getByTestId(`project-saved-open-${model.project.id}`)).toHaveTextContent(`saved ${time}`);
+  });
+});
+
 describe("B3A persisted model comparison", () => {
   // DEL-02-05 CLM-003: the store never rewrites a model document, so a save
   // response whose model differs from the request is refused, never adopted.
@@ -1464,7 +1610,7 @@ it.each([["Save", "file.save-local", "save_local_project", null], ["Save", "file
   setTauriRuntime(true);
   act(() => nativeMenuCommand(menu));
   await waitFor(() => expect(projectMessage()).toHaveTextContent(`${label} failed:`));
-  await waitFor(() => expect(screen.getByRole("button", { name: /^Save local$/ })).toBeEnabled());
+  await waitFor(() => expect(screen.getByTestId("project-save")).toBeEnabled());
   expect(modelHashLine()).toHaveTextContent("integrity=persistence_verification_not_run_this_session");
   expect(envelopeHashLine()).toHaveTextContent("integrity=persistence_verification_not_run_this_session");
 });

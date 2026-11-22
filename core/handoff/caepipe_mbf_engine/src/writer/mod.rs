@@ -785,6 +785,9 @@ pub(crate) struct Writer<'m> {
     pub tangent_points: OMap<String, String>,
     pub rotation_converted: bool,
     pub contract: Option<Value>,
+    /// A pressure-free document's own shear model selection (`model_settings.shear_model`), or None when it states
+    /// none; the sidecar's pressure_map carries it for a bound import.
+    pub free_shear: Option<String>,
     pub pipe_pressure: OMap<String, f64>,
     pub regions: Vec<Value>,
     pub regenerating: Option<BTreeSet<String>>,
@@ -832,6 +835,7 @@ impl<'m> Writer<'m> {
             tangent_points: OMap::new(),
             rotation_converted: false,
             contract: None,
+            free_shear: None,
             pipe_pressure: OMap::new(),
             regions: Vec::new(),
             regenerating: None,

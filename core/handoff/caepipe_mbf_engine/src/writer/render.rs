@@ -794,8 +794,14 @@ impl<'m> Writer<'m> {
         let mut pressure_map = Dict::new();
         match &self.contract {
             None => {
+                // Without a contract: the document's own timoshenko_annulus_energy_v1 selection, else the route's
+                // Euler-Bernoulli.
+                let free = match self.free_shear.as_deref() {
+                    Some("timoshenko_annulus_energy_v1") => "timoshenko_annulus_energy_v1",
+                    _ => "euler_bernoulli",
+                };
                 pressure_map.insert("contract".into(), Value::str("none"));
-                pressure_map.insert("shear_model".into(), Value::str("euler_bernoulli"));
+                pressure_map.insert("shear_model".into(), Value::str(free));
                 pressure_map.insert("regions".into(), Value::List(Vec::new()));
             }
             Some(contract) => {
