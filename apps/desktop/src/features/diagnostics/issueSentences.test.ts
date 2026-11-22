@@ -184,7 +184,12 @@ describe("plainIssueSentence: the solver's codes", () => {
 
   it("words the rigid scale and the intensification from the values the engine wrote", () => {
     expect(of(first("RIGID_COMPONENT_STIFFNESS_SCALING_APPLIED"))).toBe(
-      "Rigid component component:C-130 applies user-entered stiffness scale 15 to pipe pipe:P-130; published stresses are on the mapped pipe section, not the component body."
+      "Rigid component component:C-130 applies user-entered stiffness scale 15 to pipe P-130; published stresses are on the mapped pipe section, not the component body."
+    );
+    // A pipe reference without the prefix stays as it is.
+    const rigid = first("RIGID_COMPONENT_STIFFNESS_SCALING_APPLIED");
+    expect(of({ ...rigid, affected_refs: ["component:C-130", "P-130"] })).toBe(
+      "Rigid component component:C-130 applies user-entered stiffness scale 15 to pipe P-130; published stresses are on the mapped pipe section, not the component body."
     );
     expect(of({ ...first("RIGID_COMPONENT_STIFFNESS_SCALING_APPLIED"), message: "scaled" })).toBeNull();
     expect(of(first("COMPONENT_EQUAL_FACTOR_INTENSIFICATION_APPLIED"))).toBe(

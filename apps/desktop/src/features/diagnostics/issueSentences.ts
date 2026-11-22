@@ -171,7 +171,9 @@ export function plainIssueSentence(model: PreviewModel, diagnostic: Diagnostic):
     case "RIGID_COMPONENT_STIFFNESS_SCALING_APPLIED": {
       if (!exactly(2)) return null;
       const scale = between(diagnostic.message, "applies its user-entered stiffness scale ", " to mapped member ");
-      return scale === null ? null : `Rigid component ${refs[0]} applies user-entered stiffness scale ${scale} to pipe ${refs[1]}; published stresses are on the mapped pipe section, not the component body.`;
+      // "to pipe" already names the kind, so the reference's own "pipe:" prefix is not repeated.
+      const pipe = refs[1]!.startsWith("pipe:") ? refs[1]!.slice("pipe:".length) : refs[1]!;
+      return scale === null || pipe === "" ? null : `Rigid component ${refs[0]} applies user-entered stiffness scale ${scale} to pipe ${pipe}; published stresses are on the mapped pipe section, not the component body.`;
     }
     case "COMPONENT_EQUAL_FACTOR_INTENSIFICATION_APPLIED": {
       if (!exactly(5)) return null;

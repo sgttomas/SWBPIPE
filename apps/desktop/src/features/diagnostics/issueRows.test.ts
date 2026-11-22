@@ -130,7 +130,7 @@ describe("buildIssueList: the demonstration solve", () => {
     expect(list.rows.map((row) => row.tier)).toEqual([...list.rows.map((row) => row.tier)].sort((a, b) => KINDS.indexOf(a) - KINDS.indexOf(b)));
     const count = countIssues(list);
     expect(count).toEqual({ ...recount(list), checked: true, notListedToFix: 0 });
-    expect(issueCountLine(count)).toBe(`Nothing to fix. ${count.warnings} warnings, ${count.notes} notes.`);
+    expect(issueCountLine(count)).toBe(`Nothing to fix before Run. ${count.warnings} warnings, ${count.notes} notes.`);
   });
 });
 
@@ -196,7 +196,10 @@ describe("the five kinds of PRD §14.4", () => {
     // The checks list nothing; the validator's blocking slot finding still stands on its own route.
     const base = session();
     const list = buildIssueList({ ...base, modelCheckRun: checkRun(base.model, []) });
-    expect(issueCountLine(countIssues(list))).toBe("Nothing to fix. 1 model validity finding, 2 blocking the rule check, 2 warnings, 1 note.");
+    expect(issueCountLine(countIssues(list))).toBe("Nothing to fix before Run. 1 model validity finding, 2 blocking the rule check, 2 warnings, 1 note.");
+    // With nothing listed at all, there is nothing to fix.
+    const empty = { ...base.model, diagnostics: [] };
+    expect(issueCountLine(countIssues(buildIssueList({ model: empty, modelCheckRun: checkRun(empty, []) })))).toBe("Nothing to fix.");
   });
 
   it("carries the class a producer supplied, and invents none", () => {

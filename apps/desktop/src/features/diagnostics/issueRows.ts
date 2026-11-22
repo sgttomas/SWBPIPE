@@ -378,13 +378,14 @@ export function countIssues(list: IssueList): IssueCount {
 const plural = (count: number, word: string) => `${count} ${word}${count === 1 ? "" : "s"}`;
 
 /** The count as one line, each kind present with its own number: "3 to fix before Run. 2 warnings,
- * 1 note.", or "Nothing to fix. 1 model validity finding, 2 blocking the rule check, 5 notes.";
- * where the solve's checks have not run on this model value, "Model not checked." in place of
- * "Nothing to fix.". */
+ * 1 note.", or "Nothing to fix before Run. 1 model validity finding, 2 blocking the rule check, 5
+ * notes."; "Nothing to fix." where nothing at all is listed; where the solve's checks have not run
+ * on this model value, "Model not checked." in place of either. */
 export function issueCountLine(count: IssueCount): string {
   const lead = count.toFix > 0 || count.notListedToFix > 0
     ? `${count.toFix} to fix before Run${count.notListedToFix > 0 ? `, and ${count.notListedToFix} more not listed` : ""}.`
-    : count.checked ? "Nothing to fix." : "Model not checked.";
+    : !count.checked ? "Model not checked."
+    : count.total > 0 ? "Nothing to fix before Run." : "Nothing to fix.";
   const rest = [
     count.modelValidity > 0 ? `${count.modelValidity} model validity ${count.modelValidity === 1 ? "finding" : "findings"}` : null,
     count.ruleCheck > 0 ? `${count.ruleCheck} blocking the rule check` : null,

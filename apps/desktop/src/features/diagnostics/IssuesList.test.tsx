@@ -76,7 +76,7 @@ describe("IssuesList", () => {
       />
     );
     const count = countIssues(list);
-    expect(screen.getByTestId("issues-count-line")).toHaveTextContent(`Nothing to fix. ${count.warnings} warnings, ${count.notes} notes.`);
+    expect(screen.getByTestId("issues-count-line")).toHaveTextContent(`Nothing to fix before Run. ${count.warnings} warnings, ${count.notes} notes.`);
     expect(rows()).toHaveLength(count.total);
     // Rows include the solver's own messages: the heading stands once, at the head of the list.
     expect(screen.getAllByTestId("issues-solver-messages-heading").map((item) => item.textContent)).toEqual([HEADING]);
@@ -129,7 +129,7 @@ describe("IssuesList", () => {
     expect(within(target).queryByTestId("issue-class")).toBeNull();
     fireEvent.click(within(target).getByRole("button", { name: /Blank local model document/ }));
     expect(within(target).getByTestId("issue-detail")).toHaveTextContent("Classnot supplied by producer");
-    expect(screen.getByTestId("issues-count-line")).toHaveTextContent("Nothing to fix. 1 blocking the rule check, 2 warnings, 1 note.");
+    expect(screen.getByTestId("issues-count-line")).toHaveTextContent("Nothing to fix before Run. 1 blocking the rule check, 2 warnings, 1 note.");
   });
 
   it("shows a plain sentence on the row and the engine's own message when opened", () => {
