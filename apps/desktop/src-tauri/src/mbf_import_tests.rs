@@ -1953,3 +1953,34 @@ fn the_dialogs_import_replies_are_the_native_replies() {
     }
     assert_released(&registry);
 }
+
+/// The identity file's one accepted loss, guarded through the desktop's own import and solve (the Rust half of
+/// `test_a_stated_shear_model_comes_back_bound_with_the_same_mechanics` in tests/test_caepipe_mbf_round_trip.py):
+/// a pressure-free document that states euler_bernoulli explicitly is written, imported bound, and comes back
+/// stating none, which solves as Euler-Bernoulli (preview-physics-2); one that states
+/// timoshenko_annulus_energy_v1 comes back stating it and solves as Timoshenko. Here an absent selection means
+/// Euler-Bernoulli everywhere, so the lost statement changes no mechanics.
+#[test]
+fn a_stated_shear_model_comes_back_bound_and_solves_as_stated() {
+    let settings = mbf::export_settings_from_json(EXPORT_SETTINGS.as_bytes()).unwrap();
+    let invented = br#"{"*":{"origin":"project_invented","source_name":"invented shear model round trip"}}"#;
+    for (stated, kept, identity) in [
+        ("euler_bernoulli", None, "preview-physics-2"),
+        ("timoshenko_annulus_energy_v1", Some("timoshenko_annulus_energy_v1"), "preview-physics-timoshenko-1"),
+    ] {
+        let mut document: Value = serde_json::from_str(EXPORT_MODEL).unwrap();
+        assert!(document.get("pressure_contract").is_none(), "the export model is pressure-free");
+        document["model_settings"] = json!({"shear_model": stated});
+        let model = mbf::parse_sidecar_json(document.to_string().as_bytes()).unwrap();
+        let written = mbf::render_si(&model, &settings).unwrap();
+        assert_eq!(written.status, "written", "{stated}");
+        let text = written.text.clone().unwrap().into_bytes();
+        let sidecar = written.sidecar_bytes(&hex(&text)).unwrap();
+        let imported: Value = serde_json::from_slice(&engine_model(&text, Some(&sidecar), Some(invented))).unwrap();
+        assert_eq!(imported.pointer("/model_settings/shear_model").and_then(Value::as_str), kept, "{stated}");
+        let envelope = crate::solve_preview_mechanics(imported).unwrap();
+        assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{stated}: {}", envelope["diagnostics"]);
+        let producer = envelope["producer"]["semantic_contract_id"].as_str().unwrap();
+        assert!(producer.ends_with(&format!("/{identity}")), "{stated}: {producer}");
+    }
+}

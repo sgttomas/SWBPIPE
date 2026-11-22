@@ -92,7 +92,7 @@ describe("a page that cannot be shown", () => {
     expect(within(project).queryByTestId("project-storage-panel")).toBeNull();
     expectChromeStanding();
     // The page's own header controls (outside the failed content) still stand.
-    expect(screen.getByTestId("open-local-project")).toBeInTheDocument();
+    expect(screen.getByTestId("project-save")).toBeInTheDocument();
 
     // Another page opens from the rail and shows its content.
     fireEvent.click(screen.getByTestId("rail-page-libraries"));
