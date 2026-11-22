@@ -235,8 +235,7 @@ pub fn no_figure_statement(reason: NoFigureReason) -> String {
 }
 
 /// The integrity bound's status, as stated beside a verdict or a text that is
-/// the solver's own (release exit criterion 18, LIM-026). The desktop states
-/// the same words beside the solver's verbatim text.
+/// the solver's own (release exit criterion 18, LIM-026).
 pub fn integrity_bound_statement(status: IntegrityBound) -> &'static str {
     match status {
         IntegrityBound::NotVerified => "Reported by the solver; not verified by SWBPIPE.",
