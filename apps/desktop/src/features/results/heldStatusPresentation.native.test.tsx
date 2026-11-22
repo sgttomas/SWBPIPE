@@ -122,7 +122,7 @@ async function presented(result: MechanicsResult | NativeResult, id: string, mod
   view.unmount();
   const interpretation = buildDiagnosticInterpretation({ model, knowledge: null, result, diagnosticId: id })!.message;
   const record = physicsRecords(result).find((r) => r.id === `knowledge:${id}`)!;
-  view = render(<KnowledgePanel knowledge={null} result={result} />);
+  view = render(<KnowledgePanel knowledge={null} model={null} result={result} />);
   const knowledge = screen.getByTestId(`knowledge-record-${record.id}`).querySelector("p")!.textContent;
   view.unmount();
   return { listed, explanation, interpretation, record: record.summary, knowledge };

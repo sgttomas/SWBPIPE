@@ -78,6 +78,13 @@ TOL = {
 # --------------------------------------------------------------------------
 # comparison record (synthetic numbers)
 # --------------------------------------------------------------------------
+@pytest.fixture(autouse=True)
+def _live_session_passed_through(monkeypatch):
+    """Every live route opens its session first (liveness, then the share's letter); that opening is examined in
+    tests/test_caepipe_live_session.py, and here it passes the configuration through unchanged."""
+    monkeypatch.setattr(run_pilot, "live_session", lambda config, emit=print: config)
+
+
 def swb_rows(*, uy_mm=-10.0, rz_rad=-0.01, fy=2000.0, restraint_fy=50.0):
     def row(kind, entity, value, unit, component=None):
         item = {"id": f"r:{kind}:{entity}:{component}", "kind": kind, "entity_ref": entity, "value": value,

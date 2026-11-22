@@ -96,6 +96,9 @@ code_paths:
 # writes numbered screens with their word and control counts. It records what a person sees and where
 # a journey stops; it judges nothing and is no check of AC-007.
 - apps/desktop/walkthrough/**
+# The store the native walkthrough's refused-stored-run journey starts from. DEL-14-02 lists it with
+# the reopen guard whose refusal it shows; DEL-02-05 lists the fixture folder.
+- fixtures/persistence/refused_stored_run/openpipestress-projects.sql
 # AC-007's missing-data use case: its start model, requests and person-entered values, and the
 # offline judge of a trace of it. No driver runs it yet.
 - fixtures/embedded_agent/use_cases/missing-data/**

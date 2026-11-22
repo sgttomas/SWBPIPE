@@ -15,6 +15,7 @@ import {
   EXPORT_CONTEXTS,
   GOVERNED_LOCAL_FIRST_ROUTE_IDS,
   LOCAL_PRIVATE_ONLY_ROUTE_IDS,
+  RECOGNIZED_PRIVACY_CLASSIFICATIONS,
   REDACTED_VALUE,
   REPORT_PACKAGE_USER_RELEASE_ROUTE_ID,
   USER_RELEASED_REPORT_CONTEXT,
@@ -1986,3 +1987,329 @@ describe("DOTH-MBF-012 route catalogue", () => {
   });
 });
 
+
+// Explicit blocking statements at depth (DEL-12-02 AC-003): the corpus's `statement_cases`, expanded
+// and run identically by tests/security/test_redaction_export_controls.py and the Rust mirror's test
+// module. Expected values are the corpus's, written from the decision order.
+type StatementExpectation = { statement_decisions: [string, string][]; expected_decisions?: [string, string, string][] };
+type StatementSpec = {
+  carried_text: string;
+  route_id: string;
+  settings: [RedactionExportContext, boolean][];
+  statements: { name: string; members: Record<string, unknown>; reason: string }[];
+  non_statements: { name: string; members: Record<string, unknown> }[];
+  positions: {
+    name: string;
+    payload: Record<string, unknown>;
+    statement_path: string;
+    statement_decisions: [string, string][];
+    expected_decisions?: [string, string, string][];
+  }[];
+  named_cases: { case_id: string; payload: Record<string, unknown>; route: StatementExpectation; walk: StatementExpectation }[];
+  raw_cases: {
+    case_id: string;
+    payload: unknown;
+    route: RawSide & { payload?: unknown };
+    walk: RawSide;
+  }[];
+};
+type RawRow = [string, string, string];
+type RawSide = {
+  decisions: RawRow[];
+  decisions_local_private?: RawRow[];
+  decisions_local_private_without_intent?: RawRow[];
+  labels?: [string, string, string, string][];
+};
+
+/** The whole list a raw case gives for a setting: `decisions`, else its local_private forms. */
+function rawExpected(side: RawSide, context: RedactionExportContext, intent: boolean): RawRow[] {
+  if (context === "local_private" && !intent) {
+    return side.decisions_local_private_without_intent ?? side.decisions_local_private ?? side.decisions;
+  }
+  if (context === "local_private") return side.decisions_local_private ?? side.decisions;
+  return side.decisions;
+}
+const statementSpec = (JSON.parse(readFileSync(corpusPath, "utf8")) as { statement_cases: StatementSpec }).statement_cases;
+const STATEMENT_MARK = "@statement";
+const STEP_1_TO_8_REASONS = new Set([
+  "PROFESSIONAL_BOUNDARY_BLOCKED",
+  "CLOUD_OR_NETWORK_REFERENCE_BLOCKED",
+  "DIRECT_SQL_ACCESS_BLOCKED",
+  "STORAGE_BYPASS_BLOCKED",
+  "SECRET_MATERIAL_BLOCKED",
+  "PAYLOAD_METADATA_ONLY_REQUIRED",
+  "PROTECTED_CONTENT_BLOCKED"
+]);
+const FINDING_CLASS_OF_REASON: Record<string, string> = {
+  PROFESSIONAL_BOUNDARY_BLOCKED: "PROFESSIONAL_BOUNDARY_WARNING",
+  CLOUD_OR_NETWORK_REFERENCE_BLOCKED: "STORAGE_BOUNDARY_WARNING",
+  DIRECT_SQL_ACCESS_BLOCKED: "STORAGE_BOUNDARY_WARNING",
+  STORAGE_BYPASS_BLOCKED: "STORAGE_BOUNDARY_WARNING",
+  SECRET_MATERIAL_BLOCKED: "PRIVATE_DATA_WARNING",
+  PAYLOAD_METADATA_ONLY_REQUIRED: "STORAGE_BOUNDARY_WARNING",
+  PROTECTED_CONTENT_BLOCKED: "IP_BOUNDARY_WARNING"
+};
+const unprefixed = (pathText: string) => pathText.replaceAll("__route_key__", "");
+
+/** An own data member, defined rather than assigned, so that a member named `__proto__` stays a
+ * member as JSON parsing makes it and never becomes the object's prototype. */
+function defineMember(object: Record<string, unknown>, key: string, value: unknown): void {
+  Object.defineProperty(object, key, { value, enumerable: true, writable: true, configurable: true });
+}
+
+/** The position's payload with the member named `@statement` replaced by `members`. */
+function withStatement(value: unknown, members: Record<string, unknown>): unknown {
+  if (Array.isArray(value)) return value.map((item) => withStatement(item, members));
+  if (typeof value !== "object" || value === null) return value;
+  const output: Record<string, unknown> = {};
+  for (const [key, item] of Object.entries(value)) {
+    if (key === STATEMENT_MARK) {
+      for (const [member, memberValue] of Object.entries(structuredClone(members))) defineMember(output, member, memberValue);
+    } else defineMember(output, key, withStatement(item, members));
+  }
+  return output;
+}
+
+const sortedRows = (rows: string[][]) => rows.map((row) => JSON.stringify(row)).sort();
+
+function expandedStatementCases(): [string, unknown, Record<"route" | "walk", StatementExpectation>][] {
+  const cases: [string, unknown, Record<"route" | "walk", StatementExpectation>][] = [];
+  for (const position of statementSpec.positions) {
+    for (const statement of statementSpec.statements) {
+      const expected: StatementExpectation = {
+        statement_decisions: position.statement_decisions.map(([pathText, reason]) => [
+          pathText.replace("{statement_path}", position.statement_path),
+          reason.replace("{reason}", statement.reason)
+        ])
+      };
+      cases.push([`${position.name}/${statement.name}`, withStatement(position.payload, statement.members), { route: expected, walk: expected }]);
+    }
+    if (position.expected_decisions !== undefined) {
+      for (const other of statementSpec.non_statements) {
+        const expected: StatementExpectation = { statement_decisions: [], expected_decisions: position.expected_decisions };
+        cases.push([`${position.name}/${other.name}`, withStatement(position.payload, other.members), { route: expected, walk: expected }]);
+      }
+    }
+  }
+  for (const named of statementSpec.named_cases) cases.push([named.case_id, named.payload, { route: named.route, walk: named.walk }]);
+  return cases;
+}
+
+function statementRun(entry: "route" | "walk", payload: unknown, exportContext: RedactionExportContext, intent: boolean) {
+  return entry === "route"
+    ? controlRouteExport(payload, { routeId: statementSpec.route_id, exportContext, explicitLocalPrivateIntent: intent })
+    : redactExportPayload(payload, { exportContext, explicitLocalPrivateIntent: intent });
+}
+
+describe("DEL-12-02 AC-003: explicit blocking statements at every position", () => {
+  const cases = expandedStatementCases();
+
+  it("covers every statement reason and every position", () => {
+    expect(new Set(statementSpec.statements.map((statement) => statement.reason))).toEqual(STEP_1_TO_8_REASONS);
+    expect(statementSpec.positions).toHaveLength(8);
+    expect(statementSpec.statements).toHaveLength(16);
+    expect(cases).toHaveLength(8 * 16 + 2 * 14 + 6);
+  });
+
+  it("blocks each statement at its own object's path in every setting, through the route exporter and the walk", () => {
+    const failures: unknown[] = [];
+    for (const [caseId, payload, byEntry] of cases) {
+      for (const [context, intent] of statementSpec.settings) {
+        for (const entry of ["route", "walk"] as const) {
+          const expected = byEntry[entry];
+          const source = structuredClone(payload);
+          const result = statementRun(entry, payload, context, intent);
+          const where = `${caseId} ${entry} ${context} ${intent}`;
+          expect(payload, where).toEqual(source);
+          const decided = result.decisions.map((decision) => [unprefixed(decision.path), decision.action, decision.reason_code]);
+          const statementDecisions = decided
+            .filter(([, action, reason]) => action === "block_export" && STEP_1_TO_8_REASONS.has(reason))
+            .map(([pathText, , reason]) => [pathText, reason]);
+          if (JSON.stringify(statementDecisions) !== JSON.stringify(expected.statement_decisions)) {
+            failures.push([where, statementDecisions]);
+            continue;
+          }
+          if (expected.expected_decisions !== undefined) expect(decided, where).toEqual(expected.expected_decisions);
+          for (const [pathText, reason] of expected.statement_decisions) {
+            const matching = result.findings.filter((finding) => unprefixed(finding.path) === pathText && finding.code === reason);
+            expect(matching, where).toHaveLength(1);
+            expect(matching[0].severity, where).toBe("BLOCKING");
+            expect(matching[0].class, where).toBe(FINDING_CLASS_OF_REASON[reason]);
+          }
+          if (expected.statement_decisions.length > 0) {
+            expect(result.blocked, where).toBe(true);
+            if (entry === "route") expect(result.payload, where).toBeNull();
+          }
+          expect(JSON.stringify([result.decisions, result.findings]), where).not.toContain(statementSpec.carried_text);
+        }
+      }
+    }
+    expect(failures).toEqual([]);
+  });
+
+  it("paired control: the same public record keeps its decision with ordinary provenance and is refused at the provenance with a blocking one", () => {
+    const named = Object.fromEntries(statementSpec.named_cases.map((item) => [item.case_id, item.payload]));
+    const ordinary = named["paired-control-ordinary-provenance-keeps-the-item-decision"] as { record: Record<string, unknown> };
+    const blocking = named["paired-control-blocking-provenance-is-decided-at-the-provenance"] as { record: Record<string, unknown> };
+    const withoutProvenance = (record: Record<string, unknown>) =>
+      Object.fromEntries(Object.entries(record).filter(([key]) => key !== "provenance"));
+    expect(withoutProvenance(ordinary.record)).toEqual(withoutProvenance(blocking.record));
+    for (const entry of ["route", "walk"] as const) {
+      for (const [context, intent] of statementSpec.settings) {
+        const kept = statementRun(entry, ordinary, context, intent);
+        const refused = statementRun(entry, blocking, context, intent);
+        expect(kept.findings).toEqual([]);
+        expect(kept.decisions.some((decision) => decision.action === "block_export")).toBe(false);
+        expect(refused.blocked).toBe(true);
+        expect(refused.findings.map((finding) => [unprefixed(finding.path), finding.code])).toEqual([
+          ["$.record.provenance", "PROTECTED_CONTENT_BLOCKED"]
+        ]);
+        expect(refused.decisions.filter((decision) => decision.action === "block_export").map((decision) => unprefixed(decision.path))).toEqual([
+          "$.record.provenance"
+        ]);
+      }
+    }
+  });
+
+  it("raw cases: whole decision lists at the paths each entry writes, in every setting", () => {
+    expect(statementSpec.raw_cases.length).toBeGreaterThanOrEqual(47);
+    // The corpus is read with JSON.parse, so a `__proto__` member in a payload is an own member.
+    const proto = statementSpec.raw_cases.find((item) => {
+      const record = (item.payload as { record?: unknown }).record;
+      return typeof record === "object" && record !== null && Object.prototype.hasOwnProperty.call(record, "__proto__");
+    });
+    expect(proto).toBeDefined();
+    const failures: unknown[] = [];
+    for (const item of statementSpec.raw_cases) {
+      for (const [context, intent] of statementSpec.settings) {
+        for (const entry of ["route", "walk"] as const) {
+          const source = structuredClone(item.payload);
+          const result = statementRun(entry, item.payload, context, intent);
+          const where = `${item.case_id} ${entry} ${context} ${intent}`;
+          expect(item.payload, where).toEqual(source);
+          const side = item[entry];
+          const decided = result.decisions.map((decision) => [decision.path, decision.action, decision.reason_code]);
+          if (JSON.stringify(sortedRows(decided)) !== JSON.stringify(sortedRows(rawExpected(side, context, intent)))) {
+            failures.push([where, decided]);
+            continue;
+          }
+          const blocks = decided.filter(([, action]) => action === "block_export").map(([p, , r]) => [p, r]);
+          const findings = result.findings.filter((finding) => finding.severity === "BLOCKING").map((finding) => [finding.path, finding.code]);
+          expect(sortedRows(findings), where).toEqual(sortedRows(blocks));
+          for (const [pathText, privacy, redistribution, review] of side.labels ?? []) {
+            expect(
+              result.decisions
+                .filter((decision) => decision.path === pathText)
+                .map((decision) => [decision.privacy_classification, decision.redistribution_status, decision.review_status]),
+              where
+            ).toEqual([[privacy, redistribution, review]]);
+          }
+          if (blocks.length > 0) {
+            expect(result.blocked, where).toBe(true);
+            if (entry === "route") expect(result.payload, where).toBeNull();
+          } else if (entry === "route" && item.route.payload !== undefined) {
+            // Admitted, except where AC-004 blocks local_private without the wrapper's intent.
+            const withheld = context === "local_private" && !intent;
+            expect(result.blocked, where).toBe(withheld);
+            expect(result.payload, where).toEqual(withheld ? null : item.route.payload);
+          }
+        }
+      }
+    }
+    expect(failures).toEqual([]);
+  });
+
+  it("raw cases through the user-release entry: every object the walk blocks for a statement is refused there at its own path", () => {
+    // The user-release projector decides every enclosing object by the classification's checks
+    // (contract, Final-Sink Route Binding), so each statement the walk blocks is refused there too.
+    let screened = 0;
+    for (const item of statementSpec.raw_cases) {
+      // The request entry takes an object: every raw case but the bare root array.
+      if (Array.isArray(item.payload) || typeof item.payload !== "object" || item.payload === null) continue;
+      const statementBlocks = item.walk.decisions.filter(([, action, reason]) => action === "block_export" && STEP_1_TO_8_REASONS.has(reason));
+      if (statementBlocks.length === 0) continue;
+      screened += 1;
+      const projected = controlUserReleasedReportPackageRequest(item.payload as Record<string, unknown>, {}, true);
+      expect(projected.blocked, item.case_id).toBe(true);
+      const located = projected.findings.map((finding) => [finding.path, finding.code]);
+      for (const [pathText, , reason] of statementBlocks) {
+        expect(located, item.case_id).toContainEqual([pathText.replace(/^\$/, "$.request"), reason]);
+      }
+    }
+    expect(screened).toBeGreaterThanOrEqual(23);
+  });
+
+  it("the user-release projector already decides every object it screens, provenance included", () => {
+    for (const [caseId, payload, byEntry] of cases) {
+      const expected = byEntry.route.statement_decisions;
+      if (expected.length === 0) continue;
+      const projected = controlUserReleasedReportPackageRequest(payload as Record<string, unknown>, {}, true);
+      expect(projected.blocked, caseId).toBe(true);
+      const located = projected.findings.map((finding) => [finding.path, finding.code]);
+      for (const [pathText, reason] of expected) {
+        expect(located, caseId).toContainEqual([pathText.replace(/^\$/, "$.request"), reason]);
+      }
+    }
+  });
+});
+
+describe("DEL-12-02: every classification the rule writes of its own is one it recognises", () => {
+  // A display shows a decision's classification only when the rule recognises it
+  // (ControlledExportLink's Details). A decision carries either a label the input states or one
+  // the rule writes itself: a projector leaf's label, the unknown it writes for an absent label,
+  // a refusal's, the user-release default. The second kind is always in the recognised set.
+  const LABEL_KEYS = new Set(["privacy_classification", "classification", "privacy_class"]);
+  const statedLabels = (value: unknown, found = new Set<string>()): Set<string> => {
+    if (Array.isArray(value)) value.forEach((item) => statedLabels(item, found));
+    else if (typeof value === "object" && value !== null) {
+      for (const [key, item] of Object.entries(value)) {
+        if (LABEL_KEYS.has(key) && typeof item === "string") found.add(item);
+        statedLabels(item, found);
+      }
+    }
+    return found;
+  };
+  it("over the shared corpus's items, statement cases and raw cases, through every entry and setting", () => {
+    let checked = 0;
+    const unrecognised: unknown[] = [];
+    const check = (input: unknown, decisions: { path: string; privacy_classification: string }[], where: string) => {
+      const stated = statedLabels(input);
+      for (const decision of decisions) {
+        checked += 1;
+        const label = decision.privacy_classification;
+        if (!RECOGNIZED_PRIVACY_CLASSIFICATIONS.has(label) && !stated.has(label)) unrecognised.push([where, decision.path, label]);
+      }
+    };
+    for (const parityCase of corpus.cases) {
+      const options = {
+        exportContext: parityCase.export_context,
+        explicitLocalPrivateIntent: parityCase.explicit_local_private_intent,
+        explicitUserReleaseIntent: parityCase.explicit_user_release_intent
+      };
+      check(parityCase.item, [classifyExportItem(parityCase.item, options)], `${parityCase.case_id} classify`);
+      if (parityCase.export_context === USER_RELEASED_REPORT_CONTEXT) {
+        const projected = controlUserReleasedReportPackageRequest({ item: parityCase.item }, {}, true);
+        check(parityCase.item, projected.decisions, `${parityCase.case_id} user-release`);
+        continue;
+      }
+      for (const entry of ["route", "walk"] as const) {
+        const result = statementRun(entry, { item: parityCase.item }, parityCase.export_context as RedactionExportContext, parityCase.explicit_local_private_intent);
+        check(parityCase.item, result.decisions, `${parityCase.case_id} ${entry}`);
+      }
+    }
+    const payloads: [string, unknown][] = [
+      ...expandedStatementCases().map(([caseId, payload]) => [caseId, payload] as [string, unknown]),
+      ...statementSpec.raw_cases.map((item) => [item.case_id, item.payload] as [string, unknown])
+    ];
+    for (const [caseId, payload] of payloads) {
+      for (const [context, intent] of statementSpec.settings) {
+        for (const entry of ["route", "walk"] as const) check(payload, statementRun(entry, payload, context, intent).decisions, `${caseId} ${entry} ${context} ${intent}`);
+      }
+      if (!Array.isArray(payload) && typeof payload === "object" && payload !== null) {
+        check(payload, controlUserReleasedReportPackageRequest(payload as Record<string, unknown>, {}, true).decisions, `${caseId} user-release`);
+      }
+    }
+    expect(unrecognised).toEqual([]);
+    expect(checked).toBeGreaterThan(6_000);
+  });
+});

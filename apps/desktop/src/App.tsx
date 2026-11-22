@@ -64,6 +64,7 @@ import { DesignWorkspacePanel } from "./features/design-workspace/DesignWorkspac
 import { DiffPreviewPanel } from "./features/diff-preview/DiffPreviewPanel";
 import { EditorContractPanel } from "./features/editor-contract/EditorContractPanel";
 import { KnowledgePanel } from "./features/knowledge/KnowledgePanel";
+import { designKnowledgeDiagnostics } from "./services/designKnowledge";
 import { LibraryManagerPanel } from "./features/library/LibraryManagerPanel";
 import { LoadCaseManagerPanel } from "./features/load-cases/LoadCaseManagerPanel";
 import { LocalFeaHandoffPanel } from "./features/local-fea-handoff/LocalFeaHandoffPanel";
@@ -295,6 +296,7 @@ function AppSession() {
   const {
     storageCapability,
     projectSummary,
+    storedRunNotOpened,
     projectIndex,
     modelHashIntegrity,
     projectEnvelopeHash,
@@ -1212,7 +1214,7 @@ function AppSession() {
                   </>
                 )}
               </C2ResultGate>
-              <KnowledgePanel knowledge={knowledge} result={currentSolvedResult} />
+              <KnowledgePanel knowledge={knowledge} model={model} result={currentSolvedResult} />
               </DormantSection>) : null}
             </section>
 
@@ -1234,6 +1236,7 @@ function AppSession() {
                 proposal={proposal}
                 modelHashIntegrity={modelHashIntegrity}
                 projectEnvelopeHashIntegrity={projectEnvelopeHashIntegrity}
+                storedRunNotOpened={storedRunNotOpened}
               />
               <HistoryPanel />
               <ProjectValidationPanel
@@ -1790,7 +1793,7 @@ function StatusPill({ label, value, testId, summaryText }: {
   );
 }
 
-function issueCountFor(
+export function issueCountFor(
   model: PreviewModel,
   knowledge: DesignKnowledge | null,
   result: SessionResult | null,
@@ -1802,7 +1805,7 @@ function issueCountFor(
   );
   return (
     model.diagnostics.length +
-    (knowledge?.diagnostics.length ?? 0) +
+    designKnowledgeDiagnostics(knowledge, model).length +
     (result?.diagnostics.length ?? 0) +
     operationDiagnosticCount +
     countMissingDataBlockers({ model, result })
