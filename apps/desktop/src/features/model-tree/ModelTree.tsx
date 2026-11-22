@@ -4,7 +4,7 @@ import type React from "react";
 import { createPortal } from "react-dom";
 import { useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import type { EditorOperationIntent, EditorOperationObjectType, EntityRef, PreviewModel } from "../../types";
-import { entityKey, entityRefFromKey, type EntityKey, type OrderedSelectionState, type SelectionModifiers } from "../workspace/selectionState";
+import { applyDisplayedRange, applySelection, entityKey, entityRefFromKey, sameSelection, type EntityKey, type OrderedSelectionState, type SelectionModifiers } from "../workspace/selectionState";
 import { modelIndexFor, type ModelIndex } from "../workspace/modelIndex";
 import { canSurfaceRevealNow } from "../workspace/surfaceReveal";
 import { VirtualList } from "../workspace/VirtualList";
@@ -186,16 +186,20 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
     ? `${selectionState.orderedKeys.join("\u0001")}\u0002${selectionState.primaryKey ?? ""}`
     : entityKey(selection);
   // The selection as it stood when the tree pressed a row, until the selection next changes:
-  // that change is the tree's own publication, whenever the shell hands it back. A plain press
-  // on the only selected row changes nothing and leaves no mark; a mark the shell never
+  // that change is the tree's own publication, whenever the shell hands it back. A press that
+  // changes nothing leaves no mark; a mark the shell never
   // answers lapses (TREE_PUBLICATION_LAPSE_MS) so that it cannot hold back a later reveal.
   const treeOwnPublication = useRef<string | null>(null);
   const [treeRevealRequest, setTreeRevealRequest] = useState(0);
   const selectFromTree: typeof onSelect = (item, modifiers, order) => {
     const plain = !modifiers?.toggle && !modifiers?.additive && !modifiers?.range;
-    const key = entityKey(item);
-    const soleSelected = selectionState ? selectionState.orderedKeys.length === 1 && selectionState.orderedKeys[0] === key : entityKey(selection) === key;
-    if (!(plain && soleSelected)) {
+    // A press that leaves the selection as it is (a plain or Shift press on the only selected row, a
+    // modified press on the project) publishes nothing to answer, so it leaves no mark. The shell
+    // decides the selection by these same functions.
+    const unchanged = selectionState
+      ? sameSelection(modifiers?.range ? applyDisplayedRange(selectionState, item, order ?? []) : applySelection(selectionState, item, modifiers), selectionState)
+      : plain && entityKey(selection) === entityKey(item);
+    if (!unchanged) {
       const mark = selectionSignature;
       treeOwnPublication.current = mark;
       window.setTimeout(() => { if (treeOwnPublication.current === mark) treeOwnPublication.current = null; }, TREE_PUBLICATION_LAPSE_MS);

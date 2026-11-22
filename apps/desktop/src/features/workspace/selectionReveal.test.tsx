@@ -174,6 +174,20 @@ describe("the tree knows which selections it made", () => {
     expect(screen.getByTestId("tree-row-node-n%2F1")).toHaveClass("focused");
   });
 
+  it("a press in the tree that changes nothing leaves no mark, so a pick elsewhere at once is revealed", () => {
+    const model = nodesModel(4);
+    const view = render(withState(model, ["n/0"], "n/0"));
+    // Shift on the only selected row: the selection stays as it is, and the shell hands back nothing new.
+    fireEvent.click(screen.getByTestId("tree-row-node-n%2F0"), { shiftKey: true });
+    fireEvent.click(nodesGroup());
+    expect(nodesGroup()).toHaveAttribute("aria-expanded", "false");
+    act(() => (document.activeElement as HTMLElement | null)?.blur());
+    // n/1 picked in the 3D view, well inside the lapse of an unanswered mark.
+    view.rerender(withState(model, ["n/1"], "n/1"));
+    expect(nodesGroup()).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByTestId("tree-row-node-n%2F1")).toHaveClass("focused");
+  });
+
   it("Clear filter reveals a selection made before filtering, and returns focus to the filter field", () => {
     const model = nodesModel(4);
     render(tree(model, { type: "node", id: "n/2" }));
