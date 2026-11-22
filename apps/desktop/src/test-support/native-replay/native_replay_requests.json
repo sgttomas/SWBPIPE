@@ -221,6 +221,23 @@
    "source_path": "fixtures/product_preview/pressure_source/physics_source/n05-dense_scrutiny.raw.json"
   },
   {
+   "key": "032aa713cdf96575b623709a643e4d156e95c604b308287b4f00fdb45f9f778e",
+   "command": "read_preview_mechanics_job_summary",
+   "args": {
+    "jobId": "$JOB",
+    "modelJson": "{\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"professional_acceptance\":\"not_provided\",\"rule_check\":\"not_performed_user_rule_inputs_missing\"},\"combinations\":[],\"document_kind\":\"openpipestress.product_preview.model\",\"load_cases\":[{\"id\":\"case\",\"kind\":\"primitive_user_load\",\"label\":\"N05\",\"primitive_loads\":[{\"category\":\"concentrated_moment\",\"dimension\":\"moment\",\"direction\":\"RX\",\"id\":\"torque\",\"magnitude\":{\"unit\":\"N*m\",\"value\":1e-8},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"target\":{\"node\":\"tip\",\"type\":\"node\"}}],\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"status\":\"preview_only\"}],\"materials\":[{\"elastic_modulus\":{\"unit\":\"Pa\",\"value\":200000000000},\"id\":\"material\",\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"shear_modulus\":{\"unit\":\"Pa\",\"value\":80000000000}}],\"nodes\":[{\"id\":\"root\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\"},{\"id\":\"tip\",\"position\":{\"x\":2,\"y\":0,\"z\":0},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\"}],\"pipe_segments\":[{\"from\":\"root\",\"id\":\"pipe\",\"material\":\"material\",\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"section\":{\"outside_diameter\":{\"unit\":\"m\",\"value\":0.2},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.01}},\"to\":\"tip\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0}}],\"project\":{\"id\":\"reference:N05\",\"units\":{\"angle\":\"rad\",\"force\":\"N\",\"length\":\"m\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"},\"name\":\"reference:N05\"},\"schema_version\":\"0.9.0\",\"supports\":[{\"family\":\"anchor\",\"id\":\"anchor\",\"node\":\"root\",\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RY\",\"RZ\"]},{\"family\":\"spring\",\"id\":\"soft\",\"node\":\"root\",\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"restraints\":[\"RX\"],\"stiffness\":{\"dof\":\"RX\",\"value\":{\"unit\":\"N*m/rad\",\"value\":0.0001}}}],\"model_settings\":{\"shear_model\":\"timoshenko_annulus_energy_v1\"},\"diagnostics\":[],\"components\":[],\"data_boundary\":{\"public_examples_policy\":\"invented_or_cleared_data_only\",\"protected_source_policy\":\"no_bundled_protected_owner_or_standards_data\",\"private_data_policy\":\"no_private_project_data\",\"professional_boundary\":\"technical_preview_requires_human_engineering_review\"}}",
+    "standing": {
+     "eligible": false,
+     "findings": [
+      "NUMERICAL_INTEGRITY_NOT_QUALIFIED",
+      "NUMERICAL_CASE_EVIDENCE_INCOMPLETE"
+     ]
+    }
+   },
+   "source_sha256": "c7c81b22681e41f5ef35b74b5dc3c2d8f587b399917dfe23b5e78cafc59409fa",
+   "source_path": "fixtures/results/preview_physics_timoshenko_sensitive_torsion_sparse.json"
+  },
+  {
    "key": "03534402c32566d062f67a41efa05552602d1ce1b2f85892f435eaec1a6e0c56",
    "command": "read_preview_mechanics_job_verdict",
    "args": {
@@ -8572,6 +8589,25 @@
    "source_sha256": "9c8ffd644882918dc8d00a03dcaf0f84f51442d537e5a56f1ae8f9184c57d079"
   },
   {
+   "key": "7541220a51f46c983c43d83a7252cc3f06c43e60106625031f8037955eda79c4",
+   "command": "read_preview_mechanics_job_analysis_run_preview",
+   "args": {
+    "jobId": "$JOB",
+    "inputManifest": {
+     "manifest_ref": {
+      "object_type": "InputManifest",
+      "ref": "input-manifest:reference-N05:1531c7901097cbec4fef77da657e4ac8b51742fc4ef558ae2c910b237c20afa3"
+     },
+     "manifest_sha256": "1531c7901097cbec4fef77da657e4ac8b51742fc4ef558ae2c910b237c20afa3",
+     "canonical_bytes": "{\"active_rule_packs\":[],\"document_kind\":\"openpipestress.current_session_input_manifest\",\"external_assets\":[],\"identity_policy\":{\"canonical_bytes_scope\":\"entire_input_manifest_object\",\"canonicalization\":\"rfc8785_jcs\",\"hash_algorithm\":\"sha256\"},\"load_basis\":{\"combinations\":[],\"load_cases\":[{\"id\":\"case\",\"kind\":\"primitive_user_load\",\"label\":\"N05\",\"primitive_loads\":[{\"category\":\"concentrated_moment\",\"dimension\":\"moment\",\"direction\":\"RX\",\"id\":\"torque\",\"magnitude\":{\"unit\":\"N*m\",\"value\":1e-8},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"target\":{\"node\":\"tip\",\"type\":\"node\"}}],\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"status\":\"preview_only\"}]},\"model_basis\":{\"model_payload\":{\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"professional_acceptance\":\"not_provided\",\"rule_check\":\"not_performed_user_rule_inputs_missing\"},\"combinations\":[],\"components\":[],\"data_boundary\":{\"private_data_policy\":\"no_private_project_data\",\"professional_boundary\":\"technical_preview_requires_human_engineering_review\",\"protected_source_policy\":\"no_bundled_protected_owner_or_standards_data\",\"public_examples_policy\":\"invented_or_cleared_data_only\"},\"diagnostics\":[],\"document_kind\":\"openpipestress.product_preview.model\",\"load_cases\":[{\"id\":\"case\",\"kind\":\"primitive_user_load\",\"label\":\"N05\",\"primitive_loads\":[{\"category\":\"concentrated_moment\",\"dimension\":\"moment\",\"direction\":\"RX\",\"id\":\"torque\",\"magnitude\":{\"unit\":\"N*m\",\"value\":1e-8},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"target\":{\"node\":\"tip\",\"type\":\"node\"}}],\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"status\":\"preview_only\"}],\"materials\":[{\"elastic_modulus\":{\"unit\":\"Pa\",\"value\":200000000000},\"id\":\"material\",\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"shear_modulus\":{\"unit\":\"Pa\",\"value\":80000000000}}],\"model_settings\":{\"shear_model\":\"timoshenko_annulus_energy_v1\"},\"nodes\":[{\"id\":\"root\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\"},{\"id\":\"tip\",\"position\":{\"x\":2,\"y\":0,\"z\":0},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\"}],\"pipe_segments\":[{\"from\":\"root\",\"id\":\"pipe\",\"material\":\"material\",\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"section\":{\"outside_diameter\":{\"unit\":\"m\",\"value\":0.2},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.01}},\"to\":\"tip\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0}}],\"project\":{\"id\":\"reference:N05\",\"name\":\"reference:N05\",\"units\":{\"angle\":\"rad\",\"force\":\"N\",\"length\":\"m\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"}},\"schema_version\":\"0.9.0\",\"supports\":[{\"family\":\"anchor\",\"id\":\"anchor\",\"node\":\"root\",\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RY\",\"RZ\"]},{\"family\":\"spring\",\"id\":\"soft\",\"node\":\"root\",\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"restraints\":[\"RX\"],\"stiffness\":{\"dof\":\"RX\",\"value\":{\"unit\":\"N*m/rad\",\"value\":0.0001}}}]},\"model_ref\":\"reference:N05\"},\"replay_boundary\":{\"current_session_ref_hash_integrity_only\":true,\"included_as_package_member\":false,\"portable_replay_claimed\":false},\"schema_version\":\"1.0.0\",\"solver_basis\":{\"settings\":{\"nonlinear_iteration_policy\":\"DEC-046-CV-B-product-preview-active-set-count-v1\",\"sparse_evidence_lane\":true},\"solver_build_ref\":\"open_pipe_stress_product_physics@0.2.0\",\"solver_mode\":\"sparse_interactive\",\"solver_name\":\"open_pipe_stress_product_physics\",\"solver_version\":\"0.2.0\"},\"unit_basis\":{\"project_units\":{\"angle\":\"rad\",\"force\":\"N\",\"length\":\"m\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"}}}"
+    },
+    "ruleCheckAggregate": null,
+    "rulePackExclusions": []
+   },
+   "source_sha256": "c7c81b22681e41f5ef35b74b5dc3c2d8f587b399917dfe23b5e78cafc59409fa",
+   "source_path": "fixtures/results/preview_physics_timoshenko_sensitive_torsion_sparse.json"
+  },
+  {
    "key": "755a55468ffea4f1b6900bb6db748fc17fc17703aa64f60f562cc49eff748f54",
    "command": "read_preview_mechanics_job_analysis_run_preview",
    "args": {
@@ -8721,6 +8757,20 @@
    "source_path": "fixtures/results/invented/agent_solve_witness/blocked_retained_evaluation-sparse_interactive.raw.json"
   },
   {
+   "key": "78ba0d5d34be630c60c934dfaa7852c5ad0aa15f88febca5c4999753301b3240",
+   "command": "read_preview_mechanics_job_summary",
+   "args": {
+    "jobId": "$JOB",
+    "modelJson": "{\"schema_version\":\"0.8.0\",\"document_kind\":\"openpipestress.product_preview.model\",\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"rule_check\":\"not_performed_user_rule_inputs_missing\",\"professional_acceptance\":\"not_provided\"},\"project\":{\"id\":\"invented:pf-timoshenko:PFT-SB-L1-CM0-TIMOSHENKO\",\"units\":{\"length\":\"m\",\"force\":\"N\",\"angle\":\"rad\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"},\"name\":\"invented:pf-timoshenko:PFT-SB-L1-CM0-TIMOSHENKO\"},\"model_settings\":{\"shear_model\":\"timoshenko_annulus_energy_v1\"},\"nodes\":[{\"id\":\"node:A\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\"},{\"id\":\"node:B\",\"position\":{\"x\":1,\"y\":0,\"z\":0},\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\"}],\"pipe_segments\":[{\"id\":\"pipe:AB\",\"from\":\"node:A\",\"to\":\"node:B\",\"material\":\"mat:A\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"section\":{\"outside_diameter\":{\"value\":0.2,\"unit\":\"m\"},\"wall_thickness\":{\"value\":0.01,\"unit\":\"m\"}},\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\"}],\"materials\":[{\"id\":\"mat:A\",\"elastic_modulus\":{\"value\":200000000000,\"unit\":\"Pa\"},\"shear_modulus\":{\"value\":77000000000,\"unit\":\"Pa\"},\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\"}],\"supports\":[{\"id\":\"support:A\",\"node\":\"node:A\",\"family\":\"anchor\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RX\",\"RY\",\"RZ\"],\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\"}],\"components\":[],\"load_cases\":[{\"id\":\"case:tip_y\",\"kind\":\"invented_test_case\",\"primitive_loads\":[{\"id\":\"load:tip_y:0\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:B\"},\"direction\":\"global_y\",\"magnitude\":{\"value\":100,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\"}],\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"label\":\"case:tip_y\",\"status\":\"preview_only\"},{\"id\":\"case:tip_y_reversed\",\"kind\":\"invented_test_case\",\"primitive_loads\":[{\"id\":\"load:tip_y_reversed:0\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:B\"},\"direction\":\"global_y\",\"magnitude\":{\"value\":-100,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\"}],\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"label\":\"case:tip_y_reversed\",\"status\":\"preview_only\"},{\"id\":\"case:tip_z\",\"kind\":\"invented_test_case\",\"primitive_loads\":[{\"id\":\"load:tip_z:0\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:B\"},\"direction\":\"global_z\",\"magnitude\":{\"value\":100,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\"}],\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"label\":\"case:tip_z\",\"status\":\"preview_only\"},{\"id\":\"case:tip_couple_z\",\"kind\":\"invented_test_case\",\"primitive_loads\":[{\"id\":\"load:tip_couple_z:0\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:B\"},\"direction\":\"rotation_z\",\"magnitude\":{\"value\":100,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\"}],\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"label\":\"case:tip_couple_z\",\"status\":\"preview_only\"}],\"combinations\":[],\"diagnostics\":[],\"data_boundary\":{\"public_examples_policy\":\"invented_or_cleared_data_only\",\"protected_source_policy\":\"no_bundled_protected_owner_or_standards_data\",\"private_data_policy\":\"no_private_project_data\",\"professional_boundary\":\"technical_preview_requires_human_engineering_review\"}}",
+    "standing": {
+     "eligible": true,
+     "findings": []
+    }
+   },
+   "source_sha256": "cf4943f6469b8647e8dd934a71bf10eae0dc0257f23dc75ea99e2f4f4f0d3284",
+   "source_path": "fixtures/results/preview_physics_timoshenko_straight_sparse.json"
+  },
+  {
    "key": "78d7333e5a604f3ec98ece4c4e3e1333637610acfec9edc209d30a2bade34a93",
    "command": "read_preview_mechanics_job_verdict",
    "args": {
@@ -8851,6 +8901,17 @@
     "match": "first"
    },
    "source_sha256": "9c8ffd644882918dc8d00a03dcaf0f84f51442d537e5a56f1ae8f9184c57d079"
+  },
+  {
+   "key": "7a7fe7d4394dc1a18ce02b9f0104c351fa28f9ac262ed138023ec0eaabf6ce5a",
+   "command": "read_preview_mechanics_job_verdict",
+   "args": {
+    "jobId": "$JOB",
+    "reader": "preview-physics",
+    "modelJson": "{\"schema_version\":\"0.8.0\",\"document_kind\":\"openpipestress.product_preview.model\",\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"rule_check\":\"not_performed_user_rule_inputs_missing\",\"professional_acceptance\":\"not_provided\"},\"project\":{\"id\":\"invented:pf-timoshenko:PFT-SB-L1-CM0-TIMOSHENKO\",\"units\":{\"length\":\"m\",\"force\":\"N\",\"angle\":\"rad\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"},\"name\":\"invented:pf-timoshenko:PFT-SB-L1-CM0-TIMOSHENKO\"},\"model_settings\":{\"shear_model\":\"timoshenko_annulus_energy_v1\"},\"nodes\":[{\"id\":\"node:A\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\"},{\"id\":\"node:B\",\"position\":{\"x\":1,\"y\":0,\"z\":0},\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\"}],\"pipe_segments\":[{\"id\":\"pipe:AB\",\"from\":\"node:A\",\"to\":\"node:B\",\"material\":\"mat:A\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"section\":{\"outside_diameter\":{\"value\":0.2,\"unit\":\"m\"},\"wall_thickness\":{\"value\":0.01,\"unit\":\"m\"}},\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\"}],\"materials\":[{\"id\":\"mat:A\",\"elastic_modulus\":{\"value\":200000000000,\"unit\":\"Pa\"},\"shear_modulus\":{\"value\":77000000000,\"unit\":\"Pa\"},\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\"}],\"supports\":[{\"id\":\"support:A\",\"node\":\"node:A\",\"family\":\"anchor\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RX\",\"RY\",\"RZ\"],\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\"}],\"components\":[],\"load_cases\":[{\"id\":\"case:tip_y\",\"kind\":\"invented_test_case\",\"primitive_loads\":[{\"id\":\"load:tip_y:0\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:B\"},\"direction\":\"global_y\",\"magnitude\":{\"value\":100,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\"}],\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"label\":\"case:tip_y\",\"status\":\"preview_only\"},{\"id\":\"case:tip_y_reversed\",\"kind\":\"invented_test_case\",\"primitive_loads\":[{\"id\":\"load:tip_y_reversed:0\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:B\"},\"direction\":\"global_y\",\"magnitude\":{\"value\":-100,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\"}],\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"label\":\"case:tip_y_reversed\",\"status\":\"preview_only\"},{\"id\":\"case:tip_z\",\"kind\":\"invented_test_case\",\"primitive_loads\":[{\"id\":\"load:tip_z:0\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:B\"},\"direction\":\"global_z\",\"magnitude\":{\"value\":100,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\"}],\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"label\":\"case:tip_z\",\"status\":\"preview_only\"},{\"id\":\"case:tip_couple_z\",\"kind\":\"invented_test_case\",\"primitive_loads\":[{\"id\":\"load:tip_couple_z:0\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:B\"},\"direction\":\"rotation_z\",\"magnitude\":{\"value\":100,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\"}],\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"label\":\"case:tip_couple_z\",\"status\":\"preview_only\"}],\"combinations\":[],\"diagnostics\":[],\"data_boundary\":{\"public_examples_policy\":\"invented_or_cleared_data_only\",\"protected_source_policy\":\"no_bundled_protected_owner_or_standards_data\",\"private_data_policy\":\"no_private_project_data\",\"professional_boundary\":\"technical_preview_requires_human_engineering_review\"}}"
+   },
+   "source_sha256": "cf4943f6469b8647e8dd934a71bf10eae0dc0257f23dc75ea99e2f4f4f0d3284",
+   "source_path": "fixtures/results/preview_physics_timoshenko_straight_sparse.json"
   },
   {
    "key": "7ac4ef98c4e3704248ab0f0a134746c00233fed4adb2aafa16b7e45aa97632c2",
@@ -9791,6 +9852,16 @@
    },
    "source_sha256": "34862037bcf42e42fca7d9772f6b1ad79d7961aadadbbba7fe3cc0a7351739d1",
    "source_path": "fixtures/results/preview_physics_connected_sparse.json"
+  },
+  {
+   "key": "89e7179c079a775a8727d1f1664641c2dbf890c39366424ec7b9d71c6d7611ce",
+   "command": "read_preview_mechanics_job_verdict",
+   "args": {
+    "jobId": "$JOB",
+    "operation": "route_header"
+   },
+   "source_sha256": "cf4943f6469b8647e8dd934a71bf10eae0dc0257f23dc75ea99e2f4f4f0d3284",
+   "source_path": "fixtures/results/preview_physics_timoshenko_straight_sparse.json"
   },
   {
    "key": "8a5ab00f47a783872f28ef5abc1a365216c8f6f99c29f133461e11822df09304",
@@ -10842,6 +10913,17 @@
     "match": "first"
    },
    "source_sha256": "180cdcac7af02b9383aa065eddd72f802c503db93ccd023c51099c805f850d39"
+  },
+  {
+   "key": "96fb1718c3f2d9422f64f801e3dc890457ea2ae513a7d6e4170737a69d97ce61",
+   "command": "read_preview_mechanics_job_verdict",
+   "args": {
+    "jobId": "$JOB",
+    "reader": "preview-physics",
+    "modelJson": "{\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"professional_acceptance\":\"not_provided\",\"rule_check\":\"not_performed_user_rule_inputs_missing\"},\"combinations\":[],\"document_kind\":\"openpipestress.product_preview.model\",\"load_cases\":[{\"id\":\"case\",\"kind\":\"primitive_user_load\",\"label\":\"N05\",\"primitive_loads\":[{\"category\":\"concentrated_moment\",\"dimension\":\"moment\",\"direction\":\"RX\",\"id\":\"torque\",\"magnitude\":{\"unit\":\"N*m\",\"value\":1e-8},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"target\":{\"node\":\"tip\",\"type\":\"node\"}}],\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"status\":\"preview_only\"}],\"materials\":[{\"elastic_modulus\":{\"unit\":\"Pa\",\"value\":200000000000},\"id\":\"material\",\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"shear_modulus\":{\"unit\":\"Pa\",\"value\":80000000000}}],\"nodes\":[{\"id\":\"root\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\"},{\"id\":\"tip\",\"position\":{\"x\":2,\"y\":0,\"z\":0},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\"}],\"pipe_segments\":[{\"from\":\"root\",\"id\":\"pipe\",\"material\":\"material\",\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"section\":{\"outside_diameter\":{\"unit\":\"m\",\"value\":0.2},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.01}},\"to\":\"tip\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0}}],\"project\":{\"id\":\"reference:N05\",\"units\":{\"angle\":\"rad\",\"force\":\"N\",\"length\":\"m\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"},\"name\":\"reference:N05\"},\"schema_version\":\"0.9.0\",\"supports\":[{\"family\":\"anchor\",\"id\":\"anchor\",\"node\":\"root\",\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RY\",\"RZ\"]},{\"family\":\"spring\",\"id\":\"soft\",\"node\":\"root\",\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"restraints\":[\"RX\"],\"stiffness\":{\"dof\":\"RX\",\"value\":{\"unit\":\"N*m/rad\",\"value\":0.0001}}}],\"model_settings\":{\"shear_model\":\"timoshenko_annulus_energy_v1\"},\"diagnostics\":[],\"components\":[],\"data_boundary\":{\"public_examples_policy\":\"invented_or_cleared_data_only\",\"protected_source_policy\":\"no_bundled_protected_owner_or_standards_data\",\"private_data_policy\":\"no_private_project_data\",\"professional_boundary\":\"technical_preview_requires_human_engineering_review\"}}"
+   },
+   "source_sha256": "c7c81b22681e41f5ef35b74b5dc3c2d8f587b399917dfe23b5e78cafc59409fa",
+   "source_path": "fixtures/results/preview_physics_timoshenko_sensitive_torsion_sparse.json"
   },
   {
    "key": "97090d83121f4adfefde9a5f099b04c6fdf4583e2932765b7b2022144f559204",
@@ -12016,6 +12098,25 @@
    "source_sha256": "153391d4b548410b31593bb5193bdf484cc7b4d97f799d61c2a2732cf4e3fdad"
   },
   {
+   "key": "a81b64b8b822727ba9205985d28e3e3ec995ea9852a7cc641b0f188206e4ac43",
+   "command": "read_preview_mechanics_job_analysis_run_preview",
+   "args": {
+    "jobId": "$JOB",
+    "inputManifest": {
+     "manifest_ref": {
+      "object_type": "InputManifest",
+      "ref": "input-manifest:invented-pf-timoshenko-PFT-SB-L1-CM0-TIMOSHENKO:54c9c9f41b3ef162a419ff3eb6ac175c02b6fc420e716234a0755733ab8bb492"
+     },
+     "manifest_sha256": "54c9c9f41b3ef162a419ff3eb6ac175c02b6fc420e716234a0755733ab8bb492",
+     "canonical_bytes": "{\"active_rule_packs\":[],\"document_kind\":\"openpipestress.current_session_input_manifest\",\"external_assets\":[],\"identity_policy\":{\"canonical_bytes_scope\":\"entire_input_manifest_object\",\"canonicalization\":\"rfc8785_jcs\",\"hash_algorithm\":\"sha256\"},\"load_basis\":{\"combinations\":[],\"load_cases\":[{\"id\":\"case:tip_y\",\"kind\":\"invented_test_case\",\"label\":\"case:tip_y\",\"primitive_loads\":[{\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_y\",\"id\":\"load:tip_y:0\",\"magnitude\":{\"unit\":\"N\",\"value\":100},\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"target\":{\"node\":\"node:B\",\"type\":\"node\"}}],\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"status\":\"preview_only\"},{\"id\":\"case:tip_y_reversed\",\"kind\":\"invented_test_case\",\"label\":\"case:tip_y_reversed\",\"primitive_loads\":[{\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_y\",\"id\":\"load:tip_y_reversed:0\",\"magnitude\":{\"unit\":\"N\",\"value\":-100},\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"target\":{\"node\":\"node:B\",\"type\":\"node\"}}],\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"status\":\"preview_only\"},{\"id\":\"case:tip_z\",\"kind\":\"invented_test_case\",\"label\":\"case:tip_z\",\"primitive_loads\":[{\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_z\",\"id\":\"load:tip_z:0\",\"magnitude\":{\"unit\":\"N\",\"value\":100},\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"target\":{\"node\":\"node:B\",\"type\":\"node\"}}],\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"status\":\"preview_only\"},{\"id\":\"case:tip_couple_z\",\"kind\":\"invented_test_case\",\"label\":\"case:tip_couple_z\",\"primitive_loads\":[{\"category\":\"concentrated_moment\",\"dimension\":\"moment\",\"direction\":\"rotation_z\",\"id\":\"load:tip_couple_z:0\",\"magnitude\":{\"unit\":\"N*m\",\"value\":100},\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"target\":{\"node\":\"node:B\",\"type\":\"node\"}}],\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"status\":\"preview_only\"}]},\"model_basis\":{\"model_payload\":{\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"professional_acceptance\":\"not_provided\",\"rule_check\":\"not_performed_user_rule_inputs_missing\"},\"combinations\":[],\"components\":[],\"data_boundary\":{\"private_data_policy\":\"no_private_project_data\",\"professional_boundary\":\"technical_preview_requires_human_engineering_review\",\"protected_source_policy\":\"no_bundled_protected_owner_or_standards_data\",\"public_examples_policy\":\"invented_or_cleared_data_only\"},\"diagnostics\":[],\"document_kind\":\"openpipestress.product_preview.model\",\"load_cases\":[{\"id\":\"case:tip_y\",\"kind\":\"invented_test_case\",\"label\":\"case:tip_y\",\"primitive_loads\":[{\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_y\",\"id\":\"load:tip_y:0\",\"magnitude\":{\"unit\":\"N\",\"value\":100},\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"target\":{\"node\":\"node:B\",\"type\":\"node\"}}],\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"status\":\"preview_only\"},{\"id\":\"case:tip_y_reversed\",\"kind\":\"invented_test_case\",\"label\":\"case:tip_y_reversed\",\"primitive_loads\":[{\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_y\",\"id\":\"load:tip_y_reversed:0\",\"magnitude\":{\"unit\":\"N\",\"value\":-100},\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"target\":{\"node\":\"node:B\",\"type\":\"node\"}}],\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"status\":\"preview_only\"},{\"id\":\"case:tip_z\",\"kind\":\"invented_test_case\",\"label\":\"case:tip_z\",\"primitive_loads\":[{\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_z\",\"id\":\"load:tip_z:0\",\"magnitude\":{\"unit\":\"N\",\"value\":100},\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"target\":{\"node\":\"node:B\",\"type\":\"node\"}}],\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"status\":\"preview_only\"},{\"id\":\"case:tip_couple_z\",\"kind\":\"invented_test_case\",\"label\":\"case:tip_couple_z\",\"primitive_loads\":[{\"category\":\"concentrated_moment\",\"dimension\":\"moment\",\"direction\":\"rotation_z\",\"id\":\"load:tip_couple_z:0\",\"magnitude\":{\"unit\":\"N*m\",\"value\":100},\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"target\":{\"node\":\"node:B\",\"type\":\"node\"}}],\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"status\":\"preview_only\"}],\"materials\":[{\"elastic_modulus\":{\"unit\":\"Pa\",\"value\":200000000000},\"id\":\"mat:A\",\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"shear_modulus\":{\"unit\":\"Pa\",\"value\":77000000000}}],\"model_settings\":{\"shear_model\":\"timoshenko_annulus_energy_v1\"},\"nodes\":[{\"id\":\"node:A\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\"},{\"id\":\"node:B\",\"position\":{\"x\":1,\"y\":0,\"z\":0},\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\"}],\"pipe_segments\":[{\"from\":\"node:A\",\"id\":\"pipe:AB\",\"material\":\"mat:A\",\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"section\":{\"outside_diameter\":{\"unit\":\"m\",\"value\":0.2},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.01}},\"to\":\"node:B\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0}}],\"project\":{\"id\":\"invented:pf-timoshenko:PFT-SB-L1-CM0-TIMOSHENKO\",\"name\":\"invented:pf-timoshenko:PFT-SB-L1-CM0-TIMOSHENKO\",\"units\":{\"angle\":\"rad\",\"force\":\"N\",\"length\":\"m\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"}},\"schema_version\":\"0.8.0\",\"supports\":[{\"family\":\"anchor\",\"id\":\"support:A\",\"node\":\"node:A\",\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RX\",\"RY\",\"RZ\"]}]},\"model_ref\":\"invented:pf-timoshenko:PFT-SB-L1-CM0-TIMOSHENKO\"},\"replay_boundary\":{\"current_session_ref_hash_integrity_only\":true,\"included_as_package_member\":false,\"portable_replay_claimed\":false},\"schema_version\":\"1.0.0\",\"solver_basis\":{\"settings\":{\"nonlinear_iteration_policy\":\"DEC-046-CV-B-product-preview-active-set-count-v1\",\"sparse_evidence_lane\":true},\"solver_build_ref\":\"open_pipe_stress_product_physics@0.2.0\",\"solver_mode\":\"sparse_interactive\",\"solver_name\":\"open_pipe_stress_product_physics\",\"solver_version\":\"0.2.0\"},\"unit_basis\":{\"project_units\":{\"angle\":\"rad\",\"force\":\"N\",\"length\":\"m\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"}}}"
+    },
+    "ruleCheckAggregate": null,
+    "rulePackExclusions": []
+   },
+   "source_sha256": "cf4943f6469b8647e8dd934a71bf10eae0dc0257f23dc75ea99e2f4f4f0d3284",
+   "source_path": "fixtures/results/preview_physics_timoshenko_straight_sparse.json"
+  },
+  {
    "key": "a83f74f1d1f9f7958c1211d334ea6c2c7612b12a4ec2db34de65f08019f23356",
    "command": "read_preview_mechanics_job_row_semantics",
    "args": {
@@ -12222,6 +12323,16 @@
     "sha256": "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2"
    },
    "source_sha256": "1583a27bc8a9715826dcae91210f2be0b03ce8377374beedfe219ad41235ba10"
+  },
+  {
+   "key": "abe12f305d08ab0670f4d0a706139ae10f5cb8d68ae4b78a489ffc1d99acabed",
+   "command": "read_preview_mechanics_job_verdict",
+   "args": {
+    "jobId": "$JOB",
+    "modelJson": "{\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"professional_acceptance\":\"not_provided\",\"rule_check\":\"not_performed_user_rule_inputs_missing\"},\"combinations\":[],\"document_kind\":\"openpipestress.product_preview.model\",\"load_cases\":[{\"id\":\"case\",\"kind\":\"primitive_user_load\",\"label\":\"N05\",\"primitive_loads\":[{\"category\":\"concentrated_moment\",\"dimension\":\"moment\",\"direction\":\"RX\",\"id\":\"torque\",\"magnitude\":{\"unit\":\"N*m\",\"value\":1e-8},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"target\":{\"node\":\"tip\",\"type\":\"node\"}}],\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"status\":\"preview_only\"}],\"materials\":[{\"elastic_modulus\":{\"unit\":\"Pa\",\"value\":200000000000},\"id\":\"material\",\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"shear_modulus\":{\"unit\":\"Pa\",\"value\":80000000000}}],\"nodes\":[{\"id\":\"root\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\"},{\"id\":\"tip\",\"position\":{\"x\":2,\"y\":0,\"z\":0},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\"}],\"pipe_segments\":[{\"from\":\"root\",\"id\":\"pipe\",\"material\":\"material\",\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"section\":{\"outside_diameter\":{\"unit\":\"m\",\"value\":0.2},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.01}},\"to\":\"tip\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0}}],\"project\":{\"id\":\"reference:N05\",\"units\":{\"angle\":\"rad\",\"force\":\"N\",\"length\":\"m\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"},\"name\":\"reference:N05\"},\"schema_version\":\"0.9.0\",\"supports\":[{\"family\":\"anchor\",\"id\":\"anchor\",\"node\":\"root\",\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RY\",\"RZ\"]},{\"family\":\"spring\",\"id\":\"soft\",\"node\":\"root\",\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"restraints\":[\"RX\"],\"stiffness\":{\"dof\":\"RX\",\"value\":{\"unit\":\"N*m/rad\",\"value\":0.0001}}}],\"model_settings\":{\"shear_model\":\"timoshenko_annulus_energy_v1\"},\"diagnostics\":[],\"components\":[],\"data_boundary\":{\"public_examples_policy\":\"invented_or_cleared_data_only\",\"protected_source_policy\":\"no_bundled_protected_owner_or_standards_data\",\"private_data_policy\":\"no_private_project_data\",\"professional_boundary\":\"technical_preview_requires_human_engineering_review\"}}"
+   },
+   "source_sha256": "c7c81b22681e41f5ef35b74b5dc3c2d8f587b399917dfe23b5e78cafc59409fa",
+   "source_path": "fixtures/results/preview_physics_timoshenko_sensitive_torsion_sparse.json"
   },
   {
    "key": "abecdad91de7de16e5da0bf938b2a9f037e02e3fa1c2a17877a6f890e825e937",
@@ -15296,6 +15407,22 @@
    "source_path": "fixtures/product_preview/pressure_source/physics_source/n05_units-sparse_interactive.raw.json"
   },
   {
+   "key": "d477a1eb9b471210cf5db493e76611d4a3cc206a288e1730e4859a47e42cfc9f",
+   "command": "lookup_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$JOB",
+    "ids": [
+     "result:force:pipe-P-120:axial"
+    ],
+    "kinds": [
+     "element_local_axial_force"
+    ],
+    "match": "first"
+   },
+   "source_sha256": "cf4943f6469b8647e8dd934a71bf10eae0dc0257f23dc75ea99e2f4f4f0d3284",
+   "source_path": "fixtures/results/preview_physics_timoshenko_straight_sparse.json"
+  },
+  {
    "key": "d482be3b2f350a3d3f83c5f3f9d02f67811e04f297764b615d348095357b608f",
    "command": "read_preview_mechanics_job_row_semantics",
    "args": {
@@ -16613,6 +16740,16 @@
    "source_sha256": "153391d4b548410b31593bb5193bdf484cc7b4d97f799d61c2a2732cf4e3fdad"
   },
   {
+   "key": "e496b6c040b5fa5ca54cb72764d20f05ec78816982ed535990309033e95f391a",
+   "command": "read_preview_mechanics_job_verdict",
+   "args": {
+    "jobId": "$JOB",
+    "modelJson": "{\"schema_version\":\"0.8.0\",\"document_kind\":\"openpipestress.product_preview.model\",\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"rule_check\":\"not_performed_user_rule_inputs_missing\",\"professional_acceptance\":\"not_provided\"},\"project\":{\"id\":\"invented:pf-timoshenko:PFT-SB-L1-CM0-TIMOSHENKO\",\"units\":{\"length\":\"m\",\"force\":\"N\",\"angle\":\"rad\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"},\"name\":\"invented:pf-timoshenko:PFT-SB-L1-CM0-TIMOSHENKO\"},\"model_settings\":{\"shear_model\":\"timoshenko_annulus_energy_v1\"},\"nodes\":[{\"id\":\"node:A\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\"},{\"id\":\"node:B\",\"position\":{\"x\":1,\"y\":0,\"z\":0},\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\"}],\"pipe_segments\":[{\"id\":\"pipe:AB\",\"from\":\"node:A\",\"to\":\"node:B\",\"material\":\"mat:A\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"section\":{\"outside_diameter\":{\"value\":0.2,\"unit\":\"m\"},\"wall_thickness\":{\"value\":0.01,\"unit\":\"m\"}},\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\"}],\"materials\":[{\"id\":\"mat:A\",\"elastic_modulus\":{\"value\":200000000000,\"unit\":\"Pa\"},\"shear_modulus\":{\"value\":77000000000,\"unit\":\"Pa\"},\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\"}],\"supports\":[{\"id\":\"support:A\",\"node\":\"node:A\",\"family\":\"anchor\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RX\",\"RY\",\"RZ\"],\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\"}],\"components\":[],\"load_cases\":[{\"id\":\"case:tip_y\",\"kind\":\"invented_test_case\",\"primitive_loads\":[{\"id\":\"load:tip_y:0\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:B\"},\"direction\":\"global_y\",\"magnitude\":{\"value\":100,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\"}],\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"label\":\"case:tip_y\",\"status\":\"preview_only\"},{\"id\":\"case:tip_y_reversed\",\"kind\":\"invented_test_case\",\"primitive_loads\":[{\"id\":\"load:tip_y_reversed:0\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:B\"},\"direction\":\"global_y\",\"magnitude\":{\"value\":-100,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\"}],\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"label\":\"case:tip_y_reversed\",\"status\":\"preview_only\"},{\"id\":\"case:tip_z\",\"kind\":\"invented_test_case\",\"primitive_loads\":[{\"id\":\"load:tip_z:0\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:B\"},\"direction\":\"global_z\",\"magnitude\":{\"value\":100,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\"}],\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"label\":\"case:tip_z\",\"status\":\"preview_only\"},{\"id\":\"case:tip_couple_z\",\"kind\":\"invented_test_case\",\"primitive_loads\":[{\"id\":\"load:tip_couple_z:0\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:B\"},\"direction\":\"rotation_z\",\"magnitude\":{\"value\":100,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\"}],\"provenance\":\"invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data\",\"label\":\"case:tip_couple_z\",\"status\":\"preview_only\"}],\"combinations\":[],\"diagnostics\":[],\"data_boundary\":{\"public_examples_policy\":\"invented_or_cleared_data_only\",\"protected_source_policy\":\"no_bundled_protected_owner_or_standards_data\",\"private_data_policy\":\"no_private_project_data\",\"professional_boundary\":\"technical_preview_requires_human_engineering_review\"}}"
+   },
+   "source_sha256": "cf4943f6469b8647e8dd934a71bf10eae0dc0257f23dc75ea99e2f4f4f0d3284",
+   "source_path": "fixtures/results/preview_physics_timoshenko_straight_sparse.json"
+  },
+  {
    "key": "e49a42edbab9ed938379af92e3e3a0be8210b796b0a973ff01b6782d68d72122",
    "command": "read_preview_mechanics_job_analysis_run_preview",
    "args": {
@@ -17756,6 +17893,16 @@
    },
    "source_sha256": "dc2f6ad71a773a56d6b8251e012722a4320e5ae6492d65f1f34eba8367df4595",
    "source_path": "fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json"
+  },
+  {
+   "key": "f412eeda032308b4e43249e3660532b532a561c3a1f638caa02b0826419f83d0",
+   "command": "read_preview_mechanics_job_verdict",
+   "args": {
+    "jobId": "$JOB",
+    "operation": "route_header"
+   },
+   "source_sha256": "c7c81b22681e41f5ef35b74b5dc3c2d8f587b399917dfe23b5e78cafc59409fa",
+   "source_path": "fixtures/results/preview_physics_timoshenko_sensitive_torsion_sparse.json"
   },
   {
    "key": "f45e36dcd872529ee3018183bf2834396061c4df79a9ddf939d8d943384f65d3",

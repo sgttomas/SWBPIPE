@@ -13,8 +13,12 @@ const root = resolve(__dirname, "../../../../");
 const text = (path: string) => readFileSync(resolve(root, path), "utf8");
 const WITNESS = "fixtures/results/invented/agent_solve_witness";
 
-export const REPORT_PACKAGE_NOT_ELIGIBLE = "Not saved: report-package save needs the current, numerically eligible mechanics result.";
-export const REPORT_PACKAGE_SOLVE_FIRST = "Not saved: report-package save needs the current mechanics result and analysis-run record. Solve first.";
+/** A pressure-free Euler–Bernoulli result, current but for its numerical health (it has no
+ * rendered report, so the sentence gives no advice). */
+export const REPORT_PACKAGE_NOT_ELIGIBLE = "Report package not saved: this result's numerical health does not allow one. Nothing was written.";
+/** A solve output the rendered report does not take, on no ground the session can name. */
+export const REPORT_PACKAGE_NO_REPORT = "Report package not saved: no report is available for this solve. Nothing was written.";
+export const REPORT_PACKAGE_SOLVE_FIRST = "Report package not saved: the model has no current result. Solve it, then save. Nothing was written.";
 
 export type DeniedState = { model: PreviewModel; bytes: string; state: "completed" | "failed" };
 
@@ -32,7 +36,7 @@ export const REPORT_PACKAGE_DENIED_STATES: [string, () => DeniedState, string][]
     // The producer's blocked document (MODEL_INCOMPLETE), its exact bytes.
     const request = JSON.parse(text(`${WITNESS}/blocked_retained_evaluation.request.json`));
     return { model: request.model as PreviewModel, bytes: text(`${WITNESS}/blocked_retained_evaluation-sparse_interactive.raw.json`), state: "completed" };
-  }, REPORT_PACKAGE_NOT_ELIGIBLE],
+  }, REPORT_PACKAGE_NO_REPORT],
   ["an unreadable result", () => {
     // The exact pair with forged numerical evidence: the reader refuses it, and the session holds no result.
     const { model, bytes } = nativeMechanicsReplayPair("sparse_interactive", { profile: "pressure" });

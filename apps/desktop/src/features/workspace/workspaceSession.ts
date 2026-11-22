@@ -175,7 +175,7 @@ import type {
 } from "../../types";
 import { defaultSelection } from "../model-workspace/modelView";
 import { intentKey } from "../operations/OperationApplyPanel";
-import { buildReportPackageRequest, reportPackageExactSubmission, userReleaseModelRefusal, userReleasedReportPackageUnavailableReason } from "../report/reportPackageRequest";
+import { buildReportPackageRequest, REPORT_PACKAGE_NO_CURRENT_RESULT, REPORT_PACKAGE_NOT_CURRENT_ELIGIBLE, reportPackageExactSubmission, reportPackageNotSavedText, ReportPackageStandingRefusal, userReleaseModelRefusal, userReleasedReportPackageUnavailableReason } from "../report/reportPackageRequest";
 import type { UserReleaseDialogRequest } from "../report/UserReleaseDialog";
 import { isExactReportSource } from "../report/exactReportSections";
 import { invokeUserReleasedReportPackageSave, prepareShareableReportPackageSave, type UserReleaseConfirmation } from "../report/userReleasedReportPackageSave";
@@ -341,6 +341,7 @@ function adoptNativeSave(reply: NativeProjectSave, model: PreviewModel, editorIn
 }
 
 function formatPackageSaveError(error: unknown): string {
+  if (error instanceof ReportPackageStandingRefusal) return reportPackageNotSavedText(error);
   if (error instanceof Error) return error.message;
   if (error && typeof error === "object") {
     try {
@@ -625,6 +626,7 @@ export function useWorkspaceSession() {
     integrityBound,
     numericalHealth,
     numericalHealthHold,
+    packageStandingGround,
     analysisRun, setAnalysisRun,
     resultBasisRef,
     analysisBasisRef,
@@ -4215,9 +4217,9 @@ export function useWorkspaceSession() {
     if (!model) return "Not saved: no model was open.";
     if (running) return "Not saved: a solve was running. Save the report package when it has finished.";
     if (reportPackageBusy || reportPackageBusyGenerationRef.current !== null) return "Not saved: a report package was already being saved.";
-    if (!renderableSolvedResult && result) return "Not saved: report-package save needs the current, numerically eligible mechanics result.";
+    if (!renderableSolvedResult && result) return packageStandingGround ? reportPackageNotSavedText(new ReportPackageStandingRefusal(packageStandingGround, null)) : REPORT_PACKAGE_NOT_CURRENT_ELIGIBLE;
     if (!renderableSolvedResult || !analysisRun || !inputManifest) {
-      return "Not saved: report-package save needs the current mechanics result and analysis-run record. Solve first.";
+      return REPORT_PACKAGE_NO_CURRENT_RESULT;
     }
     return null;
   }
@@ -4443,7 +4445,7 @@ export function useWorkspaceSession() {
     // Nothing is asked of a session that moved on.
     if (!userReleaseBasisCurrent(basis) || projectSessionBusy() || reportPackageBusyGenerationRef.current !== null) return;
     const modelRefusal = userReleaseModelRefusal(basis.model, basis.inputManifest);
-    const resultRefusal = userReleasedReportPackageUnavailableReason(basis.result);
+    const resultRefusal = userReleasedReportPackageUnavailableReason(basis.result, packageStandingGround);
     const close = () => { userReleaseDialogOpenRef.current = false; setUserReleaseRequest(null); };
     userReleaseDialogOpenRef.current = true;
     // A new shareable attempt begins: an earlier save's status, which may carry that save's
@@ -5608,17 +5610,35 @@ export const PRECONDITION_TIMEOUT_MS = 10000;
 /** The refusal when a precondition throws, answers with anything but null or a text, or does not answer in time. */
 export const PRECONDITION_UNCHECKED_REASON = "Its precondition could not be checked.";
 
-/** The precondition's answer within the bound: null, its refusal text, or the unchecked reason. What is measured is
- * the elapsed time on a monotonic clock (`now`, performance.now by default) from when this helper starts, which is
- * when the precondition is asked, to when its answer arrives. An answer that arrives at or after `timeoutMs` is not
- * accepted, whatever it says, and is the unchecked reason, whether or not the bound's timer has run yet; a late refusal
- * text is reported as the unchecked reason too, so that no answer after the bound is taken as the precondition's. The
- * timer refuses a precondition that never settles at the bound, so it cannot hold the caller. Every outcome goes
- * through `decide`, which takes the first and drops every later one. */
-export function checkBatchPrecondition(
+/** The precondition's answer within the session's bound (`PRECONDITION_TIMEOUT_MS`): null, its refusal text, or the
+ * unchecked reason. The bound runs on a monotonic clock (performance.now) from when this helper is entered to when the
+ * helper observes the precondition's answer. Work queued on the thread ahead of the precondition's invocation, or ahead
+ * of the delivery of its answer, therefore counts against the bound, and an answer the precondition gives in time can
+ * still be refused when the thread is then busy until the bound has passed. That is the conservative direction: the
+ * bound can refuse an Apply that would have been admissible, never admit one that is not. An answer observed at or
+ * after the bound is not accepted, whatever it says, and is the unchecked reason, whether or not the bound's timer has
+ * run yet; a late refusal text is reported as the unchecked reason too, so that no answer after the bound is taken as
+ * the precondition's. The timer refuses a precondition that never settles at the bound, so it cannot hold the caller.
+ * Every outcome goes through `decide`, which takes the first and drops every later one.
+ *
+ * The bound and the clock are fixed here: the session cannot pass a longer bound or another clock. Tests reach the
+ * same function with an injected bound and clock only through `checkBatchPreconditionWithinForTestsOnly`. */
+export function checkBatchPrecondition(precondition: BatchPrecondition): Promise<string | null> {
+  return checkBatchPreconditionWithin(precondition, PRECONDITION_TIMEOUT_MS, () => performance.now());
+}
+
+/** `checkBatchPrecondition` with its bound and clock given: for tests only, which must exercise the bound in
+ * milliseconds and on a clock they move by hand. Production code calls `checkBatchPrecondition`. */
+export const checkBatchPreconditionWithinForTestsOnly = (
   precondition: BatchPrecondition,
-  timeoutMs: number = PRECONDITION_TIMEOUT_MS,
+  timeoutMs: number,
   now: () => number = () => performance.now()
+): Promise<string | null> => checkBatchPreconditionWithin(precondition, timeoutMs, now);
+
+function checkBatchPreconditionWithin(
+  precondition: BatchPrecondition,
+  timeoutMs: number,
+  now: () => number
 ): Promise<string | null> {
   const deadline = now() + timeoutMs;
   return new Promise<string | null>((resolve) => {

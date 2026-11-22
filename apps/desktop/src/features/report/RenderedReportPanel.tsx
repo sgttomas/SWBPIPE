@@ -235,7 +235,7 @@ export function RenderedReportPanel({
   const packageSaveTitle = unsolved
     ? restoredRun
       ? RESTORED_RUN_PACKAGE
-      : "Solve first: report-package save needs the current mechanics result and analysis-run record."
+      : "No current result. Solve the model first."
     : undefined;
   const reportComposition = sessionComposition === undefined ? panelComposition : sessionComposition;
   const changeComposition = onReportCompositionChange ?? setPanelComposition;
