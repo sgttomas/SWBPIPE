@@ -789,7 +789,7 @@ function AppSession() {
                   Key results
                 </button>
               </div>
-              {historicalRun ? <HistoricalRunPanel key={historicalRun.runId} context={historicalRun} /> : <ResultsPanel
+              {historicalRun ? <HistoricalRunPanel key={historicalRun.viewKey} context={historicalRun} /> : <ResultsPanel
                 result={result}
                 model={model}
                 exportAnalysisRun={currentSolvedResult !== null && result === currentSolvedResult ? analysisRun : null}

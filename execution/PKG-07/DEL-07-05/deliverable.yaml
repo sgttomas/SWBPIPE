@@ -193,6 +193,8 @@ checks:
 - apps/desktop/src/features/results/ResultsPanel.navigator.test.tsx
 - apps/desktop/src/App.resultsNavigator.test.tsx
 - apps/desktop/src/features/results/NativeResultsPanel.native.test.tsx
+- apps/desktop/src/features/results/runViewIdentity.test.tsx
+- apps/desktop/src/features/results/historicalNativeParity.test.tsx
 - apps/desktop/src/features/results/keyResults.test.ts
 - apps/desktop/src/features/results/resultSummaryParity.test.ts
 - apps/desktop/src/features/results/resultDetailParity.test.ts

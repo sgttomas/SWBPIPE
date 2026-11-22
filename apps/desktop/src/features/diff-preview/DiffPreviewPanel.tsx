@@ -50,7 +50,7 @@ export function DiffPreviewPanel({
         <ControlledExportLink
               className="report-export-link"
               data-testid="diff-preview-export-link"
-              download={`openpipestress-preview-operation-diff-${safeFileToken(model.project.id)}.json`}
+              download={suggestedFileName("operationDiff")}
               href={jsonDataHref(packet)}
             >
               <Download size={14} aria-hidden="true" />
@@ -382,3 +382,4 @@ function reference(objectType: string, ref: string) {
   return { object_type: objectType, ref };
 }
 import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";
+import { suggestedFileName } from "../fileNames";
