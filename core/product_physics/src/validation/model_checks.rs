@@ -15,15 +15,12 @@
 //! - the model build (element formation inputs);
 //! - constant-effort consumption, the W-8 topology checks
 //!   (`topology::append_topology_diagnostics`);
-//! - the restraint pre-checks (`check_ground_restraints` and invalid support
-//!   input), run on the document's system when some case is solved on it and on
-//!   the replaced system (`hydrostatic::all_cases_held` /
-//!   `hydrostatic::held_model`) when every case holds supports.
+//! - the restraint pre-checks (`check_pre_formation_restraints`), shared directly
+//!   with the solve.
 //!
 //! It adds no rule and changes no number. Each check is the function the solve
 //! calls, with the same arguments; the only copies are the diagnostics the
-//! solve builds inline (document kind, schema version and
-//! `SUPPORT_INPUT_INVALID` from `boundary.findings`). Where the solve
+//! solve builds inline (document kind and schema version). Where the solve
 //! stops at a blocking diagnostic, this stops too, so every finding listed is
 //! one the solve itself would publish before it forms a stiffness.
 //! `tests/model_checks_runtime.rs` holds the two in step: the findings equal the
@@ -158,51 +155,16 @@ fn pre_formation_checks(request: LinearStaticPreviewRequest) -> Vec<Diagnostic> 
     append_constant_effort_consumption_diagnostics(&model, &mut diagnostics);
     topology::append_topology_diagnostics(&model, &built, &mut diagnostics);
 
-    // The restraint pre-checks, sharing the solve's own decision: the document's
-    // system when some case is solved on it, and otherwise the replaced system a
-    // held test case is solved on (DEL-04-07 REQ-011, DEL-04-06 REQ-013).
+    // The restraint pre-checks, via the solve's own shared pre-formation check
+    // (DEL-04-07 REQ-011, DEL-04-06 REQ-013, AC-008).
     let boundary = prepare_boundary(built.nodes.len(), &built.supports);
-    let held_all = crate::hydrostatic::all_cases_held(&model);
-    if held_all.is_none() {
-        check_ground_restraints(&model, &built, &boundary, &mut diagnostics);
-    }
-    for finding in &boundary.findings {
-        diagnostics.push(diag(
-            &format!("diagnostic:support:{}", finding.support_id),
-            "SUPPORT_INPUT_INVALID",
-            "blocking",
-            finding.message.clone(),
-            vec![finding.support_id.clone()],
-        ));
-    }
-    if let Some(held) = held_all.filter(|_| !has_blocking(&diagnostics)) {
-        let replaced = crate::hydrostatic::held_model(&model, &held);
-        let replaced_built = build_model_for_members(
-            &replaced,
-            &materials,
-            resolved_cases.as_ref().map(|cases| &cases[0].pairs),
-            &mut diagnostics,
-        );
-        if has_blocking(&diagnostics) {
-            return diagnostics;
-        }
-        let Some(replaced_built) = replaced_built else {
-            return diagnostics;
-        };
-        let replaced_boundary = prepare_boundary(replaced_built.nodes.len(), &replaced_built.supports);
-        if !replaced_boundary.findings.is_empty() {
-            for finding in &replaced_boundary.findings {
-                diagnostics.push(diag(
-                    &format!("diagnostic:support:{}", finding.support_id),
-                    "SUPPORT_INPUT_INVALID",
-                    "blocking",
-                    finding.message.clone(),
-                    vec![finding.support_id.clone()],
-                ));
-            }
-            return diagnostics;
-        }
-        check_ground_restraints(&replaced, &replaced_built, &replaced_boundary, &mut diagnostics);
-    }
+    check_pre_formation_restraints(
+        &model,
+        &materials,
+        resolved_cases.as_ref().map(|cases| &cases[0].pairs),
+        &built,
+        &boundary,
+        &mut diagnostics,
+    );
     diagnostics
 }

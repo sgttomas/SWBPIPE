@@ -1001,6 +1001,14 @@ fn ground_restraints_are_checked_on_the_system_each_case_is_solved_on() {
     let under = propped(vec![end_ce()], &[id]);
     blocked_by(&under, "SOLVER_SYSTEM_BLOCKED", "a replaced system of five ground constraints");
     assert_pre_solve_matches_solve(&under, Some("SOLVER_SYSTEM_BLOCKED"), "replaced system of five ground constraints");
+    let mut under_bad_basis = under.clone();
+    under_bad_basis["load_cases"][0]["modulus_basis_ref"] = json!("missing-point");
+    blocked_by(&under_bad_basis, "SOLVER_SYSTEM_BLOCKED", "under-restrained replaced system with unresolved modulus basis");
+    assert_pre_solve_matches_solve(&under_bad_basis, Some("SOLVER_SYSTEM_BLOCKED"), "under-restrained replaced system with unresolved modulus basis");
+    let mut held_bad_basis = held.clone();
+    held_bad_basis["load_cases"][0]["modulus_basis_ref"] = json!("missing-point");
+    blocked_by(&held_bad_basis, "MODULUS_BASIS_UNRESOLVED", "valid held-only system with unresolved modulus basis");
+    assert_pre_solve_matches_solve(&held_bad_basis, None, "valid held-only system with unresolved modulus basis");
 }
 
 // ------------------------------------------------------------------ the certificate

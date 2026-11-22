@@ -3214,22 +3214,17 @@ fn run_linear_static_preview_observed_inner(
     topology::append_topology_diagnostics(&model, &built, &mut diagnostics);
 
     let boundary = prepare_boundary(built.nodes.len(), &built.supports);
-    // DEL-04-07 REQ-011: a held test case is solved on its own replaced
-    // system, whose ground restraints `solve_held_case` checks by the same
-    // rule. The document's own system is checked when some case is solved on
-    // it: with no case, a case that holds nothing, or no support held.
-    if hydrostatic::all_cases_held(&model).is_none() {
-        check_ground_restraints(&model, &built, &boundary, &mut diagnostics);
-    }
-    for finding in &boundary.findings {
-        diagnostics.push(diag(
-            &format!("diagnostic:support:{}", finding.support_id),
-            "SUPPORT_INPUT_INVALID",
-            "blocking",
-            finding.message.clone(),
-            vec![finding.support_id.clone()],
-        ));
-    }
+    // DEL-04-07 REQ-011 & DEL-04-06 REQ-013: the document's own ground
+    // restraints when some case is solved on it, and otherwise the replaced
+    // system's, checked before stiffness formation and per-case basis lookup.
+    check_pre_formation_restraints(
+        &model,
+        &materials,
+        resolved_cases.as_ref().map(|cases| &cases[0].pairs),
+        &built,
+        &boundary,
+        &mut diagnostics,
+    );
     if has_blocking(&diagnostics) {
         return blocked_envelope(model, diagnostics);
     }
@@ -4727,6 +4722,59 @@ pub(crate) fn check_ground_restraints(
         diagnostics.push(diag("diagnostic:physics:under-restrained", "SOLVER_SYSTEM_BLOCKED", "blocking",
             format!("fewer than six independent ground constraints including positive springs: the six rigid-body modes of a connected structure cannot all be removed; directly restrained global DOF classes: {restrained}; global DOF classes with no direct restraint: {missing} (not a rigid-body mode analysis; separated restraints can resist rotations); support contributions: {}{skewed}", support_contribution_summary(model)),
             vec!["supports".to_string()]));
+    }
+}
+
+/// The pre-formation restraint checks shared by the solve
+/// (`run_linear_static_preview_observed_inner`) and on-demand model checks
+/// (`validation::model_checks`): the document's own ground restraints when some
+/// case is solved on it, invalid-support findings on the document boundary, and
+/// — when every case holds supports (DEL-04-07 REQ-011) and no blocking
+/// diagnostic has already been raised — the replaced system's build, boundary
+/// findings and ground restraints, checked once before stiffness formation and
+/// before per-case modulus-basis resolution (DEL-04-06 REQ-013, AC-008).
+pub(crate) fn check_pre_formation_restraints(
+    model: &PreviewModel,
+    materials: &[MaterialInput],
+    member_pairs: Option<&HashMap<String, pressure_exact::IsotropicENu>>,
+    built: &BuiltModel,
+    boundary: &open_pipe_stress_linear_supports::BoundaryPreparation,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    let held_all = hydrostatic::all_cases_held(model);
+    if held_all.is_none() {
+        check_ground_restraints(model, built, boundary, diagnostics);
+    }
+    for finding in &boundary.findings {
+        diagnostics.push(diag(
+            &format!("diagnostic:support:{}", finding.support_id),
+            "SUPPORT_INPUT_INVALID",
+            "blocking",
+            finding.message.clone(),
+            vec![finding.support_id.clone()],
+        ));
+    }
+    if let Some(held) = held_all.filter(|_| !has_blocking(diagnostics)) {
+        let replaced = hydrostatic::held_model(model, &held);
+        let Some(replaced_built) = build_model_for_members(&replaced, materials, member_pairs, diagnostics)
+            .filter(|_| !has_blocking(diagnostics))
+        else {
+            return;
+        };
+        let replaced_boundary = prepare_boundary(replaced_built.nodes.len(), &replaced_built.supports);
+        if !replaced_boundary.findings.is_empty() {
+            for finding in &replaced_boundary.findings {
+                diagnostics.push(diag(
+                    &format!("diagnostic:support:{}", finding.support_id),
+                    "SUPPORT_INPUT_INVALID",
+                    "blocking",
+                    finding.message.clone(),
+                    vec![finding.support_id.clone()],
+                ));
+            }
+            return;
+        }
+        check_ground_restraints(&replaced, &replaced_built, &replaced_boundary, diagnostics);
     }
 }
 

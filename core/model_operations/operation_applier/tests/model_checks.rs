@@ -9,9 +9,13 @@ use serde_json::{json, Value};
 
 const BUNDLED_DEMO: &str = include_str!("../../../../fixtures/product_preview/invented_demo_model.json");
 
-fn solve_diagnostics(model: &Value) -> Vec<Value> {
-    let envelope = run_linear_static_preview_value_with_mode(json!({"model": model, "materials": []}), PreviewSolverMode::SparseInteractive).unwrap();
+fn solve_diagnostics_with_mode(model: &Value, mode: PreviewSolverMode) -> Vec<Value> {
+    let envelope = run_linear_static_preview_value_with_mode(json!({"model": model, "materials": []}), mode).unwrap();
     serde_json::to_value(envelope).unwrap()["diagnostics"].as_array().cloned().unwrap()
+}
+
+fn solve_diagnostics(model: &Value) -> Vec<Value> {
+    solve_diagnostics_with_mode(model, PreviewSolverMode::SparseInteractive)
 }
 
 #[test]
@@ -170,12 +174,20 @@ fn held_hydrostatic_test_pre_solve_checks_match_the_solve() {
     let mut mixed_five_doc_six_replaced = twin.clone();
     mixed_five_doc_six_replaced["supports"] = held_five_doc_six_replaced["supports"].clone();
 
-    for (name, model, expected_blocking) in [
-        ("journey", &journey, None),
-        ("load_state_twin", &twin, None),
-        ("held-only 5 doc / 6 replaced", &held_five_doc_six_replaced, None),
-        ("held-only 4 doc / 5 replaced", &held_under_restrained, Some("SOLVER_SYSTEM_BLOCKED")),
-        ("mixed held + operating 5 doc / 6 replaced", &mixed_five_doc_six_replaced, Some("SOLVER_SYSTEM_BLOCKED")),
+    let mut held_under_restrained_bad_basis = held_under_restrained.clone();
+    held_under_restrained_bad_basis["load_cases"][0]["modulus_basis_ref"] = json!("missing-point");
+
+    let mut held_valid_bad_basis = held_five_doc_six_replaced.clone();
+    held_valid_bad_basis["load_cases"][0]["modulus_basis_ref"] = json!("missing-point");
+
+    for (name, model, expected_pre_solve_blocking, expected_solve_blocking) in [
+        ("journey", &journey, None, None),
+        ("load_state_twin", &twin, None, None),
+        ("held-only 5 doc / 6 replaced", &held_five_doc_six_replaced, None, None),
+        ("held-only 4 doc / 5 replaced", &held_under_restrained, Some("SOLVER_SYSTEM_BLOCKED"), Some("SOLVER_SYSTEM_BLOCKED")),
+        ("held-only 4 doc / 5 replaced + bad modulus basis", &held_under_restrained_bad_basis, Some("SOLVER_SYSTEM_BLOCKED"), Some("SOLVER_SYSTEM_BLOCKED")),
+        ("held-only 5 doc / 6 replaced + bad modulus basis", &held_valid_bad_basis, None, Some("MODULUS_BASIS_UNRESOLVED")),
+        ("mixed held + operating 5 doc / 6 replaced", &mixed_five_doc_six_replaced, Some("SOLVER_SYSTEM_BLOCKED"), Some("SOLVER_SYSTEM_BLOCKED")),
     ] {
         let report = model_checks(model);
         assert_eq!(report["checked"], true, "{name}: {report:#?}");
@@ -185,15 +197,26 @@ fn held_hydrostatic_test_pre_solve_checks_match_the_solve() {
             .filter(|d| d["severity"] == "blocking")
             .filter_map(|d| d["code"].as_str())
             .collect();
-        match expected_blocking {
-            None => assert!(blocking.is_empty(), "{name}: expected no blocking findings, got {blocking:?}"),
-            Some(code) => assert!(blocking.contains(&code), "{name}: expected {code}, got {blocking:?}"),
+        match expected_pre_solve_blocking {
+            None => assert!(blocking.is_empty(), "{name}: expected no blocking pre-solve findings, got {blocking:?}"),
+            Some(code) => assert!(blocking.contains(&code), "{name}: expected pre-solve {code}, got {blocking:?}"),
         }
-        let solved = solve_diagnostics(model);
-        assert!(solved.len() >= findings.len(), "{name}: solve published fewer diagnostics");
-        assert_eq!(&solved[..findings.len()], &findings[..], "{name}: findings must equal solve's leading diagnostics");
-        if expected_blocking.is_some() {
-            assert_eq!(solved.len(), findings.len(), "{name}: blocked solve must publish exactly the checks' findings");
+        for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+            let solved = solve_diagnostics_with_mode(model, mode);
+            let solved_blocking: Vec<&str> = solved
+                .iter()
+                .filter(|d| d["severity"] == "blocking")
+                .filter_map(|d| d["code"].as_str())
+                .collect();
+            match expected_solve_blocking {
+                None => assert!(solved_blocking.is_empty(), "{name} {mode:?}: expected no blocking solve diagnostics, got {solved_blocking:?}"),
+                Some(code) => assert!(solved_blocking.contains(&code), "{name} {mode:?}: expected solve {code}, got {solved_blocking:?}"),
+            }
+            assert!(solved.len() >= findings.len(), "{name} {mode:?}: solve published fewer diagnostics");
+            assert_eq!(&solved[..findings.len()], &findings[..], "{name} {mode:?}: findings must equal solve's leading diagnostics");
+            if expected_pre_solve_blocking.is_some() {
+                assert_eq!(solved.len(), findings.len(), "{name} {mode:?}: blocked solve must publish exactly the checks' findings");
+            }
         }
     }
 }
