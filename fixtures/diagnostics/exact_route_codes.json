@@ -2582,7 +2582,7 @@
     "message"
    ],
    "classification": "disclosure",
-   "reason": "A seismic case's entered weight-category load, which static-equivalent seismic generation does not include, acts in the case as authored (warning).",
+   "reason": "A seismic case includes an entered weight-category load (acting as authored on a plain document or included in the case's resolved load sources on a load-state document) to which static-equivalent seismic generation is not extended (warning).",
    "unsure": false,
    "candidates": null,
    "named_by": null,
