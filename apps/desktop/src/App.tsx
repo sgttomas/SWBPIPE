@@ -760,6 +760,7 @@ function AppSession() {
                 operationBusy={operationBusy}
                 getPreparationEpoch={getPreparationEpoch}
                 onQueueIntent={handleQueueEditorIntent}
+                onQueueBatch={handleQueueOperationBatch}
                 onSelect={handleSelectEntity}
                 selection={selection}
               />

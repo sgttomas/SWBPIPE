@@ -24,7 +24,7 @@ export function SolvePanel({
   running,
   solveJob,
   solverMode,
-  numericalHealth = null,
+  numericalHealth,
   solveGate = null,
   onCancel,
   onRun,
@@ -68,7 +68,7 @@ export function SolvePanel({
           status bar; the local status grid was removed to avoid duplication. */}
       <section className="readiness-summary" aria-label="Solve readiness summary" data-testid="solve-readiness-summary">
         {readinessItems.map((item) => (
-          <ReadinessRow key={item.id} item={item} healthBadge={item.id === "diagnostics" && result ? numericalHealth : null} />
+          <ReadinessRow key={item.id} item={item} healthBadge={item.id === "diagnostics" && result ? (numericalHealth ?? null) : null} />
         ))}
       </section>
       <div className="report-actions">
@@ -123,7 +123,7 @@ export function SolvePanel({
         <SolveLine label="Unit policy" value={unitPolicySummary(packet)} testId="solve-job-unit-policy" />
         <SolveLine label="Boundary" value={boundarySummary(packet)} testId="solve-job-boundary" />
       </div>
-      <LoadReferenceStatesBlock result={result} model={model} />
+      <LoadReferenceStatesBlock result={result} model={model} numericalHealth={numericalHealth} />
       <div className="solver-mode-control" role="group" aria-label="Solver mode" data-testid="solver-mode-control">
         <button
           aria-pressed={solverMode === "sparse_interactive"}

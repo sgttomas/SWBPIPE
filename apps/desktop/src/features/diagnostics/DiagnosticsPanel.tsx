@@ -11,6 +11,7 @@ import type { DiagnosticFilterRequest } from "./diagnosticFilterRequest";
 import type { DesignKnowledge, Diagnostic, DiagnosticInterpretation, MechanicsResult, PreviewModel } from "../../types";
 import { buildDiagnosticInterpretation } from "../results/resultInterpretation";
 import { presentedResultDiagnostics } from "../results/suppliedDiagnostics";
+import { SOLVER_MESSAGES_HEADING } from "../results/integrityStatus";
 import { modelDocumentDiagnostics } from "../model-data/documentDiagnostics";
 import { currentLibraryRefFindings, libraryRefDiagnostics, usePublishedLibraryRefFindings } from "../library/libraryRefFindings";
 
@@ -68,6 +69,14 @@ export function DiagnosticsPanel({
       : filterDiagnostics(diagnostics, filterText),
     [diagnostics, filterText, pinnedId]
   );
+  // The solver's own messages are the result's diagnostics; the list and the detail carry one heading
+  // sentence where they show any.
+  const solverMessages = useMemo(() => new Set<Diagnostic>(resultDiagnostics), [resultDiagnostics]);
+  const listsSolverMessage = filteredDiagnostics.some((item) => solverMessages.has(item));
+  // The detail shows the first diagnostic with the selected id, the model's and the knowledge's before
+  // the result's (`buildDiagnosticInterpretation`): it is the solver's only where that entry is the result's.
+  const selects = (item: Diagnostic) => (item.id ?? item.code) === selectedDiagnosticId;
+  const selectedIsSolverMessage = selectedDiagnosticId !== null && !model.diagnostics.some(selects) && !designKnowledgeDiagnostics(knowledge, model).some(selects) && resultDiagnostics.some(selects);
   const nativeLinked = useNativeLinkedResults(model, knowledge, result, selectedDiagnosticId);
   const axial = useKnowledgeAxialRow(result);
   const interpretation = buildDiagnosticInterpretation({ model, knowledge, result, diagnosticId: selectedDiagnosticId, nativeLinkedResults: nativeLinked.rows, knowledgeAxialRow: axial.row });
@@ -84,8 +93,9 @@ export function DiagnosticsPanel({
         onFilterChange={setFilterText}
       />
       {nativeLinked.error ? <p role="status" data-testid="diagnostic-linked-results-refused">{nativeLinked.error}</p> : null}
-      <DiagnosticDetail interpretation={interpretation} result={result} />
+      <DiagnosticDetail interpretation={interpretation} result={result} solverMessage={selectedIsSolverMessage} />
       <div className="diagnostic-list">
+        {listsSolverMessage ? <p className="muted" data-testid="diagnostic-list-solver-messages-heading">{SOLVER_MESSAGES_HEADING}</p> : null}
         {filteredDiagnostics.length > 0 ? (
           filteredDiagnostics.map((item, index) => (
             <button
@@ -195,7 +205,7 @@ function useNativeLinkedResults(model: PreviewModel, knowledge: DesignKnowledge 
   return { rows: current?.rows ?? null, error: current?.error ?? null };
 }
 
-function DiagnosticDetail({ interpretation, result }: { interpretation: DiagnosticInterpretation | null; result: SessionResult | null }) {
+function DiagnosticDetail({ interpretation, result, solverMessage }: { interpretation: DiagnosticInterpretation | null; result: SessionResult | null; solverMessage: boolean }) {
   if (!interpretation) {
     return (
       <section className="diagnostic-detail-panel" aria-label="Diagnostic detail" data-testid="diagnostic-detail-panel">
@@ -208,6 +218,7 @@ function DiagnosticDetail({ interpretation, result }: { interpretation: Diagnost
   return (
     <section className="diagnostic-detail-panel" aria-label="Diagnostic detail" data-testid="diagnostic-detail-panel">
       <h3>Diagnostic Detail</h3>
+      {solverMessage ? <p className="muted" data-testid="diagnostic-detail-solver-messages-heading">{SOLVER_MESSAGES_HEADING}</p> : null}
       <dl>
         <DetailLine label="Diagnostic" value={interpretation.diagnostic_id} testId="selected-diagnostic-id" />
         <DetailLine label="Code" value={interpretation.code} testId="selected-diagnostic-code" />

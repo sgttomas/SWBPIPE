@@ -1,10 +1,11 @@
-// The Model settings "Straight-member shear deformation" control (DEL-05-03 Design
-// pf-timoshenko.md §1, §5 "Desktop"): Euler–Bernoulli (the default) or Timoshenko
-// (energy-matched annular factor). Choosing either writes `model_settings.shear_model` as an
-// explicit user set (#1649's option A), Reset to default clears it, a document whose user
-// never chose keeps it absent, a line states the arc and Poisson's ratio rules, and on a
-// document with a pressure contract the control is disabled and points to the pressure
-// panel. Each choice is checked by the wasm operation engine. Invented data only.
+// The Model settings "Shear deformation in straight members" control (DEL-05-03 Design
+// pf-timoshenko.md §1, §5 "Desktop"): "Included (Timoshenko)" or "Not included
+// (Euler–Bernoulli)". Choosing either writes `model_settings.shear_model` as an explicit
+// user set (#1649's option A); there is no reset. A document that states no choice reads as
+// Euler–Bernoulli and says so, nothing is written for it, a line states the factor, arc and
+// Poisson's ratio rules. On a document with a pressure contract only one line speaks: the
+// contract's theory and where it is set, with no choice, Effective line or note. Each choice
+// is checked by the wasm operation engine. Invented data only.
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -14,7 +15,7 @@ import type { EditorOperationIntent, PreviewModel } from "../../types";
 import { applyModelOperation, validateModelOperation } from "../../services/operationService";
 import { computeModelHash } from "../../services/hashService";
 import { loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
-import { ModelSettingsSection, SHEAR_MODEL_CHOICES, SHEAR_MODEL_EXACT_NOTE, UNSTATED_SHEAR_MODEL } from "./ModelSettingsSection";
+import { ModelSettingsSection, SHEAR_MODEL_EXACT_NOTE, shearModelExactLine } from "./ModelSettingsSection";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../../..");
 const demo = () =>
@@ -39,39 +40,28 @@ beforeAll(async () => {
 });
 afterEach(cleanup);
 
-describe("model settings: straight-member shear deformation", () => {
-  it("marks as in effect, on a document that states none, the theory it solves with, by value and in whatever order the choices are listed", () => {
-    // An unstated pressure-free document solves Euler–Bernoulli (DEL-05-03); no position in the list stands for that.
-    expect(UNSTATED_SHEAR_MODEL).toBe("euler_bernoulli");
-    render(<ModelSettingsSection model={demo()} onQueueIntent={() => undefined} />);
-    const radios = screen.getAllByRole("radio").filter((radio) => radio.getAttribute("name") === "model-settings-shear-model") as HTMLInputElement[];
-    expect(radios.map((radio) => radio.value).sort()).toEqual(SHEAR_MODEL_CHOICES.map((choice) => choice.value).sort());
-    for (const radio of radios) expect(radio.checked).toBe(radio.value === "euler_bernoulli");
-    expect(byId("model-settings-shear-model-effective")).toHaveTextContent("Euler–Bernoulli");
-    expect(byId("model-settings-shear-model-effective")).not.toHaveTextContent("Timoshenko");
-  });
-
-  it("shows the default, states the rules, and offers both choices with nothing written", () => {
+describe("model settings: shear deformation in straight members", () => {
+  it("reads a document that states no choice as Euler–Bernoulli, states the rules, and offers both choices with nothing written", () => {
     const model = demo();
     render(<ModelSettingsSection model={model} onQueueIntent={() => undefined} />);
-    expect(byId("model-settings-shear-model")).toHaveTextContent("Straight-member shear deformation");
-    expect(byId("model-settings-shear-model-effective")).toHaveTextContent("Effective: Euler–Bernoulli (default)");
-    const note = byId("model-settings-shear-model-note").textContent ?? "";
-    expect(note).toContain("Realized arcs stay Euler–Bernoulli");
-    expect(note).toContain("Poisson's ratio E/(2G) − 1");
-    // The default in effect reads as chosen, though nothing is written (model_settings stays absent below).
-    expect(byId("model-settings-shear-model-euler_bernoulli")).toBeChecked();
-    expect(byId("model-settings-shear-model-timoshenko_annulus_energy_v1")).not.toBeChecked();
+    expect(byId("model-settings-shear-model")).toHaveTextContent("Shear deformation in straight members");
+    expect(byId("model-settings-shear-model-effective")).toHaveTextContent(
+      "Effective: Not included (Euler–Bernoulli). This document does not state a choice.");
+    expect(byId("model-settings-shear-model")).not.toHaveTextContent("default");
+    expect(byId("model-settings-shear-model-note").textContent).toBe(
+      "Applies to every straight member, tee leg, valve, flange or other rigid component, and geometry-only bend; realized arcs stay Euler–Bernoulli. " +
+      "The shear factor is the energy-matched one for an annular section, and Poisson's ratio is E/(2G) − 1 from each case's moduli, not an entered value.");
+    expect(byId("model-settings-shear-model-euler_bernoulli")).not.toBeChecked();
     expect(byId("model-settings-shear-model-euler_bernoulli")).not.toBeDisabled();
     expect(byId("model-settings-shear-model-timoshenko_annulus_energy_v1")).not.toBeDisabled();
-    expect(screen.getByLabelText("Timoshenko (energy-matched annular factor)")).toBeInTheDocument();
-    expect(screen.getByLabelText("Euler–Bernoulli (the default)")).toBeInTheDocument();
-    expect(byId("model-settings-shear-model-reset")).toHaveAttribute("title", "Euler–Bernoulli already applies by default.");
+    const offered = screen.getAllByRole("radio").filter((radio) => radio.getAttribute("name") === "model-settings-shear-model");
+    expect(offered.map((radio) => radio.parentElement?.textContent)).toEqual(["Included (Timoshenko)", "Not included (Euler–Bernoulli)"]);
+    expect(screen.queryByTestId("model-settings-shear-model-reset")).toBeNull();
     expect(screen.queryByTestId("model-settings-shear-model-exact")).toBeNull();
     expect(model.model_settings).toBeUndefined();
   });
 
-  it("an explicit Euler–Bernoulli choice writes the member and Reset to default clears it", async () => {
+  it("an explicit Euler–Bernoulli choice writes the member, and is changed only by the other choice", async () => {
     const original = demo();
     let model = demo();
     const list: EditorOperationIntent[] = [];
@@ -88,15 +78,16 @@ describe("model settings: straight-member shear deformation", () => {
     expect(model.model_settings).toEqual({ shear_model: "euler_bernoulli" });
 
     view.rerender(<ModelSettingsSection model={model} onQueueIntent={(intent) => list.push(intent)} />);
-    expect(byId("model-settings-shear-model-effective")).toHaveTextContent("Effective: Euler–Bernoulli");
+    expect(byId("model-settings-shear-model-effective").textContent).toBe("Effective: Not included (Euler–Bernoulli)");
     expect(byId("model-settings-shear-model-euler_bernoulli")).toBeChecked();
     expect(byId("model-settings-shear-model-euler_bernoulli")).toHaveAttribute("title", "This choice is already set.");
-    fireEvent.click(byId("model-settings-shear-model-reset"));
-    const reset = await queued(list, 2);
-    expect(reset.change).toMatchObject({ change_kind: "clear_model_setting", field_path: "model_settings.shear_model", before: "\"euler_bernoulli\"", after: "not_present" });
-    model = await apply(model, reset);
-    expect(model).not.toHaveProperty("model_settings");
-    expect(await computeModelHash(model)).toEqual(await computeModelHash(original));
+    expect(screen.queryByTestId("model-settings-shear-model-reset")).toBeNull();
+    fireEvent.click(byId("model-settings-shear-model-timoshenko_annulus_energy_v1"));
+    const changed = await queued(list, 2);
+    expect(changed.change).toMatchObject({ change_kind: "set_model_setting", field_path: "model_settings.shear_model", before: "\"euler_bernoulli\"", after: "timoshenko_annulus_energy_v1" });
+    model = await apply(model, changed);
+    expect(model.model_settings).toEqual({ shear_model: "timoshenko_annulus_energy_v1" });
+    expect(original).not.toHaveProperty("model_settings");
   });
 
   it("the Timoshenko choice writes timoshenko_annulus_energy_v1 as an explicit set", async () => {
@@ -112,24 +103,30 @@ describe("model settings: straight-member shear deformation", () => {
     const selected = { ...demo(), model_settings: { shear_model: "timoshenko_annulus_energy_v1" } } as PreviewModel;
     cleanup();
     render(<ModelSettingsSection model={selected} onQueueIntent={() => undefined} />);
-    expect(byId("model-settings-shear-model-effective")).toHaveTextContent("Effective: Timoshenko (energy-matched annular factor)");
+    expect(byId("model-settings-shear-model-effective").textContent).toBe("Effective: Included (Timoshenko)");
     expect(byId("model-settings-shear-model-timoshenko_annulus_energy_v1")).toBeChecked();
-    expect(byId("model-settings-shear-model-reset")).not.toBeDisabled();
   });
 
-  it("on a document with a pressure contract shows only the theory its profile sets, and where", () => {
-    for (const [shear, label] of [["timoshenko_annulus_energy_v1", "Timoshenko (energy-matched annular shear factor)"], ["euler_bernoulli", "Euler–Bernoulli"]] as const) {
-      const exact = { ...demo(), pressure_contract: { version: "3.0.0", mode: "exact_pressure_v3", shear_model: shear } } as PreviewModel;
+  it.each([
+    ["timoshenko_annulus_energy_v1", "Included (Timoshenko)"],
+    ["euler_bernoulli", "Not included (Euler–Bernoulli)"]
+  ] as const)("on a document with a pressure contract stating %s, shows only the contract's theory", (stated, label) => {
+    // Such a document holds no pressure-free setting (activation removes it); a stray one is never read here.
+    const stray = stated === "euler_bernoulli" ? "timoshenko_annulus_energy_v1" : "euler_bernoulli";
+    for (const settings of [undefined, { shear_model: stray }]) {
+      const exact = { ...demo(), pressure_contract: { version: "3.0.0", mode: "exact_pressure_v3", shear_model: stated }, ...(settings ? { model_settings: settings } : {}) } as PreviewModel;
       const list: EditorOperationIntent[] = [];
-      const view = render(<ModelSettingsSection model={exact} onQueueIntent={(intent) => list.push(intent)} />);
-      expect(byId("model-settings-shear-model-exact")).toHaveTextContent(`${SHEAR_MODEL_EXACT_NOTE} In effect: ${label}.`);
-      expect(SHEAR_MODEL_EXACT_NOTE).toContain("Loads › Analysis settings");
-      // Nothing of the pressure-free setting: no choice to make, no effective value read from it, no moduli note.
-      for (const id of ["model-settings-shear-model-euler_bernoulli", "model-settings-shear-model-timoshenko_annulus_energy_v1", "model-settings-shear-model-reset", "model-settings-shear-model-effective", "model-settings-shear-model-note"]) {
+      render(<ModelSettingsSection model={exact} onQueueIntent={(intent) => list.push(intent)} />);
+      const line = byId("model-settings-shear-model-exact");
+      expect(line.textContent).toBe(shearModelExactLine(stated));
+      expect(line.textContent).toContain(`: ${label}.`);
+      expect(line.textContent).toContain(SHEAR_MODEL_EXACT_NOTE);
+      for (const id of ["model-settings-shear-model-effective", "model-settings-shear-model-note", "model-settings-shear-model-euler_bernoulli", "model-settings-shear-model-timoshenko_annulus_energy_v1"]) {
         expect(screen.queryByTestId(id)).toBeNull();
       }
+      expect(screen.queryAllByRole("radio").filter((radio) => radio.getAttribute("name") === "model-settings-shear-model")).toEqual([]);
       expect(list).toEqual([]);
-      view.unmount();
+      cleanup();
     }
   });
 
@@ -150,5 +147,16 @@ describe("model settings: straight-member shear deformation", () => {
     fireEvent.click(byId("model-settings-node-proximity-queue"));
     await queued(list, 2);
     expect(list[1].change.field_path).toBe("model_settings.node_proximity_tolerance");
+  });
+
+  it("shows neither option as chosen on a document that states no choice, so either can be stated", () => {
+    // A radio that already looked chosen could not be chosen: Euler–Bernoulli, in effect here, could never be
+    // stated. The Effective line says which is in effect and that the document states no choice. (Timoshenko is
+    // offered first; the one in effect is never taken from the order.)
+    render(<ModelSettingsSection model={demo()} onQueueIntent={() => undefined} />);
+    expect(byId("model-settings-shear-model-timoshenko_annulus_energy_v1")).not.toBeChecked();
+    expect(byId("model-settings-shear-model-euler_bernoulli")).not.toBeChecked();
+    expect(byId("model-settings-shear-model-euler_bernoulli")).not.toBeDisabled();
+    expect(byId("model-settings-shear-model-effective").textContent).toBe("Effective: Not included (Euler–Bernoulli). This document does not state a choice.");
   });
 });

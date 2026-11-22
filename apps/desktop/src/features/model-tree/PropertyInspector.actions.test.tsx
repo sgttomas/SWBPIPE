@@ -251,18 +251,35 @@ describe("settings are not properties", () => {
     mount({ type: "project", id: "project" });
     const settings = line("Model settings");
     expect(settings).not.toHaveAttribute("open");
-    expect(settings.querySelector("summary")).toHaveTextContent("Shear deformation: Euler–Bernoulli (default) · Node proximity: 5 mm (default)");
-    expect(screen.getByTestId("model-settings-shear-model-euler_bernoulli")).not.toBeVisible();
+    expect(settings.querySelector("summary")).toHaveTextContent("Shear deformation: Included (Timoshenko) · Node proximity: 5 mm (default)");
+    expect(screen.getByTestId("model-settings-shear-model-timoshenko_annulus_energy_v1")).not.toBeVisible();
     openLine("Model settings");
-    const euler = screen.getByTestId("model-settings-shear-model-euler_bernoulli");
-    expect(euler).toBeVisible();
-    expect(euler).toBeChecked();
+    const timoshenko = screen.getByTestId("model-settings-shear-model-timoshenko_annulus_energy_v1");
+    expect(timoshenko).toBeVisible();
+    expect(timoshenko).toBeChecked();
+    expect(screen.getByTestId("model-settings-shear-model-euler_bernoulli")).not.toBeChecked();
     expect(settings).not.toHaveTextContent("NODE_NEAR_DUPLICATE");
     expect(settings).not.toHaveTextContent(/pressure contract|Pressure panel/);
     const units = line("Project units");
     expect(units).not.toHaveAttribute("open");
     expect(units.querySelector("summary")).toHaveTextContent("m, N");
     expect(screen.getByTestId("inspector-overview")).not.toHaveTextContent("Schema");
+  });
+
+  it("shows an unstated pressure-free document without checking either shear option", () => {
+    const model = inventedModel();
+    delete model.model_settings;
+    mount({ type: "project", id: "project" }, {}, model);
+    const settings = line("Model settings");
+    expect(settings).not.toHaveAttribute("open");
+    expect(settings.querySelector("summary")).toHaveTextContent("Shear deformation: Not included (Euler–Bernoulli). This document does not state a choice. · Node proximity: 5 mm (default)");
+    openLine("Model settings");
+    const euler = screen.getByTestId("model-settings-shear-model-euler_bernoulli");
+    const timoshenko = screen.getByTestId("model-settings-shear-model-timoshenko_annulus_energy_v1");
+    expect(euler).toBeVisible();
+    expect(timoshenko).toBeVisible();
+    expect(euler).not.toBeChecked();
+    expect(timoshenko).not.toBeChecked();
   });
 });
 
@@ -338,7 +355,7 @@ describe("a warning that applies is on its closed line, without a press", () => 
     mount({ type: "project", id: model.project.id }, {}, model);
     const summary = line("Model settings").querySelector("summary")!;
     expect(line("Model settings")).not.toHaveAttribute("open");
-    expect(summary).toHaveTextContent("Shear deformation: Timoshenko (energy-matched annular shear factor), set by the pressure profile");
+    expect(summary).toHaveTextContent("Shear deformation: Included (Timoshenko), set by the pressure profile");
     expect(summary).toHaveTextContent("Pressure elongation: off (default), not included in any load case");
   });
 

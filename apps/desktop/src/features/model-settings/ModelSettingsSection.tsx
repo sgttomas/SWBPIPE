@@ -7,13 +7,15 @@
 // engine (validate-only) and, when it is not refused, queued for Review/Apply
 // and undone like any other model edit; a refusal stays here by name.
 //
-// It also holds the pressure-free document's straight-member shear deformation
-// (DEL-05-03 Design pf-timoshenko.md §1, §5 "Desktop"): Euler–Bernoulli (the
-// default) or Timoshenko with the energy-matched annular factor. Choosing either
-// writes `model_settings.shear_model` as an explicit user set; Reset to default
-// clears it, so a document whose user never chose keeps it absent. On a document
-// with a pressure contract the control shows only that document's beam theory,
-// `pressure_contract.shear_model`, set with its pressure profile.
+// It also holds the pressure-free document's shear deformation in straight members
+// (DEL-05-03 Design pf-timoshenko.md §1, §5 "Desktop"): included (Timoshenko, with
+// the energy-matched annular factor) or not included (Euler–Bernoulli). Choosing
+// either writes `model_settings.shear_model` as an explicit user set. New documents
+// state Timoshenko; a document that states no choice reads as Euler–Bernoulli and
+// says so. There is no reset: a stated choice is changed, never cleared. On a
+// document with a pressure contract the control shows one line only: that document's
+// beam theory is `pressure_contract.shear_model` (read by `documentShearModel`), set with
+// its pressure profile (Loads › Analysis settings); no choice, Effective line or note speaks for it.
 //
 // On a document with a pressure contract it also holds Pressure elongation (Bourdon)
 // (DEL-04-07): one switch, "Include pressure
@@ -30,7 +32,6 @@ import type { UnitCatalogRoute } from "../../services/unitCatalogService";
 import { disabledBy, stableJson } from "../model-data/modelDataIntents";
 import { PROJECT_UNIT_PRESETS, loadedUnitCatalog, projectUnitChoices } from "../project-units/projectUnitSelection";
 import { storedProjectUnit } from "../project-units/projectUnitIntents";
-import { documentShearModel, SHEAR_MODEL_CHOICES as PROFILE_SHEAR_CHOICES } from "../pressure-authoring/pressureContract";
 import {
   DEFAULT_NODE_PROXIMITY_TOLERANCE,
   NODE_PROXIMITY_TOLERANCE_PATH,
@@ -41,7 +42,6 @@ import {
   authoredShearModel,
   clearNodeProximityToleranceIntent,
   clearPressureElongationIntent,
-  clearShearModelIntent,
   effectiveNodeProximityTolerance,
   operatingKindLoadCaseIds,
   pressurisedCasesNotIncluded,
@@ -51,18 +51,23 @@ import {
   type Canonicalize,
   type SettingPath
 } from "./modelSettingsIntents";
+import { documentShearModel, SHEAR_MODEL_CHOICES, SHEAR_MODEL_LABEL, type ShearModel } from "../pressure-authoring/pressureContract";
 
-/** The straight-member shear deformation choices, default first. */
-export const SHEAR_MODEL_CHOICES = Object.freeze([
-  { value: "euler_bernoulli", label: "Euler–Bernoulli (the default)" },
-  { value: "timoshenko_annulus_energy_v1", label: "Timoshenko (energy-matched annular factor)" }
-] as const);
-/** What a pressure-free document that states no shear model solves with, whatever order the choices are listed in. */
-export const UNSTATED_SHEAR_MODEL = "euler_bernoulli";
+/** The choices of shear deformation in straight members, in the order they are offered: the
+ * pressure panel's selector and status line read the same constants, so the words cannot drift. */
+export { SHEAR_MODEL_CHOICES, SHEAR_MODEL_LABEL };
+/** The effective line of a document that states no choice: absence reads as Euler–Bernoulli. */
+export const SHEAR_MODEL_UNSTATED = "Not included (Euler–Bernoulli). This document does not state a choice.";
 export const SHEAR_MODEL_NOTE =
-  "Every straight member, tee leg, rigid component and geometry-only bend. Realized arcs stay Euler–Bernoulli. Timoshenko uses Poisson's ratio E/(2G) − 1 from each case's moduli, not an entered one.";
+  "Applies to every straight member, tee leg, valve, flange or other rigid component, and geometry-only bend; realized arcs stay Euler–Bernoulli. The shear factor is the energy-matched one for an annular section, and Poisson's ratio is E/(2G) − 1 from each case's moduli, not an entered value.";
 export const SHEAR_MODEL_EXACT_NOTE =
   "This model's beam theory is set with its pressure profile: Loads › Analysis settings.";
+/** The one line a document with a pressure contract shows here: its theory as the contract states it (read by
+ * `documentShearModel`), never the pressure-free setting, which such a document does not hold. */
+export function shearModelExactLine(theory: ShearModel | null): string {
+  const stated = theory === null ? "no admitted shear model is selected" : SHEAR_MODEL_CHOICES.find((choice) => choice.value === theory)!.label;
+  return `${SHEAR_MODEL_LABEL}: ${stated}. ${SHEAR_MODEL_EXACT_NOTE}`;
+}
 
 export const PRESSURE_ELONGATION_OFF_NOTE =
   "Off (default). Pressure elongation is not included in any load case. Documents saved before this setting existed included it in every pressurised case; turn it on and name the operating cases to include it there.";
@@ -155,8 +160,8 @@ export function ModelSettingsSection(props: ModelSettingsSectionProps) {
   const exactDocument = model.pressure_contract != null;
   const authoredShear = authoredShearModel(model);
   const effectiveShear = authoredShear === null
-    ? `${SHEAR_MODEL_CHOICES.find((choice) => choice.value === UNSTATED_SHEAR_MODEL)?.label.replace(" (the default)", "") ?? UNSTATED_SHEAR_MODEL} (default)`
-    : SHEAR_MODEL_CHOICES.find((choice) => choice.value === authoredShear)?.label.replace(" (the default)", "") ?? authoredShear;
+    ? SHEAR_MODEL_UNSTATED
+    : SHEAR_MODEL_CHOICES.find((choice) => choice.value === authoredShear)?.label ?? authoredShear;
 
   async function submit(build: (canonicalize: Canonicalize) => Promise<EditorOperationIntent>, path: SettingPath = NODE_PROXIMITY_TOLERANCE_PATH) {
     if (working) return;
@@ -282,42 +287,30 @@ export function ModelSettingsSection(props: ModelSettingsSectionProps) {
         {notice ? <p role="status" data-testid="model-settings-node-proximity-notice">{notice}</p> : null}
       </fieldset>
       <fieldset className="model-data-fieldset" data-testid="model-settings-shear-model">
-        <legend>Straight-member shear deformation</legend>
-        {exactDocument ? <p className="model-data-note" data-testid="model-settings-shear-model-exact">{SHEAR_MODEL_EXACT_NOTE} In effect: <strong>{PROFILE_SHEAR_CHOICES.find((choice) => choice.value === documentShearModel(model))?.label ?? "not stated by the profile"}</strong>.</p> : <>
+        <legend>{SHEAR_MODEL_LABEL}</legend>
+        {/* With a pressure contract only the contract's theory speaks: no Effective line, no note, no choices. */}
+        {exactDocument ? <p className="model-data-note" data-testid="model-settings-shear-model-exact">{shearModelExactLine(documentShearModel(model))}</p> : (<>
         <p data-testid="model-settings-shear-model-effective">
           Effective: <strong>{effectiveShear}</strong>
         </p>
         <p className="model-data-note" data-testid="model-settings-shear-model-note">{SHEAR_MODEL_NOTE}</p>
-        <div role="radiogroup" aria-label="Straight-member shear deformation" className="model-settings-choices">
+        <div role="radiogroup" aria-label={SHEAR_MODEL_LABEL} className="model-settings-choices">
           {SHEAR_MODEL_CHOICES.map((choice) => (
             <label key={choice.value}>
-              {/* The choice in effect reads as chosen; Euler–Bernoulli is in effect while none is set.
-                  Pressing a choice writes it, so the default can also be set explicitly. */}
               <input
                 type="radio"
                 name="model-settings-shear-model"
                 value={choice.value}
                 data-testid={`model-settings-shear-model-${choice.value}`}
-                checked={!exactDocument && (authoredShear ?? UNSTATED_SHEAR_MODEL) === choice.value}
+                checked={authoredShear === choice.value}
                 {...disabledBy(working, [exactDocument, SHEAR_MODEL_EXACT_NOTE], [authoredShear === choice.value, "This choice is already set."])}
-                onChange={() => undefined}
-                onClick={() => { if (!working && !exactDocument && authoredShear !== choice.value) void submit((canon) => setShearModelIntent(canon, model, choice.value), SHEAR_MODEL_PATH); }}
+                onChange={() => void submit((canon) => setShearModelIntent(canon, model, choice.value), SHEAR_MODEL_PATH)}
               />
               <span>{choice.label}</span>
             </label>
           ))}
         </div>
-        <div className="model-data-actions">
-          <button
-            type="button"
-            data-testid="model-settings-shear-model-reset"
-            {...disabledBy(working, [exactDocument, SHEAR_MODEL_EXACT_NOTE], [authoredShear === null, "Euler–Bernoulli already applies by default."])}
-            onClick={() => void submit((canon) => clearShearModelIntent(canon, model), SHEAR_MODEL_PATH)}
-          >
-            Reset to default
-          </button>
-        </div>
-        </>}
+        </>)}
         {shearFeedback.error ? <p role="alert" data-testid="model-settings-shear-model-error">{shearFeedback.error}</p> : null}
         {shearFeedback.diagnostics.length ? (
           <ul aria-label="Operation engine diagnostics" data-testid="model-settings-shear-model-diagnostics">

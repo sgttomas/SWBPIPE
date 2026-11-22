@@ -269,7 +269,7 @@ fn g5_load_state_statements_dispatch_with_their_tables() {
         assert_eq!((d["ok"].as_bool(), d["route"].as_str()), (Some(true), Some("pressure")), "{name}");
         assert_eq!(d["binding"]["id"], sc::PRESSURE_ID);
         // The actual model: the published checks_passed cases are eligible.
-        assert_eq!(d["standing"]["status"], "integrity_checked", "{name}: {}", d["standing"]);
+        assert_eq!(d["standing"]["status"], "solver_checks_passed", "{name}: {}", d["standing"]);
         assert_eq!(findings(&d["standing"]), Vec::<&str>::new());
         assert_eq!(rv::validate("pressure", &raw, Some(&lr_model(name)), None), json!({"ok": true}));
     }
@@ -284,7 +284,7 @@ fn g5_load_state_statements_dispatch_with_their_tables() {
             assert_eq!(
                 d["standing"],
                 json!({"route": "pressure_source", "token": d["standing"]["token"], "status": "needs_recompute",
-                    "eligible": false, "findings": [rv::SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED]})
+                    "eligible": false, "findings": [rv::SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED], "integrity_bound": rv::integrity_bound()})
             );
             // With it, a valid load/reference-state reading is never eligible (T1).
             let inv = invocation(request.clone(), mode);

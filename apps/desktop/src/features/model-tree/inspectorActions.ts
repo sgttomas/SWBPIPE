@@ -2,8 +2,8 @@
 // on what a person can see. Any refusal is the operation engine's, shown by its own code.
 import type { EntityRef, PreviewModel } from "../../types";
 import { authoredPressureElongationCases, authoredShearModel, effectiveNodeProximityTolerance, pressurisedCasesNotIncluded } from "../model-settings/modelSettingsIntents";
-import { documentShearModel, SHEAR_MODEL_CHOICES as PROFILE_SHEAR_CHOICES } from "../pressure-authoring/pressureContract";
-import { SHEAR_MODEL_CHOICES, UNSTATED_SHEAR_MODEL } from "../model-settings/ModelSettingsSection";
+import { documentShearModel, SHEAR_MODEL_CHOICES } from "../pressure-authoring/pressureContract";
+import { SHEAR_MODEL_UNSTATED } from "../model-settings/ModelSettingsSection";
 import { PROJECT_UNIT_KEYS } from "../../services/projectService";
 import { storedProjectUnit } from "../project-units/projectUnitIntents";
 
@@ -62,12 +62,13 @@ export function supportFormLine(selection: EntityRef): string {
 export function modelSettingsValues(model: PreviewModel): string {
   const exact = model.pressure_contract != null;
   const shear = authoredShearModel(model);
-  const profileShear = PROFILE_SHEAR_CHOICES.find((choice) => choice.value === documentShearModel(model))?.label;
+  const labelFor = (value: string) => SHEAR_MODEL_CHOICES.find((choice) => choice.value === value)?.label ?? value;
+  const profileShear = documentShearModel(model);
   const shearLabel = exact
-    ? `${profileShear ?? "not stated"}, set by the pressure profile`
+    ? `${profileShear ? labelFor(profileShear) : "not stated"}, set by the pressure profile`
     : shear === null
-      ? `${SHEAR_MODEL_CHOICES.find((choice) => choice.value === UNSTATED_SHEAR_MODEL)?.label.replace(" (the default)", "") ?? UNSTATED_SHEAR_MODEL} (default)`
-      : SHEAR_MODEL_CHOICES.find((choice) => choice.value === shear)?.label.replace(" (the default)", "") ?? shear;
+      ? SHEAR_MODEL_UNSTATED
+      : labelFor(shear);
   const parts = [`Shear deformation: ${shearLabel}`, `Node proximity: ${effectiveNodeProximityTolerance(model)}`];
   if (exact) {
     const included = authoredPressureElongationCases(model);

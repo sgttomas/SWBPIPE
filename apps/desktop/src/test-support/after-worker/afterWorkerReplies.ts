@@ -306,7 +306,9 @@ export async function judgeRun(directory: string): Promise<RunVerdict> {
   // (`cached`, nativeResult.ts) answers a reading whose key it has read before, and then
   // nothing is sent natively: `readNativeVerdict`'s key is keyOf("dispatch", modelText,
   // invocationText), `readNativeSummary`'s keyOf("summary", modelText,
-  // JSON.stringify(standing)). `keyOf` is not exported: restated.
+  // JSON.stringify(standing), modelUse ?? null). The fresh reading passes no modelUse (only a
+  // restored run's reading does, nativeReopen.ts), so its fourth part is null here. `keyOf` is
+  // not exported: restated.
   const keyOf = (...parts: readonly (string | null | undefined)[]) => parts.map((part) => part ?? "\u0001").join("\u0000");
   const readings = new Map<string, unknown>();
   const sessionModel = () => solveModel ?? fail("the run kept no standing request to take the session model from");
@@ -328,7 +330,7 @@ export async function judgeRun(directory: string): Promise<RunVerdict> {
   const readSummary = async (verdict: ReaderDispatch): Promise<ResultSummary> => {
     const modelText = jsonTextKeepingNegativeZero(sessionModel());
     const standing = { eligible: verdict.standing.eligible, findings: [...verdict.standing.findings] };
-    const key = keyOf("summary", modelText, JSON.stringify(standing));
+    const key = keyOf("summary", modelText, JSON.stringify(standing), null);
     if (readings.has(key)) {
       calls.push("summary: the web's cache");
       return readings.get(key) as ResultSummary;
