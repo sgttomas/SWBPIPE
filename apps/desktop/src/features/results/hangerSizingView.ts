@@ -16,21 +16,29 @@
  *   hash of the exact document it was computed on, recomputed here and compared. Absent,
  *   malformed or differently bound evidence shows every standing as `not_checked`.
  *
- * What it does not do: validate the document, mint Current or acceptance, state that typed
- * results are trusted, compute anything per record, or fall back to a native or `evaluate`
+ * - Refuses to build a sized view (it throws) whose `integrity_bound`, or any solve's
+ *   `solver_standing` or `support_state_confirmation`, is outside its closed vocabulary, or whose
+ *   standings are not what its integrity disclosures state (`hangerSizingResultFault`).
+ *
+ * What it does not do: validate the rest of the document, mint Current or acceptance, state that
+ * typed results are trusted, compute anything per record, or fall back to a native or `evaluate`
  * path. It never mutates its inputs. */
 
 import { canonicalSha256HexCheckedV1 } from "../../services/hashService";
 import type {
   HangerSizingCandidate,
+  HangerSizingConfirmationOutcome,
   HangerSizingDocument,
   HangerSizingFamilyPolicy,
   HangerSizingIntegrityBound,
   HangerSizingOutcome,
   HangerSizingRefusedDocument,
   HangerSizingRequest,
-  HangerSizingSizedDocument
+  HangerSizingSizedDocument,
+  HangerSizingSolverStanding,
+  HangerSizingSupportStateConfirmation
 } from "./hangerSizingResult";
+import { supportStatesLine, type SupportStatesLine } from "./integrityStatus";
 
 // ---------------------------------------------------------------------------------------------
 // Labels and fixed display text
@@ -40,9 +48,129 @@ export const F_COLD_LABEL = "installed setting (at drawn position)";
 export const F_COLD_CONDITION_LABEL = "cold-condition load";
 /** A variation the document publishes as null. */
 export const NO_RATIO_FORMED = "no ratio formed";
-/** What every sized result states of the ordinary derived solves' error bound (LIM-026). */
-export const HANGER_SIZING_INTEGRITY_BOUND_TEXT =
-  "Ordinary-solve error bound: not verified by SWBPIPE (inverse_norm_bound_not_verified; LIM-026).";
+
+// ---------------------------------------------------------------------------------------------
+// The integrity bound and each solve's standing and confirmation: closed, and shown only when well formed
+//
+// Every surface (the native reply's reader, this view, the panel and both CSV files) checks these members with
+// the predicates below and words them with the formatters below. A value outside them fails closed: it is never
+// shown, exported or re-worded as something else.
+
+/** A derived solve's `solver_standing`: `solver_checks_passed`, then the four non-passing tokens. */
+export const HANGER_SIZING_SOLVER_STANDINGS: readonly HangerSizingSolverStanding[] = Object.freeze([
+  "solver_checks_passed", "not_assessed", "sensitive", "unresolved", "failed"
+]);
+/** A derived solve's `support_state_confirmation.outcome`. */
+export const HANGER_SIZING_CONFIRMATION_OUTCOMES: readonly HangerSizingConfirmationOutcome[] = Object.freeze([
+  "solver_reported_established", "not_attempted_reason_not_recorded", "not_established_detail_quoted", "no_confirmation_record", "not_applicable"
+]);
+const DERIVED_SOLVE_INTEGRITY = "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY";
+
+/** The support-state line of a solve that publishes no nonlinear-support state (`not_applicable`). */
+export const HANGER_SIZING_CONFIRMATION_NOT_APPLICABLE = "Support states: not applicable; this solve publishes no nonlinear-support state.";
+
+/** Exactly `{status: "not_verified", reason: "inverse_norm_bound_not_verified"}`, as the document and the reader state it. */
+export function wellFormedIntegrityBound(value: unknown): value is HangerSizingIntegrityBound {
+  return isPlainObject(value)
+    && Object.keys(value).length === 2
+    && value.status === "not_verified"
+    && value.reason === "inverse_norm_bound_not_verified";
+}
+
+/** One of `HANGER_SIZING_SOLVER_STANDINGS`. */
+export function wellFormedSolverStanding(value: unknown): value is HangerSizingSolverStanding {
+  return typeof value === "string" && (HANGER_SIZING_SOLVER_STANDINGS as readonly string[]).includes(value);
+}
+
+/** Exactly `{outcome, detail}`: the outcome one of `HANGER_SIZING_CONFIRMATION_OUTCOMES`, and `detail` a non-blank
+ * string for `not_established_detail_quoted` and null otherwise. With `stateless` given, the outcome is also
+ * `not_applicable` exactly when the solve publishes no nonlinear-support state. */
+export function wellFormedSupportStateConfirmation(value: unknown, stateless?: boolean): value is HangerSizingSupportStateConfirmation {
+  if (!isPlainObject(value) || Object.keys(value).length !== 2 || !Object.hasOwn(value, "outcome") || !Object.hasOwn(value, "detail")) return false;
+  const { outcome, detail } = value;
+  if (typeof outcome !== "string" || !(HANGER_SIZING_CONFIRMATION_OUTCOMES as readonly string[]).includes(outcome)) return false;
+  if (stateless !== undefined && stateless !== (outcome === "not_applicable")) return false;
+  return outcome === "not_established_detail_quoted" ? typeof detail === "string" && detail.trim().length > 0 : detail === null;
+}
+
+type SolveFacts = Readonly<{ label: string; stateless: boolean; standing: unknown; confirmation: unknown }>;
+type FindingFacts = Readonly<{ code: unknown; names: unknown; message: unknown }>;
+
+/** The first fault of a result's solves, or null: a standing or confirmation that is not well formed, or a
+ * standing that is not exactly what the integrity disclosures state of its solve (a non-passing standing has one
+ * disclosure naming it with its token; `solver_checks_passed` has none). */
+function solvesFault(solves: readonly SolveFacts[], disclosures: readonly FindingFacts[]): string | null {
+  for (const solve of solves) {
+    if (!wellFormedSolverStanding(solve.standing)) return `HANGER_SIZING_SOLVE_STANDING_MALFORMED: ${solve.label}`;
+    if (!wellFormedSupportStateConfirmation(solve.confirmation, solve.stateless)) return `HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: ${solve.label}`;
+    const stated = disclosures
+      .filter((d) => d.code === DERIVED_SOLVE_INTEGRITY && Array.isArray(d.names) && d.names.length === 1 && d.names[0] === solve.label)
+      .map((d) => (typeof d.message === "string" ? d.message.split(":")[0] : null));
+    const expected = solve.standing === "solver_checks_passed" ? [] : [solve.standing];
+    if (stated.length !== expected.length || stated.some((token, index) => token !== expected[index])) {
+      return `HANGER_SIZING_SOLVE_STANDING_UNDISCLOSED: ${solve.label}`;
+    }
+  }
+  return null;
+}
+
+/** The first fault of a sized document's `result` in these members, or null. Anything that is not a result with
+ * a well-formed bound, solves and disclosures is a fault. */
+export function hangerSizingResultFault(result: unknown): string | null {
+  if (!isPlainObject(result)) return "HANGER_SIZING_RESULT_MALFORMED";
+  if (!wellFormedIntegrityBound(result.integrity_bound)) return "HANGER_SIZING_INTEGRITY_BOUND_MALFORMED";
+  const solves = result.solves;
+  const disclosures = result.disclosures;
+  if (!Array.isArray(solves) || !Array.isArray(disclosures) || !disclosures.every(isPlainObject)) return "HANGER_SIZING_RESULT_MALFORMED";
+  const facts: SolveFacts[] = [];
+  for (const solve of solves) {
+    if (!isPlainObject(solve) || typeof solve.label !== "string" || !isPlainObject(solve.states)) return "HANGER_SIZING_RESULT_MALFORMED";
+    facts.push({ label: solve.label, stateless: Object.keys(solve.states).length === 0, standing: solve.solver_standing, confirmation: solve.support_state_confirmation });
+  }
+  return solvesFault(facts, disclosures as FindingFacts[]);
+}
+
+/** The first fault of a sized view in these members, or null: what a direct caller of the CSV builders hands them is
+ * checked by the same rule as the document. */
+export function hangerSizingViewFault(view: HangerSizingSizedView): string | null {
+  if (!wellFormedIntegrityBound(view.integrityBound)) return "HANGER_SIZING_INTEGRITY_BOUND_MALFORMED";
+  if (!Array.isArray(view.solves) || !Array.isArray(view.disclosures)) return "HANGER_SIZING_RESULT_MALFORMED";
+  return solvesFault(
+    view.solves.map((solve) => ({ label: solve.label, stateless: solve.states.length === 0, standing: solve.solverStanding, confirmation: solve.supportStateConfirmation })),
+    view.disclosures
+  );
+}
+
+/** The bound in words: `not_verified (inverse_norm_bound_not_verified)`. Throws for anything else. */
+export function formatHangerSizingIntegrityBound(bound: unknown): string {
+  if (!wellFormedIntegrityBound(bound)) throw new Error("HANGER_SIZING_INTEGRITY_BOUND_MALFORMED");
+  return `${bound.status} (${bound.reason})`;
+}
+
+/** The reader verdict's bound beside its standings: `Integrity bound: … .` when the evidence is bound to this
+ * document, null when it is not (the standings then read not checked). Throws for a malformed bound. */
+export function formatHangerSizingStandingsBound(standings: Pick<StandingsView, "integrityBound">): string | null {
+  return standings.integrityBound === null ? null : `Integrity bound: ${formatHangerSizingIntegrityBound(standings.integrityBound)}.`;
+}
+
+/** A solve's standing in words: `solver_checks_passed` is the solver's report, not a verified bound; any other token
+ * is disclosed. Throws for anything outside `HANGER_SIZING_SOLVER_STANDINGS`. */
+export function formatHangerSizingSolverStanding(standing: unknown): string {
+  if (!wellFormedSolverStanding(standing)) throw new Error("HANGER_SIZING_SOLVE_STANDING_MALFORMED");
+  return standing === "solver_checks_passed"
+    ? "solver_checks_passed: the solver's own checks found no problem; this is the solver's report, not a verified error bound"
+    : `${standing}: not solver_checks_passed, disclosed as ${DERIVED_SOLVE_INTEGRITY}; every value taken from this solve carries this standing`;
+}
+
+/** A solve's support-state line and, for `not_established_detail_quoted`, the solver's quoted reason, as the
+ * desktop states a case's confirmation elsewhere (`supportStatesLine`). Throws for a malformed confirmation. */
+export function formatHangerSizingConfirmation(confirmation: unknown): SupportStatesLine {
+  if (!wellFormedSupportStateConfirmation(confirmation)) throw new Error("HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED");
+  if (confirmation.outcome === "not_applicable") return { text: HANGER_SIZING_CONFIRMATION_NOT_APPLICABLE, detail: null };
+  const line = supportStatesLine(confirmation.outcome, confirmation.detail);
+  if (line === null) throw new Error("HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED");
+  return line;
+}
 
 // ---------------------------------------------------------------------------------------------
 // Values
@@ -454,14 +582,6 @@ function wellFormedEvidence(value: unknown): value is HangerSizingReaderEvidence
   return wellFormedIntegrityBound(verdict.integrity_bound);
 }
 
-/** Exactly `{status: "not_verified", reason: "inverse_norm_bound_not_verified"}`, as the reader states it. */
-function wellFormedIntegrityBound(value: unknown): value is HangerSizingIntegrityBound {
-  return isPlainObject(value)
-    && Object.keys(value).length === 2
-    && value.status === "not_verified"
-    && value.reason === "inverse_norm_bound_not_verified";
-}
-
 const unbound = (reason: StandingsUnboundReason): StandingsView => ({
   binding: { state: "unbound", reason },
   standings: HANGER_SIZING_STANDING_NAMES.map((name) => ({ name, status: "not_checked" as const, difference: null })),
@@ -495,6 +615,10 @@ export type SolveView = Readonly<{
   derivedDocumentSha256: string;
   /** Each nonlinear support's state, in the document's key order. */
   states: readonly Readonly<{ support: string; state: string }>[];
+  /** The solver's standing of this solve (`formatHangerSizingSolverStanding`). */
+  solverStanding: HangerSizingSolverStanding;
+  /** What the solver's integrity record states of the support-state confirmation (`formatHangerSizingConfirmation`). */
+  supportStateConfirmation: HangerSizingSupportStateConfirmation;
 }>;
 
 export type NamedFindingView = Readonly<{ code: string; names: readonly string[]; message: string }>;
@@ -528,6 +652,10 @@ const findingView = (finding: { code: string; names: readonly string[]; message:
   ({ code: finding.code, names: [...finding.names], message: finding.message });
 
 async function sizedView(document: HangerSizingSizedDocument, evidence: unknown, library: unknown): Promise<HangerSizingSizedView> {
+  // Fail closed: a bound, standing or confirmation outside the closed vocabulary, or a standing its disclosures do
+  // not state, is never shown.
+  const fault = hangerSizingResultFault(document.result);
+  if (fault !== null) throw new Error(fault);
   const gate = await libraryGate(document.inputs.library.library_id, document.inputs.library.sha256, library);
   const rows: CandidateRowView[] = [];
   for (const candidate of document.result.candidates) rows.push(await candidateRow(candidate, gate));
@@ -548,7 +676,9 @@ async function sizedView(document: HangerSizingSizedDocument, evidence: unknown,
       label: solve.label,
       case: solve.case,
       derivedDocumentSha256: solve.derived_document_sha256,
-      states: Object.keys(solve.states).map((support) => ({ support, state: solve.states[support] }))
+      states: Object.keys(solve.states).map((support) => ({ support, state: solve.states[support] })),
+      solverStanding: solve.solver_standing,
+      supportStateConfirmation: { ...solve.support_state_confirmation }
     })),
     disclosures: document.result.disclosures.map(findingView),
     readerStandings: await standingsView(document, evidence)

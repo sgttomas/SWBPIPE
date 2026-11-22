@@ -8,13 +8,25 @@ import twoSpanInput from "../../../../../fixtures/results/hanger_sizing_input_tw
 import fourSpanInput from "../../../../../fixtures/results/hanger_sizing_input_four_span.json";
 import { canonicalSha256HexCheckedV1 } from "../../services/hashService";
 import type { HangerSizingDocument } from "./hangerSizingResult";
+import { CONFIRMATION_STATEMENTS } from "./integrityStatus";
 import {
   F_COLD_CONDITION_LABEL,
   F_COLD_LABEL,
-  HANGER_SIZING_INTEGRITY_BOUND_TEXT,
+  HANGER_SIZING_CONFIRMATION_NOT_APPLICABLE,
+  HANGER_SIZING_CONFIRMATION_OUTCOMES,
+  HANGER_SIZING_SOLVER_STANDINGS,
   HANGER_SIZING_STANDING_NAMES,
   NO_RATIO_FORMED,
+  formatHangerSizingConfirmation,
+  formatHangerSizingIntegrityBound,
+  formatHangerSizingSolverStanding,
+  formatHangerSizingStandingsBound,
+  hangerSizingResultFault,
   hangerSizingView,
+  hangerSizingViewFault,
+  wellFormedIntegrityBound,
+  wellFormedSolverStanding,
+  wellFormedSupportStateConfirmation,
   type CandidateRowView,
   type HangerSizingReaderEvidence,
   type HangerSizingRefusedView,
@@ -144,10 +156,14 @@ describe("hangerSizingView: sized documents", () => {
       label: "S_O2",
       case: "load:O2",
       derivedDocumentSha256: "590df0f06c498e3e017fcf697b75b6e2be034bf4ad931367b3b37731f7e4a615",
-      states: [{ support: "support:C-lift", state: "active" }]
+      states: [{ support: "support:C-lift", state: "active" }],
+      solverStanding: "solver_checks_passed",
+      supportStateConfirmation: { outcome: "solver_reported_established", detail: null }
     });
     const four = await sized(fourSpan());
     expect(four.solves.every((solve) => solve.states.length === 0)).toBe(true);
+    expect(four.solves.every((solve) => solve.solverStanding === "solver_checks_passed"
+      && solve.supportStateConfirmation.outcome === "not_applicable" && solve.supportStateConfirmation.detail === null)).toBe(true);
   });
 
   it("shows a null variation as no ratio formed, never 0", async () => {
@@ -368,9 +384,7 @@ describe("hangerSizingView: reader standings as bound evidence", () => {
     expect(view.readerStandings.binding).toEqual({ state: "bound", documentSha256: hash });
     expect(view.readerStandings.integrityBound).toEqual(NOT_VERIFIED);
     expect(view.integrityBound).toEqual(NOT_VERIFIED);
-    expect(HANGER_SIZING_INTEGRITY_BOUND_TEXT).toBe(
-      "Ordinary-solve error bound: not verified by SWBPIPE (inverse_norm_bound_not_verified; LIM-026)."
-    );
+    expect(formatHangerSizingStandingsBound(view.readerStandings)).toBe("Integrity bound: not_verified (inverse_norm_bound_not_verified).");
     expect(view.readerStandings.standings).toEqual([
       { name: "closure", status: "passed", difference: null },
       { name: "binding", status: "passed", difference: null, notChecked: ["solve_request"] },
@@ -463,5 +477,123 @@ describe("hangerSizingView: refused documents", () => {
     expect(view.refusals.map((refusal) => refusal.code)).toEqual(["HANGER_SIZING_INPUT_NOT_ADMITTED", "HANGER_SIZING_LIBRARY_NOT_ADMITTED"]);
     expect(view.refusals[1].names).toEqual([]);
     expect(view.readerStandings.binding).toEqual({ state: "bound", documentSha256: hash });
+  });
+});
+
+// --- the integrity bound and each solve's standing and confirmation: shared words, failing closed ---------------
+type Tamperable = { result: { integrity_bound: unknown; solves: Record<string, unknown>[]; disclosures: unknown[] } };
+const tamper = (change: (document: Tamperable) => void): HangerSizingDocument => {
+  const document = twoSpan() as unknown as Tamperable;
+  change(document);
+  return document as unknown as HangerSizingDocument;
+};
+const SENSITIVE_MESSAGE = "sensitive: the solver's numerical-integrity status for this derived solve is sensitive, not solver_checks_passed; every value sizing takes from it carries that standing (integrity_bound: not_verified, inverse_norm_bound_not_verified)";
+const sensitiveDisclosure = (label: string) => ({ code: "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", names: [label], message: SENSITIVE_MESSAGE });
+
+/** Each tampering of the two-span document (S_O1 is solves[2]) and the fault it names. */
+const TAMPERED: readonly (readonly [string, (document: Tamperable) => void, string])[] = [
+  ["bound verified", (d) => { d.result.integrity_bound = { status: "verified", reason: "inverse_norm_bound_not_verified" }; }, "HANGER_SIZING_INTEGRITY_BOUND_MALFORMED"],
+  ["bound reason", (d) => { d.result.integrity_bound = { status: "not_verified", reason: "invented" }; }, "HANGER_SIZING_INTEGRITY_BOUND_MALFORMED"],
+  ["bound extra", (d) => { d.result.integrity_bound = { ...NOT_VERIFIED, bound: 1 }; }, "HANGER_SIZING_INTEGRITY_BOUND_MALFORMED"],
+  ["bound missing", (d) => { delete (d.result as Record<string, unknown>).integrity_bound; }, "HANGER_SIZING_INTEGRITY_BOUND_MALFORMED"],
+  ["bound string", (d) => { d.result.integrity_bound = "not_verified"; }, "HANGER_SIZING_INTEGRITY_BOUND_MALFORMED"],
+  ["standing wire token", (d) => { d.result.solves[2].solver_standing = "checks_passed"; }, "HANGER_SIZING_SOLVE_STANDING_MALFORMED: S_O1"],
+  ["standing verified", (d) => { d.result.solves[2].solver_standing = "verified"; }, "HANGER_SIZING_SOLVE_STANDING_MALFORMED: S_O1"],
+  ["standing missing", (d) => { delete d.result.solves[2].solver_standing; }, "HANGER_SIZING_SOLVE_STANDING_MALFORMED: S_O1"],
+  ["standing undisclosed", (d) => { d.result.solves[2].solver_standing = "sensitive"; }, "HANGER_SIZING_SOLVE_STANDING_UNDISCLOSED: S_O1"],
+  ["disclosure beside a passing standing", (d) => { d.result.disclosures = [sensitiveDisclosure("S_O1")]; }, "HANGER_SIZING_SOLVE_STANDING_UNDISCLOSED: S_O1"],
+  ["disclosure of another token", (d) => { d.result.disclosures = [sensitiveDisclosure("S_O1")]; d.result.solves[2].solver_standing = "failed"; }, "HANGER_SIZING_SOLVE_STANDING_UNDISCLOSED: S_O1"],
+  ["confirmation missing", (d) => { delete d.result.solves[2].support_state_confirmation; }, "HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: S_O1"],
+  ["confirmation outcome", (d) => { d.result.solves[2].support_state_confirmation = { outcome: "verified", detail: null }; }, "HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: S_O1"],
+  ["confirmation extra", (d) => { d.result.solves[2].support_state_confirmation = { outcome: "solver_reported_established", detail: null, bound: 1 }; }, "HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: S_O1"],
+  ["not applicable with states", (d) => { d.result.solves[2].support_state_confirmation = { outcome: "not_applicable", detail: null }; }, "HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: S_O1"],
+  ["established without states", (d) => { d.result.solves[2].states = {}; }, "HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: S_O1"],
+  ["detail missing", (d) => { d.result.solves[2].support_state_confirmation = { outcome: "solver_reported_established" }; }, "HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: S_O1"],
+  ["detail spurious", (d) => { d.result.solves[2].support_state_confirmation = { outcome: "no_confirmation_record", detail: "invented" }; }, "HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: S_O1"],
+  ["detail quoted null", (d) => { d.result.solves[2].support_state_confirmation = { outcome: "not_established_detail_quoted", detail: null }; }, "HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: S_O1"],
+  ["detail quoted blank", (d) => { d.result.solves[2].support_state_confirmation = { outcome: "not_established_detail_quoted", detail: " " }; }, "HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: S_O1"]
+];
+
+describe("hangerSizingView: the integrity bound and each solve's standing and confirmation", () => {
+  it("words the bound, the standings and each confirmation outcome with the shared formatters", () => {
+    expect(formatHangerSizingIntegrityBound(NOT_VERIFIED)).toBe("not_verified (inverse_norm_bound_not_verified)");
+    expect(formatHangerSizingStandingsBound({ integrityBound: NOT_VERIFIED })).toBe("Integrity bound: not_verified (inverse_norm_bound_not_verified).");
+    expect(formatHangerSizingStandingsBound({ integrityBound: null })).toBeNull();
+    expect(HANGER_SIZING_SOLVER_STANDINGS).toEqual(["solver_checks_passed", "not_assessed", "sensitive", "unresolved", "failed"]);
+    expect(formatHangerSizingSolverStanding("solver_checks_passed"))
+      .toBe("solver_checks_passed: the solver's own checks found no problem; this is the solver's report, not a verified error bound");
+    for (const token of HANGER_SIZING_SOLVER_STANDINGS.slice(1)) {
+      expect(formatHangerSizingSolverStanding(token))
+        .toBe(`${token}: not solver_checks_passed, disclosed as HANGER_SIZING_DERIVED_SOLVE_INTEGRITY; every value taken from this solve carries this standing`);
+    }
+    expect(HANGER_SIZING_CONFIRMATION_OUTCOMES).toEqual([
+      "solver_reported_established", "not_attempted_reason_not_recorded", "not_established_detail_quoted", "no_confirmation_record", "not_applicable"
+    ]);
+    expect(formatHangerSizingConfirmation({ outcome: "not_applicable", detail: null })).toEqual({ text: HANGER_SIZING_CONFIRMATION_NOT_APPLICABLE, detail: null });
+    for (const outcome of ["solver_reported_established", "not_attempted_reason_not_recorded", "no_confirmation_record"] as const) {
+      expect(formatHangerSizingConfirmation({ outcome, detail: null })).toEqual({ text: CONFIRMATION_STATEMENTS[outcome], detail: null });
+    }
+    expect(formatHangerSizingConfirmation({ outcome: "not_established_detail_quoted", detail: "margin below its bound" }))
+      .toEqual({ text: CONFIRMATION_STATEMENTS.not_established_detail_quoted, detail: "margin below its bound" });
+  });
+
+  it("refuses every malformed bound, standing and confirmation in its predicates and formatters", () => {
+    for (const bad of [{ status: "verified", reason: "inverse_norm_bound_not_verified" }, { ...NOT_VERIFIED, bound: 1 }, "not_verified", null, undefined, []]) {
+      expect(wellFormedIntegrityBound(bad)).toBe(false);
+      expect(() => formatHangerSizingIntegrityBound(bad)).toThrow("HANGER_SIZING_INTEGRITY_BOUND_MALFORMED");
+    }
+    expect(() => formatHangerSizingStandingsBound({ integrityBound: { status: "verified" } as never })).toThrow("HANGER_SIZING_INTEGRITY_BOUND_MALFORMED");
+    for (const bad of ["checks_passed", "verified", "SOLVER_CHECKS_PASSED", "", null, 1]) {
+      expect(wellFormedSolverStanding(bad)).toBe(false);
+      expect(() => formatHangerSizingSolverStanding(bad)).toThrow("HANGER_SIZING_SOLVE_STANDING_MALFORMED");
+    }
+    const badConfirmations: unknown[] = [
+      { outcome: "verified", detail: null },
+      { outcome: "solver_reported_established" },
+      { outcome: "solver_reported_established", detail: "invented" },
+      { outcome: "not_established_detail_quoted", detail: null },
+      { outcome: "not_established_detail_quoted", detail: "  " },
+      { outcome: "solver_reported_established", detail: null, extra: 1 },
+      "solver_reported_established",
+      null
+    ];
+    for (const bad of badConfirmations) {
+      expect(wellFormedSupportStateConfirmation(bad)).toBe(false);
+      expect(() => formatHangerSizingConfirmation(bad)).toThrow("HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED");
+    }
+    expect(wellFormedSupportStateConfirmation({ outcome: "not_applicable", detail: null }, false)).toBe(false);
+    expect(wellFormedSupportStateConfirmation({ outcome: "solver_reported_established", detail: null }, true)).toBe(false);
+    expect(wellFormedSupportStateConfirmation({ outcome: "not_applicable", detail: null }, true)).toBe(true);
+  });
+
+  it("builds no sized view of a document whose bound, standing or confirmation is tampered", async () => {
+    expect(hangerSizingResultFault((twoSpan() as unknown as Tamperable).result)).toBeNull();
+    for (const [name, change, fault] of TAMPERED) {
+      const document = tamper(change);
+      expect(hangerSizingResultFault((document as unknown as Tamperable).result), name).toBe(fault);
+      await expect(hangerSizingView(document), name).rejects.toThrow(fault);
+    }
+  });
+
+  it("builds the view of a consistent non-passing solve and a quoted detail", async () => {
+    const document = tamper((d) => {
+      d.result.disclosures = [sensitiveDisclosure("S_O1")];
+      d.result.solves[2].solver_standing = "sensitive";
+      d.result.solves[4].support_state_confirmation = { outcome: "not_established_detail_quoted", detail: "margin below its bound" };
+    });
+    const view = await sized(document);
+    expect(view.solves[2].solverStanding).toBe("sensitive");
+    expect(view.solves[4].supportStateConfirmation).toEqual({ outcome: "not_established_detail_quoted", detail: "margin below its bound" });
+    expect(hangerSizingViewFault(view)).toBeNull();
+  });
+
+  it("names the fault of a tampered view, as a direct caller would hand one over", async () => {
+    const view = await sized(twoSpan());
+    expect(hangerSizingViewFault(view)).toBeNull();
+    expect(hangerSizingViewFault({ ...view, integrityBound: { status: "verified" } as never })).toBe("HANGER_SIZING_INTEGRITY_BOUND_MALFORMED");
+    const solves = view.solves.map((solve, index) => (index === 2 ? { ...solve, solverStanding: "verified" as never } : solve));
+    expect(hangerSizingViewFault({ ...view, solves })).toBe("HANGER_SIZING_SOLVE_STANDING_MALFORMED: S_O1");
+    const confirmations = view.solves.map((solve, index) => (index === 2 ? { ...solve, supportStateConfirmation: { outcome: "not_applicable", detail: null } as never } : solve));
+    expect(hangerSizingViewFault({ ...view, solves: confirmations })).toBe("HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: S_O1");
   });
 });

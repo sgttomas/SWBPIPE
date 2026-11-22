@@ -17,7 +17,15 @@ import { serializeCsvTable } from "../result-export/csvTable";
 import { preambleValue, readCsv } from "../../test/csvRead";
 import type { HangerSizingDisclosure, HangerSizingDisclosureCode, HangerSizingDocument, HangerSizingSizedDocument } from "./hangerSizingResult";
 import { hangerSizingCandidatesCsv, hangerSizingCsvProvenance, hangerSizingSolvesCsv } from "./hangerSizingCsv";
-import { HANGER_SIZING_STANDING_NAMES, hangerSizingView, type HangerSizingReaderEvidence } from "./hangerSizingView";
+import { CONFIRMATION_STATEMENTS } from "./integrityStatus";
+import { BOUNDARY_SENTENCE } from "./numericalHealthText";
+import {
+  HANGER_SIZING_CONFIRMATION_NOT_APPLICABLE,
+  HANGER_SIZING_STANDING_NAMES,
+  formatHangerSizingSolverStanding,
+  hangerSizingView,
+  type HangerSizingReaderEvidence
+} from "./hangerSizingView";
 import {
   HANGER_SIZING_CANDIDATES_TABLE_LABEL,
   HANGER_SIZING_CONDITIONAL_TEXT,
@@ -72,6 +80,7 @@ async function renderSized(props: Parameters<typeof HangerSizingPanel>[0]) {
 }
 
 const byId = (id: string) => screen.getByTestId(`hanger-sizing-${id}`);
+const SENSITIVE_MESSAGE = "sensitive: the solver's numerical-integrity status for this derived solve is sensitive, not solver_checks_passed; every value sizing takes from it carries that standing (integrity_bound: not_verified, inverse_norm_bound_not_verified)";
 
 describe("HangerSizingPanel: the candidate table", () => {
   it("labels F_cold and F_C exactly and shows the published SI values as 3a gives them", async () => {
@@ -216,11 +225,49 @@ describe("HangerSizingPanel: basis, solves, standing and disclosures", () => {
     await renderSized({ document: twoSpan() });
     const table = screen.getByRole("table", { name: HANGER_SIZING_SOLVES_TABLE_LABEL });
     expect(within(table).getAllByRole("rowheader").map((cell) => cell.textContent)).toEqual(["S_W", "S_C", "S_O1", "S_O2", "V_C", "V_O1", "V_O2"]);
+    expect(within(table).getAllByRole("columnheader").map((cell) => cell.textContent))
+      .toEqual(["Solve", "Case", "Derived document sha256", "Nonlinear support states", "Solver standing", "Support-state confirmation"]);
     expect([...byId("solve-S_O2").querySelectorAll("td")].map((cell) => cell.textContent))
-      .toEqual(["load:O2", "590df0f06c498e3e017fcf697b75b6e2be034bf4ad931367b3b37731f7e4a615", "support:C-lift: active"]);
+      .toEqual([
+        "load:O2", "590df0f06c498e3e017fcf697b75b6e2be034bf4ad931367b3b37731f7e4a615", "support:C-lift: active",
+        formatHangerSizingSolverStanding("solver_checks_passed"), CONFIRMATION_STATEMENTS.solver_reported_established
+      ]);
     cleanup();
     await renderSized({ document: fourSpan() });
     expect(byId("solve-S_W").textContent).toContain("no nonlinear support");
+    expect(byId("solve-S_W-standing").textContent).toBe(formatHangerSizingSolverStanding("solver_checks_passed"));
+    expect(byId("solve-S_W-confirmation").textContent).toBe(HANGER_SIZING_CONFIRMATION_NOT_APPLICABLE);
+  });
+
+  it("shows a non-passing solve's standing and a quoted confirmation detail beside the solve", async () => {
+    const document = twoSpan() as unknown as { result: { solves: Record<string, unknown>[]; disclosures: unknown[] } };
+    document.result.disclosures = [{ code: "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", names: ["S_O1"], message: SENSITIVE_MESSAGE }];
+    document.result.solves[2].solver_standing = "sensitive";
+    document.result.solves[4].support_state_confirmation = { outcome: "not_established_detail_quoted", detail: "margin below its bound" };
+    await renderSized({ document: document as unknown as HangerSizingDocument });
+    expect(byId("solve-S_O1-standing").textContent).toBe(formatHangerSizingSolverStanding("sensitive"));
+    expect(byId("solve-V_C-confirmation").textContent).toBe(`${CONFIRMATION_STATEMENTS.not_established_detail_quoted} margin below its bound`);
+    expect(byId("solve-V_C-confirmation-detail").tagName).toBe("Q");
+    expect(byId("solve-V_C-confirmation-detail").textContent).toBe("margin below its bound");
+    expect(screen.queryByTestId("hanger-sizing-solve-S_O2-confirmation-detail")).toBeNull();
+  });
+
+  it("renders no sized view of a document whose bound, standing or confirmation is tampered", async () => {
+    const tampered: [string, (d: { result: { integrity_bound: unknown; solves: Record<string, unknown>[] } }) => void, string][] = [
+      ["bound verified", (d) => { d.result.integrity_bound = { status: "verified", reason: "inverse_norm_bound_not_verified" }; }, "HANGER_SIZING_INTEGRITY_BOUND_MALFORMED"],
+      ["standing verified", (d) => { d.result.solves[0].solver_standing = "verified"; }, "HANGER_SIZING_SOLVE_STANDING_MALFORMED: S_W"],
+      ["standing undisclosed", (d) => { d.result.solves[0].solver_standing = "failed"; }, "HANGER_SIZING_SOLVE_STANDING_UNDISCLOSED: S_W"],
+      ["confirmation spurious detail", (d) => { d.result.solves[0].support_state_confirmation = { outcome: "no_confirmation_record", detail: "invented" }; }, "HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: S_W"]
+    ];
+    for (const [name, change, fault] of tampered) {
+      const document = twoSpan() as unknown as { result: { integrity_bound: unknown; solves: Record<string, unknown>[] } };
+      change(document);
+      render(<HangerSizingPanel document={document as unknown as HangerSizingDocument} />);
+      expect((await screen.findByTestId("hanger-sizing-error")).textContent, name).toBe(`The sizing result could not be displayed: ${fault}`);
+      expect(screen.queryByTestId("hanger-sizing-sized"), name).toBeNull();
+      expect(screen.queryByTestId("hanger-sizing-integrity-bound"), name).toBeNull();
+      cleanup();
+    }
   });
 
   it("states a conditional standing prominently, with what it means and the candidates with no fit", async () => {
@@ -251,8 +298,10 @@ describe("HangerSizingPanel: basis, solves, standing and disclosures", () => {
       { code: "DISPLACEMENT_CORRECTION_UNAVAILABLE", names: ["S_O1"], message: "Load case load:VACUUM: the corrected displacement of node:A:UX could not be certified (forced by test); no published result of this case relies on the member-relative formation check." },
       { code: "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", names: ["V_O1"], message: "sensitive: the solver's numerical-integrity status for this derived solve is sensitive, not solver_checks_passed; every value sizing takes from it carries that standing (integrity_bound: not_verified, inverse_norm_bound_not_verified)" }
     ];
-    const document = twoSpan() as unknown as { result: { disclosures: unknown[] } };
+    const document = twoSpan() as unknown as { result: { disclosures: unknown[]; solves: Record<string, unknown>[] } };
     document.result.disclosures = disclosures;
+    // Each integrity disclosure states its solve's own standing.
+    for (const label of ["S_O1", "V_O1"]) document.result.solves.find((solve) => solve.label === label)!.solver_standing = "sensitive";
     await renderSized({ document: document as unknown as HangerSizingDocument });
     expect(byId("disclosure-0").textContent).toBe("HANGER_SIZING_DERIVED_SOLVE_INTEGRITY (S_O1): sensitive: the solver's numerical-integrity status for this derived solve is sensitive, not solver_checks_passed; every value sizing takes from it carries that standing (integrity_bound: not_verified, inverse_norm_bound_not_verified)");
     expect(byId("disclosure-1").textContent).toBe("DISPLACEMENT_CORRECTION_UNAVAILABLE (S_O1): Load case load:VACUUM: the corrected displacement of node:A:UX could not be certified (forced by test); no published result of this case relies on the member-relative formation check.");
@@ -272,7 +321,7 @@ describe("HangerSizingPanel: reader standings", () => {
     expect(byId("standing-reproduction").textContent).toBe("reproduction: failed (first difference: V_O1: reproduced value differs)");
     expect(byId("standings-integrity-bound").textContent).toBe("Integrity bound: not_verified (inverse_norm_bound_not_verified).");
     expect(byId("integrity-bound").textContent).toBe(
-      "Integrity bound: not_verified (inverse_norm_bound_not_verified) — SWBPIPE does not verify an error bound for the ordinary derived solves (LIM-026)."
+      `Integrity bound: not_verified (inverse_norm_bound_not_verified) — SWBPIPE does not verify an error bound for the ordinary derived solves (LIM-026). ${BOUNDARY_SENTENCE}`
     );
   });
 
@@ -329,6 +378,7 @@ describe("HangerSizingPanel: refused documents", () => {
     const document = refused() as unknown as Record<string, unknown>;
     for (const mutation of entry.mutations) {
       expect(mutation.op).toBe("replace");
+      if (!("value" in mutation)) throw new Error("a replace mutation carries its value");
       const parts = mutation.path.split("/").slice(1);
       let parent = document as Record<string, unknown>;
       for (const part of parts.slice(0, -1)) parent = parent[part] as Record<string, unknown>;

@@ -158,6 +158,33 @@ describe("sizeHangers", () => {
     }
   });
 
+  it("reads no reply whose sized document's integrity bound, solve standing or confirmation is tampered", async () => {
+    type Tamperable = { document: { result: { integrity_bound: unknown; solves: Record<string, unknown>[]; disclosures: unknown[] } } };
+    const tampered: Array<[string, (reply: Tamperable) => void, string]> = [
+      ["bound verified", (r) => { r.document.result.integrity_bound = { status: "verified", reason: "inverse_norm_bound_not_verified" }; }, "HANGER_SIZING_INTEGRITY_BOUND_MALFORMED"],
+      ["bound extra", (r) => { r.document.result.integrity_bound = { status: "not_verified", reason: "inverse_norm_bound_not_verified", bound: 1 }; }, "HANGER_SIZING_INTEGRITY_BOUND_MALFORMED"],
+      ["bound missing", (r) => { delete (r.document.result as Record<string, unknown>).integrity_bound; }, "HANGER_SIZING_INTEGRITY_BOUND_MALFORMED"],
+      ["standing wire token", (r) => { r.document.result.solves[2].solver_standing = "checks_passed"; }, "HANGER_SIZING_SOLVE_STANDING_MALFORMED: S_O1"],
+      ["standing undisclosed", (r) => { r.document.result.solves[2].solver_standing = "sensitive"; }, "HANGER_SIZING_SOLVE_STANDING_UNDISCLOSED: S_O1"],
+      ["confirmation outcome", (r) => { r.document.result.solves[2].support_state_confirmation = { outcome: "verified", detail: null }; }, "HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: S_O1"],
+      ["confirmation not applicable with states", (r) => { r.document.result.solves[2].support_state_confirmation = { outcome: "not_applicable", detail: null }; }, "HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: S_O1"],
+      ["confirmation blank detail", (r) => { r.document.result.solves[2].support_state_confirmation = { outcome: "not_established_detail_quoted", detail: "" }; }, "HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: S_O1"]
+    ];
+    for (const [name, change, fault] of tampered) {
+      const reply = structuredClone(twoSpanReply) as unknown as Tamperable;
+      change(reply);
+      host(() => Promise.resolve(reply));
+      const completion = await service.sizeHangers(input());
+      expect(completion.kind, name).toBe("failed");
+      if (completion.kind !== "failed") continue;
+      expect(completion.code, name).toBe(service.HANGER_SIZING_REPLY_UNREADABLE);
+      expect(completion.message, name).toBe(`the native reply's sized document is not readable here (${fault}).`);
+    }
+    // The committed reply itself is read.
+    host(() => Promise.resolve(structuredClone(twoSpanReply)));
+    expect((await service.sizeHangers(input())).kind).toBe("replied");
+  });
+
   it("refuses in the browser preview without sending anything", async () => {
     delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
     const completion = await service.sizeHangers(input());

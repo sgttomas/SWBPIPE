@@ -220,12 +220,34 @@ export type HangerSizingConstantCandidate = HangerSizingCandidateCommon & {
 };
 export type HangerSizingCandidate = HangerSizingNoFitCandidate | HangerSizingVariableCandidate | HangerSizingConstantCandidate;
 
+/** A derived solve's numerical-integrity standing, stated positively for every solve: `solver_checks_passed`
+ * is the solver's report that its own checks found nothing, not a verified bound (`integrity_bound`); each other
+ * token is also disclosed by `HANGER_SIZING_DERIVED_SOLVE_INTEGRITY` naming that solve. */
+export type HangerSizingSolverStanding = "solver_checks_passed" | "not_assessed" | "sensitive" | "unresolved" | "failed";
+
+/** What the solver's integrity record of a solve's case states of its support-state confirmation.
+ * `not_applicable` exactly when the solve publishes no nonlinear-support state. */
+export type HangerSizingConfirmationOutcome =
+  | "solver_reported_established"
+  | "not_attempted_reason_not_recorded"
+  | "not_established_detail_quoted"
+  | "no_confirmation_record"
+  | "not_applicable";
+
+/** `detail` quotes the solver's reason exactly when the outcome is `not_established_detail_quoted`; it is null
+ * otherwise (schema `SupportStateConfirmation`). */
+export type HangerSizingSupportStateConfirmation =
+  | { readonly outcome: "not_established_detail_quoted"; readonly detail: string }
+  | { readonly outcome: Exclude<HangerSizingConfirmationOutcome, "not_established_detail_quoted">; readonly detail: null };
+
 export type HangerSizingSolve = {
   readonly label: string;
   readonly case: string;
   readonly derived_document_sha256: string;
   /** Nonlinear support id to state; empty when the model has none. */
   readonly states: Readonly<Record<string, HangerSizingStateCode>>;
+  readonly solver_standing: HangerSizingSolverStanding;
+  readonly support_state_confirmation: HangerSizingSupportStateConfirmation;
 };
 
 export type HangerSizingDisclosure = {

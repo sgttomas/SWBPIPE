@@ -20,14 +20,20 @@ import {
   hangerSizingCsvProvenance,
   hangerSizingSolvesCsv
 } from "./hangerSizingCsv";
-import { hangerSizingView, type HangerSizingSizedView } from "./hangerSizingView";
+import { CONFIRMATION_STATEMENTS } from "./integrityStatus";
+import {
+  HANGER_SIZING_CONFIRMATION_NOT_APPLICABLE,
+  formatHangerSizingSolverStanding,
+  hangerSizingView,
+  type HangerSizingSizedView
+} from "./hangerSizingView";
 
 const clone = <T,>(value: T): T => structuredClone(value);
 const twoSpan = () => clone(twoSpanJson) as unknown as HangerSizingSizedDocument;
 const fourSpan = () => clone(fourSpanJson) as unknown as HangerSizingSizedDocument;
 
 /** The committed two_span document's checked canonical hash. */
-const TWO_SPAN_SHA256 = "9d16a68b7dc4a2906bb0b3c3c6eac22445c5f9a5038fb265e02546bdf584590c";
+const TWO_SPAN_SHA256 = "0264fd8e5d22c82815486fd143ae6c4cc6fcd5da6da12c3a156e7b39acc4133a";
 
 async function sized(document: HangerSizingDocument, library?: unknown): Promise<HangerSizingSizedView> {
   const view = await hangerSizingView(document, null, library);
@@ -224,7 +230,9 @@ describe("hanger-sizing CSV: document-level qualifications and library quantitie
   });
 
   it("carries each derived solve's integrity and correction-unavailable disclosures, by solve label, on every row", async () => {
-    const document = twoSpan() as unknown as { result: { disclosures: { code: string; names: string[]; message: string }[] } };
+    const document = twoSpan() as unknown as { result: { disclosures: { code: string; names: string[]; message: string }[]; solves: Record<string, unknown>[] } };
+    // The integrity disclosure states S_O1's own standing.
+    document.result.solves[2].solver_standing = "sensitive";
     document.result.disclosures = [
       { code: "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", names: ["S_O1"], message: "sensitive: the solver's numerical-integrity status for this derived solve is sensitive, not solver_checks_passed; every value sizing takes from it carries that standing (integrity_bound: not_verified, inverse_norm_bound_not_verified)" },
       { code: "DISPLACEMENT_CORRECTION_UNAVAILABLE", names: ["S_O1"], message: "Load case load:VACUUM: the corrected displacement of node:A:UX could not be certified (forced by test); no published result of this case relies on the member-relative formation check." }
@@ -235,6 +243,10 @@ describe("hanger-sizing CSV: document-level qualifications and library quantitie
       const csv = readCsv(serializeCsvTable(table));
       for (const row of csv.rows) expect(textField(csv, row, "Disclosures")).toBe(expected);
     }
+    const csv = readCsv(serializeCsvTable(solves.table));
+    expect(csv.rows.map((row) => textField(csv, row, "Solver standing")))
+      .toEqual(["solver_checks_passed", "solver_checks_passed", "sensitive", "solver_checks_passed", "solver_checks_passed", "solver_checks_passed", "solver_checks_passed"]
+        .map((token) => formatHangerSizingSolverStanding(token)));
   });
 
   it("exports the bound record's ranges in the record's own units, unconverted, and states each absent case", async () => {
@@ -279,8 +291,12 @@ describe("hanger-sizing solves CSV", () => {
     const document = twoSpan();
     expect(serializeCsvTable(solves.table)).toBe(CSV_BOM + crlf([
       ...preamble(`sha256:${TWO_SPAN_SHA256}`, "all solves"),
-      "Solve,Case,Derived document sha256,Nonlinear support,State,Verification standing,Verification standing meaning,Integrity bound,Disclosures",
-      ...document.result.solves.map((solve) => [solve.label, solve.case, solve.derived_document_sha256, "support:C-lift", "active", ...UNCONDITIONAL_CELLS].join(","))
+      "Solve,Case,Derived document sha256,Nonlinear support,State,Solver standing,Support-state confirmation,Verification standing,Verification standing meaning,Integrity bound,Disclosures",
+      ...document.result.solves.map((solve) => [
+        solve.label, solve.case, solve.derived_document_sha256, "support:C-lift", "active",
+        `"${formatHangerSizingSolverStanding("solver_checks_passed")}"`, `"${CONFIRMATION_STATEMENTS.solver_reported_established}"`,
+        ...UNCONDITIONAL_CELLS
+      ].join(","))
     ]));
     expect(document.result.solves.map((solve) => solve.label)).toEqual(["S_W", "S_C", "S_O1", "S_O2", "V_C", "V_O1", "V_O2"]);
   });
@@ -289,7 +305,59 @@ describe("hanger-sizing solves CSV", () => {
     const csv = readCsv(serializeCsvTable((await exports(fourSpan())).solves.table));
     expect(csv.rows.map((row) => row[0])).toEqual(["S_W", "S_C", "S_O1", "V_C", "V_O1"]);
     for (const row of csv.rows) expect(row.slice(3, 5)).toEqual(["no nonlinear support", "no nonlinear support"]);
+    for (const row of csv.rows) {
+      expect(textField(csv, row, "Solver standing")).toBe(formatHangerSizingSolverStanding("solver_checks_passed"));
+      expect(textField(csv, row, "Support-state confirmation")).toBe(HANGER_SIZING_CONFIRMATION_NOT_APPLICABLE);
+    }
     expect(csv.rows[2].slice(0, 3)).toEqual(["S_O1", "load:O1", "00e44382ceae8d90e5f4d3cd234489c8867e8279c1ee1acdaddac43386cfce5c"]);
+  });
+});
+
+describe("hanger-sizing CSV: failing closed on a tampered view", () => {
+  async function context(view: HangerSizingSizedView) {
+    return { view, provenance: await hangerSizingCsvProvenance({ document: twoSpan() }), softwareVersion: CSV_SOFTWARE_VERSION };
+  }
+  const builders = [hangerSizingCandidatesCsv, hangerSizingSolvesCsv] as const;
+
+  it("quotes a confirmation's detail after its support-state line", async () => {
+    const document = twoSpan() as unknown as { result: { solves: Record<string, unknown>[] } };
+    document.result.solves[4].support_state_confirmation = { outcome: "not_established_detail_quoted", detail: "margin below its bound" };
+    const csv = readCsv(serializeCsvTable((await exports(document as unknown as HangerSizingSizedDocument)).solves.table));
+    expect(textField(csv, csv.rows[4], "Support-state confirmation"))
+      .toBe(`${CONFIRMATION_STATEMENTS.not_established_detail_quoted} Quoted reason: margin below its bound`);
+    expect(textField(csv, csv.rows[3], "Support-state confirmation")).toBe(CONFIRMATION_STATEMENTS.solver_reported_established);
+  });
+
+  it("exports neither file from a view whose integrity bound is tampered to verified", async () => {
+    const view = await sized(twoSpan());
+    for (const bound of [{ status: "verified", reason: "inverse_norm_bound_not_verified" }, { status: "not_verified", reason: "invented" }, null]) {
+      const tampered = await context({ ...view, integrityBound: bound as never });
+      for (const build of builders) expect(() => build(tampered)).toThrow("HANGER_SIZING_INTEGRITY_BOUND_MALFORMED");
+    }
+  });
+
+  it("exports neither file from a view whose solve standing or confirmation is malformed", async () => {
+    const view = await sized(twoSpan());
+    const at = (index: number, change: Record<string, unknown>) => ({ ...view, solves: view.solves.map((solve, i) => (i === index ? { ...solve, ...change } : solve)) }) as HangerSizingSizedView;
+    const tampered: [HangerSizingSizedView, string][] = [
+      [at(2, { solverStanding: "verified" }), "HANGER_SIZING_SOLVE_STANDING_MALFORMED: S_O1"],
+      [at(2, { solverStanding: "checks_passed" }), "HANGER_SIZING_SOLVE_STANDING_MALFORMED: S_O1"],
+      [at(2, { solverStanding: "sensitive" }), "HANGER_SIZING_SOLVE_STANDING_UNDISCLOSED: S_O1"],
+      [at(2, { supportStateConfirmation: { outcome: "not_applicable", detail: null } }), "HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: S_O1"],
+      [at(2, { supportStateConfirmation: { outcome: "solver_reported_established", detail: "invented" } }), "HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: S_O1"],
+      [at(2, { supportStateConfirmation: { outcome: "not_established_detail_quoted", detail: "" } }), "HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: S_O1"],
+      [at(2, { supportStateConfirmation: { outcome: "invented", detail: null } }), "HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: S_O1"]
+    ];
+    for (const [bad, fault] of tampered) {
+      const input = await context(bad);
+      for (const build of builders) expect(() => build(input), fault).toThrow(fault);
+    }
+  });
+
+  it("builds no view to export from a document tampered the same way", async () => {
+    const document = twoSpan() as unknown as { result: { integrity_bound: unknown } };
+    document.result.integrity_bound = { status: "verified", reason: "inverse_norm_bound_not_verified" };
+    await expect(exports(document as unknown as HangerSizingSizedDocument)).rejects.toThrow("HANGER_SIZING_INTEGRITY_BOUND_MALFORMED");
   });
 });
 

@@ -12,6 +12,7 @@ import { useEffect, useRef, useState } from "react";
 import { CsvExportControl } from "../result-export/CsvExportControl";
 import { CSV_SOFTWARE_VERSION } from "../result-export/csvProvenance";
 import type { HangerSizingDocument, HangerSizingSizedDocument } from "./hangerSizingResult";
+import { BOUNDARY_SENTENCE } from "./numericalHealthText";
 import {
   HANGER_SIZING_CONDITIONAL_TEXT,
   HANGER_SIZING_CONSTANT_COUNT_KEYS,
@@ -32,6 +33,10 @@ import {
 import {
   F_COLD_CONDITION_LABEL,
   F_COLD_LABEL,
+  formatHangerSizingConfirmation,
+  formatHangerSizingIntegrityBound,
+  formatHangerSizingSolverStanding,
+  formatHangerSizingStandingsBound,
   hangerSizingView,
   type BasisView,
   type CandidateRowView,
@@ -197,6 +202,7 @@ function BasisBlock({ basis, cases, library, tid }: { basis: BasisView; cases: r
 }
 
 function ReaderStandings({ standings, tid }: { standings: StandingsView; tid: Tid }) {
+  const bound = formatHangerSizingStandingsBound(standings);
   return (
     <section aria-label="Reader standings" data-testid={tid("standings")}>
       <h4>Reader standings</h4>
@@ -205,9 +211,7 @@ function ReaderStandings({ standings, tid }: { standings: StandingsView; tid: Ti
       ) : (
         <p data-testid={tid("standings-binding")}>Reader evidence not bound: {standings.binding.reason}. Every standing reads not checked.</p>
       )}
-      {standings.integrityBound !== null ? (
-        <p data-testid={tid("standings-integrity-bound")}>Integrity bound: {standings.integrityBound.status} ({standings.integrityBound.reason}).</p>
-      ) : null}
+      {bound !== null ? <p data-testid={tid("standings-integrity-bound")}>{bound}</p> : null}
       <ul>
         {standings.standings.map((standing) => (
           <li key={standing.name} data-testid={tid(`standing-${standing.name}`)}>
@@ -237,7 +241,7 @@ function SizedView({ view, document, modelHash, tid }: { view: HangerSizingSized
         {conditional && noFit.length > 0 ? <> Candidates with no fit: {noFit.join(", ")}.</> : null}
       </p>
       <p role="note" data-testid={tid("integrity-bound")}>
-        Integrity bound: {view.integrityBound.status} ({view.integrityBound.reason}) — SWBPIPE does not verify an error bound for the ordinary derived solves (LIM-026).
+        Integrity bound: {formatHangerSizingIntegrityBound(view.integrityBound)} — SWBPIPE does not verify an error bound for the ordinary derived solves (LIM-026). {BOUNDARY_SENTENCE}
       </p>
       <BasisBlock basis={view.basis} cases={view.cases} library={view.library} tid={tid} />
 
@@ -289,21 +293,31 @@ function SizedView({ view, document, modelHash, tid }: { view: HangerSizingSized
             <th scope="col">Case</th>
             <th scope="col">Derived document sha256</th>
             <th scope="col">Nonlinear support states</th>
+            <th scope="col">Solver standing</th>
+            <th scope="col">Support-state confirmation</th>
           </tr>
         </thead>
         <tbody>
-          {view.solves.map((solve) => (
-            <tr key={solve.label} data-testid={tid(`solve-${solve.label}`)}>
-              <th scope="row">{solve.label}</th>
-              <td>{solve.case}</td>
-              <td><code>{solve.derivedDocumentSha256}</code></td>
-              <td>
-                {solve.states.length > 0
-                  ? solve.states.map((entry) => `${entry.support}: ${entry.state}`).join("; ")
-                  : HANGER_SIZING_NO_NONLINEAR_SUPPORT}
-              </td>
-            </tr>
-          ))}
+          {view.solves.map((solve) => {
+            const confirmation = formatHangerSizingConfirmation(solve.supportStateConfirmation);
+            return (
+              <tr key={solve.label} data-testid={tid(`solve-${solve.label}`)}>
+                <th scope="row">{solve.label}</th>
+                <td>{solve.case}</td>
+                <td><code>{solve.derivedDocumentSha256}</code></td>
+                <td>
+                  {solve.states.length > 0
+                    ? solve.states.map((entry) => `${entry.support}: ${entry.state}`).join("; ")
+                    : HANGER_SIZING_NO_NONLINEAR_SUPPORT}
+                </td>
+                <td data-testid={tid(`solve-${solve.label}-standing`)}>{formatHangerSizingSolverStanding(solve.solverStanding)}</td>
+                <td data-testid={tid(`solve-${solve.label}-confirmation`)}>
+                  {confirmation.text}
+                  {confirmation.detail !== null ? <> <q data-testid={tid(`solve-${solve.label}-confirmation-detail`)}>{confirmation.detail}</q></> : null}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
 

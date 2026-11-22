@@ -27,6 +27,10 @@ import type { HangerSizingSizedDocument } from "./hangerSizingResult";
 import {
   F_COLD_CONDITION_LABEL,
   F_COLD_LABEL,
+  formatHangerSizingConfirmation,
+  formatHangerSizingIntegrityBound,
+  formatHangerSizingSolverStanding,
+  hangerSizingViewFault,
   type CandidateRowView,
   type FailureCountsView,
   type HangerSizingSizedView,
@@ -96,11 +100,21 @@ export async function hangerSizingCsvProvenance(input: { document: HangerSizingS
 
 const quantity = (value: SiQuantity): CsvCell => csvNumber(value.value);
 
+/** Fail closed: a view whose integrity bound, or any solve's standing or confirmation, is outside its closed
+ * vocabulary or not what its disclosures state is not exported (`hangerSizingViewFault`). A direct caller's
+ * tampered view throws here, as the display adapter refuses the document it came from. */
+function checked(view: HangerSizingSizedView): HangerSizingSizedView {
+  const fault = hangerSizingViewFault(view);
+  if (fault !== null) throw new Error(fault);
+  return view;
+}
+
 /** The document-level qualifications every row of both files carries: the published standing,
  * its meaning (naming the no-fit candidates when conditional), the unverified integrity bound
  * (LIM-026), and the disclosures. */
 type Qualifications = Readonly<{ standing: string; meaning: string; integrityBound: string; disclosures: string }>;
 function qualifications(view: HangerSizingSizedView): Qualifications {
+  checked(view);
   const conditional = view.verificationStanding === "conditional";
   const noFit = view.rows.filter((row) => row.outcome === "no_record_fits").map((row) => row.support);
   const meaning = conditional
@@ -109,7 +123,7 @@ function qualifications(view: HangerSizingSizedView): Qualifications {
   const disclosures = view.disclosures.length === 0
     ? HANGER_SIZING_NO_DISCLOSURES
     : view.disclosures.map((finding) => `${finding.code}${finding.names.length > 0 ? ` (${finding.names.join(", ")})` : ""}: ${finding.message}`).join(" | ");
-  const integrityBound = `${view.integrityBound.status} (${view.integrityBound.reason})`;
+  const integrityBound = formatHangerSizingIntegrityBound(view.integrityBound);
   return { standing: view.verificationStanding, meaning, integrityBound, disclosures };
 }
 const QUALIFICATION_COLUMNS: readonly CsvColumn[] = [
@@ -290,7 +304,7 @@ function candidateLines(view: HangerSizingSizedView): Line[] {
 
 /** The candidates table: one row per candidate and operating case. */
 export function hangerSizingCandidatesCsv(input: Context): CsvExport {
-  const lines = candidateLines(input.view);
+  const lines = candidateLines(checked(input.view));
   const q = qualifications(input.view);
   return {
     table: {
@@ -318,13 +332,22 @@ const SOLVE_COLUMNS: readonly CsvColumn[] = [
   { kind: "text", label: "Case" },
   { kind: "text", label: "Derived document sha256" },
   { kind: "text", label: "Nonlinear support" },
-  { kind: "text", label: "State" }
+  { kind: "text", label: "State" },
+  { kind: "text", label: "Solver standing" },
+  { kind: "text", label: "Support-state confirmation" }
 ];
 
+/** A solve's support-state line, with the solver's quoted reason after it when the outcome carries one. */
+function confirmationText(solve: SolveView): string {
+  const line = formatHangerSizingConfirmation(solve.supportStateConfirmation);
+  return line.detail === null ? line.text : `${line.text} Quoted reason: ${line.detail}`;
+}
+
 /** The solves table: one row per solve and nonlinear support, in the document's solve order and
- * key order; a solve of a model with no nonlinear support is one row stating so. */
+ * key order; a solve of a model with no nonlinear support is one row stating so. Each row carries its
+ * solve's standing and support-state confirmation. */
 export function hangerSizingSolvesCsv(input: Context): CsvExport {
-  const lines: SolveLine[] = input.view.solves.flatMap<SolveLine>((solve) => (solve.states.length > 0
+  const lines: SolveLine[] = checked(input.view).solves.flatMap<SolveLine>((solve) => (solve.states.length > 0
     ? solve.states.map((state) => ({ solve, state }))
     : [{ solve, state: null }]));
   const q = qualifications(input.view);
@@ -344,6 +367,8 @@ export function hangerSizingSolvesCsv(input: Context): CsvExport {
         csvText(solve.derivedDocumentSha256),
         state === null ? csvStatus(HANGER_SIZING_NO_NONLINEAR_SUPPORT) : csvText(state.support),
         state === null ? csvStatus(HANGER_SIZING_NO_NONLINEAR_SUPPORT) : csvText(state.state),
+        csvText(formatHangerSizingSolverStanding(solve.solverStanding)),
+        csvText(confirmationText(solve)),
         ...qualificationCells(q)
       ])
     },
