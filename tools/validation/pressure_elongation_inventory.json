@@ -28,10 +28,10 @@
    ".json",
    ".jsonl"
   ],
-  "files": 545,
+  "files": 546,
   "claimed_by": {
    "group": 142,
-   "in_code": 64,
+   "in_code": 65,
    "exemption": 339
   }
  },
@@ -9112,6 +9112,14 @@
    "expectations": "reference_file",
    "cases_named": "all",
    "detail": "reference_cases.json and stated derivations; solve helper names every pressurised case"
+  },
+  {
+   "paths": [
+    "core/product_physics/tests/model_checks_runtime.rs"
+   ],
+   "expectations": "no_response_value",
+   "cases_named": "all",
+   "detail": "the committed shared_terminal_junction request (case:pressure named), as committed, with one region's pressure changed and with one region removed; the model checks and the solve in both modes are compared on their diagnostics and status only (EXACT_PRESSURE_JUNCTION_PRESSURES_DIFFER, EXACT_PRESSURE_JUNCTION_PIPE_OUTSIDE_REGIONS); no response value is judged"
   },
   {
    "paths": [
