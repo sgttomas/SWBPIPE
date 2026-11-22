@@ -79,7 +79,9 @@ needs:
   gating: true
 - from: DEL-04-11
   condition: The hanger-sizing table renders from a view model that gives every candidate and every derived
-    solve with its published values, units, verification standing and disclosures.
+    solve with its published values, units, verification standing and disclosures, the result's
+    integrity bound, and each solve's solver standing and support-state confirmation, with the
+    shared words for them and a check that refuses any of them outside its closed vocabulary.
   when: Exporting the hanger-sizing table to CSV.
   gating: true
 - from: DEL-07-07
