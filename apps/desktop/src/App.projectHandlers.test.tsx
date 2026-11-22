@@ -1143,9 +1143,9 @@ describe("B3A baseline ownership after asynchronous persistence", () => {
   });
 });
 
-// PR 584 round 1, findings 1 and 2: the Project page's line and rows say which stored project
-// the session is bound to, and when that stored revision was saved, through the session's own
-// transitions. All data are invented.
+// PR 584 round 1, findings 1 and 2, and round 3: the Project page's line and rows say which
+// stored project the session is bound to, whether this window has edited it, and when the store
+// last saved it, through the session's own transitions. All data are invented.
 describe("the Project page's stored-project binding", () => {
   const SAVED_AT = 1_790_000_000;
   const listing = (model: PreviewModel, updated = SAVED_AT) => [{
@@ -1158,7 +1158,7 @@ describe("the Project page's stored-project binding", () => {
   };
   const savedLine = () => within(projectPage()).getByTestId("project-page-saved-line");
 
-  it("keeps the stored binding when an edit lands during a first save: Saved, changed since", async () => {
+  it("keeps the stored binding when an edit lands during a first save: saved, edited in this window", async () => {
     const model = await loadPreviewModel();
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
@@ -1179,12 +1179,12 @@ describe("the Project page's stored-project binding", () => {
       await pendingSave.promise;
     });
     await flushPendingWork();
-    await waitFor(() => expect(savedLine()).toHaveTextContent(`Saved ${formatAutosaveTime(SAVED_AT * 1000)}. Changed since.`));
+    await waitFor(() => expect(savedLine()).toHaveTextContent(`Saved project; edited in this window. Latest in store: ${formatAutosaveTime(SAVED_AT * 1000)}.`));
     expect(within(projectPage()).getByTestId(`project-saved-open-${model.project.id}`)).toHaveTextContent("open now");
     expect(screen.getByTestId("project-edited")).toBeInTheDocument();
   });
 
-  it("keeps the stored binding when an edit lands during Save as New Local Project: Saved, changed since", async () => {
+  it("keeps the stored binding when an edit lands during Save as New Local Project: saved, edited in this window", async () => {
     const model = await loadPreviewModel();
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
@@ -1206,7 +1206,7 @@ describe("the Project page's stored-project binding", () => {
       await pendingCreate.promise;
     });
     await flushPendingWork();
-    await waitFor(() => expect(savedLine()).toHaveTextContent(`Saved ${formatAutosaveTime(SAVED_AT * 1000)}. Changed since.`));
+    await waitFor(() => expect(savedLine()).toHaveTextContent(`Saved project; edited in this window. Latest in store: ${formatAutosaveTime(SAVED_AT * 1000)}.`));
     expect(within(projectPage()).getByTestId(`project-saved-open-${model.project.id}`)).toHaveTextContent("open now");
     expect(screen.getByTestId("project-edited")).toBeInTheDocument();
   });
@@ -1233,6 +1233,31 @@ describe("the Project page's stored-project binding", () => {
     await waitFor(() => expect(within(projectPage()).getByTestId(`project-saved-open-${model.project.id}`)).not.toHaveTextContent("open now"));
   });
 
+  it("names a second window's later save as the store's latest, apart from this window's own edits, on re-entering Project", async () => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    setTauriRuntime(true);
+    // This window saves revision 1 at T1; another window then saves revision 2 of the same project at T2.
+    let updated = SAVED_AT;
+    invokeMock.mockImplementation((command: string, args?: { request?: Record<string, unknown> }) => {
+      if (command === "save_local_project") return Promise.resolve(savedEnvelopeFor(model, args!.request!, "Saved invented revision 1."));
+      if (command === "list_local_projects") return Promise.resolve(listing(model, updated));
+      return Promise.resolve({});
+    });
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Saved invented revision 1."));
+    await waitFor(() => expect(savedLine()).toHaveTextContent(`Saved project; no edits in this window. Latest in store: ${formatAutosaveTime(SAVED_AT * 1000)}.`));
+    act(() => nativeMenuCommand("view.section.loads"));
+    await waitFor(() => expect(screen.getByTestId("workspace-section-project")).toHaveClass("inactive"));
+    const later = SAVED_AT + 3_600;
+    updated = later;
+    await waitFor(() => expect(savedLine()).toHaveTextContent(`Saved project; no edits in this window. Latest in store: ${formatAutosaveTime(later * 1000)}.`));
+    // The line does not say this window's revision 1 is the store's latest.
+    expect(savedLine()).not.toHaveTextContent(/No changes since/);
+    expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument();
+  });
+
   it("never moves the Saved time on a refused save after a successful one; the line and the row agree", async () => {
     const model = await loadPreviewModel();
     render(<App />);
@@ -1252,12 +1277,12 @@ describe("the Project page's stored-project binding", () => {
     act(() => nativeMenuCommand("file.save-local"));
     await waitFor(() => expect(projectMessage()).toHaveTextContent("Saved invented project."));
     const time = formatAutosaveTime(SAVED_AT * 1000);
-    await waitFor(() => expect(savedLine()).toHaveTextContent(`Saved ${time}. No changes since.`));
+    await waitFor(() => expect(savedLine()).toHaveTextContent(`Saved project; no edits in this window. Latest in store: ${time}.`));
     refuse = true;
     act(() => nativeMenuCommand("file.save-local"));
     await waitFor(() => expect(projectMessage()).toHaveTextContent("Save failed: PROJECT-PERSISTENCE-RESPONSE-INTEGRITY"));
     await flushPendingWork();
-    expect(savedLine()).toHaveTextContent(`Saved ${time}. No changes since.`);
+    expect(savedLine()).toHaveTextContent(`Saved project; no edits in this window. Latest in store: ${time}.`);
     expect(within(projectPage()).getByTestId(`project-saved-open-${model.project.id}`)).toHaveTextContent(`saved ${time}`);
   });
 });

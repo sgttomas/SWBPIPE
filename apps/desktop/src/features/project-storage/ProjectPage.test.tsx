@@ -73,8 +73,8 @@ describe("the Project page", () => {
     listed.projects = [THIS, OTHER];
     const { handleOpenProject } = renderPage();
     expect(screen.getByTestId("project-page-name")).toHaveTextContent(NAME);
-    // The line's time is the stored revision's, the same the project's row shows.
-    await waitFor(() => expect(screen.getByTestId("project-page-saved-line")).toHaveTextContent(`Saved ${formatAutosaveTime(SAVED_AT)}. No changes since.`));
+    // The line's time is the store's latest, the same the project's row shows, named apart from this window's edits.
+    await waitFor(() => expect(screen.getByTestId("project-page-saved-line")).toHaveTextContent(`Saved project; no edits in this window. Latest in store: ${formatAutosaveTime(SAVED_AT)}.`));
 
     const saved = screen.getByTestId("project-saved-list");
     const other = await within(saved).findByTestId(`project-saved-open-${OTHER.project_id}`);
@@ -99,12 +99,15 @@ describe("the Project page", () => {
     expect(within(record).getByTestId("project-validation-panel")).toBeInTheDocument();
   });
 
-  it("says a model is not saved as a project, and gives a saved one its stored revision's time", () => {
+  it("says a model is not saved as a project, and states a saved one's edits in this window apart from the store's latest time", () => {
     expect(projectSavedLine({ projectId: PROJECT, projectSummary: null, modelEdited: true, savedProjects: [THIS] })).toBe("Not saved as a project.");
     expect(projectSavedLine({ projectId: PROJECT, projectSummary: SUMMARY, modelEdited: true, savedProjects: [THIS, OTHER] }))
-      .toBe(`Saved ${formatAutosaveTime(SAVED_AT)}. Changed since.`);
+      .toBe(`Saved project; edited in this window. Latest in store: ${formatAutosaveTime(SAVED_AT)}.`);
+    expect(projectSavedLine({ projectId: PROJECT, projectSummary: SUMMARY, modelEdited: false, savedProjects: [THIS] }))
+      .toBe(`Saved project; no edits in this window. Latest in store: ${formatAutosaveTime(SAVED_AT)}.`);
     // Before the saved projects are read, the line names no time rather than another one.
-    expect(projectSavedLine({ projectId: PROJECT, projectSummary: SUMMARY, modelEdited: false, savedProjects: null })).toBe("Saved. No changes since.");
+    expect(projectSavedLine({ projectId: PROJECT, projectSummary: SUMMARY, modelEdited: false, savedProjects: null })).toBe("Saved project; no edits in this window.");
+    expect(projectSavedLine({ projectId: PROJECT, projectSummary: SUMMARY, modelEdited: true, savedProjects: [OTHER] })).toBe("Saved project; edited in this window.");
   });
 
   it("marks a row open only when the session is bound to that stored project", async () => {

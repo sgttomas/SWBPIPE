@@ -35,7 +35,7 @@ describe("the Project page in a saved project", () => {
 
     fireEvent.click(screen.getByTestId("project-save"));
     await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Saved"));
-    await waitFor(() => expect(within(page).getByTestId("project-page-saved-line")).toHaveTextContent(/^Saved \d{4}-\d\d-\d\d \d\d:\d\d:\d\d\. No changes since\.$/));
+    await waitFor(() => expect(within(page).getByTestId("project-page-saved-line")).toHaveTextContent(/^Saved project; no edits in this window\. Latest in store: \d{4}-\d\d-\d\d \d\d:\d\d:\d\d\.$/));
     const name = within(page).getByTestId("project-page-name").textContent ?? "";
     expect(name).not.toBe("");
 

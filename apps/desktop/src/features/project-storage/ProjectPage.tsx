@@ -12,11 +12,14 @@ import { formatAutosaveTime } from "../autosave/autosaveRecovery";
 import { HistoryPanel } from "../history/HistoryPanel";
 import { useSessionChrome, useSessionModel, useSessionProject } from "../workspace/WorkspaceSessionContext";
 
-/** The project's one line: whether it is bound to a stored project, when that stored revision
- * was saved, and whether the working model changed since. The binding is the session's stored
- * summary (set only by a create, open or save that committed to that project); the time is the
- * stored revision's own, as the saved-projects list reads it from the store, so the line and the
- * project's row agree and a refused or failed save never moves it. */
+/** The project's one line: whether this window is bound to a stored project, whether this
+ * window has edited it, and when the store last saved that project. The binding is the session's
+ * stored summary (set only by a create, open or save that committed to that project). The edit
+ * state and the time are stated apart because they need not describe the same revision: the time
+ * is the store's latest, as the saved-projects list reads it (so the line and the project's row
+ * agree and a refused or failed save never moves it), and a second window saving the same project
+ * advances it, while this window still holds the revision it opened or saved. The index names no
+ * revision, so the line never says this window's copy is that latest one. */
 export function projectSavedLine({ projectId, projectSummary, modelEdited, savedProjects }: {
   projectId: string;
   projectSummary: LocalProjectSummary | null;
@@ -25,8 +28,8 @@ export function projectSavedLine({ projectId, projectSummary, modelEdited, saved
 }): string {
   if (projectSummary?.project_id !== projectId) return "Not saved as a project.";
   const listed = savedProjects?.find((entry) => entry.project_id === projectId);
-  const saved = listed ? `Saved ${formatAutosaveTime(listed.updated_at_unix * 1000)}.` : "Saved.";
-  return `${saved} ${modelEdited ? "Changed since." : "No changes since."}`;
+  const edits = modelEdited ? "Saved project; edited in this window." : "Saved project; no edits in this window.";
+  return listed ? `${edits} Latest in store: ${formatAutosaveTime(listed.updated_at_unix * 1000)}.` : edits;
 }
 
 /** The stated reason of a control disabled while a project operation owns the session. */
