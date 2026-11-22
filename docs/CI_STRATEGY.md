@@ -217,7 +217,8 @@ or an anchor absent from compiled source. A scan's file inventory is computed
 from the tree, and a reader's callers from the Cargo graph, so neither is kept
 in the record: the record's `source_trees` digests, each declaration's
 `source_trees` list and a scan's `files` are retained but unchecked and need no
-edit.
+edit. A deleted path that any scan's root and rule cover, or that any
+declaration lists, selects every crate, as an unknown path does.
 
 Each declaration attests its reader's `sha256` and each anchor source's
 `source_sha256`, one file each. A change to a declared reader or anchor source
@@ -229,22 +230,29 @@ it, never every crate. Which crates compile a source comes from each crate's
 compile graph: from the library root (a `[lib] path` or `src/lib.rs`) and the
 build script (a `[package] build` path or `build.rs`) through ordinary, inline
 and `#[path]` modules and `include!` of Rust. A file reached only through a
-`#[cfg(test)]` module, or lying under the crate's `tests/`, `benches/` or
+module whose `cfg` predicate is exactly `test`, or an `all(...)` with `test`
+among its conjuncts, or lying under the crate's `tests/`, `benches/` or
 `examples/` and reached by neither root, is compiled only into that crate's own
-tests. A module that resolves to no file makes every source of its crate count
+tests. Any other predicate (`test_support` set by a build script, a feature,
+`any(...)`, `not(...)` or one that cannot be parsed) counts as a library or build
+input. A module that resolves to no file makes every source of its crate count
 as a library or build input. The desktop Rust tests and the desktop engine
 output cache (`tools/software_workflow/wasm_cache.py`) count the declared reads
 of every source the shell's path dependencies or the engine crates compile into
 a library or build script, wherever it lies. A stale attestation there runs
 those tests and refuses cache reuse.
 
-The literal-coverage test in `tests/test_ci_numerical.py` checks that every file
-a Rust string literal names selects the crate whose source names it, and the
-crate of each declared library reader in a crate it depends on whose explicit
-list covers that path by pattern or directory. So a caller that names a new
-fixture for a reader fails on its own pull request. It has the limit of the
-literal scan above: a path assembled from non-literal parts (`format!` too) is
-not seen.
+A crate that names a file by a Rust string literal may pass it to a reader in a
+crate it depends on, whatever that reader's declaration lists. Each literal
+containing a slash is normalized (`./` and `../` resolved) against the project,
+the crate and the source directory; an existing file it names under
+`fixtures/`, `schemas/`, `examples/` or `validation/` selects the naming crate
+with its Cargo consumers, plus every crate in the naming crate's Cargo
+dependency closure that holds a runtime-read declaration, without their
+consumers. A changed Rust source that names such a file adds the same declared
+dependencies. The literal-coverage test in `tests/test_ci_numerical.py` checks
+this for every literal in the tree. It has the limit of the literal scan above:
+a path assembled from non-literal parts (`format!` too) is not seen.
 
 Missing inputs, unresolved dependencies, unknown paths and shared execution
 controls select all discovered crates. Existing numerical oracles remain

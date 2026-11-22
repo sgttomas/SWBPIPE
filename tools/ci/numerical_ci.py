@@ -160,7 +160,37 @@ def _string_after(code, index):
     return RUST_STRING.match(code, index)
 
 
-TEST_ONLY = re.compile(r'#\s*\[\s*cfg\s*\(\s*(?:test|all\s*\(\s*test\s*[,)])')
+CFG_ATTRIBUTE = re.compile(r'#\s*\[\s*cfg\s*\(')
+
+
+def _top_level(text, separator=','):
+    """`text` split at `separator` outside parentheses."""
+    parts, depth, start = [], 0, 0
+    for index, char in enumerate(text):
+        depth += (char == '(') - (char == ')')
+        if char == separator and depth == 0:
+            parts.append(text[start:index])
+            start = index + 1
+    return parts + [text[start:]]
+
+
+def test_only_attributes(attributes):
+    """Whether these item attributes confine it to the crate's own unit tests: a `#[cfg(...)]` whose predicate
+    is exactly `test`, or an `all(...)` with `test` among its conjuncts. Any other predicate (`test_support`, a
+    feature, `any`, `not`) or one that cannot be parsed counts as a library build."""
+    for match in CFG_ATTRIBUTE.finditer(attributes):
+        depth, index = 1, match.end()
+        while index < len(attributes) and depth:
+            depth += (attributes[index] == '(') - (attributes[index] == ')')
+            index += 1
+        if depth:
+            continue
+        predicate = re.sub(r'\s+', '', attributes[match.end():index - 1])
+        if predicate == 'test':
+            return True
+        if predicate.startswith('all(') and predicate.endswith(')') and 'test' in _top_level(predicate[4:-1]):
+            return True
+    return False
 
 
 def compile_graph(project, manifest):
@@ -169,7 +199,8 @@ def compile_graph(project, manifest):
     Returns (compiled, test_only, data, certain): absolute paths of every Rust file reached from the library
     root (a `[lib] path` or `src/lib.rs`) and the build script (a `[package] build` path or `build.rs`) through
     ordinary and inline `mod` items, `#[path]` modules and `include!` of Rust, in any order; those reached only
-    through a `#[cfg(test)]` (or `cfg(all(test, ...))`) module, which only the crate's own unit tests compile;
+    through a module whose cfg is exactly `test` or an `all(...)` including it (`test_only_attributes`), which
+    only the crate's own unit tests compile;
     the `include_str!` and `include_bytes!` targets; and whether every edge resolved. A module that resolves to
     no file, an unreadable file or an unparsable manifest makes `certain` false: callers then treat every source
     of the crate as a library or build input.
@@ -224,10 +255,10 @@ def compile_graph(project, manifest):
                 depth -= 1
                 continue
             attributes, name, end = token.group(1), token.group(2), token.group(3)
-            edge_test = test or bool(TEST_ONLY.search(attributes)) or any(t for _, _, t in inline)
+            edge_test = test or test_only_attributes(attributes) or any(t for _, _, t in inline)
             if end == '{':
                 depth += 1
-                inline.append((name, depth, bool(TEST_ONLY.search(attributes))))
+                inline.append((name, depth, test_only_attributes(attributes)))
                 continue
             nested = [n for n, _, _ in inline]
             path = re.search(r'#\s*\[\s*path\s*=', attributes)
@@ -294,7 +325,12 @@ def runtime_read_index(project, manifests, declarations=None):
     reader crates; stale maps a declaration's source to {'manifests',
     'reasons', 'consumers'}; derived['reads'] gives each declaration's current
     hashes, resolved files, the crates whose library or build script compile it
-    outside cfg(test) ('compiled_by') and whether one does ('library').
+    outside cfg(test) ('compiled_by') and whether one does ('library');
+    derived['scans'] the authored scan rules; derived['listed'] every path a
+    declaration lists; derived['literal_named'] each file a Rust string
+    literal names (`literal_targets`) with the crates whose sources name it;
+    derived['naming_sources'] the Rust sources that name one; and
+    derived['declared_crates'] the crates with a runtime-read declaration.
     """
     project = project.resolve()
     declarations = runtime_declarations(project) if declarations is None else declarations
@@ -304,7 +340,7 @@ def runtime_read_index(project, manifests, declarations=None):
     if not isinstance(declarations, dict):
         raise ValueError('Invalid runtime read declaration tables')
     resources, checked, stale, readers_of = {}, set(), {}, {}
-    derived = {'reads': {}}
+    derived = {'reads': {}, 'scans': [], 'listed': set(), 'literal_named': {}, 'naming_sources': {}}
     dependencies = cargo_dependencies(project, manifests)
     graphs = {m: compile_graph(project, m) for m in manifests}
     def add(target, manifest, required=True):
@@ -344,6 +380,9 @@ def runtime_read_index(project, manifests, declarations=None):
             if not source.is_relative_to(crate) and re.search(r'\bmod\s+\w+\s*;', syntax):
                 raise ValueError('Unresolved external Rust module tree: ' + local)
             literals = {rust_literal(m.group()) for m in RUST_STRING.finditer(code)}
+            for named in literal_targets(project, crate, source, literals):
+                derived['literal_named'].setdefault(named, set()).add(manifest)
+                derived['naming_sources'].setdefault(local, set()).add(manifest)
             for match in re.finditer(r'\binclude(?:_str|_bytes)?\s*!\s*\(|#\s*\[\s*path\s*=', syntax):
                 start = match.end()
                 while start < len(code) and code[start].isspace():
@@ -436,10 +475,13 @@ def runtime_read_index(project, manifests, declarations=None):
                     if not names:
                         # A scan that finds nothing has lost its boundary or rule; the author restates it.
                         raise ValueError('Runtime source scan finds no files: ' + local + ' -> ' + anchor)
+                    derived['scans'].append(rule)
                 else:
                     names = entry.get('files')
                     if not isinstance(names, list) or not names or not all(isinstance(f, str) for f in names):
                         raise ValueError('Unresolved runtime boundary: ' + local)
+                if isinstance(entry.get('files'), list):
+                    derived['listed'].update(f for f in entry['files'] if isinstance(f, str))
                 resolved = set()
                 for name in sorted(names):
                     target = contained(project, project / name)
@@ -477,7 +519,33 @@ def runtime_read_index(project, manifests, declarations=None):
             # The crates that compile it, and, for a library or build-script source, their Cargo consumers.
             stale[local]['manifests'] = set(readers_of[local]) | compiled_by
             stale[local]['consumers'] = not own
+    derived['declared_crates'] = set().union(*readers_of.values()) if readers_of else set()
     return resources, stale, derived
+
+
+# Project roots of the files a Rust literal can name as a runtime resource.
+LITERAL_ROOTS = ('fixtures/', 'schemas/', 'examples/', 'validation/')
+
+
+def literal_targets(project, crate, source, literals):
+    """Existing files that Rust string literals name: each literal with a slash, normalized (`./` and `../`
+    resolved) against the project, the crate and the source directory, whose project-relative path lies under
+    `LITERAL_ROOTS`. A name the filesystem cannot hold is not a file."""
+    targets = set()
+    for literal in literals:
+        if '/' not in literal or '\0' in literal or '\n' in literal or len(literal) > 4096:
+            continue
+        for base in (project, crate, source.parent):
+            target = Path(os.path.normpath(base / literal))
+            try:
+                if not target.is_relative_to(project):
+                    continue
+                relative = target.relative_to(project).as_posix()
+                if relative.startswith(LITERAL_ROOTS) and target.is_file():
+                    targets.add(relative)
+            except OSError:
+                continue
+    return targets
 
 
 def scan_covers(rule, path, project):
@@ -690,12 +758,24 @@ def numerical_selection(project, manifests, paths, declarations=None, ignored_pa
                 if not (project / path).is_file() or not (project / path).stat().st_size:
                     raise ValueError('Missing or empty cargo input: ' + str(path))
         dependencies = cargo_dependencies(project, manifests)
-        resources, stale, _ = runtime_read_index(project, manifests, declarations)
+        resources, stale, derived = runtime_read_index(project, manifests, declarations)
         producers, missing, resource_crates = artifact_producers(project, manifests, {} if artifact_readers is UNDECLARED else artifact_readers,
                                                 {} if artifact_inputs is UNDECLARED else artifact_inputs)
     except (ValueError, OSError, KeyError, TypeError, AttributeError, tomllib.TOMLDecodeError) as exc:
         return full(str(exc))
     ignored = set(ignored_paths)
+    declared_crates = derived.get('declared_crates', set())
+    def declared_dependencies(crates):
+        """Crates with a runtime-read declaration in the Cargo dependency closure of `crates`."""
+        closure, pending = set(), list(crates)
+        while pending:
+            for dependency in dependencies.get(pending.pop(), set()) - closure:
+                closure.add(dependency)
+                pending.append(dependency)
+        return (closure - set(crates)) & declared_crates
+    # A crate that names a file by a literal may pass it to a reader it depends on, whatever that
+    # reader's declaration lists; the reader runs, without its consumers.
+    literal_readers = set()
     for path in sorted(set(paths)):
         if not path.startswith(PROJECT):
             if path in ignored:
@@ -705,6 +785,17 @@ def numerical_selection(project, manifests, paths, declarations=None, ignored_pa
         relative = Path(path[len(PROJECT):])
         if relative.as_posix() in missing and not (project / relative).exists():
             return full('A file a declared artifact reader loads is missing: ' + path)
+        if not (project / relative).exists() and (relative.as_posix() in derived.get('listed', ())
+                or any(scan_covers(rule, relative.as_posix(), project) for rule in derived.get('scans', ()))):
+            return full('A deleted path a runtime read covers: ' + path)
+        naming = derived.get('literal_named', {}).get(relative.as_posix(), set())
+        for manifest in sorted(naming):
+            selected.add(manifest)
+            reasons.append({'path': path, 'kind': 'literal-named', 'manifest': manifest.as_posix()})
+        naming_crates = naming | derived.get('naming_sources', {}).get(relative.as_posix(), set())
+        for manifest in sorted(declared_dependencies(naming_crates)):
+            literal_readers.add(manifest)
+            reasons.append({'path': path, 'kind': 'literal-reader-dependency', 'manifest': manifest.as_posix()})
         readers = resources.get(relative.as_posix(), set())
         owners = {m for m in manifests if relative.is_relative_to(m.parent)} if relative.suffix == '.rs' or relative.name in {'Cargo.toml', 'Cargo.lock'} else set()
         for manifest in sorted(owners):
@@ -717,7 +808,7 @@ def numerical_selection(project, manifests, paths, declarations=None, ignored_pa
         for manifest in sorted(producers.get(relative.as_posix(), set()) | resource_crates(relative.as_posix())):
             selected.add(manifest)
             reasons.append({'path': path, 'kind': 'artifact-reader', 'manifest': manifest.as_posix()})
-        if owners or readers:
+        if owners or readers or naming:
             continue
         if path in ignored:
             reasons.append({'path': path, 'kind': 'mapped-other-checks'})
@@ -743,7 +834,7 @@ def numerical_selection(project, manifests, paths, declarations=None, ignored_pa
             reasons.append({'kind': 'cargo-consumer', 'manifest': manifest.as_posix(),
                             'dependencies': [m.as_posix() for m in sorted(dependencies[manifest] & selected)]})
         selected.update(added)
-    selected |= own_tests
+    selected |= own_tests | literal_readers
     graph = {'cargo': {m.as_posix(): [d.as_posix() for d in sorted(deps)] for m, deps in dependencies.items()},
              'reads': {p: [m.as_posix() for m in sorted(readers)] for p, readers in sorted(resources.items())},
              'stale': sorted(stale)}

@@ -673,6 +673,57 @@ class HostedCITests(unittest.TestCase):
             for cache in caches:
                 cache.cache_clear()
 
+    def test_a_custom_cfg_module_is_a_library_input_for_desktop_rust_and_the_engine_cache(self):
+        # Review of #611, round 3, finding 4: a build script sets `cfg(test_support)`, which the library compiles;
+        # only a cfg predicate of exactly `test`, or an all(...) including it, confines a module to unit tests.
+        import hashlib
+        from unittest.mock import MagicMock
+        import wasm_cache
+        numerical = load_numerical_module(SOURCE_ROOT)
+        project = self.root
+        crate = project / 'core/eng'
+        (crate / 'src').mkdir(parents=True)
+        (project / 'fixtures').mkdir()
+        (crate / 'Cargo.toml').write_text('[package]\nname="eng"\nversion="0.1.0"\n')
+        (crate / 'Cargo.lock').write_text('version = 4\n')
+        (crate / 'build.rs').write_text('fn main() { println!("cargo:rustc-cfg=test_support"); }\n')
+        (crate / 'src/lib.rs').write_text('#[cfg(test_support)]\nmod support;\npub fn value() {}\n')
+        support = crate / 'src/support.rs'
+        support.write_text('pub fn load() { std::fs::read("../../fixtures/support.json"); }\n')
+        (project / 'fixtures/support.json').write_text('{}')
+        shell = project / DESKTOP_RUST_CRATE_PATH
+        (shell / 'src').mkdir(parents=True)
+        (shell / 'Cargo.toml').write_text('[package]\nname="shell"\nversion="0.1.0"\n[dependencies]\neng={path="../../../core/eng"}\n')
+        (shell / 'Cargo.lock').write_text('version = 4\n')
+        (shell / 'src/lib.rs').write_text('pub fn shell() {}')
+        local = 'core/eng/src/support.rs'
+        declarations = {'reads': {local: {'sha256': hashlib.sha256(support.read_bytes()).hexdigest(), 'inputs': [
+            {'anchor': '../../fixtures/support.json', 'base': 'manifest', 'files': ['fixtures/support.json']}]}}}
+        self.write('tools/hosted-ci-routing.json', json.dumps({'piping_runtime_reads': declarations}))
+        self.git('add', '-A')
+        caches = (hosted_ci.compiled_crate_inputs, hosted_ci.declared_compiled_reads, hosted_ci.desktop_rust_references)
+        def clear():
+            for cache in caches:
+                cache.cache_clear()
+        def key():
+            clear()
+            engine = hosted_ci.compiled_crate_inputs(project, ('core/eng/Cargo.toml',), False, 'wasm engine')
+            with patch.object(wasm_cache, 'wasm_engine_inputs', MagicMock(return_value=engine)):
+                return wasm_cache.cache_key(project, {}, 'rustc', 'bindgen', 'node')
+        with patch.object(hosted_ci, 'numerical_module', return_value=numerical), \
+             patch.dict(os.environ, {'CARGO_HOME': str(project / '.no-cargo-home')}):
+            derived = numerical.runtime_read_index(project, [Path('core/eng/Cargo.toml')], declarations)[2]
+            self.assertTrue(derived['reads'][local]['library'])
+            clear()
+            plan = hosted_ci.desktop_rust_plan(project, ['fixtures/support.json'], {'reasons': {}, 'unmatched_paths': []},
+                                               {'piping_runtime_reads': declarations})
+            self.assertIn({'path': 'fixtures/support.json', 'kind': 'path-dependency-runtime-read'}, plan['reasons'])
+            before, inputs = key()
+            self.assertIn('fixtures/support.json', inputs)
+            (project / 'fixtures/support.json').write_text('{"changed": true}')
+            self.assertNotEqual(key()[0], before)
+            clear()
+
     def test_desktop_rust_closure_is_every_path_dependency_the_crate_compiles(self):
         import tomllib
         from hosted_ci import DESKTOP_RUST_CRATE, compiled_crate_inputs

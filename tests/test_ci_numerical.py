@@ -119,42 +119,23 @@ def numerical_manifests(path):
         return hosted_ci.select_paths([path], load_profile(ROOT / 'tools/hosted-ci-routing.json')[1])['piping_numerical_selection']['manifests']
 
 
-RESOURCE_LITERAL = re.compile(r'^(?:\.\./)*(?:fixtures|schemas|examples|validation)/')
+RESOURCE_ROOTS = ('fixtures/', 'schemas/', 'examples/', 'validation/')
 
 
 def literal_selection_gaps(project, manifests, declarations, select=None):
-    """[(source, path, missing crates)]: each existing file a Rust string literal names (with a resource prefix,
-    resolved from the project, the crate or the source directory) whose change does not select the crate whose
-    source names it, nor the crate of each declared library reader in a crate it depends on whose slotted or
-    directory anchor (an explicit file list) covers it: the literal may be passed to that reader, which then
-    reads a file its list lacks. A scan's files are the tree's, and an exact anchor is its file, so neither can
-    lack it. `select(path)` gives the crates a change to `path` runs; by default the selector's own answer,
-    every crate on a fallback."""
+    """[(source, path, missing crates)]: each existing file a Rust string literal names (normalized, `./` and
+    `../` resolved, from the project, the crate or the source directory, and lying under a resource root) whose
+    change does not select the crate whose source names it and every crate in that crate's Cargo dependency
+    closure that holds a runtime-read declaration: the literal may be passed to any such reader, whatever its
+    declaration lists. `select(path)` gives the crates a change to `path` runs; by default the selector's own
+    answer, every crate on a fallback."""
     project = Path(project).resolve()
     select = select or (lambda path: ci.numerical_selection(project, manifests, [path], declarations)['manifests'])
     dependencies = ci.cargo_dependencies(project, manifests)
     def owner(path):
         return max((m for m in manifests if path.is_relative_to(project / m.parent)), key=lambda m: len(m.parts), default=None)
-    covers = []  # (reader crate, predicate on an absolute path)
-    library = ci.runtime_read_index(project, manifests, declarations)[2]['reads']
-    for local, declaration in declarations['reads'].items():
-        source, reader = project / local, owner(project / local)
-        if not library[local]['library']:
-            continue  # only its own crate's tests can call it
-        for entry in declaration['inputs']:
-            anchor_source = (project / reader.parent / entry['source']).resolve() if entry.get('source') else source
-            base = {'project': project, 'manifest': project / reader.parent, 'source': anchor_source.parent}[entry['base']]
-            normalized = str((base / entry['anchor'].lstrip('/')).resolve())
-            boundary = Path(os.path.normpath(base / re.split(r'\{[^{}]*\}', entry['anchor'].lstrip('/'))[0]))
-            if 'scan' in entry:
-                continue
-            elif '{' in entry['anchor']:
-                pattern = re.compile('^' + ''.join('.*' if part.startswith('{') and part.endswith('}') else re.escape(part)
-                                                   for part in re.split(r'(\{[^{}]*\})', normalized)) + '$')
-                covers.append((reader, lambda p, c=pattern: c.fullmatch(str(p)) is not None))
-            elif Path(normalized).is_dir():
-                covers.append((reader, lambda p, b=Path(normalized): p.is_relative_to(b)))
-    gaps, references = [], set()
+    declared = {owner(project / local) for local in declarations['reads']} - {None}
+    gaps, references, selections = [], set(), {}
     for source in sorted(p for p in project.rglob('*.rs') if not {'target', 'node_modules', '.git'} & set(p.relative_to(project).parts)):
         crate = owner(source)
         if crate is None:
@@ -165,28 +146,33 @@ def literal_selection_gaps(project, manifests, declarations, select=None):
             if current not in reach:
                 reach.add(current)
                 pending.extend(dependencies.get(current, ()))
-        for match in re.finditer(r'"((?:\\[\s\S]|[^"\\])*)"', source.read_text()):
-            raw = match.group(1)
-            if not RESOURCE_LITERAL.match(raw):
-                continue
+        required_crates = {crate} | (reach - {crate}) & declared
+        text = source.read_text()
+        values = set()
+        for match in re.finditer(r'"((?:\\[\s\S]|[^"\\])*)"', text):
             try:
-                value = json.loads('"' + re.sub(r'\\\r?\n\s*', '', raw) + '"')
+                values.add(json.loads('"' + re.sub(r'\\\r?\n\s*', '', match.group(1)) + '"'))
             except ValueError:
+                pass
+        values |= {ci.rust_literal(m.group()) for m in ci.RUST_STRING.finditer(ci.rust_source(text))}
+        for value in values:
+            if '/' not in value or '\0' in value or len(value) > 4096:
                 continue
             for base in (project, source.parent, project / crate.parent):
-                path = base.joinpath(value).resolve()
+                path = Path(os.path.normpath(base / value))
                 try:
                     present = path.is_relative_to(project) and path.is_file()
                 except OSError as error:  # a prose literal longer than a path component
                     if error.errno != errno.ENAMETOOLONG:
                         raise
                     present = False
-                if not present:
+                relative = path.relative_to(project).as_posix() if present else ''
+                if not relative.startswith(RESOURCE_ROOTS):
                     continue
-                relative = path.relative_to(project).as_posix()
                 references.add(relative)
-                required = {crate} | {reader for reader, covered in covers if reader in reach - {crate} and covered(path)}
-                missing = sorted(m.as_posix() for m in required - {Path(m) for m in select(relative)})
+                if relative not in selections:
+                    selections[relative] = {Path(m) for m in select(relative)}
+                missing = sorted(m.as_posix() for m in required_crates - selections[relative])
                 if missing:
                     gaps.append((source.relative_to(project).as_posix(), relative, missing))
     literal_selection_gaps.references = references
@@ -801,10 +787,11 @@ class ReachabilitySafetyTests(unittest.TestCase):
             (project / 'fixtures/cases/b.json').write_text('{}')
             result = ci.numerical_selection(project, manifests, [ci.PROJECT + 'fixtures/cases/b.json'], declaration)
             self.assertEqual((result['classification'], result['manifests']), ('reachability', sorted([reader.as_posix(), consumer.as_posix()])))
-            # Deleting a fixture no tree file names any more is an unknown input, as before: every crate.
+            # Deleting a scanned fixture selects every crate, as before.
             (project / 'fixtures/cases/a.json').unlink()
             result = ci.numerical_selection(project, manifests, [ci.PROJECT + 'fixtures/cases/a.json'], declaration)
             self.assertEqual(result['classification'], 'full-fallback')
+            self.assertIn('deleted path a runtime read covers', result['fallback_reasons'][0])
             # A scan that finds nothing has lost its boundary or rule: a semantic error.
             (project / 'fixtures/cases/b.json').unlink()
             result = ci.numerical_selection(project, manifests, [ci.PROJECT + 'core/unrelated/src/lib.rs'], declaration)
@@ -926,6 +913,31 @@ class ReachabilitySafetyTests(unittest.TestCase):
                                                           'generated/code.rs', 'shared/helper.rs', 'shared/child.rs', 'build.rs')})
             self.assertEqual({p.name for p in data}, {'data.txt'})
 
+    def test_only_a_test_cfg_predicate_confines_a_module_to_unit_tests(self):
+        # Review of #611, round 3, finding 4: `cfg(test_support)` matched the test-only pattern.
+        for attributes, test_only in (('#[cfg(test)]', True), ('# [ cfg ( test ) ]', True), ('#[cfg(all(test, feature = "x"))]', True),
+                                      ('#[cfg(all(feature = "x", test))]', True), ('#[allow(dead_code)]\n#[cfg(test)]', True),
+                                      ('#[cfg(test_support)]', False), ('#[cfg(feature = "test")]', False),
+                                      ('#[cfg(any(test, feature = "x"))]', False), ('#[cfg(not(test))]', False),
+                                      ('#[cfg(all(test_support, x))]', False), ('#[cfg(all(any(test, x), y))]', False),
+                                      ('#[cfg_attr(test, path = "a.rs")]', False), ('#[cfg(test', False), ('', False)):
+            with self.subTest(attributes=attributes):
+                self.assertEqual(ci.test_only_attributes(attributes), test_only)
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            crate = self.crate(project, 'graph')
+            root = project / crate.parent
+            (root / 'src/lib.rs').write_text('#[cfg(test_support)] mod support;\n#[cfg(test)] mod tests;\n'
+                                             '#[cfg(feature = "x")] mod inline { mod leaf; }\n')
+            for name in ('support.rs', 'tests.rs'):
+                (root / 'src' / name).write_text('')
+            (root / 'src/inline').mkdir()
+            (root / 'src/inline/leaf.rs').write_text('')
+            compiled, test_only, _, certain = ci.compile_graph(project, crate)
+            self.assertTrue(certain)
+            self.assertEqual({p.name for p in test_only}, {'tests.rs'})
+            self.assertTrue({'support.rs', 'leaf.rs'} <= {p.name for p in compiled})
+
     def test_misspelt_or_malformed_scan_or_key_is_a_semantic_error(self):
         # Review of #611, finding 4: an authored scan's shape is checked strictly, as before.
         with tempfile.TemporaryDirectory() as tmp:
@@ -963,10 +975,119 @@ class ReachabilitySafetyTests(unittest.TestCase):
             self.assertEqual(literal_selection_gaps(project, manifests, declaration, select), [])
             (project / consumer.parent / 'tests').mkdir()
             (project / consumer.parent / 'tests/call.rs').write_text('#[test] fn t() { reader::read_path("fixtures/cases/b.json"); }\n')
-            self.assertEqual(literal_selection_gaps(project, manifests, declaration, select),
-                             [('core/consumer/tests/call.rs', 'fixtures/cases/b.json', [consumer.as_posix(), reader.as_posix()])])
+            # The check names what a selector that ignored the literal would miss; the selector does not.
+            self.assertIn(('core/consumer/tests/call.rs', 'fixtures/cases/b.json', [consumer.as_posix(), reader.as_posix()]),
+                          literal_selection_gaps(project, manifests, declaration, lambda path: []))
+            self.assertEqual(literal_selection_gaps(project, manifests, declaration, select), [])
             declaration['reads'][local]['inputs'][0]['files'].append('fixtures/cases/b.json')
             self.assertEqual(literal_selection_gaps(project, manifests, declaration, select), [])
+
+    def test_deleting_a_file_under_a_populated_scan_selects_every_crate(self):
+        # Review of #611, round 3, finding 1: a deleted Rust file under a crate's populated `.rs` scan selected
+        # its crate and consumers only, omitting the scan's reader. A deleted path that any scan covers, or
+        # that a declaration lists, selects every crate, as on main.
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            reader = self.crate(project, 'reader')
+            physics = self.crate(project, 'physics')
+            consumer = self.crate(project, 'consumer', '[dependencies]\nphysics={path="../physics"}\n')
+            unrelated = self.crate(project, 'unrelated')
+            manifests = [reader, physics, consumer, unrelated]
+            source = project / reader.parent / 'tests/walk.rs'
+            source.parent.mkdir()
+            source.write_text('#[test] fn t() { std::fs::read_dir("../physics/src"); }\n')
+            declaration = {'reads': {source.relative_to(project).as_posix(): {
+                'sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
+                'inputs': [{'anchor': '../physics/src', 'base': 'manifest', 'scan': {'suffix': '.rs'}, 'audit': 'walks its sources'}]}}}
+            deleted = ci.PROJECT + physics.parent.as_posix() + '/src/review611_delete.rs'
+            # Present, the file selects its reader, its crate and their consumers.
+            (project / deleted).write_text('pub fn gone() {}')
+            result = ci.numerical_selection(project, manifests, [deleted], declaration)
+            self.assertEqual(result['manifests'], sorted(m.as_posix() for m in (reader, physics, consumer)))
+            (project / deleted).unlink()
+            result = ci.numerical_selection(project, manifests, [deleted], declaration)
+            self.assertEqual((result['classification'], result['manifests']), ('full-fallback', sorted(m.as_posix() for m in manifests)))
+            self.assertEqual(result['fallback_reasons'], ['A deleted path a runtime read covers: ' + deleted])
+            # A deleted path outside every scan and list keeps its ordinary routing.
+            (project / unrelated.parent / 'src/old.rs').write_text('')
+            (project / unrelated.parent / 'src/old.rs').unlink()
+            result = ci.numerical_selection(project, manifests, [ci.PROJECT + 'core/unrelated/src/old.rs'], declaration)
+            self.assertEqual((result['classification'], result['manifests']), ('reachability', [unrelated.as_posix()]))
+
+    def test_real_deleted_file_under_a_populated_scan_selects_every_crate(self):
+        # Review of #611, round 3, finding 1, on this tree: core/product_physics/src is scanned.
+        manifests = ci.readiness.discover_cargo_manifests(ROOT)
+        self.assertEqual(numerical_manifests(ci.PROJECT + 'core/product_physics/src/review611_delete.rs'),
+                         sorted(m.as_posix() for m in manifests))
+
+    def literal_fixture(self, project):
+        """An unchanged library reader with an exact anchor, a declared caller crate that depends on it, a
+        consumer of the reader, and an unrelated crate."""
+        reader = self.crate(project, 'canonical_json')
+        manifest = Path('core/rules/rule_pack_lifecycle/Cargo.toml')
+        (project / manifest).parent.mkdir(parents=True)
+        (project / manifest).write_text('[package]\nname="rule_pack_lifecycle"\nversion="0.1.0"\n'
+                                        '[dependencies]\ncanonical_json={path="../../canonical_json"}\n')
+        (project / manifest.with_name('Cargo.lock')).write_text('version = 4\n')
+        (project / manifest.parent / 'src').mkdir()
+        other = self.crate(project, 'other_consumer', '[dependencies]\ncanonical_json={path="../canonical_json"}\n')
+        unrelated = self.crate(project, 'unrelated')
+        (project / 'fixtures/review611').mkdir(parents=True)
+        (project / 'fixtures/review611/a.json').write_text('{}')
+        source = project / reader.parent / 'src/lib.rs'
+        source.write_text('pub const DEFAULT: &str = "fixtures/review611/a.json";\n'
+                          'pub fn read(path: &str) -> Vec<u8> { std::fs::read(path).unwrap() }\n')
+        caller = project / manifest.parent / 'src/lib.rs'
+        caller.write_text('pub fn load() -> Vec<u8> { std::fs::read("../../../fixtures/review611/a.json").unwrap(); '
+                          'canonical_json::read("fixtures/review611/a.json") }\n')
+        declaration = {'reads': {
+            source.relative_to(project).as_posix(): {
+                'sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
+                'inputs': [{'anchor': 'fixtures/review611/a.json', 'base': 'project', 'files': ['fixtures/review611/a.json']}]},
+            caller.relative_to(project).as_posix(): {
+                'sha256': hashlib.sha256(caller.read_bytes()).hexdigest(),
+                'inputs': [{'anchor': '../../../fixtures/review611/a.json', 'base': 'manifest',
+                            'files': ['fixtures/review611/a.json']}]}}}
+        return [reader, manifest, other, unrelated], caller, declaration
+
+    def assert_literal_caller_selects_its_reader(self, literal):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            manifests, caller, declaration = self.literal_fixture(project)
+            reader, lifecycle, other, unrelated = manifests
+            (project / 'fixtures/review611/b.json').write_text('{}')
+            # The caller changes the literal it passes; only its own attestation is updated, so nothing is stale.
+            caller.write_text(caller.read_text().replace('canonical_json::read("fixtures/review611/a.json")',
+                                                         f'canonical_json::read("{literal}")'))
+            declaration['reads'][caller.relative_to(project).as_posix()]['sha256'] = hashlib.sha256(caller.read_bytes()).hexdigest()
+            self.assertEqual(ci.runtime_read_index(project, manifests, declaration)[1], {})
+            fixture = ci.PROJECT + 'fixtures/review611/b.json'
+            source = ci.PROJECT + caller.relative_to(project).as_posix()
+            # Path rules give the fixture to other checks, so no declared reader lists it.
+            for plan in ([source, fixture], [fixture]):  # the authoring plan, then a later fixture-only plan
+                with self.subTest(literal=literal, plan=plan):
+                    result = ci.numerical_selection(project, manifests, plan, declaration, ignored_paths=[fixture])
+                    self.assertEqual(result['classification'], 'reachability')
+                    self.assertEqual(result['manifests'], sorted([reader.as_posix(), lifecycle.as_posix()]))
+                    self.assertIn({'path': fixture, 'kind': 'literal-reader-dependency', 'manifest': reader.as_posix()},
+                                  result['reasons'])
+            select = lambda path: ci.numerical_selection(project, manifests, [path], declaration, ignored_paths=[path])['manifests']
+            self.assertEqual(literal_selection_gaps(project, manifests, declaration, select), [])
+            self.assertIn('fixtures/review611/b.json', literal_selection_gaps.references)
+
+    def test_a_callers_new_literal_for_an_exact_anchor_reader_selects_the_reader(self):
+        # Review of #611, round 3, finding 2: an unchanged library reader with the exact anchor a.json; a caller
+        # in another crate changes its literal from fixtures/review611/a.json to b.json. Later fixture-only plans
+        # omitted the reader's crate.
+        self.assert_literal_caller_selects_its_reader('fixtures/review611/b.json')
+
+    def test_a_dot_slash_literal_selects_the_reader(self):
+        # Review of #611, round 3, finding 3: `./` evaded the literal check.
+        self.assert_literal_caller_selects_its_reader('./fixtures/review611/b.json')
+
+    def test_a_parent_relative_literal_selects_the_reader(self):
+        # Review of #611, round 3, finding 3: `./../../../` from the crate evaded the literal check.
+        self.assert_literal_caller_selects_its_reader('./../../../fixtures/review611/b.json')
 
     def test_semantic_runtime_read_errors_still_select_every_crate(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -1027,9 +1148,18 @@ class ReachabilitySafetyTests(unittest.TestCase):
         # Each selection below is its named direct readers plus every crate that depends on
         # one of them or on product_physics, computed from the Cargo graph: a new caller joins
         # without an edited count (report_standing depends on result_export and not on
-        # product_physics), and an omitted reader or caller still fails.
+        # product_physics), and an omitted reader or caller still fails. A crate beyond those is
+        # only a declared reader that a crate naming a changed file by a literal depends on.
         manifests = ci.readiness.discover_cargo_manifests(ROOT)
         dependencies = ci.cargo_dependencies(ROOT, manifests)
+        declared = {max((m for m in manifests if (ROOT / local).is_relative_to(ROOT / m.parent)), key=lambda m: len(m.parts)).as_posix()
+                    for local in profile['piping_runtime_reads']['reads']}
+        def assert_readers_and_product_callers(selected, readers):
+            expected = readers_and_product_callers(readers)
+            extra = sorted(set(selected['manifests']) - set(expected))
+            literal = {r['manifest'] for r in selected['reasons'] if r.get('kind') == 'literal-reader-dependency'}
+            self.assertEqual(sorted(set(expected) - set(selected['manifests'])), [])
+            self.assertEqual([m for m in extra if m not in literal or m not in declared], [])
         def readers_and_product_callers(readers):
             callers = {Path('core/product_physics/Cargo.toml')} | {Path(r) for r in readers}
             while True:
@@ -1049,7 +1179,7 @@ class ReachabilitySafetyTests(unittest.TestCase):
             self.assertEqual(selected['classification'], 'reachability', selected['fallback_reasons'])
             # #1246 also edits the desktop manifest read by VR's feature guard.
             extra = ['validation/benchmarks/numerical_robustness/Cargo.toml'] if head == 'c986759b21605293e29383dd2b660ab5acb7c3fb' else []
-            self.assertEqual(sorted(selected['manifests']), readers_and_product_callers(readers + extra))
+            assert_readers_and_product_callers(selected, readers + extra)
             self.assertIn('core/reporting/result_export/Cargo.toml', selected['manifests'])
             # Named literally, not only through the Cargo graph the planner also reads: a
             # dependent of result_export outside product_physics' callers (#328's review).
@@ -1065,7 +1195,7 @@ class ReachabilitySafetyTests(unittest.TestCase):
         selected = hosted_ci.select_paths([ci.PROJECT + 'fixtures/results/retained_precision_cases.json'], profile)['piping_numerical_selection']
         self.assertEqual(selected['classification'], 'reachability')
         # Its readers, and every caller of product_physics, one of them.
-        self.assertEqual(sorted(selected['manifests']), readers_and_product_callers(readers))
+        assert_readers_and_product_callers(selected, readers)
         self.assertIn('core/reporting/result_export/Cargo.toml', selected['manifests'])
         # The retired snapshot has no current reader edge; unknown reads stay full.
         retired = hosted_ci.select_paths([ci.PROJECT + 'fixtures/results/retained_precision_cases_07o.json'], profile)['piping_numerical_selection']
