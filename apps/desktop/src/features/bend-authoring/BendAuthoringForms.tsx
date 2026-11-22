@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { makeRichIntent, QueueFeedback, QuantityField, requireText, TextField, useRichQueue, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
+import { QueueFeedback, QuantityField, requireText, TextField, useRichQueue, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
 import { isPressureV3 } from "../pressure-authoring/pressureContract";
 import { EngineFeedback, isBlocking } from "../condition-sets/engineCheckedQueue";
-import { canonicalJsonString, computeModelHash } from "../../services/hashService";
+import { computeModelHash } from "../../services/hashService";
 import { validateModelOperation } from "../../services/operationService";
-import type { EditorOperationIntent, OperationOutcomeDiagnostic, PreviewComponent, PreviewModel } from "../../types";
+import type { OperationOutcomeDiagnostic, PreviewComponent, PreviewModel } from "../../types";
 
 /** T4-U2 (T4-I11 D-A, D-G): bend authoring for 3.0.0/exact_pressure_v3. A
  * realized bend carries the user's flexibility factor k; k is never suggested
@@ -136,11 +136,14 @@ export function InsertBendAtCornerForm(props: RichFormProps & { node: string }) 
         ? { convert: marker.id, ...(typeof draft.geometrySource === "string" && draft.geometrySource.trim() ? { geometry_source_reference: draft.geometrySource } : {}) }
         : { ...record(draft.component, "Bend"), geometry_source_reference: requireText(draft.geometrySource, "Geometry source reference") },
     };
-    const target: EditorOperationIntent["target"] = { object_type: "Node", ref: node };
-    const outcome = await validateModelOperation(model, makeRichIntent(target, "insert_bend_at_corner", "bend_at_corner", await canonicalJsonString(context), after, "Insert bend at corner"), await computeModelHash(model));
-    setFindings(outcome.diagnostics);
-    if (outcome.diagnostics.some(isBlocking)) throw new Error("Insert bend at corner was refused by the operation engine; nothing was queued.");
-    await state.queue(target, "insert_bend_at_corner", "bend_at_corner", context, after, "Insert bend at corner");
+    // The engine checks the very intent the press would queue, inside the claimed press: a change of
+    // selection, model or pending changes while it answers queues nothing and shows no stale finding.
+    await state.queue({ object_type: "Node", ref: node }, "insert_bend_at_corner", "bend_at_corner", context, after, "Insert bend at corner", false, {
+      validate: async (intent, checkedModel) => (await validateModelOperation(checkedModel, intent, await computeModelHash(checkedModel))).diagnostics,
+      show: setFindings,
+      refuses: (diagnostics) => diagnostics.some(isBlocking),
+      refusal: "Insert bend at corner was refused by the operation engine; nothing was queued.",
+    });
   } catch (e) { state.setError(e instanceof Error ? e.message : String(e)); } }
   return <section aria-label="Insert bend at corner" data-testid="insert-bend-at-corner-form">
     <fieldset disabled={state.busy}>

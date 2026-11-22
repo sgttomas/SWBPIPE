@@ -1,13 +1,14 @@
 // The inspector shows the selected entity's facts and the actions that apply to it, and
 // nothing about other kinds of entity. Each case opens a line before it reads inside it, so
 // nothing here passes on a control a person cannot reach. Invented model data only.
-import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import type { ComponentProps } from "react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, onTestFinished, vi } from "vitest";
 import { buildBlankLocalModelDocument } from "../../services/projectService";
 import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
 import { DisplayUnitsProvider } from "../display-units";
-import { entityKey } from "../workspace/selectionState";
+import { entityKey, type EntityKey } from "../workspace/selectionState";
+import * as operations from "../../services/operationService";
 import { chooseVirtualTarget } from "../../test-support/workspaceTestControls";
 import { PropertyInspector } from "./PropertyInspector";
 import type { CreationTool } from "../viewport/PipeViewport";
@@ -130,6 +131,44 @@ describe("Bend at this corner: offered on what a person can see, refused only by
     const { queue, details } = queueBend(model);
     await refusedBy(details, "OP-BEND-CORNER-ATTACHMENT-UNSUPPORTED");
     expect(queue).not.toHaveBeenCalled();
+  });
+
+  it("queues nothing when the selection changes and comes back while the engine checks, and queues on a fresh press", async () => {
+    const model = inventedModel();
+    const queue = vi.fn<(intent: EditorOperationIntent) => void>();
+    let epoch = 1;
+    const corner = entityKey({ type: "node", id: "node:C" });
+    const inspector = (keys: EntityKey[]) => <DisplayUnitsProvider initialPreference="SI"><PropertyInspector model={model} selection={{ type: "node", id: "node:C" }} onQueueIntent={queue}
+      getPreparationEpoch={() => epoch} selectionState={{ orderedKeys: keys, primaryKey: corner, rangeAnchorKey: null, focusKey: corner, preparationEpoch: epoch }} /></DisplayUnitsProvider>;
+    const view = render(inspector([corner]));
+    const details = openLine("Bend at this corner");
+    const field = (label: string, value: string) => fireEvent.change(within(details).getByLabelText(label), { target: { value } });
+    field("Bend radius R value", "0.5"); field("Corner bend flexibility factor k", "1.5"); field("Corner bend source of k", "invented k source");
+    field("Geometry source reference", "invented geometry source"); field("Corner bend provenance", "invented provenance");
+    // The engine's answer to the first press is held back until the selection has gone and come back.
+    const engine = operations.validateModelOperation;
+    let answer!: () => void;
+    const held = new Promise<void>((resolve) => { answer = resolve; });
+    const validate = vi.spyOn(operations, "validateModelOperation")
+      .mockImplementationOnce(async (...args) => { await held; return engine(...args); })
+      .mockImplementation(engine);
+    onTestFinished(() => validate.mockRestore());
+    const press = () => fireEvent.click(within(details).getByRole("button", { name: "Queue insert bend at corner" }));
+    press();
+    await waitFor(() => expect(validate).toHaveBeenCalledTimes(1), { timeout: 20_000 });
+    expect(within(details).getByRole("button", { name: "Queue insert bend at corner" })).toBeDisabled();
+    // node:A added to the selection, then removed: corner C is the selection again.
+    epoch += 1; view.rerender(inspector([corner, entityKey({ type: "node", id: "node:A" })]));
+    epoch += 1; view.rerender(inspector([corner]));
+    await act(async () => { answer(); await held; });
+    await waitFor(() => expect(within(details).getByRole("alert")).toHaveTextContent("The selection, model or pending changes changed. Review this draft and queue it again."), { timeout: 20_000 });
+    expect(queue).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("insert-bend-at-corner-engine-diagnostics")).toBeNull();
+    // A fresh press on the restored selection is checked again and queued once.
+    press();
+    await waitFor(() => expect(queue).toHaveBeenCalledTimes(1), { timeout: 20_000 });
+    expect(validate).toHaveBeenCalledTimes(2);
+    expect(queue.mock.calls[0][0].change.change_kind).toBe("insert_bend_at_corner");
   });
 
   it("refuses a marker whose angle disagrees with the corner", async () => {

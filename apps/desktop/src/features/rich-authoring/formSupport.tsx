@@ -1,6 +1,6 @@
 import { CompactSelect } from "../workspace/CompactSelect";
 import { useEffect, useRef, useState } from "react";
-import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
+import type { EditorOperationIntent, EntityRef, OperationOutcomeDiagnostic, PreviewModel } from "../../types";
 import { canonicalJsonString } from "../../services/hashService";
 export type RichFormProps = {
   getPreparationEpoch?: () => number;
@@ -150,7 +150,20 @@ export function makeRichIntent(target: EditorOperationIntent["target"], kind: Ed
     rationale: `User-authored ${label.toLowerCase()}; requires validation and review before application.`
   };
 }
-/** Parent props are consulted again after asynchronous Rust canonicalization. */
+/**
+ * An operation engine check made on the very intent a press would queue. It runs inside the claimed
+ * press, after the selection's preparation epoch is captured and while the form is busy, so a change
+ * of selection, model or pending changes while the engine answers refuses the press as stale: its
+ * findings are not shown and nothing is queued. A refusal (refuses) queues nothing.
+ */
+export type QueueEngineCheck = Readonly<{
+  validate: (intent: EditorOperationIntent, model: PreviewModel) => Promise<OperationOutcomeDiagnostic[]>;
+  show: (diagnostics: OperationOutcomeDiagnostic[]) => void;
+  refuses: (diagnostics: OperationOutcomeDiagnostic[]) => boolean;
+  refusal: string;
+}>;
+const STALE_QUEUE_CONTEXT = "The selection, model or pending changes changed. Review this draft and queue it again.";
+/** Parent props are consulted again after each asynchronous step (Rust canonicalization, an engine check). */
 export function useRichQueue(props: RichFormProps) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -194,11 +207,12 @@ export function useRichQueue(props: RichFormProps) {
   }, []);
   const readPreparationEpoch = (current: RichFormProps) =>
     current.getPreparationEpoch?.() ?? current.preparationEpoch ?? fallbackEpoch.current;
-  const queue = async (target: EditorOperationIntent["target"], kind: EditorOperationIntent["change"]["change_kind"], path: string, before: unknown, after: unknown, label: string, absent = false) => {
+  const queue = async (target: EditorOperationIntent["target"], kind: EditorOperationIntent["change"]["change_kind"], path: string, before: unknown, after: unknown, label: string, absent = false, check?: QueueEngineCheck) => {
     if (pending.current || props.operationBusy)
       return;
     const captured = props;
     const capturedPreparationEpoch = readPreparationEpoch(captured);
+    const stale = (current: RichFormProps) => readPreparationEpoch(current) !== capturedPreparationEpoch || current.model !== captured.model || current.selection.id !== captured.selection.id || current.selection.type !== captured.selection.type || current.operationBusy || current.queuedIntents !== captured.queuedIntents;
     const snapshot = clone(after);
     const old = before === undefined ? undefined : clone(before);
     pending.current = true;
@@ -209,12 +223,22 @@ export function useRichQueue(props: RichFormProps) {
       if (props.queuedIntents?.some(i => i.target.ref === target.ref && (i.change.field_path === path || i.change.change_kind === "create_support")))
         throw new Error("Review or remove the pending change for this record before queuing another.");
       const canonical = absent ? "not_present" : await canonicalJsonString(old);
-      const current = latest.current;
       if (!live.current)
         return;
-      if (readPreparationEpoch(current) !== capturedPreparationEpoch || current.model !== captured.model || current.selection.id !== captured.selection.id || current.selection.type !== captured.selection.type || current.operationBusy || current.queuedIntents !== captured.queuedIntents)
-        throw new Error("The selection, model or pending changes changed. Review this draft and queue it again.");
-      current.onQueueIntent(makeRichIntent(target, kind, path, canonical, snapshot, label));
+      if (stale(latest.current))
+        throw new Error(STALE_QUEUE_CONTEXT);
+      const intent = makeRichIntent(target, kind, path, canonical, snapshot, label);
+      if (check) {
+        const diagnostics = await check.validate(intent, captured.model);
+        if (!live.current)
+          return;
+        if (stale(latest.current))
+          throw new Error(STALE_QUEUE_CONTEXT);
+        check.show(diagnostics);
+        if (check.refuses(diagnostics))
+          throw new Error(check.refusal);
+      }
+      latest.current.onQueueIntent(intent);
       setNotice(`${label} queued for validation and review.`);
     }
     catch (e) {
