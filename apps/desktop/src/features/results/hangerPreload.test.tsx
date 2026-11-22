@@ -10,6 +10,7 @@ import { diagnosticsForSections } from "../report/renderableReportInput";
 import type { MechanicsResult, PreviewModel } from "../../types";
 import { HANGER_LOAD_NOT_APPLIED_AS_PRELOAD, hangerPreloadStanding } from "./hangerPreload";
 import { ResultsPanel } from "./ResultsPanel";
+import { numericalQualityStatusText } from "./integrityStatus";
 
 afterEach(cleanup);
 
@@ -33,7 +34,7 @@ describe("hanger loads not applied as preload", () => {
     expect(hangerPreloadStanding(result)).toBe(SENTENCE);
     render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} />);
     const standing = screen.getByTestId("numerical-result-standing").textContent ?? "";
-    expect(standing.startsWith(`Numerical integrity: ${result.numerical_quality!.status}. `)).toBe(true);
+    expect(standing.startsWith(`Numerical health: ${numericalQualityStatusText(result.numerical_quality!.status)}. `)).toBe(true);
     expect(standing.endsWith(` Numerical checks do not establish engineering correctness. ${SENTENCE}`)).toBe(true);
   });
 

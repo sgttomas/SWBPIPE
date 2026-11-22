@@ -31,7 +31,7 @@ import { resetNativeReopenEmulation } from "../../test/nativeReopenEmulation";
 import { DisplayUnitsProvider } from "../display-units";
 import type { DisplayQuantityRequest, DisplayQuantityResult } from "../../services/displayQuantityService";
 import { buildHistoricalRunContext, buildNativeHistoricalRunContext, HistoricalRunPanel, type HistoricalRunContext } from "./HistoricalRunContext";
-import { NUMERICAL_HEALTH_STATE_TEXT } from "./numericalHealthText";
+import { NUMERICAL_HEALTH_STATE_TEXT, numericalHealthHeadline } from "./numericalHealthText";
 import { N_HEADLINE, N_INTENSIFIED, PREVIEW_INTENSIFIED_KIND, PREVIEW_MAXIMUM_KIND } from "./knownSemanticLimitations";
 import { isRetainedRoute } from "./numericalResultQuality";
 import { displayRoute } from "./resultReader";
@@ -282,11 +282,22 @@ describe("a reopened run reads alike held whole and held natively (C1 review F2,
       expect(expected.shown.health).toBeNull();
     } else {
       expect(expected.shown.health).not.toBeNull();
-      expect(expected.shown.rows.some(([, cell]) => Object.values(NUMERICAL_HEALTH_STATE_TEXT).some((state) => cell.includes(state)))).toBe(true);
+      // Each row's health mark, by state. A row whose case the solver's checks found no problem with
+      // carries none; a sensitive, unresolved or failed case's rows carry its state.
+      const rowMarks = expected.shown.rows.flatMap(([, cell]) => (Object.keys(NUMERICAL_HEALTH_STATE_TEXT) as (keyof typeof NUMERICAL_HEALTH_STATE_TEXT)[]).filter((state) => cell.includes(NUMERICAL_HEALTH_STATE_TEXT[state])));
+      expect(rowMarks).not.toContain("checks_passed");
+      const troubled = (["sensitive", "quality_unresolved", "solve_failed"] as const).filter((state) => expected.shown.health!.includes(NUMERICAL_HEALTH_STATE_TEXT[state]));
       if (item.quality !== "as recorded") {
         const state = NUMERICAL_HEALTH_STATE_TEXT[STATE[item.quality]];
         expect(expected.shown.health).toContain(state);
+        expect(rowMarks).toContain(STATE[item.quality]);
         expect([...expected.csv.values()].some((csv) => csv.includes(`,${state},`))).toBe(true);
+      } else if (expected.shown.health === numericalHealthHeadline("checks_passed")) {
+        // The run's own record: every case found no problem, so no row is marked.
+        expect(rowMarks).toEqual([]);
+      } else {
+        expect(troubled.length, expected.shown.health!).toBeGreaterThan(0);
+        for (const state of troubled) expect(rowMarks).toContain(state);
       }
     }
     // F3: a preview statement's, and a reopened preview successor's, headline and intensified rows
