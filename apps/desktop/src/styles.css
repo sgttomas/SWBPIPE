@@ -2511,6 +2511,25 @@ fieldset.viewport-intent-controls {
   font-size: var(--type-size-caption);
 }
 
+.solve-status-line:focus-visible {
+  outline: var(--border-width-hairline) solid var(--ui-accent);
+}
+
+.app-shell .solve-status-line .solve-status-label-toggle {
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: none;
+  font: inherit;
+  text-decoration: underline dotted;
+  cursor: pointer;
+}
+
+.solve-status-label code {
+  font-size: var(--type-size-caption);
+  font-weight: var(--type-weight-regular);
+}
+
 .app-shell .solve-status-line .solve-status-issues {
   padding: 0;
   border: 0;
@@ -2530,16 +2549,16 @@ fieldset.viewport-intent-controls {
 }
 
 .solve-controls .solver-mode-control {
-  flex: 1 1 260px;
+  flex: 1 1 0;
+  min-width: 0;
   margin: 0;
 }
 
 .solve-controls .primary-action,
 .solve-controls .secondary-action {
   width: auto;
-  min-width: 96px;
   margin: 0;
-  padding-inline: var(--space-6);
+  padding-inline: var(--space-8);
 }
 
 .app-shell .solve-controls .primary-action:not(:disabled):not([aria-disabled="true"]) {

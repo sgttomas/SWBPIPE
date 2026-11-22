@@ -1279,6 +1279,11 @@ describe("SWBPIPE desktop preview", () => {
     );
     // Cancel is on the page only while a solve runs.
     expect(screen.queryByTestId("cancel-mechanics-preview")).toBeNull();
+    // The private-export choice sits in the closed Run record: open it first, as a person would.
+    const runRecord = screen.getByTestId("solve-run-record");
+    fireEvent.click(within(runRecord).getByText("Run record"));
+    expect(runRecord).toHaveAttribute("open");
+    expect(screen.getByTestId("solve-job-export-link-local-private-intent")).toBeVisible();
     fireEvent.click(screen.getByTestId("solve-job-export-link-local-private-intent"));
     const solveJobHref =
       screen.getByTestId("solve-job-export-link").getAttribute("href") ?? "";

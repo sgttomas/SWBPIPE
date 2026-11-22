@@ -4,15 +4,16 @@ import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { LoadReferenceStatesBlock } from "./LoadReferenceStatesBlock";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, PreviewModel, SolveJobAuditState } from "../../types";
 import type { PreviewSolverMode } from "../../services/previewService";
-import { hasRecordedUnsolvedModelStatus, professionalStatusToken, registeredStatusLabel, ruleCheckStatusToken, SOLVER_NOT_SOLVED, solverDisplayWithToken, statusDisplayWithToken } from "../workspace/statusLabels";
+import { hasRecordedUnsolvedModelStatus, professionalStatusToken, registeredStatusLabel, ruleCheckStatusToken, SOLVER_NOT_SOLVED, solverDisplayWithToken, statusDisplayWithToken, type StatusAuthorityDomain } from "../workspace/statusLabels";
 import { describeResourceRefusal, describeSolveWorkerFailure, formatBytes, resourceRefusalCode } from "../../services/memoryPool";
 import { describeSolveRefusalRetry, isResultTooLargeSolveJob, solveRefusalPoint } from "../workspace/solveJobAudit";
 import { MemoryPoolPanel } from "./MemoryPoolPanel";
-import { NUMERICAL_HEALTH_ORDER, worstState, type NumericalHealthState, type NumericalHealthView } from "../results/numericalHealth";
-import { BOUNDARY_SENTENCE, numericalHealthHeadline } from "../results/numericalHealthText";
+import { stateCounts, type NumericalHealthView } from "../results/numericalHealth";
+import { statusLineHealth } from "./statusLineHealth";
+import { BOUNDARY_SENTENCE, NUMERICAL_HEALTH_LABEL, NUMERICAL_HEALTH_STATE_TEXT, numericalHealthHeadline, ORDINARY_SOLVE_PREFIX } from "../results/numericalHealthText";
 import type { CurrentSessionInputManifest } from "../../services/inputManifestService";
 import { RulePackRunReferences } from "../rule-packs/RulePackRunReferences";
-import { useId, type ReactNode } from "react";
+import { useId, useRef, useState, type ReactNode } from "react";
 import type { EntityRef } from "../../types";
 import type { SolveGateReading } from "../workspace/solveGates";
 import { SolveWithheldNotice } from "./SolveWithheldNotice";
@@ -34,7 +35,8 @@ export function SolvePanel({
   onOpenModelChecks = () => {},
   issueCount = 0,
   onOpenIssues = () => {},
-  ruleChecks = null
+  ruleChecks = null,
+  ruleCheckAggregate = null
 }: {
   analysisRun: SessionAnalysisRun | null;
   /** The current solve's input manifest: its recorded rule-pack references and their diagnostics. */
@@ -62,30 +64,47 @@ export function SolvePanel({
   onOpenIssues?: () => void;
   /** The page's rule checks, shown under the solve controls and above the disclosures. */
   ruleChecks?: ReactNode;
+  /** The rule-check status recorded against this result since it was solved (a private rule
+   * check's USER_RULE_CHECKED or USER_RULE_FAILED); null where none is, so the result's own
+   * rule status stands. */
+  ruleCheckAggregate?: string | null;
 }) {
   const withheldSummaryId = useId();
   const withheld = solveGate?.kind === "withheld" ? solveGate : null;
   // An absent model `diagnostics` array means no model diagnostics; the key is never added.
   const diagnostics = [...(model.diagnostics ?? []), ...(result?.diagnostics ?? [])];
   const readinessItems = readinessSummary({ model, result, diagnostics, solveJob });
-  const packet = buildSolveJobPacket({ model, result, analysisRun, solveJob, running, solverMode });
+  // DEL-07-07 AC-002: once cancellation is asked for, Cancel is disabled until the job reports.
+  const cancelPending = running && (solveJob.cancellation_requested || solveJob.state === "cancelling");
+  const packet = buildSolveJobPacket({ model, result, analysisRun, solveJob, running, solverMode, cancelPending });
+  const statusLineRef = useRef<HTMLParagraphElement>(null);
   const refusalPoint = solveRefusalPoint(solveJob);
   const resultTooLarge = isResultTooLargeSolveJob(solveJob);
-  const statusText = solveStatusLine({ model, result, solveJob, running, withheld, resultTooLarge });
+  const statusParts = solveStatusLine({ model, result, solveJob, running, withheld, resultTooLarge, ruleCheckAggregate });
   // DEL-07-05 REQ-023: a result whose numerical health is not "checks passed" says so on the
   // line, in the indicator's own words, with the boundary sentence beside it.
-  const health = !running && result ? statusLineHealth(result, numericalHealth) : null;
+  const health = !running && result
+    ? statusLineHealth({ mechanics: result.status.mechanics, documentStatus: isNativeResult(result) ? undefined : result.numerical_quality?.status, native: isNativeResult(result) }, numericalHealth)
+    : null;
   const healthText = health && health !== "checks_passed" ? `${numericalHealthHeadline(health, numericalHealth?.route === "pressure_source")}.` : null;
   // DEL-07-07 REQ-007: human review needed is its own outcome, shown without a press.
-  const professional = registeredStatusLabel(professionalStatusToken(result?.status.professional_acceptance ?? model.analysis_status.professional_acceptance));
-  const humanReview = !running && professional?.domain === "Human" ? `${professional.label}.` : null;
-  const lineText = [statusText, healthText, humanReview].filter(Boolean).join(" ");
+  const professionalToken = professionalStatusToken(result?.status.professional_acceptance ?? model.analysis_status.professional_acceptance);
+  const professional = registeredStatusLabel(professionalToken);
+  const lineParts: StatusPart[] = [
+    ...statusParts,
+    ...(healthText ? [healthText] : []),
+    ...(!running && professional?.domain === "Human" ? [{ domain: professional.domain, label: professional.label, token: professional.token }, "."] : [])
+  ];
   return (
     <section className="panel solve-panel" aria-label="Solve execution" data-testid="solve-panel">
       {/* The page leads with one line in words and the solve controls. Every record of the
           run, and the memory settings, sit below in closed disclosures. */}
-      <p className="solve-status-line" data-testid="solve-status-line">
-        <span data-testid="solve-status-text">{lineText}</span>
+      <p className="solve-status-line" data-testid="solve-status-line" ref={statusLineRef} tabIndex={-1}>
+        <span data-testid="solve-status-text">
+          {lineParts.map((part, index) => typeof part === "string"
+            ? <span key={index}>{index > 0 && !part.startsWith(".") && !part.startsWith(":") ? " " : ""}{part}</span>
+            : <span key={index}>{index > 0 ? " " : ""}<StatusLabel part={part} /></span>)}
+        </span>
         {issueCount > 0 ? (
           <button type="button" className="solve-status-issues" data-testid="solve-status-issues" onClick={onOpenIssues}>
             {issueCount} {plural("issue", issueCount)}
@@ -131,7 +150,18 @@ export function SolvePanel({
           {running ? "Running" : withheld ? "Run withheld" : "Run"}
         </button>
         {running ? (
-          <button className="secondary-action" data-testid="cancel-mechanics-preview" onClick={onCancel} type="button">
+          <button
+            className="secondary-action"
+            data-testid="cancel-mechanics-preview"
+            aria-disabled={cancelPending ? true : undefined}
+            onClick={() => {
+              if (cancelPending) return;
+              onCancel();
+              // As the progress panel does: the control stays in place, disabled, and focus moves to the state line.
+              statusLineRef.current?.focus();
+            }}
+            type="button"
+          >
             <Square size={15} aria-hidden="true" />
             Cancel
           </button>
@@ -182,6 +212,8 @@ export function SolvePanel({
           {readinessItems.map((item) => (
             <ReadinessRow key={item.id} item={item} healthBadge={item.id === "diagnostics" && result ? numericalHealth : null} />
           ))}
+          {/* DEL-07-05 REQ-023: every use of the indicator carries its boundary sentence. */}
+          {result && numericalHealth ? <p className="solve-status-boundary" data-testid="solve-run-record-health-boundary">{BOUNDARY_SENTENCE}</p> : null}
         </section>
         <div className="report-actions">
           <LoadReferenceOutputGate result={result} testIdPrefix="solve-job">
@@ -223,39 +255,41 @@ const SPARSE_SOLVER_TITLE = "The default: a direct solve that stores and factors
 const DENSE_SOLVER_TITLE =
   "A direct solve of the full stiffness matrix, to cross-check the sparse solver. Its memory grows with the square of the model's size, and a model too large for it is refused before it starts.";
 
-/** The worse of the result's gated numerical health and its document's own quality status
- * (worst first in NUMERICAL_HEALTH_ORDER). Gated health cannot read checks passed or
- * sensitive unless the mechanics are solved; a native handle carries no document status,
- * so its gated health alone stands. */
-function statusLineHealth(result: SessionResult, health: NumericalHealthView | null): NumericalHealthState {
-  const reported = health && health.cases.length > 0 ? worstState(health.cases) : "not_assessed";
-  const gated: NumericalHealthState = result.status.mechanics === "MECHANICS_SOLVED"
-    ? reported
-    : reported === "solve_failed" || reported === "quality_unresolved" ? reported : "not_assessed";
-  if (isNativeResult(result)) return gated;
-  const documented = documentHealthState(result.numerical_quality?.status);
-  return NUMERICAL_HEALTH_ORDER.indexOf(documented) < NUMERICAL_HEALTH_ORDER.indexOf(gated) ? documented : gated;
+type StatusPart = string | Readonly<{ domain: StatusAuthorityDomain; label: string; token: string }>;
+
+/** A registered status on the line: its authority domain and label, with its token one press
+ * away in place (claims registry, rules 1 and 2). */
+function StatusLabel({ part }: { part: Exclude<StatusPart, string> }) {
+  const [shown, setShown] = useState(false);
+  return (
+    <span className="solve-status-label" data-testid={`solve-status-label-${part.token}`}>
+      <button type="button" className="solve-status-label-toggle" aria-expanded={shown} title="Show the status token" onClick={() => setShown(!shown)}>
+        {part.domain} · {part.label}
+      </button>
+      {shown ? <code data-testid={`solve-status-token-${part.token}`}> {part.token}</code> : null}
+    </span>
+  );
 }
 
-function documentHealthState(status: string | undefined): NumericalHealthState {
-  switch (status) {
-    case "checks_passed": return "checks_passed";
-    case "sensitive": return "sensitive";
-    case "unresolved": return "quality_unresolved";
-    case "solve_failed":
-    case "failed": return "solve_failed";
-    default: return "not_assessed";
-  }
+/** A recorded value as a status part: a registered label with its domain and token, or the
+ * owner-adopted "Not solved" fallback (domain Solver) for a mechanics value that is not a solver status. */
+function mechanicsPart(value: string): StatusPart {
+  const row = registeredStatusLabel(value);
+  return row?.domain === "Solver" && row.kind === "status"
+    ? { domain: row.domain, label: row.label, token: row.token }
+    : { domain: SOLVER_NOT_SOLVED.domain, label: SOLVER_NOT_SOLVED.label, token: value };
 }
 
-/** The page's one status line, in words: what was solved or why not. No status token. */
+/** The page's one status line, in words: what was solved or why not. A registered status
+ * keeps its exact label and domain; its token is reachable in place, never printed on the line. */
 function solveStatusLine({
   model,
   result,
   solveJob,
   running,
   withheld,
-  resultTooLarge
+  resultTooLarge,
+  ruleCheckAggregate
 }: {
   model: PreviewModel;
   result: SessionResult | null;
@@ -263,30 +297,34 @@ function solveStatusLine({
   running: boolean;
   withheld: Extract<SolveGateReading, { kind: "withheld" }> | null;
   resultTooLarge: boolean;
-}): string {
+  ruleCheckAggregate: string | null;
+}): StatusPart[] {
   if (running) {
-    if (solveJob.state === "queued") return "Waiting in the queue to solve.";
-    if (solveJob.state === "cancelling") return "Cancelling the solve.";
-    return "Solving.";
+    // Only what the job reported: before it reports (the model checks run first), it is starting.
+    if (solveJob.state === "queued") return ["Waiting in the queue to solve."];
+    if (solveJob.state === "cancelling" || solveJob.cancellation_requested) return ["Cancelling the solve."];
+    if (solveJob.state === "running") return ["Solving."];
+    return ["Starting."];
   }
   if (result) {
-    const recorded = registeredStatusLabel(result.status.mechanics);
-    // As the run record's mechanics line reads it: a value that is not a solver status is not solved.
-    const mechanics = recorded?.domain === "Solver" && recorded.kind === "status" ? recorded.label : SOLVER_NOT_SOLVED.label;
-    const rule = registeredStatusLabel(ruleCheckStatusToken(result.status.rule_check));
     const rows = resultRowCount(result);
-    const solved = `${mechanics}: ${rows} result ${plural("row", rows)}.`;
-    return rule?.domain === "Rule pack" ? `${solved} ${rule.label}.` : solved;
+    const parts: StatusPart[] = [mechanicsPart(result.status.mechanics), `: ${rows} result ${plural("row", rows)}.`];
+    const ruleToken = ruleCheckStatusToken(ruleCheckAggregate ?? result.status.rule_check);
+    const rule = registeredStatusLabel(ruleToken);
+    return rule?.domain === "Rule pack" ? [...parts, { domain: rule.domain, label: rule.label, token: rule.token }, "."] : parts;
   }
-  if (resultTooLarge) return "Solved, but the result is too large for the desktop to show, so none was kept.";
-  if (solveJob.state === "refused") return "The solve was refused; no result was published.";
-  if (solveJob.state === "failed") return "The solve failed; no result was published.";
-  if (solveJob.state === "cancelled") return "The solve was cancelled.";
+  // The size refusal carries a code and byte counts, not a mechanics status: it claims no solve.
+  if (resultTooLarge) return ["Refused: the result is larger than the desktop can show, so none was kept."];
+  if (solveJob.state === "refused") return ["The solve was refused; no result was published."];
+  if (solveJob.state === "failed") return ["The solve failed; no result was published."];
+  if (solveJob.state === "cancelled") return ["The solve was cancelled."];
   // Invalid input: the solve cannot read the model; the notice below gives its own text.
-  if (withheld?.refusal) return "Not solved: the solve cannot read this model.";
-  if (withheld) return "Not solved: findings in the model stop the solve.";
+  if (withheld?.refusal) return ["Not solved: the solve cannot read this model."];
+  if (withheld) return ["Not solved: findings in the model stop the solve."];
   const recorded = registeredStatusLabel(model.analysis_status.mechanics);
-  return recorded && recorded.domain === "Solver" && recorded.token !== "MECHANICS_SOLVED" ? `Not solved: ${recorded.label.toLowerCase()}.` : "Not solved yet.";
+  return recorded && recorded.domain === "Solver" && recorded.token !== "MECHANICS_SOLVED"
+    ? ["Not solved:", { domain: recorded.domain, label: recorded.label, token: recorded.token }, "."]
+    : ["Not solved yet."];
 }
 
 type ReadinessItem = {
@@ -351,6 +389,18 @@ function readinessSummary({
   ];
 }
 
+/** The Run record badge's headline in the indicator's clean-result words (Agent 0, following the
+ * shared wording change in review): every case passing reads "solver checks found no problem", and a
+ * count of passing cases reads "no problem found", so the page never says "checks passed". The other
+ * states keep the indicator's own words. Local to this page until the shared text module changes. */
+function analyzeHealthHeadline(view: NumericalHealthView): string {
+  const prefix = view.route === "pressure_source" ? `${ORDINARY_SOLVE_PREFIX} ` : "";
+  const present = stateCounts(view.cases).filter(([, count]) => count > 0);
+  if (present.length === 0) return view.headline;
+  if (present.length === 1 && present[0][0] === "checks_passed") return `${prefix}${NUMERICAL_HEALTH_LABEL}: solver checks found no problem`;
+  return `${prefix}${NUMERICAL_HEALTH_LABEL}: ${present.map(([state, count]) => `${count} ${state === "checks_passed" ? "no problem found" : NUMERICAL_HEALTH_STATE_TEXT[state]}`).join(", ")}`;
+}
+
 function ReadinessRow({ item, healthBadge = null }: { item: ReadinessItem; healthBadge?: NumericalHealthView | null }) {
   const Icon = item.tone === "ok" ? ShieldCheck : AlertTriangle;
   return (
@@ -359,7 +409,7 @@ function ReadinessRow({ item, healthBadge = null }: { item: ReadinessItem; healt
       <span>{item.label}</span>
       <strong>
         {item.value}
-        {healthBadge ? <> <span className={`numerical-health-badge numerical-health-${healthBadge.badge}`} data-badge={healthBadge.badge} data-testid="solve-numerical-health-badge">{healthBadge.headline}</span></> : null}
+        {healthBadge ? <> <span className={`numerical-health-badge numerical-health-${healthBadge.badge}`} data-badge={healthBadge.badge} data-testid="solve-numerical-health-badge">{analyzeHealthHeadline(healthBadge)}</span></> : null}
       </strong>
     </div>
   );
@@ -397,7 +447,8 @@ function buildSolveJobPacket({
   analysisRun,
   solveJob,
   running,
-  solverMode
+  solverMode,
+  cancelPending = false
 }: {
   model: PreviewModel;
   result: SessionResult | null;
@@ -405,6 +456,7 @@ function buildSolveJobPacket({
   solveJob: SolveJobAuditState;
   running: boolean;
   solverMode: PreviewSolverMode;
+  cancelPending?: boolean;
 }) {
   const run = analysisRun?.analysis_run;
   const rowCount = result ? resultRowCount(result) : 0;
@@ -441,7 +493,7 @@ function buildSolveJobPacket({
     cancellation: {
       // The Cancel control is on the page only while a solve runs.
       request_control_visible: running,
-      request_enabled: running,
+      request_enabled: running && !cancelPending,
       requested: solveJob.cancellation_requested,
       status: solveJob.cancellation_status,
       backend_job_seam: solveJob.backend_job_seam,

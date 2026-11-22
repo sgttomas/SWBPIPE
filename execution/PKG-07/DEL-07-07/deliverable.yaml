@@ -54,6 +54,13 @@ needs:
     A stored project keeps the model document and its result as saved and reads them back
     unchanged.
   gating: true
+- from: DEL-07-05
+  when: Stating a held result's numerical health on the Analyze page's status line
+  condition: >-
+    The numerical-health indicator gives the five states and their headlines in its own words,
+    their worst-first order, the reading of a result's cases, and the boundary sentence that every
+    use of the indicator carries.
+  gating: false
 - from: DEL-07-04
   condition: >-
     The finding presentation defines how a finding's class and fields are shown, how an absent field
@@ -149,6 +156,7 @@ code_paths:
 - core/gui/pkg02_boundary.py
 checks:
 - apps/desktop/src/features/solve/SolvePanel.test.tsx
+- apps/desktop/src/features/solve/SolvePanel.page.test.tsx
 - apps/desktop/src/features/solve/SolvePanel.withheld.test.tsx
 - apps/desktop/src/features/workspace/solveGates.readSolveGate.test.ts
 - apps/desktop/src/features/workspace/solveWithheld.session.test.tsx

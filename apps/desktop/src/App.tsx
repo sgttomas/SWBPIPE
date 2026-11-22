@@ -1191,6 +1191,7 @@ function AppSession() {
                 onOpenModelChecks={() => setIssuesDrawerOpen(true)}
                 issueCount={issueCount}
                 onOpenIssues={() => setIssuesDrawerOpen(true)}
+                ruleCheckAggregate={currentSolvedResult !== null && result === currentSolvedResult ? ruleCheckAggregate : null}
                 ruleChecks={
                   /* The Solve section is open when a solve lands: its rule checks read full rows (C2), so
                       they load them only when the person asks, never at a solve's first paint. */
