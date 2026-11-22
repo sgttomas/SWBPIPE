@@ -20,6 +20,7 @@ import {
   csvText,
   type CsvCell,
   type CsvColumn,
+  type CsvPreamble,
   type CsvProvenance
 } from "../result-export/csvTable";
 import { canonicalSha256HexCheckedV1 } from "../../services/hashService";
@@ -27,6 +28,10 @@ import type { HangerSizingSizedDocument } from "./hangerSizingResult";
 import {
   F_COLD_CONDITION_LABEL,
   F_COLD_LABEL,
+  formatHangerSizingConfirmation,
+  formatHangerSizingIntegrityBound,
+  formatHangerSizingSolverStanding,
+  hangerSizingViewFault,
   type CandidateRowView,
   type FailureCountsView,
   type HangerSizingSizedView,
@@ -72,23 +77,40 @@ export const hangerSizingNotShown = (reason: RecordNotShownReason): string => `n
 export const HANGER_SIZING_VARIABLE_COUNT_KEYS = ["E1", "E2", "V0", "L", "T", "V"] as const;
 export const HANGER_SIZING_CONSTANT_COUNT_KEYS = ["E1", "L", "T"] as const;
 
+/** What a caller hands either builder. Only `provenance.modelHash` is taken from `provenance`: `result_hash` and
+ * `analysis_route` are always the view's own (`hangerSizingViewCsvProvenance`), whatever a direct caller passes. */
 type Context = Readonly<{ view: HangerSizingSizedView; provenance: CsvProvenance; softwareVersion: string }>;
 
-/** The preamble's provenance: `model_hash` as the caller records it (`not_recorded` when none is
- * supplied); `result_hash`, `sha256:` and the document's checked canonical hash (`not_recorded`
- * when the document cannot be hashed); `analysis_route`, its `semantic_contract_id`. */
+const recordedModelHash = (modelHash: string | null | undefined): string =>
+  modelHash === undefined || modelHash === null ? CSV_NOT_RECORDED : csvRecordedModelHash(modelHash);
+
+/** The preamble's provenance of the document a view was formed from, read from the view alone: `model_hash` as the
+ * caller records it (`not_recorded` when none is supplied); `result_hash`, `sha256:` and the document's checked
+ * canonical hash as the view took it before its first await (`not_recorded` when the document could not be hashed);
+ * `analysis_route`, its `semantic_contract_id` as the view read it. Nothing is read from the live document, so a
+ * change it undergoes after the view was formed reaches neither export. */
+export function hangerSizingViewCsvProvenance(input: { view: HangerSizingSizedView; modelHash?: string | null }): CsvProvenance {
+  return {
+    modelHash: recordedModelHash(input.modelHash),
+    resultHash: input.view.documentSha256 === null ? CSV_NOT_RECORDED : `sha256:${input.view.documentSha256}`,
+    analysisRoutes: [input.view.basis.semanticContractId]
+  };
+}
+
+/** The preamble's provenance of a document: `model_hash` as the caller records it (`not_recorded` when none is
+ * supplied); `result_hash`, `sha256:` and the document's checked canonical hash (`not_recorded` when the document
+ * cannot be hashed); `analysis_route`, its `semantic_contract_id`. Both are read synchronously, as it is called. */
 export async function hangerSizingCsvProvenance(input: { document: HangerSizingSizedDocument; modelHash?: string | null }): Promise<CsvProvenance> {
+  const analysisRoute = input.document.semantic_contract_id;
+  // The checked text is taken as the hash is called, before the await below.
+  const hash = canonicalSha256HexCheckedV1(input.document);
   let resultHash = CSV_NOT_RECORDED;
   try {
-    resultHash = `sha256:${await canonicalSha256HexCheckedV1(input.document)}`;
+    resultHash = `sha256:${await hash}`;
   } catch {
     resultHash = CSV_NOT_RECORDED;
   }
-  return {
-    modelHash: input.modelHash === undefined || input.modelHash === null ? CSV_NOT_RECORDED : csvRecordedModelHash(input.modelHash),
-    resultHash,
-    analysisRoutes: [input.document.semantic_contract_id]
-  };
+  return { modelHash: recordedModelHash(input.modelHash), resultHash, analysisRoutes: [analysisRoute] };
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -96,10 +118,21 @@ export async function hangerSizingCsvProvenance(input: { document: HangerSizingS
 
 const quantity = (value: SiQuantity): CsvCell => csvNumber(value.value);
 
+/** Fail closed: a view whose integrity bound, or any solve's standing or confirmation, is outside its closed
+ * vocabulary or not what its disclosures state is not exported (`hangerSizingViewFault`). A direct caller's
+ * tampered view throws here, as the display adapter refuses the document it came from. */
+function checked(view: HangerSizingSizedView): HangerSizingSizedView {
+  const fault = hangerSizingViewFault(view);
+  if (fault !== null) throw new Error(fault);
+  return view;
+}
+
 /** The document-level qualifications every row of both files carries: the published standing,
- * its meaning (naming the no-fit candidates when conditional), and the disclosures. */
-type Qualifications = Readonly<{ standing: string; meaning: string; disclosures: string }>;
+ * its meaning (naming the no-fit candidates when conditional), the unverified integrity bound
+ * (LIM-026), and the disclosures. */
+type Qualifications = Readonly<{ standing: string; meaning: string; integrityBound: string; disclosures: string }>;
 function qualifications(view: HangerSizingSizedView): Qualifications {
+  checked(view);
   const conditional = view.verificationStanding === "conditional";
   const noFit = view.rows.filter((row) => row.outcome === "no_record_fits").map((row) => row.support);
   const meaning = conditional
@@ -108,14 +141,17 @@ function qualifications(view: HangerSizingSizedView): Qualifications {
   const disclosures = view.disclosures.length === 0
     ? HANGER_SIZING_NO_DISCLOSURES
     : view.disclosures.map((finding) => `${finding.code}${finding.names.length > 0 ? ` (${finding.names.join(", ")})` : ""}: ${finding.message}`).join(" | ");
-  return { standing: view.verificationStanding, meaning, disclosures };
+  const integrityBound = formatHangerSizingIntegrityBound(view.integrityBound);
+  return { standing: view.verificationStanding, meaning, integrityBound, disclosures };
 }
 const QUALIFICATION_COLUMNS: readonly CsvColumn[] = [
   { kind: "text", label: "Verification standing" },
   { kind: "text", label: "Verification standing meaning" },
+  { kind: "text", label: "Integrity bound" },
   { kind: "text", label: "Disclosures" }
 ];
-const qualificationCells = (q: Qualifications): CsvCell[] => [csvText(q.standing), csvText(q.meaning), csvText(q.disclosures)];
+const qualificationCells = (q: Qualifications): CsvCell[] =>
+  [csvText(q.standing), csvText(q.meaning), csvText(q.integrityBound), csvText(q.disclosures)];
 const variationCell = (value: VariationView): CsvCell => (value.state === "ratio" ? csvNumber(value.ratio.value) : csvStatus(value.text));
 const countCell = (counts: FailureCountsView, key: string): CsvCell => {
   if (counts.state === "not_tested") return csvStatus(HANGER_SIZING_NOT_TESTED);
@@ -284,19 +320,34 @@ function candidateLines(view: HangerSizingSizedView): Line[] {
     : [{ row, caseId: null }]));
 }
 
+/** The checked view and the preamble of either file. The view is checked first (`checked`); `model_hash` is the
+ * caller's, and `result_hash` and `analysis_route` are the view's own (`hangerSizingViewCsvProvenance`), so a direct
+ * caller's provenance of another or a since-changed document cannot stamp either file. */
+function prepared(input: Context, caseOrFilter: string): Readonly<{ view: HangerSizingSizedView; preamble: CsvPreamble }> {
+  const view = checked(input.view);
+  const own = hangerSizingViewCsvProvenance({ view });
+  return {
+    view,
+    preamble: {
+      table: HANGER_SIZING_CSV_KIND,
+      softwareVersion: input.softwareVersion,
+      modelHash: input.provenance.modelHash,
+      resultHash: own.resultHash,
+      analysisRoutes: own.analysisRoutes,
+      caseOrFilter,
+      unitBasis: HANGER_SIZING_CSV_UNIT_BASIS
+    }
+  };
+}
+
 /** The candidates table: one row per candidate and operating case. */
 export function hangerSizingCandidatesCsv(input: Context): CsvExport {
-  const lines = candidateLines(input.view);
-  const q = qualifications(input.view);
+  const { view, preamble } = prepared(input, HANGER_SIZING_CANDIDATES_FILTER);
+  const lines = candidateLines(view);
+  const q = qualifications(view);
   return {
     table: {
-      preamble: {
-        table: HANGER_SIZING_CSV_KIND,
-        softwareVersion: input.softwareVersion,
-        ...input.provenance,
-        caseOrFilter: HANGER_SIZING_CANDIDATES_FILTER,
-        unitBasis: HANGER_SIZING_CSV_UNIT_BASIS
-      },
+      preamble,
       columns: [...CANDIDATE_SPECS.map((spec) => spec.column), ...QUALIFICATION_COLUMNS],
       rows: lines.map((line) => [...CANDIDATE_SPECS.map((spec) => spec.cell(line)), ...qualificationCells(q)])
     },
@@ -314,25 +365,29 @@ const SOLVE_COLUMNS: readonly CsvColumn[] = [
   { kind: "text", label: "Case" },
   { kind: "text", label: "Derived document sha256" },
   { kind: "text", label: "Nonlinear support" },
-  { kind: "text", label: "State" }
+  { kind: "text", label: "State" },
+  { kind: "text", label: "Solver standing" },
+  { kind: "text", label: "Support-state confirmation" }
 ];
 
+/** A solve's support-state line, with the solver's quoted reason after it when the outcome carries one. */
+function confirmationText(solve: SolveView): string {
+  const line = formatHangerSizingConfirmation(solve.supportStateConfirmation);
+  return line.detail === null ? line.text : `${line.text} Quoted reason: ${line.detail}`;
+}
+
 /** The solves table: one row per solve and nonlinear support, in the document's solve order and
- * key order; a solve of a model with no nonlinear support is one row stating so. */
+ * key order; a solve of a model with no nonlinear support is one row stating so. Each row carries its
+ * solve's standing and support-state confirmation. */
 export function hangerSizingSolvesCsv(input: Context): CsvExport {
-  const lines: SolveLine[] = input.view.solves.flatMap<SolveLine>((solve) => (solve.states.length > 0
+  const { view, preamble } = prepared(input, HANGER_SIZING_SOLVES_FILTER);
+  const lines: SolveLine[] = view.solves.flatMap<SolveLine>((solve) => (solve.states.length > 0
     ? solve.states.map((state) => ({ solve, state }))
     : [{ solve, state: null }]));
-  const q = qualifications(input.view);
+  const q = qualifications(view);
   return {
     table: {
-      preamble: {
-        table: HANGER_SIZING_CSV_KIND,
-        softwareVersion: input.softwareVersion,
-        ...input.provenance,
-        caseOrFilter: HANGER_SIZING_SOLVES_FILTER,
-        unitBasis: HANGER_SIZING_CSV_UNIT_BASIS
-      },
+      preamble,
       columns: [...SOLVE_COLUMNS, ...QUALIFICATION_COLUMNS],
       rows: lines.map(({ solve, state }) => [
         csvText(solve.label),
@@ -340,6 +395,8 @@ export function hangerSizingSolvesCsv(input: Context): CsvExport {
         csvText(solve.derivedDocumentSha256),
         state === null ? csvStatus(HANGER_SIZING_NO_NONLINEAR_SUPPORT) : csvText(state.support),
         state === null ? csvStatus(HANGER_SIZING_NO_NONLINEAR_SUPPORT) : csvText(state.state),
+        csvText(formatHangerSizingSolverStanding(solve.solverStanding)),
+        csvText(confirmationText(solve)),
         ...qualificationCells(q)
       ])
     },

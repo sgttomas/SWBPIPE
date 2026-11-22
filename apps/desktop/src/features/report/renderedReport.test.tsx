@@ -1761,7 +1761,7 @@ describe("library-reference findings in the captured report source (DEL-08-01 RE
     expect(reportDiagnostics(next)).toHaveLength(1);
     // The earlier selected report saved after the change: its outcome says the workspace changed.
     const outcomes = current.reportOutputs;
-    const id = outcomes.begin("save", { sequence: capturedSequence, model: model.project.id, run: inputs.result.run_id });
+    const id = outcomes.begin("save", { sequence: capturedSequence, projectId: model.project.id, model: model.project.id, run: inputs.result.run_id });
     outcomes.settle(id, saveSettlement({ kind: "done", receipt: { outcome: "saved", route_id: "DREP-HTML-SAVE-005", export_context: "local_private", sha256_hex: "b".repeat(64), byte_count: 42, file_name: "invented.html", replaced_existing: false, durability: "durable" } }));
     expect(reportOutputText(outcomes.snapshot().at(-1)!, current.reportSourceSequence)).toContain("Saved the selected report. The workspace has changed since it was prepared.");
     hook.unmount();

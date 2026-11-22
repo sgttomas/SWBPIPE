@@ -24,9 +24,9 @@
 use crate::admission::admit;
 use crate::derived::{self, derived_document, Role, SizingRequest};
 use crate::publish::{
-    self, checked_sha256, parse_sizing_request, record_object, roles_for, sized_document, solve_plan, BASIS_STATEMENT,
-    CANONICAL_PROFILE, DOCUMENT_KIND, LIMITATIONS, LOAD_CATEGORIES, REFUSAL_CODES, ROUTE, SCHEMA_VERSION,
-    SEMANTIC_CONTRACT_ID, STATE_CODES,
+    self, checked_sha256, parse_sizing_request, record_object, roles_for, route_of, sized_document, solve_plan,
+    BASIS_STATEMENT, CANONICAL_PROFILE, DOCUMENT_KIND, LIMITATIONS, LOAD_CATEGORIES, REFUSAL_CODES, ROUTES,
+    SCHEMA_VERSION, SEMANTIC_CONTRACT_ID, STATE_CODES,
 };
 use crate::{check_request, library, size_candidate, verify, Candidate, Dof, FamilyPolicy, Outcome, Positions, Selected};
 use serde_json::{json, Map, Value};
@@ -114,6 +114,7 @@ impl Verdict {
             "arithmetic_consistent_with_published_positions": self.arithmetic.to_json(),
             "derivation": self.derivation.to_json(),
             "reproduction": self.reproduction.to_json(),
+            "integrity_bound": derived::integrity_bound(),
         })
     }
 }
@@ -189,14 +190,19 @@ const REFUSED_KEYS: [&str; 9] = [
     "document_kind", "schema_version", "semantic_contract_id", "route", "limitations", "basis_statement", "status", "inputs", "refusals",
 ];
 const INPUT_KEYS: [&str; 5] = ["canonical_profile", "sizing_request", "sizing_request_sha256", "solve_request", "library"];
-const RESULT_KEYS: [&str; 5] = ["verification_standing", "cases", "candidates", "solves", "disclosures"];
+const RESULT_KEYS: [&str; 6] = ["verification_standing", "integrity_bound", "cases", "candidates", "solves", "disclosures"];
 const CANDIDATE_KEYS: [&str; 15] = [
     "support", "node", "dof", "family_policy", "outcome", "w_n", "u_cold_m", "operating", "span_m", "required_travel_m",
     "failure_counts", "selected", "governing", "verification_assumption", "verification",
 ];
+const SOLVE_KEYS: [&str; 6] = ["label", "case", "derived_document_sha256", "states", "solver_standing", "support_state_confirmation"];
 const VARIABLE_TESTS: [&str; 6] = ["E1", "E2", "V0", "L", "T", "V"];
 const CONSTANT_TESTS: [&str; 3] = ["E1", "L", "T"];
+/// The two state disclosures, each at most once in a document.
 const DISCLOSURE_CODES: [&str; 2] = ["HANGER_SIZING_SUPPORT_STATE_DIFFERS", "HANGER_SIZING_COLD_REFERENCE_STATE_DIFFERS"];
+/// The per-solve disclosures, each at most once per solve label of the document's
+/// plan, naming exactly that label.
+const SOLVE_DISCLOSURE_CODES: [&str; 2] = [derived::DERIVED_SOLVE_INTEGRITY, derived::DISPLACEMENT_CORRECTION_UNAVAILABLE];
 
 fn at(path: &str, key: &str) -> String {
     format!("{path}.{key}")
@@ -289,11 +295,15 @@ fn equal(a: f64, b: f64, path: &str, what: &str) -> R<()> {
     }
 }
 
-fn identity(top: &Map<String, Value>) -> R<()> {
+/// The fixed members. A sized document states the route its solves ran on; a
+/// refused one states its solve request's route, or null when no model was read.
+fn identity(top: &Map<String, Value>, sized: bool) -> R<()> {
     constant(&top["document_kind"], "$.document_kind", DOCUMENT_KIND)?;
     constant(&top["schema_version"], "$.schema_version", SCHEMA_VERSION)?;
     constant(&top["semantic_contract_id"], "$.semantic_contract_id", SEMANTIC_CONTRACT_ID)?;
-    constant(&top["route"], "$.route", ROUTE)?;
+    if sized || !top["route"].is_null() {
+        one_of(&top["route"], "$.route", &ROUTES)?;
+    }
     texts(&top["limitations"], "$.limitations", &LIMITATIONS)?;
     texts(&top["basis_statement"], "$.basis_statement", &BASIS_STATEMENT)
 }
@@ -313,7 +323,7 @@ pub fn closure(doc: &Value) -> R<()> {
 
 fn closure_refused(doc: &Value) -> R<()> {
     let top = obj(doc, "$", &REFUSED_KEYS)?;
-    identity(top)?;
+    identity(top, false)?;
     let inputs = obj(&top["inputs"], "$.inputs", &INPUT_KEYS)?;
     constant(&inputs["canonical_profile"], "$.inputs.canonical_profile", CANONICAL_PROFILE)?;
     let sizing = &inputs["sizing_request"];
@@ -351,7 +361,7 @@ fn closure_refused(doc: &Value) -> R<()> {
 
 fn closure_sized(doc: &Value) -> R<()> {
     let top = obj(doc, "$", &SIZED_KEYS)?;
-    identity(top)?;
+    identity(top, true)?;
     let inputs = obj(&top["inputs"], "$.inputs", &INPUT_KEYS)?;
     constant(&inputs["canonical_profile"], "$.inputs.canonical_profile", CANONICAL_PROFILE)?;
     let request = sizing_request(&inputs["sizing_request"], "$.inputs.sizing_request")?;
@@ -364,6 +374,9 @@ fn closure_sized(doc: &Value) -> R<()> {
 
     let result = obj(&top["result"], "$.result", &RESULT_KEYS)?;
     let standing = one_of(&result["verification_standing"], "$.result.verification_standing", &["unconditional", "conditional"])?;
+    let bound = obj(&result["integrity_bound"], "$.result.integrity_bound", &["status", "reason"])?;
+    constant(&bound["status"], "$.result.integrity_bound.status", derived::INTEGRITY_BOUND_STATUS)?;
+    constant(&bound["reason"], "$.result.integrity_bound.reason", derived::INTEGRITY_BOUND_REASON)?;
     let operating = request.operating_cases();
     let named: Vec<&str> = std::iter::once(request.weight_case.as_str()).chain(operating.iter().copied()).collect();
 
@@ -430,9 +443,11 @@ fn closure_sized(doc: &Value) -> R<()> {
     if solves.len() != plan.len() {
         return Err(format!("$.result.solves: {} entries, expected {}", solves.len(), plan.len()));
     }
+    let mut standings: Vec<&str> = Vec::new();
+    let mut confirmations: Vec<&'static str> = Vec::new();
     for (i, (solve, (label, case))) in solves.iter().zip(&plan).enumerate() {
         let path = format!("$.result.solves[{i}]");
-        let solve = obj(solve, &path, &["label", "case", "derived_document_sha256", "states"])?;
+        let solve = obj(solve, &path, &SOLVE_KEYS)?;
         if string(&solve["label"], &at(&path, "label"))? != label {
             return Err(format!("{path}.label: not {label:?}"));
         }
@@ -447,17 +462,51 @@ fn closure_sized(doc: &Value) -> R<()> {
             }
             one_of(state, &format!("{path}.states.{support}"), &STATE_CODES)?;
         }
+        standings.push(one_of(&solve["solver_standing"], &at(&path, "solver_standing"), &derived::SOLVER_STANDINGS)?);
+        confirmations.push(closure_confirmation(&solve["support_state_confirmation"], &at(&path, "support_state_confirmation"), states.is_empty())?);
     }
 
     let disclosures = array(&result["disclosures"], "$.result.disclosures")?;
-    if disclosures.len() > 2 {
-        return Err("$.result.disclosures: more than two entries".into());
-    }
     let mut codes = Vec::new();
+    let mut solve_pairs: Vec<(&str, &str)> = Vec::new();
+    // Each integrity disclosure's solve label, standing token and index.
+    let mut integrity: Vec<(&str, &str, usize)> = Vec::new();
+    // Each displacement-correction-unavailable disclosure's solve label and index.
+    let mut correction_unavailable: Vec<(&str, usize)> = Vec::new();
+    let all_codes: Vec<&str> = DISCLOSURE_CODES.iter().chain(&SOLVE_DISCLOSURE_CODES).copied().collect();
     for (i, disclosure) in disclosures.iter().enumerate() {
         let path = format!("$.result.disclosures[{i}]");
         let disclosure = obj(disclosure, &path, &["code", "names", "message"])?;
-        let code = one_of(&disclosure["code"], &at(&path, "code"), &DISCLOSURE_CODES)?;
+        let code = one_of(&disclosure["code"], &at(&path, "code"), &all_codes)?;
+        if SOLVE_DISCLOSURE_CODES.contains(&code) {
+            // A per-solve disclosure names one solve of this document's plan, once per
+            // code; the integrity disclosure's message is fixed by its standing token.
+            let names = array(&disclosure["names"], &at(&path, "names"))?;
+            let [name] = names else {
+                return Err(format!("{path}.names: not exactly one solve label"));
+            };
+            let label = string(name, &format!("{path}.names[0]"))?;
+            if !plan.iter().any(|(planned, _)| planned == label) {
+                return Err(format!("{path}.names[0]: not a solve label of this document"));
+            }
+            if solve_pairs.contains(&(code, label)) {
+                return Err(format!("{path}: repeated for solve {label}"));
+            }
+            solve_pairs.push((code, label));
+            let message = string(&disclosure["message"], &at(&path, "message"))?;
+            if code == derived::DERIVED_SOLVE_INTEGRITY {
+                let token = message.split(':').next().unwrap_or_default();
+                if !derived::NONPASSING_STANDINGS.contains(&token) || message != derived::integrity_message(token) {
+                    return Err(format!("{path}.message: not the integrity message of a standing other than solver_checks_passed"));
+                }
+                integrity.push((label, token, i));
+            } else if message.is_empty() {
+                return Err(format!("{path}.message: empty"));
+            } else {
+                correction_unavailable.push((label, i));
+            }
+            continue;
+        }
         if codes.contains(&code) {
             return Err(format!("{path}.code: repeated"));
         }
@@ -476,7 +525,58 @@ fn closure_sized(doc: &Value) -> R<()> {
         }
         string(&disclosure["message"], &at(&path, "message"))?;
     }
+    // The integrity disclosures and the solves' standings are one statement: a solve
+    // other than solver_checks_passed has exactly its own disclosure with its token,
+    // and a passing solve has none.
+    for (i, ((label, _), standing)) in plan.iter().zip(&standings).enumerate() {
+        match integrity.iter().find(|entry| entry.0 == label.as_str()) {
+            Some((_, token, j)) if token != standing => {
+                return Err(format!("$.result.disclosures[{j}]: the integrity disclosure of {label} states {token}, not its solver_standing {standing}"));
+            }
+            None if *standing != derived::SOLVER_CHECKS_PASSED => {
+                return Err(format!("$.result.solves[{i}].solver_standing: {standing} without its {} disclosure", derived::DERIVED_SOLVE_INTEGRITY));
+            }
+            _ => {}
+        }
+    }
+    // The producer withdraws a case's confirmed state when its displacement
+    // correction fails, so a solve with that disclosure never reports it established.
+    for (i, ((label, _), outcome)) in plan.iter().zip(&confirmations).enumerate() {
+        if *outcome != derived::SOLVER_REPORTED_ESTABLISHED {
+            continue;
+        }
+        if let Some((_, j)) = correction_unavailable.iter().find(|entry| entry.0 == label.as_str()) {
+            return Err(format!(
+                "$.result.solves[{i}].support_state_confirmation.outcome: {} beside the {} disclosure of {label} at $.result.disclosures[{j}]",
+                derived::SOLVER_REPORTED_ESTABLISHED,
+                derived::DISPLACEMENT_CORRECTION_UNAVAILABLE
+            ));
+        }
+    }
     Ok(())
+}
+
+/// A solve's `support_state_confirmation`: a closed `{outcome, detail}`, the
+/// outcome `not_applicable` exactly when the solve publishes no nonlinear-support
+/// state, and `detail` a non-blank string ([`derived::is_blank_detail`]) exactly
+/// when the outcome is `not_established_detail_quoted`, null otherwise. Returns the
+/// outcome's closed token.
+fn closure_confirmation(value: &Value, path: &str, stateless: bool) -> R<&'static str> {
+    let confirmation = obj(value, path, &["outcome", "detail"])?;
+    let text = one_of(&confirmation["outcome"], &at(path, "outcome"), &derived::CONFIRMATION_OUTCOMES)?;
+    let outcome = derived::CONFIRMATION_OUTCOMES.into_iter().find(|token| *token == text).unwrap_or_default();
+    if stateless != (outcome == derived::NOT_APPLICABLE) {
+        return Err(format!("{path}.outcome: not {:?} exactly when the solve publishes no nonlinear-support state", derived::NOT_APPLICABLE));
+    }
+    let detail = &confirmation["detail"];
+    if outcome == derived::DETAIL_QUOTED {
+        if derived::is_blank_detail(string(detail, &at(path, "detail"))?) {
+            return Err(format!("{path}.detail: blank"));
+        }
+    } else if !detail.is_null() {
+        return Err(format!("{path}.detail: not null for the outcome {outcome:?}"));
+    }
+    Ok(outcome)
 }
 
 /// A per-case list: one entry per operating case, its `case` ids in order.
@@ -734,6 +834,9 @@ fn binding(doc: &Value, supplied: Supplied<'_>, sized: bool) -> (Standing, Vec<&
                 let result = hash_matches(solve, &inputs["solve_request"]["sha256"], "$.inputs.solve_request.sha256");
                 solve_bound = result.is_ok();
                 note(result, &mut first);
+                if solve_bound && doc["route"].as_str() != route_of(solve) {
+                    note(Err("$.route: not the supplied solve request's route".to_string()), &mut first);
+                }
             }
         }
         None => not_checked.push("solve_request"),
@@ -973,4 +1076,214 @@ fn reproduction(doc: &Value, request: &SizingRequest, solve_request: &Value, lib
         format!("$: the re-run is not publishable ({})", codes.join(", "))
     })?;
     same(doc, &again, "$")
+}
+
+/// The closure of the per-solve disclosures on the committed two-span document
+/// (labels S_W, S_C, S_O1, S_O2, V_C, V_O1, V_O2), changed in memory only.
+#[cfg(test)]
+mod disclosure_closure_tests {
+    use super::*;
+
+    const TWO_SPAN: &str = include_str!("../../../../fixtures/results/hanger_sizing_result_two_span.json");
+    /// The product's warning on the forced-failure fixture, unchanged.
+    const PRODUCT_WARNING: &str = "Load case load:VACUUM: the corrected displacement of node:A:UX could not be certified (forced by test); no published result of this case relies on the member-relative formation check.";
+
+    fn with(disclosures: Value) -> Value {
+        let mut doc: Value = serde_json::from_str(TWO_SPAN).expect("fixture JSON");
+        assert_eq!(doc["result"]["disclosures"], json!([]));
+        doc["result"]["disclosures"] = disclosures;
+        doc
+    }
+
+    fn integrity(label: &str, token: &str) -> Value {
+        json!({"code": derived::DERIVED_SOLVE_INTEGRITY, "names": [label], "message": derived::integrity_message(token)})
+    }
+
+    fn unavailable(label: &str) -> Value {
+        json!({"code": derived::DISPLACEMENT_CORRECTION_UNAVAILABLE, "names": [label], "message": PRODUCT_WARNING})
+    }
+
+    fn state(code: &str) -> Value {
+        json!({"code": code, "names": ["support:L"], "message": "invented"})
+    }
+
+    fn refused(disclosures: Value, reason: &str) {
+        let error = closure(&with(disclosures)).expect_err("closure refuses");
+        assert!(error.contains(reason), "{error}");
+    }
+
+    /// The solve labelled `label` in the two-span plan.
+    fn solve_mut<'d>(doc: &'d mut Value, label: &str) -> &'d mut Value {
+        doc["result"]["solves"].as_array_mut().expect("solves").iter_mut().find(|s| s["label"] == label).expect("label")
+    }
+
+    /// [`with`], each integrity disclosure's solve standing as its token and each
+    /// displacement-correction-unavailable solve's confirmation withdrawn, as the
+    /// producer withdraws it, to `no_confirmation_record`.
+    fn with_standings(disclosures: Value) -> Value {
+        let mut doc = with(disclosures.clone());
+        for disclosure in disclosures.as_array().expect("disclosures") {
+            let label = disclosure["names"][0].as_str().expect("label");
+            if disclosure["code"] == derived::DERIVED_SOLVE_INTEGRITY {
+                let token = disclosure["message"].as_str().expect("message").split(':').next().expect("token").to_string();
+                solve_mut(&mut doc, label)["solver_standing"] = json!(token);
+            } else if disclosure["code"] == derived::DISPLACEMENT_CORRECTION_UNAVAILABLE {
+                solve_mut(&mut doc, label)["support_state_confirmation"] = json!({"outcome": "no_confirmation_record", "detail": null});
+            }
+        }
+        doc
+    }
+
+    fn refused_doc(doc: &Value, reason: &str) {
+        let error = closure(doc).expect_err("closure refuses");
+        assert!(error.contains(reason), "{error}");
+    }
+
+    #[test]
+    fn every_committed_solve_states_its_standing_and_confirmation() {
+        let doc: Value = serde_json::from_str(TWO_SPAN).expect("fixture JSON");
+        for solve in doc["result"]["solves"].as_array().expect("solves") {
+            assert_eq!(solve["solver_standing"], derived::SOLVER_CHECKS_PASSED, "{solve}");
+            assert_eq!(solve["support_state_confirmation"], json!({"outcome": "solver_reported_established", "detail": null}), "{solve}");
+        }
+    }
+
+    #[test]
+    fn the_solver_standing_and_the_integrity_disclosures_are_one_statement() {
+        // A non-passing standing without its disclosure.
+        let mut doc = with(json!([]));
+        solve_mut(&mut doc, "S_O1")["solver_standing"] = json!("sensitive");
+        refused_doc(&doc, "$.result.solves[2].solver_standing: sensitive without its HANGER_SIZING_DERIVED_SOLVE_INTEGRITY disclosure");
+        // A disclosure beside a passing standing, and one with another token.
+        refused(json!([integrity("S_O1", "sensitive")]), "$.result.disclosures[0]: the integrity disclosure of S_O1 states sensitive, not its solver_standing solver_checks_passed");
+        let mut doc = with_standings(json!([integrity("S_O1", "sensitive")]));
+        solve_mut(&mut doc, "S_O1")["solver_standing"] = json!("failed");
+        refused_doc(&doc, "the integrity disclosure of S_O1 states sensitive, not its solver_standing failed");
+        // Tokens outside the closed vocabulary, the solver's wire token among them.
+        for token in [json!("checks_passed"), json!("verified"), json!("SOLVER_CHECKS_PASSED"), json!(null), json!(1)] {
+            let mut doc = with(json!([]));
+            solve_mut(&mut doc, "V_C")["solver_standing"] = token.clone();
+            let error = closure(&doc).expect_err("closure refuses");
+            assert!(error.starts_with("$.result.solves[4].solver_standing: not"), "{token}: {error}");
+        }
+        let mut doc = with(json!([]));
+        solve_mut(&mut doc, "S_W").as_object_mut().expect("solve").remove("solver_standing");
+        refused_doc(&doc, "$.result.solves[0].solver_standing: missing");
+    }
+
+    #[test]
+    fn the_support_state_confirmation_is_closed() {
+        let changed = |change: &dyn Fn(&mut Value)| {
+            let mut doc = with(json!([]));
+            change(solve_mut(&mut doc, "S_C"));
+            doc
+        };
+        let path = "$.result.solves[1].support_state_confirmation";
+        refused_doc(&changed(&|s| { s.as_object_mut().expect("solve").remove("support_state_confirmation"); }), &format!("{path}: missing"));
+        refused_doc(&changed(&|s| s["support_state_confirmation"] = json!("solver_reported_established")), &format!("{path}: not an object"));
+        refused_doc(&changed(&|s| s["support_state_confirmation"]["outcome"] = json!("verified")), &format!("{path}.outcome: not one of"));
+        refused_doc(&changed(&|s| s["support_state_confirmation"]["extra"] = json!(1)), &format!("{path}.extra: not a member of the closed object"));
+        refused_doc(&changed(&|s| { s["support_state_confirmation"].as_object_mut().expect("c").remove("detail"); }), &format!("{path}.detail: missing"));
+        // not_applicable exactly when the solve has no nonlinear-support state.
+        refused_doc(&changed(&|s| s["support_state_confirmation"]["outcome"] = json!("not_applicable")),
+            &format!("{path}.outcome: not \"not_applicable\" exactly when"));
+        refused_doc(&changed(&|s| s["states"] = json!({})), &format!("{path}.outcome: not \"not_applicable\" exactly when"));
+        let stateless = changed(&|s| {
+            s["states"] = json!({});
+            s["support_state_confirmation"] = json!({"outcome": "not_applicable", "detail": null});
+        });
+        assert_eq!(closure(&stateless), Ok(()));
+        // A detail exactly for a quoted reason, never blank.
+        refused_doc(&changed(&|s| s["support_state_confirmation"]["detail"] = json!("invented")), &format!("{path}.detail: not null"));
+        let quoted = |detail: Value| changed(&move |s| s["support_state_confirmation"] = json!({"outcome": "not_established_detail_quoted", "detail": detail.clone()}));
+        assert_eq!(closure(&quoted(json!("support support:C-lift: margin below its bound"))), Ok(()));
+        refused_doc(&quoted(json!(null)), &format!("{path}.detail: not a string"));
+        refused_doc(&quoted(json!("")), &format!("{path}.detail: blank"));
+        refused_doc(&quoted(json!(" \t")), &format!("{path}.detail: blank"));
+        for blank in ["  ", "\u{0085}", "\u{FEFF}", "\u{0085}\u{FEFF}"] {
+            refused_doc(&quoted(json!(blank)), &format!("{path}.detail: blank"));
+        }
+        assert_eq!(closure(&quoted(json!("support:α"))), Ok(()));
+        for outcome in ["solver_reported_established", "not_attempted_reason_not_recorded", "no_confirmation_record"] {
+            assert_eq!(closure(&changed(&|s| s["support_state_confirmation"]["outcome"] = json!(outcome))), Ok(()), "{outcome}");
+        }
+    }
+
+    #[test]
+    fn both_new_codes_on_different_valid_labels_with_the_state_warnings_are_closed() {
+        let doc = with_standings(json!([
+            state("HANGER_SIZING_SUPPORT_STATE_DIFFERS"),
+            state("HANGER_SIZING_COLD_REFERENCE_STATE_DIFFERS"),
+            integrity("S_W", "not_assessed"),
+            integrity("S_O1", "sensitive"),
+            unavailable("S_O1"),
+            integrity("V_O2", "unresolved"),
+            unavailable("V_O2"),
+            integrity("V_C", "failed"),
+        ]));
+        assert_eq!(closure(&doc), Ok(()));
+        let verdict = read_document_with(&doc, Supplied::default(), ReadOptions::WITHOUT_REPRODUCTION);
+        assert_eq!(verdict.closure.status, Status::Passed);
+    }
+
+    #[test]
+    fn an_established_confirmation_beside_an_unavailable_correction_is_refused() {
+        // The producer withdraws the confirmed state when the correction fails: a
+        // solve with that disclosure never reports its state established.
+        let mut doc = with_standings(json!([integrity("S_O1", "sensitive"), unavailable("S_O1")]));
+        assert_eq!(closure(&doc), Ok(()));
+        solve_mut(&mut doc, "S_O1")["support_state_confirmation"] = json!({"outcome": derived::SOLVER_REPORTED_ESTABLISHED, "detail": null});
+        refused_doc(&doc, "$.result.solves[2].support_state_confirmation.outcome: solver_reported_established beside the DISPLACEMENT_CORRECTION_UNAVAILABLE disclosure of S_O1 at $.result.disclosures[1]");
+        // Another solve's established confirmation is unaffected.
+        assert_eq!(solve_mut(&mut doc, "S_O2")["support_state_confirmation"]["outcome"], derived::SOLVER_REPORTED_ESTABLISHED);
+        solve_mut(&mut doc, "S_O1")["support_state_confirmation"] = json!({"outcome": "no_confirmation_record", "detail": null});
+        assert_eq!(closure(&doc), Ok(()));
+    }
+
+    #[test]
+    fn unknown_codes_invalid_labels_repeats_and_malformed_members_are_refused() {
+        refused(json!([{"code": "HANGER_SIZING_UNKNOWN", "names": ["S_W"], "message": "x"}]), "code: not one of");
+        refused(json!([{"code": "NUMERICAL_INTEGRITY_SENSITIVE", "names": ["S_W"], "message": "x"}]), "code: not one of");
+        refused(json!([integrity("S_O3", "sensitive")]), "names[0]: not a solve label of this document");
+        refused(json!([unavailable("V_O3")]), "names[0]: not a solve label of this document");
+        refused(json!([integrity("source", "sensitive")]), "not a solve label");
+        refused(json!([integrity("S_O1", "sensitive"), integrity("S_O1", "failed")]), "repeated for solve S_O1");
+        refused(json!([unavailable("V_C"), unavailable("V_C")]), "repeated for solve V_C");
+        refused(json!([state("HANGER_SIZING_SUPPORT_STATE_DIFFERS"), state("HANGER_SIZING_SUPPORT_STATE_DIFFERS")]), "code: repeated");
+        refused(json!([{"code": derived::DERIVED_SOLVE_INTEGRITY, "names": ["S_W", "S_C"], "message": derived::integrity_message("sensitive")}]),
+            "not exactly one solve label");
+        refused(json!([{"code": derived::DISPLACEMENT_CORRECTION_UNAVAILABLE, "names": [], "message": PRODUCT_WARNING}]), "not exactly one solve label");
+        refused(json!([{"code": derived::DERIVED_SOLVE_INTEGRITY, "names": [7], "message": derived::integrity_message("sensitive")}]), "not a string");
+        refused(json!([integrity("S_W", "checks_passed")]), "not the integrity message");
+        refused(json!([integrity("S_W", "solver_checks_passed")]), "not the integrity message");
+        // The message PR 272 first published, before the bound was stated as not verified.
+        refused(json!([{"code": derived::DERIVED_SOLVE_INTEGRITY, "names": ["S_W"],
+            "message": "sensitive: the numerical-integrity standing of this derived solve is sensitive, not checks_passed; every value sizing takes from it carries that standing"}]),
+            "not the integrity message of a standing other than solver_checks_passed");
+        refused(json!([integrity("S_W", "SENSITIVE")]), "not the integrity message");
+        refused(json!([{"code": derived::DERIVED_SOLVE_INTEGRITY, "names": ["S_W"], "message": "sensitive"}]), "not the integrity message");
+        refused(json!([{"code": derived::DISPLACEMENT_CORRECTION_UNAVAILABLE, "names": ["S_W"], "message": ""}]), "message: empty");
+        refused(json!([{"code": derived::DISPLACEMENT_CORRECTION_UNAVAILABLE, "names": ["S_W"], "message": PRODUCT_WARNING, "extra": 1}]),
+            "not a member of the closed object");
+    }
+
+    #[test]
+    fn the_integrity_bound_is_closed_and_fixed() {
+        let doc: Value = serde_json::from_str(TWO_SPAN).expect("fixture JSON");
+        assert_eq!(doc["result"]["integrity_bound"], derived::integrity_bound());
+        assert_eq!(closure(&doc), Ok(()));
+        let verdict = read_document_with(&doc, Supplied::default(), ReadOptions::WITHOUT_REPRODUCTION).to_json();
+        assert_eq!(verdict["integrity_bound"], json!({"status": "not_verified", "reason": "inverse_norm_bound_not_verified"}));
+        let refused_bound = |change: &dyn Fn(&mut Value), reason: &str| {
+            let mut changed = doc.clone();
+            change(&mut changed);
+            let error = closure(&changed).expect_err("closure refuses");
+            assert!(error.contains(reason), "{error}");
+        };
+        refused_bound(&|d| { d["result"].as_object_mut().expect("result").remove("integrity_bound"); }, "$.result.integrity_bound: missing");
+        refused_bound(&|d| d["result"]["integrity_bound"]["status"] = json!("verified"), "$.result.integrity_bound.status: not");
+        refused_bound(&|d| d["result"]["integrity_bound"]["reason"] = json!("invented_reason"), "$.result.integrity_bound.reason: not");
+        refused_bound(&|d| d["result"]["integrity_bound"]["bound"] = json!(1.0), "$.result.integrity_bound.bound: not a member of the closed object");
+        refused_bound(&|d| d["result"]["integrity_bound"] = json!("not_verified"), "$.result.integrity_bound: not an object");
+    }
 }

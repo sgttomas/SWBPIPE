@@ -27,6 +27,7 @@ import type { SessionAnalysisRun, SessionResult } from "../../services/nativeRes
 import { refuseSurfaceOutput, surfaceRouteRefusal } from "../results/outputPolicy";
 import { PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID } from "../results/numericalResultQuality";
 import { buildCurrentResultExport, type JsonObject as ResultDocument } from "../result-export/resultExportAdapter";
+import { reportStanding } from "../results/resultStanding";
 import {
   admitExactReportSource,
   exactSourceSubmission,
@@ -35,6 +36,7 @@ import {
   type ExactSourceSubmission
 } from "./exactReportAdmission";
 import { isExactReportSource } from "./exactReportSections";
+import { isPfTimoshenkoReportSource } from "./pfTimoshenkoReport";
 import type { PreviewComparisonUnavailable } from "../comparison/withinRunComparison";
 import type {
   AnalysisRunEnvelope,
@@ -97,6 +99,80 @@ export function reportPackageUnavailableReason(result: SessionResult | null | un
   return surfaceRouteRefusal(result, "report-package");
 }
 
+/** The code of a package request whose pressure-free source is not numerically eligible (the
+ * result-export builder's, `buildCurrentResultExport`; LIM-016). */
+export const CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE = "CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE";
+
+/** Why a solved result that is current in every other respect is not numerically eligible, for
+ * the package refusals' words (DEL-08-01 REQ-024; LIM-016): "health" where some load case's solve
+ * quality is not checks passed, which the report's numerical health states; "record" where every
+ * load case reads checks passed and a case's record is still not the eligible one (its evidence
+ * references, `reader_verdict.rs` `ordinary_case_eligible`), which the report states only in the
+ * reader's finding. Read from the result's own numerical quality, so it is meaningful only for a
+ * result already known not to be eligible. */
+export type PackageStandingGround = "health" | "record";
+export function packageStandingGround(result: Pick<MechanicsResult, "numerical_quality">): PackageStandingGround {
+  const quality = result.numerical_quality;
+  const cases = quality?.cases ?? [];
+  return quality?.status !== "checks_passed" || cases.some((item) => item.solve_quality !== "checks_passed") ? "health" : "record";
+}
+
+/** What a person reads, by ground (one constant each, so that a word can change). */
+export const PACKAGE_STANDING_WORDS: Readonly<Record<PackageStandingGround, Readonly<{ offered: string; reading: string; local: string }>>> = Object.freeze({
+  health: Object.freeze({
+    /** The report panel, in place of the two package buttons. */
+    offered: "No report package for this result: its numerical health does not allow one. The report states it and can be printed or saved as HTML.",
+    /** A refusal's reading, without its lead, full stop or tail. */
+    reading: "this result's numerical health does not allow one",
+    /** The shareable refusal's last sentence. */
+    local: "A local private package can carry it when its numerical health allows."
+  }),
+  record: Object.freeze({
+    offered: "No report package for this result: a load case's numerical record is incomplete. The report states it and can be printed or saved as HTML.",
+    reading: "a load case's numerical record is incomplete",
+    local: "A local private package can carry it when every load case's numerical record is complete."
+  })
+});
+/** What a person can do instead, where the rendered report takes the result. */
+export const REPORT_PACKAGE_INSTEAD_RENDERED = "The report can be printed or saved as HTML.";
+/** The File menu's package save for a solve output the rendered report does not take and whose
+ * ground is not known (not solved, not readable, an identity that is not Current, a standing not
+ * yet read). */
+export const REPORT_PACKAGE_NOT_CURRENT_ELIGIBLE = "Report package not saved: no report is available for this solve. Nothing was written.";
+/** The File menu's package save where the model has no current result. */
+export const REPORT_PACKAGE_NO_CURRENT_RESULT = "Report package not saved: the model has no current result. Solve it, then save. Nothing was written.";
+
+/** A package request refused because its pressure-free source is not numerically eligible. The
+ * refusal is data: `code` (`CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE`), `ground`, `reading`
+ * (the reason alone) and `instead` (what the person can do, or null); `message` is for logs. A
+ * surface composes its own sentence from these (`reportPackageNotSavedText`). */
+export class ReportPackageStandingRefusal extends Error {
+  readonly code = CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE;
+  readonly reading: string;
+  constructor(readonly ground: PackageStandingGround, readonly instead: string | null) {
+    super(`${CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE}: ${PACKAGE_STANDING_WORDS[ground].reading}`);
+    this.name = "ReportPackageStandingRefusal";
+    this.reading = PACKAGE_STANDING_WORDS[ground].reading;
+  }
+}
+
+/** The package save status line's sentence for a standing refusal. */
+export function reportPackageNotSavedText(refusal: Pick<ReportPackageStandingRefusal, "reading" | "instead">): string {
+  return `Report package not saved: ${refusal.reading}. Nothing was written.${refusal.instead ? ` ${refusal.instead}` : ""}`;
+}
+
+/** The package controls' refusal for the rendered report's `source` (synchronous, for the menu
+ * and the report panel): the route gate (`reportPackageUnavailableReason`), else, for a source
+ * that is not `current` (the Current result) and is not an exact-route result (a pressure-free
+ * Timoshenko result the rendered report takes, which is not eligible), its ground's words
+ * (LIM-016), else null. */
+export function reportPackageSourceUnavailableReason(source: SessionResult | null | undefined, current: SessionResult | null | undefined): string | null {
+  const refused = reportPackageUnavailableReason(source);
+  if (refused) return refused;
+  if (source && source !== current && !isExactReportSource(source as MechanicsResult)) return PACKAGE_STANDING_WORDS[packageStandingGround(source)].offered;
+  return null;
+}
+
 /** The identities a shareable (user-released, route `DREP-PACKAGE-USER-RELEASE-010`) package
  * admits: a pressure-free `preview-physics-2` result (record 1.0.0), and, since D-6 (owner,
  * 2026-10-29; DEL-08-01 Design `report-user-release.md` §11), a `pressure-2` or
@@ -114,13 +190,14 @@ export const USER_RELEASED_ADMITTED_CONTRACT_IDS: readonly string[] = Object.fre
  * retained routes), else a result whose identity a shareable package does not admit
  * (`USER_RELEASED_ADMITTED_CONTRACT_IDS`), else null. An exact-route result is admitted here;
  * its readability, solved mechanics and live custody are the builder's Export Result JSON
- * admission's and native admission's to decide. */
-export function userReleasedReportPackageUnavailableReason(result: SessionResult | null | undefined): string | null {
+ * admission's and native admission's to decide. `ground` is the session's reason a result that is
+ * not eligible is not (`packageStandingGround`), or null; its last sentence follows it. */
+export function userReleasedReportPackageUnavailableReason(result: SessionResult | null | undefined, ground: PackageStandingGround | null = null): string | null {
   const refused = reportPackageUnavailableReason(result);
   if (refused) return refused;
   const identity = result?.producer?.semantic_contract_id;
   if (typeof identity === "string" && !USER_RELEASED_ADMITTED_CONTRACT_IDS.includes(identity)) {
-    return `${REPORT_PACKAGE_ROUTE_NOT_ADMITTED}: a shareable report package carries pressure-free (preview-physics-2) results and exact pressure route (pressure-3, pressure-source-1) results; this result is ${identity}. It can be saved in a local private package.`;
+    return `${REPORT_PACKAGE_ROUTE_NOT_ADMITTED}: a shareable report package carries pressure-free (preview-physics-2) results and exact pressure route (pressure-3, pressure-source-1) results; this result is ${identity}. ${PACKAGE_STANDING_WORDS[ground ?? "health"].local}`;
   }
   return null;
 }
@@ -221,6 +298,30 @@ function auditRulePackRef(pack: JsonRecord) {
   };
 }
 
+/** The result document of a pressure-free source: the result-export builder's, whose standing
+ * must be eligible. Where it refuses a pressure-free Timoshenko result that the rendered report
+ * takes (solved and readable: `reportStanding`, as the builder's "report" purpose reads it), the
+ * refusal is a `ReportPackageStandingRefusal` with its ground; any other refusal is unchanged. */
+async function pressureFreeResultDocument(inputs: Pick<ExactReportAdmissionInputs, "model" | "result" | "analysisRun" | "inputManifest">): Promise<ResultDocument> {
+  try {
+    return await buildCurrentResultExport(inputs);
+  } catch (error) {
+    if (error instanceof Error && error.message === CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE && isPfTimoshenkoReportSource(inputs.result) && reportedSolvedAndReadable(inputs)) {
+      throw new ReportPackageStandingRefusal(packageStandingGround(inputs.result), REPORT_PACKAGE_INSTEAD_RENDERED);
+    }
+    throw error;
+  }
+}
+
+function reportedSolvedAndReadable({ model, result }: Pick<ExactReportAdmissionInputs, "model" | "result">): boolean {
+  try {
+    const { readability } = reportStanding(result, model);
+    return readability.readable && readability.solved;
+  } catch {
+    return false;
+  }
+}
+
 /** Requests assembled from an exact source, with the admission each was built from
  * and its inputs (module-private: only the assembly records one). */
 const exactRequests = new WeakMap<object, { admission: ExactReportAdmission; inputs: ExactReportAdmissionInputs }>();
@@ -267,7 +368,7 @@ async function assembleReportPackageRequest(input: ReportPackageRequestInput, ad
   // source keeps the result-export builder's document and its eligible standing.
   const exactInputs: ExactReportAdmissionInputs | null = isExactReportSource(result) ? { model, result, analysisRun, inputManifest, purpose: "report" } : null;
   const admission = exactInputs ? await admitExactReportSource(exactInputs) : null;
-  const document: ResultDocument = admission ? admission.document : await buildCurrentResultExport({ model, result, analysisRun, inputManifest });
+  const document: ResultDocument = admission ? admission.document : await pressureFreeResultDocument({ model, result, analysisRun, inputManifest });
   const envelope = document.result_envelope as JsonRecord;
   const identity = envelope?.producer?.semantic_contract_id;
   if (typeof identity !== "string" || !admittedContractIds.includes(identity)) {
@@ -396,7 +497,7 @@ async function assembleUserReleased(
   const { model, result, analysisRun, inputManifest, reportComposition = null } = input;
   const exactInputs: ExactReportAdmissionInputs | null = isExactReportSource(result) ? { model, result, analysisRun, inputManifest, purpose: "report" } : null;
   const admission = exactInputs ? await admitExactReportSource(exactInputs) : null;
-  const document: ResultDocument = admission ? admission.document : await buildCurrentResultExport({ model, result, analysisRun, inputManifest });
+  const document: ResultDocument = admission ? admission.document : await pressureFreeResultDocument({ model, result, analysisRun, inputManifest });
   const envelope = document.result_envelope as JsonRecord;
   const identity = envelope?.producer?.semantic_contract_id;
   if (!USER_RELEASED_ADMITTED_CONTRACT_IDS.includes(identity)) {

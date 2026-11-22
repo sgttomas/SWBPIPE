@@ -1,6 +1,6 @@
 import { C2ResultGate } from "./features/results/C2ResultGate";
 import type { SessionResult } from "./services/nativeResult";
-import { reportPackageUnavailableReason } from "./features/report/reportPackageRequest";
+import { reportPackageSourceUnavailableReason } from "./features/report/reportPackageRequest";
 import { CompactSelectScope } from "./features/workspace/CompactSelect";
 import { HangerSelectionPanel } from "./features/hanger-selection";
 import { HangerSizingForm } from "./features/hanger-sizing";
@@ -251,8 +251,10 @@ function AppSession() {
   // checks below. The builder's own refusals (admission, rule-check binding, rule
   // packs) are shown in the report panel's status line after an attempt. Its source is
   // the rendered report's (DEL-08-01 REQ-024, "Package and user release"): Current, or an
-  // exact-route result the rendered report takes whatever its numerical standing.
-  const reportPackageUnavailable = reportPackageUnavailableReason(renderableSolvedResult);
+  // exact-route result the rendered report takes whatever its numerical standing. A
+  // pressure-free Timoshenko result the rendered report takes that is not Current is not
+  // offered a package (LIM-016), and the panel says why.
+  const reportPackageUnavailable = reportPackageSourceUnavailableReason(renderableSolvedResult, currentSolvedResult);
   // The viewport's result overlays read the same standing and numerical health view as the results panel.
   const viewportResultStanding = useMemo(() => ({ eligible: numericallyEligible, health: numericalHealth }), [numericallyEligible, numericalHealth]);
   const {
@@ -473,7 +475,8 @@ function AppSession() {
             })}
           />
       </ShellToolbar>
-      <ReportOutputStatus outcomes={reportOutput.outcomes} entries={reportOutput.entries} currentSequence={reportOutput.sequence} />
+      <ReportOutputStatus outcomes={reportOutput.outcomes} entries={reportOutput.entries} currentSequence={reportOutput.sequence}
+        currentProjectId={model?.project.id ?? null} />
 
       <div className="shell-body">
         <StageRail issueCount={issueCount} />
@@ -910,10 +913,11 @@ function AppSession() {
               <DormantSection page="report" active={activeSection === "report"} sessionGeneration={projectSessionGeneration}>
               <Fragment key={`report:${dormantOutputBasis}`}>
               <ComparisonPackageNotice packaged={packagedWithinRun} dropped={droppedWithinRunBases} testId="report-comparison-package-notice" />
-              {/* DEL-08-01 REQ-017, REQ-024: the rendered report's own source (a readable exact-route
-                  result whatever its standing), which its package save and user release also take. */}
+              {/* DEL-08-01 REQ-017, REQ-024: the rendered report's own source (a readable exact-route or
+                  pressure-free Timoshenko result whatever its standing), which its package save and user
+                  release also take on the exact route. */}
               <C2ResultGate result={renderableSolvedResult} analysisRun={analysisRun} feature="the rendered report"
-                withheld={reportPackageRoute ? <ReportPackageSaveStatus route={reportPackageRoute} announce /> : null}>
+                withheld={reportPackageRoute ? <ReportPackageSaveStatus route={reportPackageRoute} /> : null}>
                 {(full) => (
                   <RenderedReportPanel
                     model={model}

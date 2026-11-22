@@ -28,11 +28,11 @@
    ".json",
    ".jsonl"
   ],
-  "files": 549,
+  "files": 553,
   "claimed_by": {
-   "group": 144,
-   "in_code": 65,
-   "exemption": 340
+   "group": 145,
+   "in_code": 67,
+   "exemption": 341
   }
  },
  "counts": {
@@ -256,6 +256,11 @@
    "pressurised_load_cases": 0,
    "held_documents": 150,
    "held_pressurised_load_cases": 150
+  },
+  "hanger_sizing_ex_pressurised": {
+   "files": 1,
+   "documents": 1,
+   "pressurised_load_cases": 3
   }
  },
  "entries": [
@@ -1493,7 +1498,9 @@
    },
    "pinned_by": [
     "core/product_physics/src/rt_a3_s6_tests.rs",
-    "tests/test_rt_a3_nonlinear_reader.py"
+    "tests/test_rt_a3_nonlinear_reader.py",
+    "core/analysis/hanger_sizing/src/derived.rs",
+    "tests/test_hanger_sizing_evidence.py"
    ],
    "anchor": {
     "kind": "excluded",
@@ -6406,28 +6413,28 @@
    "documents": [],
    "held_documents": [
     {
-     "pointer": "/requests/38/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:cold-pressure",
-      "case:hot-pressure"
-     ]
-    },
-    {
      "pointer": "/requests/39/args/modelJson",
      "text_pointers": [
       ""
      ],
      "schema_version": "0.9.0",
      "pressurised_load_cases": [
+      "case:cold-pressure",
+      "case:hot-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/40/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
       "load:RS-SUS"
      ]
     },
     {
-     "pointer": "/requests/64/args/invocationJson",
+     "pointer": "/requests/65/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6437,7 +6444,7 @@
      ]
     },
     {
-     "pointer": "/requests/90/args/modelJson",
+     "pointer": "/requests/91/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6447,7 +6454,7 @@
      ]
     },
     {
-     "pointer": "/requests/101/args/invocationJson",
+     "pointer": "/requests/102/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6457,7 +6464,7 @@
      ]
     },
     {
-     "pointer": "/requests/135/args/invocationJson",
+     "pointer": "/requests/136/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6467,7 +6474,7 @@
      ]
     },
     {
-     "pointer": "/requests/140/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/141/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6478,7 +6485,7 @@
      ]
     },
     {
-     "pointer": "/requests/196/args/invocationJson",
+     "pointer": "/requests/197/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6488,7 +6495,7 @@
      ]
     },
     {
-     "pointer": "/requests/200/args/modelJson",
+     "pointer": "/requests/201/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6498,7 +6505,7 @@
      ]
     },
     {
-     "pointer": "/requests/230/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/231/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6508,7 +6515,7 @@
      ]
     },
     {
-     "pointer": "/requests/238/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/239/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6518,7 +6525,7 @@
      ]
     },
     {
-     "pointer": "/requests/243/args/modelJson",
+     "pointer": "/requests/244/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6529,7 +6536,7 @@
      ]
     },
     {
-     "pointer": "/requests/278/args/modelJson",
+     "pointer": "/requests/279/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6539,7 +6546,7 @@
      ]
     },
     {
-     "pointer": "/requests/278/args/invocationJson",
+     "pointer": "/requests/279/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6549,7 +6556,7 @@
      ]
     },
     {
-     "pointer": "/requests/310/args/modelJson",
+     "pointer": "/requests/311/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6559,7 +6566,7 @@
      ]
     },
     {
-     "pointer": "/requests/330/args/modelJson",
+     "pointer": "/requests/331/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6569,7 +6576,7 @@
      ]
     },
     {
-     "pointer": "/requests/346/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/347/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6580,7 +6587,7 @@
      ]
     },
     {
-     "pointer": "/requests/355/args/modelJson",
+     "pointer": "/requests/356/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6590,7 +6597,7 @@
      ]
     },
     {
-     "pointer": "/requests/357/args/modelJson",
+     "pointer": "/requests/358/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6600,7 +6607,7 @@
      ]
     },
     {
-     "pointer": "/requests/357/args/invocationJson",
+     "pointer": "/requests/358/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6610,7 +6617,7 @@
      ]
     },
     {
-     "pointer": "/requests/366/args/modelJson",
+     "pointer": "/requests/367/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6621,7 +6628,7 @@
      ]
     },
     {
-     "pointer": "/requests/378/args/invocationJson",
+     "pointer": "/requests/379/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6631,7 +6638,7 @@
      ]
     },
     {
-     "pointer": "/requests/437/args/invocationJson",
+     "pointer": "/requests/438/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6641,7 +6648,7 @@
      ]
     },
     {
-     "pointer": "/requests/447/args/modelJson",
+     "pointer": "/requests/448/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6651,7 +6658,7 @@
      ]
     },
     {
-     "pointer": "/requests/458/args/modelJson",
+     "pointer": "/requests/459/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6661,7 +6668,7 @@
      ]
     },
     {
-     "pointer": "/requests/465/args/modelJson",
+     "pointer": "/requests/466/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6671,19 +6678,9 @@
      ]
     },
     {
-     "pointer": "/requests/499/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/503/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/544/args/modelJson",
-     "text_pointers": [
-      ""
      ],
      "schema_version": "0.9.0",
      "pressurised_load_cases": [
@@ -6697,152 +6694,11 @@
      ],
      "schema_version": "0.9.0",
      "pressurised_load_cases": [
-      "case:cold-pressure",
-      "case:hot-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/557/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:closed-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/585/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
       "case:ordinary-pressure"
      ]
     },
     {
-     "pointer": "/requests/585/args/invocationJson",
-     "text_pointers": [
-      "/request/model"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/592/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/597/args/inputManifest/canonical_bytes",
-     "text_pointers": [
-      "/model_basis/model_payload"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/604/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:closed-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/623/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:closed-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/628/args/inputManifest/canonical_bytes",
-     "text_pointers": [
-      "/model_basis/model_payload"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:closed-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/668/args/inputManifest/canonical_bytes",
-     "text_pointers": [
-      "/model_basis/model_payload"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/687/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/687/args/invocationJson",
-     "text_pointers": [
-      "/request/model"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/710/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:closed-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/715/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:closed-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/737/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:closed-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/750/args/modelJson",
+     "pointer": "/requests/552/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6853,17 +6709,17 @@
      ]
     },
     {
-     "pointer": "/requests/751/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/562/args/modelJson",
      "text_pointers": [
-      "/model_basis/model_payload"
+      ""
      ],
      "schema_version": "0.9.0",
      "pressurised_load_cases": [
-      "case:ordinary-pressure"
+      "case:closed-pressure"
      ]
     },
     {
-     "pointer": "/requests/766/args/modelJson",
+     "pointer": "/requests/590/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6873,7 +6729,127 @@
      ]
     },
     {
-     "pointer": "/requests/768/args/modelJson",
+     "pointer": "/requests/590/args/invocationJson",
+     "text_pointers": [
+      "/request/model"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/597/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/602/args/inputManifest/canonical_bytes",
+     "text_pointers": [
+      "/model_basis/model_payload"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/609/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:closed-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/629/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:closed-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/634/args/inputManifest/canonical_bytes",
+     "text_pointers": [
+      "/model_basis/model_payload"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:closed-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/674/args/inputManifest/canonical_bytes",
+     "text_pointers": [
+      "/model_basis/model_payload"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/693/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/693/args/invocationJson",
+     "text_pointers": [
+      "/request/model"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/718/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:closed-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/723/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:closed-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/745/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:closed-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/758/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6884,7 +6860,17 @@
      ]
     },
     {
-     "pointer": "/requests/786/args/modelJson",
+     "pointer": "/requests/759/args/inputManifest/canonical_bytes",
+     "text_pointers": [
+      "/model_basis/model_payload"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/774/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6894,7 +6880,18 @@
      ]
     },
     {
-     "pointer": "/requests/824/args/modelJson",
+     "pointer": "/requests/776/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:cold-pressure",
+      "case:hot-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/794/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6904,7 +6901,17 @@
      ]
     },
     {
-     "pointer": "/requests/828/args/modelJson",
+     "pointer": "/requests/832/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/836/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6914,7 +6921,7 @@
      ]
     },
     {
-     "pointer": "/requests/833/args/modelJson",
+     "pointer": "/requests/841/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6924,7 +6931,7 @@
      ]
     },
     {
-     "pointer": "/requests/883/args/modelJson",
+     "pointer": "/requests/892/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6934,7 +6941,7 @@
      ]
     },
     {
-     "pointer": "/requests/905/args/invocationJson",
+     "pointer": "/requests/914/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6944,7 +6951,7 @@
      ]
     },
     {
-     "pointer": "/requests/961/args/modelJson",
+     "pointer": "/requests/971/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6954,7 +6961,7 @@
      ]
     },
     {
-     "pointer": "/requests/970/args/modelJson",
+     "pointer": "/requests/980/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6964,7 +6971,7 @@
      ]
     },
     {
-     "pointer": "/requests/985/args/modelJson",
+     "pointer": "/requests/995/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6974,7 +6981,7 @@
      ]
     },
     {
-     "pointer": "/requests/1029/args/invocationJson",
+     "pointer": "/requests/1040/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6984,7 +6991,7 @@
      ]
     },
     {
-     "pointer": "/requests/1030/args/modelJson",
+     "pointer": "/requests/1041/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6994,7 +7001,7 @@
      ]
     },
     {
-     "pointer": "/requests/1045/args/modelJson",
+     "pointer": "/requests/1056/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -7004,7 +7011,7 @@
      ]
     },
     {
-     "pointer": "/requests/1057/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/1068/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -8991,6 +8998,42 @@
      "storage": "retained-precision-corpus-dag/v1"
     }
    ]
+  },
+  {
+   "id": "hanger_sizing_ex_pressurised",
+   "group": "hanger_sizing_ex_pressurised",
+   "path": "fixtures/results/hanger_sizing_input_ex_pressurised.json",
+   "producer": {
+    "kind": "rust_test",
+    "path": "core/analysis/hanger_sizing/tests/publication.rs",
+    "write": "HANGER_SIZING_WRITE_FIXTURES=1 with the_committed_inputs_are_the_builders",
+    "switch_plumbed": false,
+    "switch_route": "ex_input uses common/model_builder.rs exs_request without a pressure-elongation setting; EXS-A frozen vertical sizing quantities are pressure independent, and the separate ex_references regression authors O1 explicitly"
+   },
+   "pinned_by": [
+    "core/analysis/hanger_sizing/tests/publication.rs",
+    "core/analysis/hanger_sizing/tests/desktop.rs",
+    "core/analysis/hanger_sizing/tests/source_admission.rs",
+    "core/analysis/hanger_sizing/tests/projection_family.rs",
+    "core/runner/headless/tests/size_hangers_cli.rs",
+    "tests/test_hanger_sizing_evidence.py",
+    "apps/desktop/src/features/results/HangerSizingPanel.test.tsx",
+    "fixtures/results/hanger_sizing_result_ex_pressurised.json (solve_request and derived_document hashes)"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   },
+   "documents": [
+    {
+     "pointer": "/request/model",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "W",
+      "O1",
+      "O2"
+     ]
+    }
+   ]
   }
  ],
  "derived_consumers": [
@@ -9561,6 +9604,23 @@
    "expectations": "no_response_value",
    "cases_named": "all",
    "detail": "declared-problem study tool: re-authors J2's source requests (the pressurised one names its case) and records product runs for the O4 census; asserts no response value"
+  },
+  {
+   "paths": [
+    "core/analysis/hanger_sizing/tests/common/model_builder.rs"
+   ],
+   "expectations": "reference_file",
+   "cases_named": "some",
+   "reference": "validation/references/hanger_sizing/ex_sizing.json",
+   "detail": "exs_request builds EXS-A pressurised load/reference-state documents without a pressure-elongation setting; publication and baseline EX comparisons leave it absent, while ex_references and source_admission author selected operating cases before real sizing. Frozen comparisons concern pressure-independent vertical sizing quantities; source-admission controls assert admission only. EXS-B and exact() twins have no nonzero-pressure region."
+  },
+  {
+   "paths": [
+    "core/analysis/hanger_sizing/tests/source_admission.rs"
+   ],
+   "expectations": "product_output",
+   "cases_named": "some",
+   "detail": "Reads committed EXS-A and other sized sources, creates isolated faults and compares ordinary neutralised admission with real sizing; positive controls also compare candidates with committed product results. Selected operating cases are authored by the setting tests; other controls preserve the fixture default without a setting. No independent pressure-sensitive numerical expectation is introduced."
   },
   {
    "paths": [
@@ -10418,6 +10478,15 @@
     "tools/validation/pressure_elongation_inventory.json",
     "tools/validation/pressure_elongation_inventory.py",
     "tools/validation/test_pressure_elongation_inventory.py"
+   ]
+  },
+  {
+   "reason": "EXS-B source is solved but contains no pressurised case: every case has an empty region list and no condition pressure use; no pressure-elongation setting applies. This is the zero-pressure data rule, not an exemption because the model is solved.",
+   "paths": [
+    "fixtures/results/hanger_sizing_input_ex_riser.json"
+   ],
+   "files": [
+    "fixtures/results/hanger_sizing_input_ex_riser.json"
    ]
   },
   {

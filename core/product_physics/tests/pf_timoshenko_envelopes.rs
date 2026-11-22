@@ -6,7 +6,11 @@
 //! - `arc`: the frozen `PFT-ARC-TIP-TIMOSHENKO` request, solved, with its realized
 //!   arc and the named arc disclosure;
 //! - `partial_span_blocked`: the straight request with a partial-span wind load on
-//!   its member, blocked by `PF_TIMOSHENKO_PARTIAL_SPAN_UNSUPPORTED`.
+//!   its member, blocked by `PF_TIMOSHENKO_PARTIAL_SPAN_UNSUPPORTED`;
+//! - `sensitive_torsion`: the committed numerically sensitive torsion model
+//!   (`fixtures/product_preview/numerical_sensitive_torsion_model.json`) selecting
+//!   Timoshenko straight members, solved, its one load case `sensitive`: a solved,
+//!   readable result whose numerical standing is not eligible (DEL-08-01 REQ-024).
 //!
 //! This test re-solves each and requires the committed bytes;
 //! `PF_TIMOSHENKO_WRITE_ENVELOPES=1` rewrites them. They are example transport data
@@ -28,6 +32,14 @@ fn current(text: &str) -> Value {
 const STRAIGHT: &str = include_str!("../../../validation/references/pf_timoshenko/requests/PFT-SB-L1-CM0-TIMOSHENKO.request.json");
 const ARC_TIP: &str = include_str!("../../../validation/references/pf_timoshenko/requests/PFT-ARC-TIP-TIMOSHENKO.request.json");
 const TIMOSHENKO_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1";
+const SENSITIVE_TORSION: &str = include_str!("../../../fixtures/product_preview/numerical_sensitive_torsion_model.json");
+
+/// The sensitive torsion model with Timoshenko straight members selected; nothing else is changed.
+fn sensitive_torsion() -> Value {
+    let mut model: Value = serde_json::from_str(SENSITIVE_TORSION).unwrap();
+    model["model_settings"] = json!({"shear_model": "timoshenko_annulus_energy_v1"});
+    json!({"model": model, "materials": []})
+}
 
 /// The straight request with a partial-span wind load on its one member.
 fn partial_span() -> Value {
@@ -47,6 +59,7 @@ fn committed_pf_timoshenko_envelopes_are_the_products_output() {
         ("straight", current(STRAIGHT), true),
         ("arc", current(ARC_TIP), true),
         ("partial_span_blocked", partial_span(), false),
+        ("sensitive_torsion", sensitive_torsion(), true),
     ];
     let write = std::env::var_os("PF_TIMOSHENKO_WRITE_ENVELOPES").is_some();
     for (name, request, solved) in cases {
@@ -56,6 +69,8 @@ fn committed_pf_timoshenko_envelopes_are_the_products_output() {
         let codes: Vec<&str> = envelope.diagnostics.iter().map(|d| d.code.as_str()).collect();
         assert_eq!(codes.contains(&"PF_TIMOSHENKO_REALIZED_ARCS_EULER_BERNOULLI"), name == "arc", "{name}: {codes:?}");
         assert_eq!(codes.contains(&"PF_TIMOSHENKO_PARTIAL_SPAN_UNSUPPORTED"), !solved, "{name}: {codes:?}");
+        let quality = serde_json::to_value(&envelope.numerical_quality).unwrap();
+        assert_eq!(quality["status"] == "sensitive", name == "sensitive_torsion", "{name}: {quality}");
         let bytes = serde_json::to_string_pretty(&envelope).unwrap() + "\n";
         let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
             .join(format!("../../fixtures/results/preview_physics_timoshenko_{name}_sparse.json"));
