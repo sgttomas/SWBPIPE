@@ -609,6 +609,7 @@ export function useWorkspaceSession() {
     currentSolvedResult,
     renderableSolvedResult,
     numericallyEligible,
+    integrityBound,
     numericalHealth,
     numericalHealthHold,
     analysisRun, setAnalysisRun,
@@ -5183,7 +5184,7 @@ export function useWorkspaceSession() {
     // they differ from the first load on and the agent could never start.)
     snapshot: () => ({ model: currentModel.current, hash: currentHashOwned && modelHashOwner.current?.modelRevision === modelRevision.current && projectSessionGeneration === projectSessionGenerationRef.current ? modelHash : null,
       revision: modelRevision.current, generation: projectSessionGenerationRef.current,
-      result: currentSolvedResultRef.current, standing: { eligible: numericallyEligible, health: numericalHealth } }),
+      result: currentSolvedResultRef.current, standing: { eligible: numericallyEligible, health: numericalHealth, integrityBound } }),
     register: (batch, context) => registerOperationBatch(batch, { agentContext: context }),
     proposal: (key) => agentProposalStandingRef.current.get(key) ?? null,
     solve: (mode) => handleRunWithAgentReceipt(mode ?? solverMode, mode !== undefined),

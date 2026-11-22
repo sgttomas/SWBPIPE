@@ -189,7 +189,7 @@ ROWS = [
     row('readNativeVerdict and readNativeSummary (their cache keys)', NATIVE_RESULT, 'inline',
         'exported; they send native calls, so the judge restates their keys',
         passage={'from': 'decl:readNativeVerdict', 'to': 'end:readNativeSummary',
-                 'mark': 'keyOf("summary", modelText, JSON.stringify(standingArg))'},
+                 'mark': 'keyOf("summary", modelText, JSON.stringify(standingArg), modelUse ?? null)'},
         names=['readNativeVerdict', 'readNativeSummary']),
     row('the session gates 1 and 2', SESSION, 'inline', 'inline in the session',
         "equal, applied in the web's order before the manifest and run_preview; the judge's handle carries resultBytes 0, "
