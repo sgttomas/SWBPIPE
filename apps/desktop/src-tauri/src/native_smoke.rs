@@ -19,7 +19,7 @@
 //!   webview or read from or saved to the Keychain (RT-E1 D4,
 //!   DEL-16-06).
 //!
-//! The harness substitutes exactly four things for a person at the machine: it
+//! The harness substitutes exactly five things for a person at the machine: it
 //! names the file the next model-document chooser returns (`native_smoke_choose`;
 //! the Open Model Document…, Save Model Document…, Save Handoff…, Save Report
 //! Package…, Save canonical HTML…, Export MBF's save and Import MBF's open choosers) instead of showing the chooser, it delivers native menu commands through the same
@@ -33,9 +33,11 @@
 //! `native_smoke_close_report_print`, which confirms that the window its own close
 //! selected left the window registry, not that it was the recorded print's), so no
 //! page reaches a printer or a print queue. A report view window
-//! (`report_view`) is opened and served as in the product; the harness records
-//! what its protocol served each window (`record_report_view`, read by
-//! `native_smoke_take_report_views`) and can close them all
+//! (`report_view`) is opened and served as in the product, and the harness
+//! records what its protocol served each window (`record_report_view`, read by
+//! `native_smoke_take_report_views`); in place of a person's close of a view
+//! window, it asks for every open view window's destruction through the
+//! window's own API and confirms that each has left the window registry
 //! (`native_smoke_close_report_views`). Everything else, from the
 //! open checks to solve, persistence and export, runs on the product's code.
 //! The evidence journeys (`native-smoke/evidence-journeys.mjs`) also write
