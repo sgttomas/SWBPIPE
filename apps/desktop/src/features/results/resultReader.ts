@@ -40,8 +40,15 @@ export const JSON_PARSE_REJECTED = "JSON_PARSE_REJECTED";
 export type ReaderName = "preview-physics" | "pressure-source" | "source-recovery" | "pressure";
 export type TransportReaderName = Exclude<ReaderName, "source-recovery">;
 export type StandingToken = "numerically_eligible" | "needs_recompute" | "unsupported";
+/** The standing's status: `solver_checks_passed` is the solver's own report that its checks found nothing; it
+ * asserts no bound (release exit criterion 18). */
+export type StandingStatus = "solver_checks_passed" | "needs_recompute";
+/** Rust `reader_verdict::integrity_bound()`, on every verdict: in v1.0 the product verifies the integrity check's
+ * bound for no result (LIM-026). Read from the reader; never constructed here. A standing the desktop states
+ * without a reader verdict (the engine unavailable, a text the reader cannot read) carries null: no bound was read. */
+export type IntegrityBound = Readonly<{ status: "not_verified"; reason: "inverse_norm_bound_not_verified" }>;
 /** G1: the desktop's numerical standing, as Rust computes it. */
-export type ReaderStanding = Readonly<{ route: SourceContract; token: StandingToken; status: "integrity_checked" | "needs_recompute"; eligible: boolean; findings: readonly string[] }>;
+export type ReaderStanding = Readonly<{ route: SourceContract; token: StandingToken; status: StandingStatus; eligible: boolean; findings: readonly string[]; integrity_bound: IntegrityBound | null }>;
 export type ContractBinding = Readonly<{ id: string; sha256: string }>;
 /** G5: the header dispatch's route, its table binding, its refusal and the standing. */
 export type ReaderDispatch = Readonly<{ ok: boolean; route: SourceContract; binding: ContractBinding | null; error: Readonly<{ code: string; detail: string | null }> | null; standing: ReaderStanding }>;
@@ -143,7 +150,7 @@ function refuse(outcome: Refusal): never {
 }
 function unsupportedDispatch(code: string): ReaderDispatch {
   return freeze({ ok: false, route: "unsupported", binding: null, error: { code, detail: null },
-    standing: { route: "unsupported", token: "unsupported", status: "needs_recompute", eligible: false, findings: [code] } });
+    standing: { route: "unsupported", token: "unsupported", status: "needs_recompute", eligible: false, findings: [code], integrity_bound: null } });
 }
 
 /** DEL-08-01 REQ-024 and DEL-05-02 Standing: the reader's readability verdict beside

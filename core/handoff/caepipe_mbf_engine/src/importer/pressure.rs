@@ -131,6 +131,31 @@ impl<'a> Importer<'a> {
         (bad, !bores_equal(&bores), self.junctions(route, members, &nodes))
     }
 
+    /// A pressure-free model's `model_settings.shear_model`, or None when the import states none. A bound import
+    /// keeps the sidecar's: its pressure_map's timoshenko_annulus_energy_v1, or no statement for its
+    /// euler_bernoulli; a different `shear_model` argument with it is refused. An unbound import states none.
+    pub(crate) fn free_shear_model(&mut self, pressure: bool) -> R<Option<Value>> {
+        if pressure {
+            return Ok(None);
+        }
+        let caller = self.options.shear_model.clone();
+        if self.bound {
+            let stored = self.maps.get("free_shear_model").cloned();
+            let kept = stored.as_ref().and_then(Value::as_str).unwrap_or("euler_bernoulli").to_string();
+            if let Some(caller) = caller.as_ref().and_then(Value::as_str) {
+                if caller != kept {
+                    let message = format!(
+                        "the shear_model argument {caller} differs from the bound sidecar's {kept}, which a bound import keeps"
+                    );
+                    self.refuse("MBF-IMPORT-SIDECAR-CONFLICT", 0, "shear_model", &message);
+                    return Err(Stop::Refused);
+                }
+            }
+            return Ok(stored);
+        }
+        Ok(None)
+    }
+
     pub(crate) fn assemble_pressure(
         &mut self,
         pipes: &[Value],

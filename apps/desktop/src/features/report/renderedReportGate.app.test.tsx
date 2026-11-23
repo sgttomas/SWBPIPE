@@ -9,9 +9,12 @@
  * on the render input this build step makes). The rendered document is shown and its print
  * reached: in the desktop runtime Print names the shown render by its SHA-256 to the native print
  * route, which holds the document (DEL-08-01 REQ-022, `renderedReportRoutes.ts`), and mounts no
- * print frame. The report package stays refused (the panel's save buttons are disabled with
- * the reason stated, and the native menu commands are refused with a reason), and so do the result JSON
- * export and the rule check. A replacement (a fresh solve) retires the shown report. A second
+ * print frame. The report package and the
+ * user release take the same source (DEL-08-01 REQ-024, "Package and user release"): each of the four
+ * package commands (the panel's two save buttons, the File menu's two commands) offers the save and makes
+ * its request, which carries the result's standing record, and the user-release dialog states the
+ * report frame's statements, as the native host gives them, before the statement. The result JSON
+ * export and the rule check, which need numerical eligibility, are still not offered. A replacement (a fresh solve) retires the shown report. A second
  * test opens Report while the run is going, so that completion arrives with Report visible: the
  * solved result reaches the panel with no further action. The replacement also retires the
  * shown render in the desktop's custody (`retire_rendered_report`).
@@ -34,6 +37,7 @@ import { App } from "../../App";
 import { createSolveJobTransport, REPLAY_COMMANDS } from "../../test/nativeMechanicsReplay";
 import { useModelledVisibility } from "../../test-support/modelledVisibility";
 import { REPORT_SOURCE_COMMANDS, reportSourceRegistration } from "../../test/reportSourceRegistration";
+import { REPORT_PACKAGE_DENIED_STATES } from "../../test/reportPackageDeniedStates";
 import { getLocalStorageCapability } from "../../services/projectService";
 import { loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
 import { outcomeFromWasmEngineJson } from "../../services/operationService";
@@ -52,10 +56,13 @@ const REQUEST = `${DIR}/coupled_friction.request.json`;
  * (`the_app_gate_render_request_renders_through_production_with_its_standing`). Both tests hold
  * its SHA-256, so each reads exactly the bytes the other makes or checks. */
 const APP_RENDER_REQUEST = `${DIR}/pressure_3_coupled_friction_sensitive.app_render_request.json`;
-const APP_RENDER_REQUEST_SHA256 = "7072ee35b1fdc822932613792b89b7b2cf3738fe97982d5b10da02e3a0295a4a";
+const APP_RENDER_REQUEST_SHA256 = "217708dc55ad57f8c8a6ff241008ffdffa4a057fe980dadf8a7f5717e45ca27f";
 const WRITE_APP_RENDER_REQUEST = "OPENPIPESTRESS_WRITE_APP_RENDER_REQUEST";
 /** The render's clock, pinned so the request's generated_at is reproducible. */
 const PINNED_RENDER_TIME = new Date("2026-11-14T12:00:00.000Z");
+/** The frame statements the native host gives for this witness, held equal to the native
+ * operation by `report_standing_package_tests.rs`. */
+const FRAME_STATEMENTS = `${DIR}/pressure_3_coupled_friction_sensitive.frame_statements.json`;
 
 // jsdom does no layout: the shell's `.inactive` sections are modelled as hidden.
 useModelledVisibility();
@@ -103,11 +110,12 @@ async function openReportStage() {
 /** Each mount's job ids are its own (the native host's are unique in a session). */
 let mountSequence = 0;
 /** The App over the replay transport. `hold`, when given, keeps the job's start pending until it
- * settles, so that a test can act while the run is going. */
-async function mountApp(hold?: Promise<void>) {
-  const model = witnessModel();
+ * settles, so that a test can act while the run is going. `source`, when given, is the model and
+ * producer bytes solved in place of the witness's. */
+async function mountApp(hold?: Promise<void>, onSave?: (args: Json) => unknown, source?: { model: PreviewModel; raw: string }) {
+  const model = source?.model ?? witnessModel();
   const [storage, knowledge] = [await getLocalStorageCapability(), await loadDesignKnowledge()];
-  const raw = readFileSync(resolve(root, RAW), "utf8");
+  const raw = source?.raw ?? readFileSync(resolve(root, RAW), "utf8");
   const transport = createSolveJobTransport(async () => { if (hold) await hold; return raw; }, { jobIdPrefix: `invented-rendered-report-gate-job:${++mountSequence}` });
   const renders: Json[] = [];
   const prints: Json[] = [];
@@ -134,6 +142,8 @@ async function mountApp(hold?: Promise<void>) {
       return { outcome: "print_window_opened", route_id: "DREP-HTML-SAVE-005", export_context: "local_private", canonical_sha256_hex: canonical, print_sha256_hex: "c".repeat(64) };
     }
     if (command === "retire_rendered_report") { retirements += 1; return null; }
+    // The package save's native command: the test records each request it is sent.
+    if (command === "save_report_package" && onSave) return onSave(args);
     // DEL-08-01 REQ-022: the report source registration, as the native process answers it
     // (observation, conditional activation, highest number of the current incarnation).
     if (REPORT_SOURCE_COMMANDS.includes(command)) return reportSource(command, args);
@@ -167,7 +177,7 @@ function expectSolvedInPanel(why: () => string) {
 }
 
 describe("the rendered report of a solved exact-route result that is not numerically eligible, through App's gate", () => {
-  it("is offered with its standing record; the package stays refused; a stale result is taken away again", async () => {
+  it("is offered with its standing record, and so is its package; a stale result is taken away again", async () => {
     const { raw, renders, prints, retirements, jobCommands, why } = await mountApp();
 
     // Before any solve the panel has no result, and the native menu's package command says why
@@ -176,7 +186,7 @@ describe("the rendered report of a solved exact-route result that is not numeric
     expect(within(panel).getByTestId("rendered-report-precondition")).toBeInTheDocument();
     act(() => nativeMenuCommand("file.save-report-package"));
     await waitFor(() => expect(within(screen.getByTestId("rendered-report-panel")).getByTestId("report-package-save-status")).toHaveTextContent(
-      "Not saved: report-package save needs the current mechanics result and analysis-run record. Solve first."
+      "Report package not saved: the model has no current result. Solve it, then save. Nothing was written."
     ));
 
     act(() => nativeMenuCommand("analyze.run"));
@@ -187,21 +197,12 @@ describe("the rendered report of a solved exact-route result that is not numeric
     await openReportStage();
     await waitFor(() => expectSolvedInPanel(why), { timeout: 60_000 });
     panel = screen.getByTestId("rendered-report-panel");
-    // The report package is refused for it: the panel's save buttons are disabled with the reason
-    // stated. The native File menu's two package commands are always enabled, so each is sent as
-    // the OS menu sends it: nothing is saved, and the panel says why.
+    // The report package is offered for it (DEL-08-01 REQ-024): the panel's save buttons are
+    // enabled, with no reason against them (the four commands' requests: the test below).
     for (const id of ["report-package-save", "report-package-user-release"]) {
-      expect(within(panel).getByTestId(id)).toBeDisabled();
-      expect(within(panel).getByTestId(id).getAttribute("title")).toContain("needs a numerically eligible result");
+      expect(within(panel).getByTestId(id)).toBeEnabled();
+      expect(within(panel).getByTestId(id).getAttribute("title")).toBeNull();
     }
-    for (const command of ["file.save-report-package", "file.save-shareable-report-package"]) {
-      act(() => nativeMenuCommand(command));
-      await waitFor(() => expect(within(screen.getByTestId("rendered-report-panel")).getByTestId("report-package-save-status")).toHaveTextContent(
-        "Not saved: report-package save needs a numerically eligible result. The rendered report states this result's numerical standing."
-      ));
-    }
-    expect(screen.queryByTestId("user-release-dialog")).toBeNull();
-    expect(invokeMock.mock.calls.map(([command]) => command).filter((command) => /report_package|user_release/.test(String(command)))).toEqual([]);
     // The result JSON export and the rule check, which need numerical eligibility, are not offered.
     act(() => nativeMenuCommand("view.section.exports"));
     const exports = await screen.findByTestId("result-export-panel");
@@ -391,18 +392,85 @@ describe("the rendered report of a solved exact-route result that is not numeric
     expect(reportHidden()).toBe(true);
   }, 240_000);
 
-  it("the shareable menu refusal appears without a preceding private-save request", async () => {
-    const { jobCommands, why } = await mountApp();
+  /** DEL-08-01 REQ-024, "Package and user release": each of the four package commands offers the
+   * save for this result and makes its request, carrying the result's standing record; the native
+   * save, which derives the record again and requires it equal, is not run here (its unit test is
+   * `report_standing_package_tests.rs`). The user-release dialog states the report frame's
+   * statements, as the native host gives them, each on its own line before the statement, and its
+   * save waits for the statement. */
+  it("each of the four package commands makes its request, and the dialog states the frame's statements first", async () => {
+    const saves: Json[] = [];
+    const { why } = await mountApp(undefined, (args) => {
+      saves.push(args);
+      throw new Error("INVENTED-SAVE-NOT-WRITTEN: this unit transport writes no package");
+    });
     act(() => nativeMenuCommand("analyze.run"));
-    await waitFor(() => expect(jobCommands()).toContain("read_preview_mechanics_job_analysis_run_preview"), { timeout: 60_000 });
+    await waitFor(() => expect(invokeMock.mock.calls.map(([command]) => command)).toContain("read_preview_mechanics_job_analysis_run_preview"), { timeout: 60_000 });
     await openReportStage();
     await waitFor(() => expectSolvedInPanel(why), { timeout: 60_000 });
-    expect(within(screen.getByTestId("rendered-report-panel")).queryByTestId("report-package-save-status")).toBeNull();
-    act(() => nativeMenuCommand("file.save-shareable-report-package"));
-    await waitFor(() => expect(within(screen.getByTestId("rendered-report-panel")).getByTestId("report-package-save-status")).toHaveTextContent(
-      "Not saved: report-package save needs a numerically eligible result. The rendered report states this result's numerical standing."
-    ));
-    expect(screen.queryByTestId("user-release-dialog")).toBeNull();
-    expect(invokeMock.mock.calls.map(([command]) => command).filter((command) => /report_package|user_release/.test(String(command)))).toEqual([]);
+    const panel = () => screen.getByTestId("rendered-report-panel");
+    // The standing record this App's render request carries for the same result (committed above).
+    const record = JSON.parse(readFileSync(resolve(root, APP_RENDER_REQUEST), "utf8")).input.numerical_standing;
+    const statements: string[] = JSON.parse(readFileSync(resolve(root, FRAME_STATEMENTS), "utf8")).frame_statements;
+    expect(statements).toHaveLength(1);
+    const saved = async (count: number) => {
+      await waitFor(() => expect(saves.length, why()).toBe(count), { timeout: 60_000 });
+      await waitFor(() => expect(within(panel()).getByTestId("report-package-save")).toBeEnabled(), { timeout: 60_000 });
+      return JSON.parse(saves[count - 1].requestCanonicalText);
+    };
+    // The local private package: from the panel's button, then from the File menu.
+    fireEvent.click(within(panel()).getByTestId("report-package-private-intent"));
+    fireEvent.click(within(panel()).getByTestId("report-package-save"));
+    for (const [count, command] of [[1, null], [2, "file.save-report-package"]] as const) {
+      if (command) act(() => nativeMenuCommand(command));
+      const request = await saved(count);
+      expect(request.export_profile_id, why()).toBe("desktop_local_private_report_package_1");
+      expect(request.report.numerical_standing, why()).toEqual(record);
+    }
+    // The shareable package: from the panel's button, then from the File menu. Each opens the dialog,
+    // which states the frame's statements before the statement; only the statement enables its save.
+    for (const [count, open] of [[3, () => fireEvent.click(within(panel()).getByTestId("report-package-user-release"))], [4, () => act(() => nativeMenuCommand("file.save-shareable-report-package"))]] as const) {
+      open();
+      const dialog = await screen.findByTestId("user-release-dialog", undefined, { timeout: 60_000 });
+      expect(within(dialog).queryByTestId("user-release-refusal"), why()).toBeNull();
+      expect(within(dialog).getAllByTestId("user-release-frame-statement").map((line) => line.textContent)).toEqual(statements);
+      expect(dialog).not.toHaveTextContent("Kept for inspection.");
+      const statement = within(dialog).getByTestId("user-release-statement");
+      expect(within(dialog).getByTestId("user-release-frame-statements").compareDocumentPosition(statement) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(within(dialog).getByTestId("user-release-confirm")).toBeDisabled();
+      fireEvent.click(statement);
+      fireEvent.click(within(dialog).getByTestId("user-release-confirm"));
+      const request = await saved(count);
+      expect(request.export_profile_id, why()).toBe("desktop_user_released_report_package_1");
+      expect(request.report.report_context.user_release.record_version).toBe("1.2.0");
+      expect(request.report.numerical_standing, why()).toEqual(record);
+    }
+    expect(saves).toHaveLength(4);
   }, 240_000);
+});
+
+/** DEL-08-01 REQ-024, "Package and user release": for each state the session test
+ * (`reportPackageAdmission.session.test.tsx`) observes the four package commands refusing, App
+ * offers no package once the solve has ended. The panel's two save buttons are disabled. The File
+ * menu is the native one in the desktop runtime, and the state the web view gives it
+ * (`NativeShellState`) carries no package items, so its two package commands stay selectable:
+ * each, when sent, leaves its refusal word for word in the panel, with no dialog and no save. */
+describe.each(REPORT_PACKAGE_DENIED_STATES)("the report package's controls for %s, through App", (_name, make, message) => {
+  it.each(["file.save-report-package", "file.save-shareable-report-package"])("the panel's two save buttons are disabled, and the native menu's %s, alone in a fresh App, refuses", async (command) => {
+    const { model, bytes, state } = make();
+    const { why } = await mountApp(undefined, () => { throw new Error("INVENTED-SAVE-NOT-EXPECTED"); }, { model, raw: bytes });
+    act(() => nativeMenuCommand("analyze.run"));
+    await waitFor(() => expect(screen.getByTestId("solve-progress-panel"), why()).toHaveAttribute("data-state", state), { timeout: 60_000 });
+    const panel = await openReportStage();
+    await waitFor(() => expect(within(panel).getByTestId("rendered-report-precondition"), why()).toBeInTheDocument(), { timeout: 60_000 });
+    for (const id of ["report-package-save", "report-package-user-release"]) {
+      expect(within(panel).getByTestId(id), `${id}; ${why()}`).toBeDisabled();
+    }
+    // No status before the command, so the refusal is this command's.
+    expect(within(panel).queryByTestId("report-package-save-status")).toBeNull();
+    act(() => nativeMenuCommand(command));
+    await waitFor(() => expect(within(screen.getByTestId("rendered-report-panel")).getByTestId("report-package-save-status"), why()).toHaveTextContent(message));
+    expect(screen.queryByTestId("user-release-dialog")).toBeNull();
+    expect(invokeMock.mock.calls.filter(([name]) => name === "save_report_package")).toHaveLength(0);
+  }, 120_000);
 });

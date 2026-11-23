@@ -1,8 +1,21 @@
 import { draftPlaceholderProvenance } from "../../services/rulePackService";
 import {
+  ACCEPTABILITY_BASIS_WORDS,
+  ACCEPTABILITY_RELATION_WORDS,
+  ANALYSIS_STATUS_WORDS,
+  CHECK_GROUP_WORDS,
+  DIAGNOSTIC_CODE_WORDS,
+  DIAGNOSTIC_POLICY_FIELD_WORDS,
+  PART_WORDS,
+  fieldWord,
+  wordFor
+} from "./rulePackWords";
+import {
+  Disclosure,
   EnumSelect,
   Field,
   TextField,
+  distinctNames,
   readRequiredInputIds,
   readStressCategoryIds,
   readValueSlotIds,
@@ -104,6 +117,13 @@ export const DIAGNOSTIC_POLICY_FIELDS = [
   "evaluator_error"
 ] as const;
 
+// What the rule-check runner acts on (core/rules/rule_check_runner): a check
+// reports only these outcomes, and selects a message only for these two
+// conditions. The other statuses and the other six message settings are kept
+// with the pack as declarations; their tokens are stored unchanged.
+export const REPORTED_STATUSES = ["USER_RULE_CHECKED", "USER_RULE_FAILED", "RULE_INPUTS_INCOMPLETE"] as const;
+export const RUNTIME_POLICY_FIELDS = ["missing_input", "evaluator_error"] as const;
+
 function asObject(value: unknown): Record<string, unknown> | null {
   if (typeof value !== "object" || value === null || Array.isArray(value)) return null;
   return value as Record<string, unknown>;
@@ -121,8 +141,30 @@ function asStringArray(value: unknown): string[] {
   return asArray(value).filter((entry): entry is string => typeof entry === "string");
 }
 
+function isRuntimePolicyField(field: string): boolean {
+  return (RUNTIME_POLICY_FIELDS as readonly string[]).includes(field);
+}
+
+// The message settings in two groups: those a check uses, then those kept only.
+const POLICY_GROUPS: ReadonlyArray<readonly [string, readonly string[]]> = [
+  [CHECK_GROUP_WORDS.usedMessages, DIAGNOSTIC_POLICY_FIELDS.filter((field) => isRuntimePolicyField(field))],
+  [CHECK_GROUP_WORDS.keptMessages, DIAGNOSTIC_POLICY_FIELDS.filter((field) => !isRuntimePolicyField(field))]
+];
+
 function isKnownStatus(status: string): boolean {
   return (ANALYSIS_STATUSES as readonly string[]).includes(status);
+}
+
+/** Each declaration's entered name by its identifier (unnamed ones are absent). */
+function namesById(entries: unknown, idKey: string): Record<string, string> {
+  const names: Record<string, string> = {};
+  for (const entry of asArray(entries)) {
+    const record = asObject(entry);
+    const id = asString(record?.[idKey]);
+    const name = asString(record?.name);
+    if (id && name) names[id] = name;
+  }
+  return names;
 }
 
 /** The declared `check_id`s in document order (empty when none/malformed). */
@@ -227,6 +269,7 @@ function RefSelect({
   // rather than silently snapping the ref to the first declared id; the backend
   // validation independently flags dangling references.
   const known = options.includes(value);
+  const shown = referenceNames(options, labels);
   return (
     <select
       data-testid={testId}
@@ -236,12 +279,17 @@ function RefSelect({
     >
       {!known ? <option value={value}>(unresolved) {value || "(empty)"}</option> : null}
       {options.map((option) => (
-        <option key={option} value={option}>
-          {labels?.[option] ? `${labels[option]} (${option})` : option}
+        <option key={option} value={option} title={option}>
+          {shown[option]}
         </option>
       ))}
     </select>
   );
+}
+
+/** How a reference picker names each option (see `distinctNames`). */
+export function referenceNames(options: readonly string[], labels?: Record<string, string>): Record<string, string> {
+  return distinctNames(options, labels);
 }
 
 function ResultStatusToggles({
@@ -260,28 +308,38 @@ function ResultStatusToggles({
   // never silently dropped). The minItems:1 schema floor blocks unchecking the
   // last selected status.
   const unknown = selected.filter((status) => !isKnownStatus(status));
-  const options = [...ANALYSIS_STATUSES, ...unknown];
+  const reported = REPORTED_STATUSES as readonly string[];
+  const kept = [...ANALYSIS_STATUSES.filter((status) => !reported.includes(status)), ...unknown];
   const floorReason = "A check needs at least one result status.";
+  const toggle = (status: string) => {
+    const checked = selected.includes(status);
+    const blockUncheck = checked && selected.length <= 1;
+    return (
+      <label className="rule-pack-node-field" key={status}>
+        <input
+          type="checkbox"
+          data-testid={`rule-pack-check-status-${status}`}
+          checked={checked}
+          disabled={disabled || blockUncheck}
+          title={disabled ? disabledReason : blockUncheck ? floorReason : undefined}
+          onChange={(event) => onToggle(status, event.target.checked)}
+        />
+        <span title={isKnownStatus(status) ? status : undefined}>
+          {isKnownStatus(status) ? wordFor(ANALYSIS_STATUS_WORDS, status) : `(current) ${status}`}
+        </span>
+      </label>
+    );
+  };
   return (
     <div className="rule-pack-check-statuses" data-testid="rule-pack-check-result-statuses">
-      <span className="rule-pack-node-label">result_statuses</span>
-      {options.map((status) => {
-        const checked = selected.includes(status);
-        const blockUncheck = checked && selected.length <= 1;
-        return (
-          <label className="rule-pack-node-field" key={status}>
-            <input
-              type="checkbox"
-              data-testid={`rule-pack-check-status-${status}`}
-              checked={checked}
-              disabled={disabled || blockUncheck}
-              title={disabled ? disabledReason : blockUncheck ? floorReason : undefined}
-              onChange={(event) => onToggle(status, event.target.checked)}
-            />
-            <span>{isKnownStatus(status) ? status : `(current) ${status}`}</span>
-          </label>
-        );
-      })}
+      <span className="rule-pack-node-label" title="Format name: result_statuses">
+        {CHECK_GROUP_WORDS.reportedOutcomes}
+      </span>
+      {REPORTED_STATUSES.map(toggle)}
+      <span className="rule-pack-node-label" title="Format name: result_statuses">
+        {CHECK_GROUP_WORDS.keptOutcomes}
+      </span>
+      {kept.map(toggle)}
     </div>
   );
 }
@@ -315,13 +373,10 @@ export function CheckDefinitionsEditor({
   const slotIds = readValueSlotIds(document);
   const formulaIds = readFormulaDeclarationIds(document);
   const categoryIds = readStressCategoryIds(document);
-  const categoryLabels: Record<string, string> = {};
-  for (const entry of asArray(document.stress_categories)) {
-    const record = asObject(entry);
-    const id = asString(record?.category_id);
-    const name = asString(record?.name);
-    if (id && name) categoryLabels[id] = name;
-  }
+  // References show the declaration's name, falling back to its identifier
+  // only where no name was entered.
+  const categoryLabels = namesById(document.stress_categories, "category_id");
+  const inputLabels = namesById(document.required_inputs, "input_id");
 
   // Patch one check by index; untouched checks round-trip verbatim.
   const updateCheck = (index: number, patch: Record<string, unknown>) =>
@@ -408,17 +463,8 @@ export function CheckDefinitionsEditor({
       className="report-list rule-pack-check-definitions-editor"
       data-testid="rule-pack-check-definitions-editor"
     >
-      <strong>Acceptability checks (structured; no text syntax — D-02b)</strong>
-      <small className="rule-pack-node-readonly" data-testid="rule-pack-check-definitions-guidance">
-        Bind each check to the required inputs and value slots it consumes and the formula that
-        computes it, then choose the acceptability basis, the result statuses the check may emit, and
-        the diagnostic code for each failure condition. Pickers bind to the ids declared above; the
-        software authors the check shape only — it never decides pass/fail acceptance or fills in a
-        code or standards value.
-      </small>
-
       <div data-testid="rule-pack-check-definitions">
-        <small>Check definitions ({rawChecks.length})</small>
+        <strong className="rule-pack-subheading">{PART_WORDS.checksHeading} ({rawChecks.length})</strong>
         {rawChecks.map((entry, index) => {
           const record = asObject(entry) ?? {};
           const inputRefs = asArray(record.required_input_refs);
@@ -434,28 +480,23 @@ export function CheckDefinitionsEditor({
               key={`check-${index}`}
             >
               <TextField
-                testId="rule-pack-check-id"
-                label="check_id"
-                value={asString(record.check_id) ?? ""}
-                disabled={disabled}
-                onChange={(next) => updateCheck(index, { check_id: next })}
-              />
-              <TextField
                 testId="rule-pack-check-name"
-                label="name"
+                label={fieldWord("name")}
+                formatName="name"
                 value={asString(record.name) ?? ""}
                 disabled={disabled}
                 onChange={(next) => updateCheck(index, { name: next })}
               />
               <TextField
                 testId="rule-pack-check-description"
-                label="description"
+                label={fieldWord("description")}
+                formatName="description"
                 value={asString(record.description) ?? ""}
                 disabled={disabled}
                 onChange={(next) => updateCheck(index, { description: next })}
               />
 
-              <Field label="category_ref (stress category)">
+              <Field label={fieldWord("category_ref")} formatName="category_ref">
                 <RefSelect
                   testId="rule-pack-check-category-ref"
                   options={categoryIds}
@@ -466,7 +507,7 @@ export function CheckDefinitionsEditor({
                 />
               </Field>
 
-              <Field label="formula_ref">
+              <Field label={fieldWord("formula_ref")} formatName="formula_ref">
                 <RefSelect
                   testId="rule-pack-check-formula-ref"
                   options={formulaIds}
@@ -476,13 +517,18 @@ export function CheckDefinitionsEditor({
                 />
               </Field>
 
-              <div className="rule-pack-check-subgroup" data-testid="rule-pack-check-input-refs">
-                <span className="rule-pack-node-label">required_input_refs</span>
+              <div
+                className="rule-pack-check-subgroup"
+                data-testid="rule-pack-check-input-refs"
+                title="Format name: required_input_refs"
+              >
+                <span className="rule-pack-node-label">{fieldWord("required_input_refs")}</span>
                 {inputRefs.map((ref, refIndex) => (
                   <div className="rule-pack-node-field" key={`input-ref-${refIndex}`}>
                     <RefSelect
                       testId="rule-pack-check-input-ref"
                       options={inputIds}
+                      labels={inputLabels}
                       value={asString(asObject(ref)?.ref_id) ?? ""}
                       disabled={disabled}
                       onChange={(next) => updateRef(index, "required_input_refs", refIndex, next)}
@@ -495,7 +541,7 @@ export function CheckDefinitionsEditor({
                         disabled
                           ? disabledReason
                           : inputRefs.length <= 1
-                            ? "A check needs at least one required-input ref."
+                            ? "A check needs at least one input."
                             : undefined
                       }
                       onClick={() => removeRef(index, "required_input_refs", refIndex)}
@@ -511,12 +557,16 @@ export function CheckDefinitionsEditor({
                   title={disabled ? disabledReason : undefined}
                   onClick={() => addRef(index, "required_input_refs", "required_input", inputIds)}
                 >
-                  Add input ref
+                  Add input
                 </button>
               </div>
 
-              <div className="rule-pack-check-subgroup" data-testid="rule-pack-check-slot-refs">
-                <span className="rule-pack-node-label">value_slot_refs</span>
+              <div
+                className="rule-pack-check-subgroup"
+                data-testid="rule-pack-check-slot-refs"
+                title="Format name: value_slot_refs"
+              >
+                <span className="rule-pack-node-label">{fieldWord("value_slot_refs")}</span>
                 {slotRefs.map((ref, refIndex) => (
                   <div className="rule-pack-node-field" key={`slot-ref-${refIndex}`}>
                     <RefSelect
@@ -534,7 +584,7 @@ export function CheckDefinitionsEditor({
                         disabled
                           ? disabledReason
                           : slotRefs.length <= 1
-                            ? "A check needs at least one value-slot ref."
+                            ? "A check needs at least one limit."
                             : undefined
                       }
                       onClick={() => removeRef(index, "value_slot_refs", refIndex)}
@@ -550,49 +600,74 @@ export function CheckDefinitionsEditor({
                   title={disabled ? disabledReason : undefined}
                   onClick={() => addRef(index, "value_slot_refs", "value_slot", slotIds)}
                 >
-                  Add slot ref
+                  Add limit
                 </button>
               </div>
 
               <EnumSelect
-                testId="rule-pack-check-acceptability-basis"
-                label="acceptability_basis"
-                options={ACCEPTABILITY_BASES}
-                value={asString(record.acceptability_basis) ?? "TBD"}
-                disabled={disabled}
-                onChange={(next) => updateCheck(index, { acceptability_basis: next })}
-              />
-
-              <EnumSelect
                 testId="rule-pack-check-acceptability-relation"
-                label="acceptability_relation"
+                label={fieldWord("acceptability_relation")}
+                formatName="acceptability_relation"
                 options={ACCEPTABILITY_RELATIONS}
+                words={ACCEPTABILITY_RELATION_WORDS}
                 value={asString(record.acceptability_relation) ?? "less_than_or_equal"}
                 disabled={disabled}
                 onChange={(next) => updateCheck(index, { acceptability_relation: next })}
               />
 
-              <ResultStatusToggles
-                selected={resultStatuses}
-                disabled={disabled}
-                disabledReason={disabledReason}
-                onToggle={(status, on) => toggleResultStatus(index, status, on)}
-              />
+              <Disclosure summary="More" testId="rule-pack-check-more">
+                <TextField
+                  testId="rule-pack-check-id"
+                  label={fieldWord("check_id")}
+                  formatName="check_id"
+                  value={asString(record.check_id) ?? ""}
+                  disabled={disabled}
+                  onChange={(next) => updateCheck(index, { check_id: next })}
+                />
 
-              <div className="rule-pack-check-subgroup" data-testid="rule-pack-check-diagnostic-policy">
-                <span className="rule-pack-node-label">diagnostic_policy</span>
-                {DIAGNOSTIC_POLICY_FIELDS.map((field) => (
-                  <EnumSelect
-                    key={field}
-                    testId={`rule-pack-check-policy-${field}`}
-                    label={field}
-                    options={DIAGNOSTIC_CODES}
-                    value={asString(policy[field]) ?? ""}
-                    disabled={disabled}
-                    onChange={(next) => updateDiagnosticPolicy(index, field, next)}
-                  />
-                ))}
-              </div>
+                <EnumSelect
+                  testId="rule-pack-check-acceptability-basis"
+                  label={fieldWord("acceptability_basis")}
+                  formatName="acceptability_basis"
+                  options={ACCEPTABILITY_BASES}
+                  words={ACCEPTABILITY_BASIS_WORDS}
+                  value={asString(record.acceptability_basis) ?? "TBD"}
+                  disabled={disabled}
+                  onChange={(next) => updateCheck(index, { acceptability_basis: next })}
+                />
+
+                <ResultStatusToggles
+                  selected={resultStatuses}
+                  disabled={disabled}
+                  disabledReason={disabledReason}
+                  onToggle={(status, on) => toggleResultStatus(index, status, on)}
+                />
+
+                <div
+                  className="rule-pack-check-subgroup"
+                  data-testid="rule-pack-check-diagnostic-policy"
+                  title="Format name: diagnostic_policy"
+                >
+                  {POLICY_GROUPS.map(([heading, fields]) => (
+                  <div className="rule-pack-check-subgroup" key={heading}>
+                  <span className="rule-pack-node-label">{heading}</span>
+                  {fields.map((field) => (
+                    <EnumSelect
+                      key={field}
+                      testId={`rule-pack-check-policy-${field}`}
+                      label={wordFor(DIAGNOSTIC_POLICY_FIELD_WORDS, field)}
+                      formatName={`diagnostic_policy.${field}`}
+                      options={DIAGNOSTIC_CODES}
+                      words={DIAGNOSTIC_CODE_WORDS}
+                      value={asString(policy[field]) ?? ""}
+                      disabled={disabled}
+                      onChange={(next) => updateDiagnosticPolicy(index, field, next)}
+                    />
+                  ))}
+                  </div>
+                  ))}
+                </div>
+              </Disclosure>
 
               <button
                 type="button"

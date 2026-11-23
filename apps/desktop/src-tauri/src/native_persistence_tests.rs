@@ -212,10 +212,38 @@ pub(crate) fn stored_project(path: &Path, project_id: &str, model: &Value) {
 
 pub(crate) type Rows = Vec<Vec<(String, rusqlite::types::Value)>>;
 
-/// Every row of `table`, every column but `skip`, in rowid order.
+/// Deterministic `ORDER BY` clause for `table`: `rowid` for rowid tables, or the
+/// declared `PRIMARY KEY` columns in `pk` order for a `WITHOUT ROWID` table.
+pub(crate) fn deterministic_table_order(connection: &Connection, table: &str) -> String {
+    assert!(!table.is_empty() && table.bytes().all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || byte == b'_'), "an identifier of the store: {table}");
+    let without_rowid: bool = connection
+        .query_row("SELECT wr != 0 FROM pragma_table_list(?1) WHERE schema = 'main'", [table], |row| row.get(0))
+        .unwrap();
+    if !without_rowid {
+        return "rowid".to_string();
+    }
+    let mut pk_statement = connection
+        .prepare("SELECT name FROM pragma_table_info(?1) WHERE pk > 0 ORDER BY pk")
+        .unwrap();
+    let pk_columns: Vec<String> = pk_statement
+        .query_map([table], |row| row.get::<_, String>(0))
+        .unwrap()
+        .map(Result::unwrap)
+        .map(|column| {
+            assert!(!column.is_empty() && column.bytes().all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || byte == b'_'), "a column of the store: {column}");
+            format!("\"{column}\"")
+        })
+        .collect();
+    assert!(!pk_columns.is_empty(), "a WITHOUT ROWID table has a primary key: {table}");
+    pk_columns.join(", ")
+}
+
+/// Every row of `table`, every column but `skip`, in rowid order (or primary-key order for a
+/// `WITHOUT ROWID` table).
 pub(crate) fn dump(path: &Path, table: &str, skip: &[&str]) -> Rows {
     let connection = Connection::open(path).unwrap();
-    let mut statement = connection.prepare(&format!("SELECT * FROM {table} ORDER BY rowid")).unwrap();
+    let order = deterministic_table_order(&connection, table);
+    let mut statement = connection.prepare(&format!("SELECT * FROM \"{table}\" ORDER BY {order}")).unwrap();
     let names: Vec<String> = statement.column_names().iter().map(|name| name.to_string()).collect();
     let mut rows = statement.query([]).unwrap();
     let mut out = Vec::new();
@@ -1385,7 +1413,8 @@ fn parity_reply(reply: &Value, into: &mut std::collections::BTreeMap<String, Str
 /// re-saved from its restored handle. Every stored column (record, result,
 /// manifest, hashes, project row, labels, states) and every reply is the
 /// pre-change implementation's, byte for byte, but the keys store schema v14
-/// removed or re-derived ([`REDERIVED_AT_V14`]).
+/// removed or re-derived ([`REDERIVED_AT_V14`]) and the keys store schema v15
+/// re-derived ([`REDERIVED_AT_V15`]).
 #[test]
 fn p1_stored_bytes_hashes_and_replies_are_the_pre_change_implementations() {
     use crate::stored_custody::tests::{native_open, native_read};
@@ -1474,6 +1503,7 @@ fn p1_stored_bytes_hashes_and_replies_are_the_pre_change_implementations() {
     assert_eq!(REDERIVED_AT_V14.len(), 7 * 4, "each case's create, save, reopen and re-save reply");
     assert_eq!(REDERIVED_AT_V14.iter().collect::<std::collections::BTreeSet<_>>().len(), REDERIVED_AT_V14.len(), "each key re-derived once");
     assert!(REDERIVED_AT_V14.iter().all(|key| expected.contains_key(*key) && [" create reply", " save reply", " reopen reply", " resave reply"].iter().any(|end| key.ends_with(end))), "only the project replies were re-derived at v14");
+    assert_eq!(REDERIVED_AT_V15, REDERIVED_AT_V14, "store schema v15 re-derived the same project replies, and nothing else");
     assert!(REDERIVED[..24].iter().all(|key| key.starts_with("preview:pressure ")), "only preview:pressure keys were re-derived at 40567c5b7");
     let suffixes = |prefix: &str| -> std::collections::BTreeSet<&str> { REDERIVED[..24].iter().map(|key| key.strip_prefix(prefix).unwrap()).collect() };
     let pressure = suffixes("preview:pressure ");
@@ -2233,6 +2263,16 @@ const REDERIVED_AT_V14: &[&str] = &[
     "preview:rule-pack-excluded save reply",
 ];
 
+/// The keys store schema v15 (DEL-08-01 REQ-023, the saved-package entries'
+/// table) re-derived: the same project replies as [`REDERIVED_AT_V14`], whose
+/// project summary now reports store schema v15 (`store_schema_version`,
+/// `store_schema_target_version`, `migration_status`, and
+/// `migrations_applied_on_open` with `store-v15-saved-package-entries-table`).
+/// Each was checked to be its pinned reply but for those members before it
+/// was re-derived: with them rolled back to v14's, every one of the 602 keys
+/// equals its pin. No stored column's key moved.
+const REDERIVED_AT_V15: &[&str] = REDERIVED_AT_V14;
+
 /// Current regression bindings for S6's authorized disclosure restatement, re-derived with the
 /// existing full-map writer. Exactly these 28 keys move; the other 574 values and all membership stay fixed.
 /// Earlier REDERIVED/REDERIVED_AT_V14 declarations and frozen pre-change evidence remain unchanged.
@@ -2344,9 +2384,9 @@ const REDERIVED_AT_RT_L2: &[&str] = &[
 /// Generated at c8865f384 (module section docs), except the [`REDERIVED`], [`REDERIVED_AT_S6`] and
 /// [`REDERIVED_AT_RT_L2`] keys. The 42
 /// search-row keys are removed and the [`REDERIVED_AT_V14`] keys re-derived
-/// (store schema v14).
+/// (store schema v14), then the [`REDERIVED_AT_V15`] keys (store schema v15).
 const PARITY: &[(&str, &str)] = &[
-    ("preview:aggregate-failed create reply", "a24d9545fc005835b0649d7d89c0900d1f49119847e70cc9190f8a8564424a30:3906"),
+    ("preview:aggregate-failed create reply", "99e1781ef5924bdb285353ecdc0806bcd0db19b1b319214426cae1c28badd1ab:3946"),
     ("preview:aggregate-failed record analysis_run_labels[0].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
     ("preview:aggregate-failed record analysis_run_labels[0].notes_json", "5df6d4f94dea81443474cd8fd8b70333654763c9dfbea861d2428c19e7d00a73:18"),
     ("preview:aggregate-failed record analysis_run_labels[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
@@ -2403,7 +2443,7 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:aggregate-failed recorded read#0 reply", "38a3dd170933b01945c5a55e6702bde12a4ff92f5c5fcecf0f2526b49087132c:13071"),
     ("preview:aggregate-failed recorded read#1 legacy record", "b09032db92f5ab4b295b0cfa8782710463d411f685af91ef24e246d08fb1b40e:143577"),
     ("preview:aggregate-failed recorded read#1 reply", "9725c4d34b8c637bc9db95888a7e57dab4f274a5392c91cf4658167338dfeb36:13071"),
-    ("preview:aggregate-failed reopen reply", "c6540781df533525b71b96143df65fb964bbf85d9a0d3af9e6877b95e5ecb58a:11449"),
+    ("preview:aggregate-failed reopen reply", "0b9d5d89f94e566139e8a4c4af67a60527a071d0f83561b13cd07f190857735c:11449"),
     ("preview:aggregate-failed resave local_projects[0].analysis_run_json", "e18b2af008b5aa2cb15b83dba9e1fbaa98a9eaedc6be783d42f61488e7c4c13b:143591"),
     ("preview:aggregate-failed resave local_projects[0].created_at_unix", "Integer(1793000000)"),
     ("preview:aggregate-failed resave local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
@@ -2417,7 +2457,7 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:aggregate-failed resave local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
     ("preview:aggregate-failed resave local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
     ("preview:aggregate-failed resave local_projects[0].updated_at_unix", "Integer(1793000000)"),
-    ("preview:aggregate-failed resave reply", "26d587a773504651a4e466afc69a41ec33f10cdfcc59305f447686f14d6ee292:4240"),
+    ("preview:aggregate-failed resave reply", "0cb8ed540157acc3e6ff5a92e1ed26d7429a5a45be4ade838c91b311954d96ed:4240"),
     ("preview:aggregate-failed save local_projects[0].analysis_run_json", "e18b2af008b5aa2cb15b83dba9e1fbaa98a9eaedc6be783d42f61488e7c4c13b:143591"),
     ("preview:aggregate-failed save local_projects[0].created_at_unix", "Integer(1793000000)"),
     ("preview:aggregate-failed save local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
@@ -2431,8 +2471,8 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:aggregate-failed save local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
     ("preview:aggregate-failed save local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
     ("preview:aggregate-failed save local_projects[0].updated_at_unix", "Integer(1793000000)"),
-    ("preview:aggregate-failed save reply", "d3752909cb3ac1320a597a87ef72e73c15a5abd675c1cc5991adee60655f6b6d:3415"),
-    ("preview:aggregate-unrecognized create reply", "12db8b02591081112d8ffafc2d8425666d686ad4d0b1fc0ea72fa5ce8ad183ad:3906"),
+    ("preview:aggregate-failed save reply", "e811946d6d7747af839a35778657b425c7668d3de51884ca9fb4ca04e9b28532:3415"),
+    ("preview:aggregate-unrecognized create reply", "e21a130415da9e141c7bb5463f16af86d2e2616d3b854182dd49fe2afa8ec583:3946"),
     ("preview:aggregate-unrecognized record analysis_run_labels[0].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
     ("preview:aggregate-unrecognized record analysis_run_labels[0].notes_json", "5df6d4f94dea81443474cd8fd8b70333654763c9dfbea861d2428c19e7d00a73:18"),
     ("preview:aggregate-unrecognized record analysis_run_labels[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
@@ -2489,7 +2529,7 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:aggregate-unrecognized recorded read#0 reply", "1ea29575e6f1e7837afb702f3334a6bc0e85b927a5b41c2faf619ac6e1042906:13083"),
     ("preview:aggregate-unrecognized recorded read#1 legacy record", "4c261b31ce5b5805c12083aab1c2268172864f0a1016cee577b550b64c20f862:143583"),
     ("preview:aggregate-unrecognized recorded read#1 reply", "9e22d5dc79944ff500bc0e92a380ffd3ea338510207b1567a9fc31a8c88c1bb6:13083"),
-    ("preview:aggregate-unrecognized reopen reply", "d4a1d76c830ced4f214d0034c35cd2f99a68cb8fa7a1155ce8377949568e0f64:11455"),
+    ("preview:aggregate-unrecognized reopen reply", "3388419ebac6261d7086b57281dada0c8282437b1b09362a51e6c112395474ae:11455"),
     ("preview:aggregate-unrecognized resave local_projects[0].analysis_run_json", "e028b18561b9a976e443c9b619de0da6dda6b9d31f015a8811da7c2827b215ee:143597"),
     ("preview:aggregate-unrecognized resave local_projects[0].created_at_unix", "Integer(1793000000)"),
     ("preview:aggregate-unrecognized resave local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
@@ -2503,7 +2543,7 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:aggregate-unrecognized resave local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
     ("preview:aggregate-unrecognized resave local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
     ("preview:aggregate-unrecognized resave local_projects[0].updated_at_unix", "Integer(1793000000)"),
-    ("preview:aggregate-unrecognized resave reply", "c5e05baaa5cecb2443b2caf33bf8c67d683d2a1ae86a35d656ea8df8923e53b6:4240"),
+    ("preview:aggregate-unrecognized resave reply", "5b2f8960d61184e339f91c7135b7c99808d109c8c2ab13bdaae021d72c50e641:4240"),
     ("preview:aggregate-unrecognized save local_projects[0].analysis_run_json", "e028b18561b9a976e443c9b619de0da6dda6b9d31f015a8811da7c2827b215ee:143597"),
     ("preview:aggregate-unrecognized save local_projects[0].created_at_unix", "Integer(1793000000)"),
     ("preview:aggregate-unrecognized save local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
@@ -2517,8 +2557,8 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:aggregate-unrecognized save local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
     ("preview:aggregate-unrecognized save local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
     ("preview:aggregate-unrecognized save local_projects[0].updated_at_unix", "Integer(1793000000)"),
-    ("preview:aggregate-unrecognized save reply", "20cb1d488cac0ad5b891df597217eeef1bd749ca13c4f4fad3fc783070b72675:3415"),
-    ("preview:connected create reply", "12db8b02591081112d8ffafc2d8425666d686ad4d0b1fc0ea72fa5ce8ad183ad:3906"),
+    ("preview:aggregate-unrecognized save reply", "30037be6f98a4829c1234193970946aa14ad0eb6cd4f3d7f2ef07bfc12734443:3415"),
+    ("preview:connected create reply", "e21a130415da9e141c7bb5463f16af86d2e2616d3b854182dd49fe2afa8ec583:3946"),
     ("preview:connected record analysis_run_labels[0].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
     ("preview:connected record analysis_run_labels[0].notes_json", "5df6d4f94dea81443474cd8fd8b70333654763c9dfbea861d2428c19e7d00a73:18"),
     ("preview:connected record analysis_run_labels[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
@@ -2575,7 +2615,7 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:connected recorded read#0 reply", "1ea29575e6f1e7837afb702f3334a6bc0e85b927a5b41c2faf619ac6e1042906:13083"),
     ("preview:connected recorded read#1 legacy record", "4c261b31ce5b5805c12083aab1c2268172864f0a1016cee577b550b64c20f862:143583"),
     ("preview:connected recorded read#1 reply", "9e22d5dc79944ff500bc0e92a380ffd3ea338510207b1567a9fc31a8c88c1bb6:13083"),
-    ("preview:connected reopen reply", "d4a1d76c830ced4f214d0034c35cd2f99a68cb8fa7a1155ce8377949568e0f64:11455"),
+    ("preview:connected reopen reply", "3388419ebac6261d7086b57281dada0c8282437b1b09362a51e6c112395474ae:11455"),
     ("preview:connected resave local_projects[0].analysis_run_json", "e028b18561b9a976e443c9b619de0da6dda6b9d31f015a8811da7c2827b215ee:143597"),
     ("preview:connected resave local_projects[0].created_at_unix", "Integer(1793000000)"),
     ("preview:connected resave local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
@@ -2589,7 +2629,7 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:connected resave local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
     ("preview:connected resave local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
     ("preview:connected resave local_projects[0].updated_at_unix", "Integer(1793000000)"),
-    ("preview:connected resave reply", "c5e05baaa5cecb2443b2caf33bf8c67d683d2a1ae86a35d656ea8df8923e53b6:4240"),
+    ("preview:connected resave reply", "5b2f8960d61184e339f91c7135b7c99808d109c8c2ab13bdaae021d72c50e641:4240"),
     ("preview:connected save local_projects[0].analysis_run_json", "e028b18561b9a976e443c9b619de0da6dda6b9d31f015a8811da7c2827b215ee:143597"),
     ("preview:connected save local_projects[0].created_at_unix", "Integer(1793000000)"),
     ("preview:connected save local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
@@ -2603,8 +2643,8 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:connected save local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
     ("preview:connected save local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
     ("preview:connected save local_projects[0].updated_at_unix", "Integer(1793000000)"),
-    ("preview:connected save reply", "20cb1d488cac0ad5b891df597217eeef1bd749ca13c4f4fad3fc783070b72675:3415"),
-    ("preview:pressure create reply", "c088fcd11dd7039c5cf864016b5c62fa6d571fd6ffa280a7c48c8996e34da3ae:4066"),
+    ("preview:connected save reply", "30037be6f98a4829c1234193970946aa14ad0eb6cd4f3d7f2ef07bfc12734443:3415"),
+    ("preview:pressure create reply", "c19d5bc0fe723bff3f003c336a8f30bdd0776f1667d10b695962ccfaa7c8a856:4106"),
     ("preview:pressure record analysis_run_labels[0].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
     ("preview:pressure record analysis_run_labels[0].notes_json", "5df6d4f94dea81443474cd8fd8b70333654763c9dfbea861d2428c19e7d00a73:18"),
     ("preview:pressure record analysis_run_labels[0].project_id", "a6246e580c56c6f2e381d6c56e6dc78b5e615a7c342071f9c92fe17c44f0ff84:40"),
@@ -2661,7 +2701,7 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:pressure recorded read#0 reply", "514eeda7fa6b9400b91ab1026131619bb01df26ed250c61588043cde152269ac:15056"),
     ("preview:pressure recorded read#1 legacy record", "378510ddcce679b6f9bfd220dbbc15a0534a800d422f2c8a108203f734c8d006:520513"),
     ("preview:pressure recorded read#1 reply", "e9e9c4ecbcc83ebc38a5de335fd3716cd877391660f1dd01e6eed7a4f21ed77e:15056"),
-    ("preview:pressure reopen reply", "023df262f487a13095588bdedfc6e8384fc183cd4aeb4d4d5f7b55871f52bd1e:12646"),
+    ("preview:pressure reopen reply", "929d839f9ad5c2a9745b494155092834cd779533091dfbd417c39d35274b1c95:12646"),
     ("preview:pressure resave local_projects[0].analysis_run_json", "0ba4b7ed590a01c6c8431e712e7a7a7c143d6bea275bd7bfcba68d3e0bc7b328:520532"),
     ("preview:pressure resave local_projects[0].created_at_unix", "Integer(1793000000)"),
     ("preview:pressure resave local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
@@ -2675,7 +2715,7 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:pressure resave local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
     ("preview:pressure resave local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
     ("preview:pressure resave local_projects[0].updated_at_unix", "Integer(1793000000)"),
-    ("preview:pressure resave reply", "dfe41beeb5d5d965f54f86081a89c661234e69cf11aeb6f74e27fa00f4db6871:4405"),
+    ("preview:pressure resave reply", "6d838d6623d8c26f80220708888aaea2a753760690d8ef78f49feadf1e5bf3a2:4405"),
     ("preview:pressure save local_projects[0].analysis_run_json", "0ba4b7ed590a01c6c8431e712e7a7a7c143d6bea275bd7bfcba68d3e0bc7b328:520532"),
     ("preview:pressure save local_projects[0].created_at_unix", "Integer(1793000000)"),
     ("preview:pressure save local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
@@ -2689,8 +2729,8 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:pressure save local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
     ("preview:pressure save local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
     ("preview:pressure save local_projects[0].updated_at_unix", "Integer(1793000000)"),
-    ("preview:pressure save reply", "023d40876b6cda5f5b0ede87d2c59665673db81670a51e12d6027b66e4767e5d:3575"),
-    ("preview:pressure-source create reply", "65b753d8ad90ae47bdaf37e1da49b89d893bfe13243c88d90db52dbb5c85de6b:3461"),
+    ("preview:pressure save reply", "2e9f9649604cd584c60e6028b9960807f23c22ad1afcc8547730aac1eaa2b64c:3575"),
+    ("preview:pressure-source create reply", "2ceae752aef7b341e6a0d1e32109510a0a027d87b71af5d26f3fb9a477985987:3501"),
     ("preview:pressure-source record analysis_run_labels[0].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
     ("preview:pressure-source record analysis_run_labels[0].notes_json", "5df6d4f94dea81443474cd8fd8b70333654763c9dfbea861d2428c19e7d00a73:18"),
     ("preview:pressure-source record analysis_run_labels[0].project_id", "0693e489f130b54637dcd80cc4ded978a783ee61ac6c8c39c32e94620c0ad4ef:28"),
@@ -2747,7 +2787,7 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:pressure-source recorded read#0 reply", "d2112690309c35f9237d5b93bc9fe987f0a7f805114d3a496b5a1e21e6a55a38:11119"),
     ("preview:pressure-source recorded read#1 legacy record", "8be72892f528b012e6b892a6c67aec8fd7e8e883b19e0deba73882471e4a4c6e:304292"),
     ("preview:pressure-source recorded read#1 reply", "9b1f1660c3c7557d146c691a40042df2c1c11574f4f963c25bd4a7a0ddc0c98e:11119"),
-    ("preview:pressure-source reopen reply", "5345fcdbc7d38e5585337cb0e35fe581c3093a00779f8729f85e8875ccbff5ef:10617"),
+    ("preview:pressure-source reopen reply", "eb070986c6985bb57b37ae7353cc78bb0baefdbfdd323d1ea84f66a5c3be1e72:10617"),
     ("preview:pressure-source resave local_projects[0].analysis_run_json", "3b85de03c57348999e907a4e3893069d49d60d560335451e4356bf7bec541173:304299"),
     ("preview:pressure-source resave local_projects[0].created_at_unix", "Integer(1793000000)"),
     ("preview:pressure-source resave local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
@@ -2761,7 +2801,7 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:pressure-source resave local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
     ("preview:pressure-source resave local_projects[0].selected_review_target_json", "ba3aa40eae8d2c0209a00ad34f486243ccf8eefdcb1fedd76203c20e1b607773:60"),
     ("preview:pressure-source resave local_projects[0].updated_at_unix", "Integer(1793000000)"),
-    ("preview:pressure-source resave reply", "720527c371ca18e9ba0200f898f8762b37676cf3b933832b6a60756dd0cbd902:3834"),
+    ("preview:pressure-source resave reply", "70bb500a512ff8394a7b4a6c332d93a34baf3882d8173610f862fb91cee61922:3834"),
     ("preview:pressure-source save local_projects[0].analysis_run_json", "3b85de03c57348999e907a4e3893069d49d60d560335451e4356bf7bec541173:304299"),
     ("preview:pressure-source save local_projects[0].created_at_unix", "Integer(1793000000)"),
     ("preview:pressure-source save local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
@@ -2775,8 +2815,8 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:pressure-source save local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
     ("preview:pressure-source save local_projects[0].selected_review_target_json", "ba3aa40eae8d2c0209a00ad34f486243ccf8eefdcb1fedd76203c20e1b607773:60"),
     ("preview:pressure-source save local_projects[0].updated_at_unix", "Integer(1793000000)"),
-    ("preview:pressure-source save reply", "1bcc8b842631e14504ae01e7fe0055297552bb568609dfa79088bc031751b7d3:2970"),
-    ("preview:retained create reply", "a7f794e0802feb204a81438de1f1507a7508d7a6060c3bca2b7b5aa249f0c5d9:3478"),
+    ("preview:pressure-source save reply", "0c18d639e5761c9dc8668dbd80ef12fa13f8ccd7b7c4fc86c92e8d81510d51a7:2970"),
+    ("preview:retained create reply", "52be21e99e2a98cd23bd6b3aea727b2d2c7be641e359306543e028c4534e6d8b:3518"),
     ("preview:retained record analysis_run_labels[0].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
     ("preview:retained record analysis_run_labels[0].notes_json", "5df6d4f94dea81443474cd8fd8b70333654763c9dfbea861d2428c19e7d00a73:18"),
     ("preview:retained record analysis_run_labels[0].project_id", "d8225a4b1710080c08117f701329684ab30b1d6fb3889f5aeb9f6fea6ad90c35:44"),
@@ -2833,7 +2873,7 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:retained recorded read#0 reply", "9185f1ca775d74630217e410a0988af02030ee7c83dad28823025fe472f877db:11323"),
     ("preview:retained recorded read#1 legacy record", "423cd118b138fd2a65b182033e8488a5102e4bb52952725421dc4bd4eb420ccc:233161"),
     ("preview:retained recorded read#1 reply", "0f7887d34e759b808ed8cf1749926dc2b2f96787e9bd39417b6105db40edcfb4:11323"),
-    ("preview:retained reopen reply", "fa8e9d89b89c8fa5ff811931863c51420addf32425c704bf67e9bc2dd3c93d62:10281"),
+    ("preview:retained reopen reply", "7da731c089dbfb8a8d9eb1a61e6243b5ff8b89198a160c7a9a480d3b2fe69f75:10281"),
     ("preview:retained resave local_projects[0].analysis_run_json", "47ce4f74fa2c4d82622ce7ec78bff1e8e6bcd83cc6f572b99e1d760ba127e08d:233184"),
     ("preview:retained resave local_projects[0].created_at_unix", "Integer(1793000000)"),
     ("preview:retained resave local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
@@ -2847,7 +2887,7 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:retained resave local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
     ("preview:retained resave local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
     ("preview:retained resave local_projects[0].updated_at_unix", "Integer(1793000000)"),
-    ("preview:retained resave reply", "220856d5e76cf82c17824c3b1470992d6867757744991079f04582b2b3f1ee2e:3862"),
+    ("preview:retained resave reply", "7c5f0f3fdea035c3d1cddff84eb2bece39843862d6776b909a368399ef4f91f1:3862"),
     ("preview:retained save local_projects[0].analysis_run_json", "47ce4f74fa2c4d82622ce7ec78bff1e8e6bcd83cc6f572b99e1d760ba127e08d:233184"),
     ("preview:retained save local_projects[0].created_at_unix", "Integer(1793000000)"),
     ("preview:retained save local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
@@ -2861,8 +2901,8 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:retained save local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
     ("preview:retained save local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
     ("preview:retained save local_projects[0].updated_at_unix", "Integer(1793000000)"),
-    ("preview:retained save reply", "e661bbf03d7e6d73ca96562c1b5c626ed7d4c7940563ad1bb9d7b65880cac6e6:2987"),
-    ("preview:rule-pack-excluded create reply", "64203b07cec88b35cec01b5d1a812e9ae6c3417031b0622824ae426a094549da:3906"),
+    ("preview:retained save reply", "f07c824d1987801f7375669ec91a9c46636235b78a7c9b49bcc9b2dbd7c6f7f7:2987"),
+    ("preview:rule-pack-excluded create reply", "ca691a207ac058d105571b6da6f089c8127e6b4463f09f5272f0f57fbead73e9:3946"),
     ("preview:rule-pack-excluded record analysis_run_labels[0].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
     ("preview:rule-pack-excluded record analysis_run_labels[0].notes_json", "5df6d4f94dea81443474cd8fd8b70333654763c9dfbea861d2428c19e7d00a73:18"),
     ("preview:rule-pack-excluded record analysis_run_labels[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
@@ -2919,7 +2959,7 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:rule-pack-excluded recorded read#0 reply", "ef7f96a4edb3fc6ca3d8e63529216521f5f9c9aa0db22f74c2ec2ea6da1b0ad9:14539"),
     ("preview:rule-pack-excluded recorded read#1 legacy record", "52c3e4172c47d935ff354a8bb512ca237249cd5bf55be96cb0875b46c3739a75:144051"),
     ("preview:rule-pack-excluded recorded read#1 reply", "75d53b349933804388b1a986307ef811ce09c42da25b6999b46795b632fba3ae:14539"),
-    ("preview:rule-pack-excluded reopen reply", "9fe13034ff161fde47d4485329e5f9d8b415512480927dca58f0706da885621d:12595"),
+    ("preview:rule-pack-excluded reopen reply", "af795596a52ead2e009d7ecc71dbcb214c9ac0cbe87f914486596569623f5ceb:12595"),
     ("preview:rule-pack-excluded resave local_projects[0].analysis_run_json", "9a2eb22bc5648ee64af9ddca16030a188486416908c4b1936d28003d184e1c85:144011"),
     ("preview:rule-pack-excluded resave local_projects[0].created_at_unix", "Integer(1793000000)"),
     ("preview:rule-pack-excluded resave local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
@@ -2933,7 +2973,7 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:rule-pack-excluded resave local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
     ("preview:rule-pack-excluded resave local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
     ("preview:rule-pack-excluded resave local_projects[0].updated_at_unix", "Integer(1793000000)"),
-    ("preview:rule-pack-excluded resave reply", "78f4fa80f7447d7a5d501650f17aa4c22895b45a2097e29ef07a089eb370b6c1:4240"),
+    ("preview:rule-pack-excluded resave reply", "f51250ea69fe01ff6decebc64162ae109f7a988ff3a836a7a6c18e1ed3817c9d:4240"),
     ("preview:rule-pack-excluded save local_projects[0].analysis_run_json", "9a2eb22bc5648ee64af9ddca16030a188486416908c4b1936d28003d184e1c85:144011"),
     ("preview:rule-pack-excluded save local_projects[0].created_at_unix", "Integer(1793000000)"),
     ("preview:rule-pack-excluded save local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
@@ -2947,7 +2987,7 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:rule-pack-excluded save local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
     ("preview:rule-pack-excluded save local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
     ("preview:rule-pack-excluded save local_projects[0].updated_at_unix", "Integer(1793000000)"),
-    ("preview:rule-pack-excluded save reply", "6a76c9dcf1c4647faffa967701f80ac4a9d5231517df6a2e63987b780454af2e:3415"),
+    ("preview:rule-pack-excluded save reply", "1593898dcb8e8171347b2eb24f958a0072107b822dc005d51c2996adf4cad6b3:3415"),
 ];
 
 

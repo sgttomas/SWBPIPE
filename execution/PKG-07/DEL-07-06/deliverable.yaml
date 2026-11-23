@@ -15,8 +15,8 @@ needs:
   when: Taking a walkthrough of the launched application by script for the interface review
   condition: >-
     The scripted-run build drives the desktop by script, and what it substitutes is what the shell's
-    scope declares: the file the chooser returns, the native menu commands and the report print
-    dialog.
+    scope declares: the file the chooser returns, the native menu commands, a request to quit or to
+    close the main window, and the report print dialog.
   gating: true
 - from: DEL-07-02
   when: Examining the timed-entry use case
@@ -96,6 +96,9 @@ code_paths:
 # writes numbered screens with their word and control counts. It records what a person sees and where
 # a journey stops; it judges nothing and is no check of AC-007.
 - apps/desktop/walkthrough/**
+# The store the native walkthrough's refused-stored-run journey starts from. DEL-14-02 lists it with
+# the reopen guard whose refusal it shows; DEL-02-05 lists the fixture folder.
+- fixtures/persistence/refused_stored_run/openpipestress-projects.sql
 # AC-007's missing-data use case: its start model, requests and person-entered values, and the
 # offline judge of a trace of it. No driver runs it yet.
 - fixtures/embedded_agent/use_cases/missing-data/**

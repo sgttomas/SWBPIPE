@@ -3361,7 +3361,7 @@ mod tests {
         assert_eq!(evidence.store_schema_version, crate::STORE_SCHEMA_TARGET_VERSION);
         assert_eq!(
             evidence.migrations_applied_on_open,
-            vec!["store-v12-model-states-tables", "store-v13-analysis-runs-tables", "store-v14-retire-project-fts-sidecar"]
+            vec!["store-v12-model-states-tables", "store-v13-analysis-runs-tables", "store-v14-retire-project-fts-sidecar", "store-v15-saved-package-entries-table"]
         );
         assert!(
             crate::load_project(&connection, Some(PROJECT))
@@ -3387,7 +3387,7 @@ mod tests {
         let (connection, evidence) = crate::open_project_store(&path).unwrap();
         assert_eq!(
             evidence.migrations_applied_on_open,
-            vec!["store-v12-model-states-tables", "store-v13-analysis-runs-tables", "store-v14-retire-project-fts-sidecar"]
+            vec!["store-v12-model-states-tables", "store-v13-analysis-runs-tables", "store-v14-retire-project-fts-sidecar", "store-v15-saved-package-entries-table"]
         );
         migrate_v12_model_states(&connection).unwrap();
         assert_eq!(list_states(&connection, PROJECT).unwrap().len(), 1);

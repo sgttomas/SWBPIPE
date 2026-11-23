@@ -1586,10 +1586,12 @@
               "minLength": 1
             },
             "authored_normalized_magnitude": {
-              "type": "number"
+              "type": "number",
+              "description": "The stored primitive's normalized magnitude as the document states it."
             },
             "applied_magnitude": {
-              "type": "number"
+              "type": "number",
+              "description": "The magnitude the case applies: factor times authored_normalized_magnitude. On a hydrostatic test case (DEL-05-01 REQ-014), an entry whose source_id is the load_id of an item of the exact case's test_condition.contents_resolution is a generated self-weight that the test contents entered in place of the section's contents; its applied magnitude is factor times that item's applied_n_per_m."
             }
           }
         },
@@ -1677,6 +1679,39 @@
             },
             "factor": {
               "type": "null"
+            }
+          }
+        },
+        {
+          "description": "DEL-04-07 REQ-011: a static-equivalent load the case's equivalent_static generation formed, once, with its identity (in the exact case's generated_load_ids, in that order) and factor 1. Cross-binding is executable reader validation.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "owner_kind",
+            "source_id",
+            "classification",
+            "factor",
+            "generation_kind"
+          ],
+          "properties": {
+            "owner_kind": {
+              "const": "generated_equivalent_static"
+            },
+            "source_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "classification": {
+              "const": "generated_applied"
+            },
+            "factor": {
+              "const": 1
+            },
+            "generation_kind": {
+              "enum": [
+                "seismic",
+                "wind"
+              ]
             }
           }
         }

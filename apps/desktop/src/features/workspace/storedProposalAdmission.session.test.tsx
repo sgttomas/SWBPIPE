@@ -18,9 +18,13 @@ import * as projectService from "../../services/projectService";
 import { createLocalProject, findLocalProject, getLocalStorageCapability, openLocalProject, saveLocalProject, saveLocalProjectKeepingStoredProposal, STORED_PROPOSAL_KEEP_REFUSED } from "../../services/projectService";
 import * as hashService from "../../services/hashService";
 import { computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
-import { loadDesignKnowledge, loadSampleProposal } from "../../services/previewService";
+import { loadDesignKnowledge } from "../../services/previewService";
+import { storedSampleProposal } from "../../test/storedSampleProposal";
 import { REPLACE_REMOVES_STORED_PROPOSAL, STORED_PROPOSAL_NOT_ADMITTED, admitStoredProposal, storedEditorIntentsSentence, storedProposalSentence } from "./storedProposalAdmission";
-import type { AgentProposal, PreviewModel } from "../../types";
+import type { AgentProposal, MechanicsResult, PreviewModel } from "../../types";
+
+/** A well-formed stored proposal, as an earlier version saved it: the sample over the bundled demo result. */
+const wellFormedStoredProposal = () => storedSampleProposal(JSON.parse(readFileSync(resolve(__dirname, "../../../../../fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json"), "utf8")) as MechanicsResult);
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
@@ -205,20 +209,6 @@ describe("a stored proposal without its members, on the browser preview's store"
     expect(result.current.project.projectEnvelopeHashIntegrity).toMatchObject({ integrity_status: "verified_match", verification_source: "open" });
   });
 
-  it("is replaced by a proposal of the session's own, as any save does", async () => {
-    const { result } = await readySession();
-    const model = await storedWith(result.current.model.model!, "project:issue-519-own", UNADMITTED);
-    await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
-    await act(async () => { await result.current.results.handleProposal(); });
-    const own = result.current.results.proposal!;
-    expect(own).not.toBeNull();
-    const keeping = vi.spyOn(projectService, "saveLocalProjectKeepingStoredProposal");
-    await act(async () => { await result.current.project.handleSaveProject(); });
-    expect(keeping).not.toHaveBeenCalled();
-    expect(result.current.project.projectMessage).not.toContain(STORED_PROPOSAL_NOT_ADMITTED);
-    expect((await openLocalProject(model.project.id))!.proposal).toEqual(own);
-  });
-
   it("is not carried by a copy, and a Replace of the whole project says it is gone; each says so", async () => {
     const { result } = await readySession();
     const model = await storedWith(result.current.model.model!, "project:issue-519-copy", UNADMITTED);
@@ -343,7 +333,7 @@ describe("a stored proposal without its members, on the browser preview's store"
 
   it("opens and saves a well-formed stored proposal exactly as before", async () => {
     const { result } = await readySession();
-    const proposal = await loadSampleProposal(null, null);
+    const proposal = await wellFormedStoredProposal();
     expect(admitStoredProposal(proposal).admitted).toBe(true);
     const model = await storedWith(result.current.model.model!, "project:issue-519-admitted", proposal);
     const opened = (await openLocalProject(model.project.id))!;
@@ -408,32 +398,6 @@ describe("the notice at the write's commit, while the session moved on (issue 51
     expect(result.current.project.projectOperation).toBe("save");
     expect(keeping).not.toHaveBeenCalled();
     expect(result.current.project.projectMessage).not.toContain(STORED_PROPOSAL_NOT_ADMITTED);
-    expect((await openLocalProject(model.project.id))!.proposal).toBeNull();
-  });
-
-  it("is cleared by the session's own proposal written while the model was edited: the next save does not keep it", async () => {
-    const { result } = await readySession();
-    const model = await storedWith(result.current.model.model!, "project:issue-519-r2-own-inflight", UNADMITTED);
-    await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
-    await act(async () => { await result.current.results.handleProposal(); });
-    const own = result.current.results.proposal!;
-    expect(own).not.toBeNull();
-    const write = pausedOnce("saveLocalProject", "any");
-    let pending!: Promise<void>;
-    act(() => { pending = result.current.project.handleSaveProject(); });
-    await act(async () => { await write.started; });
-    // The edit discards the session's proposal and advances the request epoch while the write is paused.
-    await editModel(result);
-    expect(result.current.results.proposal).toBeNull();
-    write.release();
-    await act(async () => { await pending; });
-    expect((await openLocalProject(model.project.id))!.proposal).toEqual(own);
-    const keeping = vi.spyOn(projectService, "saveLocalProjectKeepingStoredProposal");
-    await act(async () => { await result.current.project.handleSaveProject(); });
-    expect(result.current.project.projectOperation).toBe("save");
-    expect(keeping).not.toHaveBeenCalled();
-    expect(result.current.project.projectMessage).not.toContain(STORED_PROPOSAL_NOT_ADMITTED);
-    // The discarded proposal is not kept: the save wrote the session's own (none).
     expect((await openLocalProject(model.project.id))!.proposal).toBeNull();
   });
 
@@ -798,7 +762,7 @@ describe("a stored proposal without its members, on the desktop store", () => {
   });
 
   it("sends a well-formed stored proposal as before, without the keep member", async () => {
-    const proposal = await loadSampleProposal(null, null);
+    const proposal = await wellFormedStoredProposal();
     const { saves } = await openedNatively(proposal);
     expect(saves).toHaveLength(1);
     expect("keep_stored_proposal" in saves[0]).toBe(false);

@@ -317,6 +317,11 @@ describe("ModelTree virtual typed selection", () => {
       selection={support}
       selectionState={singletonSelection(support)}
     /></DisplayUnitsProvider>);
+    // The support's form stands behind its closed line: open it before entering anything.
+    const supportLine = screen.getByTestId("inspector-support-form-details");
+    fireEvent.click(within(supportLine).getByText("Edit this support", { selector: "summary" }));
+    expect(supportLine).toHaveAttribute("open");
+    expect(screen.getByLabelText("Support provenance")).toBeVisible();
     fireEvent.change(screen.getByLabelText("Support provenance"), { target: { value: "entered rich draft" } });
 
     view.rerender(<DisplayUnitsProvider initialPreference="SI"><PropertyInspector
@@ -325,7 +330,7 @@ describe("ModelTree virtual typed selection", () => {
       selection={node}
       selectionState={{ ...singletonSelection(node), orderedKeys: [entityKey(support), entityKey(node)] }}
     /></DisplayUnitsProvider>);
-    expect(screen.getByTestId("aggregate-property-inspector")).toHaveTextContent("Existing Properties drafts remain attached");
+    expect(screen.getByTestId("aggregate-property-inspector")).toBeVisible();
     expect(screen.getByLabelText("Support provenance")).toHaveValue("entered rich draft");
     expect(screen.getByLabelText("Support provenance")).toBeDisabled();
 

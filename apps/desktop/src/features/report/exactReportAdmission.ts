@@ -69,9 +69,10 @@ export type ExactReportAdmissionInputs = {
   result: MechanicsResult;
   analysisRun: AnalysisRunEnvelope;
   inputManifest: CurrentSessionInputManifestEvidence;
-  /** `report-render` admits any solved result the reader reads (the rendered report and its
-   * print view); the default, `result-export`, keeps the numerically eligible standing the
-   * package save and user release still require (DEL-08-01 REQ-024's present account). */
+  /** `report` admits any solved result the reader reads: the rendered report and its print
+   * view, and on the exact route the report package and the user release, each of which states
+   * the result's numerical standing (DEL-08-01 REQ-024). The default, `result-export`, keeps
+   * the numerically eligible standing of the standalone Export Result JSON. */
   purpose?: CurrentResultExportPurpose;
 };
 
@@ -185,11 +186,11 @@ export function checkExactReportAdmission(admission: unknown, inputs: ExactRepor
   try { text = checkedJsonText({ model, result, analysisRun, inputManifest }); } catch { throw stale(); }
   if (text !== record.text) throw stale();
   if (!hasNativeMechanicsInvocation(result, model, record.solverMode)) throw stale();
-  // The standing the admission was made for still holds: readable and solved for the
-  // rendered report, numerically eligible for the other emissions.
+  // The standing the admission was made for still holds: readable and solved for a report,
+  // numerically eligible for the standalone Export Result JSON.
   let admitted = false;
   try {
-    if (record.purpose === "report-render") {
+    if (record.purpose === "report") {
       const reading = reportStanding(result, model);
       admitted = reading.readability.readable && reading.readability.solved;
     } else {

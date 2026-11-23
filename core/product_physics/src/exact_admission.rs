@@ -179,7 +179,7 @@ pub(crate) fn pressure_v3_formulation_basis_with_source(
             "One resolved case per load case supplies each member's selected E/nu with derived G, actual/selected/installation temperatures and explicit expansion definition; each case is solved independently.".to_string(),
             "Thermal and fit reference strain compose as lambda_fit*lambda_thermal-1 and enter once as an axial eigenstrain; uniform member temperature only, no gradients, finite strain, inelasticity or fit-up joints.".to_string(),
             "Global rigid support translations/rotations are prescribed absolute boundary values through the partitioned solve; reactions come from the unreduced equations. Boundary motion on an active nonlinear support's own DOF moves its ground: its state is measured on u - g_s and an active or sticking state prescribes the moved ground (plus or minus the clearance for a gap). Base motion on an active spring's stiffness axis adds the formed load k*g and the spring publishes -k*(u - g). Each motion is an absolute reference displacement. A consumed constant-effort support's constant force is a device action of the active support in every state. Device preload/reference, inactive or locked supports are not provided.".to_string(),
-            "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided. Generated equivalent-static (seismic or wind) loads have no ledger class and are refused by name (EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED).".to_string(),
+            "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided. The case generates equivalent-static wind and seismic loads from the same inputs and mass basis as on a plain exact-route document. Each generated load is applied at factor 1 beside the declared ledger and appears once in the case's record of load sources. A generated identity that also identifies another stored, synthesized or generated load source in the document is refused (EQUIVALENT_STATIC_GENERATED_ID_COLLISION).".to_string(),
             "History is independent equilibrium only: contact and friction are static and history-free (DEC-067), each case's active-set loop starts from the authored initial states, and no installation or predecessor history is represented.".to_string(),
         ]);
     }
@@ -242,14 +242,6 @@ impl ElongationStatement {
 pub(crate) fn carries_pressure(case: &PreviewLoadCase) -> bool {
     case.pressure_regions.as_ref().is_some_and(|regions| !regions.is_empty())
 }
-
-/// W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md` §3): a case's
-/// `equivalent_static` on a load/reference-state document. Generated loads
-/// have no ledger class there, so they are refused for every authored case,
-/// listed in the group or not, before the effective cases are selected.
-pub(crate) const EQUIVALENT_STATIC_LOAD_STATE: &str = "EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED";
-/// The static text of [`EQUIVALENT_STATIC_LOAD_STATE`].
-pub(crate) const EQUIVALENT_STATIC_LOAD_STATE_TEXT: &str = "equivalent_static generation is not provided on a load/reference-state document: a case's ordinary applied loads there are exactly its declared source ledger (a consumed constant-effort support's force is a device action of the active support), and generated seismic or wind loads have no ledger class; the exact route refuses the generation rather than apply loads outside the ledger";
 
 /// Every object family the exact route can meet besides its straight base.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -410,10 +402,11 @@ pub(crate) fn admission(contract: ExactContract, family: ExactFamily) -> Admissi
         // term, chain topology and arc recovery (`bend_pressure`).
         (ExactContract::PressureV3, ExactFamily::RealizedBend) => Admission::Admitted,
         // W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md`): a
-        // case's DEC-068 seismic or wind generation on a plain v3 document,
-        // on the route's D-5 mass basis; load/reference-state documents and
-        // replaced spans keep named refusals; a Timoshenko partial span takes
-        // the exact Timoshenko vector (W-16t).
+        // case's DEC-068 seismic or wind generation on a v3 document, on the
+        // route's D-5 mass basis, plain or load/reference-state (there beside
+        // the declared ledger at factor 1, DEL-04-07 REQ-011); a wind marking
+        // of a replaced span keeps its named refusal; a Timoshenko partial
+        // span takes the exact Timoshenko vector (W-16t).
         (ExactContract::PressureV3, ExactFamily::EquivalentStatic) => Admission::Admitted,
         // W-16 slice b (DEL-05-02 Design `exact-combinations.md`): model-authored
         // combinations over the primitive cases, formed from their published

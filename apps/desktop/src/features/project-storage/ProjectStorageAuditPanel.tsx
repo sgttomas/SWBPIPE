@@ -10,28 +10,38 @@ import type {
   PreviewModel
 } from "../../types";
 
+/** The Project snapshot line's words in place of its result and run counts when the open left the
+ * stored run unopened: the summary counts what was opened, and the store's own counts are not read. */
+export const STORED_RUN_NOT_OPENED = "A stored run is kept and was not opened";
+
 export function ProjectStorageAuditPanel({
   model,
   storageCapability,
   projectSummary,
   projectIndex,
   projectMessage,
+  projectMessageDetails = null,
   projectOperation,
   editorIntents,
   proposal,
   modelHashIntegrity = null,
-  projectEnvelopeHashIntegrity = null
+  projectEnvelopeHashIntegrity = null,
+  storedRunNotOpened = false
 }: {
   model: PreviewModel;
   storageCapability: LocalStorageCapability | null;
   projectSummary: LocalProjectSummary | null;
   projectIndex: LocalProjectIndexEntry[] | null;
   projectMessage: string;
+  projectMessageDetails?: string | null;
   projectOperation: string;
   editorIntents: EditorOperationIntent[];
   proposal: AgentProposal | null;
   modelHashIntegrity?: ModelHashIntegrityEvidence | null;
   projectEnvelopeHashIntegrity?: ProjectEnvelopeHashIntegrityEvidence | null;
+  /** The open left the project's stored run in the store unopened (refused or withheld). The
+   * summary's result and run members then count what was opened, not what the store holds. */
+  storedRunNotOpened?: boolean;
 }) {
   const packet = buildProjectStorageAuditPacket({
     model,
@@ -39,6 +49,7 @@ export function ProjectStorageAuditPanel({
     projectSummary,
     projectIndex,
     projectMessage,
+    projectMessageDetails,
     projectOperation,
     editorIntents,
     proposal, modelHashIntegrity, projectEnvelopeHashIntegrity
@@ -54,7 +65,7 @@ export function ProjectStorageAuditPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="project-storage-export-link"
-          download={`openpipestress-preview-storage-audit-${safeFileToken(model.project.id)}.json`}
+          download={suggestedFileName("storageAudit")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />
@@ -91,13 +102,13 @@ export function ProjectStorageAuditPanel({
             packet.summary.persisted_selected_review_target_count
           }; persisted_review_target_ref=${
             packet.summary.persisted_selected_review_target_ref
-          }; persisted_mechanics_results=${
+          }; ${storedRunNotOpened ? STORED_RUN_NOT_OPENED : `persisted_mechanics_results=${
             packet.summary.persisted_mechanics_result_count
           }; persisted_analysis_runs=${
             packet.summary.persisted_analysis_run_count
           }; persisted_analysis_run_ref=${
             packet.summary.persisted_analysis_run_ref
-          }; copied_external_files=${String(
+          }`}; copied_external_files=${String(
             packet.summary.copied_external_files
           )}`}
           testId="project-storage-snapshot"
@@ -168,6 +179,7 @@ function buildProjectStorageAuditPacket({
   projectSummary,
   projectIndex,
   projectMessage,
+  projectMessageDetails = null,
   projectOperation,
   editorIntents,
   proposal,
@@ -179,6 +191,7 @@ function buildProjectStorageAuditPacket({
   projectSummary: LocalProjectSummary | null;
   projectIndex: LocalProjectIndexEntry[] | null;
   projectMessage: string;
+  projectMessageDetails?: string | null;
   projectOperation: string;
   editorIntents: EditorOperationIntent[];
   proposal: AgentProposal | null;
@@ -241,7 +254,7 @@ function buildProjectStorageAuditPacket({
     project_index: projectIndex ?? [],
     project_index_refs: (projectIndex ?? []).map((entry) => entry.project_id),
     unit_policy_evidence: unitPolicyEvidence,
-    project_message: projectMessage,
+    project_message: projectMessageDetails ? `${projectMessage} ${projectMessageDetails}` : projectMessage,
     editor_intent_refs: editorIntents.map((intent) => intent.operation_id),
     proposal_refs: proposal ? [proposal.proposal_id] : [],
     editor_operation_statuses: unique(editorIntents.map((intent) => intent.validation.application_status)),
@@ -356,7 +369,5 @@ function jsonDataHref(payload: unknown): string {
   return `data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(payload, null, 2))}`;
 }
 
-function safeFileToken(value: string): string {
-  return value.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
-}
 import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";
+import { suggestedFileName } from "../fileNames";

@@ -870,3 +870,210 @@ fn along_direction_rows_are_listed_per_case_and_never_a_column() {
         assert!(support["extremes"].as_array().unwrap().iter().all(|e| e["column"] != "along_direction"));
     }
 }
+
+/// Release exit criterion 18: S's header carries each case's support-state confirmation outcome
+/// from the reader's standing record, so the desktop states a state the solver reports established
+/// as the solver's report; none without a standing.
+#[test]
+fn the_header_carries_each_cases_support_confirmation() {
+    let (source_text, model_text) = (read_text(DEMO), read_text(DEMO_MODEL));
+    let (source, model): (Value, Value) = (serde_json::from_str(&source_text).unwrap(), serde_json::from_str(&model_text).unwrap());
+    let findings = serde_json::to_string(&Vec::<String>::new()).unwrap();
+    let health: Value = serde_json::from_str(&open_pipe_stress_operation_applier::numerical_health_json(&source_text, Some(&findings)).unwrap()).unwrap();
+    let standing = Standing { eligible: true, health: tables::health_view(&health) };
+    let presentation = crate::diagnostics_presentation::facts(&source_text, &source, None, None);
+    let header = |standing: Option<&Standing>| decode(&build("demo", &source, &model, standing, &health, None, &presentation, |_| Ok::<(), ()>(())).unwrap().0).unwrap().header;
+    let confirmations = header(Some(&standing))["support_confirmations"].clone();
+    let outcomes: Vec<&str> = confirmations.as_array().unwrap().iter().map(|c| c["outcome"].as_str().unwrap()).collect();
+    assert!(outcomes.contains(&"solver_reported_established"), "{confirmations}");
+    assert!(header(None).get("support_confirmations").is_none());
+}
+
+/// Release exit criterion 18: a confirmation that quotes its reason
+/// (`not_established_detail_quoted`) carries the solver's reason, so the desktop
+/// shows it beneath the statement that says it is quoted; every other outcome
+/// carries none.
+#[test]
+fn the_header_carries_a_quoted_confirmation_detail() {
+    let corpus: Value = serde_json::from_str(&read_text("fixtures/results/preview_physics_held_status_corpus.json")).unwrap();
+    let entry = corpus["documents"].as_array().unwrap().iter().find(|d| d["name"] == "h15c_zero_limit").unwrap();
+    let source_text = serde_json::to_string(&entry["document"]).unwrap();
+    let (source, model) = (entry["document"].clone(), entry["model"].clone());
+    let findings = serde_json::to_string(&Vec::<String>::new()).unwrap();
+    let health: Value = serde_json::from_str(&open_pipe_stress_operation_applier::numerical_health_json(&source_text, Some(&findings)).unwrap()).unwrap();
+    let standing = Standing { eligible: false, health: tables::health_view(&health) };
+    let presentation = crate::diagnostics_presentation::facts(&source_text, &source, None, None);
+    let header = decode(&build("held", &source, &model, Some(&standing), &health, None, &presentation, |_| Ok::<(), ()>(())).unwrap().0).unwrap().header;
+    let confirmations = header["support_confirmations"].as_array().unwrap().clone();
+    let quoted: Vec<&Value> = confirmations.iter().filter(|c| c["outcome"] == "not_established_detail_quoted").collect();
+    assert!(!quoted.is_empty(), "{confirmations:?}");
+    for c in &quoted {
+        assert!(c["detail"].as_str().is_some_and(|d| !d.is_empty()), "{c}");
+    }
+    for c in confirmations.iter().filter(|c| c["outcome"] != "not_established_detail_quoted") {
+        assert_eq!(c["detail"], Value::Null, "{c}");
+    }
+}
+
+/// Release exit criterion 18: a restored run's S (`modelUse: "confirmations"`)
+/// reads its support-state confirmations with the saved model and every table
+/// with no model: its header is the no-model read's, but for the
+/// confirmations, which are the model read's. Any other `modelUse` is refused.
+#[test]
+fn a_confirmations_only_model_reads_the_confirmations_and_no_table() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let model = read_text(DEMO_MODEL);
+    let job = retained(&registry, &gate, &read_text(DEMO));
+    let standing = json!({"eligible": false, "findings": []});
+    let header = |args: &Value| decode(&read_summary(&registry, args).unwrap()).unwrap().header;
+    let with_model = header(&args(&job, &model, standing.clone()));
+    let without_model = header(&args(&job, "null", standing.clone()));
+    let mut confirmations_only = args(&job, &model, standing.clone());
+    confirmations_only["modelUse"] = json!("confirmations");
+    let restored = header(&confirmations_only);
+    // With no model the header has no confirmations member: the plain read is the summary it was
+    // before they were added.
+    assert!(without_model.get("support_confirmations").is_none(), "{}", without_model["support_confirmations"]);
+    assert!(with_model["support_confirmations"].as_array().unwrap().iter().any(|c| c["outcome"] == "solver_reported_established"));
+    assert_eq!(restored["support_confirmations"], with_model["support_confirmations"]);
+    let mut expected = without_model.clone();
+    expected["support_confirmations"] = with_model["support_confirmations"].clone();
+    assert_eq!(restored, expected);
+    let mut other = args(&job, &model, standing);
+    other["modelUse"] = json!("tables");
+    assert!(matches!(read_summary(&registry, &other), Err(CommandError::Command(message)) if message.contains("modelUse")));
+    registry.dispose_result(&job).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
+/// Release exit criterion 18: S's confirmations are given only where today's reader reads the
+/// result (readable and solved), as the browser path gives them (`reader_report_standing_json`).
+/// The invented demo recorded before RT-A4, held as a restored run under its recorded table and
+/// read with its saved model for its confirmations, has none; held as a solve of the same bytes
+/// (no table), today's reader refuses it, so it has none either.
+#[test]
+fn a_run_today_s_reader_does_not_read_has_no_confirmations() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let text = read_text("fixtures/persistence/recorded_pre_rt_a4_pf/preview_physics_2/invented_demo_result_preview_physics_1_sparse.json");
+    let model = read_text(DEMO_MODEL);
+    let table = json!({"id": "openpipestress.result_semantics/0.3.0/preview-physics-2", "sha256": "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2"});
+    let confirmations = |job: &str| {
+        let mut request = args(job, &model, json!({"eligible": false, "findings": []}));
+        request["modelUse"] = json!("confirmations");
+        decode(&read_summary(&registry, &request).unwrap()).unwrap().header.get("support_confirmations").cloned()
+    };
+    let restored = crate::native_replay_tests::restored(&registry, &text, &table);
+    assert!(registry.held_result(&restored).unwrap().recorded_table().is_some());
+    assert_eq!(confirmations(&restored), None, "a run held under its recorded table");
+    registry.dispose_result(&restored).unwrap();
+    let solve = retained(&registry, &gate, &text);
+    assert_eq!(confirmations(&solve), None, "the same bytes under today's tables, which the reader refuses");
+    registry.dispose_result(&solve).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
+/// Release exit criterion 18: a run held under a recorded table that today's reader reads gives the
+/// confirmations exactly as the browser path does (`standaloneNumericalHealth` reads them with today's
+/// reader and the model, whatever table the run is held under): the nonlinear demo, whose bytes are
+/// unchanged since the pre-S-K1 tables, restored under its registered pre-S-K1 table, gives the same
+/// outcomes as the same bytes solved today.
+#[test]
+fn a_recorded_run_today_s_reader_reads_has_its_confirmations() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let text = read_text(DEMO);
+    let model = read_text(DEMO_MODEL);
+    let table = json!({"id": "openpipestress.result_semantics/0.3.0/preview-physics-2", "sha256": "563db3c7c44279face3adc60a76a512de38520357e89ea4b49ad11d20946db89"});
+    let confirmations = |job: &str| {
+        let mut request = args(job, &model, json!({"eligible": false, "findings": []}));
+        request["modelUse"] = json!("confirmations");
+        decode(&read_summary(&registry, &request).unwrap()).unwrap().header.get("support_confirmations").cloned()
+    };
+    let solve = retained(&registry, &gate, &text);
+    let today = confirmations(&solve).expect("the solved demo has its confirmations");
+    registry.dispose_result(&solve).unwrap();
+    assert!(today.as_array().unwrap().iter().any(|c| c["outcome"] == "solver_reported_established"), "{today}");
+    let restored = crate::native_replay_tests::restored(&registry, &text, &table);
+    assert!(registry.held_result(&restored).unwrap().recorded_table().is_some());
+    assert_eq!(confirmations(&restored), Some(today), "a recorded run today's reader reads");
+    registry.dispose_result(&restored).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
+/// Release exit criterion 18: a solved nonlinear document today's reader does not read (here its
+/// semantic contract is one the reader does not support) has no confirmations, though the
+/// standing record could be derived from its messages and model alone; the unchanged document has
+/// them.
+#[test]
+fn an_unreadable_solved_document_has_no_confirmations() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let model = read_text(DEMO_MODEL);
+    let mut source: Value = serde_json::from_str(&read_text(DEMO)).unwrap();
+    let confirmations = |text: &str| {
+        let job = retained(&registry, &gate, text);
+        let header = decode(&read_summary(&registry, &args(&job, &model, json!({"eligible": false, "findings": []}))).unwrap()).unwrap().header;
+        registry.dispose_result(&job).unwrap();
+        header.get("support_confirmations").cloned().unwrap_or(Value::Null)
+    };
+    assert!(confirmations(&read_text(DEMO)).as_array().is_some_and(|cases| cases.iter().any(|c| c["outcome"] == "solver_reported_established")));
+    source["producer"]["semantic_contract_id"] = json!("invented.unsupported_contract");
+    assert_eq!(source["status"]["mechanics"], "MECHANICS_SOLVED");
+    let unreadable = serde_json::to_string(&source).unwrap();
+    let parsed: Value = serde_json::from_str(&unreadable).unwrap();
+    let standing = rv::standing(&parsed, Some(&serde_json::from_str(&model).unwrap()), None);
+    assert_eq!(open_pipe_stress_report_standing::reader_readability::readability(&parsed, &standing)["readable"], false, "{standing}");
+    assert!(open_pipe_stress_report_standing::report_standing::historical_standing_record(&parsed, &serde_json::from_str(&model).unwrap(), &json!({"findings": []})).is_ok());
+    assert_eq!(confirmations(&unreadable), Value::Null, "no member");
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
+/// A saved project that opens on main opens here: the optional confirmations read of a restored
+/// run carries the saved model, so where the interactive ingress cap is smaller than the model text
+/// that read is refused with an ingress error, and, under headroom too small for the model text, the
+/// plain read of the same job that follows (`"null"`, no `modelUse`, as `nativeReopen.ts` falls back)
+/// is admitted, has no confirmations member and leaves the pool holding only the result's own lease,
+/// and the job's rows are then read from the same handle; the job is still held, and disposing it
+/// releases everything.
+#[test]
+fn a_refused_confirmations_read_leaves_the_plain_read_and_the_job() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let text = read_text(DEMO);
+    let job = retained(&registry, &gate, &text);
+    let held = registry.pool().reserved_total();
+    let materialization = ingress::prescan(text.as_bytes()).unwrap().materialization_bytes;
+    // A budget that admits the source's parse and S, and a model text larger than it.
+    let budget = 2 * materialization;
+    let mut model: Value = serde_json::from_str(&read_text(DEMO_MODEL)).unwrap();
+    model["project"]["invented_padding"] = json!("x".repeat((4 * materialization + held) as usize));
+    let model = serde_json::to_string(&model).unwrap();
+    assert!(model.len() as u64 > budget && "null".len() as u64 * 1024 < budget);
+    registry.configure_pool(8 * crate::memory_pool::test_host::GIB, budget, false).unwrap();
+    let standing = json!({"eligible": false, "findings": []});
+    let mut confirmations = args(&job, &model, standing.clone());
+    confirmations["modelUse"] = json!("confirmations");
+    assert!(matches!(refusal(read_summary(&registry, &confirmations).unwrap_err()), ResourceRefusal::IngressExceedsBudget { .. }));
+    assert_eq!(registry.pool().reserved_total(), held);
+    // Headroom that covers the held lease and a lease the budget admits, and not the model text.
+    let headroom = held + budget;
+    host.set(|s| s.headroom_bytes = Some(headroom));
+    assert!(model.len() as u64 > headroom);
+    let plain = decode(&read_summary(&registry, &args(&job, "null", standing)).unwrap()).unwrap();
+    assert_eq!(plain.header["job_id"], json!(job));
+    assert!(plain.header.get("support_confirmations").is_none());
+    assert_eq!(registry.pool().reserved_total(), held, "the plain read leaves only the held result's own lease");
+    let rows_args = json!({"jobId": job, "filter": {"case": "all", "family": "all", "frame": "all", "text": ""}, "offset": 0, "limit": 5});
+    let command = crate::result_detail::ROWS_COMMAND;
+    let (raw, lease) = crate::result_detail::reserve(&registry, &body(&rows_args), &headers(Some(INGRESS_ARGS_JSON_V1)), command).unwrap();
+    let rows = crate::result_detail::run_rows(registry.clone(), raw, lease).unwrap();
+    assert_eq!(&rows[..8], crate::result_detail::MAGIC);
+    let length = u64::from_le_bytes(rows[8..16].try_into().unwrap()) as usize;
+    let rows_header: Value = serde_json::from_slice(&rows[16..16 + length]).unwrap();
+    assert!(rows_header["total"].as_u64().unwrap() > 0, "the rows are read from the same handle");
+    assert!(registry.status(&job).unwrap().result_available, "the job is still held");
+    registry.dispose_result(&job).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}

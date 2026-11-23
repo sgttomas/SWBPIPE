@@ -4,7 +4,7 @@ import { SI_PROJECT_UNITS, US_CUSTOMARY_PROJECT_UNITS, type ProjectUnitMap } fro
 import type { UnitCatalogRoute } from "../../services/unitCatalogService";
 import { unitCatalogFixture } from "../../test-support/unitCatalogFixture";
 import { useWorkspaceSession } from "../workspace/workspaceSession";
-import { ProjectUnitsDialog, type BlankProjectUnitsRequest } from "./ProjectUnitsDialog";
+import { ProjectUnitsDialog, type BlankProjectKind, type BlankProjectUnitsRequest } from "./ProjectUnitsDialog";
 
 // W-17 slice (a), DEL-02-02 Design `project-unit-selection.md` §3 "Units at creation".
 const route = vi.hoisted(() => ({ current: null as UnitCatalogRoute | null }));
@@ -17,9 +17,9 @@ const PREVIEW: UnitCatalogRoute = { route: "unavailable_browser_preview", diagno
 
 afterEach(() => { cleanup(); route.current = null; });
 
-function open(catalog: UnitCatalogRoute, kind: BlankProjectUnitsRequest["kind"] = "local") {
+function open(catalog: UnitCatalogRoute, kind: BlankProjectUnitsRequest["kind"] = undefined) {
   route.current = catalog;
-  const create = vi.fn<(units: ProjectUnitMap) => void>();
+  const create = vi.fn<(units: ProjectUnitMap, kind: BlankProjectKind) => void>();
   const cancel = vi.fn();
   render(<ProjectUnitsDialog request={{ kind, opener: null, create, cancel }} />);
   return { create, cancel };
@@ -43,7 +43,7 @@ describe("units at creation", () => {
     );
     expect(screen.queryByTestId("project-units-composed")).not.toBeInTheDocument();
     fireEvent.click(byId("project-units-create"));
-    expect(create).toHaveBeenCalledWith({ ...SI_PROJECT_UNITS });
+    expect(create).toHaveBeenCalledWith({ ...SI_PROJECT_UNITS }, "local");
   });
 
   it("applies the US customary preset", async () => {
@@ -53,7 +53,7 @@ describe("units at creation", () => {
     choose("project-units-preset", "us_customary");
     for (const [key, symbol] of Object.entries(US_CUSTOMARY_PROJECT_UNITS)) expect(byId(`project-units-${key}`)).toHaveValue(symbol);
     fireEvent.click(byId("project-units-create"));
-    expect(create).toHaveBeenCalledWith({ ...US_CUSTOMARY_PROJECT_UNITS });
+    expect(create).toHaveBeenCalledWith({ ...US_CUSTOMARY_PROJECT_UNITS }, "load_state");
   });
 
   it("offers a Custom choice per key from the catalog, canonical symbols only, and lists the composed defaults", async () => {
@@ -77,7 +77,7 @@ describe("units at creation", () => {
     expect(byId("project-units-composed-thermal_expansion")).toHaveAttribute("data-in-catalog", "true");
     expect(byId("project-units-create")).toBeEnabled();
     fireEvent.click(byId("project-units-create"));
-    expect(create).toHaveBeenCalledWith({ ...SI_PROJECT_UNITS, length: "in" });
+    expect(create).toHaveBeenCalledWith({ ...SI_PROJECT_UNITS, length: "in" }, "local");
   });
 
   it("offers presets only where the catalog is not exposed", async () => {
@@ -87,7 +87,57 @@ describe("units at creation", () => {
     expect(byId("project-units-preset").querySelector('option[value="custom"]')).toBeDisabled();
     choose("project-units-preset", "us_customary");
     fireEvent.click(byId("project-units-create"));
-    expect(create).toHaveBeenCalledWith({ ...US_CUSTOMARY_PROJECT_UNITS });
+    expect(create).toHaveBeenCalledWith({ ...US_CUSTOMARY_PROJECT_UNITS }, "local");
+  });
+
+  it("offers the starting model, the ordinary blank selected; the other is chosen by its plain words", async () => {
+    const { create } = open(CATALOG);
+    await catalogLoaded();
+    const dialog = byId("project-units-dialog");
+    expect(within(dialog).getByRole("heading")).toHaveTextContent(/^New blank project$/);
+    const group = byId("project-units-kind");
+    expect(within(group).getByText("Starting model", { selector: "legend" })).toBeInTheDocument();
+    expect(within(group).getByRole("radio", { name: "Ordinary blank model" })).toBeChecked();
+    expect(byId("project-units-kind-local")).toBeChecked();
+    expect(dialog).toHaveAttribute("data-kind", "local");
+    fireEvent.click(within(group).getByRole("radio", { name: "Set up for internal pressure (pressure regions on each load case)" }));
+    expect(byId("project-units-kind-load-state")).toBeChecked();
+    expect(dialog).toHaveAttribute("data-kind", "load_state");
+    fireEvent.click(byId("project-units-create"));
+    expect(create).toHaveBeenCalledWith({ ...SI_PROJECT_UNITS }, "load_state");
+  });
+
+  it("names no version, contract or load/reference state on its face; one help line names the pressure route", async () => {
+    open(CATALOG);
+    await catalogLoaded();
+    const face = byId("project-units-dialog").textContent ?? "";
+    for (const word of ["0.9.0", "3.0.0", "load/reference", "Load/reference", "exact pressure contract"]) expect(face).not.toContain(word);
+    expect(byId("project-units-kind-help")).toHaveTextContent(/^Choose this when load cases carry internal pressure; it uses the exact pressure route the guide describes\.$/);
+    expect(face.match(/exact pressure/g)).toHaveLength(1);
+  });
+
+  it("keeps Tab inside the dialog, through the checked starting model", async () => {
+    open(CATALOG);
+    await catalogLoaded();
+    const order: string[] = [];
+    for (let step = 0; step < 12; step += 1) {
+      fireEvent.keyDown(window, { key: "Tab" });
+      order.push((document.activeElement as HTMLElement).getAttribute("data-testid") ?? "");
+      if (order.at(-1) === "project-units-kind-local" && step > 0) break;
+    }
+    // From the preset: the seven unit selectors, Cancel, Create, then round to the starting model.
+    expect(order).toContain("project-units-cancel");
+    expect(order).toContain("project-units-create");
+    expect(order.at(-1)).toBe("project-units-kind-local");
+    expect(order).not.toContain("project-units-kind-load-state");
+    for (const id of order) expect(byId("project-units-dialog").contains(byId(id))).toBe(true);
+    // The chosen option is the stop once chosen; Shift+Tab goes back from it to Create.
+    fireEvent.click(byId("project-units-kind-load-state"));
+    byId("project-units-kind-load-state").focus();
+    fireEvent.keyDown(window, { key: "Tab", shiftKey: true });
+    expect(byId("project-units-create")).toHaveFocus();
+    fireEvent.keyDown(window, { key: "Tab" });
+    expect(byId("project-units-kind-load-state")).toHaveFocus();
   });
 
   it("cancels on Cancel and on Escape, creating nothing", async () => {
@@ -102,30 +152,46 @@ describe("units at creation", () => {
 });
 
 describe("the session's blank routes ask for units first", () => {
-  it("New blank and file.new-blank open the dialog; Create builds the blank with the chosen map", async () => {
+  it("New and file.new-blank open the one dialog, ordinary blank selected; Create builds the chosen kind with the chosen map", async () => {
     route.current = PREVIEW;
     const hook = renderHook(() => useWorkspaceSession());
     await waitFor(() => expect(hook.result.current.model.model).not.toBeNull());
     act(() => hook.result.current.chrome.runMenuCommand("file.new-blank"));
     const request = hook.result.current.project.blankProjectUnitsRequest;
-    expect(request?.kind).toBe("local");
+    expect(request?.kind ?? "local").toBe("local");
     // Nothing is created until Create; menu commands are held while the dialog is open.
     expect(hook.result.current.model.model?.project.name).not.toBe("Blank Local Model");
     act(() => hook.result.current.chrome.runMenuCommand("file.new-local"));
     expect(hook.result.current.project.blankProjectUnitsRequest).toBe(request);
-    act(() => request!.create({ ...US_CUSTOMARY_PROJECT_UNITS }));
+    act(() => request!.create({ ...US_CUSTOMARY_PROJECT_UNITS }, "local"));
     expect(hook.result.current.project.blankProjectUnitsRequest).toBeNull();
     await waitFor(() => expect(hook.result.current.model.model?.project.name).toBe("Blank Local Model"));
     expect(hook.result.current.model.model?.project.units).toEqual(US_CUSTOMARY_PROJECT_UNITS);
 
-    act(() => hook.result.current.project.requestBlankProject("load_state"));
-    expect(hook.result.current.project.blankProjectUnitsRequest?.kind).toBe("load_state");
+    // New (requestBlankProject()) opens the same dialog; Cancel creates nothing.
+    act(() => hook.result.current.project.requestBlankProject());
+    expect(hook.result.current.project.blankProjectUnitsRequest?.kind ?? "local").toBe("local");
     act(() => hook.result.current.project.blankProjectUnitsRequest!.cancel());
     expect(hook.result.current.project.blankProjectUnitsRequest).toBeNull();
     expect(hook.result.current.model.model?.project.name).toBe("Blank Local Model");
-    act(() => hook.result.current.project.requestBlankProject("load_state"));
-    act(() => hook.result.current.project.blankProjectUnitsRequest!.create({ ...SI_PROJECT_UNITS, length: "mm" }));
+    // The starting model chosen in the dialog is the kind built.
+    act(() => hook.result.current.project.requestBlankProject());
+    act(() => hook.result.current.project.blankProjectUnitsRequest!.create({ ...SI_PROJECT_UNITS, length: "mm" }, "load_state"));
     await waitFor(() => expect(hook.result.current.model.model?.project.name).toBe("Blank Local Load/reference Model 0.9.0"));
     expect(hook.result.current.model.model?.project.units).toEqual({ ...SI_PROJECT_UNITS, length: "mm" });
+  });
+
+  it("File › New Blank Project passes the chosen starting model through the same dialog", async () => {
+    route.current = PREVIEW;
+    const hook = renderHook(() => useWorkspaceSession());
+    await waitFor(() => expect(hook.result.current.model.model).not.toBeNull());
+    act(() => hook.result.current.chrome.runMenuCommand("file.new-blank"));
+    render(<ProjectUnitsDialog request={hook.result.current.project.blankProjectUnitsRequest} />);
+    expect(byId("project-units-kind-local")).toBeChecked();
+    fireEvent.click(byId("project-units-kind-load-state"));
+    fireEvent.click(byId("project-units-create"));
+    expect(hook.result.current.project.blankProjectUnitsRequest).toBeNull();
+    await waitFor(() => expect(hook.result.current.model.model?.pressure_contract).toBeDefined());
+    expect(hook.result.current.model.model?.reference_configurations).toEqual([]);
   });
 });

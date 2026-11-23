@@ -439,6 +439,12 @@ export const US_CUSTOMARY_PROJECT_UNITS: Readonly<ProjectUnitMap> = Object.freez
   length: "in", force: "lbf", moment: "lbf*in", pressure: "psi", stress: "psi", temperature: "degF", angle: "deg"
 });
 
+/** The blank's one diagnostic. It names the one engineering setting a blank states, its shear model. */
+export const BLANK_PROJECT_MESSAGE =
+  "Blank local model document is intentionally incomplete; no fixture entities, hidden loads or engineering values were inserted. Its one stated setting is shear deformation in straight members, included (Timoshenko), which the person can change.";
+/** The shear model a new pressure-free document states (owner D-6). */
+export const NEW_DOCUMENT_SHEAR_MODEL = "timoshenko_annulus_energy_v1";
+
 export function buildBlankLocalModelDocument(
   createdAt: Date = new Date(),
   units: Readonly<ProjectUnitMap> = SI_PROJECT_UNITS
@@ -471,6 +477,10 @@ export function buildBlankLocalModelDocument(
       rule_check: "RULE_INPUTS_INCOMPLETE",
       professional_acceptance: "NOT_PROVIDED"
     },
+    // A new document states shear deformation in straight members as included (owner D-6):
+    // Timoshenko, which Model settings changes. A document that states no choice reads as
+    // Euler–Bernoulli; nothing writes this into an existing document.
+    model_settings: { shear_model: NEW_DOCUMENT_SHEAR_MODEL },
     materials: [],
     sections: [],
     nodes: [],
@@ -486,8 +496,7 @@ export function buildBlankLocalModelDocument(
         severity: "blocking",
         source: "apps/desktop/src/services/projectService.ts",
         affected_refs: [projectId],
-        message:
-          "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted."
+        message: BLANK_PROJECT_MESSAGE
       }
     ]
   };
@@ -505,8 +514,11 @@ export function buildBlankLoadStateModelDocument(
   createdAt: Date = new Date(),
   units: Readonly<ProjectUnitMap> = SI_PROJECT_UNITS
 ): PreviewModel {
-  const { schema_version: blankVersion, ...blank } = buildBlankLocalModelDocument(createdAt, units);
+  // The exact contract holds this document's shear model (the authoring default), so the
+  // pressure-free selection is not carried: no document holds both.
+  const { schema_version: blankVersion, model_settings: freeSelection, ...blank } = buildBlankLocalModelDocument(createdAt, units);
   void blankVersion;
+  void freeSelection;
   return {
     schema_version: BLANK_LOAD_STATE_MODEL_SCHEMA_VERSION,
     pressure_contract: { ...BLANK_LOAD_STATE_PRESSURE_CONTRACT },

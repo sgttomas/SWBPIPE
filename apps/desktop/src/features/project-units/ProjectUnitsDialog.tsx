@@ -20,21 +20,31 @@ import {
 
 export type BlankProjectKind = "local" | "load_state";
 
-/** An open "Units at creation" request. Create builds the blank with the map; Cancel creates nothing. */
+/** An open "New blank project" request: the starting model and its units. `kind` is the starting
+ * model selected when the dialog opens ("local" when absent). Create builds the blank of the
+ * chosen kind with the map; Cancel creates nothing. */
 export type BlankProjectUnitsRequest = {
-  kind: BlankProjectKind;
+  kind?: BlankProjectKind;
   opener: HTMLElement | null;
-  create: (units: ProjectUnitMap) => void;
+  create: (units: ProjectUnitMap, kind: BlankProjectKind) => void;
   cancel: () => void;
 };
 
-const KIND_TITLE: Record<BlankProjectKind, string> = {
-  local: "New blank project",
-  load_state: "New blank load/reference model"
-};
+/** The starting models offered, in the words on the dialog's face. The second is the blank
+ * load/reference-state document (projectService `buildBlankLoadStateModelDocument`); its
+ * version and contract are not named on the face. */
+const KIND_CHOICES: readonly { kind: BlankProjectKind; label: string; testId: string }[] = [
+  { kind: "local", label: "Ordinary blank model", testId: "project-units-kind-local" },
+  { kind: "load_state", label: "Set up for internal pressure (pressure regions on each load case)", testId: "project-units-kind-load-state" }
+];
+const KIND_HELP = "Choose this when load cases carry internal pressure; it uses the exact pressure route the guide describes.";
+
+/** What Tab cycles through: as the browser would, one stop for a radio group (its checked option). */
+const TAB_STOPS = 'input:not([type="radio"]):not(:disabled), input[type="radio"]:checked:not(:disabled), select:not(:disabled), button:not(:disabled)';
 
 /**
- * The units a new blank project starts with. Modal like the replace prompt: the
+ * A new blank project: its starting model (an ordinary blank model unless the person
+ * chooses the one set up for internal pressure) and its units. Modal like the replace prompt: the
  * workspace is inert while it is open (App.tsx), Tab stays inside, window
  * shortcuts are held back, and Escape cancels. SI is selected. A Custom choice
  * per key lists the accepted catalog symbols for that key's dimension, from the
@@ -52,6 +62,7 @@ function OpenProjectUnitsDialog({ request }: { request: BlankProjectUnitsRequest
   const [route, setRoute] = useState<UnitCatalogRoute | null>(null);
   const [units, setUnits] = useState<ProjectUnitMap>({ ...SI_PROJECT_UNITS });
   const [preset, setPreset] = useState<ProjectUnitPresetId>("si");
+  const [kind, setKind] = useState<BlankProjectKind>(request.kind ?? "local");
 
   useEffect(() => {
     let active = true;
@@ -76,7 +87,7 @@ function OpenProjectUnitsDialog({ request }: { request: BlankProjectUnitsRequest
         return;
       }
       if (event.key === "Tab") {
-        const controls = [...(dialog.current?.querySelectorAll<HTMLElement>("select:not(:disabled), button:not(:disabled)") ?? [])];
+        const controls = [...(dialog.current?.querySelectorAll<HTMLElement>(TAB_STOPS) ?? [])];
         if (controls.length === 0) return;
         const at = controls.indexOf(document.activeElement as HTMLElement);
         const next = event.shiftKey ? (at <= 0 ? controls.length - 1 : at - 1) : (at + 1) % controls.length;
@@ -127,9 +138,26 @@ function OpenProjectUnitsDialog({ request }: { request: BlankProjectUnitsRequest
         aria-describedby="project-units-detail"
         className="replace-project-prompt project-units-dialog panel"
         data-testid="project-units-dialog"
-        data-kind={request.kind}
+        data-kind={kind}
       >
-        <h2 id="project-units-title">{KIND_TITLE[request.kind]}: units</h2>
+        <h2 id="project-units-title">New blank project</h2>
+        <fieldset className="project-units-kind" data-testid="project-units-kind">
+          <legend>Starting model</legend>
+          {KIND_CHOICES.map((choice) => (
+            <label key={choice.kind}>
+              <input
+                type="radio"
+                name="project-units-kind"
+                value={choice.kind}
+                data-testid={choice.testId}
+                checked={kind === choice.kind}
+                onChange={() => setKind(choice.kind)}
+              />
+              <span>{choice.label}</span>
+            </label>
+          ))}
+          <p className="muted" data-testid="project-units-kind-help">{KIND_HELP}</p>
+        </fieldset>
         <p id="project-units-detail" data-testid="project-units-detail">
           Values are stored in the units you enter, and the solver converts them at its boundary.
           The length unit is fixed once the project has nodes.
@@ -206,7 +234,7 @@ function OpenProjectUnitsDialog({ request }: { request: BlankProjectUnitsRequest
             type="button"
             data-testid="project-units-create"
             disabled={problems.length > 0}
-            onClick={() => { if (problems.length === 0) request.create({ ...units }); }}
+            onClick={() => { if (problems.length === 0) request.create({ ...units }, kind); }}
           >
             Create
           </button>

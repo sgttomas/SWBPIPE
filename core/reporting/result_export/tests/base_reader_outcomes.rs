@@ -660,3 +660,37 @@ fn base_reader_outcomes_hold_for_re_serialized_inputs() {
     assert_eq!(changed, ["lrs/NUM-unsafe-integer-in-publication [stringify]", "lrs/NUM-unsafe-integer-in-publication [source-only]"]);
     assert!(differing.is_empty(), "{} outcomes differ:\n{}", differing.len(), differing.iter().take(40).cloned().collect::<Vec<_>>().join("\n"));
 }
+
+/// Release exit criterion 18 (LIM-026): every verdict the reader returns, on every route and
+/// whether eligible or not, carries `integrity_bound` as not verified, from the one function that
+/// states it, and an eligible verdict's status is the solver's report, `solver_checks_passed`.
+/// The corpus and one retained successor reach every route but `retained_preview_physics`, which
+/// shares `retained_physics`'s arm and the one place a verdict is built.
+#[test]
+fn every_corpus_verdict_carries_the_integrity_bound_not_verified() {
+    let bound = json!({"status": "not_verified", "reason": "inverse_norm_bound_not_verified"});
+    assert_eq!(rv::integrity_bound(), bound);
+    let mut routes = std::collections::BTreeSet::new();
+    let (mut eligible, mut not_eligible) = (0, 0);
+    let retained = read("fixtures/results/retained_precision_exact_successor_sparse_interactive.json");
+    let reads = corpus()
+        .iter()
+        .filter_map(|i| i.source.as_ref().ok().map(|s| (i.id.clone(), s.clone(), i.model.clone(), i.invocation.clone())))
+        .chain([("retained successor".to_string(), retained["source"].clone(), None, Some(retained["invocation"].clone()))]);
+    for (id, source, model, invocation) in reads {
+        let standing = &rv::dispatch(&source, model.as_ref(), invocation.as_ref())["standing"];
+        assert_eq!(standing["integrity_bound"], bound, "{id}");
+        let is_eligible = standing["eligible"] == true;
+        assert_eq!(standing["status"], if is_eligible { "solver_checks_passed" } else { "needs_recompute" }, "{id}");
+        if is_eligible { eligible += 1 } else { not_eligible += 1 }
+        routes.insert(standing["route"].as_str().unwrap().to_string());
+    }
+    assert!(eligible > 0 && not_eligible > 0, "{eligible} eligible, {not_eligible} not");
+    for route in rv::ROUTES.iter().filter(|r| **r != "retained_preview_physics").chain(["unsupported"].iter()) {
+        assert!(routes.contains(*route), "no corpus verdict on route {route}: {routes:?}");
+    }
+    // A recorded statement's refused binding is a verdict too.
+    let source = corpus().into_iter().find_map(|i| i.source.as_ref().ok().cloned()).unwrap();
+    let refused = rv::dispatch_recorded(&source, &json!({"id": "invented", "sha256": "0"}), None, None);
+    assert_eq!(refused["standing"]["integrity_bound"], bound, "{refused}");
+}
