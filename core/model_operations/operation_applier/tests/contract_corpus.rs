@@ -433,8 +433,8 @@ fn contract_corpus_covers_the_required_kinds_and_block_classes() {
 }
 
 const CONDITION_SET_CORPUS: &str = "../../../fixtures/model_operations/condition_set_contract_corpus.json";
-const EXPECTED_CONDITION_SET_CASES: usize = 20;
-const CONDITION_SET_KINDS: [&str; 7] = [
+const EXPECTED_CONDITION_SET_CASES: usize = 25;
+const CONDITION_SET_KINDS: [&str; 9] = [
     "create_condition_set",
     "update_condition_set",
     "delete_condition_set",
@@ -442,6 +442,8 @@ const CONDITION_SET_KINDS: [&str; 7] = [
     "set_load_case_condition_use",
     "clear_load_case_condition_use",
     "create_load_case",
+    "set_load_case_test_condition",
+    "clear_load_case_test_condition",
 ];
 const CONDITION_SET_BLOCK_CODES: [&str; 8] = [
     "OP-CONDITION-SET-IN-USE",
@@ -450,7 +452,7 @@ const CONDITION_SET_BLOCK_CODES: [&str; 8] = [
     "LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED",
     "OP-STALE-BEFORE-VALUE",
     "OP-DATA-UNCHANGED",
-    "LOAD_CASE_TEST_CONDITION_UNSUPPORTED",
+    "LOAD_CASE_TEST_CONDITION_PRESSURE_FREE",
     "OP-CONNECT-PIPE-PAYLOAD-INVALID",
 ];
 
@@ -498,10 +500,10 @@ fn condition_set_corpus_cases_match_the_rust_contract_reference() {
     for code in CONDITION_SET_BLOCK_CODES {
         assert!(blocked.contains(code), "no condition-set corpus case blocks with `{code}`");
     }
-    for code in ["OPERATING_CONDITION_SET_MISSING", "EQUIVALENT_STATIC_INPUT_MISSING"] {
+    for code in ["OPERATING_CONDITION_SET_MISSING", "EQUIVALENT_STATIC_INPUT_MISSING", "LOAD_CASE_TEST_CONTENTS_UNSELECTED", "LOAD_CASE_TEST_SELF_WEIGHT_MISSING"] {
         assert!(warned.contains(code) && !blocked.contains(code), "`{code}` is a staged warning in the corpus");
     }
-    for code in ["LOAD_CASE_TEST_CONDITION_UNSUPPORTED", "SNUBBER_DYNAMIC_ONLY_UNSUPPORTED"] {
+    for code in ["LOAD_CASE_TEST_CONDITION_PRESSURE_FREE", "SNUBBER_DYNAMIC_ONLY_UNSUPPORTED"] {
         assert!(carried.contains(code), "no condition-set corpus case reports `{code}` as a carried refusal (info)");
     }
 }

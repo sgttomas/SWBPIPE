@@ -492,8 +492,17 @@ pub(super) fn physical_source_built(
         None => model.load_cases.iter().find(|c| c.id == case_id),
     }
     .ok_or_else(|| bad("physical case"))?;
+    // The case's generation, re-formed from the captured model: the closed
+    // `equivalent_static` record and the generated sources of the record of
+    // load sources are both bound to it (DEL-05-01 REQ-008, DEL-04-07 REQ-011).
+    let mut scratch = Vec::new();
+    let loads = if case.equivalent_static.is_some() {
+        crate::build_load_case_primitive_loads(model, case, &mut scratch)
+    } else {
+        Vec::new()
+    };
     if let Some((state, record)) = load_state {
-        let expected = load_state_case_record(state, capture.mode, source_selected);
+        let expected = load_state_case_record(state, capture.mode, source_selected, &loads);
         if record != Some(&expected) {
             return Err(bad("physical load/reference-state case record binding"));
         }
@@ -528,8 +537,6 @@ pub(super) fn physical_source_built(
     // captured model's own generation.
     if case.equivalent_static.is_some() {
         expected_keys.insert("equivalent_static");
-        let mut scratch = Vec::new();
-        let loads = crate::build_load_case_primitive_loads(model, case, &mut scratch);
         if crate::has_blocking(&scratch)
             || evidence["equivalent_static"] != crate::exact_equivalent_static_record(model, case, &loads)
         {

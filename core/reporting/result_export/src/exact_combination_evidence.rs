@@ -1451,10 +1451,18 @@ pub(crate) fn model_checks(source: &Value, model: &Value) -> Check {
     // a row whose node or DOF is not the model's (review of deafe7153: the
     // model's DOF changed, or the row relocated) is refused, so the received
     // document's consumption fact is the model's.
+    // DEL-05-01 REQ-014, DEL-04-07 REQ-011: a hydrostatic test case that holds
+    // springs and constant-effort supports applies no held support's force, so
+    // its consuming set excludes the supports it holds
+    // (`reader_verdict::held_supports`, the model-bound readers' one held set);
+    // every other case's set, a test case's that holds none included, is the
+    // model's whole consuming set.
     let consuming = consuming_constant_effort(model);
     let results = items(&source["results"]);
     for (position, case) in items(&source["contract_evidence"]["exact_cases"]).iter().enumerate() {
         let id = case["load_case_id"].as_str().ok_or_else(|| fail("MODEL_CONSTANT_EFFORT"))?;
+        let held = cases.iter().find(|c| c["id"] == id).map(|c| crate::reader_verdict::held_supports(model, c)).unwrap_or_default();
+        let consuming: Vec<&ConstantEffortSupport<'_>> = consuming.iter().filter(|support| !held.contains(&support.id)).collect();
         let published: Vec<&Value> = results.iter().filter(|r| r["kind"] == APPLIED_LOAD && r["basis_ref"]["ref_type"] == "load_case" && r["basis_ref"]["ref_id"] == id).collect();
         require(published.len() == consuming.len(), "MODEL_CONSTANT_EFFORT")?;
         for (row, support) in published.iter().zip(&consuming) {

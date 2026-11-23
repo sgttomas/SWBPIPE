@@ -76,7 +76,7 @@ export function extractSolveTimelineCodes() {
   const reader = READER_RUST.flatMap((file) => {
     const text = outsideTests(read(file));
     // A `require` check publishes its code prefixed; its bare argument is not a published code.
-    const checks = new Set([...text.matchAll(/require\([^;]*?,\s*"([A-Z][A-Z0-9_]+)"\s*\)/gs)].map((match) => match[1]));
+    const checks = new Set([...text.matchAll(/require\([^;]*?,\s*"([A-Z][A-Z0-9_]+)"\s*,?\s*\)/gs)].map((match) => match[1]));
     return [...codesIn(text).filter((code) => !checks.has(code)), ...[...checks].map((check) => `SOURCE_PHYSICS_${check}`)];
   });
   const routed = outsideTests(read(ROUTE_RUST));

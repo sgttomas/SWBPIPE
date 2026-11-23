@@ -1,5 +1,6 @@
 """Real-diff routing and aggregate failures for hosted Piping coverage and detached App paths."""
 from fnmatch import fnmatchcase
+import copy
 import json
 import os
 from pathlib import Path
@@ -22,6 +23,7 @@ SOURCE_READS = {}
 # Likewise the artifact-reader derivation (tools/ci/numerical_ci.py's artifact_producers, about a second per plan).
 ARTIFACT_DERIVATIONS = {}
 load_numerical_module = hosted_ci.numerical_module
+DESKTOP_RUST_CRATE_PATH = hosted_ci.DESKTOP_RUST_CRATE
 real_python_reach = hosted_ci.python_reach
 
 
@@ -37,7 +39,7 @@ def shared_numerical_module(root):
     per distinct input. A changed declaration is a new key; a scan or derivation
     that fails is never kept; a fixture checkout is scanned and derived every time."""
     module = load_numerical_module(root)
-    scan = module.source_read_dependencies
+    scan = module.runtime_read_index
     derive = module.artifact_producers
 
     def artifact_producers(project, manifests, readers, inputs=module.UNDECLARED):
@@ -50,16 +52,26 @@ def shared_numerical_module(root):
             ARTIFACT_DERIVATIONS[key] = derive(project, manifests, readers, inputs)
         return ARTIFACT_DERIVATIONS[key]
 
-    def source_read_dependencies(project, manifests, declarations=None):
+    def runtime_read_index(project, manifests, declarations=None):
         resolved = Path(project).resolve()
         if not resolved.is_relative_to(SOURCE_ROOT.resolve()):
             return scan(project, manifests, declarations)
         key = (resolved, tuple(Path(m).as_posix() for m in manifests), json.dumps(declarations, sort_keys=True))
         if key not in SOURCE_READS:
             SOURCE_READS[key] = scan(project, manifests, declarations)
-        return {path: set(readers) for path, readers in SOURCE_READS[key].items()}
+        resources, stale, derived = SOURCE_READS[key]
+        if resolved == SOURCE_ROOT.resolve():
+            # A stale committed attestation fails tests/test_ci_numerical.py's attestation test, which names
+            # it; these tests check what the declarations select, so they leave that staleness out, and a
+            # declaration a test alters keeps its own.
+            committed = PROFILE['piping_runtime_reads']
+            reads = committed if declarations is None else declarations
+            stale = {source: entry for source, entry in stale.items()
+                     if reads['reads'].get(source) != committed['reads'].get(source)}
+        return ({path: set(readers) for path, readers in resources.items()},
+                copy.deepcopy(stale), copy.deepcopy(derived))
 
-    module.source_read_dependencies = source_read_dependencies
+    module.runtime_read_index = runtime_read_index
     module.artifact_producers = artifact_producers
     return module
 
@@ -516,7 +528,9 @@ class HostedCITests(unittest.TestCase):
             # Files a path dependency's compiled source or build script reads (declared): the
             # product_physics build script reads its own sources.
             ('fixtures/rule_expressions/checksum_binding/payload_grammar_v1_0_0.json', 'path-dependency-runtime-read'),
-            ('core/product_physics/src/bend_pressure.rs', 'path-dependency-runtime-read'),
+            # A Rust file of a dependency is its source; its only runtime readers (nonlinear_integration's
+            # cfg(test) source scans) are unit tests the desktop job never compiles.
+            ('core/product_physics/src/bend_pressure.rs', 'path-dependency-source'),
             # Any other project manifest or lock: the shell's reach scan reads every project
             # package's dependencies from `cargo metadata` (W-18b r2c), so a new package that
             # depends on a reporting crate must run it.
@@ -581,12 +595,134 @@ class HostedCITests(unittest.TestCase):
         selection = select_paths(['tests/test_release_candidate_scan.py'], PROFILE, self.root)
         self.assertEqual(selection['modes']['piping-desktop-rust'], 'full')
         self.assertEqual(selection['piping_desktop_rust_selection']['classification'], 'full-fallback')
-        # A stale runtime-read declaration in a path dependency also fails toward the tests.
+        # A stale runtime-read declaration in a path dependency selects the tests, and the numerical
+        # selection widens to that reader's crate and Rust callers, not to every crate.
         profile = json.loads(json.dumps(PROFILE))
-        profile['piping_runtime_reads']['reads']['core/rules/rule_pack_lifecycle/src/lib.rs']['sha256'] = '0' * 64
+        source = 'core/rules/rule_pack_lifecycle/src/lib.rs'
+        profile['piping_runtime_reads']['reads'][source]['sha256'] = '0' * 64
         selection = select_paths(['tests/test_release_candidate_scan.py'], profile)
-        self.assertEqual(selection['piping_desktop_rust_selection']['classification'], 'full-fallback')
-        self.assertIn('stale runtime read declaration', selection['piping_desktop_rust_selection']['fallback_reasons'][0])
+        self.assertEqual(selection['modes']['piping-desktop-rust'], 'full')
+        self.assertEqual(selection['piping_desktop_rust_selection']['classification'], 'reachability')
+        self.assertIn({'source': source, 'kind': 'stale-path-dependency-runtime-read'},
+                      selection['piping_desktop_rust_selection']['reasons'])
+        numerical = selection['piping_numerical_selection']
+        self.assertEqual(numerical['classification'], 'reachability')
+        callers = profile['piping_runtime_reads']['reads'][source]['source_trees']
+        self.assertTrue(set(callers) <= set(numerical['manifests']))
+        # Other legitimate reasons (a Rust tree the edit also changed) may accompany it.
+        reason = next(r for r in numerical['reasons'] if r.get('kind') == 'stale-runtime-read' and r['source'] == source)
+        self.assertIn('core/rules/rule_pack_lifecycle/Cargo.toml', reason['manifests'])
+        self.assertIn('reader source changed', reason['stale'])
+
+    def test_build_script_helpers_count_as_compiled_reads_for_desktop_rust_and_the_engine_cache(self):
+        # Review of #611, findings 2 and 3: a #[path] build helper's ordinary child module that reads a declared
+        # input is a build input. A change to that input selects the desktop Rust tests and changes the engine
+        # cache key, and a stale attestation runs those tests and refuses cache reuse.
+        import hashlib
+        from unittest.mock import MagicMock
+        import wasm_cache
+        numerical = load_numerical_module(SOURCE_ROOT)
+        project = self.root
+        crate = project / 'core/eng'
+        (crate / 'src').mkdir(parents=True)
+        (crate / 'build_support').mkdir()
+        (project / 'fixtures').mkdir()
+        (crate / 'Cargo.toml').write_text('[package]\nname="eng"\nversion="0.1.0"\n')
+        (crate / 'Cargo.lock').write_text('version = 4\n')
+        (crate / 'src/lib.rs').write_text('pub fn value() {}')
+        (crate / 'build.rs').write_text('#[path = "build_support/stamp.rs"] mod stamp;\nfn main() { stamp::child::stamp(); }\n')
+        (crate / 'build_support/stamp.rs').write_text('pub mod child;\n')
+        child = crate / 'build_support/child.rs'
+        child.write_text('pub fn stamp() { std::fs::read("../../fixtures/stamp.json"); }\n')
+        (project / 'fixtures/stamp.json').write_text('{}')
+        shell = project / DESKTOP_RUST_CRATE_PATH
+        (shell / 'src').mkdir(parents=True)
+        (shell / 'Cargo.toml').write_text('[package]\nname="shell"\nversion="0.1.0"\n[dependencies]\neng={path="../../../core/eng"}\n')
+        (shell / 'Cargo.lock').write_text('version = 4\n')
+        (shell / 'src/lib.rs').write_text('pub fn shell() {}')
+        local = 'core/eng/build_support/child.rs'
+        declarations = {'reads': {local: {'sha256': hashlib.sha256(child.read_bytes()).hexdigest(), 'inputs': [
+            {'anchor': '../../fixtures/stamp.json', 'base': 'manifest', 'files': ['fixtures/stamp.json']}]}}}
+        self.write('tools/hosted-ci-routing.json', json.dumps({'piping_runtime_reads': declarations}))
+        self.git('add', '-A')
+        caches = (hosted_ci.compiled_crate_inputs, hosted_ci.declared_compiled_reads, hosted_ci.desktop_rust_references)
+        def plan(path):
+            for cache in caches:
+                cache.cache_clear()
+            return hosted_ci.desktop_rust_plan(project, [path], {'reasons': {}, 'unmatched_paths': []},
+                                               {'piping_runtime_reads': declarations})
+        def key():
+            for cache in caches:
+                cache.cache_clear()
+            engine = hosted_ci.compiled_crate_inputs(project, ('core/eng/Cargo.toml',), False, 'wasm engine')
+            with patch.object(wasm_cache, 'wasm_engine_inputs', MagicMock(return_value=engine)):
+                return wasm_cache.cache_key(project, {}, 'rustc', 'bindgen', 'node')
+        with patch.object(hosted_ci, 'numerical_module', return_value=numerical), \
+             patch.dict(os.environ, {'CARGO_HOME': str(project / '.no-cargo-home')}):
+            self.assertIn({'path': 'fixtures/stamp.json', 'kind': 'path-dependency-runtime-read'},
+                          plan('fixtures/stamp.json')['reasons'])
+            before, inputs = key()
+            self.assertTrue({'fixtures/stamp.json', local} <= set(inputs))
+            (project / 'fixtures/stamp.json').write_text('{"changed": true}')
+            self.assertNotEqual(key()[0], before)
+            # The child gains a read without confirming its attestation.
+            child.write_text(child.read_text() + 'pub fn later() { std::fs::read("../../fixtures/stamp.json"); }\n')
+            self.assertIn({'source': local, 'kind': 'stale-path-dependency-runtime-read'}, plan('README.md')['reasons'])
+            with self.assertRaisesRegex(ValueError, 'Stale runtime read declaration'):
+                key()
+            for cache in caches:
+                cache.cache_clear()
+
+    def test_a_custom_cfg_module_is_a_library_input_for_desktop_rust_and_the_engine_cache(self):
+        # Review of #611, round 3, finding 4: a build script sets `cfg(test_support)`, which the library compiles;
+        # only a cfg predicate of exactly `test`, or an all(...) including it, confines a module to unit tests.
+        import hashlib
+        from unittest.mock import MagicMock
+        import wasm_cache
+        numerical = load_numerical_module(SOURCE_ROOT)
+        project = self.root
+        crate = project / 'core/eng'
+        (crate / 'src').mkdir(parents=True)
+        (project / 'fixtures').mkdir()
+        (crate / 'Cargo.toml').write_text('[package]\nname="eng"\nversion="0.1.0"\n')
+        (crate / 'Cargo.lock').write_text('version = 4\n')
+        (crate / 'build.rs').write_text('fn main() { println!("cargo:rustc-cfg=test_support"); }\n')
+        (crate / 'src/lib.rs').write_text('#[cfg(test_support)]\nmod support;\npub fn value() {}\n')
+        support = crate / 'src/support.rs'
+        support.write_text('pub fn load() { std::fs::read("../../fixtures/support.json"); }\n')
+        (project / 'fixtures/support.json').write_text('{}')
+        shell = project / DESKTOP_RUST_CRATE_PATH
+        (shell / 'src').mkdir(parents=True)
+        (shell / 'Cargo.toml').write_text('[package]\nname="shell"\nversion="0.1.0"\n[dependencies]\neng={path="../../../core/eng"}\n')
+        (shell / 'Cargo.lock').write_text('version = 4\n')
+        (shell / 'src/lib.rs').write_text('pub fn shell() {}')
+        local = 'core/eng/src/support.rs'
+        declarations = {'reads': {local: {'sha256': hashlib.sha256(support.read_bytes()).hexdigest(), 'inputs': [
+            {'anchor': '../../fixtures/support.json', 'base': 'manifest', 'files': ['fixtures/support.json']}]}}}
+        self.write('tools/hosted-ci-routing.json', json.dumps({'piping_runtime_reads': declarations}))
+        self.git('add', '-A')
+        caches = (hosted_ci.compiled_crate_inputs, hosted_ci.declared_compiled_reads, hosted_ci.desktop_rust_references)
+        def clear():
+            for cache in caches:
+                cache.cache_clear()
+        def key():
+            clear()
+            engine = hosted_ci.compiled_crate_inputs(project, ('core/eng/Cargo.toml',), False, 'wasm engine')
+            with patch.object(wasm_cache, 'wasm_engine_inputs', MagicMock(return_value=engine)):
+                return wasm_cache.cache_key(project, {}, 'rustc', 'bindgen', 'node')
+        with patch.object(hosted_ci, 'numerical_module', return_value=numerical), \
+             patch.dict(os.environ, {'CARGO_HOME': str(project / '.no-cargo-home')}):
+            derived = numerical.runtime_read_index(project, [Path('core/eng/Cargo.toml')], declarations)[2]
+            self.assertTrue(derived['reads'][local]['library'])
+            clear()
+            plan = hosted_ci.desktop_rust_plan(project, ['fixtures/support.json'], {'reasons': {}, 'unmatched_paths': []},
+                                               {'piping_runtime_reads': declarations})
+            self.assertIn({'path': 'fixtures/support.json', 'kind': 'path-dependency-runtime-read'}, plan['reasons'])
+            before, inputs = key()
+            self.assertIn('fixtures/support.json', inputs)
+            (project / 'fixtures/support.json').write_text('{"changed": true}')
+            self.assertNotEqual(key()[0], before)
+            clear()
 
     def test_desktop_rust_closure_is_every_path_dependency_the_crate_compiles(self):
         import tomllib

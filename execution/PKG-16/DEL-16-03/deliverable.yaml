@@ -60,3 +60,8 @@ checks:
 - apps/desktop/src/services/operationAuthorship.bounds.test.ts
 - apps/desktop/src/services/operationAuthorship.matrix.test.ts
 - apps/desktop/src/services/operationAuthorship.text.test.ts
+# The editor binding (a person's own edit applied where it is made): its entries, its reach and what
+# a commit does to a held result.
+- apps/desktop/src/features/workspace/editorCommit.session.test.tsx
+- apps/desktop/src/features/workspace/editorCommit.reach.test.tsx
+- apps/desktop/src/features/workspace/editorCommit.heldResult.session.test.tsx

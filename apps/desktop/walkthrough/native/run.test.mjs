@@ -40,9 +40,9 @@ test("arguments: --build-only alone, journeys by name, the reference system alon
   assert.match(parseArguments(["--all"]).error, /unknown argument/);
 });
 
-test("journeys are numbered from 20, after the browser walkthrough's, each once", () => {
+test("journeys are numbered from 20, after the browser walkthrough's, each once and below the attended launch's 90", () => {
   const numbers = Object.values(JOURNEYS).map((journey) => journey.number);
-  assert.ok(numbers.every((number) => number >= 20 && number <= 99));
+  assert.ok(numbers.every((number) => number >= 20 && number <= 89));
   assert.equal(new Set(numbers).size, numbers.length);
 });
 
@@ -147,18 +147,19 @@ test("the menu reading and the window's outcome become the part file's records",
   assert.equal(screenLockState(undefined), null);
 });
 
-test("native surfaces: the menu bar supplied by a reading, the 3D view captured or why not, and missing wins in the index", (t) => {
+test("native surfaces: the menu bar's reading recorded but not as the menu bar drawn, the 3D view captured or why not, and missing wins in the index", (t) => {
   const menu = { read: true, read_when: "once", menus: [] };
   const menuEntry = (surfaces) => surfaces.find((item) => item.surface === MENU_SURFACE);
   const viewEntry = (surfaces) => surfaces.find((item) => item.surface === VIEW_3D_SURFACE);
   assert.equal(menuEntry(nativeSurfacesFor()).missing_evidence, true);
-  const supplied = menuEntry(nativeSurfacesFor({ menu }));
-  assert.equal(supplied.missing_evidence, false);
-  assert.equal(supplied.evidence, "supplied");
-  assert.equal(supplied.captured, false);
-  assert.match(supplied.instead, /names, order and enabled state as built; not how the system draws the menu bar, where it places it/);
-  assert.match(supplied.prevented_by, /Accessibility permission/);
-  assert.match(menuEntry(nativeSurfacesFor({ menu: { read: false, error: "no menu" } })).prevented_by, /: no menu$/);
+  const read = menuEntry(nativeSurfacesFor({ menu }));
+  assert.equal(read.missing_evidence, true);
+  assert.equal(read.evidence, "missing");
+  assert.equal(read.reading, "supplied");
+  assert.equal(read.captured, false);
+  assert.match(read.instead, /names, order and enabled state as built; not how the system draws the menu bar, where it places it/);
+  assert.equal(read.prevented_by, NOT_SUPPLIED);
+  assert.match(menuEntry(nativeSurfacesFor({ menu: { read: false, error: "no menu" } })).instead, /: no menu$/);
   const drawn = [{ view_3d: "captured" }, { view_3d: "not on screen" }, { view_3d: "captured" }];
   assert.equal(viewEntry(nativeSurfacesFor({ windowShown: true, screens: drawn })).missing_evidence, false);
   assert.equal(viewEntry(nativeSurfacesFor({ windowShown: true, screens: drawn })).captured, true);
@@ -166,12 +167,22 @@ test("native surfaces: the menu bar supplied by a reading, the 3D view captured 
   assert.equal(partly.missing_evidence, true);
   assert.match(partly.prevented_by, /--show-window\), but at 1 of 3 steps that showed the 3D view it was not captured: its pixels read blank/);
   assert.match(viewEntry(nativeSurfacesFor({ windowShown: false, screens: [{ view_3d: "not captured" }] })).prevented_by, /not given --show-window/);
-  // In the index, one launch that left the evidence missing keeps the surface missing.
+  // In the index, one launch that left the evidence missing keeps the surface missing: the 3D view captured in one
+  // launch and not in another is missing, whichever launch comes first.
   const out = scratch(t);
-  writePart(out, { number: 20, name: "solve-and-results", title: "A", use_case: "u", screens: [], native_menu: { ...menu, journey: "solve-and-results", number: 20 }, window_shown: { option: true, shown: true }, launch: { ended_cleanly: true, window_shown: true } });
-  writePart(out, { number: 22, name: "exports", title: "B", use_case: "u", screens: [], native_menu: { read: false, journey: "exports", number: 22, error: "x" }, launch: { ended_cleanly: true } });
+  writePart(out, { number: 20, name: "solve-and-results", title: "A", use_case: "u", screens: [{ number: 2001, step: "a", view_3d: "captured" }], native_menu: { ...menu, journey: "solve-and-results", number: 20 }, window_shown: { option: true, shown: true }, launch: { ended_cleanly: true, window_shown: true } });
+  writePart(out, { number: 22, name: "exports", title: "B", use_case: "u", screens: [{ number: 2201, step: "b", view_3d: "not captured", canvases: [{ label: "3D view", captured: false, reason: "its pixels read blank" }] }], native_menu: { read: false, journey: "exports", number: 22, error: "x" }, window_shown: { option: true, shown: true }, launch: { ended_cleanly: true } });
+  const parts = JSON.parse(readFileSync(path.join(out, "part-20-solve-and-results.json"), "utf8"));
+  assert.equal(viewEntry(parts.native_surfaces).evidence, "supplied");
   composeIndex(out);
   const index = JSON.parse(readFileSync(path.join(out, "INDEX.json"), "utf8"));
+  assert.deepEqual([viewEntry(index.native_surfaces).evidence, viewEntry(index.native_surfaces).missing_evidence], ["missing", true]);
+  assert.match(viewEntry(index.native_surfaces).prevented_by, /at 1 of 1 steps that showed the 3D view it was not captured: its pixels read blank/);
+  const reversed = scratch(t);
+  writePart(reversed, { number: 20, name: "solve-and-results", title: "A", use_case: "u", screens: [{ number: 2001, step: "b", view_3d: "not captured" }], window_shown: { option: true, shown: true }, launch: { ended_cleanly: true } });
+  writePart(reversed, { number: 22, name: "exports", title: "B", use_case: "u", screens: [{ number: 2201, step: "a", view_3d: "captured" }], window_shown: { option: true, shown: true }, launch: { ended_cleanly: true } });
+  composeIndex(reversed);
+  assert.equal(viewEntry(JSON.parse(readFileSync(path.join(reversed, "INDEX.json"), "utf8")).native_surfaces).missing_evidence, true);
   assert.equal(menuEntry(index.native_surfaces).missing_evidence, true);
   assert.deepEqual(index.native_menus.map((reading) => [reading.journey, reading.read]), [["solve-and-results", true], ["exports", false]]);
   assert.deepEqual(index.journeys[0].window_shown, { option: true, shown: true });
@@ -273,9 +284,13 @@ test("pictures: each snapshot rendered at its recorded size with nothing loaded,
   assert.equal(native[1].substitutions, undefined);
   assert.deepEqual(index.native_surfaces.map((item) => item.surface), NATIVE_SURFACES.map((item) => item.surface));
   assert.ok(index.native_surfaces.every((item) => item.prevented_by && typeof item.missing_evidence === "boolean"));
-  assert.ok(index.native_surfaces.some((item) => /menu bar/.test(item.surface) && /Accessibility permission/.test(item.prevented_by) && item.missing_evidence === true));
+  // The window, the menu bar, the chooser and the print dialog: missing evidence, not supplied, never a permission prompt.
+  for (const key of ["window", "menu_bar", "file_chooser", "print_dialog"]) {
+    const entry = index.native_surfaces.find((item) => item.key === key);
+    assert.deepEqual([entry.missing_evidence, entry.evidence, entry.prevented_by], [true, "missing", NOT_SUPPLIED], key);
+  }
+  assert.ok(index.native_surfaces.every((item) => !/permission/.test(item.prevented_by)));
   assert.deepEqual(index.native_menus, []);
-  assert.ok(index.native_surfaces.some((item) => /window/.test(item.surface) && /Screen Recording permission/.test(item.prevented_by)));
   const html = readFileSync(path.join(out, "index.html"), "utf8");
   assert.match(html, /redrawn by Chromium/);
   assert.match(html, /not a capture of the window/);
@@ -339,6 +354,952 @@ test("every declared journey placement names a committed fixture and an open the
     assert.ok(["model-document", "local-project"].includes(spec.open?.by), name);
     if (spec.open.file) assert.ok(placements.some((item) => item.key === spec.open.file), name);
   }
+});
+
+// ---------------------------------------------------------------- the attended launch (--attended)
+
+import { constants as fsConstants, copyFileSync, lstatSync, renameSync, utimesSync } from "node:fs";
+import { ATTENDED, ATTENDED_SURFACE, CAPTURE_BASIS, UNEXPLAINED_BASIS, attendedEnding, attendedStartLines, attendedWatch, emptyAttendedOutput, parseCommandLine, readCaptures, readProcessTable, writeAttendedPart } from "./run.mjs";
+import { judgedPhase } from "../../native-smoke/judged-launch.mjs";
+import { censusOf } from "../../native-smoke/launch-env.mjs";
+import { readReport } from "../../native-smoke/launch-outcome.mjs";
+import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock } from "../../scripts/worktreeBuildLock.mjs";
+import { deflateSync } from "node:zlib";
+
+/** An attended capture's sidecar as the attendant writes it, with the required members the claims leave out. */
+const sidecarJson = (claims) => JSON.stringify({ use_case: "Save, close and resume", taken_at: new Date().toISOString(), ...claims });
+
+/** A real PNG, `width` x `height`, RGBA 8-bit, all `value`: small, decodable and with correct checksums. */
+function makePng(width, height, value = 0) {
+  const table = Array.from({ length: 256 }, (_, n) => { let c = n; for (let k = 0; k < 8; k += 1) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; return c >>> 0; });
+  const crc = (bytes) => { let c = 0xffffffff; for (const byte of bytes) c = table[(c ^ byte) & 0xff] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; };
+  const chunk = (type, body) => { const head = Buffer.alloc(8); head.writeUInt32BE(body.length, 0); head.write(type, 4, "latin1"); const tail = Buffer.alloc(4); tail.writeUInt32BE(crc(Buffer.concat([head.subarray(4), body])), 0); return Buffer.concat([head, body, tail]); };
+  const ihdr = Buffer.alloc(13); ihdr.writeUInt32BE(width, 0); ihdr.writeUInt32BE(height, 4); ihdr[8] = 8; ihdr[9] = 6;
+  const rows = Buffer.alloc(height * (1 + width * 4), value); for (let y = 0; y < height; y += 1) rows[y * (1 + width * 4)] = 0;
+  return Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), chunk("IHDR", ihdr), chunk("IDAT", deflateSync(rows)), chunk("IEND", Buffer.alloc(0))]);
+}
+
+test("attended arguments: the option, its defaults, and every refusal by name", () => {
+  assert.deepEqual(parseCommandLine(["--attended", "--out", "/o"]), { buildOnly: false, journeys: [], out: "/o", showWindow: true, attended: { start: null, limitMinutes: 20, hidden: false, attendantOnScreen: null } });
+  assert.deepEqual(parseCommandLine(["--attended", "--hidden", "--limit-minutes", "1", "--out", "/o"]).attended, { start: null, limitMinutes: 1, hidden: true, attendantOnScreen: null });
+  assert.equal(parseCommandLine(["--attended", "--hidden", "--out", "/o"]).showWindow, false);
+  assert.equal(parseCommandLine(["--attended", "--journey", "prepared-project", "--out", "/o"]).attended.start, "prepared-project");
+  assert.equal(parseCommandLine(["--attended", "--journey", "reference-system", "--limit-minutes", "60", "--out", "/o"]).attended.start, "reference-system");
+  // Refusals.
+  assert.match(parseCommandLine(["--attended", "--build-only", "--out", "/o"]).error, /cannot be given with --build-only/);
+  assert.match(parseCommandLine(["--build-only", "--attended"]).error, /cannot be given with --build-only/);
+  assert.match(parseCommandLine(["--attended", "--journey", "prepared-project,reference-system", "--out", "/o"]).error, /at most one journey/);
+  assert.match(parseCommandLine(["--attended", "--journey", "solve-and-results", "--out", "/o"]).error, /places nothing before launch/);
+  assert.match(parseCommandLine(["--attended", "--journey", "orientation", "--out", "/o"]).error, /unknown journey orientation/);
+  for (const limit of ["0", "61", "x", "1.5", "-1", ""]) assert.ok(parseCommandLine(["--attended", "--limit-minutes", limit, "--out", "/o"]).error, limit);
+  assert.match(parseCommandLine(["--attended", "--limit-minutes", "61", "--out", "/o"]).error, /from 1 to 60/);
+  assert.match(parseCommandLine(["--hidden"]).error, /--hidden is an option of --attended/);
+  assert.match(parseCommandLine(["--journey", "report", "--hidden"]).error, /--hidden is an option of --attended/);
+  assert.match(parseCommandLine(["--limit-minutes", "5"]).error, /--limit-minutes is an option of --attended/);
+  assert.match(parseCommandLine(["--attended"]).error, /needs --out/);
+  assert.match(parseCommandLine(["--attended", "--show-window", "--out", "/o"]).error, /unless --hidden/);
+  assert.match(parseCommandLine(["--attended", "--attended", "--out", "/o"]).error, /given twice/);
+  assert.match(parseCommandLine(["--attended", "--hidden", "--hidden", "--out", "/o"]).error, /given twice/);
+  assert.match(parseCommandLine(["--attended", "--out", "/o", "--grep", "x"]).error, /unknown argument --grep/);
+  // Without --attended the journeys' command line is unchanged.
+  assert.deepEqual(parseCommandLine(["--journey", "report", "--out", "/w"]), { ...parseArguments(["--journey", "report", "--out", "/w"]), attended: null });
+});
+
+test("attended start lines: one per fact, a script can read them, the last says ready", () => {
+  const lines = attendedStartLines({ pid: 4242, boundApp: "/b/app", launchCopy: "/c/app", finishFile: "/r/attended-finish", captures: "/o/captures", limitMinutes: 20, endsAt: "2026-01-01T00:20:00.000Z", observed: { ok: true, window_shown: true, page_visibility: "visible" }, start: null });
+  const facts = Object.fromEntries(lines.map((line) => line.match(/^attended\.([a-z_]+)=(.*)$/).slice(1)));
+  assert.equal(facts.pid, "4242");
+  // What the driver observed, not the option asked for.
+  assert.deepEqual([facts.window_shown, facts.page_visibility], ["yes", "visible"]);
+  const unseen = Object.fromEntries(attendedStartLines({ pid: 1, observed: { ok: true, window_shown: false, page_visibility: "hidden" } }).map((line) => line.match(/^attended\.([a-z_]+)=(.*)$/).slice(1)));
+  assert.deepEqual([unseen.window_shown, unseen.page_visibility], ["no", "hidden"]);
+  assert.equal(facts.bound_app, "/b/app");
+  assert.equal(facts.window_title_ends_with, "SWBPIPE");
+  assert.equal(facts.finish_file, "/r/attended-finish");
+  assert.equal(facts.captures, "/o/captures");
+  assert.equal(facts.limit_minutes, "20");
+  assert.match(facts.chooser, /strict chooser ends the application if a file chooser is opened/);
+  assert.equal(lines.at(-1), "attended.ready=yes");
+});
+
+test("attended output: an earlier attended part goes, other journeys and an earlier captures folder are kept, and the captures folder refuses a new attended run", (t) => {
+  const out = scratch(t);
+  for (const name of ["part-21-report.json", "2101-report-run.png", "part-90-attended.json", "INDEX.json"]) writeFileSync(path.join(out, name), "x");
+  emptyAttendedOutput(out);
+  assert.deepEqual(readdirSync(out).sort(), ["2101-report-run.png", "part-21-report.json"]);
+  mkdirSync(path.join(out, "captures"));
+  writeFileSync(path.join(out, "captures", "a.png"), "x");
+  // A journey run into the same folder keeps the attendant's folder as it is.
+  emptyNativeOutput(out, ["report"]);
+  assert.deepEqual(readdirSync(out), ["captures"]);
+  assert.deepEqual(readdirSync(path.join(out, "captures")), ["a.png"]);
+  assert.throws(() => emptyAttendedOutput(out), /earlier attended launch's captures/);
+});
+
+test("an attended launch's ending: each way named from the receipt of the owner of the child; a failed start and an unreported start never pass", () => {
+  const start = { nonce: "n", ok: true };
+  const outcome = (fields) => ({ status: null, signal: null, timed_out: false, ...fields });
+  const delivered = { delivered: true, target: "group 7", signal: "SIGKILL" };
+  const ending = (fields) => attendedEnding({ start, nonce: "n", limitMinutes: 5, handedOver: true, ...fields });
+  assert.deepEqual([ending({ outcome: outcome({ status: 0 }) }).by, ending({ outcome: outcome({ status: 0 }) }).ok], ["app-exited", true]);
+  assert.equal(ending({ outcome: outcome({ status: 3 }) }).ok, false);
+  assert.equal(ending({ outcome: outcome({ signal: "SIGSEGV" }) }).ok, false);
+  assert.equal(ending({ outcome: outcome({ signal: "SIGKILL" }), receipt: delivered, stop: { by: "finish-file" } }).by, "finish-file");
+  assert.equal(ending({ outcome: outcome({ signal: "SIGKILL" }), receipt: delivered, stop: { by: "limit" } }).by, "limit");
+  assert.equal(ending({ outcome: outcome({ signal: "SIGKILL", timed_out: true }) }).by, "limit");
+  // A SIGKILL the runner did not deliver is not the finish file's; a stop after the app exited signalled nothing.
+  assert.deepEqual([ending({ outcome: outcome({ signal: "SIGKILL" }), stop: { by: "finish-file" } }).by, ending({ outcome: outcome({ signal: "SIGKILL" }), stop: { by: "finish-file" } }).ok], ["app-exited", false]);
+  const after = ending({ outcome: outcome({ status: 0 }), receipt: null, stop: { by: "finish-file" } });
+  assert.deepEqual([after.by, after.ok], ["app-exited", true]);
+  assert.match(after.what, /nothing was signalled \(the application had already exited\)/);
+  assert.equal(ending({ outcome: outcome({ status: 86 }) }).by, "strict-chooser");
+  const failed = attendedEnding({ outcome: outcome({ status: 0 }), start: { nonce: "n", ok: false, error: "the journey declares nothing to open" }, nonce: "n" });
+  assert.deepEqual([failed.by, failed.ok], ["start-failed", false]);
+  assert.equal(attendedEnding({ outcome: outcome({ status: 0 }), start: { nonce: "other", ok: true }, nonce: "n", handedOver: true }).ok, false);
+  // An exit is the attendant's only after the handover; a failed start is its own ending whatever ended the app.
+  const early = ending({ outcome: outcome({ status: 0 }), handedOver: false });
+  assert.deepEqual([early.by, early.ok], ["app-exited", false]);
+  assert.match(early.what, /before the handover/);
+  assert.equal(ending({ outcome: outcome({ signal: "SIGKILL" }), receipt: delivered, stop: { by: "start-failed" }, start: { nonce: "n", ok: false, error: "x" }, handedOver: false }).by, "start-failed");
+  assert.equal(attendedEnding({ outcome: null }).ok, false);
+});
+
+test("captures: each PNG with its sidecar is a capture of the actual window; without one it is unexplained, not dropped; nothing is followed", (t) => {
+  const root = scratch(t);
+  const folder = path.join(root, "captures");
+  mkdirSync(folder);
+  const png = (width, height) => makePng(width, height);
+  writeFileSync(path.join(folder, "01-menu.png"), png(48, 30));
+  writeFileSync(path.join(folder, "01-menu.json"), sidecarJson({ step: "file-menu-open", note: "The File menu, opened from the menu bar", acted: ["clicked File in the menu bar"] }));
+  writeFileSync(path.join(folder, "02-bare.png"), png(8, 6));
+  writeFileSync(path.join(folder, "03-bad.png"), png(10, 10));
+  writeFileSync(path.join(folder, "03-bad.json"), sidecarJson({ step: "", note: "n", acted: ["looked"] }));
+  writeFileSync(path.join(folder, "04-fake.png"), "not a png");
+  writeFileSync(path.join(folder, "04-fake.json"), sidecarJson({ step: "s", note: "n", acted: [] }));
+  writeFileSync(path.join(folder, "05-orphan.json"), sidecarJson({ step: "s", note: "no picture", acted: ["looked"] }));
+  writeFileSync(path.join(folder, "notes.txt"), "x");
+  symlinkSync(path.join(folder, "01-menu.png"), path.join(folder, "06-link.png"));
+  const before = readdirSync(folder).map((name) => [name, lstatSync(path.join(folder, name)).mtimeMs]);
+  const found = readCaptures(folder, { identity: lstatSync(folder), bindTo: { revision: { commit: "abc", uncommitted_paths: 0 }, build_app_sha256: "sha256:feed" } });
+  assert.equal(found.error, undefined);
+  assert.deepEqual(found.screens.map((screen) => [screen.number, screen.file, screen.capture]), [
+    [9001, "captures/01-menu.png", "the actual window"], [9002, "captures/02-bare.png", "unexplained"], [9003, "captures/03-bad.png", "unexplained"], [9004, "captures/04-fake.png", "unexplained"]
+  ]);
+  const [capture, bare, bad, fake] = found.screens;
+  assert.deepEqual([capture.step, capture.note, capture.acted, capture.redrawn, capture.scripted, capture.picture, capture.binding.width, capture.binding.height], ["file-menu-open", "The File menu, opened from the menu bar", ["clicked File in the menu bar"], false, false, CAPTURE_BASIS, 48, 30]);
+  // Bound to its launch: the hashes of the picture and the sidecar, the launch's revision and build.
+  assert.match(capture.binding.picture_sha256, /^sha256:[0-9a-f]{64}$/);
+  assert.match(capture.binding.sidecar_sha256, /^sha256:[0-9a-f]{64}$/);
+  assert.deepEqual([capture.binding.revision.commit, capture.binding.build_app_sha256], ["abc", "sha256:feed"]);
+  assert.match(bare.unexplained, /no sidecar/);
+  assert.match(bad.unexplained, /names no step/);
+  assert.match(fake.unexplained, /not a PNG/);
+  assert.ok([bare, bad, fake].every((screen) => screen.picture === UNEXPLAINED_BASIS && screen.redrawn === false && screen.scripted === false));
+  assert.deepEqual(found.records_without_picture.map((item) => [item.file, item.step]), [["captures/05-orphan.json", "s"]]);
+  assert.deepEqual(found.other.map((item) => [item.file, item.why]), [["captures/06-link.png", "a link, not followed"], ["captures/notes.txt", "neither a PNG picture nor a sidecar"]]);
+  // The runner neither takes nor alters a capture.
+  assert.deepEqual(readdirSync(folder).map((name) => [name, lstatSync(path.join(folder, name)).mtimeMs]), before);
+  assert.deepEqual(readCaptures(path.join(root, "none")), { screens: [], records_without_picture: [], other: [], error: "it is not there" });
+});
+
+test("the attended part joins the index beside the journeys, marked as captures of the actual window, the journeys' entries unchanged", (t) => {
+  const out = scratch(t);
+  const journeyScreens = screensFromRecords([{ number: 2401, step: "first-open", note: "Opened", window: "1440x920" }], { journey: "prepared-project", number: 24 });
+  writePart(out, { number: 24, name: "prepared-project", title: "P", use_case: "u", revision: { commit: "abc", uncommitted_paths: 0 }, build: { kind: "k" }, screens: journeyScreens, launch: { ended_cleanly: true } });
+  composeIndex(out);
+  const journeysOnly = JSON.parse(readFileSync(path.join(out, "INDEX.json"), "utf8"));
+  const htmlBefore = readFileSync(path.join(out, "index.html"), "utf8");
+  const screens = [{ number: 9001, journey: "attended", file: "captures/a.png", redrawn: false, scripted: false, step: "s", note: "n", acted: ["x"], capture: "the actual window", picture: CAPTURE_BASIS }];
+  writeAttendedPart(out, { title: "Attended", revision: { commit: "abc", uncommitted_paths: 0 }, build: { kind: "k" }, launch: { attended: true, scripted_steps_after_start: 0, ended_by: "finish-file" }, captures: { screens, records_without_picture: [], other: [] } });
+  composeIndex(out);
+  const index = JSON.parse(readFileSync(path.join(out, "INDEX.json"), "utf8"));
+  assert.deepEqual(index.journeys.map((journey) => [journey.number, journey.surface]), [[24, journeysOnly.journeys[0].surface], [90, ATTENDED_SURFACE]]);
+  assert.deepEqual(index.journeys[0], journeysOnly.journeys[0]);
+  assert.deepEqual(index.screens.filter((screen) => screen.journey === "prepared-project"), journeysOnly.screens);
+  assert.equal(index.journeys[1].launch.scripted_steps_after_start, 0);
+  const captured = index.screens.find((screen) => screen.journey === "attended");
+  assert.deepEqual([captured.redrawn, captured.scripted, captured.capture, captured.picture], [false, false, "the actual window", CAPTURE_BASIS]);
+  assert.match(index.marks_explained.capture, /capture of the launched app's actual window/);
+  assert.equal(journeysOnly.marks_explained.capture, undefined);
+  const html = readFileSync(path.join(out, "index.html"), "utf8");
+  assert.match(html, /An attended launch's pictures are captures of the actual window/);
+  assert.match(html, /Journeys of the launched app are not captures of its window/);
+  assert.doesNotMatch(htmlBefore, /attended launch/);
+});
+
+/**
+ * The composed driver run against stand-ins for the web view, as the earlier driver tests do: the IPC calls it makes,
+ * the listeners it adds to the document and the window, and the mutation observers it starts. `invoke` may answer
+ * more commands. Waits `waitMs` after the start for the driver to settle.
+ */
+async function runAttendedDriver(plan, { waitMs = 400, invoke = () => undefined, visibility = "hidden" } = {}) {
+  const driver = readFileSync(new URL("./driver.js", import.meta.url), "utf8");
+  const calls = [];
+  const listeners = { document: [], window: [] };
+  const observers = [];
+  const document = {
+    visibilityState: visibility, documentElement: {}, body: {},
+    querySelector: (selector) => (/desktop-preview-shell|tree-row-project/.test(selector) ? {} : null), querySelectorAll: () => [], hasFocus: () => false,
+    addEventListener: (type, listener, options) => listeners.document.push({ type, listener, options })
+  };
+  let finished = null;
+  const window = {
+    __TAURI_INTERNALS__: {
+      invoke: async (command, args) => {
+        // Each call with the number of listeners the driver had added by then.
+        calls.push([command, args, listeners.document.length + listeners.window.length]);
+        const answer = invoke(command, args);
+        if (answer !== undefined) return answer;
+        if (command === "native_smoke_plan") return { ...plan, nonce: "n", journey: plan.journey ?? "attended", timeouts: { ui: 50, step: 50 } };
+        if (command === "native_smoke_menu_items") return [];
+        if (command === "native_smoke_clear_choices") return 0;
+        if (command === "native_smoke_take_report_prints") return [];
+        if (command === "native_smoke_finish") finished = args.report;
+        return null;
+      }
+    },
+    addEventListener: (type, listener, options) => listeners.window.push({ type, listener, options })
+  };
+  class MutationObserver { constructor(callback) { this.callback = callback; observers.push(this); } observe(target, options) { this.target = target; this.options = options; } }
+  class HTMLInputElement {}
+  HTMLInputElement.prototype.showPicker = function showPicker() { calls.push(["showPicker", this.type]); };
+  // The driver's timers do not hold the test process open: an attended driver records until the launch ends.
+  const unref = (start) => (...args) => { const timer = start(...args); timer.unref?.(); return timer; };
+  const context = { window, document, navigator: { userAgent: "test" }, CSS: { escape: (text) => text }, setTimeout: unref(setTimeout), clearTimeout, setInterval: unref(setInterval), clearInterval, Date, JSON, Promise, String, Error, Boolean, Object, Math, Array, Set, Map, encodeURIComponent, getComputedStyle: () => ({}), requestAnimationFrame: (callback) => setTimeout(callback, 0), innerWidth: 1, innerHeight: 1, devicePixelRatio: 1, matchMedia: () => ({ matches: false }), MutationObserver, HTMLInputElement };
+  vm.runInNewContext(composeDriver(driver), context);
+  await new Promise((resolve) => setTimeout(resolve, 1500 + waitMs));
+  // Read as the runner reads them, from JSON: the driver's objects belong to the script's own realm.
+  const checkpoints = () => calls.filter(([command]) => command === "native_smoke_checkpoint").map(([, args]) => JSON.parse(JSON.stringify(args)));
+  return { calls, get finished() { return finished; }, checkpoints, listeners, observers, context };
+}
+/** A click event on `target`, as the capture listener receives it. */
+const clickOn = (target) => ({ target, defaultPrevented: false, stopped: false, preventDefault() { this.defaultPrevented = true; }, stopImmediatePropagation() { this.stopped = true; } });
+
+test("the driver's attended start: the start checkpoint, then no step and no finish; a failed start is recorded and ends the app", async () => {
+  const launch = async (plan) => { const run = await runAttendedDriver(plan); return { calls: run.calls, finished: run.finished, checkpoints: run.checkpoints() }; };
+  const plain = await launch({ attended: true, show_window: false, start: null });
+  const start = plain.checkpoints.find((item) => item.name === "start")?.report;
+  assert.deepEqual([start?.nonce, start?.attended, start?.ok, start?.start], ["n", true, true, null]);
+  assert.equal(plain.finished, null, "the driver never ends an attended launch that started");
+  assert.deepEqual(plain.checkpoints.map((item) => item.name).slice(0, 2), ["menu", "start"]);
+  assert.ok(plain.checkpoints.every((item) => ["menu", "start", "substitutions"].includes(item.name) || /^observed-\d+$/.test(item.name)), JSON.stringify(plain.checkpoints.map((item) => item.name)));
+  assert.equal(plain.calls.some(([command]) => command === "native_smoke_menu" || command === "native_smoke_choose"), false);
+  const failed = await launch({ attended: true, show_window: false, start: "x", open: { by: "unknown" } });
+  const failedStart = failed.checkpoints.find((item) => item.name === "start")?.report;
+  assert.deepEqual([failedStart?.ok, failedStart?.error], [false, "the journey declares an unknown way to open: unknown"]);
+  assert.match(failed.finished?.error ?? "", /the attended start failed/);
+  assert.ok(failed.calls.some(([command]) => command === "native_smoke_clear_choices"));
+});
+
+// The three ways an attended launch ends, and the strict chooser's exit, through the real judged launch and the watcher,
+// with a stand-in app as `native-smoke/judged-launch.test.mjs` stubs it: a private copy of this Node executable
+// running an invented script, so that the census finds it as it finds the app's copy. The runner holds a build lock in
+// a scratch folder, so the launch leads a process group of its own as it does in the command.
+const ATTENDED_STAND_IN = `
+const fs = require("node:fs");
+const plan = JSON.parse(process.env.SWBPIPE_NATIVE_SMOKE_PLAN);
+const report = process.env.SWBPIPE_NATIVE_SMOKE_REPORT;
+fs.writeFileSync(report + ".start.json", JSON.stringify(plan.mode === "failed-start" ? { nonce: plan.nonce, attended: true, ok: false, error: "the journey declares nothing to open" } : { nonce: plan.nonce, attended: true, ok: true, window_shown: false, page_visibility: "hidden" }));
+if (plan.mode === "quit") setTimeout(() => process.exit(0), 1500);
+else if (plan.mode === "chooser") setTimeout(() => process.exit(86), 1500);
+else setInterval(() => {}, 1000);
+`;
+
+test("the ways an attended launch ends, each through runUnderLock's abort and each censused", { skip: !["darwin", "linux"].includes(process.platform) && "the census runs on macOS and Linux" }, async (t) => {
+  const dir = scratch(t);
+  const executable = path.join(dir, "stand-in-app");
+  copyFileSync(process.execPath, executable, fsConstants.COPYFILE_FICLONE);
+  const script = path.join(dir, "stand-in.cjs");
+  writeFileSync(script, ATTENDED_STAND_IN);
+  const lock = acquireBuildLock({ purpose: "attended launch test", root: dir });
+  try {
+    const marksAbsent = (command) => ({ status: command.endsWith("pgrep") ? 1 : 0, stdout: "", stderr: "", error: undefined });
+    const nonce = "0123456789abcdef0123456789abcdef";
+    const wrapper = process.platform === "darwin" ? ["/usr/bin/caffeinate", ["-di", executable, script]] : [executable, [script]];
+    const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    async function attendedLaunch(mode, { timeoutMs = 30_000, limitMs = 60_000, finishAfterReady = false, finishBeforeStart = false, finishAfterExit = false } = {}) {
+      const root = mkdtempSync(path.join(dir, `root-${mode}-`));
+      const report = path.join(root, "report-attended.json");
+      const finishFile = path.join(root, ATTENDED.finish_file);
+      const launches = {};
+      const lines = [];
+      let ready;
+      const readyNow = new Promise((resolve) => { ready = resolve; });
+      const watch = attendedWatch({ executable, finishFile, startReport: `${report}.start.json`, census: censusOf, limitMs, pollMs: 100, onReady: ({ pid }) => {
+        lines.push(...attendedStartLines({ pid, boundApp: executable, launchCopy: executable, finishFile, captures: root, limitMinutes: 1, endsAt: "t", observed: readReport(`${report}.start.json`).report, start: null }));
+        ready(pid);
+      } });
+      const result = judgedPhase({
+        phase: mode, checkName: "judged", launches, check: () => {}, summaryPath: path.join(root, "summary.json"),
+        executable, command: wrapper[0], commandArgs: wrapper[1], cwd: root, stdio: ["ignore", "ignore", "ignore"],
+        env: { ...process.env, SWBPIPE_NATIVE_SMOKE_PLAN: JSON.stringify({ mode, nonce }), SWBPIPE_NATIVE_SMOKE_REPORT: report },
+        timeoutMs, reportPath: `${report}.start.json`, nonce, censusBoundMs: 5_000, marksRun: marksAbsent, abort: watch.signal,
+        beforeStart: () => {
+          // Before the child exists and before its pid is known: the stop is delivered once it does.
+          if (finishBeforeStart) writeFileSync(finishFile, "");
+          watch.start({ nonce });
+        }
+      });
+      if (finishAfterReady) { await readyNow; writeFileSync(finishFile, ""); }
+      const judged = await result;
+      if (finishAfterExit) { writeFileSync(finishFile, ""); await pause(400); }
+      const watched = watch.stop();
+      const receipt = launches[mode].abort;
+      const ending = attendedEnding({ outcome: launches[mode].outcome, receipt, stop: watched.stop, start: readReport(`${report}.start.json`).report, nonce, limitMinutes: 1, handedOver: watched.ready_printed });
+      return { judged, watched, receipt, ending, lines, outcome: launches[mode].outcome };
+    }
+    const quit = await attendedLaunch("quit");
+    assert.deepEqual([quit.ending.by, quit.ending.ok], ["app-exited", true], quit.ending.what);
+    assert.equal(quit.judged.census.resolved, true);
+    assert.deepEqual([quit.watched.stop, quit.receipt], [null, null]);
+    assert.match(quit.lines.find((line) => line.startsWith("attended.pid=")) ?? "", /^attended\.pid=\d+$/);
+    assert.equal(quit.lines.at(-1), "attended.ready=yes");
+
+    const finished = await attendedLaunch("idle", { finishAfterReady: true });
+    assert.deepEqual([finished.ending.by, finished.ending.ok], ["finish-file", true], finished.ending.what);
+    assert.deepEqual([finished.receipt.delivered, finished.receipt.signal], [true, "SIGKILL"], JSON.stringify(finished.receipt));
+    assert.deepEqual([finished.outcome.signal, finished.outcome.timed_out], ["SIGKILL", false]);
+    assert.equal(finished.judged.census.resolved, true);
+    assert.deepEqual(censusOf(executable), { ok: true, pids: [] });
+
+    const early = await attendedLaunch("idle", { finishBeforeStart: true });
+    assert.deepEqual([early.ending.by, early.receipt.delivered, early.outcome.signal], ["finish-file", true, "SIGKILL"], early.ending.what);
+    assert.equal(early.judged.census.resolved, true);
+
+    const exited = await attendedLaunch("quit", { finishAfterExit: true });
+    assert.deepEqual([exited.ending.by, exited.ending.ok, exited.watched.stop.by, exited.receipt, exited.outcome.signal, exited.outcome.status], ["app-exited", true, "finish-file", null, null, 0], exited.ending.what);
+    assert.match(exited.ending.what, /nothing was signalled/);
+
+    const limited = await attendedLaunch("idle", { limitMs: 2_500 });
+    assert.deepEqual([limited.ending.by, limited.ending.ok], ["limit", true], limited.ending.what);
+    assert.deepEqual([limited.receipt.delivered, limited.outcome.signal, limited.outcome.timed_out], [true, "SIGKILL", false]);
+    assert.equal(limited.judged.census.resolved, true);
+
+    const backstop = await attendedLaunch("idle", { timeoutMs: 2_500 });
+    assert.deepEqual([backstop.ending.by, backstop.outcome.timed_out, backstop.outcome.signal, backstop.receipt], ["limit", true, "SIGKILL", null], backstop.ending.what);
+
+    // A failed start is never handed over: no line is printed, and the launch ends as its own ending.
+    const failedStart = await attendedLaunch("failed-start");
+    assert.deepEqual([failedStart.ending.by, failedStart.ending.ok, failedStart.lines, failedStart.watched.ready_printed, failedStart.watched.stop.by], ["start-failed", false, [], false, "start-failed"], failedStart.ending.what);
+    assert.equal(failedStart.judged.census.resolved, true);
+
+    const chooser = await attendedLaunch("chooser");
+    assert.deepEqual([chooser.ending.by, chooser.ending.ok], ["strict-chooser", true], chooser.ending.what);
+    assert.equal(chooser.judged.census.resolved, true);
+    assert.ok(readProcessTable().has(process.pid));
+  } finally {
+    lock.release();
+  }
+});
+
+// ---------------------------------------------------------------- native surfaces from attended captures
+
+import { NOT_SUPPLIED, SURFACE_KEYS } from "./render.mjs";
+
+/** A folder with one journey's part at `journeyRevision` and an attended part at `captureRevision` whose captures carry `sidecars`. */
+function surfacesIndex(t, { journeyRevision = "abc", captureRevision = "abc", journeyBuild = "sha256:feed", captureBuild = "sha256:feed", journeyDriver = "sha256:d1", captureDriver = "sha256:d1", journeyUncommitted = 0, captureUncommitted = 0, sidecars = [], launch = {}, after = null, afterPart = null } = {}) {
+  const out = scratch(t);
+  writePart(out, { number: 22, name: "exports", title: "E", use_case: "u", revision: { commit: journeyRevision, uncommitted_paths: journeyUncommitted, driver_sha256: journeyDriver }, build: { kind: "k", app_sha256: journeyBuild }, screens: [], native_menu: { read: true, read_when: "once", menus: [], journey: "exports", number: 22 }, launch: { ended_cleanly: true } });
+  const folder = path.join(out, "captures");
+  mkdirSync(folder);
+  const png = makePng(4, 3);
+  sidecars.forEach((sidecar, index) => {
+    const base = `${String(index + 1).padStart(2, "0")}-capture`;
+    if (sidecar.picture !== false) writeFileSync(path.join(folder, `${base}.png`), png);
+    const { picture, ...claims } = sidecar;
+    writeFileSync(path.join(folder, `${base}.json`), sidecarJson({ step: `step-${index + 1}`, note: "n", acted: ["looked"], ...claims }));
+  });
+  const captureRevisionRecord = { commit: captureRevision, uncommitted_paths: captureUncommitted, driver_sha256: captureDriver };
+  const captures = readCaptures(folder, { identity: lstatSync(folder), bindTo: { revision: captureRevisionRecord, build_app_sha256: captureBuild } });
+  const partFile = writeAttendedPart(out, { title: "Attended", revision: captureRevisionRecord, build: { kind: "k", app_sha256: captureBuild }, launch: { attended: true, ...launch }, captures });
+  if (after) after(folder);
+  if (afterPart) { const part = JSON.parse(readFileSync(partFile, "utf8")); afterPart(part); writeFileSync(partFile, JSON.stringify(part)); }
+  composeIndex(out);
+  const index = JSON.parse(readFileSync(path.join(out, "INDEX.json"), "utf8"));
+  return { index, html: readFileSync(path.join(out, "index.html"), "utf8"), captures, entry: (key) => index.native_surfaces.find((item) => item.key === key) };
+}
+
+test("native surfaces: with no attended capture, the window, menu bar, chooser and print dialog are each missing evidence, not supplied", (t) => {
+  const { entry, index, html } = surfacesIndex(t);
+  for (const key of ["window", "menu_bar", "file_chooser", "print_dialog"]) {
+    assert.deepEqual([entry(key).missing_evidence, entry(key).evidence, entry(key).prevented_by, entry(key).captured], [true, "missing", NOT_SUPPLIED, false], key);
+  }
+  assert.equal(entry("other_native_dialog"), undefined);
+  assert.match(index.marks_explained.native_surfaces, /missing evidence \(not supplied: no attended capture of it in this walkthrough\)/);
+  assert.match(html, /not supplied: no attended capture of this surface in this walkthrough\. Instead: the scripted runner takes no capture of the window/);
+  // Only the attended part's own record is the scripted runner's statement: it presses no Print.
+  assert.match(entry("print_dialog").instead, /the scripted runner presses no Print/);
+});
+
+test("native surfaces: a capture declaring menu_bar at the walkthrough's revision supplies it and is named; the others stay missing", (t) => {
+  const { entry, html } = surfacesIndex(t, { sidecars: [{ surfaces: ["menu_bar"] }] });
+  const menuBar = entry("menu_bar");
+  assert.deepEqual([menuBar.evidence, menuBar.missing_evidence, menuBar.captured], ["supplied", false, true]);
+  assert.deepEqual(menuBar.captures.map((ref) => [ref.file, ref.step, ref.revision.commit, ref.build.app_sha256]), [["captures/01-capture.png", "step-1", "abc", "sha256:feed"]]);
+  assert.equal(entry("window").missing_evidence, true);
+  assert.match(html, /supplied by attended capture <a href="captures\/01-capture\.png">step-1<\/a> \(revision abc, app feed\)/);
+});
+
+test("native surfaces: a capture at another revision than the walkthrough's screens supplies nothing, and says why", (t) => {
+  const { entry, html } = surfacesIndex(t, { journeyRevision: "abc", captureRevision: "def", sidecars: [{ surfaces: ["menu_bar", "window"] }] });
+  for (const key of ["menu_bar", "window"]) {
+    assert.deepEqual([entry(key).evidence, entry(key).missing_evidence], ["missing", true], key);
+    assert.deepEqual(entry(key).not_supplying.map((ref) => [ref.file, ref.why]), [["captures/01-capture.png", "it is at revision def, not the walkthrough's abc"]], key);
+  }
+  assert.match(html, /Not counted: captures\/01-capture\.png \(it is at revision def, not the walkthrough's abc\)/);
+});
+
+test("native surfaces: unseen only by the attendant's complete statement, never for the chooser or the print dialog, and the runner writes none", (t) => {
+  const full = { step: "open the window menu", surface: "window", observed: "the picture of the window came back black", obstacle: "system", cause: "the window server withheld the window's contents from the capture" };
+  const { entry, html } = surfacesIndex(t, {
+    sidecars: [
+      { prevented: full },
+      { picture: false, prevented: [{ step: "Help", surface: "other_native_dialog", observed: "the alert closed before it could be captured", obstacle: "application", cause: "the application dismissed its alert after half a second" }] },
+      { prevented: [{ step: "Print", surface: "print_dialog", observed: "the print view's window opened; no dialog", obstacle: "application" }, { step: "Open", surface: "file_chooser", observed: "the application ended", obstacle: "application" }] },
+      { prevented: { surface: "menu_bar", observed: "nothing drawn", obstacle: "system" } }
+    ],
+    launch: { ended_by: "strict-chooser", ending: "a file chooser was opened with no answer queued; the strict chooser ended the app before any panel (exit 86)" }
+  });
+  assert.deepEqual([entry("window").evidence, entry("window").unseen, entry("window").missing_evidence], ["unseen", true, false]);
+  assert.equal(entry("window").prevented_by, `unseen, as the attendant states: at the step "open the window menu", ${SURFACE_KEYS.window} was attempted and "the picture of the window came back black" was observed; the obstacle is the system's: the window server withheld the window's contents from the capture`);
+  assert.deepEqual([entry("window").attempts[0].file, entry("window").attempts[0].obstacle], ["captures/01-capture.png", "system"]);
+  assert.deepEqual([entry("other_native_dialog").evidence, entry("other_native_dialog").attempts[0].file], ["unseen", "captures/02-capture.json"]);
+  assert.match(entry("other_native_dialog").prevented_by, /the obstacle is the application's: the application dismissed its alert after half a second$/);
+  // Substituted by the build: supplied or missing, never unseen, whatever a sidecar says.
+  for (const key of ["print_dialog", "file_chooser"]) {
+    assert.deepEqual([entry(key).evidence, entry(key).missing_evidence, entry(key).not_supplying[0].kind], ["missing", true, "statement that it was unseen"], key);
+    assert.match(entry(key).not_supplying[0].why, /substitutes .* never unseen/);
+  }
+  // The strict chooser's exit is the launch's ending, never a prevention: the file chooser stays missing.
+  assert.equal(entry("file_chooser").attempts, undefined);
+  // A statement lacking the step leaves the menu bar missing, with what it lacks.
+  assert.deepEqual([entry("menu_bar").evidence, entry("menu_bar").missing_evidence], ["missing", true]);
+  assert.match(entry("menu_bar").not_supplying[0].why, /lacks step/);
+  assert.match(html, /unseen, as the attendant states: at the step &quot;open the window menu&quot;.*For the reader to accept or not/);
+  // At another revision a statement does not count.
+  const elsewhere = surfacesIndex(t, { captureRevision: "def", sidecars: [{ prevented: full }] });
+  assert.deepEqual([elsewhere.entry("window").evidence, elsewhere.entry("window").not_supplying[0].kind], ["missing", "statement that it was unseen"]);
+  // The old form, { surface, what }, is incomplete and makes nothing unseen.
+  const old = surfacesIndex(t, { sidecars: [{ prevented: { surface: "window", what: "covered" } }] });
+  assert.equal(old.entry("window").evidence, "missing");
+  assert.match(old.entry("window").not_supplying[0].why, /lacks step, observed, obstacle, cause/);
+});
+
+test("native surfaces: an unknown surface name in a sidecar is listed as unexplained, not dropped; a malformed claim leaves the capture unexplained", (t) => {
+  const { entry, index, html, captures } = surfacesIndex(t, { sidecars: [{ surfaces: ["menu_bar", "dock"], prevented: { step: "s", surface: "touch_bar", observed: "none here", obstacle: "system", cause: "c" } }, { surfaces: "window" }, { prevented: { observed: "x" } }] });
+  assert.deepEqual(captures.screens.map((screen) => screen.capture), ["the actual window", "unexplained", "unexplained"]);
+  assert.match(captures.screens[1].unexplained, /surfaces is not a list/);
+  assert.match(captures.screens[2].unexplained, /prevented is not \{ step, surface, observed, obstacle, cause \}/);
+  assert.equal(entry("menu_bar").evidence, "supplied");
+  assert.deepEqual(index.native_surfaces_unexplained, [{ name: "dock", file: "captures/01-capture.png", member: "surfaces" }, { name: "touch_bar", file: "captures/01-capture.png", member: "prevented", observed: "none here" }]);
+  assert.match(html, /Unexplained surface names in sidecars: dock \(captures\/01-capture\.png, surfaces\); touch_bar/);
+  // An unexplained capture's claims count for nothing.
+  assert.equal(entry("window").evidence, "missing");
+});
+
+test("native surfaces: the 3D view keeps its own logic, and an attended capture can supply it too", (t) => {
+  const { entry } = surfacesIndex(t);
+  assert.equal(entry("view_3d").missing_evidence, true);
+  assert.match(entry("view_3d").prevented_by, /not given --show-window/);
+  const captured = surfacesIndex(t, { sidecars: [{ surfaces: ["view_3d"] }] });
+  assert.deepEqual([captured.entry("view_3d").evidence, captured.entry("view_3d").captures[0].file], ["supplied", "captures/01-capture.png"]);
+  assert.deepEqual(Object.keys(SURFACE_KEYS), ["window", "menu_bar", "file_chooser", "print_dialog", "view_3d", "other_native_dialog"]);
+});
+
+// ---------------------------------------------------------------- a refused launch changes nothing
+
+import { spawnSync as spawnChild } from "node:child_process";
+import { outputRefusals } from "./run.mjs";
+
+/** Every file under `folder`, by relative path, with its bytes (hex), and every folder: what "intact" compares. */
+function folderBytes(folder) {
+  const seen = {};
+  const walk = (dir, prefix) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+      const relative = `${prefix}${entry.name}`;
+      if (entry.isDirectory()) { seen[`${relative}/`] = "folder"; walk(path.join(dir, entry.name), `${relative}/`); }
+      else seen[relative] = readFileSync(path.join(dir, entry.name)).toString("hex");
+    }
+  };
+  walk(folder, "");
+  return seen;
+}
+
+/** A completed attended output folder: a journey's part and picture, the attended part, both indexes and captures. */
+function completedAttendedFolder(t) {
+  const out = scratch(t);
+  writePart(out, { number: 24, name: "prepared-project", title: "P", use_case: "u", revision: { commit: "abc", uncommitted_paths: 0 }, build: { kind: "k" }, screens: [], launch: { ended_cleanly: true } });
+  writeFileSync(path.join(out, "2401-prepared-project-first-open.png"), "picture");
+  writeAttendedPart(out, { title: "Attended", revision: { commit: "abc", uncommitted_paths: 0 }, build: { kind: "k" }, launch: { attended: true }, captures: { screens: [], records_without_picture: [], other: [] } });
+  composeIndex(out);
+  mkdirSync(path.join(out, "captures"));
+  writeFileSync(path.join(out, "captures", "01.png"), "capture");
+  writeFileSync(path.join(out, "captures", "01.json"), "{}");
+  return out;
+}
+
+test("a refused attended launch changes nothing: the completed output folder is byte for byte intact after each refusal", (t) => {
+  const out = completedAttendedFolder(t);
+  const before = folderBytes(out);
+  assert.ok(before["INDEX.json"] && before["index.html"] && before["part-90-attended.json"] && before["captures/01.png"]);
+  assert.match(outputRefusals(out, { attended: true }), /earlier attended launch's captures/);
+  assert.deepEqual(folderBytes(out), before);
+  assert.throws(() => emptyAttendedOutput(out), /earlier attended launch's captures/);
+  assert.deepEqual(folderBytes(out), before);
+  // A file a walkthrough did not write is refused first, for an attended launch and a journey's alike.
+  writeFileSync(path.join(out, "notes.txt"), "keep");
+  const withNotes = folderBytes(out);
+  assert.match(outputRefusals(out, { attended: true }), /did not write \(notes\.txt\)/);
+  assert.match(outputRefusals(out), /did not write \(notes\.txt\)/);
+  assert.throws(() => emptyNativeOutput(out, ["prepared-project"]), /did not write/);
+  assert.deepEqual(folderBytes(out), withNotes);
+  // Without --attended the captures folder is no refusal.
+  rmSync(path.join(out, "notes.txt"));
+  assert.equal(outputRefusals(out), null);
+});
+
+test("the command itself refuses an attended launch into a completed attended folder, by that refusal alone, and leaves it intact", { skip: process.platform !== "darwin" && "the command is macOS only" }, (t) => {
+  const out = completedAttendedFolder(t);
+  const before = folderBytes(out);
+  // The test holds this worktree's build lock and hands it to the command, so that the command reaches the output
+  // folder's refusal; a build lock it could not take would be another refusal, and fails this test.
+  const lock = acquireBuildLock({ purpose: "attended refusal test" });
+  let run;
+  try {
+    run = spawnChild(process.execPath, [new URL("./run.mjs", import.meta.url).pathname, "--attended", "--hidden", "--out", out], { encoding: "utf8", timeout: 120_000, env: { ...process.env, [BUILD_LOCK_TOKEN_ENV]: lock.token } });
+  } finally {
+    lock.release();
+  }
+  assert.equal(run.stderr, `native walkthrough: ${path.join(out, "captures")} holds an earlier attended launch's captures; choose another --out (nothing in it was changed)\n`);
+  assert.equal(run.stdout, "");
+  assert.equal(run.status, 2);
+  assert.deepEqual(folderBytes(out), before);
+});
+
+test("a capture supplies a surface only while it is its launch's own: another build, a replaced, removed or edited file, or an image that does not decode supplies nothing", (t) => {
+  const claim = [{ surfaces: ["menu_bar"] }];
+  const missing = (result, pattern) => {
+    assert.deepEqual([result.entry("menu_bar").evidence, result.entry("menu_bar").missing_evidence], ["missing", true]);
+    assert.match(result.entry("menu_bar").not_supplying?.[0]?.why ?? "", pattern);
+  };
+  missing(surfacesIndex(t, { captureBuild: "sha256:beef", sidecars: claim }), /another build \(app beef, not the walkthrough's feed\)/);
+  const replaced = surfacesIndex(t, { sidecars: claim, after: (folder) => writeFileSync(path.join(folder, "01-capture.png"), makePng(4, 3, 255)) });
+  missing(replaced, /replaced after the launch ended/);
+  assert.match(replaced.index.screens.find((screen) => screen.journey === "attended").binding_check, /replaced/);
+  assert.match(replaced.html, /Not counted as evidence: the picture on disk is not the one its launch recorded/);
+  missing(surfacesIndex(t, { sidecars: claim, after: (folder) => rmSync(path.join(folder, "01-capture.png")) }), /removed after its launch ended/);
+  missing(surfacesIndex(t, { sidecars: claim, after: (folder) => writeFileSync(path.join(folder, "01-capture.json"), sidecarJson({ step: "step-1", note: "changed", acted: ["looked"], surfaces: ["menu_bar"] })) }), /edited after the launch ended/);
+  const intact = surfacesIndex(t, { sidecars: claim });
+  assert.match(intact.index.screens.find((screen) => screen.journey === "attended").binding_check, /^intact/);
+  // A file that is not an image is unexplained at the launch's end and supplies nothing.
+  const fake = scratch(t);
+  mkdirSync(path.join(fake, "captures"));
+  writeFileSync(path.join(fake, "captures", "01.png"), "not an image");
+  writeFileSync(path.join(fake, "captures", "01.json"), sidecarJson({ step: "s", note: "n", acted: ["looked"], surfaces: ["menu_bar"] }));
+  const read = readCaptures(path.join(fake, "captures"), { bindTo: { revision: { commit: "abc" }, build_app_sha256: "sha256:feed" } });
+  assert.deepEqual([read.screens[0].capture, read.screens[0].binding], ["unexplained", undefined]);
+  assert.match(read.screens[0].unexplained, /not a PNG/);
+  const empty = Buffer.concat([makePng(1, 1).subarray(0, 8)]);
+  writeFileSync(path.join(fake, "captures", "01.png"), empty);
+  assert.match(readCaptures(path.join(fake, "captures")).screens[0].unexplained, /no IHDR chunk/);
+});
+
+test("a capture added after its launch ended is unbound, and every unexplained entry reaches both indexes under the launch", (t) => {
+  const result = surfacesIndex(t, { sidecars: [{ surfaces: ["menu_bar"] }, { surfaces: "window" }], after: (folder) => {
+    writeFileSync(path.join(folder, "09-late.png"), makePng(2, 2));
+    writeFileSync(path.join(folder, "09-late.json"), sidecarJson({ step: "late", note: "n", acted: ["looked"], surfaces: ["window"] }));
+  } });
+  assert.equal(result.entry("window").evidence, "missing");
+  const attended = result.index.journeys.find((journey) => journey.name === "attended");
+  const files = attended.unexplained.map((item) => item.file);
+  assert.ok(files.includes("captures/09-late.png") && files.includes("captures/09-late.json"), JSON.stringify(attended.unexplained));
+  assert.match(attended.unexplained.find((item) => item.file === "captures/09-late.png").why, /after its launch ended: bound to no launch/);
+  assert.match(attended.unexplained.find((item) => item.file === "captures/02-capture.png").why, /surfaces is not a list/);
+  assert.match(result.html, /In this launch's captures, supplying nothing:/);
+  assert.match(result.html, /captures\/09-late\.png: added to captures\/ after its launch ended/);
+});
+
+test("the captures folder is the launch's own: replaced, a link or gone, it is a finding, never an empty inventory", (t) => {
+  const root = scratch(t);
+  const folder = path.join(root, "captures");
+  mkdirSync(folder);
+  const identity = lstatSync(folder);
+  writeFileSync(path.join(folder, "01.png"), makePng(2, 2));
+  assert.equal(readCaptures(folder, { identity }).error, undefined);
+  renameSync(folder, path.join(root, "kept"));
+  mkdirSync(path.join(root, "elsewhere"));
+  writeFileSync(path.join(root, "elsewhere", "01.png"), makePng(2, 2));
+  symlinkSync(path.join(root, "elsewhere"), folder);
+  assert.match(readCaptures(folder, { identity }).error, /no longer a folder/);
+  rmSync(folder);
+  // Another folder in its place (made while the first still existed, so it cannot reuse its inode).
+  mkdirSync(path.join(root, "other"));
+  renameSync(path.join(root, "other"), folder);
+  const replaced = readCaptures(folder, { identity });
+  assert.match(replaced.error ?? "", /not the folder the runner created/);
+  assert.deepEqual(replaced.screens, []);
+  rmSync(folder, { recursive: true });
+  assert.match(readCaptures(folder, { identity }).error, /not there/);
+  // The finding is the launch's record, in both indexes.
+  const out = scratch(t);
+  writeAttendedPart(out, { title: "Attended", revision: { commit: "abc" }, build: { kind: "k" }, launch: { attended: true }, captures: { ...readCaptures(folder, { identity }) } });
+  composeIndex(out);
+  const index = JSON.parse(readFileSync(path.join(out, "INDEX.json"), "utf8"));
+  assert.match(index.journeys[0].unexplained[0].why, /the captures folder was not read at the end of the launch: it is not there/);
+  assert.match(readFileSync(path.join(out, "index.html"), "utf8"), /the captures folder was not read at the end of the launch/);
+});
+
+test("an attended launch stops every page file field from opening the system's file panel, and records each stop; a journey's page is untouched", async () => {
+  const run = await runAttendedDriver({ attended: true, show_window: false, start: null });
+  assert.deepEqual(run.checkpoints().find((item) => item.name === "start").report.guards.slice(0, 1), ["file panels"]);
+  const clicks = run.listeners.document.filter((item) => item.type === "click");
+  assert.equal(clicks.length, 1);
+  assert.equal(clicks[0].options, true, "in the capture phase");
+  const input = { type: "file", labels: [{ textContent: " Import hanger library " }], matches: (selector) => selector === 'input[type="file"]', closest: () => null, getAttribute: () => null };
+  const label = { matches: () => false, closest: (selector) => (selector === "label" ? { control: input } : null) };
+  const button = { matches: () => false, closest: () => null, textContent: "Run" };
+  for (const target of [input, label]) {
+    const event = clickOn(target);
+    clicks[0].listener(event);
+    assert.deepEqual([event.defaultPrevented, event.stopped], [true, true]);
+  }
+  const other = clickOn(button);
+  clicks[0].listener(other);
+  assert.deepEqual([other.defaultPrevented, other.stopped], [false, false]);
+  // showPicker on a file field does nothing; on another field it does what it did.
+  new run.context.HTMLInputElement().showPicker.call({ type: "file", labels: [{ textContent: "Proposal file" }] });
+  run.context.HTMLInputElement.prototype.showPicker.call({ type: "date" });
+  assert.deepEqual(run.calls.filter(([command]) => command === "showPicker").map(([, type]) => type), ["date"]);
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  const substitutions = run.checkpoints().filter((item) => item.name === "substitutions").at(-1).report.substitutions;
+  assert.deepEqual(substitutions.map((item) => [item.kind, item.control, item.what]), [
+    ["file panel stopped by the launch", "Import hanger library", "The launch stopped this control from opening the system's file panel."],
+    ["file panel stopped by the launch", "Import hanger library", "The launch stopped this control from opening the system's file panel."],
+    ["file panel stopped by the launch", "Proposal file", "The launch stopped this control from opening the system's file panel."]
+  ]);
+  assert.ok(substitutions.every((item) => typeof item.at === "number"));
+  // A scripted journey's page gets no listener and no replaced showPicker.
+  const scripted = await runAttendedDriver({ journey: "probe-none", show_window: false });
+  assert.equal(scripted.listeners.document.length, 0);
+  assert.equal(scripted.observers.length, 0);
+});
+
+test("the launch's stops reach both indexes under the attended launch", (t) => {
+  const out = scratch(t);
+  writeAttendedPart(out, { title: "Attended", revision: { commit: "abc" }, build: { kind: "k" }, launch: { attended: true, stopped_by_launch: [{ at: Date.UTC(2026, 0, 1), kind: "file panel stopped by the launch", control: "Import hanger library", what: "The launch stopped this control from opening the system's file panel." }] }, captures: { screens: [], records_without_picture: [], other: [] } });
+  composeIndex(out);
+  const index = JSON.parse(readFileSync(path.join(out, "INDEX.json"), "utf8"));
+  assert.deepEqual(index.journeys[0].stopped_by_launch, [{ at: "2026-01-01T00:00:00.000Z", control: "Import hanger library", what: "The launch stopped this control from opening the system's file panel." }]);
+  assert.match(readFileSync(path.join(out, "index.html"), "utf8"), /Import hanger library: The launch stopped this control from opening the system&#39;s file panel\.|Import hanger library: The launch stopped this control from opening the system's file panel\./);
+});
+
+test("an attended launch stops the embedded agent's Start agent, whatever provider is chosen, and records it", async () => {
+  const run = await runAttendedDriver({ attended: true, show_window: false, start: null });
+  assert.deepEqual(run.checkpoints().find((item) => item.name === "start").report.guards, ["file panels", "file drops", "file field changes", "agent start"]);
+  const [click] = run.listeners.document.filter((item) => item.type === "click");
+  const startButton = { textContent: " Start agent ", closest: () => null, matches: () => false };
+  const inPane = { matches: () => false, closest: (selector) => (selector === 'section[aria-label="Embedded agent"] button' ? startButton : null) };
+  const save = { matches: () => false, closest: (selector) => (selector === 'section[aria-label="Embedded agent"] button' ? { textContent: "Save provider" } : null) };
+  const event = clickOn(inPane);
+  click.listener(event);
+  assert.deepEqual([event.defaultPrevented, event.stopped], [true, true]);
+  const other = clickOn(save);
+  click.listener(other);
+  assert.deepEqual([other.defaultPrevented, other.stopped], [false, false]);
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  const [stop] = run.checkpoints().filter((item) => item.name === "substitutions").at(-1).report.substitutions;
+  assert.deepEqual([stop.kind, stop.control], ["agent start stopped by the launch", "Embedded agent: Start agent"]);
+  assert.match(stop.what, /no other provider is used/);
+});
+
+test("an attended capture's sidecar: the use case, the step, what was done, the note and when it was taken are required; each missing one leaves the picture unexplained", (t) => {
+  const root = scratch(t);
+  const folder = path.join(root, "captures");
+  mkdirSync(folder);
+  const now = new Date().toISOString();
+  const cases = {
+    "01-ok": { use_case: "Failed solve", step: "s", acted: ["observed only"], note: "", taken_at: now },
+    "02-journey": { use_case: "prepared-project", step: "s", acted: ["clicked Run"], note: "n", taken_at: now },
+    "03-no-use-case": { step: "s", acted: ["x"], note: "n", taken_at: now },
+    "04-other-use-case": { use_case: "Something else", step: "s", acted: ["x"], note: "n", taken_at: now },
+    "05-empty-acted": { use_case: "Failed solve", step: "s", acted: [], note: "n", taken_at: now },
+    "06-blank-acted": { use_case: "Failed solve", step: "s", acted: [" "], note: "n", taken_at: now },
+    "07-no-time": { use_case: "Failed solve", step: "s", acted: ["x"], note: "n" },
+    "08-zoneless-time": { use_case: "Failed solve", step: "s", acted: ["x"], note: "n", taken_at: "2026-11-21T10:00:00" },
+    "09-no-note": { use_case: "Failed solve", step: "s", acted: ["x"], taken_at: now }
+  };
+  for (const [base, sidecar] of Object.entries(cases)) {
+    writeFileSync(path.join(folder, `${base}.png`), makePng(2, 2));
+    writeFileSync(path.join(folder, `${base}.json`), JSON.stringify(sidecar));
+  }
+  const found = readCaptures(folder, { journeyUseCase: { name: "prepared-project", use_case: "none of its own: the start" } });
+  const by = Object.fromEntries(found.screens.map((screen) => [screen.file.replace(/^captures\/|\.png$/g, ""), screen]));
+  assert.deepEqual([by["01-ok"].capture, by["01-ok"].use_case], ["the actual window", "DEL-07-06 AC-007 Failed solve, as the attendant states"]);
+  assert.deepEqual(by["01-ok"].stated_by_attendant, { use_case: "Failed solve", step: "s", acted: ["observed only"], note: "", taken_at: now });
+  assert.deepEqual([by["02-journey"].capture, by["02-journey"].use_case], ["the actual window", "none of its own: the start, as the attendant states"]);
+  assert.match(by["03-no-use-case"].unexplained, /names no use case/);
+  assert.match(by["04-other-use-case"].unexplained, /"Something else" is neither one of DEL-07-06 AC-007's by its name there nor the launch's journey \(prepared-project\)/);
+  assert.match(by["05-empty-acted"].unexplained, /does not say what was done since the previous capture/);
+  assert.match(by["06-blank-acted"].unexplained, /does not say what was done/);
+  assert.match(by["07-no-time"].unexplained, /does not say when the picture was taken/);
+  assert.match(by["08-zoneless-time"].unexplained, /does not say when the picture was taken/);
+  assert.match(by["09-no-note"].unexplained, /has no note/);
+  // Without a journey, the journey's name is not a use case.
+  assert.match(readCaptures(folder).screens.find((screen) => screen.file === "captures/02-journey.png").unexplained, /nor the launch's journey \(it has none\)/);
+});
+
+test("an attended capture carries the application's own report nearest at or before its stated time, and the substitutions since the previous capture", (t) => {
+  const root = scratch(t);
+  const folder = path.join(root, "captures");
+  mkdirSync(folder);
+  const t0 = Date.now() - 60_000;
+  const iso = (ms) => new Date(ms).toISOString();
+  const side = (base, at, extra = {}) => {
+    writeFileSync(path.join(folder, `${base}.png`), makePng(2, 2));
+    writeFileSync(path.join(folder, `${base}.json`), JSON.stringify({ use_case: "Failed solve", step: base, acted: ["x"], note: "n", taken_at: iso(at), ...extra }));
+    utimesSync(path.join(folder, `${base}.png`), new Date(at), new Date(at));
+  };
+  // Named out of time order: the order is the attendant's stated times.
+  side("b-second", t0 + 30_000);
+  side("a-first", t0 + 10_000);
+  side("c-before-any", t0 + 1_000);
+  side("d-late-file", t0 + 40_000);
+  utimesSync(path.join(folder, "d-late-file.png"), new Date(t0 + 50_000), new Date(t0 + 50_000));
+  const record = (n, at, words, coversFrom) => ({ nonce: "n", n, at, covers_from: coversFrom, page_visibility: "visible", words_on_screen: words, words_in_page: words * 2, prose_blocks_on_screen: 1, buttons_on_screen: 2, inputs_on_screen: 3, longest_scroll_screens: 1, controls: ["button: Run"] });
+  const observed = [record(2, t0 + 20_000, 200, t0 + 15_000), record(1, t0 + 5_000, 100, null), record(3, t0 + 30_001, 300, t0 + 30_001)];
+  const substitutions = [
+    { at: t0 + 8_000, kind: "file panel stopped by the launch", control: "Import hanger library", what: "The launch stopped this control from opening the system's file panel." },
+    { at: t0 + 25_000, kind: "report print dialog", what: "printed", print_sha256: "ab" },
+    { at: t0 + 30_000, kind: "agent start stopped by the launch", control: "Embedded agent: Start agent", what: "stopped" },
+    { at: t0 + 45_000, kind: "report print dialog", what: "late" }
+  ];
+  const found = readCaptures(folder, { observed, pending: { nonce: "n", after: 3, at: t0 + 35_000 }, substitutions, launchTimes: { from: t0, to: t0 + 60_000 } });
+  const by = Object.fromEntries(found.screens.map((screen) => [screen.step, screen]));
+  assert.equal(by["c-before-any"].counts_source, "no report of the application's own at or before the time the attendant states: the words and controls on screen are not recorded for this capture");
+  assert.equal(by["c-before-any"].words_on_screen, undefined);
+  assert.deepEqual([by["a-first"].words_on_screen, by["a-first"].counts_at], [100, iso(t0 + 5_000)]);
+  assert.match(by["a-first"].counts_source, /^the application's own report at .* \(record 1 of the launch's driver, read as the page settled\), not the attendant's$/);
+  // A record exactly at the stated time counts; one a millisecond after it does not.
+  assert.equal(by["b-second"].words_on_screen, 200);
+  assert.deepEqual(by["c-before-any"].substitutions, []);
+  assert.deepEqual(by["a-first"].substitutions.map((item) => item.control), ["Import hanger library"]);
+  assert.deepEqual(by["b-second"].substitutions.map((item) => item.kind), ["report print dialog", "agent start stopped by the launch"]);
+  assert.equal(by["b-second"].substitutions[0].print_sha256, "ab");
+  assert.match(by["b-second"].substitutions_since, /the previous capture, stated as taken at/);
+  assert.deepEqual(by["d-late-file"].substitutions, []);
+  // After the last record the page changed (pending, at t0 + 35 s) before this capture: its counts are not recorded.
+  assert.deepEqual([by["d-late-file"].counts_uncertain, by["d-late-file"].words_on_screen], [true, undefined]);
+  assert.match(by["d-late-file"].counts_source, /^uncertain, so not recorded for this capture: the page changed at .*, after the application's own report at .* \(record 3\)/);
+  assert.match(by["a-first"].taken_at_check, /^agrees with the picture's file time/);
+  assert.match(by["d-late-file"].taken_at_check, /^disagrees with the picture's file time .*: 10 s apart$/);
+  // A picture whose file time lies outside the launch is unexplained.
+  side("e-before-launch", t0 - 3_600_000);
+  const later = readCaptures(folder, { observed, substitutions, launchTimes: { from: t0, to: t0 + 60_000 } });
+  assert.match(later.screens.find((screen) => screen.file === "captures/e-before-launch.png").unexplained, /is before this launch started/);
+});
+
+test("the composed index labels an attended capture's parts: the attendant's statements, and the application's own report with its time", (t) => {
+  const out = scratch(t);
+  const folder = path.join(out, "captures");
+  mkdirSync(folder);
+  const at = Date.now() - 1000;
+  writeFileSync(path.join(folder, "01-results.png"), makePng(4, 3));
+  writeFileSync(path.join(folder, "01-results.json"), JSON.stringify({ use_case: "Review and export results", step: "results-open", acted: ["clicked Results in the stage bar"], note: "The Results stage", taken_at: new Date(at).toISOString(), surfaces: ["window"] }));
+  const observed = [{ nonce: "n", n: 4, at: at - 500, page_visibility: "visible", words_on_screen: 321, words_in_page: 900, prose_blocks_on_screen: 4, buttons_on_screen: 20, inputs_on_screen: 2, longest_scroll_screens: 1.5, controls: ["button: Run"] }];
+  const substitutions = [{ at: at - 200, kind: "file panel stopped by the launch", control: "Proposal file", what: "The launch stopped this control from opening the system's file panel." }];
+  const captures = readCaptures(folder, { identity: lstatSync(folder), bindTo: { revision: { commit: "abc", uncommitted_paths: 0 }, build_app_sha256: "sha256:feed" }, observed, substitutions });
+  writeAttendedPart(out, { title: "Attended", revision: { commit: "abc", uncommitted_paths: 0 }, build: { kind: "k", app_sha256: "sha256:feed" }, launch: { attended: true }, captures });
+  composeIndex(out);
+  const index = JSON.parse(readFileSync(path.join(out, "INDEX.json"), "utf8"));
+  const screen = index.screens[0];
+  assert.equal(screen.use_case, "DEL-07-06 AC-007 Review and export results, as the attendant states");
+  assert.equal(screen.stated_by_attendant.acted[0], "clicked Results in the stage bar");
+  assert.equal(screen.words_on_screen, 321);
+  assert.match(screen.counts_source, /the application's own report at .* not the attendant's/);
+  assert.match(index.marks_explained.stated_by_attendant, /not checked by the runner except taken_at/);
+  const html = readFileSync(path.join(out, "index.html"), "utf8");
+  assert.match(html, /Stated by the attendant, with the step and the note above: use case Review and export results; taken at .* \(agrees with the picture's file time/);
+  assert.match(html, /Words and controls on screen: the application's own report at/);
+  assert.match(html, /Since the start of the launch, stopped by the launch or substituted by the build: .*file panel stopped by the launch \(Proposal file\)/);
+  assert.match(html, /attended capture; counts the application's own/);
+});
+
+test("the attended driver records the screen as the page settles, with when each change came, pressing nothing and draining no print", async () => {
+  const run = await runAttendedDriver({ attended: true, show_window: false, start: null }, { waitMs: 1800 });
+  const observed = () => run.checkpoints().filter((item) => /^observed-\d+$/.test(item.name));
+  // One record at the handover, after the start checkpoint.
+  const names = run.checkpoints().map((item) => item.name);
+  assert.ok(names.indexOf("start") < names.indexOf("observed-1"), JSON.stringify(names));
+  assert.equal(observed().length, 1);
+  const first = observed()[0].report;
+  assert.deepEqual([first.nonce, first.n, typeof first.at, first.page_visibility], ["n", 1, "number", "hidden"]);
+  // The stand-in page cannot be counted (it has no tree walker): the record says so instead of a count.
+  assert.match(first.counts_error, /is not (defined|a function)/);
+  // It watches the whole document, scrolls and resizes, and starts nothing else.
+  assert.equal(run.observers.length, 1);
+  assert.equal(run.observers[0].target, run.context.document.documentElement);
+  assert.deepEqual(JSON.parse(JSON.stringify(run.observers[0].options)), { subtree: true, childList: true, characterData: true, attributes: true });
+  assert.ok(run.listeners.document.some((item) => item.type === "scroll" && item.options?.capture === true && item.options?.passive === true));
+  assert.ok(run.listeners.window.some((item) => item.type === "resize" && item.options?.passive === true));
+  // A burst of changes gives one record, once the page is quiet (0.8 s) and at least 1.5 s after the previous one;
+  // its first change is written at once as pending, after record 1, and the record says it covers it.
+  const burst = Date.now();
+  for (let index = 0; index < 5; index += 1) run.observers[0].callback([]);
+  await new Promise((resolve) => setTimeout(resolve, 400));
+  assert.equal(observed().length, 1);
+  const pending = run.checkpoints().filter((item) => item.name === "pending");
+  assert.equal(pending.length, 1, "one pending checkpoint for the burst");
+  assert.deepEqual([pending[0].report.nonce, pending[0].report.after], ["n", 1]);
+  assert.ok(pending[0].report.at >= burst);
+  await new Promise((resolve) => setTimeout(resolve, 1600));
+  assert.equal(observed().length, 2);
+  assert.equal(observed()[1].report.n, 2);
+  assert.equal(observed()[1].report.covers_from, pending[0].report.at);
+  assert.equal(first.covers_from, null);
+  // The prints the build substitutes are logged by the build itself: the driver neither takes nor drains them.
+  assert.equal(run.calls.some(([command]) => command === "native_smoke_take_report_prints"), false);
+  // Nothing pressed, chosen or sent through the menu.
+  assert.equal(run.calls.some(([command]) => ["native_smoke_menu", "native_smoke_choose", "native_smoke_finish"].includes(command)), false);
+});
+
+test("a refusal for a mark names the mark found, as the record does, and says the order that works", async () => {
+  const { markRefusalLine } = await import("./run.mjs");
+  const none = { sky_computer_use_service_launchd: false, sky_computer_use_service_process: false, codex_app_server_stdio: false, app_v4_candidate_bundle: false, check_failures: [] };
+  const line = markRefusalLine({ ...none, sky_computer_use_service_process: true, codex_app_server_stdio: true });
+  assert.match(line, /^NATIVE-SMOKE-MARK-PRESENT: a SkyComputerUseService process; a "codex app-server --listen stdio:\/\/" process: /);
+  assert.match(line, /not launched, and nothing in --out was changed\. Start the attended launch before the attendant's screen tool is started, and start that tool only after the handover is printed; or, when the agent on the screen is this launch's attendant, say so with --attendant-on-screen <who states it>$/);
+  assert.match(markRefusalLine({ ...none, check_failures: ["lsappinfo list: exit 1"] }), /a check that could not be made \(lsappinfo list: exit 1\)/);
+  assert.match(markRefusalLine({ ...none, app_v4_candidate_bundle: true }), /^NATIVE-SMOKE-MARK-PRESENT: a running App v4 candidate bundle: /);
+});
+
+// ---------------------------------------------------------------- the attended start's stated exemption from the marks
+
+import { ATTENDANT_STATEMENT, MARK_PRESENT, marksDecision } from "../../native-smoke/judged-launch.mjs";
+import { markNames } from "./run.mjs";
+
+const NO_MARKS = { sky_computer_use_service_launchd: false, sky_computer_use_service_process: false, codex_app_server_stdio: false, app_v4_candidate_bundle: false, check_failures: [] };
+
+test("--attendant-on-screen is an option of --attended only, naming who states it", () => {
+  assert.equal(parseCommandLine(["--attended", "--attendant-on-screen", "the lane's agent", "--out", "/o"]).attended.attendantOnScreen, "the lane's agent");
+  assert.match(parseCommandLine(["--attendant-on-screen", "x"]).error, /--attendant-on-screen is an option of --attended/);
+  assert.match(parseCommandLine(["--journey", "exports", "--attendant-on-screen", "x"]).error, /is an option of --attended/);
+  assert.match(parseCommandLine(["--attended", "--attendant-on-screen", "--out", "/o"]).error, /needs a value/);
+  assert.match(parseCommandLine(["--attended", "--attendant-on-screen", " ", "--out", "/o"]).error, /1 to 200 characters on one line/);
+  assert.match(parseCommandLine(["--attended", "--attendant-on-screen", "a\nb", "--out", "/o"]).error, /on one line/);
+  assert.match(parseCommandLine(["--attended", "--attendant-on-screen", "a", "--attendant-on-screen", "b", "--out", "/o"]).error, /given twice/);
+});
+
+test("the statement covers the marks of an agent on the screen only: never a check not made, never another application's bundle", () => {
+  const stated = { stated_by: "the lane's agent" };
+  const sky = { ...NO_MARKS, sky_computer_use_service_process: true, sky_computer_use_service_launchd: true };
+  const codex = { ...NO_MARKS, codex_app_server_stdio: true };
+  assert.deepEqual(marksDecision(NO_MARKS, null), { refuse: false, exempted: [] });
+  assert.deepEqual(marksDecision(sky, null), { refuse: true, exempted: [] });
+  assert.deepEqual(marksDecision(sky, stated), { refuse: false, exempted: ["sky_computer_use_service_launchd", "sky_computer_use_service_process"] });
+  assert.deepEqual(marksDecision(codex, stated), { refuse: false, exempted: ["codex_app_server_stdio"] });
+  assert.deepEqual(marksDecision({ ...sky, check_failures: ["lsappinfo list: exit 1"] }, stated), { refuse: true, exempted: [] });
+  assert.deepEqual(marksDecision({ ...NO_MARKS, check_failures: ["launchctl list: exit 5"] }, stated), { refuse: true, exempted: [] });
+  assert.deepEqual(marksDecision({ ...sky, app_v4_candidate_bundle: true }, stated), { refuse: true, exempted: [] });
+  // A statement given must name who makes it, before and whatever the marks (pin check iv); none given is an ordinary start.
+  const invalid = { refuse: true, exempted: [], invalid: "the attendant's statement names no one who makes it (stated_by is blank)" };
+  assert.deepEqual(marksDecision(sky, { stated_by: " " }), invalid);
+  assert.deepEqual(marksDecision(NO_MARKS, { stated_by: " " }), invalid);
+  assert.deepEqual(marksDecision(NO_MARKS, { stated_by: "" }), invalid);
+  assert.deepEqual(marksDecision(NO_MARKS, {}), invalid);
+  assert.deepEqual(marksDecision(NO_MARKS, undefined), { refuse: false, exempted: [] });
+  // The refusal's line names the mark, and says what the statement does not cover.
+  assert.match(markRefusalLineOf(sky), /^NATIVE-SMOKE-MARK-PRESENT: SkyComputerUseService under launchd; a SkyComputerUseService process: .*nothing in --out was changed\..*--attendant-on-screen <who states it>$/);
+  assert.match(markRefusalLineOf({ ...sky, app_v4_candidate_bundle: true }, stated), /a running App v4 candidate bundle: .*covers the screen service and the app-server only, never a check that could not be made or another application's candidate bundle$/);
+});
+import { markRefusalLine as markRefusalLineFn } from "./run.mjs";
+const markRefusalLineOf = (marks, attendant = null) => markRefusalLineFn(marks, { attendant });
+
+/** One judgedPhase start of a stand-in app, with the marks answered as `marks` gives them. */
+async function standInPhase(t, { marks, attendant, beforeStart = null }) {
+  const dir = scratch(t);
+  const executable = path.join(dir, "stand-in-app");
+  copyFileSync(process.execPath, executable, fsConstants.COPYFILE_FICLONE);
+  const script = path.join(dir, "stand-in.cjs");
+  writeFileSync(script, `require("node:fs").writeFileSync(process.env.SWBPIPE_NATIVE_SMOKE_REPORT, JSON.stringify({ ok: true, nonce: "n" })); require("node:fs").writeFileSync(process.env.SWBPIPE_NATIVE_SMOKE_REPORT + ".started", "1");`);
+  const reportPath = path.join(dir, "report.json");
+  const answer = (status, stdout = "") => ({ status, stdout, stderr: "", error: undefined });
+  const marksRun = (command, args) => {
+    if (command === "/bin/launchctl") return marks.launchctlFails ? answer(5) : answer(0, marks.skyLaunchd ? "-\t0\tapplication.SkyComputerUseService\n" : "");
+    if (command.endsWith("pgrep")) return (args[1] === "SkyComputerUseService" && marks.sky) || (args[1].startsWith("codex app-server") && marks.codex) ? answer(0, "4242\n") : answer(1);
+    return answer(0, marks.bundle ? "dev.chirality.app-v4.candidate\n" : "");
+  };
+  const launches = {};
+  const seen = [];
+  const result = await judgedPhase({
+    phase: "attended/walk", checkName: "c", launches, check: () => {}, summaryPath: path.join(dir, "summary.json"),
+    executable, command: executable, commandArgs: [script], cwd: dir, stdio: ["ignore", "ignore", "ignore"],
+    env: { ...process.env, SWBPIPE_NATIVE_SMOKE_REPORT: reportPath }, timeoutMs: 30_000, reportPath, nonce: "n", censusBoundMs: 2_000,
+    marksRun, beforeStart: (...args) => { seen.push(args); beforeStart?.(...args); }, ...(attendant ? { attendant } : {})
+  });
+  return { result, launches, seen, started: lstatSync(`${reportPath}.started`, { throwIfNoEntry: false }) !== undefined, dir };
+}
+
+test("an attended start with the statement and an agent's marks present starts, and records the marks and who stated it", { skip: !["darwin", "linux"].includes(process.platform) && "the census runs on macOS and Linux" }, async (t) => {
+  const run = await standInPhase(t, { marks: { sky: true, skyLaunchd: true, codex: true }, attendant: { stated_by: "the lane's agent" } });
+  assert.equal(run.result.stop, undefined);
+  assert.equal(run.started, true);
+  assert.deepEqual(run.launches["attended/walk"].attendant, { stated_by: "the lane's agent", statement: ATTENDANT_STATEMENT, exempted: ["sky_computer_use_service_launchd", "sky_computer_use_service_process", "codex_app_server_stdio"] });
+  assert.deepEqual(markNames(run.launches["attended/walk"].marks), ["SkyComputerUseService under launchd", "a SkyComputerUseService process", "a \"codex app-server --listen stdio://\" process"]);
+  // beforeStart is told the marks it started with.
+  assert.equal(run.seen.length, 1);
+  assert.deepEqual(run.seen[0][0].exempted, ["sky_computer_use_service_launchd", "sky_computer_use_service_process", "codex_app_server_stdio"]);
+});
+
+test("without the statement, or with it and a check not made or another application's bundle, the start is refused and nothing starts", { skip: !["darwin", "linux"].includes(process.platform) && "the census runs on macOS and Linux" }, async (t) => {
+  const cases = [
+    ["not stated, a mark present", { sky: true }, null],
+    ["stated, a check not made", { sky: true, launchctlFails: true }, { stated_by: "a" }],
+    ["stated, another application's bundle", { sky: true, bundle: true }, { stated_by: "a" }]
+  ];
+  for (const [label, marks, attendant] of cases) {
+    const run = await standInPhase(t, { marks, attendant });
+    assert.deepEqual([run.result.stop, run.result.exitCode, run.started, run.seen.length], [MARK_PRESENT, 2, false, 0], label);
+    assert.equal(run.launches["attended/walk"].launched, false, label);
+  }
+  // A blank statement given directly to judgedPhase, with every mark clear, refuses the start and records why.
+  const blank = await standInPhase(t, { marks: {}, attendant: { stated_by: "  " } });
+  assert.deepEqual([blank.result.stop, blank.started, blank.seen.length], [MARK_PRESENT, false, 0]);
+  assert.match(blank.launches["attended/walk"].attendant.invalid, /stated_by is blank/);
+  // Without the statement the record is exactly as before: no attendant member, and beforeStart is called with nothing.
+  const plain = await standInPhase(t, { marks: {} });
+  assert.equal(plain.launches["attended/walk"].attendant, undefined);
+  assert.deepEqual(plain.seen, [[]]);
+});
+
+test("no unattended path can reach the statement: the other runners and the journeys' launch never pass it, and still refuse for a mark", () => {
+  const read = (file) => readFileSync(new URL(file, import.meta.url), "utf8");
+  for (const file of ["../../native-smoke/run.mjs", "../../native-smoke/mbf-journey.mjs", "../../native-smoke/report-standing-journey.mjs", "../../native-smoke/perf.mjs", "../run.mjs"]) {
+    assert.doesNotMatch(read(file), /marksDecision|ATTENDANT_|attendant:|attendant-on-screen/, file);
+  }
+  for (const file of ["../../native-smoke/run.mjs", "../../native-smoke/mbf-journey.mjs"]) assert.match(read(file), /judgedPhase\(/, file);
+  assert.match(read("../../native-smoke/perf.mjs"), /if \(marksRefuse\(record\.marks\)\)/);
+  assert.match(read("../../native-smoke/report-standing-journey.mjs"), /pgrep", \["-f", "SkyComputerUseService"\]/);
+  // In this runner the statement reaches judgedPhase only through the attended launch's judge.
+  const runner = read("./run.mjs");
+  const walk = runner.slice(runner.indexOf("  async function walk("), runner.indexOf("  // The attended launch (--attended): launch() as every journey's"));
+  assert.ok(walk.length > 100);
+  assert.doesNotMatch(walk, /attendant/);
+  assert.equal(runner.match(/attendant: judge\.attendant/g)?.length, 1);
+});
+
+test("the handover and the index say the launch started with an agent on the screen, and who stated it was the attendant", (t) => {
+  const facts = (lines) => Object.fromEntries(lines.map((line) => line.match(/^attended\.([a-z_]+)=(.*)$/).slice(1)));
+  const stated = facts(attendedStartLines({ pid: 1, observed: { ok: true }, attendantOnScreen: { stated_by: "the lane's agent", marks: ["a SkyComputerUseService process"] } }));
+  assert.equal(stated.attendant_on_screen, `stated by the lane's agent: ${ATTENDANT_STATEMENT}; marks present directly before the start: a SkyComputerUseService process`);
+  assert.equal(facts(attendedStartLines({ pid: 1, observed: { ok: true } })).attendant_on_screen, "not stated");
+  const lines = attendedStartLines({ pid: 1, observed: { ok: true } });
+  assert.equal(lines.at(-1), "attended.ready=yes");
+  const out = scratch(t);
+  writeAttendedPart(out, { title: "Attended", revision: { commit: "abc" }, build: { kind: "k" }, launch: { attended: true, attendant_on_screen: { stated: true, stated_by: "the lane's agent", statement: ATTENDANT_STATEMENT, option: "--attendant-on-screen", marks_at_runner_check: ["a SkyComputerUseService process"], marks_before_start: ["a SkyComputerUseService process"], exempted: ["sky_computer_use_service_process"] } }, captures: { screens: [], records_without_picture: [], other: [] } });
+  composeIndex(out);
+  const index = JSON.parse(readFileSync(path.join(out, "INDEX.json"), "utf8"));
+  assert.equal(index.journeys[0].launch.attendant_on_screen.stated_by, "the lane's agent");
+  assert.match(readFileSync(path.join(out, "index.html"), "utf8"), /Started with an agent on the screen: a SkyComputerUseService process\. the lane&#39;s agent stated|Started with an agent on the screen: a SkyComputerUseService process\. the lane's agent stated that the agent operating the screen is this launch's attendant \(--attendant-on-screen\)/);
 });
 
 test("stored runs: each project's stored texts by SHA-256, as placed and at each copy; a changed or missing copy is not unchanged", async (t) => {
@@ -482,4 +1443,272 @@ test("placement sqlite3-from-sql: a WAL left with content, or any other file bes
   // An empty WAL (this platform's sqlite3 keeps one after a clean close) goes with its index.
   const placed = placeFiles(placements, { run: leaving({ "built.sqlite3-wal": "", "built.sqlite3-shm": "index" }) });
   assert.deepEqual(readdirSync(path.dirname(placed.store)), ["openpipestress-projects.sqlite3"]);
+});
+
+test("a tool-setup failure, or an unresolved reason, is missing evidence, never unseen; the attendant's statement is kept in full", (t) => {
+  const setup = { step: "open the File menu", surface: "menu_bar", observed: "the capture tool was not set up", obstacle: "system", cause: "the menu bar could not be pictured" };
+  const unknown = { step: "Help", surface: "window", observed: "nothing came back", obstacle: "application", cause: "unknown" };
+  const permission = { step: "Help", surface: "other_native_dialog", observed: "the alert was shown", obstacle: "system", cause: "the screen recording permission was not granted to the tool" };
+  const { entry, index } = surfacesIndex(t, { sidecars: [{ prevented: [setup, unknown, permission] }] });
+  for (const [key, record] of [["menu_bar", setup], ["window", unknown], ["other_native_dialog", permission]]) {
+    assert.deepEqual([entry(key).evidence, entry(key).missing_evidence, entry(key).unseen], ["missing", true, undefined], key);
+    const kept = entry(key).not_supplying.find((item) => item.kind === "statement that it was unseen");
+    assert.match(kept.why, /names the attendant's own tool or its setup, or leaves the reason unresolved/, key);
+    assert.deepEqual(kept.statement, { step: record.step, observed: record.observed, obstacle: record.obstacle, cause: record.cause }, key);
+  }
+  // The capture still records the attendant's own words, exactly as written.
+  const screen = index.screens.find((item) => item.journey === "attended");
+  assert.deepEqual(screen.stated_by_attendant.prevented, [setup, unknown, permission]);
+  // A concrete account of the system's obstacle still counts.
+  const concrete = surfacesIndex(t, { sidecars: [{ prevented: { ...setup, observed: "the menu bar was drawn blank in the picture", cause: "the system hides the menu bar of a window in full-screen mode" } }] });
+  assert.equal(concrete.entry("menu_bar").evidence, "unseen");
+});
+
+test("a late mark leaves a completed folder untouched: the attended output is prepared only once judgedPhase admits the start", { skip: !["darwin", "linux"].includes(process.platform) && "the census runs on macOS and Linux" }, async (t) => {
+  const { prepareAttendedOutput } = await import("./run.mjs");
+  // A folder holding a completed scripted journey and its index, as a walkthrough leaves it.
+  const folderWithJourney = () => {
+    const out = scratch(t);
+    writePart(out, { number: 22, name: "exports", title: "E", use_case: "u", revision: { commit: "abc", uncommitted_paths: 0 }, build: { kind: "k" }, screens: screensFromRecords([{ number: 2201, step: "s", note: "n", window: "1440x920" }], { journey: "exports", number: 22 }), launch: { ended_cleanly: true } });
+    composeIndex(out);
+    return out;
+  };
+  const late = folderWithJourney();
+  const before = folderBytes(late);
+  const refused = await standInPhase(t, { marks: { sky: true }, beforeStart: () => prepareAttendedOutput(late) });
+  assert.deepEqual([refused.result.stop, refused.started], [MARK_PRESENT, false]);
+  assert.deepEqual(folderBytes(late), before, "a refusal for a mark directly before the start changes nothing in --out");
+  // Admitted, the index goes and the captures folder is made; the journey's own part stays.
+  const admitted = folderWithJourney();
+  const run = await standInPhase(t, { marks: {}, beforeStart: () => prepareAttendedOutput(admitted) });
+  assert.equal(run.started, true);
+  assert.deepEqual(readdirSync(admitted).sort(), ["captures", "part-22-exports.json"]);
+  // A folder it must refuse (a file a walkthrough did not write) is refused before anything in it is removed.
+  const foreign = folderWithJourney();
+  writeFileSync(path.join(foreign, "notes.txt"), "keep");
+  const foreignBefore = folderBytes(foreign);
+  assert.throws(() => prepareAttendedOutput(foreign), /did not write \(notes\.txt\)/);
+  assert.deepEqual(folderBytes(foreign), foreignBefore);
+  // In the command, nothing else empties --out for an attended launch before the start.
+  const runner = readFileSync(new URL("./run.mjs", import.meta.url), "utf8");
+  assert.equal(runner.match(/= prepareAttendedOutput\(out\);/g)?.length, 1);
+  assert.match(runner, /if \(!attended\) emptyNativeOutput\(out, selected\);/);
+  assert.equal(runner.match(/^\s+emptyAttendedOutput\(out\);$/gm)?.length, 1, "called only inside prepareAttendedOutput");
+});
+
+// The handover, with the census and the start checkpoint stood in for: only to a running app, and, without --hidden,
+// only to a window the driver saw shown with its page visible.
+async function watchWith(t, { census, start = null, startAfterMs = 0, requireVisible = false, waitMs = 700 }) {
+  const dir = scratch(t);
+  const startReport = path.join(dir, "report.start.json");
+  const ready = [];
+  const watch = attendedWatch({ executable: "/copy", finishFile: path.join(dir, "attended-finish"), startReport, census, limitMs: 60_000, pollMs: 50, processTable: () => new Map(), requireVisible, onReady: (seen) => ready.push(seen) });
+  watch.start({ nonce: "n" });
+  if (start) setTimeout(() => writeFileSync(startReport, JSON.stringify({ nonce: "n", ...start })), startAfterMs);
+  await new Promise((resolve) => setTimeout(resolve, waitMs));
+  return { ready, watched: watch.stop(), aborted: watch.signal.aborted };
+}
+const censusSequence = (...answers) => { let index = 0; return () => answers[Math.min(index++, answers.length - 1)]; };
+
+test("the handover names a running app: a start checkpoint read after the app has quit prints nothing", async (t) => {
+  // The app is found, then gone; its start checkpoint is read only afterwards, while the run censuses it.
+  const late = await watchWith(t, { census: censusSequence({ ok: true, pids: [4242] }, { ok: true, pids: [4242] }, { ok: true, pids: [] }), start: { ok: true, window_shown: true, page_visibility: "visible" }, startAfterMs: 300 });
+  assert.deepEqual(late.ready, []);
+  assert.equal(late.watched.ready_printed, false);
+  assert.equal(typeof late.watched.exited_at, "number");
+  assert.equal(late.watched.pid, 4242);
+  // Another process running the copy is not the app first found: nothing is handed over.
+  const replaced = await watchWith(t, { census: censusSequence({ ok: true, pids: [4242] }, { ok: true, pids: [5151] }), start: { ok: true }, startAfterMs: 200 });
+  assert.deepEqual(replaced.ready, []);
+  // Running, started and found in the same poll: handed over once, with the pid that poll found.
+  const running = await watchWith(t, { census: () => ({ ok: true, pids: [4242] }), start: { ok: true } });
+  assert.deepEqual(running.ready.map((item) => item.pid), [4242]);
+  assert.equal(running.watched.exited_at, null);
+  // A census that cannot be read hands nothing over.
+  const unread = await watchWith(t, { census: () => ({ ok: false, reason: "lsof failed" }), start: { ok: true } });
+  assert.deepEqual(unread.ready, []);
+});
+
+test("without --hidden the attendant is directed to the window only once the driver saw it shown and its page visible", async (t) => {
+  const census = () => ({ ok: true, pids: [4242] });
+  const notShown = await watchWith(t, { census, start: { ok: true, window_shown: false, page_visibility: "hidden" }, requireVisible: true });
+  assert.deepEqual([notShown.ready.length, notShown.watched.stop?.by, notShown.aborted], [0, "window-not-shown", true]);
+  const hiddenPage = await watchWith(t, { census, start: { ok: true, window_shown: true, page_visibility: "hidden" }, requireVisible: true });
+  assert.deepEqual([hiddenPage.ready.length, hiddenPage.watched.stop?.by], [0, "window-not-shown"]);
+  const shown = await watchWith(t, { census, start: { ok: true, window_shown: true, page_visibility: "visible" }, requireVisible: true });
+  assert.deepEqual([shown.ready.length, shown.watched.stop], [1, null]);
+  // --hidden keeps its lifecycle checks: the handover does not wait for a window it was told not to show.
+  const hidden = await watchWith(t, { census, start: { ok: true, window_shown: false, page_visibility: "hidden" }, requireVisible: false });
+  assert.deepEqual([hidden.ready.length, hidden.watched.stop], [1, null]);
+  // Its ending is its own, and never a handover.
+  const ending = attendedEnding({ outcome: { status: null, signal: "SIGKILL", timed_out: false, nonce: "n" }, receipt: { delivered: true }, stop: { by: "window-not-shown" }, start: { nonce: "n", ok: true, window_shown: false, page_visibility: "hidden" }, nonce: "n", limitMinutes: 1, handedOver: false });
+  assert.deepEqual([ending.by, ending.ok], ["window-not-shown", false]);
+  assert.match(ending.what, /window shown: no, page hidden\), so the attendant was not directed to it/);
+  const unprepared = attendedEnding({ outcome: { status: null, signal: "SIGKILL", timed_out: false, nonce: "n" }, receipt: { delivered: true }, stop: { by: "output-not-prepared", why: "x" }, start: null, nonce: "n", limitMinutes: 1 });
+  assert.deepEqual([unprepared.by, unprepared.ok], ["output-not-prepared", false]);
+});
+
+import { readSidecar } from "./sidecar.mjs";
+
+test("a sidecar is parsed and hashed from one read, and an orphan sidecar is bound by its hash too", (t) => {
+  const root = scratch(t);
+  const folder = path.join(root, "captures");
+  mkdirSync(folder);
+  const text = sidecarJson({ step: "s", note: "n", acted: ["looked"], surfaces: ["menu_bar"] });
+  writeFileSync(path.join(folder, "01.png"), makePng(2, 2));
+  writeFileSync(path.join(folder, "01.json"), text);
+  writeFileSync(path.join(folder, "02-orphan.json"), sidecarJson({ step: "o", note: "n", acted: ["looked"], prevented: { step: "s", surface: "window", observed: "drawn blank", obstacle: "system", cause: "the window server withheld the window's contents" } }));
+  const sha = (bytes) => `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
+  assert.equal(readSidecar(path.join(folder, "01.json")).sidecar_sha256, sha(Buffer.from(text)));
+  const found = readCaptures(folder, { bindTo: { revision: { commit: "abc" }, build_app_sha256: "sha256:feed" } });
+  assert.equal(found.screens[0].binding.sidecar_sha256, sha(Buffer.from(text)));
+  assert.equal(found.records_without_picture[0].sidecar_sha256, sha(readFileSync(path.join(folder, "02-orphan.json"))));
+  // The runner no longer opens a sidecar a second time to hash it.
+  const runner = readFileSync(new URL("./run.mjs", import.meta.url), "utf8");
+  assert.doesNotMatch(runner, /readBounded\(sidecarFile/);
+  // A link standing for a sidecar is not followed.
+  symlinkSync(path.join(folder, "01.json"), path.join(folder, "03.json"));
+  assert.match(readSidecar(path.join(folder, "03.json")).why, /is a link, not followed/);
+});
+
+test("on recomposition the claims come from the verified sidecar bytes, never from the part's saved fields; an orphan's statement needs its hash", (t) => {
+  const statement = { step: "s", surface: "window", observed: "drawn blank", obstacle: "system", cause: "the window server withheld the window's contents" };
+  // The part's saved surfaces are rewritten after the launch: the sidecar on disk still says menu_bar only.
+  const rewritten = surfacesIndex(t, { sidecars: [{ surfaces: ["menu_bar"] }], afterPart: (part) => { part.screens[0].surfaces = ["menu_bar", "window"]; part.screens[0].prevented = [{ ...statement, surface: "other_native_dialog" }]; } });
+  assert.equal(rewritten.entry("menu_bar").evidence, "supplied");
+  assert.equal(rewritten.entry("window").evidence, "missing");
+  assert.equal(rewritten.entry("other_native_dialog"), undefined);
+  // An orphan sidecar's statement counts while its bytes are the recorded ones.
+  const orphan = surfacesIndex(t, { sidecars: [{ picture: false, prevented: statement }] });
+  assert.equal(orphan.entry("window").evidence, "unseen");
+  // Edited after the launch, it counts for nothing, and says why under the launch.
+  const edited = surfacesIndex(t, { sidecars: [{ picture: false, prevented: statement }], after: (folder) => writeFileSync(path.join(folder, "01-capture.json"), sidecarJson({ step: "x", note: "n", acted: ["looked"], prevented: statement })) });
+  assert.equal(edited.entry("window").evidence, "missing");
+  assert.match(edited.entry("window").not_supplying[0].why, /edited after the launch ended/);
+  const attended = edited.index.journeys.find((journey) => journey.name === "attended");
+  const said = attended.unexplained.filter((item) => item.file === "captures/01-capture.json").map((item) => item.why);
+  assert.ok(said.includes("a sidecar with no picture of the same name"), JSON.stringify(said));
+  assert.ok(said.some((why) => /^a sidecar recorded without a picture that counts for nothing: this sidecar on disk is not the one its launch recorded/.test(why)), JSON.stringify(said));
+  // Removed, or recorded without a hash, likewise.
+  assert.equal(surfacesIndex(t, { sidecars: [{ picture: false, prevented: statement }], after: (folder) => rmSync(path.join(folder, "01-capture.json")) }).entry("window").evidence, "missing");
+  const unhashed = surfacesIndex(t, { sidecars: [{ picture: false, prevented: statement }], afterPart: (part) => { delete part.captures.records_without_picture[0].sidecar_sha256; } });
+  assert.match(unhashed.entry("window").not_supplying[0].why, /no hash was recorded/);
+});
+
+test("the same commit is not the same revision when the driver differs or paths were uncommitted", (t) => {
+  const claim = [{ surfaces: ["menu_bar"] }];
+  const notSupplied = (result, pattern) => {
+    assert.equal(result.entry("menu_bar").evidence, "missing");
+    assert.match(result.entry("menu_bar").not_supplying[0].why, pattern);
+  };
+  notSupplied(surfacesIndex(t, { sidecars: claim, captureDriver: "sha256:d2" }), /it ran another driver \(d2, not the walkthrough's d1\)/);
+  notSupplied(surfacesIndex(t, { sidecars: claim, captureDriver: null }), /its driver's digest is not recorded/);
+  notSupplied(surfacesIndex(t, { sidecars: claim, captureUncommitted: 2 }), /its revision had 2 uncommitted path\(s\)/);
+  notSupplied(surfacesIndex(t, { sidecars: claim, journeyUncommitted: 1 }), /the walkthrough's screens were taken with uncommitted paths \(exports\)/);
+  notSupplied(surfacesIndex(t, { sidecars: claim, captureUncommitted: null }), /an unrecorded number of uncommitted path/);
+  assert.equal(surfacesIndex(t, { sidecars: claim }).entry("menu_bar").evidence, "supplied");
+  // The runner records the composed driver's digest in every revision it writes.
+  const runner = readFileSync(new URL("./run.mjs", import.meta.url), "utf8");
+  assert.equal(runner.match(/revision: \{ commit: revision, uncommitted_paths: uncommitted, driver_sha256: DRIVER_SHA256 \}/g)?.length, 3);
+});
+
+test("an attended launch's guards are installed before the window is shown, and stop file drops and file field changes before the page", async () => {
+  const run = await runAttendedDriver({ attended: true, show_window: true, start: null }, { visibility: "visible", invoke: (command) => (command === "native_smoke_show_window" ? { visible: true } : undefined) });
+  const show = run.calls.find(([command]) => command === "native_smoke_show_window");
+  assert.ok(show, "the window was brought to the front");
+  // Every guard listener was in place when the window was shown: none is added after.
+  const guardTypes = ["click", "change", "input", "dragenter", "dragover", "drop"];
+  const guardCount = [...run.listeners.document, ...run.listeners.window].filter((item) => guardTypes.includes(item.type)).length;
+  assert.equal(guardCount, 6);
+  assert.ok(show[2] >= guardCount, `listeners at show: ${show[2]}`);
+  const start = run.checkpoints().find((item) => item.name === "start").report;
+  assert.ok(start.guards_installed_at <= start.at, "installed before the start");
+  for (const item of [...run.listeners.document, ...run.listeners.window].filter((entry) => guardTypes.includes(entry.type))) assert.equal(item.options, true, `${item.type} in the capture phase`);
+
+  const listener = (where, type) => run.listeners[where].find((item) => item.type === type).listener;
+  const event = (target, dataTransfer = undefined) => ({ target, dataTransfer, defaultPrevented: false, stopped: false, preventDefault() { this.defaultPrevented = true; }, stopImmediatePropagation() { this.stopped = true; } });
+  const fileField = { type: "file", value: "C:\\fakepath\\x.json", labels: [{ textContent: "Proposal file" }], matches: (selector) => selector === 'input[type="file"]', closest: () => null, getAttribute: () => null };
+  const textField = { type: "text", value: "abc", matches: () => false, closest: () => null };
+  const files = () => ({ types: ["Files"], files: [{ name: "x.json" }], dropEffect: "copy" });
+  // A drag carrying files: entering, hovering and dropping are each stopped, the drop recorded.
+  for (const type of ["dragenter", "dragover", "drop"]) {
+    const dataTransfer = files();
+    const dragged = event(fileField, dataTransfer);
+    listener("window", type)(dragged);
+    assert.deepEqual([dragged.defaultPrevented, dragged.stopped, dataTransfer.dropEffect], [true, true, "none"], type);
+  }
+  // A drag of text, or a drop with no files, reaches the page.
+  const text = event(textField, { types: ["text/plain"], files: [] });
+  listener("window", "drop")(text);
+  assert.deepEqual([text.defaultPrevented, text.stopped], [false, false]);
+  // A file field's change, synthetic or not, is stopped and the field cleared; another field's is not.
+  const changed = event(fileField);
+  listener("document", "change")(changed);
+  assert.deepEqual([changed.defaultPrevented, changed.stopped, fileField.value], [true, true, ""]);
+  const typed = event(textField);
+  listener("document", "change")(typed);
+  assert.deepEqual([typed.stopped, textField.value], [false, "abc"]);
+  const input = event({ ...fileField, value: "y" });
+  listener("document", "input")(input);
+  assert.equal(input.stopped, true);
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  const recorded = run.checkpoints().filter((item) => item.name === "substitutions").at(-1).report.substitutions;
+  assert.deepEqual(recorded.map((item) => [item.kind, item.control]), [["file drop stopped by the launch", "Proposal file"], ["file field change stopped by the launch", "Proposal file"]]);
+  assert.match(recorded[0].what, /stopped a file dropped on the window/);
+  // A scripted journey's page gets none of these listeners.
+  const scripted = await runAttendedDriver({ journey: "probe-none", show_window: false });
+  assert.deepEqual([scripted.listeners.document.length, scripted.listeners.window.length], [0, 0]);
+});
+
+import { PRINT_SUBSTITUTED, readPrintLog } from "./run.mjs";
+
+test("a print substituted just before a capture, or just before Quit, is marked on that capture in INDEX.json, from the build's own log", (t) => {
+  const out = scratch(t);
+  const folder = path.join(out, "captures");
+  mkdirSync(folder);
+  const report = path.join(scratch(t), "report-attended.json");
+  const t0 = Date.now() - 30_000;
+  // Print at t0 + 10.0 s, the capture 100 ms later (before any poll could have read it); a second print 20 ms before the
+  // last capture and the application's exit.
+  const line = (at, sha) => JSON.stringify({ recorded_at_ms: at, print_sha256_hex: sha, canonical_sha256_hex: "c", served_to_print_window: true, window_label: "w", dialog_presented: false });
+  writeFileSync(`${report}.prints.jsonl`, `${line(t0 + 10_000, "a".repeat(64))}\n${line(t0 + 20_000, "b".repeat(64))}\nnot json\n`);
+  const prints = readPrintLog(report);
+  assert.deepEqual([prints.prints.length, prints.rejected], [2, 1]);
+  assert.deepEqual(prints.prints[0], { at: t0 + 10_000, kind: "report print dialog", what: PRINT_SUBSTITUTED, print_sha256: "a".repeat(64), served_to_print_window: true, dialog_presented: false });
+  const capture = (base, at) => {
+    writeFileSync(path.join(folder, `${base}.png`), makePng(2, 2));
+    writeFileSync(path.join(folder, `${base}.json`), sidecarJson({ step: base, note: "n", acted: ["pressed Print"], taken_at: new Date(at).toISOString() }));
+    utimesSync(path.join(folder, `${base}.png`), new Date(at), new Date(at));
+  };
+  capture("01-after-print", t0 + 10_100);
+  capture("02-before-quit", t0 + 20_020);
+  const captures = readCaptures(folder, { identity: lstatSync(folder), bindTo: { revision: { commit: "abc", uncommitted_paths: 0, driver_sha256: "sha256:d" }, build_app_sha256: "sha256:feed" }, substitutions: prints.prints, launchTimes: { from: t0, to: t0 + 20_050 } });
+  writeAttendedPart(out, { title: "Attended", revision: { commit: "abc", uncommitted_paths: 0, driver_sha256: "sha256:d" }, build: { kind: "k", app_sha256: "sha256:feed" }, launch: { attended: true }, captures });
+  composeIndex(out);
+  const index = JSON.parse(readFileSync(path.join(out, "INDEX.json"), "utf8"));
+  const screen = (step) => index.screens.find((item) => item.step === step);
+  assert.deepEqual(screen("01-after-print").substitutions.map((item) => [item.kind, item.print_sha256]), [["report print dialog", "a".repeat(64)]]);
+  assert.deepEqual(screen("02-before-quit").substitutions.map((item) => [item.kind, item.print_sha256]), [["report print dialog", "b".repeat(64)]]);
+  assert.match(readFileSync(path.join(out, "index.html"), "utf8"), /stopped by the launch or substituted by the build: [^<]*report print dialog: The build recorded the report&#39;s print document|stopped by the launch or substituted by the build: [^<]*report print dialog: The build recorded the report's print document/);
+  // No log is no print, not an error.
+  assert.deepEqual(readPrintLog(path.join(scratch(t), "none.json")), { prints: [], rejected: 0 });
+});
+
+test("the scripted-run print record is confined to the native-smoke build", () => {
+  const src = new URL("../../src-tauri/src/", import.meta.url);
+  const read = (file) => readFileSync(new URL(file, src), "utf8");
+  // The module that records and logs prints exists only with the feature, which no feature implies and is not a default.
+  assert.match(read("lib.rs"), /#\[cfg\(feature = "native-smoke"\)\]\nmod native_smoke;\n/);
+  const cargo = readFileSync(new URL("../../src-tauri/Cargo.toml", import.meta.url), "utf8");
+  assert.match(cargo, /\nnative-smoke = \[\]\n/);
+  assert.doesNotMatch(cargo, /default = \[[^\]]*native-smoke/);
+  // The print path calls it only under the feature; without it the system print dialog is presented.
+  const print = read("rendered_report_print.rs");
+  assert.match(print, /#\[cfg\(feature = "native-smoke"\)\]\n\s*crate::native_smoke::record_report_print\(/);
+  assert.match(print, /#\[cfg\(not\(feature = "native-smoke"\)\)\]\n\s*\{\n\s*let _ = \(document, served\);\n\s*if let Err\(error\) = window\.print\(\)/);
+  // Nothing else names the record or its log.
+  for (const file of readdirSync(src).filter((name) => name.endsWith(".rs") && !["native_smoke.rs", "rendered_report_print.rs"].includes(name))) {
+    assert.doesNotMatch(read(file), /record_report_print|prints\.jsonl/, file);
+  }
+  assert.match(read("native_smoke.rs"), /fn append_print_log\(path: &Path, observation: &ReportPrintObservation\)/);
 });

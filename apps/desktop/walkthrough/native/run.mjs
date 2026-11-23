@@ -3,6 +3,7 @@
 //
 //   npm run walkthrough:native --workspace apps/desktop -- --build-only
 //   npm run walkthrough:native --workspace apps/desktop -- [--journey <names>] [--out DIR] [--show-window]
+//   npm run walkthrough:native --workspace apps/desktop -- --attended [--journey <name>] [--limit-minutes N] [--hidden] [--attendant-on-screen <who>] --out DIR
 //
 // Run each under a host slot, as separate jobs, as `native-smoke/evidence-journeys.mjs` says of itself; each takes
 // the worktree build lock itself. --build-only builds and binds the `native-smoke` app exactly as that runner does
@@ -40,7 +41,8 @@
 // After the launch has ended and been censused and its home removed, each snapshot is rendered in Playwright's
 // Chromium at the recorded window size (`render.mjs`) into the output folder, in the browser walkthrough's form
 // (numbered pictures, part files, INDEX.json, index.html). The pictures are redrawn, not captures of the window:
-// capturing the window from outside needs a permission this runner does not ask for.
+// this runner takes no capture of the window, pictures no menu bar and presses no Print (an attended capture can
+// supply those surfaces: compose-index.mjs nativeSurfacesOf).
 //
 // Confinement: as every native-smoke runner (`launch-env.mjs`, `judged-launch.mjs`, `marks-check.mjs`), with their
 // own functions: an environment built from nothing, HOME and CFFIXED_USER_HOME the throwaway home with TMPDIR inside
@@ -50,21 +52,49 @@
 // launch, the tripwire over the real user's product-named Library paths before the first launch and after the last,
 // and closeRun on every exit the runner can catch. A home is removed only as evidence-journeys.mjs removes one
 // (homeRemovalRefusal, removalIdentityRefusal, the run's token in its marker). In this build the print dialog is
-// replaced by a record, and Print is not pressed. The embedded agent is never started; no provider, model, key,
-// network or sign-in is used. Chromium renders after the app has ended, loads nothing, and is given no file of the
+// replaced by a record, and Print is not pressed. The embedded agent is never started (an attended launch stops its
+// Start agent); no provider, model, key, network or sign-in is used. Chromium renders after the app has ended, loads nothing, and is given no file of the
 // home. Evidence of what a person sees, not a test: a journey that stops is a finding in the index.
+//
+// --attended (ATTENDED below): one launch made exactly as a journey's (the same launch function, environment,
+// confinement, census, tripwire and close), for an attendant, an agent outside the application that drives the actual
+// window. A refusal for --out, or for a mark, is read-only and comes before either cleanup. With
+// --attendant-on-screen <who>, the caller's statement that the agent operating the screen is this launch's attendant,
+// the marks of that agent do not refuse the start (judged-launch.mjs marksDecision; never a check not made or another
+// application's bundle), and the marks and the statement are printed at the handover and recorded. The driver makes only the start (with
+// --journey, that journey's `place` and `open`; without it, the app as first opened), shows the window unless
+// --hidden, reads the menu, writes the checkpoint `start`, and then takes no step: it only records, with times, what
+// its guards stopped (installed first, before the window is shown: the page's file fields, file drops and file field
+// changes, and the agent's Start agent) and the counts on screen whenever the page settles; the build logs each print
+// it substitutes. Nothing in --out changes until judgedPhase's marks check has admitted the start. The handover lines
+// are printed only once that checkpoint says the start was made with this launch's nonce, while the census still
+// finds the app running and, without --hidden, once the window was seen shown; a failed start ends the launch without
+// them. The launch ends when the app
+// exits by itself, when the finish file the command prints appears, or at --limit-minutes: for those two the watcher
+// aborts the AbortSignal judgedPhase hands to runUnderLock, which owns the started child and sends it SIGKILL, and the
+// record keeps runUnderLock's receipt (its own time limit, two minutes later, is the backstop). The strict chooser's
+// exit is recorded as the ending only. The index gets one part (number 90) recording the launch, and one screen for
+// each picture the attendant put in <out>/captures/, read once at the end from the folder the runner created (its
+// device and inode), bound to the launch by the SHA-256 of the picture and sidecar, the decoded size, and the
+// revision and build, and given the application's own count nearest its stated time and the substitutions since
+// the previous capture (readCaptures). The runner takes no capture and alters none.
 import { createHash, randomBytes } from "node:crypto";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import * as fs from "node:fs";
 import { lstatSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync, writeSync } from "node:fs";
 import os from "node:os";
+import zlib from "node:zlib";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { emptyOutput } from "../run.mjs";
-import { composeIndex } from "../compose-index.mjs";
+import { emptyOutput, outputRefusal } from "../run.mjs";
+import { readReport } from "../../native-smoke/launch-outcome.mjs";
+import { ATTENDANT_STATEMENT, marksDecision } from "../../native-smoke/judged-launch.mjs";
+import { ATTENDED_SURFACE, composeIndex } from "../compose-index.mjs";
 import { readScreenCounts, scrollLongestRegion } from "../screen-counts.mjs";
 import { takeSnapshot } from "./snapshot.mjs";
 import { readStepRecords, renderScreens, screensFromRecords, writePart } from "./render.mjs";
+import { AC007_USE_CASES, readSidecar, sha256Of } from "./sidecar.mjs";
+export { AC007_USE_CASES, UNACCOUNTED, parseSidecar, readSidecar, surfaceClaims } from "./sidecar.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const walkthrough = path.resolve(here, "..");
@@ -354,6 +384,592 @@ export function emptyNativeOutput(out, journeys) {
   emptyOutput(out, (journeyNumber) => numbers.has(journeyNumber));
 }
 
+// ---------------------------------------------------------------- the attended launch (--attended)
+
+/**
+ * The attended launch: one launch of the bound scripted-run build for an attendant who drives the actual window. Its
+ * part in the index is number 90 (`part-90-attended.json`), after every journey's number; its screens are the
+ * attendant's captures in <out>/captures/, numbered 9001 on.
+ */
+export const ATTENDED = Object.freeze({
+  name: "attended",
+  number: 90,
+  captures: "captures",
+  finish_file: "attended-finish",
+  // The limit ends the launch through the watcher's abort; runUnderLock's own time limit, this much later, is the backstop.
+  limit: Object.freeze({ default_minutes: 20, min_minutes: 1, max_minutes: 60, backstop_ms: 2 * 60 * 1000 }),
+  // The window's title as the app sets it (lib.rs native_window_title): "SWBPIPE", "<project> — SWBPIPE" or
+  // "<project> · Edited — SWBPIPE".
+  window_title_ends_with: "SWBPIPE",
+  process_name: "openpipestress-desktop",
+  chooser: "the strict chooser ends the application if a file chooser is opened: no answer is queued for the attendant"
+});
+export { ATTENDED_SURFACE };
+export const CAPTURE_BASIS = "This picture is a capture of the actual window of the launched app, put in captures/ by the attendant who drove the window through its own controls; the runner neither took it nor altered it. It is not redrawn and not scripted, and it is evidence only of what it shows.";
+export const UNEXPLAINED_BASIS = "This file was found in captures/ without a sidecar that says what it shows and how it was made: it is unexplained, and nothing is claimed for it.";
+
+/**
+ * The refusal line for the marks of an agent operating the App on the screen (native-smoke/marks-check.mjs
+ * marksCheck), naming each mark found and each check that could not be made, as the run's record does. An attended
+ * launch is started before the attendant's screen tool is up: that tool's service is one of the marks.
+ */
+export function markRefusalLine(marks, { attendant = null } = {}) {
+  const found = markNames(marks);
+  const head = `NATIVE-SMOKE-MARK-PRESENT: ${found.length ? found.join("; ") : "a mark"}: an agent may be operating the App on the screen; not launched, and nothing in --out was changed.`;
+  if (attendant) return `${head} The statement that the agent on the screen is this launch's attendant (--attendant-on-screen) covers the screen service and the app-server only, never a check that could not be made or another application's candidate bundle`;
+  return `${head} Start the attended launch before the attendant's screen tool is started, and start that tool only after the handover is printed; or, when the agent on the screen is this launch's attendant, say so with --attendant-on-screen <who states it>`;
+}
+/** Each mark marksCheck found, and each check it could not make, in words. */
+export function markNames(marks) {
+  return [
+    marks?.sky_computer_use_service_launchd ? "SkyComputerUseService under launchd" : null,
+    marks?.sky_computer_use_service_process ? "a SkyComputerUseService process" : null,
+    marks?.codex_app_server_stdio ? "a \"codex app-server --listen stdio://\" process" : null,
+    marks?.app_v4_candidate_bundle ? "a running App v4 candidate bundle" : null,
+    ...(marks?.check_failures ?? []).map((failure) => `a check that could not be made (${failure})`)
+  ].filter(Boolean);
+}
+
+/**
+ * The command line with --attended: { buildOnly: false, journeys: [], out, showWindow, attended: { start, limitMinutes,
+ * hidden, attendantOnScreen } } or { error }. --out is required; --journey names at most one journey, and it must
+ * declare `place`. --attendant-on-screen <who> is the caller's statement, by who makes it, that the agent operating
+ * the screen is this launch's attendant (judged-launch.mjs marksDecision); null when not given.
+ */
+export function parseAttendedArguments(argv) {
+  const options = { attended: 0, journey: null, out: null, limit: null, hidden: 0, attendant: null };
+  for (let index = 0; index < argv.length; index += 1) {
+    const name = argv[index];
+    if (name === "--attended" || name === "--hidden") {
+      options[name.slice(2)] += 1;
+      if (options[name.slice(2)] > 1) return { error: `${name} is given twice` };
+      continue;
+    }
+    if (name === "--build-only") return { error: "--attended launches the bound app and cannot be given with --build-only: build first, as its own job" };
+    if (name === "--show-window") return { error: "--attended brings the window to the front unless --hidden; --show-window is not given with it" };
+    const key = { "--journey": "journey", "--out": "out", "--limit-minutes": "limit", "--attendant-on-screen": "attendant" }[name];
+    if (!key) return { error: `unknown argument ${name}` };
+    const value = argv[index + 1];
+    if (value === undefined || value.startsWith("--")) return { error: `${name} needs a value` };
+    if (options[key] !== null) return { error: `${name} is given twice` };
+    options[key] = value;
+    index += 1;
+  }
+  if (options.out === null) return { error: "--attended needs --out <folder>: the record and the captures folder go there" };
+  if (options.attendant !== null && (options.attendant.trim() === "" || options.attendant.length > 200 || /[\u0000-\u001f\u007f]/.test(options.attendant))) {
+    return { error: "--attendant-on-screen names who states that the agent on the screen is this launch's attendant: 1 to 200 characters on one line" };
+  }
+  let start = null;
+  if (options.journey !== null) {
+    const names = options.journey.split(",").map((item) => item.trim()).filter(Boolean);
+    if (names.length !== 1) return { error: "--attended starts from at most one journey: name one with --journey" };
+    [start] = names;
+    if (!Object.hasOwn(JOURNEYS, start)) return { error: `unknown journey ${start}` };
+    if (!Array.isArray(JOURNEYS[start].place) || JOURNEYS[start].place.length === 0) {
+      return { error: `--attended --journey ${start}: that journey places nothing before launch, so it has no start to give an attended launch; omit --journey for the application as first opened` };
+    }
+  }
+  let limitMinutes = ATTENDED.limit.default_minutes;
+  if (options.limit !== null) {
+    limitMinutes = /^\d+$/.test(options.limit) ? Number(options.limit) : NaN;
+    if (!Number.isInteger(limitMinutes) || limitMinutes < ATTENDED.limit.min_minutes || limitMinutes > ATTENDED.limit.max_minutes) {
+      return { error: `--limit-minutes is a whole number of minutes from ${ATTENDED.limit.min_minutes} to ${ATTENDED.limit.max_minutes}` };
+    }
+  }
+  return { buildOnly: false, journeys: [], out: path.resolve(options.out), showWindow: options.hidden === 0, attended: { start, limitMinutes, hidden: options.hidden === 1, attendantOnScreen: options.attendant === null ? null : options.attendant.trim() } };
+}
+
+/** The whole command line: the attended form when --attended is given, otherwise parseArguments. */
+export function parseCommandLine(argv, options) {
+  if (argv.includes("--attended")) return parseAttendedArguments(argv);
+  const attendedOnly = argv.find((item) => item === "--hidden" || item === "--limit-minutes" || item === "--attendant-on-screen");
+  if (attendedOnly) return { error: `${attendedOnly} is an option of --attended` };
+  return { ...parseArguments(argv, options), attended: null };
+}
+
+/**
+ * The refusals of a launch's output folder, read-only and made before any cleanup: what the folder holds that a
+ * walkthrough did not write, and, for an attended launch, an earlier attended launch's captures folder. Null when none.
+ */
+export function outputRefusals(out, { attended = false } = {}) {
+  const refusal = outputRefusal(out);
+  if (refusal) return refusal;
+  if (attended && lstatOrNull(path.join(out, ATTENDED.captures)) !== null) {
+    return `${path.join(out, ATTENDED.captures)} holds an earlier attended launch's captures; choose another --out (nothing in it was changed)`;
+  }
+  return null;
+}
+
+/** After outputRefusals found none: an earlier attended part goes (its captures folder would have refused the run). */
+export function emptyAttendedOutput(out) {
+  const refusal = outputRefusals(out, { attended: true });
+  if (refusal) throw new Error(refusal);
+  emptyOutput(out, (journeyNumber) => journeyNumber === ATTENDED.number);
+}
+const lstatOrNull = (file) => { try { return fs.lstatSync(file); } catch { return null; } };
+
+/**
+ * An admitted attended launch's output folder: what it replaces goes (the index and an earlier part 90, after the
+ * refusals of emptyAttendedOutput) and its captures folder is made. Returns that folder's identity (device and inode).
+ * Called only from the launch's beforeStart, which judgedPhase calls only once its marks check has admitted the start.
+ */
+export function prepareAttendedOutput(out) {
+  // Every refusal first, read-only, so that a refusal here changes nothing.
+  const refusal = outputRefusals(out, { attended: true });
+  if (refusal) throw new Error(refusal);
+  emptyNativeOutput(out, []);
+  emptyAttendedOutput(out);
+  const captures = path.join(out, ATTENDED.captures);
+  mkdirSync(captures);
+  return (({ dev, ino }) => ({ dev, ino }))(lstatSync(captures));
+}
+
+/**
+ * The handover: the lines the command prints once the driver's start checkpoint says the start was made (ok: true,
+ * with this launch's nonce) and the census has found the process running this launch's private copy,
+ * `attended.<key>=<value>`, the last `attended.ready=yes`. What it says of the window is what the driver observed at
+ * the start (`observed`, the checkpoint's window_shown and page_visibility), never the option asked for.
+ */
+export function attendedStartLines({ pid, boundApp, launchCopy, finishFile, captures, limitMinutes, endsAt, observed, start, attendantOnScreen = null }) {
+  return [
+    `attended.pid=${pid}`,
+    `attended.process_name=${ATTENDED.process_name}`,
+    `attended.bound_app=${boundApp}`,
+    `attended.launch_copy=${launchCopy}`,
+    `attended.window_title_ends_with=${ATTENDED.window_title_ends_with}`,
+    `attended.window_shown=${observed?.window_shown === true ? "yes" : "no"}`,
+    `attended.page_visibility=${observed?.page_visibility ?? "not reported"}`,
+    `attended.start=${start ?? "the application as first opened"}`,
+    `attended.finish_file=${finishFile}`,
+    `attended.captures=${captures}`,
+    `attended.limit_minutes=${limitMinutes}`,
+    `attended.ends_at=${endsAt}`,
+    `attended.chooser=${ATTENDED.chooser}`,
+    `attended.attendant_on_screen=${attendantOnScreen ? `stated by ${attendantOnScreen.stated_by}: ${ATTENDANT_STATEMENT}; marks present directly before the start: ${attendantOnScreen.marks.length ? attendantOnScreen.marks.join("; ") : "none"}` : "not stated"}`,
+    "attended.ready=yes"
+  ];
+}
+
+/** Every process's parent and group: Map pid -> { ppid, pgid }, from ps; null when ps cannot be read. */
+export function readProcessTable(run = spawnSync) {
+  const result = run("/bin/ps", ["-A", "-o", "pid=,ppid=,pgid="], { encoding: "utf8", timeout: 15000, maxBuffer: 16 * 1024 * 1024 });
+  if (result.error || result.status !== 0) return null;
+  const table = new Map();
+  for (const line of String(result.stdout).split("\n")) {
+    const fields = line.trim().split(/\s+/).map(Number);
+    if (fields.length === 3 && fields.every(Number.isInteger)) table.set(fields[0], { ppid: fields[1], pgid: fields[2] });
+  }
+  return table;
+}
+
+/**
+ * Of the census's pids (each runs the run's private copy), the app's: the one whose parent is this runner, or whose
+ * parent is this runner's child (the wrapper); otherwise the lowest.
+ */
+export function appPidOf(pids, table, self = process.pid) {
+  if (!Array.isArray(pids) || pids.length === 0) return null;
+  const ours = pids.find((pid) => { const row = table?.get(pid); return row && (row.ppid === self || table.get(row.ppid)?.ppid === self); });
+  return ours ?? Math.min(...pids);
+}
+
+/**
+ * The attended launch's watcher. It owns the AbortController whose signal judgedPhase hands to runUnderLock, the
+ * owner of the started child; no process or group is ever signalled here. start({ nonce }) is called directly before
+ * the start. From then on, every `pollMs`, it looks for the driver's `start` checkpoint carrying `nonce`, the finish
+ * file and, until the handover, the processes running the run's private copy (the census, read afresh each time). The
+ * handover, `onReady`, is called once, only while the application is running: the checkpoint says the start was made
+ * (ok: true), the census of that same poll still finds the pid first found, and the application has not been seen to
+ * exit (once the private copy that ran is no longer running, nothing is ever handed over, so a start checkpoint read
+ * late, while the run censuses an application that has already quit, prints nothing). With `requireVisible` (a launch
+ * without --hidden) the checkpoint must also say the window was shown and its page visible; otherwise the attendant is
+ * not directed to the window and the watcher aborts the launch ("window-not-shown"). A checkpoint that says the start
+ * failed is never handed over, and the watcher aborts the launch ("start-failed") in case the driver's own ending does
+ * not come. When the finish file appears, or `limitMs` passes, it aborts once: runUnderLock then sends
+ * SIGKILL to the child it started if that child
+ * is still running, and its receipt (the phase's `abort`) says what was sent. The first poll comes after the start,
+ * when the child already exists, so a finish file that is there before the pid is known is acted on, not lost; one
+ * that appears after the application has exited signals nothing. stop() returns { pid, start, ready_printed,
+ * handed_over_at, exited_at, stop }, where `stop` is null or { by: "finish-file" | "limit" | "start-failed" |
+ * "window-not-shown" | "output-not-prepared", at }; halt(by) aborts the launch from outside, once.
+ */
+export function attendedWatch({ executable, finishFile, startReport, census, limitMs, onReady = () => {}, pollMs = 250, processTable = readProcessTable, self = process.pid, requireVisible = false }) {
+  const controller = new AbortController();
+  const seen = { pid: null, start: null, printed: false, handedOverAt: null, stop: null, exitedAt: null };
+  let nonce = null;
+  let poll = null;
+  let limit = null;
+  const halt = (by, detail = {}) => {
+    if (seen.stop !== null) return;
+    seen.stop = { by, at: Date.now(), ...detail };
+    controller.abort();
+  };
+  const tick = () => {
+    if (seen.stop === null && lstatOrNull(finishFile) !== null) halt("finish-file");
+    // Until the handover, the processes running the private copy now: the pid first found, and whether it still runs.
+    let running = null;
+    if (!seen.printed && seen.exitedAt === null) {
+      const result = census(executable);
+      if (result?.ok) {
+        running = result.pids;
+        if (seen.pid === null && running.length > 0) seen.pid = appPidOf(running, processTable(), self);
+        else if (seen.pid !== null && !running.includes(seen.pid)) seen.exitedAt = Date.now();
+      }
+    }
+    if (seen.start === null) {
+      const read = readReport(startReport).report;
+      if (read && read.nonce === nonce) seen.start = read;
+    }
+    if (seen.start !== null && seen.start.ok !== true) halt("start-failed");
+    const shown = seen.start?.window_shown === true && seen.start?.page_visibility === "visible";
+    if (requireVisible && seen.start?.ok === true && !shown) halt("window-not-shown");
+    if (seen.start?.ok === true && seen.stop === null && !seen.printed && seen.exitedAt === null && seen.pid !== null && running?.includes(seen.pid) && (!requireVisible || shown)) {
+      seen.printed = true;
+      seen.handedOverAt = Date.now();
+      onReady({ pid: seen.pid, start: seen.start });
+    }
+  };
+  return {
+    signal: controller.signal,
+    start({ nonce: given }) {
+      nonce = given;
+      poll = setInterval(() => { try { tick(); } catch { /* the next poll tries again */ } }, pollMs);
+      limit = setTimeout(() => halt("limit"), limitMs);
+    },
+    halt,
+    stop() {
+      clearInterval(poll);
+      clearTimeout(limit);
+      return { pid: seen.pid, start: seen.start, ready_printed: seen.printed, handed_over_at: seen.handedOverAt, exited_at: seen.exitedAt, stop: seen.stop };
+    }
+  };
+}
+
+/**
+ * How an attended launch ended, from its recorded outcome (`recordedOutcome`), runUnderLock's abort receipt (the
+ * phase's `abort`), the watcher's stop, the driver's `start` checkpoint and whether the handover was printed
+ * (`handedOver`): { by, ok, what } with `by` one of start-failed, finish-file, limit, strict-chooser, app-exited. A
+ * failed start is its own ending, whatever came after. The finish file and the limit are the ending only when the
+ * abort's SIGKILL was delivered to the running child and the child ended on it. An exit is the attendant's (Quit,
+ * the window closed) only after the handover; before it, it is a failure of the launch.
+ */
+export function attendedEnding({ outcome, receipt = null, stop = null, start = null, nonce, limitMinutes, handedOver = false, strictChooserExit = 86 }) {
+  if (!outcome) return { by: "unknown", ok: false, what: "no outcome of the launch was recorded" };
+  const killed = receipt?.delivered === true && outcome.signal === "SIGKILL";
+  const thisStart = start !== null && start.nonce === nonce;
+  let ending;
+  if (thisStart && start.ok !== true) {
+    ending = { by: "start-failed", ok: false, what: `the start failed and the launch was ended without a handover: ${String(start.error ?? "no reason recorded").split("\n")[0]}` };
+  } else if (stop?.by === "window-not-shown") {
+    ending = { by: "window-not-shown", ok: false, what: `the window was not observed shown with its page visible (window shown: ${start?.window_shown === true ? "yes" : "no"}, page ${start?.page_visibility ?? "not reported"}), so the attendant was not directed to it and the launch was ended without a handover${killed ? " (SIGKILL delivered to its child)" : ""}` };
+  } else if (stop?.by === "output-not-prepared") {
+    ending = { by: "output-not-prepared", ok: false, what: `the output folder could not be prepared once the launch was admitted (${stop.why ?? "no reason recorded"}), so the launch was ended at once without a handover${killed ? " (SIGKILL delivered to its child)" : ""}` };
+  } else if (killed && stop?.by === "finish-file") {
+    ending = { by: "finish-file", ok: true, what: "the finish file appeared; runUnderLock, which started the application, ended it (SIGKILL delivered to its child)" };
+  } else if (killed && stop?.by === "limit") {
+    ending = { by: "limit", ok: true, what: `the limit of ${limitMinutes} minute(s) passed; runUnderLock, which started the application, ended it (SIGKILL delivered to its child)` };
+  } else if (outcome.timed_out) {
+    ending = { by: "limit", ok: true, what: `runUnderLock's own time limit, the backstop after ${limitMinutes} minute(s), ended the application (SIGKILL)` };
+  } else if (outcome.status === strictChooserExit) {
+    ending = { by: "strict-chooser", ok: true, what: `a file chooser was opened with no answer queued; the strict chooser ended the app before any panel (exit ${strictChooserExit})` };
+  } else if (outcome.status === 0 && outcome.signal === null && handedOver) {
+    ending = { by: "app-exited", ok: true, what: "the application exited by itself (status 0) after the handover, as the attendant's Quit or closing its window ends it" };
+  } else if (outcome.status === 0 && outcome.signal === null) {
+    ending = { by: "app-exited", ok: false, what: "the application exited by itself (status 0) before the handover" };
+  } else {
+    ending = { by: "app-exited", ok: false, what: `the application ended by itself with ${outcome.signal ? `signal ${outcome.signal}` : `status ${outcome.status}`}` };
+  }
+  if (stop && !killed) ending.what += `; the ${stop.by === "limit" ? "limit passed" : "finish file appeared"}, and nothing was signalled (${receipt?.error ?? "the application had already exited"})`;
+  if (stop?.by === "start-failed" && ending.by !== "start-failed") ending.what += "; the watcher had ended the launch because the start failed";
+  if (!thisStart && ending.by !== "start-failed") return { ...ending, ok: false, what: `${ending.what}; the start was not reported made by this launch` };
+  if (!handedOver && ending.ok) return { ...ending, ok: false, what: `${ending.what}; there was no handover to an attendant` };
+  return ending;
+}
+
+/** How far a sidecar's taken_at may lie from its picture's file time before the index says the two disagree. */
+export const TAKEN_AT_TOLERANCE_MS = 5000;
+/** The driver's settled-page records (driver.js OBSERVED), in words. */
+export const OBSERVED_BOUNDS = "a record when the page has been quiet for 0.8 s after a change (a mutation, a scroll or a resize), at least 1.5 s after the previous record and at most 5 s after the first change it covers, and one at the handover; at most 1200 records, each at most 256 KiB, its controls cut to fit";
+const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+
+const CRC_TABLE = (() => {
+  const table = new Int32Array(256);
+  for (let n = 0; n < 256; n += 1) {
+    let c = n;
+    for (let k = 0; k < 8; k += 1) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+    table[n] = c;
+  }
+  return table;
+})();
+const crc32 = (bytes) => {
+  let c = -1;
+  for (let i = 0; i < bytes.length; i += 1) c = CRC_TABLE[(c ^ bytes[i]) & 0xff] ^ (c >>> 8);
+  return (c ^ -1) >>> 0;
+};
+const PNG_CHANNELS = { 0: 1, 2: 3, 3: 1, 4: 2, 6: 4 };
+const PNG_MAX_SIDE = 16384;
+
+/**
+ * Whether `bytes` decode as a PNG picture with a nonzero size: the signature, every chunk whole with its checksum,
+ * IHDR first with a known colour type, IDAT data that inflates to exactly the rows its size and interlacing need,
+ * and IEND. { width, height } or { why }. The pixels are not interpreted further.
+ */
+export function pngDecode(bytes) {
+  if (bytes.length < 8 || !bytes.subarray(0, 8).equals(PNG_SIGNATURE)) return { why: "it is not a PNG file by its signature" };
+  let offset = 8;
+  let header = null;
+  const data = [];
+  let ended = false;
+  while (offset + 12 <= bytes.length) {
+    const length = bytes.readUInt32BE(offset);
+    const type = bytes.toString("latin1", offset + 4, offset + 8);
+    if (offset + 12 + length > bytes.length) return { why: `its ${type} chunk runs past the end of the file` };
+    if (crc32(bytes.subarray(offset + 4, offset + 8 + length)) !== bytes.readUInt32BE(offset + 8 + length)) return { why: `its ${type} chunk's checksum is wrong` };
+    const body = bytes.subarray(offset + 8, offset + 8 + length);
+    if (header === null && type !== "IHDR") return { why: "its first chunk is not IHDR" };
+    if (type === "IHDR") {
+      if (header !== null || length !== 13) return { why: "its IHDR chunk is not one of 13 bytes" };
+      header = { width: body.readUInt32BE(0), height: body.readUInt32BE(4), depth: body[8], colour: body[9], interlace: body[12] };
+    } else if (type === "IDAT") data.push(body);
+    else if (type === "IEND") { ended = true; break; }
+    offset += 12 + length;
+  }
+  if (header === null) return { why: "it has no IHDR chunk" };
+  const { width, height, depth, colour, interlace } = header;
+  if (width === 0 || height === 0) return { why: "its size is zero" };
+  if (width > PNG_MAX_SIDE || height > PNG_MAX_SIDE) return { why: `it is larger than ${PNG_MAX_SIDE} pixels on a side` };
+  if (!Object.hasOwn(PNG_CHANNELS, colour) || ![1, 2, 4, 8, 16].includes(depth) || interlace > 1) return { why: "its colour type, bit depth or interlacing is not one PNG defines" };
+  if (data.length === 0) return { why: "it has no image data" };
+  if (!ended) return { why: "it has no IEND chunk" };
+  const bits = depth * PNG_CHANNELS[colour];
+  const rows = (w, h) => (w === 0 || h === 0 ? 0 : h * (1 + Math.ceil((w * bits) / 8)));
+  const passes = [[0, 0, 8, 8], [4, 0, 8, 8], [0, 4, 4, 8], [2, 0, 4, 4], [0, 2, 2, 4], [1, 0, 2, 2], [0, 1, 1, 2]];
+  const expected = interlace === 0 ? rows(width, height)
+    : passes.reduce((sum, [x, y, dx, dy]) => sum + rows(Math.ceil((width - x) / dx), Math.ceil((height - y) / dy)), 0);
+  let inflated;
+  try { inflated = zlib.inflateSync(Buffer.concat(data), { maxOutputLength: expected + 1 }); } catch { return { why: "its image data does not inflate to the rows its size needs" }; }
+  if (inflated.length !== expected) return { why: "its image data does not inflate to the rows its size needs" };
+  return { width, height };
+}
+
+const readBounded = (file, limit) => {
+  const stat = fs.lstatSync(file);
+  if (!stat.isFile()) throw new Error("not a regular file");
+  if (stat.size > limit) throw new Error(`larger than ${limit} bytes`);
+  return fs.readFileSync(file);
+};
+const PICTURE_LIMIT = 64 * 1024 * 1024;
+
+/** The use case a sidecar names, as the index states it: an AC-007 use case by its name there, or the launch's journey's; null otherwise. */
+function useCaseOf(named, journeyUseCase) {
+  if (AC007_USE_CASES.includes(named)) return `DEL-07-06 AC-007 ${named}, as the attendant states`;
+  if (journeyUseCase && (named === journeyUseCase.name || named === journeyUseCase.use_case)) return `${journeyUseCase.use_case}, as the attendant states`;
+  return null;
+}
+/** Why a picture's file time places it outside the launch (before it started, or after it ended), or null. */
+function outsideLaunch(fileTime, launchTimes) {
+  if (!launchTimes || fileTime === null) return null;
+  if (fileTime < launchTimes.from - TAKEN_AT_TOLERANCE_MS) return `its file time (${new Date(fileTime).toISOString()}) is before this launch started (${new Date(launchTimes.from).toISOString()})`;
+  if (fileTime > launchTimes.to + TAKEN_AT_TOLERANCE_MS) return `its file time (${new Date(fileTime).toISOString()}) is after this launch ended (${new Date(launchTimes.to).toISOString()})`;
+  return null;
+}
+/** The sidecar's taken_at checked against the picture's own file time, in words. */
+function takenAtCheck(takenAt, fileTime) {
+  if (fileTime === null) return "the picture's file time could not be read, so the time the attendant states is not checked";
+  const apart = Math.abs(fileTime - takenAt);
+  return apart <= TAKEN_AT_TOLERANCE_MS
+    ? `agrees with the picture's file time (${new Date(fileTime).toISOString()}), within ${TAKEN_AT_TOLERANCE_MS / 1000} s`
+    : `disagrees with the picture's file time (${new Date(fileTime).toISOString()}): ${Math.round(apart / 100) / 10} s apart`;
+}
+/** The application's own report of the words and controls on screen nearest at or before `at` (records sorted by time). */
+function observedFor(records, at, pending = null) {
+  let nearest = null;
+  let next = null;
+  for (const record of records) { if (record.at <= at) nearest = record; else { next = record; break; } }
+  if (nearest === null) return { counts_source: "no report of the application's own at or before the time the attendant states: the words and controls on screen are not recorded for this capture" };
+  const when = new Date(nearest.at).toISOString();
+  if (nearest.counts_error) return { counts_source: `the application's own report at ${when} could not count the screen (${nearest.counts_error})`, counts_at: when };
+  // The record matches the page at the capture only if the page did not change in between: the next record's first
+  // change, or, after the last record, the pending change the driver wrote, must come after the stated time.
+  if (next && !Number.isFinite(next.covers_from)) {
+    return { counts_uncertain: true, counts_at: when, counts_source: `uncertain, so not recorded for this capture: the next report (record ${next.n}) does not say when the page first changed after the application's own report at ${when}` };
+  }
+  const changedAt = next
+    ? (next.covers_from <= at ? next.covers_from : null)
+    : (pending && pending.after === nearest.n && pending.at <= at ? pending.at : null);
+  if (changedAt !== null) {
+    return { counts_uncertain: true, counts_at: when, counts_source: `uncertain, so not recorded for this capture: the page changed at ${new Date(changedAt).toISOString()}, after the application's own report at ${when} (record ${nearest.n}) and before the time the attendant states` };
+  }
+  return {
+    words_on_screen: nearest.words_on_screen, words_in_page: nearest.words_in_page, prose_blocks_on_screen: nearest.prose_blocks_on_screen,
+    buttons_on_screen: nearest.buttons_on_screen, inputs_on_screen: nearest.inputs_on_screen, longest_scroll_screens: nearest.longest_scroll_screens,
+    controls: Array.isArray(nearest.controls) ? nearest.controls : [],
+    ...(nearest.controls_cut ? { controls_cut: nearest.controls_cut } : {}),
+    page_visibility: nearest.page_visibility ?? null,
+    counts_at: when,
+    counts_source: `the application's own report at ${when} (record ${nearest.n} of the launch's driver, read as the page settled), not the attendant's`
+  };
+}
+
+/**
+ * The driver's settled-page records of the attended launch (`<report>.observed-<n>.json`, driver.js observeAttended)
+ * whose nonce is the launch's: { records (sorted by time), rejected }.
+ */
+export function readObserved(report, nonce) {
+  const pendingRead = readReport(`${report}.pending.json`).report;
+  const pending = pendingRead && nonce && pendingRead.nonce === nonce && Number.isFinite(pendingRead.at) && Number.isInteger(pendingRead.after) ? pendingRead : null;
+  const dir = path.dirname(report);
+  const prefix = `${path.basename(report)}.observed-`;
+  let names = [];
+  try { names = fs.readdirSync(dir).filter((name) => name.startsWith(prefix) && /^\d+\.json$/.test(name.slice(prefix.length))); } catch { names = []; }
+  const records = [];
+  let rejected = 0;
+  for (const name of names) {
+    const record = readReport(path.join(dir, name)).report;
+    if (record && nonce && record.nonce === nonce && Number.isFinite(record.at) && Number.isInteger(record.n)) records.push(record);
+    else rejected += 1;
+  }
+  return { records: records.sort((a, b) => a.at - b.at || a.n - b.n), rejected, pending };
+}
+
+/** What a report print the build recorded in place of its dialog is, in words. */
+export const PRINT_SUBSTITUTED = "The build recorded the report's print document in place of the system print dialog; no print dialog was shown and nothing was printed.";
+const PRINT_LOG_LIMIT = 4 * 1024 * 1024;
+
+/**
+ * The report prints the build recorded while the launch ran, from the run's print log (`<report>.prints.jsonl`,
+ * appended by native_smoke.rs record_report_print at the instant of each substitution, so nothing need take or drain
+ * the in-memory record): each a substitution { at: recorded_at_ms, kind, what, print_sha256, ... }. { prints,
+ * rejected, error? }; no log is no print.
+ */
+export function readPrintLog(report) {
+  const file = `${report}.prints.jsonl`;
+  let text;
+  try {
+    const stat = fs.lstatSync(file);
+    if (!stat.isFile()) return { prints: [], rejected: 0, error: "the print log is not a regular file" };
+    if (stat.size > PRINT_LOG_LIMIT) return { prints: [], rejected: 0, error: `the print log is larger than ${PRINT_LOG_LIMIT} bytes` };
+    text = fs.readFileSync(file, "utf8");
+  } catch (error) {
+    return error.code === "ENOENT" ? { prints: [], rejected: 0 } : { prints: [], rejected: 0, error: `the print log could not be read (${error.code ?? error.message})` };
+  }
+  const prints = [];
+  let rejected = 0;
+  for (const line of text.split("\n").filter((item) => item.trim() !== "")) {
+    let value;
+    try { value = JSON.parse(line); } catch { rejected += 1; continue; }
+    if (!value || !Number.isFinite(value.recorded_at_ms) || typeof value.print_sha256_hex !== "string") { rejected += 1; continue; }
+    prints.push({ at: value.recorded_at_ms, kind: "report print dialog", what: PRINT_SUBSTITUTED, print_sha256: value.print_sha256_hex, served_to_print_window: value.served_to_print_window ?? null, dialog_presented: value.dialog_presented ?? null });
+  }
+  return { prints: prints.sort((a, b) => a.at - b.at), rejected };
+}
+
+/** The words a scorer reads for each thing in an attended launch's captures that supplies nothing. */
+export function unexplainedOf(captures) {
+  return [
+    ...(captures.error ? [{ file: `${ATTENDED.captures}/`, why: `the captures folder was not read at the end of the launch: ${captures.error}` }] : []),
+    ...captures.screens.filter((screen) => screen.unexplained).map((screen) => ({ file: screen.file, why: `a picture that is unexplained, because ${screen.unexplained}` })),
+    ...captures.records_without_picture.map((record) => ({ file: record.file, why: "a sidecar with no picture of the same name" })),
+    ...captures.other.map((item) => ({ file: item.file, why: item.why }))
+  ];
+}
+
+/**
+ * The attendant's captures in `folder` (<out>/captures), read once at the end of the launch and never changed:
+ * { screens, records_without_picture, other, error? }. The folder must still be the one the runner created for this
+ * launch (`identity`, its device and inode; not a link); otherwise, or when it cannot be read, `error` says why and
+ * nothing in it is taken. Each `.png` that is a regular file becomes a screen. With a sidecar `<same name>.json` of the
+ * form readSidecar takes, naming a use case useCaseOf accepts, and a picture that decodes (pngDecode) and whose file
+ * time lies within the launch (`launchTimes`), it is a capture of the actual window, bound to this launch: `binding`
+ * holds the SHA-256 of the picture and of the sidecar, the decoded width and height, and the launch's revision and
+ * build (`bindTo`). What the attendant states is kept as `stated_by_attendant`; from the driver's records each capture
+ * also gets the application's own report nearest at or before its stated time (`observed`; counts_source says whose
+ * and when) and the substitutions recorded since the previous capture (`substitutions`). Without a sidecar, with one of another form, or with a picture that does not
+ * decode, it is unexplained and says why. A sidecar with no picture is listed in records_without_picture, anything
+ * else (a link, a folder, another kind of file) in other; nothing is dropped and nothing is followed.
+ */
+export function readCaptures(folder, { number = ATTENDED.number, journey = ATTENDED.name, identity = null, bindTo = {}, journeyUseCase = null, observed = [], pending = null, substitutions = [], launchTimes = null } = {}) {
+  const found = { screens: [], records_without_picture: [], other: [] };
+  const stat = lstatOrNull(folder);
+  if (stat === null) return { ...found, error: "it is not there" };
+  if (stat.isSymbolicLink() || !stat.isDirectory()) return { ...found, error: "it is no longer a folder (a link or a file stands in its place)" };
+  if (identity && (stat.dev !== identity.dev || stat.ino !== identity.ino)) return { ...found, error: "it is not the folder the runner created for this launch (another stands in its place)" };
+  let entries;
+  try { entries = fs.readdirSync(folder, { withFileTypes: true }).map((entry) => entry.name).sort(); } catch (error) { return { ...found, error: `it could not be read (${error.code ?? error.message})` }; }
+  const regular = (name) => lstatOrNull(path.join(folder, name))?.isFile() === true;
+  const pictures = entries.filter((name) => /\.png$/i.test(name) && regular(name));
+  const pictureBases = new Set(pictures.map((name) => name.replace(/\.png$/i, "")));
+  let count = 0;
+  const times = new Map();
+  for (const name of pictures) {
+    count += 1;
+    const base = name.replace(/\.png$/i, "");
+    const file = `${ATTENDED.captures}/${name}`;
+    const entry = { number: number * 100 + count, journey, file, redrawn: false, scripted: false };
+    let bytes = null;
+    let decoded;
+    try { bytes = readBounded(path.join(folder, name), PICTURE_LIMIT); decoded = pngDecode(bytes); } catch (error) { decoded = { why: `it could not be read (${error.code ?? error.message})` }; }
+    const sidecarFile = path.join(folder, `${base}.json`);
+    const sidecar = entries.includes(`${base}.json`) ? readSidecar(sidecarFile) : { why: "it has no sidecar of the same name" };
+    const useCase = sidecar.why ? null : useCaseOf(sidecar.use_case, journeyUseCase);
+    const fileTime = lstatOrNull(path.join(folder, name))?.mtimeMs ?? null;
+    const why = decoded.why ?? sidecar.why
+      ?? (useCase === null ? `its sidecar's use case "${sidecar.use_case}" is neither one of DEL-07-06 AC-007's by its name there nor the launch's journey${journeyUseCase ? ` (${journeyUseCase.name})` : " (it has none)"}` : null)
+      ?? outsideLaunch(fileTime, launchTimes);
+    if (why) {
+      found.screens.push({ ...entry, step: `unexplained-${base}`.slice(0, 120), note: `${name}: unexplained, because ${why}`, capture: "unexplained", unexplained: why, picture: UNEXPLAINED_BASIS });
+      continue;
+    }
+    // The sidecar's claims and its hash come from one read of its bytes (readSidecar), never a second one.
+    const binding = { picture_sha256: sha256Of(bytes), sidecar_sha256: sidecar.sidecar_sha256, width: decoded.width, height: decoded.height, bytes: bytes.length, revision: bindTo.revision ?? null, build_app_sha256: bindTo.build_app_sha256 ?? null };
+    const { surfaces, surfaces_unexplained, prevented, prevented_incomplete, prevented_unexplained } = sidecar;
+    const stated = { use_case: sidecar.use_case, step: sidecar.step, acted: sidecar.acted, note: sidecar.note, taken_at: sidecar.taken_at, ...(surfaces.length || surfaces_unexplained.length ? { surfaces: [...surfaces, ...surfaces_unexplained] } : {}), ...(sidecar.raw.prevented !== undefined ? { prevented: sidecar.raw.prevented } : {}) };
+    const screen = { ...entry, use_case: useCase, step: sidecar.step, note: sidecar.note, acted: sidecar.acted, taken_at: sidecar.taken_at, taken_at_check: takenAtCheck(sidecar.taken_at_ms, fileTime), stated_by_attendant: stated, capture: "the actual window", driven_by: "an attendant, through the window", picture: CAPTURE_BASIS, binding, surfaces, surfaces_unexplained, prevented, prevented_incomplete, prevented_unexplained };
+    times.set(screen, sidecar.taken_at_ms);
+    found.screens.push(screen);
+  }
+  // In the order the attendant states the captures were taken: each gets the application's own report nearest at or
+  // before its time, and every substitution recorded after the previous capture's time and up to its own.
+  const records = [...observed].filter((record) => Number.isFinite(record?.at)).sort((a, b) => a.at - b.at);
+  const marks = [...substitutions].filter((item) => Number.isFinite(item?.at)).sort((a, b) => a.at - b.at);
+  let previous = -Infinity;
+  for (const screen of [...times.keys()].sort((a, b) => times.get(a) - times.get(b) || a.number - b.number)) {
+    const at = times.get(screen);
+    Object.assign(screen, observedFor(records, at, pending));
+    screen.substitutions = marks.filter((item) => item.at > previous && item.at <= at).map((item) => ({ at: new Date(item.at).toISOString(), kind: item.kind ?? "a substitution", ...(item.control ? { control: item.control } : {}), what: item.what ?? "", ...(item.print_sha256 ? { print_sha256: item.print_sha256 } : {}) }));
+    screen.substitutions_since = previous === -Infinity ? "the start of the launch" : `the previous capture, stated as taken at ${new Date(previous).toISOString()}`;
+    previous = at;
+  }
+  for (const name of entries) {
+    if (pictures.includes(name)) continue;
+    const base = name.replace(/\.json$/i, "");
+    if (/\.json$/i.test(name) && regular(name)) {
+      if (pictureBases.has(base)) continue;
+      found.records_without_picture.push({ file: `${ATTENDED.captures}/${name}`, ...(({ raw, ...claims }) => claims)(readSidecar(path.join(folder, name))) });
+      continue;
+    }
+    const kind = lstatOrNull(path.join(folder, name));
+    found.other.push({ file: `${ATTENDED.captures}/${name}`, why: kind?.isSymbolicLink() ? "a link, not followed" : kind?.isDirectory() ? "a folder, not entered" : "neither a PNG picture nor a sidecar" });
+  }
+  return found;
+}
+
+/** The attended launch's part file, in the index's form: `part-90-attended.json`. */
+export function writeAttendedPart(out, { title, revision, build, launch, native_menu = null, window_shown = null, captures }) {
+  const part = {
+    number: ATTENDED.number, name: ATTENDED.name, title,
+    use_case: "none of its own: the actual window of the launched app, driven by an attendant; each capture is evidence only of what it shows",
+    revision, build, surface: ATTENDED_SURFACE, picture_basis: CAPTURE_BASIS, window: null, attended: true,
+    ...(native_menu ? { native_menu } : {}),
+    ...(window_shown ? { window_shown } : {}),
+    launch,
+    captures: { folder: ATTENDED.captures, records_without_picture: captures.records_without_picture, other: captures.other, ...(captures.error ? { error: captures.error } : {}), unexplained: unexplainedOf(captures) },
+    screens: captures.screens
+  };
+  const file = path.join(out, `part-${ATTENDED.number}-${ATTENDED.name}.json`);
+  fs.writeFileSync(file, `${JSON.stringify(part, null, 2)}\n`);
+  return file;
+}
+
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await main();
 
 async function main() {
@@ -367,6 +983,7 @@ async function main() {
   } = await import("../../native-smoke/launch-env.mjs");
   const { newNonce, readReport } = await import("../../native-smoke/launch-outcome.mjs");
   const { judgedPhase, phaseContinuation } = await import("../../native-smoke/judged-launch.mjs");
+  const { marksCheck } = await import("../../native-smoke/marks-check.mjs");
   const { HOME_MARKER, LEFT_HOME_RULE, NOTHING_ELSE_WATCHED, PROCESS_SCOPE, STRICT_CHOOSER_EXIT, TRIPWIRE_LIMITS, homeRemovalRefusal, readHomeMarker, removalIdentityRefusal, sha256Hex } = await import("../../native-smoke/evidence-checks.mjs");
 
   const refuseLine = (text) => console.error(`${NAME}: ${text}`);
@@ -374,12 +991,12 @@ async function main() {
     refuseLine("macOS only");
     process.exit(2);
   }
-  const parsed = parseArguments(process.argv.slice(2));
+  const parsed = parseCommandLine(process.argv.slice(2));
   if (parsed.error) {
     refuseLine(parsed.error);
     process.exit(2);
   }
-  const { buildOnly, journeys: selected, out, showWindow } = parsed;
+  const { buildOnly, journeys: selected, out, showWindow, attended } = parsed;
 
   // The named timeouts (ms), passed to the driver, and each launch's hard limit.
   const TIMEOUTS = { ui: 60_000, step: 300_000, solve: 900_000, save: 900_000 };
@@ -404,11 +1021,6 @@ async function main() {
       process.exit(2);
     }
   }
-  // The output folder is checked before anything is built or launched: a folder of other work is refused here.
-  if (!buildOnly) {
-    try { emptyNativeOutput(out, selected); } catch (error) { refuseLine(error.message); process.exit(2); }
-  }
-
   // ---------------------------------------------------------------- build and bind (as evidence-journeys.mjs), or check only
 
   let buildLock;
@@ -417,6 +1029,35 @@ async function main() {
   } catch (error) {
     refuseLine(error.message);
     process.exit(2);
+  }
+  // The output folder, under the lock and before anything is built or launched: every refusal is read-only and made
+  // before any cleanup, so a refused run changes nothing in the folder.
+  if (!buildOnly) {
+    const refusal = outputRefusals(out, { attended: Boolean(attended) });
+    if (refusal) {
+      refuseLine(refusal);
+      await exitAfterSignals(2);
+    }
+    // An attended launch's marks, read once here, before any cleanup, so that a refusal for a mark changes nothing;
+    // judgedPhase checks them again directly before the start, as for every launch. With --attendant-on-screen the
+    // marks of the agent operating the screen do not refuse it (marksDecision); nothing else changes.
+    if (attended) {
+      const marks = marksCheck();
+      const attendant = attended.attendantOnScreen ? { stated_by: attended.attendantOnScreen } : null;
+      if (marksDecision(marks, attendant).refuse) {
+        refuseLine(markRefusalLine(marks, { attendant }));
+        await exitAfterSignals(2);
+      }
+      attended.marksAtCheck = marks;
+    }
+    // A journey's run empties what it replaces here. An attended launch changes nothing in --out until judgedPhase's own
+    // marks check, directly before the start, has admitted it (walkAttended, beforeStart).
+    try {
+      if (!attended) emptyNativeOutput(out, selected);
+    } catch (error) {
+      refuseLine(error.message);
+      await exitAfterSignals(2);
+    }
   }
   process.env[BUILD_LOCK_TOKEN_ENV] = buildLock.token;
   const commandFailed = (command, commandArgs, result) => new Error(`Command failed: ${command} ${commandArgs.join(" ")}${result.error ? ` (${result.error.message})` : ""}`);
@@ -528,7 +1169,11 @@ async function main() {
   const keptHomes = new Set();
   const leftHomes = new Map();
   const DRIVER = path.join(RUN_ROOT, "driver.js");
-  writeFileSync(DRIVER, composeDriver(readFileSync(path.join(here, "driver.js"), "utf8")), { flag: "wx" });
+  const driverText = composeDriver(readFileSync(path.join(here, "driver.js"), "utf8"));
+  writeFileSync(DRIVER, driverText, { flag: "wx" });
+  // The driver the app is given is outside its build: its digest joins every revision this run records, so that a
+  // driver changed at the same commit is not the same revision.
+  const DRIVER_SHA256 = sha256Of(Buffer.from(driverText, "utf8"));
   process.on("exit", closeOnExit);
   console.log(`${NAME}: launching ${binary}, a private copy of ${app.binary} (${app.identity.sha256}); evidence in ${RUN_ROOT}; pictures in ${out}`);
 
@@ -610,8 +1255,12 @@ async function main() {
   }
   const runRecord = () => ({ run_folder: RUN_ROOT, output: out, source_revision: revision, journeys: selected, checks });
 
-  // One judged launch (`judged-launch.mjs`); a mark present or an unresolved census ends the run there.
-  async function launch(where, plan, { timeoutMs }) {
+  // One judged launch (`judged-launch.mjs`); a mark present or an unresolved census ends the run there. `judge`, given
+  // only by the attended launch, changes what is judged and nothing of how the launch is made: the report judged
+  // (`reportPath`, the driver's start checkpoint), where the judgment goes (`check`), a hook directly before the
+  // start (`beforeStart`, given the nonce) and the AbortSignal that ends the launch through runUnderLock (`abort`);
+  // its strict chooser stop is recorded as its ending instead of here.
+  async function launch(where, plan, { timeoutMs, judge = null }) {
     const phase = `${journey}/walk`;
     const report = path.join(where.root, `report-${journey}.json`);
     const nonce = newNonce();
@@ -619,12 +1268,14 @@ async function main() {
     const env = launchEnv(where, { ...plan, nonce, timeouts: { ...TIMEOUTS, ...(plan.timeouts ?? {}) } }, report);
     if (env === null) return exitAfterSignals(2);
     const seen = await judgedPhase({
-      phase, checkName: "the launch ended cleanly and its report is this run's", launches, check,
+      phase, checkName: "the launch ended cleanly and its report is this run's", launches, check: judge?.check ?? check,
       summaryPath: path.join(RUN_ROOT, "summary.json"), summary: runRecord,
-      executable: binary, command: CAFFEINATE, commandArgs: ["-di", binary], cwd: where.root, env, timeoutMs, reportPath: report, nonce,
-      censusBoundMs: TERMINATION_BOUND_MS, beforeStart: () => beforeStart(where)
+      executable: binary, command: CAFFEINATE, commandArgs: ["-di", binary], cwd: where.root, env, timeoutMs, reportPath: judge?.reportPath ?? report, nonce,
+      censusBoundMs: TERMINATION_BOUND_MS, beforeStart: (seen) => { beforeStart(where); judge?.beforeStart({ nonce, ...(seen ?? {}) }); },
+      ...(judge?.abort ? { abort: judge.abort } : {}),
+      ...(judge?.attendant ? { attendant: judge.attendant } : {})
     }).then(phaseContinuation({ prefix: NAME, phase, state, evidenceRoot: RUN_ROOT }));
-    if (launches[phase]?.outcome?.status === STRICT_CHOOSER_EXIT) {
+    if (!judge && launches[phase]?.outcome?.status === STRICT_CHOOSER_EXIT) {
       const lastAct = readReport(`${report}.act.json`).report?.act ?? "unnamed (the driver recorded no act)";
       check("no chooser was asked without a queued answer inside the home", false, `the app ended with the strict chooser's exit code ${STRICT_CHOOSER_EXIT} during the act: ${lastAct}`);
     }
@@ -693,7 +1344,7 @@ async function main() {
     await renderScreens(records, screens, { out, snapshots: path.join(where.root, "snapshots"), launchBrowser: () => chromium.launch({ executablePath }) });
     writePart(out, {
       number: spec.number, name, title: spec.title, use_case: spec.use_case, screens, native_menu: nativeMenu, window_shown: shown,
-      revision: { commit: revision, uncommitted_paths: uncommitted },
+      revision: { commit: revision, uncommitted_paths: uncommitted, driver_sha256: DRIVER_SHA256 },
       build: { kind: "scripted-run build (native-smoke feature), launched as a private copy", app_sha256: app.identity.sha256, app_bytes: app.identity.size, binding_record_sha256: bindingSha }, launch: { ended_cleanly: failures.length === 0, failures, driver_finished: seen?.ok === true, window_shown: shown.shown },
       ...(built.length ? { built_placements: built } : {}), ...(storedRuns ? { stored_runs: storedRuns } : {}) });
     const pictured = screens.filter((screen) => screen.file).length;
@@ -704,15 +1355,171 @@ async function main() {
     writeFileSync(path.join(where.root, "summary.json"), JSON.stringify({ journey: name, source_revision: revision, app: { binary: app.binary, identity: app.identity, binding_record_sha256: bindingSha }, launches: { [name]: launches[`${name}/walk`] }, checks: checks.filter((item) => item.journey === name) }, null, 2));
   }
 
+  // The attended launch (--attended): launch() as every journey's, the start only, then the attendant's; its record and
+  // the attendant's captures after the census and the home's removal.
+  // Set when an attended launch could not prepare --out once admitted: nothing is then written there.
+  let outputUntouched = false;
+  async function walkAttended({ start, limitMinutes, hidden, attendantOnScreen = null, marksAtCheck = null }) {
+    const name = ATTENDED.name;
+    if (buildLock.inherited) {
+      check("the runner holds the worktree build lock itself, so the launch leads a process group of its own", false, "an inherited build lock leaves the launch in this runner's group, which the finish file cannot end alone; not launched");
+      return;
+    }
+    const where = journeyRoot(name);
+    const finishFile = path.join(RUN_ROOT, ATTENDED.finish_file);
+    const captures = path.join(out, ATTENDED.captures);
+    // The captures folder is this launch's own, made once the launch is admitted, and read at the end only if it is
+    // still that folder.
+    let capturesIdentity = null;
+    let prepared = false;
+    const plan = { journey: name, number: ATTENDED.number, attended: true, start, bundled_project_id: demo.project.id, show_window: !hidden };
+    const spec = start ? JOURNEYS[start] : null;
+    // The start's prepared files, exactly as walk() places a journey's.
+    let placements = [];
+    try {
+      placements = placementsFor(spec?.place, { home: where.home, identifier: IDENTIFIER, projectRoot: project });
+      plan.placed = placeFiles(placements);
+      if (spec?.open) {
+        plan.open = { ...spec.open, ...(spec.open.file ? { file: plan.placed[spec.open.file] } : {}) };
+        if (spec.open.by === "model-document") plan.open.project_id = JSON.parse(readFileSync(plan.open.file, "utf8")).project.id;
+      }
+      check("the prepared files were placed in the throwaway home", true, placements.map(({ key, from }) => `${key}: ${path.relative(project, from)}`));
+    } catch (error) {
+      check("the prepared files were placed in the throwaway home", false, error.message);
+      return;
+    }
+    const report = path.join(where.root, `report-${name}.json`);
+    const startReport = `${report}.start.json`;
+    const judged = [];
+    let startedAt = null;
+    let marksBeforeStart = null;
+    const watch = attendedWatch({
+      executable: binary, finishFile, startReport, census: censusOf, limitMs: limitMinutes * 60_000, requireVisible: !hidden,
+      onReady: ({ pid, start: observed }) => {
+        const onScreen = attendantOnScreen ? { stated_by: attendantOnScreen, marks: markNames(marksBeforeStart) } : null;
+        for (const line of attendedStartLines({ pid, boundApp: app.binary, launchCopy: binary, finishFile, captures, limitMinutes, endsAt: new Date(startedAt + limitMinutes * 60_000).toISOString(), observed, start, attendantOnScreen: onScreen })) console.log(line);
+      }
+    });
+    const lockedBefore = hidden ? null : readScreenLock();
+    console.log(`${NAME}: attended launch; it ends when the app exits, when ${finishFile} appears, or after ${limitMinutes} minute(s)`);
+    await launch(where, plan, {
+      timeoutMs: limitMinutes * 60_000 + ATTENDED.limit.backstop_ms,
+      judge: {
+        reportPath: startReport,
+        check: (checkName, ok, detail) => judged.push({ name: checkName, ok, detail }),
+        abort: watch.signal,
+        beforeStart: ({ nonce, marks }) => {
+          startedAt = Date.now();
+          marksBeforeStart = marks ?? null;
+          watch.start({ nonce });
+          // Only now, the launch admitted by judgedPhase's marks check, is --out changed: what this launch replaces goes
+          // (the index, an earlier part 90) and the captures folder is made. A late mark refuses before this point and
+          // leaves the folder, with any completed journeys' screens and index, exactly as it was.
+          try {
+            capturesIdentity = prepareAttendedOutput(out);
+            prepared = true;
+          } catch (error) {
+            watch.halt("output-not-prepared", { why: String(error?.message ?? error) });
+          }
+        },
+        ...(attendantOnScreen ? { attendant: { stated_by: attendantOnScreen } } : {})
+      }
+    });
+    const watched = watch.stop();
+    const phase = `${name}/walk`;
+    const outcome = launches[phase]?.outcome ?? null;
+    const receipt = launches[phase]?.abort ?? null;
+    const ending = attendedEnding({ outcome, receipt, stop: watched.stop, start: readReport(startReport).report, nonce: outcome?.nonce, limitMinutes, handedOver: watched.ready_printed });
+    check(`the attended launch ended in one of its ways (${ending.by})`, ending.ok, ending.what);
+    if (removeHome(where.home) !== null) check("its throwaway home was removed", false, leftHomes.get(where.home));
+    else check("its throwaway home was removed", true);
+    if (!prepared) {
+      // Nothing of this launch is written into a folder it could not prepare, and the index is not recomposed.
+      outputUntouched = true;
+      writeFileSync(path.join(where.root, "summary.json"), JSON.stringify({ journey: name, attended: true, source_revision: revision, launches: { [name]: launches[phase] }, ending, checks: checks.filter((item) => item.journey === name) }, null, 2));
+      return;
+    }
+    const nativeMenu = nativeMenuRecord(readReport(`${report}.menu.json`), { journey: name, number: ATTENDED.number });
+    const windowRecord = readReport(`${report}.window.json`).report ?? null;
+    const shown = hidden
+      ? { option: false, shown: false, why: "--hidden: the window was left where the system put it, so that the launch's life could be checked without taking the screen" }
+      : windowShownRecord(true, windowRecord, { before: lockedBefore, after: readScreenLock() });
+    check("the menu the app built was read", nativeMenu.read, nativeMenu.read ? `${nativeMenu.menus.length} menus` : nativeMenu.error);
+    if (!hidden) check("the window was brought to the front", shown.shown, shown);
+    const startRecord = watched.start ?? readReport(startReport).report;
+    // The driver's records, made while the attendant worked: what the launch stopped and what the build substituted,
+    // and the application's own report of the screen whenever the page settled.
+    const substitutionsRead = readReport(`${report}.substitutions.json`).report;
+    const stops = substitutionsRead?.nonce === outcome?.nonce && Array.isArray(substitutionsRead?.substitutions) ? substitutionsRead.substitutions : [];
+    // The prints the build substituted, each at the instant it did, from the run's print log: none is lost to a capture
+    // taken before anything read it, or to a Quit straight after Print.
+    const prints = readPrintLog(report);
+    if (prints.error) check("the run's print log was read", false, prints.error);
+    const substitutions = [...stops, ...prints.prints].sort((a, b) => a.at - b.at);
+    const observed = readObserved(report, outcome?.nonce);
+    const found = readCaptures(captures, {
+      identity: capturesIdentity,
+      bindTo: { revision: { commit: revision, uncommitted_paths: uncommitted, driver_sha256: DRIVER_SHA256 }, build_app_sha256: app.identity.sha256 },
+      journeyUseCase: spec ? { name: start, use_case: spec.use_case } : null,
+      observed: observed.records, pending: observed.pending, substitutions,
+      // The captures' interval is the attendant's: from the handover to the application's exit, as runUnderLock saw it.
+      launchTimes: { from: watched.handed_over_at ?? startedAt ?? Date.now(), to: Number.isFinite(Date.parse(outcome?.ended)) ? Date.parse(outcome.ended) : Date.now() }
+    });
+    if (found.error) check("the captures folder was read at the end of the launch", false, found.error);
+    writeAttendedPart(out, {
+      title: `Attended launch (launched app): the actual window, driven by an attendant, from ${start ? `the start of ${start}` : "the application as first opened"}`,
+      revision: { commit: revision, uncommitted_paths: uncommitted, driver_sha256: DRIVER_SHA256 },
+      build: { kind: "scripted-run build (native-smoke feature), launched as a private copy", app_sha256: app.identity.sha256, app_bytes: app.identity.size, binding_record_sha256: bindingSha },
+      native_menu: nativeMenu, window_shown: shown, captures: found,
+      launch: {
+        attended: true,
+        scripted_steps_after_start: 0,
+        scripted: "only the start; after it the driver took no step and touched nothing, and every screen of this part is the attendant's capture",
+        journey_start: start
+          ? { journey: start, number: spec.number, placed: placements.map(({ key, from }) => ({ key, from: path.relative(project, from) })), open: spec.open ?? null, opened: startRecord?.opened ?? null, substitutions: startRecord?.substitutions ?? [], unused_answers: startRecord?.unused_answers ?? null }
+          : { journey: null, what: "the application as first opened, with its demonstration model" },
+        start_made: startRecord?.ok === true, start_error: startRecord?.error ?? null,
+        window_shown: shown.shown,
+        pid: watched.pid, handed_over: watched.ready_printed, handed_over_at: watched.handed_over_at ? new Date(watched.handed_over_at).toISOString() : null,
+        started: outcome?.started ?? null, ended: outcome?.ended ?? null,
+        ended_by: ending.by, ending: ending.what, ending_ok: ending.ok,
+        limit_minutes: limitMinutes, finish_file: finishFile, stop: watched.stop, abort: receipt,
+        status: outcome?.status ?? null, signal: outcome?.signal ?? null, timed_out: outcome?.timed_out ?? null,
+        census: outcome?.census ?? null,
+        guards: startRecord?.guards ?? [],
+        attendant_on_screen: attendantOnScreen
+          ? { stated: true, stated_by: attendantOnScreen, statement: ATTENDANT_STATEMENT, option: "--attendant-on-screen", marks_at_runner_check: markNames(marksAtCheck), marks_before_start: markNames(launches[phase]?.marks), exempted: launches[phase]?.attendant?.exempted ?? [] }
+          : { stated: false, marks_before_start: markNames(launches[phase]?.marks) },
+        substitutions,
+        stopped_by_launch: substitutions.filter((item) => /stopped by the launch$/.test(item.kind ?? "")),
+        prints: { recorded: prints.prints.length, rejected: prints.rejected, log: `${path.basename(report)}.prints.jsonl`, what: "each report print the build recorded in place of the system print dialog, appended by the build at that instant" },
+        observed: { records: observed.records.length, rejected: observed.rejected, pending: observed.pending, bounds: OBSERVED_BOUNDS, what: "the application's own report of the words and controls on screen, made by the driver without pressing, focusing or changing anything" },
+        judged: judged.map(({ name: checkName, ok, detail }) => ({ name: checkName, ok, detail: detail ?? null }))
+      }
+    });
+    console.log(`${NAME}: attended: ended by ${ending.by} (${ending.what}); ${found.screens.length} capture(s), ${found.screens.filter((screen) => screen.unexplained).length} unexplained`);
+    writeFileSync(path.join(where.root, "summary.json"), JSON.stringify({ journey: name, attended: true, source_revision: revision, app: { binary: app.binary, identity: app.identity, binding_record_sha256: bindingSha }, launches: { [name]: launches[phase] }, ending, checks: checks.filter((item) => item.journey === name) }, null, 2));
+  }
+
   for (const name of selected) {
     journey = name;
     await walk(name);
+  }
+  if (attended) {
+    journey = ATTENDED.name;
+    await walkAttended(attended);
   }
   journey = "run";
   if (state.watchedBefore !== null) {
     const changes = tripwireChanges(state.watchedBefore, statWatched(WATCHED));
     state.tripwireDone = true;
     check(`the real user's Library: none of the ${WATCHED.length} product-named paths appeared, disappeared or changed`, changes.length === 0, changes);
+  }
+  if (outputUntouched) {
+    const failed = checks.filter((item) => !item.ok);
+    console.log(`${NAME}: nothing of the attended launch was written to --out and no index was composed; ${checks.length - failed.length}/${checks.length} confinement and launch checks passed; evidence in ${RUN_ROOT}`);
+    buildLock.release();
+    await exitAfterSignals(1);
   }
   const index = composeIndex(out);
   console.log(`${NAME}: the index now holds ${index.screens} screens over ${index.journeys} journeys; open ${path.join(out, "index.html")}`);

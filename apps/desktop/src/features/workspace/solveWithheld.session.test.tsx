@@ -10,6 +10,7 @@ import * as hashService from "../../services/hashService";
 import type { PreviewModel } from "../../types";
 import { buildBulkChangeBatch } from "../bulk-change/bulkChange";
 import * as modelChecks from "../diagnostics/modelChecks";
+import { ModelChecksPanel } from "../diagnostics/ModelChecksPanel";
 import { SolvePanel } from "../solve/SolvePanel";
 import { useWorkspaceSession, type WorkspaceSession } from "./workspaceSession";
 
@@ -34,8 +35,13 @@ async function session() {
   loaded.pipe_segments.find((pipe) => pipe.id === PIPE)!.material = "";
   vi.spyOn(previewService, "loadPreviewModel").mockResolvedValue(loaded);
   const start = vi.spyOn(previewService, "startPreviewMechanicsJob").mockRejectedValue(new Error("INVENTED-START-OBSERVED"));
+  // The checks run by themselves when the model opens (issue 530); that check is held, never
+  // completing, so a Solve request finds no current run and runs its own, which these tests follow.
+  const opening = vi.spyOn(modelChecks, "runModelChecks").mockImplementation(() => new Promise(() => {}));
   const hook = renderHook(() => useWorkspaceSession());
   await waitFor(() => expect(hook.result.current.model.model).not.toBeNull());
+  await waitFor(() => expect(opening).toHaveBeenCalled());
+  opening.mockRestore();
   return { result: hook.result, start, material, unmount: hook.unmount };
 }
 type Result = Awaited<ReturnType<typeof session>>["result"];
@@ -65,7 +71,7 @@ it("withholds Solve on the missing value, names the finding and its entity, chan
   const cells = solveCells(result.current);
   expect(result.current.chrome.issuesDrawerOpen).toBe(false);
 
-  // Solve: the checks run on the request (none is current), and the solve is withheld.
+  // Solve: the checks run on the request (the opening check is held, so none is current), and the solve is withheld.
   await act(async () => { await result.current.results.handleRun(); });
   expect(start).not.toHaveBeenCalled();
   expect(solveCells(result.current)).toEqual(cells);
@@ -229,4 +235,66 @@ it("a refresh that throws keeps the established finding of the same model; Solve
   await act(async () => { await result.current.chrome.handleRunModelChecks(); });
   expect(result.current.chrome.modelCheckRun!.laterCheckNotCompleted).toBeUndefined();
   expect(result.current.results.solveGate.kind).toBe("withheld");
+});
+
+const NOT_CHECKED = "The checks have not been run on this model. They read the model and never change it.";
+
+/** Every later model-check run held until its release; the spy counts the checks started. */
+function holdEveryCheck() {
+  const releases: Array<() => void> = [];
+  const spy = vi.spyOn(modelChecks, "runModelChecks").mockImplementation(async (...args) => {
+    await new Promise<void>((resolve) => releases.push(resolve));
+    return realRunModelChecks(...args);
+  });
+  return { spy, releaseAll: () => releases.splice(0).forEach((release) => release()) };
+}
+
+/** What the Model checks panel says of the session's run for the model as it stands. */
+function panelSays(result: Result) {
+  const view = render(<ModelChecksPanel model={result.current.model.model!} run={result.current.chrome.modelCheckRun} onRun={() => {}} onSelectEntity={() => {}} />);
+  const said = { summary: screen.getByTestId("model-checks-summary").textContent, findings: screen.queryByTestId("model-checks-findings"), stale: screen.queryByTestId("model-checks-stale") };
+  view.unmount();
+  return said;
+}
+
+it.each(["no earlier check", "an earlier model's check shown"] as const)("a cancel during the Solve request's check (%s) starts no check behind the person's back and says plainly that the model has not been checked", async (earlier) => {
+  const { result, start, material } = await session();
+  if (earlier === "an earlier model's check shown") {
+    // M1 is checked (Solve is withheld on it); the edit to M2 re-checks by itself, and that check is held.
+    await act(async () => { await result.current.results.handleRun(); });
+    expect(result.current.results.solveGate.kind).toBe("withheld");
+  }
+  const { spy, releaseAll } = holdEveryCheck();
+  if (earlier === "an earlier model's check shown") {
+    await applyMaterial(result, material);
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(result.current.chrome.modelCheckRun!.model).not.toBe(result.current.model.model);
+  }
+  const before = spy.mock.calls.length;
+  // Solve supersedes any check in progress with its own; Cancel ends it while it is pending.
+  let solving: Promise<unknown> = Promise.resolve();
+  act(() => { solving = result.current.results.handleRun(); });
+  expect(spy).toHaveBeenCalledTimes(before + 1);
+  expect(result.current.chrome.modelCheckBusy).toBe(true);
+  act(() => { result.current.results.handleCancelRun(); });
+  expect(result.current.results.running).toBe(false);
+  expect(result.current.chrome.modelCheckBusy).toBe(false);
+  // No earlier model's check is shown as describing this one.
+  expect(result.current.chrome.modelCheckRun).toBeNull();
+  expect(result.current.results.solveGate).toEqual({ kind: "unknown", reason: "not_checked" });
+  const said = panelSays(result);
+  expect(said.summary).toBe(NOT_CHECKED);
+  expect(said.findings).toBeNull();
+  expect(said.stale).toBeNull();
+  // The ended checks resolve late; none is published, none starts again, and no solve starts.
+  await act(async () => { releaseAll(); await solving; });
+  expect(spy).toHaveBeenCalledTimes(before + 1);
+  expect(start).not.toHaveBeenCalled();
+  expect(result.current.chrome.modelCheckRun).toBeNull();
+  expect(panelSays(result).summary).toBe(NOT_CHECKED);
+  // The person's next request checks the model again.
+  spy.mockImplementation(realRunModelChecks);
+  await act(async () => { await result.current.chrome.handleRunModelChecks(); });
+  expect(spy).toHaveBeenCalledTimes(before + 2);
+  expect(result.current.chrome.modelCheckRun!.model).toBe(result.current.model.model);
 });

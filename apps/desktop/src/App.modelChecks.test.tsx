@@ -177,3 +177,61 @@ it("a new project session cancels the native check in progress", async () => {
   await waitFor(() => expect(screen.queryByTestId("project-units-create")).toBeNull());
   expect(cancels()).toBe(1);
 });
+
+// DEL-07-07 REQ-008 with DEL-04-06 REQ-013: Solve on a model whose completed check
+// withholds it moves keyboard focus to the Model checks outcome, whether the Issues
+// drawer was closed or already open, though the check is the one that ran by itself
+// when the model opened. Reopening the drawer by hand leaves focus where it is.
+async function renderWithheldShell() {
+  const model = JSON.parse(JSON.stringify(await previewService.loadPreviewModel())) as PreviewModel;
+  model.pipe_segments.find((pipe) => pipe.id === "pipe:P-100")!.material = "";
+  vi.spyOn(previewService, "loadPreviewModel").mockResolvedValue(model);
+  const start = vi.spyOn(previewService, "startPreviewMechanicsJob").mockRejectedValue(new Error("INVENTED-START-OBSERVED"));
+  render(<App />);
+  await screen.findByTestId("desktop-preview-shell");
+  // The opening check has completed and withholds Solve.
+  await waitFor(() => expect(screen.getByTestId("toolbar-run")).toHaveTextContent("Run withheld"));
+  return start;
+}
+function solveFromToolbar() {
+  const run = screen.getByTestId("toolbar-run");
+  act(() => { run.focus(); });
+  expect(document.activeElement).toBe(run);
+  fireEvent.click(run);
+}
+
+it("Solve withheld by the opening check moves focus to the checks' outcome, with the Issues drawer closed", async () => {
+  const start = await renderWithheldShell();
+  expect(screen.queryByTestId("issues-home")).toBeNull();
+  solveFromToolbar();
+  const summary = within(await screen.findByTestId("issues-home")).getByTestId("model-checks-summary");
+  await waitFor(() => expect(document.activeElement).toBe(summary));
+  expect(start).not.toHaveBeenCalled();
+});
+
+it("Solve withheld by the opening check moves focus to the checks' outcome, with the Issues drawer already open", async () => {
+  const start = await renderWithheldShell();
+  act(() => { nativeMenuCommand("view.issues"); });
+  const summary = within(await screen.findByTestId("issues-home")).getByTestId("model-checks-summary");
+  expect(document.activeElement).not.toBe(summary);
+  solveFromToolbar();
+  await waitFor(() => expect(document.activeElement).toBe(summary));
+  // A second Solve, with focus back on the toolbar, moves it again.
+  solveFromToolbar();
+  await waitFor(() => expect(document.activeElement).toBe(screen.getByTestId("model-checks-summary")));
+  expect(start).not.toHaveBeenCalled();
+});
+
+it("reopening the Issues drawer by hand after a withheld Solve leaves focus where it is", async () => {
+  await renderWithheldShell();
+  solveFromToolbar();
+  await waitFor(() => expect(document.activeElement).toBe(screen.getByTestId("model-checks-summary")));
+  fireEvent.click(within(screen.getByTestId("issues-home")).getByRole("button", { name: "Close" }));
+  expect(screen.queryByTestId("issues-home")).toBeNull();
+  const run = screen.getByTestId("toolbar-run");
+  act(() => { run.focus(); });
+  act(() => { nativeMenuCommand("view.issues"); });
+  await screen.findByTestId("issues-home");
+  await act(async () => { await new Promise((resolve) => setTimeout(resolve, 50)); });
+  expect(document.activeElement).toBe(run);
+});

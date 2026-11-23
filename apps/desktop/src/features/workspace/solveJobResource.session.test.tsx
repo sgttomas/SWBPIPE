@@ -18,7 +18,7 @@ vi.mock("../results/resultReader", async (importOriginal) => {
 });
 vi.mock("../results/resultStanding", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../results/resultStanding")>();
-  return { ...actual, numericalResultStanding: () => ({ contract: "preview_physics", status: "integrity_checked", eligible: true, findings: [] }) };
+  return { ...actual, numericalResultStanding: () => ({ contract: "preview_physics", status: "solver_checks_passed", eligible: true, findings: [] }) };
 });
 import modelFixture from "../../../../../core/product_physics/tests/fixtures/preview_physics_invented_model.json";
 import sourceFixture from "../../../../../fixtures/results/preview_physics_invented_sparse.json";

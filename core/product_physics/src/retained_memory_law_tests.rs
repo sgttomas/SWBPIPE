@@ -838,8 +838,8 @@ fn pressure_schema_is_the_only_nonresident_binding() {
     // geometry, per-basis records and limitations (reviewed input #10, re-bound at D3). RT-L2: the
     // cancellation-screen exception record (its renamed ratio member, basis token and description; then its
     // remainder_force_n member; then its description). DEL-05-01: the generation record's seismic component force
-    // entries.
-    assert_eq!(schema_hash, "fc5699e012f7877f5a6fc1b7d9086ebc7fbfcca0ecd7e84873d88f187de8b848");
+    // entries; DEL-05-01 REQ-014: the hydrostatic test mark.
+    assert_eq!(schema_hash, "10c855430bc92fda2151b6154520b286a7aa7ee03b2cf46a4c8cc81c9312a61a");
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets all current inputs");
     let tokens: Vec<_> = compiled.split(';').collect();
     assert_eq!(tokens.len(), build_identity::REVIEWED_INPUT_COUNT + 1);

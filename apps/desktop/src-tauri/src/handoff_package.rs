@@ -1250,11 +1250,14 @@ fn warnings_and_diagnostics(document: &Value, project_id: &str, store: &[Diagnos
     (warnings, diagnostics)
 }
 
-/// `<project id without "project:">.swbhandoff`, restricted as W-6a's file name.
-pub fn suggested_package_name(document: &Value) -> String {
-    let file = model_document_save::suggested_model_document_file_name(document);
-    let stem = file.strip_suffix(".json").unwrap_or(&file);
-    format!("{stem}.{}", publish::PACKAGE_EXTENSION)
+/// Fixed kind word for the suggested handoff package name (DEL-07-11 REQ-009).
+pub const SUGGESTED_PACKAGE_KIND: &str = "handoff-package";
+
+/// Suggested handoff package name (`handoff-package.swbhandoff`): the fixed kind
+/// word and package extension, carrying no project name, project identifier,
+/// model identifier, or path (DEL-07-11 REQ-009).
+pub fn suggested_package_name(_document: &Value) -> String {
+    format!("{SUGGESTED_PACKAGE_KIND}.{}", publish::PACKAGE_EXTENSION)
 }
 
 /// The admission and every store-derived manifest part (see the module docs),
@@ -1884,6 +1887,7 @@ mod tests {
     const BINARY64_ENV: &str = "SWBPIPE_WRITE_HANDOFF_BINARY64_WITNESS";
     const VECTORS: &str = include_str!("../../../../fixtures/handoff/canonical_text_vectors.json");
     const VECTORS_ENV: &str = "SWBPIPE_WRITE_HANDOFF_CANONICAL_VECTORS";
+    const SUGGESTED_NAME_CASES: &str = include_str!("../../../../fixtures/file_names/suggested_name_cases.json");
     const BASE: &str = "invented-envelope-base";
     const CREATED_AT: &str = "2026-10-24T12:00:00.000-06:00";
 
@@ -2875,7 +2879,30 @@ mod tests {
             serde_json::to_value(HandoffSaveOutcome::refused_one(LABEL_INVALID, "m")).unwrap(),
             json!({"outcome": "refused", "diagnostics": [{"code": LABEL_INVALID, "path": "", "message": "m"}]})
         );
-        assert_eq!(suggested_package_name(&json!({"project": {"id": "project:invented-demo-loop-01"}})), "invented-demo-loop-01.swbhandoff");
+        let cases: Value = serde_json::from_str(SUGGESTED_NAME_CASES).unwrap();
+        let native_case = cases["name_cases"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|item| item["case_id"] == "native_handoff_package")
+            .expect("native_handoff_package case in fixtures/file_names/suggested_name_cases.json");
+        assert_eq!(SUGGESTED_PACKAGE_KIND, native_case["kind"].as_str().unwrap());
+        assert_eq!(publish::PACKAGE_EXTENSION, native_case["extension"].as_str().unwrap());
+        assert!(native_case["qualifier"].is_null());
+        let expected_name = native_case["expected_name"].as_str().unwrap();
+        for (id, name) in [
+            ("project:invented-demo-loop-01", "Invented Utility Loop Demo"),
+            ("project:wren-ferrule-9x2q", "Quokka Larch Bay 4417"),
+        ] {
+            let suggested = suggested_package_name(&json!({"project": {"id": id, "name": name}}));
+            assert_eq!(suggested, expected_name);
+            let lower = suggested.to_lowercase();
+            assert!(!lower.contains(&name.to_lowercase()));
+            assert!(!lower.contains(&name.to_lowercase().replace(' ', "-")));
+            assert!(!lower.contains(&id.to_lowercase()));
+            assert!(!lower.contains(&id.strip_prefix("project:").unwrap_or(id).to_lowercase()));
+            assert!(!suggested.contains('/') && !suggested.contains('\\'));
+        }
         assert!(local_iso_now().len() >= "2026-10-24T00:00:00.000+00:00".len());
     }
 

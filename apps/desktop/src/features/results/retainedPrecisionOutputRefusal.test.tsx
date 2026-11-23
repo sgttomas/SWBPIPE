@@ -243,7 +243,7 @@ describe("other consumers are unchanged; the standing session Current reads of a
     expect(hasNativeMechanicsInvocation(received, model, mode)).toBe(true);
     expect(isFreshSemanticResult(received)).toBe(true);
     expect(currentSemanticContract(received)).not.toBeNull();
-    expect(numericalResultStanding(received, model)).toMatchObject({ status: "integrity_checked", eligible: true, findings: [] });
+    expect(numericalResultStanding(received, model)).toMatchObject({ status: "solver_checks_passed", eligible: true, findings: [] });
     expect(numericalResultStanding(structuredClone(received), model)).toMatchObject({ eligible: false, findings: [RETAINED_PRECISION_VALIDATION_REQUIRED] });
     const moved = structuredClone(model) as Json; moved.nodes[0].position.x += 1;
     expect(hasNativeMechanicsInvocation(received, moved, mode)).toBe(false);

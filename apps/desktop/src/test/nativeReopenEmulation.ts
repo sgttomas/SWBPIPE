@@ -132,10 +132,18 @@ export function emulateNativeReopen(mock: AnyInvoke, command: string, args: Json
   return undefined;
 }
 
+/** The same envelope claim, member for member, in any key order (none is the same as none only). */
+function sameClaim(expected: unknown, actual: unknown): boolean {
+  if (expected == null || actual == null) return expected == null && actual == null;
+  const plain = (value: unknown): value is object => typeof value === "object" && !Array.isArray(value);
+  return plain(expected) && plain(actual) && Object.keys({ ...expected, ...actual }).every((key) => Reflect.get(expected, key) === Reflect.get(actual, key));
+}
+
 /** The legacy session's save of the reopened project, through the test's legacy mock (module docs). */
 async function emulatedRestoredSave(mock: AnyInvoke, jobId: string, entry: Held, args: Json): Promise<unknown> {
   if (entry.source.kind !== "saved_project_run") throw `NATIVE-PERSISTENCE-CUSTODY: \`${jobId}\` holds a restored recorded run; nothing was written.`;
   const { computeModelHash, computeProjectEnvelopeHash } = await import("../services/hashService");
+  const { wellFormedEnvelopeHashClaim } = await import("../services/projectService");
   const result = JSON.parse(entry.result), record = JSON.parse(entry.record);
   const fields = { model: args.model, editor_intents: args.editorIntents, proposal: args.proposal ?? null, selected_review_target: args.selectedReviewTarget ?? null };
   const computed = await computeProjectEnvelopeHash({ ...fields, mechanics_result: result, analysis_run: record, model_hash: entry.modelHash });
@@ -150,6 +158,21 @@ async function emulatedRestoredSave(mock: AnyInvoke, jobId: string, entry: Held,
     : service.saveLocalProject(args.model, args.editorIntents, fields.proposal, fields.selected_review_target, result, record, entry.modelHash, envelopeHash, args.confirmedRevision ?? null, args.expectedBase ?? null)) as Json;
   const stored = { ...legacy, mechanics_result: legacy?.mechanics_result ?? result, analysis_run: legacy?.analysis_run ?? record, model: legacy?.model ?? args.model };
   const context = (await (await contexts()).buildHistoricalRunContext(stored))!;
+  // What was stored, as the native host reports it: the payload hash over the stored envelope and its
+  // stored claim. The basis was kept only if both are still the basis's (a legacy mock that refreshes
+  // the stored hashes moved them).
+  const storedPayloadHash = context.envelopePayloadHash ?? computed?.value ?? "";
+  const legacyClaim = stored.project_envelope_hash !== undefined ? stored.project_envelope_hash : (envelopeHash ?? null);
+  const basisEvidence = args.envelopeBasis?.evidence ?? null;
+  const basisKept = kept && storedPayloadHash === args.envelopeBasis?.payload_sha256 && sameClaim(basisEvidence, legacyClaim);
+  // A native store that did not keep its basis writes a fresh claim over what it stored, never none or
+  // another form; a legacy mock's claim not of the store's form is replaced by that fresh claim.
+  const storedClaim = basisKept || wellFormedEnvelopeHashClaim(legacyClaim, args.model.project.id) ? legacyClaim
+    : await computeProjectEnvelopeHash({
+      model: stored.model, editor_intents: stored.editor_intents ?? args.editorIntents, proposal: stored.proposal ?? null,
+      selected_review_target: stored.selected_review_target ?? null, mechanics_result: stored.mechanics_result,
+      analysis_run: stored.analysis_run, model_hash: stored.model_hash ?? entry.modelHash
+    });
   // The stored project's model hash evidence, as the store reports it after the save (the native host
   // writes the one it holds, so its reply and its held value never differ).
   entry.modelHash = stored.model_hash ?? entry.modelHash;
@@ -157,14 +180,15 @@ async function emulatedRestoredSave(mock: AnyInvoke, jobId: string, entry: Held,
   return {
     summary: legacy?.summary ?? { project_id: args.model.project.id, message: "Saved current project model snapshot without external file copies." },
     proposal: stored.proposal ?? null, selected_review_target: stored.selected_review_target ?? null,
-    model_hash: stored.model_hash ?? entry.modelHash, project_envelope_hash: stored.project_envelope_hash ?? envelopeHash,
+    // The stored claim; a re-save that kept its basis stored the basis's evidence, so it is that claim.
+    model_hash: stored.model_hash ?? entry.modelHash, project_envelope_hash: storedClaim,
     model_document_version: stored.model_document_version ?? null,
     stored_model_hash: (await computeModelHash(stored.model))!.value,
     result: { outcome: "saved", run_id: context.runId, result_bytes: length(stored.mechanics_result), record_bytes: length(stored.analysis_run) },
     restored: {
       handle: jobId, origin: "restored_saved_run", source: entry.source,
       findings: scopedFindings(context, { run_id: context.runId, renderable: context.mechanicsResult !== null, mechanics: null, envelope_payload_hash: context.envelopePayloadHash, model_hash: null }),
-      envelope_payload_hash: computed?.value ?? "", envelope_basis_kept: kept
+      envelope_payload_hash: storedPayloadHash, envelope_basis_kept: basisKept
     }
   };
 }

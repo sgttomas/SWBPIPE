@@ -17,6 +17,7 @@ import type { RuleCheckStatus } from "../../services/ruleCheckService";
 import type { PreviewModel } from "../../types";
 import type { SessionRuleCheckRun } from "../report/renderableReportInput";
 import { buildBulkChangeBatch } from "../bulk-change/bulkChange";
+import * as modelChecks from "../diagnostics/modelChecks";
 import { useWorkspaceSession, type WorkspaceSession } from "./workspaceSession";
 
 afterEach(() => {
@@ -50,8 +51,13 @@ async function heldCheckSession() {
     if (command === "check_preview_model") return new Promise((resolve, reject) => { held.push(resolve); refuse.push(reject); });
     return Promise.resolve(null);
   });
+  // The checks run by themselves when the model opens (issue 530); that check is held, never
+  // completing, so a Solve request finds no current run and runs its own, which these tests follow.
+  const opening = vi.spyOn(modelChecks, "runModelChecks").mockImplementation(() => new Promise(() => {}));
   const hook = renderHook(() => useWorkspaceSession());
   await waitFor(() => expect(hook.result.current.model.model).not.toBeNull());
+  await waitFor(() => expect(opening).toHaveBeenCalled());
+  opening.mockRestore();
   return { ...hook, start, held, refuse, material };
 }
 

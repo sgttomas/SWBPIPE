@@ -413,12 +413,12 @@ describe("views, stages and mounted panels", () => {
     expect(surfaces).toHaveAttribute("data-view", "both");
   });
 
-  it("keeps the five project controls findable by role and name while the Project page is closed, and opens them on it", async () => {
+  it("keeps the Project page's buttons findable by role and name while the page is closed, and opens them on it", async () => {
     await renderShell();
-    const names = [/^Create local$/, /^New blank$/, /^Open local$/, /^List local$/, /^Save local$/];
+    const names = [/^New$/, /^Open…$/, /^Save$/];
     expect(screen.getByTestId("workspace-dock")).toHaveClass("collapsed");
     for (const name of names) expect(screen.getByRole("button", { name })).toBeInTheDocument();
-    expect(screen.getByTestId("open-local-project")).toHaveAccessibleName("Open local");
+    expect(screen.getByTestId("project-save")).toHaveAccessibleName("Save");
     act(() => nativeMenuCommand("view.section.project"));
     const controls = screen.getByLabelText("Local project controls");
     expect(controls).not.toHaveClass("inactive");
@@ -841,7 +841,7 @@ describe("New Blank starts a fresh shell context", () => {
     await waitFor(() => expect(completeCreate).toBeDefined());
     act(() => nativeMenuCommand("file.open-local"));
     expect(invokeMock.mock.calls.some(([command]) => command === "open_local_project")).toBe(false);
-    expect(screen.getByTestId("open-local-project")).toBeDisabled();
+    expect(screen.getByTestId("project-save")).toBeDisabled();
     expect(workspace).toHaveAttribute("data-stage", "loads");
     expect(workspace).toHaveAttribute("data-view", "table");
     expect(rail("loads")).toHaveAttribute("aria-current", "page");
@@ -867,7 +867,7 @@ describe("New Blank starts a fresh shell context", () => {
     expect(workspace).toHaveAttribute("data-stage", "model");
     expect(workspace).toHaveAttribute("data-view", "both");
     expect(rail("model")).toHaveAttribute("aria-current", "page");
-    expect(screen.getByTestId("open-local-project")).toBeEnabled();
+    expect(screen.getByTestId("project-save")).toBeEnabled();
   });
 
 });

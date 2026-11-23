@@ -11,7 +11,8 @@
 import { useEffect, useRef, useState } from "react";
 import { CsvExportControl } from "../result-export/CsvExportControl";
 import { CSV_SOFTWARE_VERSION } from "../result-export/csvProvenance";
-import type { HangerSizingDocument, HangerSizingSizedDocument } from "./hangerSizingResult";
+import type { HangerSizingDocument } from "./hangerSizingResult";
+import { BOUNDARY_SENTENCE } from "./numericalHealthText";
 import {
   HANGER_SIZING_CONDITIONAL_TEXT,
   HANGER_SIZING_CONSTANT_COUNT_KEYS,
@@ -25,13 +26,17 @@ import {
   HANGER_SIZING_NOT_TESTED,
   HANGER_SIZING_VARIABLE_COUNT_KEYS,
   hangerSizingCandidatesCsv,
-  hangerSizingCsvProvenance,
   hangerSizingNotShown,
-  hangerSizingSolvesCsv
+  hangerSizingSolvesCsv,
+  hangerSizingViewCsvProvenance
 } from "./hangerSizingCsv";
 import {
   F_COLD_CONDITION_LABEL,
   F_COLD_LABEL,
+  formatHangerSizingConfirmation,
+  formatHangerSizingIntegrityBound,
+  formatHangerSizingSolverStanding,
+  formatHangerSizingStandingsBound,
   hangerSizingView,
   type BasisView,
   type CandidateRowView,
@@ -99,7 +104,7 @@ export function HangerSizingPanel({ document, evidence, library, modelHash, test
       {error !== null ? <p role="alert" data-testid={tid("error")}>The sizing result could not be displayed: {error}</p> : null}
       {error === null && current === null ? <p role="status" data-testid={tid("pending")}>Reading the sizing result…</p> : null}
       {current?.view.status === "sized" ? (
-        <SizedView view={current.view} document={current.document as HangerSizingSizedDocument} modelHash={modelHash} tid={tid} />
+        <SizedView view={current.view} modelHash={modelHash} tid={tid} />
       ) : null}
       {current?.view.status === "refused" ? <RefusedView view={current.view} tid={tid} /> : null}
     </section>
@@ -135,7 +140,7 @@ function BasisBlock({ basis, cases, library, tid }: { basis: BasisView; cases: r
       <h4>Basis</h4>
       <dl>
         <dt>Document</dt><dd data-testid={tid("basis-document")}>{basis.documentKind} {basis.schemaVersion} ({basis.semanticContractId})</dd>
-        <dt>Route</dt><dd data-testid={tid("basis-route")}>{basis.route}</dd>
+        <dt>Route</dt><dd data-testid={tid("basis-route")}>{orNotPublished(basis.route)}</dd>
         <dt>Canonical profile</dt><dd data-testid={tid("basis-profile")}>{basis.canonicalProfile}</dd>
         <dt>Library id</dt><dd data-testid={tid("basis-library-id")}>{orNotPublished(basis.library.libraryId)}</dd>
         <dt>Library sha256</dt><dd data-testid={tid("basis-library-sha256")}>{orNotPublished(basis.library.sha256)}</dd>
@@ -197,6 +202,7 @@ function BasisBlock({ basis, cases, library, tid }: { basis: BasisView; cases: r
 }
 
 function ReaderStandings({ standings, tid }: { standings: StandingsView; tid: Tid }) {
+  const bound = formatHangerSizingStandingsBound(standings);
   return (
     <section aria-label="Reader standings" data-testid={tid("standings")}>
       <h4>Reader standings</h4>
@@ -205,6 +211,7 @@ function ReaderStandings({ standings, tid }: { standings: StandingsView; tid: Ti
       ) : (
         <p data-testid={tid("standings-binding")}>Reader evidence not bound: {standings.binding.reason}. Every standing reads not checked.</p>
       )}
+      {bound !== null ? <p data-testid={tid("standings-integrity-bound")}>{bound}</p> : null}
       <ul>
         {standings.standings.map((standing) => (
           <li key={standing.name} data-testid={tid(`standing-${standing.name}`)}>
@@ -222,16 +229,21 @@ function ReaderStandings({ standings, tid }: { standings: StandingsView; tid: Ti
 // ---------------------------------------------------------------------------------------------
 // The sized view
 
-function SizedView({ view, document, modelHash, tid }: { view: HangerSizingSizedView; document: HangerSizingSizedDocument; modelHash?: string | null; tid: Tid }) {
+function SizedView({ view, modelHash, tid }: { view: HangerSizingSizedView; modelHash?: string | null; tid: Tid }) {
   const conditional = view.verificationStanding === "conditional";
   const noFit = view.rows.filter((row) => row.outcome === "no_record_fits").map((row) => row.support);
-  const context = async () => ({ view, provenance: await hangerSizingCsvProvenance({ document, modelHash }), softwareVersion: CSV_SOFTWARE_VERSION });
+  // The exports' provenance is the view's own: the document's hash and contract as the view read them, never the
+  // live document at the time of the click.
+  const context = async () => ({ view, provenance: hangerSizingViewCsvProvenance({ view, modelHash }), softwareVersion: CSV_SOFTWARE_VERSION });
   return (
     <div data-testid={tid("sized")} data-standing={view.verificationStanding}>
       <p data-testid={tid("status")}>{HANGER_SIZING_SIZED_TEXT}</p>
       <p role="note" className={conditional ? "hanger-sizing-conditional" : undefined} data-testid={tid("verification-standing")}>
         <strong>{conditional ? HANGER_SIZING_CONDITIONAL_TEXT : HANGER_SIZING_UNCONDITIONAL_TEXT}</strong>
         {conditional && noFit.length > 0 ? <> Candidates with no fit: {noFit.join(", ")}.</> : null}
+      </p>
+      <p role="note" data-testid={tid("integrity-bound")}>
+        Integrity bound: {formatHangerSizingIntegrityBound(view.integrityBound)} — SWBPIPE does not verify an error bound for the ordinary derived solves (LIM-026). {BOUNDARY_SENTENCE}
       </p>
       <BasisBlock basis={view.basis} cases={view.cases} library={view.library} tid={tid} />
 
@@ -283,21 +295,31 @@ function SizedView({ view, document, modelHash, tid }: { view: HangerSizingSized
             <th scope="col">Case</th>
             <th scope="col">Derived document sha256</th>
             <th scope="col">Nonlinear support states</th>
+            <th scope="col">Solver standing</th>
+            <th scope="col">Support-state confirmation</th>
           </tr>
         </thead>
         <tbody>
-          {view.solves.map((solve) => (
-            <tr key={solve.label} data-testid={tid(`solve-${solve.label}`)}>
-              <th scope="row">{solve.label}</th>
-              <td>{solve.case}</td>
-              <td><code>{solve.derivedDocumentSha256}</code></td>
-              <td>
-                {solve.states.length > 0
-                  ? solve.states.map((entry) => `${entry.support}: ${entry.state}`).join("; ")
-                  : HANGER_SIZING_NO_NONLINEAR_SUPPORT}
-              </td>
-            </tr>
-          ))}
+          {view.solves.map((solve) => {
+            const confirmation = formatHangerSizingConfirmation(solve.supportStateConfirmation);
+            return (
+              <tr key={solve.label} data-testid={tid(`solve-${solve.label}`)}>
+                <th scope="row">{solve.label}</th>
+                <td>{solve.case}</td>
+                <td><code>{solve.derivedDocumentSha256}</code></td>
+                <td>
+                  {solve.states.length > 0
+                    ? solve.states.map((entry) => `${entry.support}: ${entry.state}`).join("; ")
+                    : HANGER_SIZING_NO_NONLINEAR_SUPPORT}
+                </td>
+                <td data-testid={tid(`solve-${solve.label}-standing`)}>{formatHangerSizingSolverStanding(solve.solverStanding)}</td>
+                <td data-testid={tid(`solve-${solve.label}-confirmation`)}>
+                  {confirmation.text}
+                  {confirmation.detail !== null ? <> <q data-testid={tid(`solve-${solve.label}-confirmation-detail`)}>{confirmation.detail}</q></> : null}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
 

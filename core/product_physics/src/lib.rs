@@ -50,7 +50,10 @@ mod timoshenko_product_tests;
 #[cfg(test)]
 mod d5_mass_product_tests;
 #[cfg(test)]
-mod kd5_nonlinear_tests;
+#[cfg(test)]
+mod hydrostatic_certificate_tests;
+#[cfg(test)]
+mod kd5_nonlinear_tests; #[cfg(test)] mod generated_load_state_tests; // on this line so that no line moves.
 #[cfg(test)]
 mod u4a_tests;
 #[cfg(test)]
@@ -147,10 +150,10 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 use std::f64::consts::PI;
 
 mod topology;
-mod validation;
-mod imposed_motion; mod held_status; mod skew; // RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7) and R-6/R-7 S-K1 (DEL-04-03 `skew-restraints.md`), on this line so that no line moves.
+mod validation; pub use validation::{solve_input_missing_codes, SolveInputChecks, SOLVE_INPUT_MISSING_CODES_JSON}; // DEL-04-06 REQ-013, on this line so that no line moves.
+mod imposed_motion; mod held_status; mod skew; pub mod hydrostatic; // RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7) and R-6/R-7 S-K1 (DEL-04-03 `skew-restraints.md`), on this line so that no line moves.
 use validation::validate_model_inputs;
-mod rigid_component; mod seismic_component; // DEL-05-01 static-equivalent seismic component force (LIM-028), on this line so that no line moves.
+mod rigid_component; mod seismic_component; mod seismic_warning; // DEL-05-01 static-equivalent seismic component force (LIM-028) and REQ-008's seismic model-check warning, on this line so that no line moves.
 #[cfg(test)]
 mod w15_rigid_scaling_tests;
 #[cfg(test)]
@@ -263,7 +266,7 @@ pub struct PreviewModel {
     /// The lowering removes them once their rules are judged.
     pub condition_sets: Vec<operating_conditions::ConditionSetInput>,
     /// Model document 0.9.0's `spectra` (`spectra`), read by no solve; the lowering removes them.
-    pub spectra: Vec<spectra::SpectrumInput>,
+    pub spectra: Vec<spectra::SpectrumInput>, #[doc(hidden)] pub(crate) test_contents: Vec<hydrostatic::ContentsResolution>, #[doc(hidden)] pub(crate) declared_test_contents: Vec<hydrostatic::DeclaredContents>, // DEL-05-01 REQ-014: the lowering's contents resolution, applied after the self-weight check; and each test case's declared contents, read from the model before the lowering clears its conditions, for the certificate (`certified_loads::intensity`).
 }
 
 /// One material record as authored: the unchanged `MaterialInput` fields
@@ -401,7 +404,7 @@ impl<'de> Deserialize<'de> for PreviewModel {
             model_settings: wire.model_settings,
             material_expansion_laws,
             request_material_expansion_laws: Vec::new(),
-            condition_sets: wire.condition_sets.unwrap_or_default(),
+            condition_sets: wire.condition_sets.unwrap_or_default(), test_contents: Vec::new(), declared_test_contents: Vec::new(),
             spectra: wire.spectra.unwrap_or_default(),
         })
     }
@@ -1462,7 +1465,7 @@ fn formulation_basis_for_model_with_source(model: &PreviewModel, source_selected
         if model.components.iter().any(is_curved_bend_macro_component) {
             basis.limitations.push(bend_pressure::BEND_LIMITATION.to_string());
         }
-        basis
+        hydrostatic::push_limitation(model, &mut basis.limitations); basis // DEL-05-01 REQ-014: only a document with a test case states the test.
     } else {
         preview_formulation_basis()
     };
@@ -3076,184 +3079,19 @@ fn run_linear_static_preview_observed_inner(
     // The D1 domain clauses never read the caller's limit L; only the bound does.
     let early_domain=product.is_some() && capture.is_some_and(|captured|
         retained_memory::assess(captured,&request,retained_memory::Entry::Direct,RetainedByteLimit::new(0)).law().domain.is_none());
-    let mut model = request.model;
+    let model = request.model;
     let request_materials_supplied = !request.materials.is_empty();
-    let mut materials = if request.materials.is_empty() {
+    let materials = if request.materials.is_empty() {
         model.materials.clone()
     } else {
         request.materials
     };
-    let mut diagnostics = Vec::new();
-
-    // Model document 0.9.0 (DEL-02-01 Design `model-document-0.9.0.md` §1.5): the
-    // lowering judges the 0.9.0 members' document-level rules and S1's interim
-    // refusals, then removes the members no later stage reads. Everything after it
-    // is the existing pipeline applied to the lowered model.
-    operating_conditions::lower(&mut model, &mut diagnostics);
-    pressure_runtime::validate_profile(&model, &mut diagnostics);
-    // RT-A3 increment 1 (D-1): the junction closures' named warnings, once.
-    pressure_runtime::junction_closure_warnings(&model, &mut diagnostics);
-    case_state::resolve::validate_document(&model, request_materials_supplied, &mut diagnostics);
-    // W-16 slice a: the named imposed-displacement checks (and the exact
-    // route's refusal) run ahead of generic validation.
-    if imposed_motion::validate(&model, &mut diagnostics) {
-        return blocked_envelope(model, diagnostics);
-    }
-    validate_model_inputs(&model, &materials, &mut diagnostics);
-    validate_support_family_tokens(&model, &mut diagnostics);
-    pf_timoshenko::append_partial_span_refusals(&model, &mut diagnostics);
-    if model.document_kind != "openpipestress.product_preview.model" {
-        diagnostics.push(diag(
-            "diagnostic:physics:document-kind",
-            "PREVIEW_DOCUMENT_KIND_INVALID",
-            "blocking",
-            "physics adapter requires an openpipestress.product_preview.model document",
-            vec!["model".to_string()],
-        ));
-    }
-    if model.schema_version.is_empty() {
-        diagnostics.push(diag(
-            "diagnostic:physics:schema-version",
-            "PREVIEW_SCHEMA_VERSION_MISSING",
-            "blocking",
-            "preview model requires an explicit schema version",
-            vec!["model".to_string()],
-        ));
-    }
-    if has_blocking(&diagnostics) {
-        return blocked_envelope(model, diagnostics);
-    }
-    // S1's interim withholding (§2.2, §2.4): every combination was judged above.
-    document_members::withhold_interim_combinations(&mut model, &mut diagnostics);
-
-    self_weight::validate_applied_self_weight(&model, &mut diagnostics);
-    if has_blocking(&diagnostics) {
-        return blocked_envelope(model, diagnostics);
-    }
-
-    resolve_shared_sections(&mut model, &mut diagnostics);
-    if has_blocking(&diagnostics) {
-        return blocked_envelope(model, diagnostics);
-    }
-
-    normalize_model_units(&mut model, &mut materials, &mut diagnostics);
-    if has_blocking(&diagnostics) {
-        return blocked_envelope(model, diagnostics);
-    }
-    // W-15 slice c (DEL-03-05 Design `eccentric-reducer-offset.md` §3.2): a
-    // declared eccentric offset is checked against the normalized node
-    // geometry, which governs. The first pass returns before any index is
-    // built, and before the tolerance is read, when no component carries the
-    // slot. The tolerance was admitted by `validate_model_settings`.
-    rigid_component::append_eccentric_offset_refusals(&model, &mut diagnostics);
-    if has_blocking(&diagnostics) {
-        return blocked_envelope(model, diagnostics);
-    }
-
-    let load_state = case_state::is_load_state(&model);
-    // A 0.4.0 document never consumes a case-wide base pair: each member's
-    // pair comes from its own resolved selection, so only consumed data counts.
-    if !load_state {
-        pressure_material::resolve_base(&model, &mut materials, &mut diagnostics);
-    }
-    if has_blocking(&diagnostics) {
-        return blocked_envelope(model, diagnostics);
-    }
-    if let Some(observer) = product.as_deref_mut() {
-        observer.normalized(&model, &materials, request_materials_supplied);
-    }
-    let resolved_cases = if load_state {
-        let resolved = model
-            .load_cases
-            .iter()
-            .filter_map(|case| {
-                case_state::resolve::resolve_case(&model, &materials, case, &mut diagnostics)
-            })
-            .collect::<Vec<_>>();
-        if has_blocking(&diagnostics) || resolved.len() != model.load_cases.len() {
-            return blocked_envelope(model, diagnostics);
-        }
-        case_state::resolve::refuse_resolved_span_strain(&model, &resolved, &mut diagnostics);
-        case_state::resolve::refuse_all_reference_states(&resolved, &mut diagnostics);
-        if has_blocking(&diagnostics) {
-            return blocked_envelope(model, diagnostics);
-        }
-        Some(resolved)
-    } else {
-        None
+    // DEL-04-06 REQ-013: every step before the first stiffness is `pre_formation`, which the on-demand model checks run too.
+    let (Formable { model, materials, resolved_cases, consumed_bases, built, boundary, test_contents }, mut diagnostics) = match pre_formation(model, materials, request_materials_supplied,
+        &mut |model, materials| if let Some(observer) = product.as_deref_mut() { observer.normalized(model, materials, request_materials_supplied); }) {
+        PreFormation::Formable(formable, diagnostics) => (formable, diagnostics),
+        PreFormation::Blocked(model, diagnostics) => return blocked_envelope(model, diagnostics),
     };
-    // PF Timoshenko (DEL-05-03 Design `pf-timoshenko.md` §2): the consumed bases, from
-    // the cases' selections before any build. The seed forms Timoshenko members only
-    // when a case consumes the base basis; otherwise it is never solved.
-    let consumed_bases = pf_timoshenko::ConsumedBases::of(&model);
-    let built = build_model_for_basis(
-        &model,
-        &materials,
-        resolved_cases.as_ref().map(|cases| &cases[0].pairs),
-        consumed_bases.base.as_ref(),
-        &mut diagnostics,
-    );
-    if has_blocking(&diagnostics) {
-        return blocked_envelope(model, diagnostics);
-    }
-    let built = built.expect("build_model returns Some when no blocking diagnostics were added");
-    append_constant_effort_consumption_diagnostics(&model, &mut diagnostics);
-    topology::append_topology_diagnostics(&model, &built, &mut diagnostics);
-
-    let boundary = prepare_boundary(built.nodes.len(), &built.supports);
-    let potential_contact_dofs = eligible_contact_dofs(
-        built.nodes.len(),
-        &boundary.restrained_dofs,
-        &built.nonlinear_supports,
-        &built.nonlinear_initial_states,
-    );
-    if boundary.restrained_dofs.is_empty()
-        && boundary.springs.is_empty()
-        && potential_contact_dofs.is_none() && built.skew.is_none()
-    {
-        diagnostics.push(diag(
-            "diagnostic:physics:no-restraints",
-            "SUPPORT_INPUT_MISSING",
-            "blocking",
-            "linear-static preview requires explicit support restraints or springs; no automatic boundary conditions are applied",
-            vec!["supports".to_string()],
-        ));
-    }
-
-    // Necessary lower bound only: fewer than six independent ground DOFs
-    // cannot remove six rigid-body modes. Springs count; duplicates do not.
-    // Passing this check never establishes stability: the assembled solve does.
-    let ground_dofs = boundary
-        .restrained_dofs
-        .iter()
-        .copied()
-        .chain(
-            boundary
-                .springs
-                .iter()
-                .filter(|spring| spring.stiffness.value > 0.0)
-                .map(|spring| spring.node_dof.global_index()),
-        )
-        .chain(potential_contact_dofs.iter().flatten().copied())
-        .collect::<HashSet<_>>();
-    let skewed_rows = skew::ground_rows(built.skew.as_ref()); if !(ground_dofs.is_empty() && skewed_rows == 0) && ground_dofs.len() + skewed_rows < DOF_PER_NODE {
-        let (restrained, missing) = support_restraint_summary(&boundary.restrained_dofs); let skewed = if built.skew.is_some() { format!("; skewed constraints: {skewed_rows}") } else { String::new() };
-        diagnostics.push(diag("diagnostic:physics:under-restrained", "SOLVER_SYSTEM_BLOCKED", "blocking",
-            format!("fewer than six independent ground constraints including positive springs: the six rigid-body modes of a connected structure cannot all be removed; directly restrained global DOF classes: {restrained}; global DOF classes with no direct restraint: {missing} (not a rigid-body mode analysis; separated restraints can resist rotations); support contributions: {}{skewed}", support_contribution_summary(&model)),
-            vec!["supports".to_string()]));
-    }
-    for finding in &boundary.findings {
-        diagnostics.push(diag(
-            &format!("diagnostic:support:{}", finding.support_id),
-            "SUPPORT_INPUT_INVALID",
-            "blocking",
-            finding.message.clone(),
-            vec![finding.support_id.clone()],
-        ));
-    }
-    if has_blocking(&diagnostics) {
-        return blocked_envelope(model, diagnostics);
-    }
 
     // F1b (T3 D1 §4.8, W3): the kernel's sparse assembly per basis; no dense
     // matrix is held across cases or bases. F1b (§4.7, ROOT Q2): on a linear
@@ -3318,9 +3156,9 @@ fn run_linear_static_preview_observed_inner(
         Option<String>,
     )> = vec![(None, materials.clone(), built, stiffness, None)];
     // RT-A5 (operating-case §7.4): this document solve's invocation context.
-    let invocation = held_status::InvocationToken::mint();
+    let invocation = held_status::InvocationToken::mint(); let test_held = if model.load_cases.iter().any(hydrostatic::holds_supports) { hydrostatic::held_set(&model, "").0 } else { Vec::new() }; // DEL-05-01 REQ-014: the supports a test case holds, for its mark.
     let mut load_case_solves = Vec::new();
-    for (case_index, load_case) in model.load_cases.iter().enumerate() {
+    for (case_index, load_case) in model.load_cases.iter().enumerate() { match hydrostatic::solve_held_case(&model, &materials, resolved_cases.as_ref().map(|cases| &cases[case_index]), &consumed_bases, load_case, solver_mode, source_budget, &mut diagnostics, invocation) { hydrostatic::HeldOutcome::NotHeld => {} hydrostatic::HeldOutcome::Solved(solve) => { load_case_solves.push(*solve); if has_blocking(&diagnostics) { return blocked_envelope(model, diagnostics); } continue; } hydrostatic::HeldOutcome::Blocked => return blocked_envelope(model, diagnostics), hydrostatic::HeldOutcome::Failed(error) => return solver_blocked(model, diagnostics, error) } // DEL-04-07 REQ-011: a held test case on its replaced system.
         if let Some(resolved_cases) = &resolved_cases {
             // Each resolved case rebuilds stiffness from its own member pairs;
             // no matrix is reused under an unchanged label when inputs differ.
@@ -3584,7 +3422,7 @@ fn run_linear_static_preview_observed_inner(
         }
         pressure_evidence.extend(solve.pressure_evidence.iter().cloned());
         load_reference_states.extend(solve.load_state_evidence.clone());
-        if let Some(mut evidence) = solve.exact_case_evidence.clone() {
+        if let Some(mut evidence) = solve.exact_case_evidence.clone() { if let Some(mark) = model.load_cases.iter().find(|case| case.id == solve.load_case_id).and_then(|case| hydrostatic::mark(case, &test_held, &test_contents)) { evidence["test_condition"] = mark; } // DEL-05-01 REQ-014: the test mark, on a test case only.
             if source_selected {
                 evidence["recovery_method"] = serde_json::json!(if solve.source_selected {
                     "retained_source_blocks_exact_v1"
@@ -3836,6 +3674,143 @@ fn run_linear_static_preview_observed_inner(
     combination_certificate::publish(&model.combinations, &case_ids, &mut envelope, &certificate_operands);
     if let Some(observer) = product.as_deref_mut() { observer.finish(&envelope); }
     envelope
+}
+
+/// The solve's steps before it forms the first stiffness (DEL-04-06 REQ-013): one function, which
+/// `run_linear_static_preview_observed_inner` runs and the on-demand model checks
+/// (`validation/model_checks.rs`) run without solving, so that the two cannot differ. It stops where
+/// the solve stops, `Blocked` with the model as it stands and every diagnostic so far; otherwise it is
+/// `Formable` with what the solve forms its stiffness from. `normalized` is the retained observer's
+/// hook after the base material pair; the checks pass one that does nothing.
+pub(crate) enum PreFormation { Blocked(PreviewModel, Vec<Diagnostic>), Formable(Formable, Vec<Diagnostic>) }
+/// What the solve forms its first stiffness from, once `pre_formation` has not stopped.
+pub(crate) struct Formable { pub(crate) model: PreviewModel, pub(crate) materials: Vec<MaterialInput>, pub(crate) resolved_cases: Option<Vec<case_state::resolve::ResolvedCase>>,
+    pub(crate) consumed_bases: pf_timoshenko::ConsumedBases, pub(crate) built: BuiltModel, pub(crate) boundary: open_pipe_stress_linear_supports::BoundaryPreparation,
+    pub(crate) test_contents: Vec<hydrostatic::ContentsResolution> }
+
+/// Each stop is one line, and the function stands right after the solve, so that no line after it in
+/// this file moved when the steps left the solve.
+pub(crate) fn pre_formation(mut model: PreviewModel, mut materials: Vec<MaterialInput>, request_materials_supplied: bool,
+    normalized: &mut dyn FnMut(&PreviewModel, &[MaterialInput])) -> PreFormation {
+    let mut diagnostics = Vec::new();
+
+    // Model document 0.9.0 (DEL-02-01 Design `model-document-0.9.0.md` §1.5): the
+    // lowering judges the 0.9.0 members' document-level rules and S1's interim
+    // refusals, then removes the members no later stage reads. Everything after it
+    // is the existing pipeline applied to the lowered model.
+    model.declared_test_contents = hydrostatic::declared_contents(&model); // DEL-05-01 REQ-014: before the lowering clears the conditions.
+    let condition_added = operating_conditions::lower(&mut model, &mut diagnostics);
+    pressure_runtime::validate_profile(&model, &mut diagnostics);
+    // RT-A3 increment 1 (D-1): the junction closures' named warnings, once.
+    pressure_runtime::junction_closure_warnings(&model, &mut diagnostics);
+    case_state::resolve::validate_document(&model, request_materials_supplied, &mut diagnostics);
+    // W-16 slice a: the named imposed-displacement checks (and the exact
+    // route's refusal) run ahead of generic validation.
+    if imposed_motion::validate(&model, &mut diagnostics) { return PreFormation::Blocked(model, diagnostics); }
+    validate_model_inputs(&model, &materials, &mut diagnostics);
+    validate_support_family_tokens(&model, &mut diagnostics);
+    pf_timoshenko::append_partial_span_refusals(&model, &mut diagnostics);
+    if model.document_kind != "openpipestress.product_preview.model" {
+        diagnostics.push(diag(
+            "diagnostic:physics:document-kind",
+            "PREVIEW_DOCUMENT_KIND_INVALID",
+            "blocking",
+            "physics adapter requires an openpipestress.product_preview.model document",
+            vec!["model".to_string()],
+        ));
+    }
+    if model.schema_version.is_empty() {
+        diagnostics.push(diag(
+            "diagnostic:physics:schema-version",
+            "PREVIEW_SCHEMA_VERSION_MISSING",
+            "blocking",
+            "preview model requires an explicit schema version",
+            vec!["model".to_string()],
+        ));
+    }
+    if has_blocking(&diagnostics) { return PreFormation::Blocked(model, diagnostics); }
+    // S1's interim withholding (§2.2, §2.4): every combination was judged above.
+    document_members::withhold_interim_combinations(&mut model, &mut diagnostics);
+
+    self_weight::validate_applied_self_weight(&model, &mut diagnostics);
+    if has_blocking(&diagnostics) { return PreFormation::Blocked(model, diagnostics); }
+    // DEL-05-01 REQ-008: what the seismic warning prints as entered, and the plan's fresh primitives.
+    let seismic_entered = seismic_warning::capture(&model, &condition_added);
+    let test_contents = std::mem::take(&mut model.test_contents);
+    hydrostatic::apply_contents(&mut model, &test_contents); // DEL-05-01 REQ-014: a test case's contents enter its checked self-weight once, after seismic capture.
+
+    resolve_shared_sections(&mut model, &mut diagnostics);
+    if has_blocking(&diagnostics) { return PreFormation::Blocked(model, diagnostics); }
+
+    normalize_model_units(&mut model, &mut materials, &mut diagnostics);
+    if has_blocking(&diagnostics) { return PreFormation::Blocked(model, diagnostics); }
+    // DEL-05-01 REQ-008: the seismic model-check warning, before formation (warnings only).
+    if !case_state::is_load_state(&model) {
+        seismic_warning::append(&model, &materials, None, &seismic_entered, &mut diagnostics);
+    }
+    // W-15 slice c (DEL-03-05 Design `eccentric-reducer-offset.md` §3.2): a
+    // declared eccentric offset is checked against the normalized node
+    // geometry, which governs. The first pass returns before any index is
+    // built, and before the tolerance is read, when no component carries the
+    // slot. The tolerance was admitted by `validate_model_settings`.
+    rigid_component::append_eccentric_offset_refusals(&model, &mut diagnostics);
+    if has_blocking(&diagnostics) { return PreFormation::Blocked(model, diagnostics); }
+
+    let load_state = case_state::is_load_state(&model);
+    // A 0.4.0 document never consumes a case-wide base pair: each member's
+    // pair comes from its own resolved selection, so only consumed data counts.
+    if !load_state {
+        pressure_material::resolve_base(&model, &mut materials, &mut diagnostics);
+    }
+    if has_blocking(&diagnostics) { return PreFormation::Blocked(model, diagnostics); }
+    normalized(&model, &materials);
+    let resolved_cases = if load_state {
+        let resolved = model
+            .load_cases
+            .iter()
+            .filter_map(|case| {
+                case_state::resolve::resolve_case(&model, &materials, case, &mut diagnostics)
+            })
+            .collect::<Vec<_>>();
+        if has_blocking(&diagnostics) || resolved.len() != model.load_cases.len() { return PreFormation::Blocked(model, diagnostics); }
+        case_state::resolve::refuse_resolved_span_strain(&model, &resolved, &mut diagnostics);
+        case_state::resolve::refuse_all_reference_states(&resolved, &mut diagnostics);
+        if has_blocking(&diagnostics) { return PreFormation::Blocked(model, diagnostics); }
+        seismic_warning::append(&model, &materials, Some(&resolved), &seismic_entered, &mut diagnostics);
+        Some(resolved)
+    } else {
+        None
+    };
+    // PF Timoshenko (DEL-05-03 Design `pf-timoshenko.md` §2): the consumed bases, from
+    // the cases' selections before any build. The seed forms Timoshenko members only
+    // when a case consumes the base basis; otherwise it is never solved.
+    let consumed_bases = pf_timoshenko::ConsumedBases::of(&model);
+    let built = build_model_for_basis(
+        &model,
+        &materials,
+        resolved_cases.as_ref().map(|cases| &cases[0].pairs),
+        consumed_bases.base.as_ref(),
+        &mut diagnostics,
+    );
+    if has_blocking(&diagnostics) { return PreFormation::Blocked(model, diagnostics); }
+    let built = built.expect("build_model returns Some when no blocking diagnostics were added");
+    append_constant_effort_consumption_diagnostics(&model, &mut diagnostics);
+    topology::append_topology_diagnostics(&model, &built, &mut diagnostics);
+
+    let boundary = prepare_boundary(built.nodes.len(), &built.supports);
+    // DEL-04-07 REQ-011 & DEL-04-06 REQ-013: the document's own ground
+    // restraints when some case is solved on it, and otherwise the replaced
+    // system's, checked before stiffness formation and per-case basis lookup.
+    check_pre_formation_restraints(
+        &model,
+        &materials,
+        resolved_cases.as_ref().map(|cases| &cases[0].pairs),
+        &built,
+        &boundary,
+        &mut diagnostics,
+    );
+    if has_blocking(&diagnostics) { return PreFormation::Blocked(model, diagnostics); }
+    PreFormation::Formable(Formable { model, materials, resolved_cases, consumed_bases, built, boundary, test_contents }, diagnostics)
 }
 
 /// U3: a permitted retained invocation (API.md §3). Everything after G-A runs on
@@ -4614,13 +4589,27 @@ fn load_state_pipe_materials(state: &case_state::resolve::ResolvedCase) -> serde
 
 /// The published `load_reference_states` record of one case. Only a selected
 /// retained-source response is joined; every other case states the ordinary
-/// route it actually published.
+/// route it actually published. `loads` are the case's formed primitive
+/// loads: each generated static-equivalent load among them enters the record
+/// of load sources once, after the resolved sources, in generation order,
+/// with its identity and factor 1 (DEL-04-07 REQ-011). A case without
+/// generation adds nothing, so its record keeps its bytes.
 fn load_state_case_record(
     state: &case_state::resolve::ResolvedCase,
     solver_mode: PreviewSolverMode,
     source_selected: bool,
+    loads: &[PrimitiveLoad],
 ) -> serde_json::Value {
     let mut evidence = state.evidence.clone();
+    let effective = &state.effective_case;
+    if effective.equivalent_static.is_some() {
+        let contributions = evidence["contributions"].as_array_mut().expect("resolved contributions");
+        for load in loads.iter().filter(|load| is_generated_equivalent_static_load(effective, &load.load_id, None)) {
+            let kind = if is_generated_equivalent_static_load(effective, &load.load_id, Some("seismic")) { "seismic" } else { "wind" };
+            contributions.push(serde_json::json!({"source_id": load.load_id, "owner_kind": "generated_equivalent_static",
+                "classification": "generated_applied", "factor": 1.0, "generation_kind": kind}));
+        }
+    }
     evidence["solve"] = serde_json::json!({
         "requested_mode": solver_mode.as_str(),
         "recovery_method": if source_selected { "retained_source_blocks_exact_v1" } else if solver_mode == PreviewSolverMode::DenseScrutiny { "ordinary_dense_structural_v1" } else { "ordinary_sparse_structural_v1" },
@@ -4683,6 +4672,113 @@ enum BasisStiffness {
 /// F1b (ROOT Q2): the basis assembly with K2a's range refusal deferred on a
 /// linear invocation. Every other formation error, and a range refusal on an
 /// invocation with a nonlinear support, blocks the invocation as today.
+/// The necessary ground-restraint checks of a built system before its
+/// stiffness is formed: some explicit restraint, spring or contact
+/// (`SUPPORT_INPUT_MISSING`), and at least six independent ground constraints
+/// (`SOLVER_SYSTEM_BLOCKED`). Run on the document's system and, by
+/// [`hydrostatic::solve_held_case`], on a held test case's replaced one.
+pub(crate) fn check_ground_restraints(
+    model: &PreviewModel,
+    built: &BuiltModel,
+    boundary: &open_pipe_stress_linear_supports::BoundaryPreparation,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    let potential_contact_dofs = eligible_contact_dofs(
+        built.nodes.len(),
+        &boundary.restrained_dofs,
+        &built.nonlinear_supports,
+        &built.nonlinear_initial_states,
+    );
+    if boundary.restrained_dofs.is_empty()
+        && boundary.springs.is_empty()
+        && potential_contact_dofs.is_none() && built.skew.is_none()
+    {
+        diagnostics.push(diag(
+            "diagnostic:physics:no-restraints",
+            "SUPPORT_INPUT_MISSING",
+            "blocking",
+            "linear-static preview requires explicit support restraints or springs; no automatic boundary conditions are applied",
+            vec!["supports".to_string()],
+        ));
+    }
+
+    // Necessary lower bound only: fewer than six independent ground DOFs
+    // cannot remove six rigid-body modes. Springs count; duplicates do not.
+    // Passing this check never establishes stability: the assembled solve does.
+    let ground_dofs = boundary
+        .restrained_dofs
+        .iter()
+        .copied()
+        .chain(
+            boundary
+                .springs
+                .iter()
+                .filter(|spring| spring.stiffness.value > 0.0)
+                .map(|spring| spring.node_dof.global_index()),
+        )
+        .chain(potential_contact_dofs.iter().flatten().copied())
+        .collect::<HashSet<_>>();
+    let skewed_rows = skew::ground_rows(built.skew.as_ref()); if !(ground_dofs.is_empty() && skewed_rows == 0) && ground_dofs.len() + skewed_rows < DOF_PER_NODE {
+        let (restrained, missing) = support_restraint_summary(&boundary.restrained_dofs); let skewed = if built.skew.is_some() { format!("; skewed constraints: {skewed_rows}") } else { String::new() };
+        diagnostics.push(diag("diagnostic:physics:under-restrained", "SOLVER_SYSTEM_BLOCKED", "blocking",
+            format!("fewer than six independent ground constraints including positive springs: the six rigid-body modes of a connected structure cannot all be removed; directly restrained global DOF classes: {restrained}; global DOF classes with no direct restraint: {missing} (not a rigid-body mode analysis; separated restraints can resist rotations); support contributions: {}{skewed}", support_contribution_summary(model)),
+            vec!["supports".to_string()]));
+    }
+}
+
+/// The pre-formation restraint checks shared by the solve
+/// (`run_linear_static_preview_observed_inner`) and on-demand model checks
+/// (`validation::model_checks`): the document's own ground restraints when some
+/// case is solved on it, invalid-support findings on the document boundary, and
+/// — when every case holds supports (DEL-04-07 REQ-011) and no blocking
+/// diagnostic has already been raised — the replaced system's build, boundary
+/// findings and ground restraints, checked once before stiffness formation and
+/// before per-case modulus-basis resolution (DEL-04-06 REQ-013, AC-008).
+pub(crate) fn check_pre_formation_restraints(
+    model: &PreviewModel,
+    materials: &[MaterialInput],
+    member_pairs: Option<&HashMap<String, pressure_exact::IsotropicENu>>,
+    built: &BuiltModel,
+    boundary: &open_pipe_stress_linear_supports::BoundaryPreparation,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    let held_all = hydrostatic::all_cases_held(model);
+    if held_all.is_none() {
+        check_ground_restraints(model, built, boundary, diagnostics);
+    }
+    for finding in &boundary.findings {
+        diagnostics.push(diag(
+            &format!("diagnostic:support:{}", finding.support_id),
+            "SUPPORT_INPUT_INVALID",
+            "blocking",
+            finding.message.clone(),
+            vec![finding.support_id.clone()],
+        ));
+    }
+    if let Some(held) = held_all.filter(|_| !has_blocking(diagnostics)) {
+        let replaced = hydrostatic::held_model(model, &held);
+        let Some(replaced_built) = build_model_for_members(&replaced, materials, member_pairs, diagnostics)
+            .filter(|_| !has_blocking(diagnostics))
+        else {
+            return;
+        };
+        let replaced_boundary = prepare_boundary(replaced_built.nodes.len(), &replaced_built.supports);
+        if !replaced_boundary.findings.is_empty() {
+            for finding in &replaced_boundary.findings {
+                diagnostics.push(diag(
+                    &format!("diagnostic:support:{}", finding.support_id),
+                    "SUPPORT_INPUT_INVALID",
+                    "blocking",
+                    finding.message.clone(),
+                    vec![finding.support_id.clone()],
+                ));
+            }
+            return;
+        }
+        check_ground_restraints(&replaced, &replaced_built, &replaced_boundary, diagnostics);
+    }
+}
+
 fn form_basis_stiffness(
     built: &BuiltModel,
     springs: &[SpringEntry],
@@ -5468,9 +5564,27 @@ fn solve_prepared_load_case(
     mut product: Option<&mut retained_product::ProductCapture>,
     mut role: held_status::CaseRole<'_, '_>,
 ) -> Result<LoadCaseSolve, FrameKernelError> {
+    let before_build = diagnostics.len();
     let loads = build_load_case_primitive_loads(model, load_case, diagnostics);
-    let load_application = prepare_loads(built.nodes.len(), built.pipes.len(), &loads);
-    for finding in &load_application.findings {
+    let before_collisions = diagnostics.len();
+    if let Some(state) = load_state {
+        refuse_load_state_generated_collisions(model, load_case, state, &loads, diagnostics);
+    }
+    refuse_document_generated_collisions(model, materials, load_case, &loads, diagnostics);
+    // A refused generated identity, and a generation the formation refused
+    // (a wind direction outside the schema's tokens, a missing input, a
+    // component outside its range, a wind marking on a replaced span), never
+    // reach load preparation: the case takes the blocked return below without
+    // preparing its loads, so the part of a generation that did form (the
+    // seismic loads beside a refused wind input) is never prepared either.
+    // Formation's refusals of the generation are its EQUIVALENT_STATIC_*
+    // blockers; every finding of the scans after it counts.
+    let generation_refused = diagnostics[before_build..before_collisions]
+        .iter()
+        .any(|finding| finding.severity == "blocking" && finding.code.starts_with("EQUIVALENT_STATIC_"));
+    let collided = generation_refused || has_blocking(&diagnostics[before_collisions..]);
+    let load_application = (!collided).then(|| prepare_loads(built.nodes.len(), built.pipes.len(), &loads));
+    for finding in load_application.iter().flat_map(|application| &application.findings) {
         diagnostics.push(diag(
             &format!("diagnostic:load:{}", finding.load_id),
             "LOAD_INPUT_INVALID",
@@ -5499,6 +5613,7 @@ fn solve_prepared_load_case(
             nonlinear_state: None,
         });
     }
+    let load_application = load_application.expect("loads are prepared when no collision blocks the case");
 
     let pipe_map = model
         .pipe_segments
@@ -7640,7 +7755,7 @@ fn solve_prepared_load_case(
     });
     let source_selected = selected_source.is_some();
     let load_state_evidence = load_state.map(|state| {
-        let mut record = load_state_case_record(state, solver_mode, source_selected);
+        let mut record = load_state_case_record(state, solver_mode, source_selected, &loads);
         // T4-U3 (S21, RV6 C-2): the replaced span's resolved member record and
         // eigenstrain contribution are not published (it is still resolved).
         joint::exclude_replaced_spans(&mut record, &replaced_span_ids_of(built));
@@ -9827,99 +9942,103 @@ fn curved_bend_inconsistent_diag(
 /// Resolution is in-memory only; local supplemental section inputs are retained.
 fn resolve_shared_sections(model: &mut PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
     for pipe in &mut model.pipe_segments {
-        let Some(reference) = &pipe.section_ref else {
-            continue;
-        };
-        let refs = vec![pipe.id.clone(), reference.clone()];
-        let id = format!("diagnostic:section-reference:{}", stable_suffix(&pipe.id));
-        if reference.trim().is_empty() {
-            diagnostics.push(diag(
-                &id,
-                "SECTION_REFERENCE_INVALID",
-                "blocking",
-                "bound section requires an explicit nonblank identity",
-                refs,
-            ));
-            continue;
-        }
-        let matches: Vec<_> = model
-            .sections
-            .iter()
-            .filter(|s| &s.id == reference)
-            .collect();
-        if matches.len() != 1 {
-            diagnostics.push(diag(
-                &id,
-                "SECTION_REFERENCE_INVALID",
-                "blocking",
-                "bound section must exist exactly once",
-                refs,
-            ));
-            continue;
-        }
-        let shared = matches[0];
-        if shared.section_type != "pipe"
-            || shared
-                .properties
-                .keys()
-                .any(|key| key != "outside_diameter" && key != "wall_thickness")
-        {
-            diagnostics.push(diag(&id, "SECTION_BINDING_UNSUPPORTED", "blocking",
-                "binding requires a pipe section with only outside_diameter and wall_thickness properties", refs));
-            continue;
-        }
-        let (Some(od), Some(wall)) = (
-            shared.properties.get("outside_diameter"),
-            shared.properties.get("wall_thickness"),
-        ) else {
-            diagnostics.push(diag(
-                &id,
-                "SECTION_REFERENCE_INVALID",
-                "blocking",
-                "bound section requires explicit outside_diameter and wall_thickness quantities",
-                refs,
-            ));
-            continue;
-        };
-        let mut resolved = pipe.section.clone();
-        resolved.outside_diameter = od.clone();
-        resolved.wall_thickness = wall.clone();
-        let before = diagnostics.len();
-        for quantity in [&mut resolved.outside_diameter, &mut resolved.wall_thickness] {
-            normalize_quantity(quantity, Dimension::Length, &id, refs.clone(), diagnostics);
-        }
-        if let Some(tolerance) = &mut resolved.mill_tolerance {
-            normalize_quantity(tolerance, Dimension::Length, &id, refs.clone(), diagnostics);
-        }
-        if let Some(allowance) = &mut resolved.corrosion_allowance {
-            normalize_quantity(allowance, Dimension::Length, &id, refs.clone(), diagnostics);
-        }
-        if diagnostics.len() != before {
-            continue;
-        }
-        if derive_pipe_section(&resolved, &pipe.id, diagnostics).is_none() {
-            continue;
-        }
-        // Stored cache must preserve the exact source representation used by
-        // operation materialization, so display/export and solver agree.
-        if pipe.section.outside_diameter.value != od.value
-            || pipe.section.outside_diameter.unit != od.unit
-            || pipe.section.wall_thickness.value != wall.value
-            || pipe.section.wall_thickness.unit != wall.unit
-        {
-            diagnostics.push(diag(
-                &id,
-                "SECTION_REFERENCE_CACHE_STALE",
-                "blocking",
-                "inline OD/wall contradict the shared section; explicitly rematerialize before use",
-                refs,
-            ));
-            continue;
-        }
-        // Copy source quantities, leaving all supplemental values untouched.
-        pipe.section.outside_diameter = od.clone();
-        pipe.section.wall_thickness = wall.clone();
+        resolve_shared_section(pipe, &model.sections, diagnostics);
     }
+}
+
+/// [`resolve_shared_sections`] for one pipe against the document's `sections`.
+pub(crate) fn resolve_shared_section(pipe: &mut PreviewPipe, sections: &[PreviewSection], diagnostics: &mut Vec<Diagnostic>) {
+    let Some(reference) = &pipe.section_ref else {
+        return;
+    };
+    let refs = vec![pipe.id.clone(), reference.clone()];
+    let id = format!("diagnostic:section-reference:{}", stable_suffix(&pipe.id));
+    if reference.trim().is_empty() {
+        diagnostics.push(diag(
+            &id,
+            "SECTION_REFERENCE_INVALID",
+            "blocking",
+            "bound section requires an explicit nonblank identity",
+            refs,
+        ));
+        return;
+    }
+    let matches: Vec<_> = sections
+        .iter()
+        .filter(|s| &s.id == reference)
+        .collect();
+    if matches.len() != 1 {
+        diagnostics.push(diag(
+            &id,
+            "SECTION_REFERENCE_INVALID",
+            "blocking",
+            "bound section must exist exactly once",
+            refs,
+        ));
+        return;
+    }
+    let shared = matches[0];
+    if shared.section_type != "pipe"
+        || shared
+            .properties
+            .keys()
+            .any(|key| key != "outside_diameter" && key != "wall_thickness")
+    {
+        diagnostics.push(diag(&id, "SECTION_BINDING_UNSUPPORTED", "blocking",
+            "binding requires a pipe section with only outside_diameter and wall_thickness properties", refs));
+        return;
+    }
+    let (Some(od), Some(wall)) = (
+        shared.properties.get("outside_diameter"),
+        shared.properties.get("wall_thickness"),
+    ) else {
+        diagnostics.push(diag(
+            &id,
+            "SECTION_REFERENCE_INVALID",
+            "blocking",
+            "bound section requires explicit outside_diameter and wall_thickness quantities",
+            refs,
+        ));
+        return;
+    };
+    let mut resolved = pipe.section.clone();
+    resolved.outside_diameter = od.clone();
+    resolved.wall_thickness = wall.clone();
+    let before = diagnostics.len();
+    for quantity in [&mut resolved.outside_diameter, &mut resolved.wall_thickness] {
+        normalize_quantity(quantity, Dimension::Length, &id, refs.clone(), diagnostics);
+    }
+    if let Some(tolerance) = &mut resolved.mill_tolerance {
+        normalize_quantity(tolerance, Dimension::Length, &id, refs.clone(), diagnostics);
+    }
+    if let Some(allowance) = &mut resolved.corrosion_allowance {
+        normalize_quantity(allowance, Dimension::Length, &id, refs.clone(), diagnostics);
+    }
+    if diagnostics.len() != before {
+        return;
+    }
+    if derive_pipe_section(&resolved, &pipe.id, diagnostics).is_none() {
+        return;
+    }
+    // Stored cache must preserve the exact source representation used by
+    // operation materialization, so display/export and solver agree.
+    if pipe.section.outside_diameter.value != od.value
+        || pipe.section.outside_diameter.unit != od.unit
+        || pipe.section.wall_thickness.value != wall.value
+        || pipe.section.wall_thickness.unit != wall.unit
+    {
+        diagnostics.push(diag(
+            &id,
+            "SECTION_REFERENCE_CACHE_STALE",
+            "blocking",
+            "inline OD/wall contradict the shared section; explicitly rematerialize before use",
+            refs,
+        ));
+        return;
+    }
+    // Copy source quantities, leaving all supplemental values untouched.
+    pipe.section.outside_diameter = od.clone();
+    pipe.section.wall_thickness = wall.clone();
 }
 
 fn normalize_node_coordinates(model: &mut PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
@@ -11051,7 +11170,7 @@ fn build_load_case_primitive_loads(
             }
         })
         .collect::<Vec<_>>();
-    append_equivalent_static_generated_loads(model, load_case, &mut loads, diagnostics);
+    let _ = append_equivalent_static_generated_loads(model, load_case, &mut loads, diagnostics);
     loads
 }
 
@@ -11280,27 +11399,148 @@ fn equivalent_static_diag_id(load_case_id: &str, suffix: &str) -> String {
     )
 }
 
+/// The outcome of a case's seismic generation
+/// ([`append_seismic_generated_loads`]).
+enum SeismicGeneration<'a> {
+    /// The seismic loads are appended; the component plan.
+    Generated(seismic_component::Plan<'a>),
+    /// The generator refused its inputs by finding; nothing is appended, and
+    /// the case's wind generation still runs.
+    Refused,
+    /// A missing input, a component-plan refusal or a missing mass refused the
+    /// case before the generator ran; nothing is appended, and the case's
+    /// equivalent-static generation stops (no wind generation, no id check).
+    Stopped,
+}
+
+/// DEL-05-01: static-equivalent seismic generation for one case. Its loads
+/// are appended to `loads` when generation is admitted; otherwise its
+/// refusals are pushed to `diagnostics` and nothing is appended. The outcome
+/// keeps the distinction the caller acts on: a refusal before the generator
+/// runs stops the case's generation, and a generator finding does not. The
+/// seismic model-check warning reads the same outcome (`seismic_warning`).
+fn append_seismic_generated_loads<'a>(
+    model: &'a PreviewModel,
+    load_case: &PreviewLoadCase,
+    seismic: &SeismicGenerationInput,
+    loads: &mut Vec<PrimitiveLoad>,
+    diagnostics: &mut Vec<Diagnostic>,
+) -> SeismicGeneration<'a> {
+    let case_id = load_case.id.as_str();
+    let exact = pressure_runtime::is_exact(model);
+    let replaced = joint::replaced_span_ids(model);
+    let mut axis_factors = Vec::new();
+    for (direction, factor) in [
+        (LoadDirection::GlobalX, &seismic.g_factor_x),
+        (LoadDirection::GlobalY, &seismic.g_factor_y),
+        (LoadDirection::GlobalZ, &seismic.g_factor_z),
+    ] {
+        if let Some(factor) = factor {
+            axis_factors.push(EquivalentStaticAxisFactor {
+                direction,
+                g_factor: factor.value,
+            });
+        }
+    }
+    let mut inputs_missing = false;
+    if axis_factors.is_empty() {
+        diagnostics.push(diag(
+            &equivalent_static_diag_id(case_id, "seismic:g-factors"),
+            "EQUIVALENT_STATIC_INPUT_MISSING",
+            "blocking",
+            "seismic equivalent-static generation requires at least one user-entered per-axis g-factor",
+            vec![case_id.to_string()],
+        ));
+        inputs_missing = true;
+    }
+    let Some(gravity) = seismic.gravity_acceleration.as_ref().map(|q| q.value) else {
+        diagnostics.push(diag(
+            &equivalent_static_diag_id(case_id, "seismic:gravity"),
+            "EQUIVALENT_STATIC_INPUT_MISSING",
+            "blocking",
+            "seismic equivalent-static generation requires a user-entered gravity_acceleration; no physical-constant default is applied",
+            vec![case_id.to_string(), "gravity_acceleration".to_string()],
+        ));
+        return SeismicGeneration::Stopped;
+    };
+    if inputs_missing {
+        return SeismicGeneration::Stopped;
+    }
+    // DEL-05-01 (LIM-028): the members a rigid-family component replaces
+    // and its force items, by REQ-015's dispositions, before any mass is
+    // read; a range refusal blocks the case by name.
+    let mut refusals = Vec::new();
+    let components = seismic_component::plan(model, case_id, &replaced, &seismic_component::entered_factors(load_case), &mut refusals);
+    if !refusals.is_empty() {
+        diagnostics.extend(refusals);
+        return SeismicGeneration::Stopped;
+    }
+    let mut masses = Vec::new();
+    let mut mass_blocked = false;
+    for (pipe_index, pipe) in model.pipe_segments.iter().enumerate() {
+        // §3: a connector-replaced span carries no load; it is skipped
+        // before its mass is evaluated, and the surviving pipes keep
+        // their original element index. So is a component-replaced member.
+        if replaced.contains(pipe.id.as_str()) || components.replaced.contains(pipe.id.as_str()) {
+            continue;
+        }
+        match generation_mass_per_length(pipe, case_id, exact, diagnostics) {
+            Some(mass_per_length) => masses.push(ElementMassPerLength {
+                element_index: pipe_index,
+                mass_per_length,
+            }),
+            None => mass_blocked = true,
+        }
+    }
+    if mass_blocked {
+        return SeismicGeneration::Stopped;
+    }
+    let basis = SeismicEquivalentStaticBasis {
+        load_case_ref: case_id.to_string(),
+        gravity_acceleration: gravity,
+        axis_factors,
+    };
+    let (generated, findings) = generate_seismic_equivalent_static_loads_beside_components(&basis, &masses, seismic_component::primitives(&components, case_id));
+    for finding in &findings {
+        diagnostics.push(diag(
+            &equivalent_static_diag_id(
+                case_id,
+                &format!("seismic:{}", stable_suffix(&finding.load_id)),
+            ),
+            "EQUIVALENT_STATIC_INPUT_INVALID",
+            "blocking",
+            finding.message.clone(),
+            vec![case_id.to_string()],
+        ));
+    }
+    if !findings.is_empty() {
+        return SeismicGeneration::Refused;
+    }
+    loads.extend(generated);
+    SeismicGeneration::Generated(components)
+}
+
 /// Synthesize seismic/wind static-equivalent primitive loads for a load
 /// case carrying `equivalent_static` user inputs (DEC-068 item 2). Pure
 /// mechanics from user inputs and the model's own computed mass
 /// distribution: no coefficients, no catalogs, no defaults; missing inputs
 /// or marked spans are blocking (PRD section 6.2).
-fn append_equivalent_static_generated_loads(
-    model: &PreviewModel,
+fn append_equivalent_static_generated_loads<'a>(
+    model: &'a PreviewModel,
     load_case: &PreviewLoadCase,
     loads: &mut Vec<PrimitiveLoad>,
     diagnostics: &mut Vec<Diagnostic>,
-) {
+) -> Option<seismic_component::Plan<'a>> {
     let Some(equivalent_static) = &load_case.equivalent_static else {
-        return;
+        return None;
     };
     let case_id = load_case.id.as_str();
     // W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md`): the exact
     // route generates on its own mass basis and never on a connector-replaced
     // span; a Timoshenko partial span takes the exact Timoshenko vector
     // (W-16t, §3). Off the exact route these are false and empty, and
-    // generation is unchanged.
-    let exact = pressure_runtime::is_exact(model);
+    // generation is unchanged. Seismic generation reads both in
+    // `append_seismic_generated_loads`.
     let replaced = joint::replaced_span_ids(model);
     let generated_from = loads.len();
     if equivalent_static.seismic.is_none() && equivalent_static.wind.is_none() {
@@ -11311,96 +11551,15 @@ fn append_equivalent_static_generated_loads(
             "equivalent_static generation requires user-entered seismic or wind inputs",
             vec![case_id.to_string()],
         ));
-        return;
+        return None;
     }
 
+    let mut seismic_plan = None;
     if let Some(seismic) = &equivalent_static.seismic {
-        let mut axis_factors = Vec::new();
-        for (direction, factor) in [
-            (LoadDirection::GlobalX, &seismic.g_factor_x),
-            (LoadDirection::GlobalY, &seismic.g_factor_y),
-            (LoadDirection::GlobalZ, &seismic.g_factor_z),
-        ] {
-            if let Some(factor) = factor {
-                axis_factors.push(EquivalentStaticAxisFactor {
-                    direction,
-                    g_factor: factor.value,
-                });
-            }
-        }
-        let mut inputs_missing = false;
-        if axis_factors.is_empty() {
-            diagnostics.push(diag(
-                &equivalent_static_diag_id(case_id, "seismic:g-factors"),
-                "EQUIVALENT_STATIC_INPUT_MISSING",
-                "blocking",
-                "seismic equivalent-static generation requires at least one user-entered per-axis g-factor",
-                vec![case_id.to_string()],
-            ));
-            inputs_missing = true;
-        }
-        let Some(gravity) = seismic.gravity_acceleration.as_ref().map(|q| q.value) else {
-            diagnostics.push(diag(
-                &equivalent_static_diag_id(case_id, "seismic:gravity"),
-                "EQUIVALENT_STATIC_INPUT_MISSING",
-                "blocking",
-                "seismic equivalent-static generation requires a user-entered gravity_acceleration; no physical-constant default is applied",
-                vec![case_id.to_string(), "gravity_acceleration".to_string()],
-            ));
-            return;
-        };
-        if inputs_missing {
-            return;
-        }
-        // DEL-05-01 (LIM-028): the members a rigid-family component replaces
-        // and its force items, by REQ-015's dispositions, before any mass is
-        // read; a range refusal blocks the case by name.
-        let mut refusals = Vec::new();
-        let components = seismic_component::plan(model, case_id, &replaced, &seismic_component::entered_factors(load_case), &mut refusals);
-        if !refusals.is_empty() {
-            diagnostics.extend(refusals);
-            return;
-        }
-        let mut masses = Vec::new();
-        let mut mass_blocked = false;
-        for (pipe_index, pipe) in model.pipe_segments.iter().enumerate() {
-            // §3: a connector-replaced span carries no load; it is skipped
-            // before its mass is evaluated, and the surviving pipes keep
-            // their original element index. So is a component-replaced member.
-            if replaced.contains(pipe.id.as_str()) || components.replaced.contains(pipe.id.as_str()) {
-                continue;
-            }
-            match generation_mass_per_length(pipe, case_id, exact, diagnostics) {
-                Some(mass_per_length) => masses.push(ElementMassPerLength {
-                    element_index: pipe_index,
-                    mass_per_length,
-                }),
-                None => mass_blocked = true,
-            }
-        }
-        if mass_blocked {
-            return;
-        }
-        let basis = SeismicEquivalentStaticBasis {
-            load_case_ref: case_id.to_string(),
-            gravity_acceleration: gravity,
-            axis_factors,
-        };
-        let (generated, findings) = generate_seismic_equivalent_static_loads_beside_components(&basis, &masses, seismic_component::primitives(&components, case_id));
-        for finding in &findings {
-            diagnostics.push(diag(
-                &equivalent_static_diag_id(
-                    case_id,
-                    &format!("seismic:{}", stable_suffix(&finding.load_id)),
-                ),
-                "EQUIVALENT_STATIC_INPUT_INVALID",
-                "blocking",
-                finding.message.clone(),
-                vec![case_id.to_string()],
-            ));
-        }
-        if findings.is_empty() {
-            loads.extend(generated);
+        match append_seismic_generated_loads(model, load_case, seismic, loads, diagnostics) {
+            SeismicGeneration::Generated(plan) => seismic_plan = Some(plan),
+            SeismicGeneration::Refused => {}
+            SeismicGeneration::Stopped => return None,
         }
     }
 
@@ -11458,18 +11617,18 @@ fn append_equivalent_static_generated_loads(
                 ),
                 vec![case_id.to_string()],
             ));
-            return;
+            return None;
         }
         if span_fields_missing {
-            return;
+            return None;
         }
         let direction_value = wind.direction.as_deref().expect("checked above");
-        let direction = match parse_direction(direction_value) {
-            Ok(
-                direction @ (LoadDirection::GlobalX
-                | LoadDirection::GlobalY
-                | LoadDirection::GlobalZ),
-            ) => direction,
+        // Exactly the model schema's tokens, which the readers form the
+        // generated identities from (an upper-case spelling is refused).
+        let direction = match direction_value {
+            "global_x" => LoadDirection::GlobalX,
+            "global_y" => LoadDirection::GlobalY,
+            "global_z" => LoadDirection::GlobalZ,
             _ => {
                 diagnostics.push(diag(
                     &equivalent_static_diag_id(case_id, "wind:direction"),
@@ -11478,7 +11637,7 @@ fn append_equivalent_static_generated_loads(
                     "wind equivalent-static direction must be a global axis (global_x, global_y, or global_z)",
                     vec![case_id.to_string(), "wind.direction".to_string()],
                 ));
-                return;
+                return None;
             }
         };
         let pipe_map = model
@@ -11632,7 +11791,7 @@ fn append_equivalent_static_generated_loads(
             }
         }
         if refs_blocked {
-            return;
+            return None;
         }
         let basis = WindEquivalentStaticBasis {
             load_case_ref: case_id.to_string(),
@@ -11658,6 +11817,7 @@ fn append_equivalent_static_generated_loads(
         }
     }
     refuse_generated_id_collisions(load_case, &loads[generated_from..], diagnostics);
+    seismic_plan
 }
 
 /// W-16 slice c (§2): a generated load whose id equals an authored
@@ -11686,6 +11846,200 @@ fn refuse_generated_id_collisions(
             ));
         }
     }
+}
+
+/// DEL-05-01 REQ-008 on a load/reference-state document: a generated load's
+/// identity must name one source only. Generation runs on the effective case,
+/// so a collision with a listed stored primitive is already refused by
+/// [`refuse_generated_id_collisions`]. This check, run after formation and
+/// before the case's loads are assembled, refuses the other two: a stored
+/// primitive of the authored case that the ledger does not list (excluded,
+/// yet sharing the generated identity), and an identity the case's resolved
+/// record already synthesizes (`member_state:`, `support_state:`,
+/// `pressure_region:`). Otherwise the ordinary and certified paths, and the
+/// published record of load sources, could attribute one identity to two
+/// sources.
+fn refuse_load_state_generated_collisions(
+    model: &PreviewModel,
+    effective: &PreviewLoadCase,
+    state: &case_state::resolve::ResolvedCase,
+    loads: &[PrimitiveLoad],
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    if effective.equivalent_static.is_none() {
+        return;
+    }
+    let authored = model.load_cases.iter().find(|case| case.id == effective.id);
+    let synthesized = state.evidence["contributions"]
+        .as_array()
+        .into_iter()
+        .flatten()
+        .filter(|contribution| contribution["owner_kind"] != "stored_primitive");
+    let synthesized = synthesized.collect::<Vec<_>>();
+    for load in loads
+        .iter()
+        .filter(|load| is_generated_equivalent_static_load(effective, &load.load_id, None))
+    {
+        let id = load.load_id.as_str();
+        let unlisted = authored
+            .into_iter()
+            .flat_map(|case| &case.primitive_loads)
+            .any(|stored| stored.id == id);
+        let message = if unlisted {
+            format!(
+                "stored primitive load {id} is not listed in analysis_state.load_sources (it is excluded) and has the id of a load the case's equivalent_static generation produces; one identity cannot name two sources, so rename or remove the stored primitive (generated ids are <case>:generated:<kind>:...)"
+            )
+        } else if let Some(other) = synthesized.iter().find(|contribution| contribution["source_id"] == id) {
+            format!(
+                "the synthesized identity {id} of the case's {} source has the id of a load the case's equivalent_static generation produces; one identity cannot name two sources in the record of load sources, so rename the load case or the {} (generated ids are <case>:generated:<kind>:...)",
+                other["owner_kind"].as_str().unwrap_or("resolved"),
+                other["owner_kind"].as_str().unwrap_or("resolved").replace('_', " ")
+            )
+        } else {
+            continue;
+        };
+        diagnostics.push(diag(
+            &equivalent_static_diag_id(&effective.id, &format!("collision:{}", stable_suffix(id))),
+            "EQUIVALENT_STATIC_GENERATED_ID_COLLISION",
+            "blocking",
+            message,
+            vec![effective.id.clone(), id.to_string()],
+        ));
+    }
+}
+
+/// The identities a load/reference-state case's record synthesizes, by prefix
+/// and by the owner kind its record of load sources names
+/// (`case_state::resolve`).
+const SYNTHESIZED_PREFIXES: [&str; 3] = ["member_state:", "support_state:", "pressure_region:"];
+const SYNTHESIZED_KINDS: [&str; 3] = ["resolved_member_state", "support_state", "pressure_region"];
+
+/// DEL-05-01 REQ-008 (issue 452, the identity domain; SWBPIPE's Agent 0): a
+/// generated identity names one source in the whole document, on plain and
+/// load/reference-state documents alike. Run in each case's solve, after its
+/// generation and before its assembly, beside the case-local scans: a
+/// generated identity equal to a stored primitive of another case of the
+/// (lowered) model, a primitive a lowering added included, or to an identity
+/// another case generates, or, on a load/reference-state document, to an
+/// identity another case's record synthesizes (`member_state:<pipe>`,
+/// `support_state:<support>:<DOF>` or `pressure_region:<region id>`, read from
+/// that case's resolved record), is refused by name. A generated identity is
+/// `<case>:generated:<tail>`, so another case B can generate the same identity
+/// only when B is the identity cut at another occurrence of the marker
+/// `:generated:` (in a case id or a component identity); only such a case's
+/// generation is formed again here, with its own findings discarded. Either
+/// case's solve meets the coincidence, so the first of the two to solve is
+/// refused and the document with it.
+fn refuse_document_generated_collisions(
+    model: &PreviewModel,
+    materials: &[MaterialInput],
+    load_case: &PreviewLoadCase,
+    loads: &[PrimitiveLoad],
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    if load_case.equivalent_static.is_none() {
+        return;
+    }
+    const MARKER: &str = ":generated:";
+    // An identity the case-local scans already refused keeps their one
+    // finding: a synthesized identity of the case's own record is also met
+    // here, in every other case's record that synthesizes it too.
+    let mut refuse = |id: &str, message: String| {
+        let diag_id = equivalent_static_diag_id(&load_case.id, &format!("collision:{}", stable_suffix(id)));
+        if diagnostics.iter().any(|existing| existing.id == diag_id) {
+            return;
+        }
+        diagnostics.push(diag(
+            &diag_id,
+            "EQUIVALENT_STATIC_GENERATED_ID_COLLISION",
+            "blocking",
+            message,
+            vec![load_case.id.clone(), id.to_string()],
+        ));
+    };
+    for load in loads.iter().filter(|load| is_generated_equivalent_static_load(load_case, &load.load_id, None)) {
+        let id = load.load_id.as_str();
+        if let Some(other) = model
+            .load_cases
+            .iter()
+            .find(|case| case.id != load_case.id && case.primitive_loads.iter().any(|stored| stored.id == id))
+        {
+            refuse(id, format!(
+                "stored primitive load {id} of load case {} has the id of a load the equivalent_static generation of load case {} produces; one identity cannot name two sources in a document, so rename the stored primitive (generated ids are <case>:generated:<kind>:...)",
+                other.id, load_case.id
+            ));
+            continue;
+        }
+        // On a load/reference-state document every other case's record
+        // synthesizes identities of its own (`member_state:`, `support_state:`,
+        // `pressure_region:`). Only an identity with one of those prefixes can
+        // equal one, so only then is each other case's record resolved again,
+        // with its own findings discarded, and read.
+        if case_state::is_load_state(model) && SYNTHESIZED_PREFIXES.iter().any(|prefix| id.starts_with(prefix)) {
+            let found = model.load_cases.iter().filter(|case| case.id != load_case.id).find_map(|case| {
+                let mut scratch = Vec::new();
+                let resolved = case_state::resolve::resolve_case(model, materials, case, &mut scratch)?;
+                let kind = resolved.evidence["contributions"].as_array()?.iter().find_map(|contribution| {
+                    let kind = contribution["owner_kind"].as_str()?;
+                    (SYNTHESIZED_KINDS.contains(&kind) && contribution["source_id"] == id).then(|| kind.to_string())
+                })?;
+                Some((case, kind))
+            });
+            if let Some((other, kind)) = found {
+                refuse(id, format!(
+                    "the synthesized identity {id} of the {} source of load case {} has the id of a load the equivalent_static generation of load case {} produces; one identity cannot name two sources in a document, so rename a load case or the {} (generated ids are <case>:generated:<kind>:...)",
+                    kind, other.id, load_case.id, kind.replace('_', " ")
+                ));
+                continue;
+            }
+        }
+        let own = load_case.id.len();
+        // Every occurrence, overlapping ones included: two markers can share
+        // a colon (`…:generated:generated:…`), which a non-overlapping scan
+        // would step over.
+        for at in (0..id.len()).filter(|&at| at != own && id.is_char_boundary(at) && id[at..].starts_with(MARKER)) {
+            let prefix = &id[..at];
+            let Some(other) = model.load_cases.iter().find(|case| case.id == prefix && case.equivalent_static.is_some()) else { continue };
+            let mut scratch = Vec::new();
+            let formed = build_load_case_primitive_loads(model, other, &mut scratch);
+            if formed.iter().any(|g| g.load_id == id && is_generated_equivalent_static_load(other, &g.load_id, None)) {
+                refuse(id, format!(
+                    "load cases {} and {} both generate a load with the id {id}; one identity cannot name two sources in a document, so rename a load case or a component (generated ids are <case>:generated:<kind>:...)",
+                    load_case.id, other.id
+                ));
+                break;
+            }
+        }
+    }
+}
+
+/// DEL-05-01 (#433's origin test, applied to the effective case): whether
+/// `load_id` is a load the case's generation produced, judged against the
+/// case that is solved. On a load/reference-state document that is the
+/// effective case, whose stored primitives are exactly those the ledger lists
+/// (primitives a lowering added included, as they stand in the lowered
+/// model); on every other document it is the case itself. The certificate's
+/// producers find a case in the model's list of load cases, so they call this
+/// rather than [`is_generated_equivalent_static_load`] on that case.
+pub(crate) fn is_generated_in_effective_case(
+    model: &PreviewModel,
+    load_case: &PreviewLoadCase,
+    load_id: &str,
+    kind: Option<&str>,
+) -> bool {
+    let ledger = case_state::is_load_state(model)
+        .then(|| load_case.analysis_state.value())
+        .flatten();
+    let in_effective_case = |stored: &PreviewPrimitiveLoad| {
+        stored.id == load_id
+            && ledger.is_none_or(|state| state.load_sources.iter().any(|source| source.source_ref == stored.id))
+    };
+    load_case.equivalent_static.is_some()
+        && match kind {
+            Some(kind) => load_id.starts_with(&format!("{}:generated:{kind}:", load_case.id)),
+            None => load_id.starts_with(&format!("{}:generated:", load_case.id)),
+        }
+        && !load_case.primitive_loads.iter().any(in_effective_case)
 }
 
 /// W-16 slice c (§3): a wind marking of a connector-replaced span (which
@@ -12693,10 +13047,15 @@ fn add_uniform_element_loads(
         }
         let intensity_primitive = certified_loads::intensity(model, load, load_case_id);
         // S11-G section 3.2: an equivalent-static generated intensity carries
-        // gamma_4 of operand formation (a same-sign product chain).
-        let generated = load
-            .load_id
-            .starts_with(&format!("{load_case_id}:generated:"));
+        // gamma_4 of operand formation (a same-sign product chain). The origin
+        // is judged on the effective case (issue 452 decision 10), as the
+        // intensity producer judges it: a stored primitive the ledger lists
+        // under a generated-looking identity is authored and exact.
+        let generated = model
+            .load_cases
+            .iter()
+            .find(|case| case.id == load_case_id)
+            .is_some_and(|case| is_generated_in_effective_case(model, case, &load.load_id, None));
         // Curved-bend macro spans consume arc-consistent equivalent nodal
         // loads: fixed-end forces and moments from exact closed-form
         // integration of the uniform intensity along the arc, consistent with
@@ -26260,3 +26619,4 @@ fn capture_nonlinear_state_evidence(
 pub fn modal_experimental_result_document(request: &serde_json::Value) -> serde_json::Value {
     modal::modal_selected_result_document(request)
 }
+pub mod source_admission;

@@ -171,7 +171,7 @@ describe("held gate notices in Design Knowledge and the missing-data warnings: q
       const record = physicsRecords(result).find((r) => r.id === `knowledge:${id}`)!;
       expect(record.summary, code).toBe(supplied(raw.message));
       expect([record.kind, record.provenance, record.status]).toEqual(["computed_mechanics_context", "computed_preview_result", raw.severity]);
-      const view = render(<KnowledgePanel knowledge={null} result={result} />);
+      const view = render(<KnowledgePanel knowledge={null} model={null} result={result} />);
       expect(screen.getByTestId(`knowledge-record-${record.id}`).querySelector("p")!.textContent, code).toBe(supplied(raw.message));
       view.unmount();
       // Every computed diagnostic record states the Diagnostics panel's presented message.

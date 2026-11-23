@@ -281,6 +281,12 @@ def coverage_inputs() -> list[tuple[str, dict, dict]]:
     variant("material-poisson-missing",
             lambda m: [(material.pop("poisson_ratio", None), material.pop("shear_modulus", None)) for material in m["materials"]])
     variant("model-settings", lambda m: m.update(model_settings={"invented": "coverage"}))
+    # A pressure-free shear model selection travels in the sidecar; any other setting is still omitted.
+    variant("model-settings-shear-timoshenko", lambda m: m.update(model_settings={"shear_model": "timoshenko_annulus_energy_v1"}))
+    variant("model-settings-shear-euler-bernoulli", lambda m: m.update(model_settings={"shear_model": "euler_bernoulli"}))
+    variant("model-settings-shear-unknown", lambda m: m.update(model_settings={"shear_model": "cowper"}))
+    variant("model-settings-shear-and-other",
+            lambda m: m.update(model_settings={"shear_model": "timoshenko_annulus_energy_v1", "invented": "coverage"}))
     # Review r1 of #32: a Poisson ratio of -1 beside a shear modulus divides by zero (ZeroDivisionError); a load with no
     # category key is subscripted (KeyError), while an explicit null category is refused by name.
     variant("material-poisson-minus-one",

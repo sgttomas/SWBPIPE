@@ -1,0 +1,1436 @@
+{
+  "about": "The four-span hydrostatic test model (four_span_test_model.json) taken through its journey (self-weight, pressure region, held test condition, contents HYDRO), and its load and reference-state twin with an ordinary case beside the test case; the documents the product readers are tested on. Invented inputs; not library, catalog or code data.",
+  "generator": "core/model_operations/operation_applier/tests/hydrostatic_four_span_journey.rs::the_reader_models_are_current",
+  "models": {
+    "journey": {
+      "analysis_status": {
+        "mechanics": "ready_for_preview_diagnostics",
+        "professional_acceptance": "not_provided",
+        "rule_check": "not_performed_user_rule_inputs_missing"
+      },
+      "combinations": [],
+      "components": [],
+      "condition_sets": [
+        {
+          "conditions": [
+            {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 1015.0
+              },
+              "key": "HYDRO"
+            }
+          ],
+          "id": "cs:test",
+          "label": "Test contents",
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data"
+        }
+      ],
+      "data_boundary": {
+        "private_data_policy": "no_private_project_material_rule_pack_or_owner_data_bundled",
+        "professional_boundary": "test_object_not_a_design_human_review_required_no_code_compliance_or_professional_approval",
+        "protected_source_policy": "no_standard_supplier_catalogue_commercial_example_or_project_content_copied",
+        "public_examples_policy": "invented_test_object_hydrostatic_test_references_committed_in_public_repository_no_provenance_review_disposition_recorded"
+      },
+      "diagnostics": [],
+      "document_kind": "openpipestress.product_preview.model",
+      "load_cases": [
+        {
+          "condition_use": {
+            "contents_density": "HYDRO"
+          },
+          "id": "HT-4S-TEST",
+          "kind": "primitive_user_load",
+          "label": "Hydrostatic test",
+          "pressure_regions": [
+            {
+              "id": "region:HT-4S-TEST",
+              "member_pipe_ids": [
+                "pipe:a-b",
+                "pipe:b-c",
+                "pipe:c-d",
+                "pipe:d-e"
+              ],
+              "pressure": {
+                "unit": "Pa",
+                "value": 7300000.0
+              },
+              "pressure_basis": "internal_differential_zero_external_v1",
+              "provenance": "invented hydrostatic test journey input",
+              "terminals": [
+                {
+                  "closure_transfer": "transfers_to_wall",
+                  "node_ref": "node:a",
+                  "provenance": "invented hydrostatic test journey input"
+                },
+                {
+                  "closure_transfer": "transfers_to_wall",
+                  "node_ref": "node:e",
+                  "provenance": "invented hydrostatic test journey input"
+                }
+              ]
+            }
+          ],
+          "primitive_loads": [
+            {
+              "category": "distributed_force",
+              "dimension": "force_per_length",
+              "direction": "global_z",
+              "id": "load:self-weight:10:HT-4S-TEST:8:pipe:a-b",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -1481.751072299928
+              },
+              "provenance": "{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_z\",\"id\":\"load:self-weight:10:HT-4S-TEST:8:pipe:a-b\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-1481.751072299928},\"target\":{\"pipe\":\"pipe:a-b\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_z\",\"unit\":\"m/s^2\",\"value\":-9.79},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":865.0},\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0.0021},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":135.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.065},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":7830.0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.0017},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.29},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.0135}},\"mass_kg_per_m\":151.35353138916528,\"mass_method\":\"source_od_nominal_wall_pressure_bore_areas/v1\",\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-9.79,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":865.0},\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0.0021},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":135.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.065},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":7830.0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.0017},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.29},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":0.0135}},\"pipe_id\":\"pipe:a-b\",\"pipe_provenance\":\"invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data\",\"referenced_section\":null,\"request_provenance\":\"invented hydrostatic test journey input\",\"section_ref\":null,\"source_model_hash\":\"sha256:39aa6d838d127231de3225e977c5f6b1c6b7645b56280e54c5124851bab0e6c0\"}",
+              "target": {
+                "pipe": "pipe:a-b",
+                "type": "element"
+              }
+            },
+            {
+              "category": "distributed_force",
+              "dimension": "force_per_length",
+              "direction": "global_z",
+              "id": "load:self-weight:10:HT-4S-TEST:8:pipe:b-c",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -1481.751072299928
+              },
+              "provenance": "{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_z\",\"id\":\"load:self-weight:10:HT-4S-TEST:8:pipe:b-c\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-1481.751072299928},\"target\":{\"pipe\":\"pipe:b-c\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_z\",\"unit\":\"m/s^2\",\"value\":-9.79},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":865.0},\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0.0021},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":135.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.065},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":7830.0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.0017},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.29},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.0135}},\"mass_kg_per_m\":151.35353138916528,\"mass_method\":\"source_od_nominal_wall_pressure_bore_areas/v1\",\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-9.79,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":865.0},\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0.0021},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":135.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.065},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":7830.0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.0017},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.29},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":0.0135}},\"pipe_id\":\"pipe:b-c\",\"pipe_provenance\":\"invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data\",\"referenced_section\":null,\"request_provenance\":\"invented hydrostatic test journey input\",\"section_ref\":null,\"source_model_hash\":\"sha256:39aa6d838d127231de3225e977c5f6b1c6b7645b56280e54c5124851bab0e6c0\"}",
+              "target": {
+                "pipe": "pipe:b-c",
+                "type": "element"
+              }
+            },
+            {
+              "category": "distributed_force",
+              "dimension": "force_per_length",
+              "direction": "global_z",
+              "id": "load:self-weight:10:HT-4S-TEST:8:pipe:c-d",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -1481.751072299928
+              },
+              "provenance": "{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_z\",\"id\":\"load:self-weight:10:HT-4S-TEST:8:pipe:c-d\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-1481.751072299928},\"target\":{\"pipe\":\"pipe:c-d\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_z\",\"unit\":\"m/s^2\",\"value\":-9.79},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":865.0},\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0.0021},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":135.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.065},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":7830.0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.0017},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.29},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.0135}},\"mass_kg_per_m\":151.35353138916528,\"mass_method\":\"source_od_nominal_wall_pressure_bore_areas/v1\",\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-9.79,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":865.0},\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0.0021},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":135.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.065},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":7830.0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.0017},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.29},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":0.0135}},\"pipe_id\":\"pipe:c-d\",\"pipe_provenance\":\"invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data\",\"referenced_section\":null,\"request_provenance\":\"invented hydrostatic test journey input\",\"section_ref\":null,\"source_model_hash\":\"sha256:39aa6d838d127231de3225e977c5f6b1c6b7645b56280e54c5124851bab0e6c0\"}",
+              "target": {
+                "pipe": "pipe:c-d",
+                "type": "element"
+              }
+            },
+            {
+              "category": "distributed_force",
+              "dimension": "force_per_length",
+              "direction": "global_z",
+              "id": "load:self-weight:10:HT-4S-TEST:8:pipe:d-e",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -1481.751072299928
+              },
+              "provenance": "{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_z\",\"id\":\"load:self-weight:10:HT-4S-TEST:8:pipe:d-e\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-1481.751072299928},\"target\":{\"pipe\":\"pipe:d-e\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_z\",\"unit\":\"m/s^2\",\"value\":-9.79},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":865.0},\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0.0021},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":135.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.065},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":7830.0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.0017},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.29},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.0135}},\"mass_kg_per_m\":151.35353138916528,\"mass_method\":\"source_od_nominal_wall_pressure_bore_areas/v1\",\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-9.79,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":865.0},\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0.0021},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":135.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.065},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":7830.0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.0017},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.29},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":0.0135}},\"pipe_id\":\"pipe:d-e\",\"pipe_provenance\":\"invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data\",\"referenced_section\":null,\"request_provenance\":\"invented hydrostatic test journey input\",\"section_ref\":null,\"source_model_hash\":\"sha256:39aa6d838d127231de3225e977c5f6b1c6b7645b56280e54c5124851bab0e6c0\"}",
+              "target": {
+                "pipe": "pipe:d-e",
+                "type": "element"
+              }
+            }
+          ],
+          "provenance": "invented hydrostatic test journey input",
+          "status": "draft",
+          "test_condition": {
+            "held_supports": "springs_and_constant_effort",
+            "kind": "hydrostatic"
+          }
+        }
+      ],
+      "materials": [
+        {
+          "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+          "elastic_modulus": {
+            "unit": "Pa",
+            "value": 203000000000.0
+          },
+          "id": "material:ht",
+          "label": "Invented steel",
+          "poisson_ratio": {
+            "unit": "1",
+            "value": 0.29
+          },
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data"
+        }
+      ],
+      "nodes": [
+        {
+          "id": "node:a",
+          "label": "Node A",
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data"
+        },
+        {
+          "id": "node:b",
+          "label": "Node B",
+          "position": {
+            "x": 4.3,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data"
+        },
+        {
+          "id": "node:c",
+          "label": "Node C",
+          "position": {
+            "x": 8.6,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data"
+        },
+        {
+          "id": "node:d",
+          "label": "Node D",
+          "position": {
+            "x": 12.899999999999999,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data"
+        },
+        {
+          "id": "node:e",
+          "label": "Node E",
+          "position": {
+            "x": 17.2,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data"
+        }
+      ],
+      "pipe_segments": [
+        {
+          "condition_set_ref": "cs:test",
+          "from": "node:a",
+          "id": "pipe:a-b",
+          "label": "Pipe A-B",
+          "material": "material:ht",
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data",
+          "section": {
+            "contents_density": {
+              "unit": "kg/m^3",
+              "value": 865.0
+            },
+            "corrosion_allowance": {
+              "unit": "m",
+              "value": 0.0021
+            },
+            "insulation_density": {
+              "unit": "kg/m^3",
+              "value": 135.0
+            },
+            "insulation_thickness": {
+              "unit": "m",
+              "value": 0.065
+            },
+            "material_density": {
+              "unit": "kg/m^3",
+              "value": 7830.0
+            },
+            "mill_tolerance": {
+              "unit": "m",
+              "value": 0.0017
+            },
+            "outside_diameter": {
+              "unit": "m",
+              "value": 0.29
+            },
+            "wall_thickness": {
+              "unit": "m",
+              "value": 0.0135
+            }
+          },
+          "to": "node:b",
+          "y_reference": {
+            "x": 0.0,
+            "y": 1.0,
+            "z": 0.0
+          }
+        },
+        {
+          "condition_set_ref": "cs:test",
+          "from": "node:b",
+          "id": "pipe:b-c",
+          "label": "Pipe B-C",
+          "material": "material:ht",
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data",
+          "section": {
+            "contents_density": {
+              "unit": "kg/m^3",
+              "value": 865.0
+            },
+            "corrosion_allowance": {
+              "unit": "m",
+              "value": 0.0021
+            },
+            "insulation_density": {
+              "unit": "kg/m^3",
+              "value": 135.0
+            },
+            "insulation_thickness": {
+              "unit": "m",
+              "value": 0.065
+            },
+            "material_density": {
+              "unit": "kg/m^3",
+              "value": 7830.0
+            },
+            "mill_tolerance": {
+              "unit": "m",
+              "value": 0.0017
+            },
+            "outside_diameter": {
+              "unit": "m",
+              "value": 0.29
+            },
+            "wall_thickness": {
+              "unit": "m",
+              "value": 0.0135
+            }
+          },
+          "to": "node:c",
+          "y_reference": {
+            "x": 0.0,
+            "y": 1.0,
+            "z": 0.0
+          }
+        },
+        {
+          "condition_set_ref": "cs:test",
+          "from": "node:c",
+          "id": "pipe:c-d",
+          "label": "Pipe C-D",
+          "material": "material:ht",
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data",
+          "section": {
+            "contents_density": {
+              "unit": "kg/m^3",
+              "value": 865.0
+            },
+            "corrosion_allowance": {
+              "unit": "m",
+              "value": 0.0021
+            },
+            "insulation_density": {
+              "unit": "kg/m^3",
+              "value": 135.0
+            },
+            "insulation_thickness": {
+              "unit": "m",
+              "value": 0.065
+            },
+            "material_density": {
+              "unit": "kg/m^3",
+              "value": 7830.0
+            },
+            "mill_tolerance": {
+              "unit": "m",
+              "value": 0.0017
+            },
+            "outside_diameter": {
+              "unit": "m",
+              "value": 0.29
+            },
+            "wall_thickness": {
+              "unit": "m",
+              "value": 0.0135
+            }
+          },
+          "to": "node:d",
+          "y_reference": {
+            "x": 0.0,
+            "y": 1.0,
+            "z": 0.0
+          }
+        },
+        {
+          "condition_set_ref": "cs:test",
+          "from": "node:d",
+          "id": "pipe:d-e",
+          "label": "Pipe D-E",
+          "material": "material:ht",
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data",
+          "section": {
+            "contents_density": {
+              "unit": "kg/m^3",
+              "value": 865.0
+            },
+            "corrosion_allowance": {
+              "unit": "m",
+              "value": 0.0021
+            },
+            "insulation_density": {
+              "unit": "kg/m^3",
+              "value": 135.0
+            },
+            "insulation_thickness": {
+              "unit": "m",
+              "value": 0.065
+            },
+            "material_density": {
+              "unit": "kg/m^3",
+              "value": 7830.0
+            },
+            "mill_tolerance": {
+              "unit": "m",
+              "value": 0.0017
+            },
+            "outside_diameter": {
+              "unit": "m",
+              "value": 0.29
+            },
+            "wall_thickness": {
+              "unit": "m",
+              "value": 0.0135
+            }
+          },
+          "to": "node:e",
+          "y_reference": {
+            "x": 0.0,
+            "y": 1.0,
+            "z": 0.0
+          }
+        }
+      ],
+      "pressure_contract": {
+        "mode": "exact_pressure_v3",
+        "shear_model": "euler_bernoulli",
+        "version": "3.0.0"
+      },
+      "project": {
+        "description": "Invented four-span hydrostatic test model (validation/references/hydrostatic_test, model M4); a test object, not a design",
+        "id": "project:hydrostatic-four-span",
+        "name": "Hydrostatic test, four spans (invented)",
+        "units": {
+          "angle": "rad",
+          "force": "N",
+          "length": "m",
+          "moment": "N*m",
+          "pressure": "Pa",
+          "stress": "Pa",
+          "temperature": "degC"
+        }
+      },
+      "schema_version": "0.9.0",
+      "supports": [
+        {
+          "family": "anchor",
+          "id": "support:a",
+          "label": "End A: axial and torsional restraint",
+          "node": "node:a",
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data",
+          "restraints": [
+            "UX",
+            "UY",
+            "UZ",
+            "RX"
+          ]
+        },
+        {
+          "family": "guide",
+          "id": "support:e",
+          "label": "End E: guided",
+          "node": "node:e",
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data",
+          "restraints": [
+            "UY",
+            "UZ"
+          ]
+        },
+        {
+          "family": "spring",
+          "id": "support:b",
+          "label": "Spring",
+          "node": "node:b",
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data",
+          "restraints": [
+            "UZ"
+          ],
+          "stiffness": {
+            "dof": "UZ",
+            "value": {
+              "unit": "N/m",
+              "value": 1180000.0
+            }
+          }
+        },
+        {
+          "family": "constant_effort_support",
+          "hanger": {
+            "constant_load": {
+              "unit": "N",
+              "value": 6900.0
+            },
+            "hanger_type": "constant_effort_support",
+            "source_reference": "invented",
+            "travel_range": {
+              "unit": "m",
+              "value": 0.05
+            }
+          },
+          "id": "support:c",
+          "label": "Constant-effort support",
+          "node": "node:c",
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data",
+          "restraints": [
+            "UZ"
+          ]
+        },
+        {
+          "family": "variable_spring_hanger",
+          "hanger": {
+            "cold_load": {
+              "unit": "N",
+              "value": 5300.0
+            },
+            "hanger_type": "variable_spring_hanger",
+            "hot_load": {
+              "unit": "N",
+              "value": 5300.0
+            },
+            "installed_load": {
+              "unit": "N",
+              "value": 5300.0
+            },
+            "source_reference": "invented",
+            "stiffness": {
+              "dof": "UZ",
+              "value": {
+                "unit": "N/m",
+                "value": 870000.0
+              }
+            },
+            "travel_range": {
+              "unit": "m",
+              "value": 0.05
+            }
+          },
+          "id": "support:d",
+          "label": "Variable spring hanger",
+          "node": "node:d",
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data",
+          "restraints": [
+            "UZ"
+          ]
+        }
+      ]
+    },
+    "load_state_twin": {
+      "analysis_status": {
+        "mechanics": "ready_for_preview_diagnostics",
+        "professional_acceptance": "not_provided",
+        "rule_check": "not_performed_user_rule_inputs_missing"
+      },
+      "combinations": [],
+      "components": [],
+      "condition_sets": [
+        {
+          "conditions": [
+            {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 1015.0
+              },
+              "key": "HYDRO"
+            }
+          ],
+          "id": "cs:test",
+          "label": "Test contents",
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data"
+        }
+      ],
+      "data_boundary": {
+        "private_data_policy": "no_private_project_material_rule_pack_or_owner_data_bundled",
+        "professional_boundary": "test_object_not_a_design_human_review_required_no_code_compliance_or_professional_approval",
+        "protected_source_policy": "no_standard_supplier_catalogue_commercial_example_or_project_content_copied",
+        "public_examples_policy": "invented_test_object_hydrostatic_test_references_committed_in_public_repository_no_provenance_review_disposition_recorded"
+      },
+      "diagnostics": [],
+      "document_kind": "openpipestress.product_preview.model",
+      "load_cases": [
+        {
+          "analysis_state": {
+            "contract": "openpipestress.load_reference_state/1.0.0",
+            "element_states": [
+              {
+                "material_selection": {
+                  "applicability_reference": "invented analytical basis declared applicable to this member",
+                  "kind": "explicit_base_properties",
+                  "material_ref": "material:ht"
+                },
+                "pipe_ref": "pipe:a-b",
+                "thermal_state": {
+                  "kind": "unchanged_reference",
+                  "provenance": "invented hydrostatic test journey input"
+                }
+              },
+              {
+                "material_selection": {
+                  "applicability_reference": "invented analytical basis declared applicable to this member",
+                  "kind": "explicit_base_properties",
+                  "material_ref": "material:ht"
+                },
+                "pipe_ref": "pipe:b-c",
+                "thermal_state": {
+                  "kind": "unchanged_reference",
+                  "provenance": "invented hydrostatic test journey input"
+                }
+              },
+              {
+                "material_selection": {
+                  "applicability_reference": "invented analytical basis declared applicable to this member",
+                  "kind": "explicit_base_properties",
+                  "material_ref": "material:ht"
+                },
+                "pipe_ref": "pipe:c-d",
+                "thermal_state": {
+                  "kind": "unchanged_reference",
+                  "provenance": "invented hydrostatic test journey input"
+                }
+              },
+              {
+                "material_selection": {
+                  "applicability_reference": "invented analytical basis declared applicable to this member",
+                  "kind": "explicit_base_properties",
+                  "material_ref": "material:ht"
+                },
+                "pipe_ref": "pipe:d-e",
+                "thermal_state": {
+                  "kind": "unchanged_reference",
+                  "provenance": "invented hydrostatic test journey input"
+                }
+              }
+            ],
+            "history": {
+              "kind": "independent_equilibrium"
+            },
+            "load_sources": [
+              {
+                "factor": 1.0,
+                "source_ref": "load:self-weight:10:HT-4S-TEST:8:pipe:a-b"
+              },
+              {
+                "factor": 1.0,
+                "source_ref": "load:self-weight:10:HT-4S-TEST:8:pipe:b-c"
+              },
+              {
+                "factor": 1.0,
+                "source_ref": "load:self-weight:10:HT-4S-TEST:8:pipe:c-d"
+              },
+              {
+                "factor": 1.0,
+                "source_ref": "load:self-weight:10:HT-4S-TEST:8:pipe:d-e"
+              }
+            ],
+            "provenance": "invented hydrostatic test journey input",
+            "reference_configuration_ref": "reference:installed",
+            "support_states": [
+              {
+                "participation": {
+                  "kind": "active_model_device"
+                },
+                "support_ref": "support:a"
+              },
+              {
+                "participation": {
+                  "kind": "active_model_device"
+                },
+                "support_ref": "support:e"
+              },
+              {
+                "participation": {
+                  "kind": "active_model_device"
+                },
+                "support_ref": "support:b"
+              },
+              {
+                "participation": {
+                  "kind": "active_model_device"
+                },
+                "support_ref": "support:c"
+              },
+              {
+                "participation": {
+                  "kind": "active_model_device"
+                },
+                "support_ref": "support:d"
+              }
+            ]
+          },
+          "condition_use": {
+            "contents_density": "HYDRO"
+          },
+          "id": "HT-4S-TEST",
+          "kind": "primitive_user_load",
+          "label": "Hydrostatic test",
+          "pressure_regions": [
+            {
+              "id": "region:HT-4S-TEST",
+              "member_pipe_ids": [
+                "pipe:a-b",
+                "pipe:b-c",
+                "pipe:c-d",
+                "pipe:d-e"
+              ],
+              "pressure": {
+                "unit": "Pa",
+                "value": 7300000.0
+              },
+              "pressure_basis": "internal_differential_zero_external_v1",
+              "provenance": "invented hydrostatic test journey input",
+              "terminals": [
+                {
+                  "closure_transfer": "transfers_to_wall",
+                  "node_ref": "node:a",
+                  "provenance": "invented hydrostatic test journey input"
+                },
+                {
+                  "closure_transfer": "transfers_to_wall",
+                  "node_ref": "node:e",
+                  "provenance": "invented hydrostatic test journey input"
+                }
+              ]
+            }
+          ],
+          "primitive_loads": [
+            {
+              "category": "distributed_force",
+              "dimension": "force_per_length",
+              "direction": "global_z",
+              "id": "load:self-weight:10:HT-4S-TEST:8:pipe:a-b",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -1481.751072299928
+              },
+              "provenance": "{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_z\",\"id\":\"load:self-weight:10:HT-4S-TEST:8:pipe:a-b\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-1481.751072299928},\"target\":{\"pipe\":\"pipe:a-b\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_z\",\"unit\":\"m/s^2\",\"value\":-9.79},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":865.0},\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0.0021},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":135.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.065},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":7830.0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.0017},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.29},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.0135}},\"mass_kg_per_m\":151.35353138916528,\"mass_method\":\"source_od_nominal_wall_pressure_bore_areas/v1\",\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-9.79,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":865.0},\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0.0021},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":135.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.065},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":7830.0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.0017},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.29},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":0.0135}},\"pipe_id\":\"pipe:a-b\",\"pipe_provenance\":\"invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data\",\"referenced_section\":null,\"request_provenance\":\"invented hydrostatic test journey input\",\"section_ref\":null,\"source_model_hash\":\"sha256:39aa6d838d127231de3225e977c5f6b1c6b7645b56280e54c5124851bab0e6c0\"}",
+              "target": {
+                "pipe": "pipe:a-b",
+                "type": "element"
+              }
+            },
+            {
+              "category": "distributed_force",
+              "dimension": "force_per_length",
+              "direction": "global_z",
+              "id": "load:self-weight:10:HT-4S-TEST:8:pipe:b-c",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -1481.751072299928
+              },
+              "provenance": "{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_z\",\"id\":\"load:self-weight:10:HT-4S-TEST:8:pipe:b-c\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-1481.751072299928},\"target\":{\"pipe\":\"pipe:b-c\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_z\",\"unit\":\"m/s^2\",\"value\":-9.79},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":865.0},\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0.0021},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":135.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.065},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":7830.0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.0017},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.29},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.0135}},\"mass_kg_per_m\":151.35353138916528,\"mass_method\":\"source_od_nominal_wall_pressure_bore_areas/v1\",\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-9.79,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":865.0},\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0.0021},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":135.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.065},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":7830.0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.0017},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.29},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":0.0135}},\"pipe_id\":\"pipe:b-c\",\"pipe_provenance\":\"invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data\",\"referenced_section\":null,\"request_provenance\":\"invented hydrostatic test journey input\",\"section_ref\":null,\"source_model_hash\":\"sha256:39aa6d838d127231de3225e977c5f6b1c6b7645b56280e54c5124851bab0e6c0\"}",
+              "target": {
+                "pipe": "pipe:b-c",
+                "type": "element"
+              }
+            },
+            {
+              "category": "distributed_force",
+              "dimension": "force_per_length",
+              "direction": "global_z",
+              "id": "load:self-weight:10:HT-4S-TEST:8:pipe:c-d",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -1481.751072299928
+              },
+              "provenance": "{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_z\",\"id\":\"load:self-weight:10:HT-4S-TEST:8:pipe:c-d\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-1481.751072299928},\"target\":{\"pipe\":\"pipe:c-d\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_z\",\"unit\":\"m/s^2\",\"value\":-9.79},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":865.0},\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0.0021},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":135.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.065},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":7830.0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.0017},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.29},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.0135}},\"mass_kg_per_m\":151.35353138916528,\"mass_method\":\"source_od_nominal_wall_pressure_bore_areas/v1\",\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-9.79,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":865.0},\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0.0021},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":135.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.065},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":7830.0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.0017},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.29},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":0.0135}},\"pipe_id\":\"pipe:c-d\",\"pipe_provenance\":\"invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data\",\"referenced_section\":null,\"request_provenance\":\"invented hydrostatic test journey input\",\"section_ref\":null,\"source_model_hash\":\"sha256:39aa6d838d127231de3225e977c5f6b1c6b7645b56280e54c5124851bab0e6c0\"}",
+              "target": {
+                "pipe": "pipe:c-d",
+                "type": "element"
+              }
+            },
+            {
+              "category": "distributed_force",
+              "dimension": "force_per_length",
+              "direction": "global_z",
+              "id": "load:self-weight:10:HT-4S-TEST:8:pipe:d-e",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -1481.751072299928
+              },
+              "provenance": "{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_z\",\"id\":\"load:self-weight:10:HT-4S-TEST:8:pipe:d-e\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-1481.751072299928},\"target\":{\"pipe\":\"pipe:d-e\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_z\",\"unit\":\"m/s^2\",\"value\":-9.79},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":865.0},\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0.0021},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":135.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.065},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":7830.0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.0017},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.29},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.0135}},\"mass_kg_per_m\":151.35353138916528,\"mass_method\":\"source_od_nominal_wall_pressure_bore_areas/v1\",\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-9.79,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":865.0},\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0.0021},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":135.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.065},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":7830.0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.0017},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.29},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":0.0135}},\"pipe_id\":\"pipe:d-e\",\"pipe_provenance\":\"invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data\",\"referenced_section\":null,\"request_provenance\":\"invented hydrostatic test journey input\",\"section_ref\":null,\"source_model_hash\":\"sha256:39aa6d838d127231de3225e977c5f6b1c6b7645b56280e54c5124851bab0e6c0\"}",
+              "target": {
+                "pipe": "pipe:d-e",
+                "type": "element"
+              }
+            }
+          ],
+          "provenance": "invented hydrostatic test journey input",
+          "status": "draft",
+          "test_condition": {
+            "held_supports": "springs_and_constant_effort",
+            "kind": "hydrostatic"
+          }
+        },
+        {
+          "analysis_state": {
+            "contract": "openpipestress.load_reference_state/1.0.0",
+            "element_states": [
+              {
+                "material_selection": {
+                  "applicability_reference": "invented analytical basis declared applicable to this member",
+                  "kind": "explicit_base_properties",
+                  "material_ref": "material:ht"
+                },
+                "pipe_ref": "pipe:a-b",
+                "thermal_state": {
+                  "kind": "unchanged_reference",
+                  "provenance": "invented hydrostatic test journey input"
+                }
+              },
+              {
+                "material_selection": {
+                  "applicability_reference": "invented analytical basis declared applicable to this member",
+                  "kind": "explicit_base_properties",
+                  "material_ref": "material:ht"
+                },
+                "pipe_ref": "pipe:b-c",
+                "thermal_state": {
+                  "kind": "unchanged_reference",
+                  "provenance": "invented hydrostatic test journey input"
+                }
+              },
+              {
+                "material_selection": {
+                  "applicability_reference": "invented analytical basis declared applicable to this member",
+                  "kind": "explicit_base_properties",
+                  "material_ref": "material:ht"
+                },
+                "pipe_ref": "pipe:c-d",
+                "thermal_state": {
+                  "kind": "unchanged_reference",
+                  "provenance": "invented hydrostatic test journey input"
+                }
+              },
+              {
+                "material_selection": {
+                  "applicability_reference": "invented analytical basis declared applicable to this member",
+                  "kind": "explicit_base_properties",
+                  "material_ref": "material:ht"
+                },
+                "pipe_ref": "pipe:d-e",
+                "thermal_state": {
+                  "kind": "unchanged_reference",
+                  "provenance": "invented hydrostatic test journey input"
+                }
+              }
+            ],
+            "history": {
+              "kind": "independent_equilibrium"
+            },
+            "load_sources": [
+              {
+                "factor": 1.0,
+                "source_ref": "load:self-weight:15:HT-4S-OPERATING:8:pipe:a-b"
+              },
+              {
+                "factor": 1.0,
+                "source_ref": "load:self-weight:15:HT-4S-OPERATING:8:pipe:b-c"
+              },
+              {
+                "factor": 1.0,
+                "source_ref": "load:self-weight:15:HT-4S-OPERATING:8:pipe:c-d"
+              },
+              {
+                "factor": 1.0,
+                "source_ref": "load:self-weight:15:HT-4S-OPERATING:8:pipe:d-e"
+              }
+            ],
+            "provenance": "invented hydrostatic test journey input",
+            "reference_configuration_ref": "reference:installed",
+            "support_states": [
+              {
+                "participation": {
+                  "kind": "active_model_device"
+                },
+                "support_ref": "support:a"
+              },
+              {
+                "participation": {
+                  "kind": "active_model_device"
+                },
+                "support_ref": "support:e"
+              },
+              {
+                "participation": {
+                  "kind": "active_model_device"
+                },
+                "support_ref": "support:b"
+              },
+              {
+                "participation": {
+                  "kind": "active_model_device"
+                },
+                "support_ref": "support:c"
+              },
+              {
+                "participation": {
+                  "kind": "active_model_device"
+                },
+                "support_ref": "support:d"
+              }
+            ]
+          },
+          "id": "HT-4S-OPERATING",
+          "kind": "primitive_user_load",
+          "label": "Operating weight",
+          "pressure_regions": [
+            {
+              "id": "region:HT-4S-OPERATING",
+              "member_pipe_ids": [
+                "pipe:a-b",
+                "pipe:b-c",
+                "pipe:c-d",
+                "pipe:d-e"
+              ],
+              "pressure": {
+                "unit": "Pa",
+                "value": 7300000.0
+              },
+              "pressure_basis": "internal_differential_zero_external_v1",
+              "provenance": "invented hydrostatic test journey input",
+              "terminals": [
+                {
+                  "closure_transfer": "transfers_to_wall",
+                  "node_ref": "node:a",
+                  "provenance": "invented hydrostatic test journey input"
+                },
+                {
+                  "closure_transfer": "transfers_to_wall",
+                  "node_ref": "node:e",
+                  "provenance": "invented hydrostatic test journey input"
+                }
+              ]
+            }
+          ],
+          "primitive_loads": [
+            {
+              "category": "distributed_force",
+              "dimension": "force_per_length",
+              "direction": "global_z",
+              "id": "load:self-weight:15:HT-4S-OPERATING:8:pipe:a-b",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -1481.751072299928
+              },
+              "provenance": "{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_z\",\"id\":\"load:self-weight:15:HT-4S-OPERATING:8:pipe:a-b\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-1481.751072299928},\"target\":{\"pipe\":\"pipe:a-b\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_z\",\"unit\":\"m/s^2\",\"value\":-9.79},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":865.0},\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0.0021},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":135.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.065},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":7830.0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.0017},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.29},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.0135}},\"mass_kg_per_m\":151.35353138916528,\"mass_method\":\"source_od_nominal_wall_pressure_bore_areas/v1\",\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-9.79,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":865.0},\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0.0021},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":135.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.065},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":7830.0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.0017},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.29},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":0.0135}},\"pipe_id\":\"pipe:a-b\",\"pipe_provenance\":\"invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data\",\"referenced_section\":null,\"request_provenance\":\"invented hydrostatic test journey input\",\"section_ref\":null,\"source_model_hash\":\"sha256:9d6defcfc74ae7397c360ed3b3bfb782da4c4a71c815108ab22eb40db161229c\"}",
+              "target": {
+                "pipe": "pipe:a-b",
+                "type": "element"
+              }
+            },
+            {
+              "category": "distributed_force",
+              "dimension": "force_per_length",
+              "direction": "global_z",
+              "id": "load:self-weight:15:HT-4S-OPERATING:8:pipe:b-c",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -1481.751072299928
+              },
+              "provenance": "{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_z\",\"id\":\"load:self-weight:15:HT-4S-OPERATING:8:pipe:b-c\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-1481.751072299928},\"target\":{\"pipe\":\"pipe:b-c\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_z\",\"unit\":\"m/s^2\",\"value\":-9.79},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":865.0},\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0.0021},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":135.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.065},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":7830.0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.0017},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.29},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.0135}},\"mass_kg_per_m\":151.35353138916528,\"mass_method\":\"source_od_nominal_wall_pressure_bore_areas/v1\",\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-9.79,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":865.0},\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0.0021},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":135.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.065},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":7830.0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.0017},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.29},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":0.0135}},\"pipe_id\":\"pipe:b-c\",\"pipe_provenance\":\"invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data\",\"referenced_section\":null,\"request_provenance\":\"invented hydrostatic test journey input\",\"section_ref\":null,\"source_model_hash\":\"sha256:9d6defcfc74ae7397c360ed3b3bfb782da4c4a71c815108ab22eb40db161229c\"}",
+              "target": {
+                "pipe": "pipe:b-c",
+                "type": "element"
+              }
+            },
+            {
+              "category": "distributed_force",
+              "dimension": "force_per_length",
+              "direction": "global_z",
+              "id": "load:self-weight:15:HT-4S-OPERATING:8:pipe:c-d",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -1481.751072299928
+              },
+              "provenance": "{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_z\",\"id\":\"load:self-weight:15:HT-4S-OPERATING:8:pipe:c-d\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-1481.751072299928},\"target\":{\"pipe\":\"pipe:c-d\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_z\",\"unit\":\"m/s^2\",\"value\":-9.79},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":865.0},\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0.0021},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":135.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.065},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":7830.0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.0017},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.29},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.0135}},\"mass_kg_per_m\":151.35353138916528,\"mass_method\":\"source_od_nominal_wall_pressure_bore_areas/v1\",\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-9.79,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":865.0},\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0.0021},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":135.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.065},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":7830.0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.0017},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.29},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":0.0135}},\"pipe_id\":\"pipe:c-d\",\"pipe_provenance\":\"invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data\",\"referenced_section\":null,\"request_provenance\":\"invented hydrostatic test journey input\",\"section_ref\":null,\"source_model_hash\":\"sha256:9d6defcfc74ae7397c360ed3b3bfb782da4c4a71c815108ab22eb40db161229c\"}",
+              "target": {
+                "pipe": "pipe:c-d",
+                "type": "element"
+              }
+            },
+            {
+              "category": "distributed_force",
+              "dimension": "force_per_length",
+              "direction": "global_z",
+              "id": "load:self-weight:15:HT-4S-OPERATING:8:pipe:d-e",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -1481.751072299928
+              },
+              "provenance": "{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_z\",\"id\":\"load:self-weight:15:HT-4S-OPERATING:8:pipe:d-e\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-1481.751072299928},\"target\":{\"pipe\":\"pipe:d-e\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_z\",\"unit\":\"m/s^2\",\"value\":-9.79},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":865.0},\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0.0021},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":135.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.065},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":7830.0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.0017},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.29},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.0135}},\"mass_kg_per_m\":151.35353138916528,\"mass_method\":\"source_od_nominal_wall_pressure_bore_areas/v1\",\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-9.79,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":865.0},\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0.0021},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":135.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.065},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":7830.0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.0017},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.29},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":0.0135}},\"pipe_id\":\"pipe:d-e\",\"pipe_provenance\":\"invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data\",\"referenced_section\":null,\"request_provenance\":\"invented hydrostatic test journey input\",\"section_ref\":null,\"source_model_hash\":\"sha256:9d6defcfc74ae7397c360ed3b3bfb782da4c4a71c815108ab22eb40db161229c\"}",
+              "target": {
+                "pipe": "pipe:d-e",
+                "type": "element"
+              }
+            }
+          ],
+          "provenance": "invented hydrostatic test journey input",
+          "status": "draft"
+        }
+      ],
+      "materials": [
+        {
+          "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+          "elastic_modulus": {
+            "unit": "Pa",
+            "value": 203000000000.0
+          },
+          "id": "material:ht",
+          "label": "Invented steel",
+          "poisson_ratio": {
+            "unit": "1",
+            "value": 0.29
+          },
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data"
+        }
+      ],
+      "nodes": [
+        {
+          "id": "node:a",
+          "label": "Node A",
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data"
+        },
+        {
+          "id": "node:b",
+          "label": "Node B",
+          "position": {
+            "x": 4.3,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data"
+        },
+        {
+          "id": "node:c",
+          "label": "Node C",
+          "position": {
+            "x": 8.6,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data"
+        },
+        {
+          "id": "node:d",
+          "label": "Node D",
+          "position": {
+            "x": 12.899999999999999,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data"
+        },
+        {
+          "id": "node:e",
+          "label": "Node E",
+          "position": {
+            "x": 17.2,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data"
+        }
+      ],
+      "pipe_segments": [
+        {
+          "condition_set_ref": "cs:test",
+          "from": "node:a",
+          "id": "pipe:a-b",
+          "label": "Pipe A-B",
+          "material": "material:ht",
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data",
+          "section": {
+            "contents_density": {
+              "unit": "kg/m^3",
+              "value": 865.0
+            },
+            "corrosion_allowance": {
+              "unit": "m",
+              "value": 0.0021
+            },
+            "insulation_density": {
+              "unit": "kg/m^3",
+              "value": 135.0
+            },
+            "insulation_thickness": {
+              "unit": "m",
+              "value": 0.065
+            },
+            "material_density": {
+              "unit": "kg/m^3",
+              "value": 7830.0
+            },
+            "mill_tolerance": {
+              "unit": "m",
+              "value": 0.0017
+            },
+            "outside_diameter": {
+              "unit": "m",
+              "value": 0.29
+            },
+            "wall_thickness": {
+              "unit": "m",
+              "value": 0.0135
+            }
+          },
+          "to": "node:b",
+          "y_reference": {
+            "x": 0.0,
+            "y": 1.0,
+            "z": 0.0
+          }
+        },
+        {
+          "condition_set_ref": "cs:test",
+          "from": "node:b",
+          "id": "pipe:b-c",
+          "label": "Pipe B-C",
+          "material": "material:ht",
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data",
+          "section": {
+            "contents_density": {
+              "unit": "kg/m^3",
+              "value": 865.0
+            },
+            "corrosion_allowance": {
+              "unit": "m",
+              "value": 0.0021
+            },
+            "insulation_density": {
+              "unit": "kg/m^3",
+              "value": 135.0
+            },
+            "insulation_thickness": {
+              "unit": "m",
+              "value": 0.065
+            },
+            "material_density": {
+              "unit": "kg/m^3",
+              "value": 7830.0
+            },
+            "mill_tolerance": {
+              "unit": "m",
+              "value": 0.0017
+            },
+            "outside_diameter": {
+              "unit": "m",
+              "value": 0.29
+            },
+            "wall_thickness": {
+              "unit": "m",
+              "value": 0.0135
+            }
+          },
+          "to": "node:c",
+          "y_reference": {
+            "x": 0.0,
+            "y": 1.0,
+            "z": 0.0
+          }
+        },
+        {
+          "condition_set_ref": "cs:test",
+          "from": "node:c",
+          "id": "pipe:c-d",
+          "label": "Pipe C-D",
+          "material": "material:ht",
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data",
+          "section": {
+            "contents_density": {
+              "unit": "kg/m^3",
+              "value": 865.0
+            },
+            "corrosion_allowance": {
+              "unit": "m",
+              "value": 0.0021
+            },
+            "insulation_density": {
+              "unit": "kg/m^3",
+              "value": 135.0
+            },
+            "insulation_thickness": {
+              "unit": "m",
+              "value": 0.065
+            },
+            "material_density": {
+              "unit": "kg/m^3",
+              "value": 7830.0
+            },
+            "mill_tolerance": {
+              "unit": "m",
+              "value": 0.0017
+            },
+            "outside_diameter": {
+              "unit": "m",
+              "value": 0.29
+            },
+            "wall_thickness": {
+              "unit": "m",
+              "value": 0.0135
+            }
+          },
+          "to": "node:d",
+          "y_reference": {
+            "x": 0.0,
+            "y": 1.0,
+            "z": 0.0
+          }
+        },
+        {
+          "condition_set_ref": "cs:test",
+          "from": "node:d",
+          "id": "pipe:d-e",
+          "label": "Pipe D-E",
+          "material": "material:ht",
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data",
+          "section": {
+            "contents_density": {
+              "unit": "kg/m^3",
+              "value": 865.0
+            },
+            "corrosion_allowance": {
+              "unit": "m",
+              "value": 0.0021
+            },
+            "insulation_density": {
+              "unit": "kg/m^3",
+              "value": 135.0
+            },
+            "insulation_thickness": {
+              "unit": "m",
+              "value": 0.065
+            },
+            "material_density": {
+              "unit": "kg/m^3",
+              "value": 7830.0
+            },
+            "mill_tolerance": {
+              "unit": "m",
+              "value": 0.0017
+            },
+            "outside_diameter": {
+              "unit": "m",
+              "value": 0.29
+            },
+            "wall_thickness": {
+              "unit": "m",
+              "value": 0.0135
+            }
+          },
+          "to": "node:e",
+          "y_reference": {
+            "x": 0.0,
+            "y": 1.0,
+            "z": 0.0
+          }
+        }
+      ],
+      "pressure_contract": {
+        "mode": "exact_pressure_v3",
+        "shear_model": "euler_bernoulli",
+        "version": "3.0.0"
+      },
+      "project": {
+        "description": "Invented four-span hydrostatic test model (validation/references/hydrostatic_test, model M4); a test object, not a design",
+        "id": "project:hydrostatic-four-span",
+        "name": "Hydrostatic test, four spans (invented)",
+        "units": {
+          "angle": "rad",
+          "force": "N",
+          "length": "m",
+          "moment": "N*m",
+          "pressure": "Pa",
+          "stress": "Pa",
+          "temperature": "degC"
+        }
+      },
+      "reference_configurations": [
+        {
+          "geometry_ref": {
+            "kind": "authored_model_geometry"
+          },
+          "id": "reference:installed",
+          "label": "Installed reference",
+          "member_references": [
+            {
+              "basis": {
+                "installation_temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                },
+                "kind": "temperature_reference"
+              },
+              "fit": {
+                "kind": "none"
+              },
+              "pipe_ref": "pipe:a-b",
+              "provenance": "invented hydrostatic test journey input"
+            },
+            {
+              "basis": {
+                "installation_temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                },
+                "kind": "temperature_reference"
+              },
+              "fit": {
+                "kind": "none"
+              },
+              "pipe_ref": "pipe:b-c",
+              "provenance": "invented hydrostatic test journey input"
+            },
+            {
+              "basis": {
+                "installation_temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                },
+                "kind": "temperature_reference"
+              },
+              "fit": {
+                "kind": "none"
+              },
+              "pipe_ref": "pipe:c-d",
+              "provenance": "invented hydrostatic test journey input"
+            },
+            {
+              "basis": {
+                "installation_temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                },
+                "kind": "temperature_reference"
+              },
+              "fit": {
+                "kind": "none"
+              },
+              "pipe_ref": "pipe:d-e",
+              "provenance": "invented hydrostatic test journey input"
+            }
+          ],
+          "provenance": "invented hydrostatic test journey input"
+        }
+      ],
+      "schema_version": "0.9.0",
+      "supports": [
+        {
+          "family": "anchor",
+          "id": "support:a",
+          "label": "End A: axial and torsional restraint",
+          "node": "node:a",
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data",
+          "restraints": [
+            "UX",
+            "UY",
+            "UZ",
+            "RX"
+          ]
+        },
+        {
+          "family": "guide",
+          "id": "support:e",
+          "label": "End E: guided",
+          "node": "node:e",
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data",
+          "restraints": [
+            "UY",
+            "UZ"
+          ]
+        },
+        {
+          "family": "spring",
+          "id": "support:b",
+          "label": "Spring",
+          "node": "node:b",
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data",
+          "restraints": [
+            "UZ"
+          ],
+          "stiffness": {
+            "dof": "UZ",
+            "value": {
+              "unit": "N/m",
+              "value": 1180000.0
+            }
+          }
+        },
+        {
+          "family": "constant_effort_support",
+          "hanger": {
+            "constant_load": {
+              "unit": "N",
+              "value": 6900.0
+            },
+            "hanger_type": "constant_effort_support",
+            "source_reference": "invented",
+            "travel_range": {
+              "unit": "m",
+              "value": 0.05
+            }
+          },
+          "id": "support:c",
+          "label": "Constant-effort support",
+          "node": "node:c",
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data",
+          "restraints": [
+            "UZ"
+          ]
+        },
+        {
+          "family": "variable_spring_hanger",
+          "hanger": {
+            "cold_load": {
+              "unit": "N",
+              "value": 5300.0
+            },
+            "hanger_type": "variable_spring_hanger",
+            "hot_load": {
+              "unit": "N",
+              "value": 5300.0
+            },
+            "installed_load": {
+              "unit": "N",
+              "value": 5300.0
+            },
+            "source_reference": "invented",
+            "stiffness": {
+              "dof": "UZ",
+              "value": {
+                "unit": "N/m",
+                "value": 870000.0
+              }
+            },
+            "travel_range": {
+              "unit": "m",
+              "value": 0.05
+            }
+          },
+          "id": "support:d",
+          "label": "Variable spring hanger",
+          "node": "node:d",
+          "provenance": "invented hydrostatic test input (validation/references/hydrostatic_test, model M4); not standard, supplier, commercial or project data",
+          "restraints": [
+            "UZ"
+          ]
+        }
+      ]
+    }
+  }
+}

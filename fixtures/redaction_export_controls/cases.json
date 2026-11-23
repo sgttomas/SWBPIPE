@@ -2741,5 +2741,4876 @@
         "finding": { "class": "STORAGE_BOUNDARY_WARNING", "severity": "WARNING" }
       }
     }
-  ]
+  ],
+  "statement_cases": {
+    "description": "Explicit blocking statements at every kind of position (DEL-12-02 AC-003; decision order steps 1-8). Each test expands every statement into every position, and every non-statement into the positions that name expected_decisions, by replacing the member named @statement with the statement's members; it runs each expanded payload, and each named case, in every setting through the generic route exporter on route_id and, in Python and TypeScript, through the redaction walk; the Rust mirror has the route only. statement_decisions lists, in order, the block_export decisions whose reason is one of steps 1-8, with paths written without the route projector's key prefix; {statement_path} is the position's statement path and {reason} the statement's reason. expected_decisions, where given, is the whole decision list. raw_cases are run as they stand in every setting, with paths as each entry writes them. route.decisions is the route exporter's whole decision list and walk.decisions the redaction walk's, with decisions_local_private for local_private with the wrapper's intent and decisions_local_private_without_intent without it, where they differ; route.mirror_decisions (and its local_private variants) is the Rust mirror's whole list, with the paths it writes; the mirror's entry takes a payload's sole member as its key and value, so every raw case carries it except raw-statement-in-a-root-array, whose payload is a bare array. route.payload, where given, is the controlled payload of an admitted export, and labels, where given, the privacy, redistribution and review recorded on the decision at that path. Each list is compared without regard to order. The route's decisions on leaves its projector labels by path rest on the projector's path-token rule. The raw cases whose names begin raw-leaf- hold that rule's leaf segment, read with '[' as a separator and ']' removed, and the exemptions that bear on it alone. The raw cases whose names begin raw-contract- hold the contract's worked examples. raw_cases holds 47 cases, 46 with mirror rows. Every value is invented.",
+    "carried_text": "invented-carried-note-s7",
+    "route_id": "DREP-JSON-002",
+    "settings": [
+      [
+        "public_report",
+        false
+      ],
+      [
+        "public_example",
+        false
+      ],
+      [
+        "shared_model",
+        false
+      ],
+      [
+        "downstream_tool",
+        false
+      ],
+      [
+        "local_private",
+        false
+      ],
+      [
+        "local_private",
+        true
+      ]
+    ],
+    "statements": [
+      {
+        "name": "professional-claim-true",
+        "members": {
+          "professional_claim": true
+        },
+        "reason": "PROFESSIONAL_BOUNDARY_BLOCKED"
+      },
+      {
+        "name": "professional-claim-text",
+        "members": {
+          "professional_claim": "invented"
+        },
+        "reason": "PROFESSIONAL_BOUNDARY_BLOCKED"
+      },
+      {
+        "name": "cloud-or-network-reference",
+        "members": {
+          "cloud_or_network_reference": true
+        },
+        "reason": "CLOUD_OR_NETWORK_REFERENCE_BLOCKED"
+      },
+      {
+        "name": "direct-sql-access",
+        "members": {
+          "direct_sql_access": "yes"
+        },
+        "reason": "DIRECT_SQL_ACCESS_BLOCKED"
+      },
+      {
+        "name": "storage-bypass",
+        "members": {
+          "storage_bypass": true
+        },
+        "reason": "STORAGE_BYPASS_BLOCKED"
+      },
+      {
+        "name": "storage-bypass-requested",
+        "members": {
+          "storage_bypass_requested": 1
+        },
+        "reason": "STORAGE_BYPASS_BLOCKED"
+      },
+      {
+        "name": "direct-storage-bypass",
+        "members": {
+          "direct_storage_bypass": "present"
+        },
+        "reason": "STORAGE_BYPASS_BLOCKED"
+      },
+      {
+        "name": "application-service-bypass",
+        "members": {
+          "application_service_bypass": " TRUE "
+        },
+        "reason": "STORAGE_BYPASS_BLOCKED"
+      },
+      {
+        "name": "secret-material-present",
+        "members": {
+          "secret_material_present": true
+        },
+        "reason": "SECRET_MATERIAL_BLOCKED"
+      },
+      {
+        "name": "contains-payload",
+        "members": {
+          "contains_payload": true
+        },
+        "reason": "PAYLOAD_METADATA_ONLY_REQUIRED"
+      },
+      {
+        "name": "payload-present",
+        "members": {
+          "payload_present": "explicit"
+        },
+        "reason": "PAYLOAD_METADATA_ONLY_REQUIRED"
+      },
+      {
+        "name": "privacy-protected-suspected",
+        "members": {
+          "privacy_classification": "protected_suspected"
+        },
+        "reason": "PROTECTED_CONTENT_BLOCKED"
+      },
+      {
+        "name": "redistribution-protected-suspected",
+        "members": {
+          "redistribution_status": "protected_suspected"
+        },
+        "reason": "PROTECTED_CONTENT_BLOCKED"
+      },
+      {
+        "name": "review-quarantined",
+        "members": {
+          "review_status": "quarantined"
+        },
+        "reason": "PROTECTED_CONTENT_BLOCKED"
+      },
+      {
+        "name": "review-rejected",
+        "members": {
+          "review_status": "rejected"
+        },
+        "reason": "PROTECTED_CONTENT_BLOCKED"
+      },
+      {
+        "name": "claim-before-payload-and-protected",
+        "members": {
+          "privacy_classification": "protected_suspected",
+          "contains_payload": true,
+          "professional_claim": true
+        },
+        "reason": "PROFESSIONAL_BOUNDARY_BLOCKED"
+      }
+    ],
+    "non_statements": [
+      {
+        "name": "private-privacy",
+        "members": {
+          "privacy_classification": "private_project_data",
+          "redistribution_status": "private_only"
+        }
+      },
+      {
+        "name": "unknown-labels",
+        "members": {
+          "privacy_classification": "unknown",
+          "redistribution_status": "unknown"
+        }
+      },
+      {
+        "name": "pending-review",
+        "members": {
+          "review_status": "pending"
+        }
+      },
+      {
+        "name": "claim-false",
+        "members": {
+          "professional_claim": false
+        }
+      },
+      {
+        "name": "claim-null",
+        "members": {
+          "professional_claim": null
+        }
+      },
+      {
+        "name": "payload-flag-array",
+        "members": {
+          "contains_payload": []
+        }
+      },
+      {
+        "name": "secret-flag-no",
+        "members": {
+          "secret_material_present": "no"
+        }
+      },
+      {
+        "name": "concrete-path-flag",
+        "members": {
+          "concrete_path_present": true
+        }
+      },
+      {
+        "name": "intent-member",
+        "members": {
+          "local_private_intent": true
+        }
+      },
+      {
+        "name": "payload-name",
+        "members": {
+          "payload": "invented"
+        }
+      },
+      {
+        "name": "secret-name",
+        "members": {
+          "secret": "invented"
+        }
+      },
+      {
+        "name": "cloud-name",
+        "members": {
+          "cloud_url": "invented"
+        }
+      },
+      {
+        "name": "sql-name",
+        "members": {
+          "sql": "invented"
+        }
+      },
+      {
+        "name": "path-name",
+        "members": {
+          "file_path": "invented"
+        }
+      }
+    ],
+    "positions": [
+      {
+        "name": "object-with-no-value-member",
+        "payload": {
+          "record": {
+            "note": "invented-carried-note-s7",
+            "@statement": true
+          }
+        },
+        "statement_path": "$.record",
+        "statement_decisions": [
+          [
+            "{statement_path}",
+            "{reason}"
+          ]
+        ]
+      },
+      {
+        "name": "object-whose-value-is-an-object",
+        "payload": {
+          "record": {
+            "value": {
+              "note": "invented-carried-note-s7"
+            },
+            "@statement": true
+          }
+        },
+        "statement_path": "$.record",
+        "statement_decisions": [
+          [
+            "{statement_path}",
+            "{reason}"
+          ]
+        ]
+      },
+      {
+        "name": "object-whose-value-is-an-array",
+        "payload": {
+          "record": {
+            "value": [
+              "invented-carried-note-s7"
+            ],
+            "@statement": true
+          }
+        },
+        "statement_path": "$.record",
+        "statement_decisions": [
+          [
+            "{statement_path}",
+            "{reason}"
+          ]
+        ]
+      },
+      {
+        "name": "object-in-an-array",
+        "payload": {
+          "record": [
+            {
+              "note": "invented-first"
+            },
+            {
+              "note": "invented-carried-note-s7",
+              "@statement": true
+            }
+          ]
+        },
+        "statement_path": "$.record[1]",
+        "statement_decisions": [
+          [
+            "{statement_path}",
+            "{reason}"
+          ]
+        ]
+      },
+      {
+        "name": "object-beneath-an-item-decided-whole",
+        "payload": {
+          "record": {
+            "value": "invented-label",
+            "privacy_classification": "public_metadata",
+            "redistribution_status": "public_permissive",
+            "review_status": "accepted",
+            "extra": {
+              "note": "invented-carried-note-s7",
+              "@statement": true
+            }
+          }
+        },
+        "statement_path": "$.record.extra",
+        "statement_decisions": [
+          [
+            "{statement_path}",
+            "{reason}"
+          ]
+        ],
+        "expected_decisions": [
+          [
+            "$.record",
+            "include",
+            "SAFE_PUBLIC_METADATA"
+          ]
+        ]
+      },
+      {
+        "name": "provenance-of-an-item-with-its-own-labels",
+        "payload": {
+          "record": {
+            "value": "invented-label",
+            "privacy_classification": "public_metadata",
+            "redistribution_status": "public_permissive",
+            "review_status": "accepted",
+            "provenance": {
+              "note": "invented-carried-note-s7",
+              "@statement": true
+            }
+          }
+        },
+        "statement_path": "$.record.provenance",
+        "statement_decisions": [
+          [
+            "{statement_path}",
+            "{reason}"
+          ]
+        ],
+        "expected_decisions": [
+          [
+            "$.record",
+            "include",
+            "SAFE_PUBLIC_METADATA"
+          ]
+        ]
+      },
+      {
+        "name": "object-beneath-an-object-carrying-a-statement",
+        "payload": {
+          "record": {
+            "note": "invented-outer",
+            "professional_claim": true,
+            "inner": {
+              "note": "invented-carried-note-s7",
+              "@statement": true
+            }
+          }
+        },
+        "statement_path": "$.record.inner",
+        "statement_decisions": [
+          [
+            "$.record",
+            "PROFESSIONAL_BOUNDARY_BLOCKED"
+          ],
+          [
+            "{statement_path}",
+            "{reason}"
+          ]
+        ]
+      },
+      {
+        "name": "object-several-levels-down",
+        "payload": {
+          "record": {
+            "note": "invented-outer",
+            "layers": [
+              {
+                "inner": {
+                  "deep": {
+                    "note": "invented-carried-note-s7",
+                    "@statement": true
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "statement_path": "$.record.layers[0].inner.deep",
+        "statement_decisions": [
+          [
+            "{statement_path}",
+            "{reason}"
+          ]
+        ]
+      }
+    ],
+    "named_cases": [
+      {
+        "case_id": "paired-control-ordinary-provenance-keeps-the-item-decision",
+        "payload": {
+          "record": {
+            "value": "invented-carried-note-s7",
+            "privacy_classification": "public_metadata",
+            "redistribution_status": "public_permissive",
+            "review_status": "accepted",
+            "provenance": {
+              "privacy_classification": "private_project_data",
+              "redistribution_status": "unknown",
+              "review_status": "pending"
+            }
+          }
+        },
+        "route": {
+          "expected_decisions": [
+            [
+              "$.record",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "statement_decisions": []
+        },
+        "walk": {
+          "expected_decisions": [
+            [
+              "$.record",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "statement_decisions": []
+        }
+      },
+      {
+        "case_id": "paired-control-blocking-provenance-is-decided-at-the-provenance",
+        "payload": {
+          "record": {
+            "value": "invented-carried-note-s7",
+            "privacy_classification": "public_metadata",
+            "redistribution_status": "public_permissive",
+            "review_status": "accepted",
+            "provenance": {
+              "privacy_classification": "protected_suspected",
+              "redistribution_status": "unknown",
+              "review_status": "pending"
+            }
+          }
+        },
+        "route": {
+          "expected_decisions": [
+            [
+              "$.record",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.provenance",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ],
+          "statement_decisions": [
+            [
+              "$.record.provenance",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ]
+        },
+        "walk": {
+          "expected_decisions": [
+            [
+              "$.record",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.provenance",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ],
+          "statement_decisions": [
+            [
+              "$.record.provenance",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "fallback-read-label-is-decided-at-the-item-only",
+        "payload": {
+          "record": {
+            "value": "invented-carried-note-s7",
+            "privacy_classification": null,
+            "redistribution_status": null,
+            "provenance": {
+              "redistribution_status": "protected_suspected"
+            }
+          }
+        },
+        "route": {
+          "expected_decisions": [
+            [
+              "$.record",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ],
+          "statement_decisions": [
+            [
+              "$.record",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ]
+        },
+        "walk": {
+          "expected_decisions": [
+            [
+              "$.record",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ],
+          "statement_decisions": [
+            [
+              "$.record",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "per-kind-review-read-by-the-fallback-privacy-at-the-provenance",
+        "payload": {
+          "record": {
+            "value": "invented-carried-note-s7",
+            "privacy_classification": "public_metadata",
+            "redistribution_status": "public_permissive",
+            "provenance": {
+              "privacy_classification": "protected_suspected",
+              "review_status": "quarantined"
+            }
+          }
+        },
+        "route": {
+          "expected_decisions": [
+            [
+              "$.record",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ],
+            [
+              "$.record.provenance",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ],
+          "statement_decisions": [
+            [
+              "$.record",
+              "PROTECTED_CONTENT_BLOCKED"
+            ],
+            [
+              "$.record.provenance",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ]
+        },
+        "walk": {
+          "expected_decisions": [
+            [
+              "$.record",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ],
+            [
+              "$.record.provenance",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ],
+          "statement_decisions": [
+            [
+              "$.record",
+              "PROTECTED_CONTENT_BLOCKED"
+            ],
+            [
+              "$.record.provenance",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "fallback-read-label-with-flag-and-claim-on-the-provenance",
+        "payload": {
+          "record": {
+            "value": "invented-carried-note-s7",
+            "provenance": {
+              "privacy_classification": "protected_suspected",
+              "contains_payload": true,
+              "professional_claim": true
+            }
+          }
+        },
+        "route": {
+          "expected_decisions": [
+            [
+              "$.record",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ],
+            [
+              "$.record.provenance",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "statement_decisions": [
+            [
+              "$.record",
+              "PROTECTED_CONTENT_BLOCKED"
+            ],
+            [
+              "$.record.provenance",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ]
+        },
+        "walk": {
+          "expected_decisions": [
+            [
+              "$.record",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ],
+            [
+              "$.record.provenance",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "statement_decisions": [
+            [
+              "$.record",
+              "PROTECTED_CONTENT_BLOCKED"
+            ],
+            [
+              "$.record.provenance",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "provenance-of-an-object-the-route-does-not-decide-as-an-item",
+        "payload": {
+          "record": {
+            "note": "invented-carried-note-s7",
+            "provenance": {
+              "redistribution_status": "protected_suspected"
+            }
+          }
+        },
+        "route": {
+          "statement_decisions": [
+            [
+              "$.record.provenance",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ]
+        },
+        "walk": {
+          "statement_decisions": [
+            [
+              "$.record",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ]
+        }
+      }
+    ],
+    "raw_cases": [
+      {
+        "case_id": "raw-literal-member-name-shaped-like-a-path-does-not-hide-a-nested-claim",
+        "payload": {
+          "record": {
+            "x": [
+              {
+                "value": "v",
+                "privacy_classification": "public_metadata",
+                "redistribution_status": "public_permissive",
+                "note": {
+                  "professional_claim": true
+                }
+              }
+            ],
+            "x[0].note": {
+              "value": "v",
+              "privacy_classification": "protected_suspected"
+            }
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__x[0]",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__x[0].note",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ],
+            [
+              "$.__route_key__record.__route_key__x[0].note",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.x[0]",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.x[0].note",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ],
+            [
+              "$.record.x[0].note",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record.x[0]",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.x[0].note",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ],
+            [
+              "$.record.x[0].note",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-literal-member-name-shaped-like-a-provenance-is-decided-at-its-own-object",
+        "payload": {
+          "record": {
+            "x": {
+              "value": "v",
+              "provenance": {
+                "privacy_classification": "protected_suspected"
+              }
+            },
+            "x.provenance": {
+              "review_status": "quarantined"
+            }
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__x",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ],
+            [
+              "$.__route_key__record.__route_key__x.provenance.__route_key__review_status",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.__route_key__record.__route_key__x.provenance",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.__route_key__record.__route_key__x",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ],
+            [
+              "$.__route_key__record.__route_key__x.provenance.__route_key__review_status",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.__route_key__record.__route_key__x.provenance",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.x",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ],
+            [
+              "$.record.x.provenance.review_status",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.x.provenance",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ],
+          "mirror_decisions_local_private": [
+            [
+              "$.record.x",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ],
+            [
+              "$.record.x.provenance.review_status",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.x.provenance",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record.x",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ],
+            [
+              "$.record.x.provenance",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-integer-like-member-names-give-the-same-decisions-in-every-implementation",
+        "payload": {
+          "record": {
+            "1[0]": {
+              "value": "v",
+              "review_status": "accepted",
+              "professional_claim": true
+            },
+            "1": [
+              {
+                "value": "v",
+                "provenance": {
+                  "privacy_classification": "protected_suspected"
+                }
+              }
+            ]
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__1[0]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.__route_key__record.__route_key__1[0]",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.1[0]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.record.1[0]",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record.1[0]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.record.1[0]",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-nested-member-and-dotted-member-are-distinct-in-the-mirror-too",
+        "payload": {
+          "record": {
+            "a": {
+              "b": {
+                "value": "v",
+                "privacy_classification": "protected_suspected"
+              }
+            },
+            "a.b": {
+              "professional_claim": true
+            }
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__a.__route_key__b",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ],
+            [
+              "$.__route_key__record.__route_key__a.b.__route_key__professional_claim",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.__route_key__record.__route_key__a.b",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.__route_key__record.__route_key__a.__route_key__b",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ],
+            [
+              "$.__route_key__record.__route_key__a.b.__route_key__professional_claim",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.__route_key__record.__route_key__a.b",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.a.b",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ],
+            [
+              "$.record.a.b.professional_claim",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.a.b",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "mirror_decisions_local_private": [
+            [
+              "$.record.a.b",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ],
+            [
+              "$.record.a.b.professional_claim",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.a.b",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record.a.b",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ],
+            [
+              "$.record.a.b",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-reserved-name-is-refused-before-the-statement-reading-on-the-route",
+        "payload": {
+          "record": {
+            "__route_key__x": {
+              "professional_claim": true
+            }
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.record.__route_key__x",
+              "block_export",
+              "EXPORT_INPUT_RESERVED_NAME"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.__route_key__x",
+              "block_export",
+              "EXPORT_INPUT_RESERVED_NAME"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record.__route_key__x",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-present-unknown-review-still-falls-back-to-the-provenance",
+        "payload": {
+          "record": {
+            "value": "v",
+            "review_status": "unknown",
+            "provenance": {
+              "review_status": "quarantined"
+            }
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-claim-on-the-provenance-stays-at-the-provenance",
+        "payload": {
+          "record": {
+            "value": {},
+            "provenance": {
+              "professional_claim": true
+            }
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__provenance.__route_key__professional_claim",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.__route_key__record.__route_key__provenance",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.__route_key__record.__route_key__provenance.__route_key__professional_claim",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.__route_key__record.__route_key__provenance",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.provenance.professional_claim",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.provenance",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "mirror_decisions_local_private": [
+            [
+              "$.record.provenance.professional_claim",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.provenance",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.provenance",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.record",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.provenance",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-claims-in-nested-arrays-and-an-own-proto-member-in-a-value-record",
+        "payload": {
+          "record": {
+            "value": "v",
+            "field_class": "note",
+            "extra": [
+              [
+                {
+                  "professional_claim": []
+                },
+                {
+                  "professional_claim": {}
+                },
+                {
+                  "professional_claim": 0
+                }
+              ]
+            ],
+            "__proto__": {
+              "direct_sql_access": "yes"
+            }
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__value",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ],
+            [
+              "$.__route_key__record.__route_key__field_class",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.__route_key__record.__route_key__extra[0][2].__route_key__professional_claim",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.__route_key__record.__route_key____proto__.__route_key__direct_sql_access",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.__route_key__record.__route_key__extra[0][0]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.__route_key__record.__route_key__extra[0][1]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.__route_key__record.__route_key__extra[0][2]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.__route_key__record.__route_key____proto__",
+              "block_export",
+              "DIRECT_SQL_ACCESS_BLOCKED"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.__route_key__record.__route_key__value",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ],
+            [
+              "$.__route_key__record.__route_key__field_class",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.__route_key__record.__route_key__extra[0][2].__route_key__professional_claim",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.__route_key__record.__route_key____proto__.__route_key__direct_sql_access",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.__route_key__record.__route_key__extra[0][0]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.__route_key__record.__route_key__extra[0][1]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.__route_key__record.__route_key__extra[0][2]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.__route_key__record.__route_key____proto__",
+              "block_export",
+              "DIRECT_SQL_ACCESS_BLOCKED"
+            ]
+          ],
+          "decisions_local_private_without_intent": [
+            [
+              "$.__route_key__record.__route_key__value",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ],
+            [
+              "$.__route_key__record.__route_key__field_class",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.__route_key__record.__route_key__extra[0][2].__route_key__professional_claim",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.__route_key__record.__route_key____proto__.__route_key__direct_sql_access",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.__route_key__record.__route_key__extra[0][0]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.__route_key__record.__route_key__extra[0][1]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.__route_key__record.__route_key__extra[0][2]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.__route_key__record.__route_key____proto__",
+              "block_export",
+              "DIRECT_SQL_ACCESS_BLOCKED"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.value",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ],
+            [
+              "$.record.field_class",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.extra[0][2].professional_claim",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.__proto__.direct_sql_access",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.extra[0][0]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.record.extra[0][1]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.record.extra[0][2]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.record.__proto__",
+              "block_export",
+              "DIRECT_SQL_ACCESS_BLOCKED"
+            ]
+          ],
+          "mirror_decisions_local_private": [
+            [
+              "$.record.value",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ],
+            [
+              "$.record.field_class",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.extra[0][2].professional_claim",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.__proto__.direct_sql_access",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.extra[0][0]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.record.extra[0][1]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.record.extra[0][2]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.record.__proto__",
+              "block_export",
+              "DIRECT_SQL_ACCESS_BLOCKED"
+            ]
+          ],
+          "mirror_decisions_local_private_without_intent": [
+            [
+              "$.record.value",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ],
+            [
+              "$.record.field_class",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.extra[0][2].professional_claim",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.__proto__.direct_sql_access",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.extra[0][0]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.record.extra[0][1]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.record.extra[0][2]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.record.__proto__",
+              "block_export",
+              "DIRECT_SQL_ACCESS_BLOCKED"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.extra[0][0]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.record.extra[0][1]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.record.extra[0][2]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.record.__proto__",
+              "block_export",
+              "DIRECT_SQL_ACCESS_BLOCKED"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.record",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.extra[0][0]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.record.extra[0][1]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.record.extra[0][2]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.record.__proto__",
+              "block_export",
+              "DIRECT_SQL_ACCESS_BLOCKED"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-statements-inside-payload-intent-members-block-the-route",
+        "payload": {
+          "record": {
+            "user_intent": {
+              "professional_claim": true
+            },
+            "export_policy": {
+              "local_private_intent": [
+                [
+                  {
+                    "review_status": "quarantined"
+                  }
+                ]
+              ]
+            }
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__user_intent",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.__route_key__record.__route_key__export_policy.__route_key__local_private_intent[0][0]",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.user_intent",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.record.export_policy.local_private_intent[0][0]",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.user_intent",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.record.export_policy.local_private_intent[0][0]",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.record",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.user_intent",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ],
+            [
+              "$.record.export_policy.local_private_intent[0][0]",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-statement-inside-an-intent-member-of-an-item-kept-whole",
+        "payload": {
+          "record": {
+            "value": "v",
+            "privacy_classification": "public_metadata",
+            "redistribution_status": "public_permissive",
+            "review_status": "accepted",
+            "user_intent": {
+              "review_status": "rejected"
+            }
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.user_intent",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.user_intent",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.user_intent",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-benign-objects-inside-payload-intent-members-block-nothing",
+        "payload": {
+          "record": {
+            "user_intent": {
+              "professional_claim": false
+            },
+            "export_policy": {
+              "local_private_intent": [
+                [
+                  {
+                    "review_status": "pending"
+                  }
+                ]
+              ]
+            }
+          }
+        },
+        "route": {
+          "decisions": [],
+          "mirror_decisions": [],
+          "payload": {
+            "record": {
+              "export_policy": {}
+            }
+          }
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.record",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-statement-in-the-third-intent-member-name",
+        "payload": {
+          "record": {
+            "note": "invented",
+            "explicit_local_private_intent": {
+              "redistribution_status": "protected_suspected"
+            }
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__note",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.__route_key__record.__route_key__explicit_local_private_intent",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.__route_key__record.__route_key__note",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.__route_key__record.__route_key__explicit_local_private_intent",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.note",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.explicit_local_private_intent",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ],
+          "mirror_decisions_local_private": [
+            [
+              "$.record.note",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.explicit_local_private_intent",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record.explicit_local_private_intent",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-statement-in-an-intent-member-inside-an-array",
+        "payload": {
+          "record": {
+            "arr": [
+              {
+                "user_intent": [
+                  {
+                    "review_status": "quarantined"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__arr[0].__route_key__user_intent[0]",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.arr[0].user_intent[0]",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record.arr[0].user_intent[0]",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-statement-in-an-intent-member-inside-another",
+        "payload": {
+          "record": {
+            "user_intent": {
+              "local_private_intent": {
+                "explicit_local_private_intent": {
+                  "professional_claim": true
+                }
+              }
+            }
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__user_intent.__route_key__local_private_intent.__route_key__explicit_local_private_intent",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.user_intent.local_private_intent.explicit_local_private_intent",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record.user_intent.local_private_intent.explicit_local_private_intent",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-detail-name-block-and-statement-on-one-object-give-one-decision",
+        "payload": {
+          "record": {
+            "value": "v",
+            "secret": "s",
+            "privacy_classification": "protected_suspected"
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record",
+              "block_export",
+              "SECRET_MATERIAL_BLOCKED"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record",
+              "block_export",
+              "SECRET_MATERIAL_BLOCKED"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record",
+              "block_export",
+              "SECRET_MATERIAL_BLOCKED"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-higher-item-reason-with-an-adopted-provenance-label",
+        "payload": {
+          "record": {
+            "value": "v",
+            "professional_claim": true,
+            "provenance": {
+              "privacy_classification": "protected_suspected"
+            }
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "labels": [
+            [
+              "$.__route_key__record",
+              "protected_suspected",
+              "unknown",
+              "unknown"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "labels": [
+            [
+              "$.record",
+              "protected_suspected",
+              "unknown",
+              "unknown"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-statement-beneath-an-omitted-detail-member-of-a-value-record",
+        "payload": {
+          "record": {
+            "value": "v",
+            "field_class": "note",
+            "path": {
+              "professional_claim": true
+            }
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__value",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ],
+            [
+              "$.__route_key__record.__route_key__field_class",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.__route_key__record.__route_key__path.__route_key__professional_claim",
+              "omit_field",
+              "CONCRETE_PATH_REDACTED"
+            ],
+            [
+              "$.__route_key__record.__route_key__path",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.__route_key__record.__route_key__value",
+              "redact_value",
+              "CONCRETE_PATH_REDACTED"
+            ],
+            [
+              "$.__route_key__record.__route_key__field_class",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.__route_key__record.__route_key__path.__route_key__professional_claim",
+              "omit_field",
+              "CONCRETE_PATH_REDACTED"
+            ],
+            [
+              "$.__route_key__record.__route_key__path",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "decisions_local_private_without_intent": [
+            [
+              "$.__route_key__record.__route_key__value",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ],
+            [
+              "$.__route_key__record.__route_key__field_class",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.__route_key__record.__route_key__path.__route_key__professional_claim",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ],
+            [
+              "$.__route_key__record.__route_key__path",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.value",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ],
+            [
+              "$.record.field_class",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.path.professional_claim",
+              "omit_field",
+              "CONCRETE_PATH_REDACTED"
+            ],
+            [
+              "$.record.path",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "mirror_decisions_local_private": [
+            [
+              "$.record.value",
+              "redact_value",
+              "CONCRETE_PATH_REDACTED"
+            ],
+            [
+              "$.record.field_class",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.path.professional_claim",
+              "omit_field",
+              "CONCRETE_PATH_REDACTED"
+            ],
+            [
+              "$.record.path",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "mirror_decisions_local_private_without_intent": [
+            [
+              "$.record.value",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ],
+            [
+              "$.record.field_class",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.path.professional_claim",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ],
+            [
+              "$.record.path",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record",
+              "redact_value",
+              "CONCRETE_PATH_REDACTED"
+            ],
+            [
+              "$.record.path",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-statement-beneath-a-provenance-proto-member",
+        "payload": {
+          "record": {
+            "value": "v",
+            "privacy_classification": "public_metadata",
+            "redistribution_status": "public_permissive",
+            "review_status": "accepted",
+            "provenance": {
+              "__proto__": {
+                "professional_claim": true
+              }
+            }
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record",
+              "redact_value",
+              "UNKNOWN_PROVENANCE_WARNING"
+            ],
+            [
+              "$.__route_key__record.provenance.__proto__",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.__route_key__record",
+              "warning_only",
+              "UNKNOWN_PROVENANCE_WARNING"
+            ],
+            [
+              "$.__route_key__record.provenance.__proto__",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record",
+              "redact_value",
+              "UNKNOWN_PROVENANCE_WARNING"
+            ],
+            [
+              "$.record.provenance.__proto__",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "mirror_decisions_local_private": [
+            [
+              "$.record",
+              "warning_only",
+              "UNKNOWN_PROVENANCE_WARNING"
+            ],
+            [
+              "$.record.provenance.__proto__",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record",
+              "redact_value",
+              "UNKNOWN_PROVENANCE_WARNING"
+            ],
+            [
+              "$.record.provenance.__proto__",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.record",
+              "warning_only",
+              "UNKNOWN_PROVENANCE_WARNING"
+            ],
+            [
+              "$.record.provenance.__proto__",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-statement-on-the-root-object",
+        "payload": {
+          "professional_claim": true
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__professional_claim",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.__route_key__professional_claim",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.professional_claim",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "mirror_decisions_local_private": [
+            [
+              "$.professional_claim",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-statement-in-a-root-array",
+        "payload": [
+          {
+            "professional_claim": true
+          }
+        ],
+        "route": {
+          "decisions": [
+            [
+              "$[0].__route_key__professional_claim",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$[0]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$[0].__route_key__professional_claim",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$[0]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$[0]",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-member-name-holding-the-prefix-characters-in-the-middle",
+        "payload": {
+          "record": {
+            "a__route_key__b": {
+              "professional_claim": true
+            }
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__a__route_key__b.__route_key__professional_claim",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.__route_key__record.__route_key__a__route_key__b",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.__route_key__record.__route_key__a__route_key__b.__route_key__professional_claim",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.__route_key__record.__route_key__a__route_key__b",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.a__route_key__b.professional_claim",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.a__route_key__b",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "mirror_decisions_local_private": [
+            [
+              "$.record.a__route_key__b.professional_claim",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.a__route_key__b",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record.a__route_key__b",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-leaf-bracket-in-a-root-member-name",
+        "payload": {
+          "te]xt": 1
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__te]xt",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.__route_key__te]xt",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ]
+          ],
+          "decisions_local_private_without_intent": [
+            [
+              "$.__route_key__te]xt",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ]
+          ],
+          "labels": [
+            [
+              "$.__route_key__te]xt",
+              "private_project_data",
+              "private_only",
+              "accepted"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.te]xt",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ]
+          ],
+          "mirror_decisions_local_private": [
+            [
+              "$.te]xt",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ]
+          ],
+          "mirror_decisions_local_private_without_intent": [
+            [
+              "$.te]xt",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": []
+        }
+      },
+      {
+        "case_id": "raw-leaf-bracket-in-a-member-name-with-a-public-basis",
+        "payload": {
+          "record": {
+            "privacy_classification": "public",
+            "redistribution_status": "public_permissive",
+            "pa]th": "invented-c11"
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__pa]th",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ],
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.__route_key__record.__route_key__pa]th",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ],
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "decisions_local_private_without_intent": [
+            [
+              "$.__route_key__record.__route_key__pa]th",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ],
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "labels": [
+            [
+              "$.__route_key__record.__route_key__pa]th",
+              "private_project_data",
+              "private_only",
+              "accepted"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.pa]th",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ],
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "mirror_decisions_local_private": [
+            [
+              "$.record.pa]th",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ],
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "mirror_decisions_local_private_without_intent": [
+            [
+              "$.record.pa]th",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ],
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-leaf-bracket-in-a-member-name-without-a-public-basis",
+        "payload": {
+          "record": {
+            "pa]th": "invented-c11"
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__pa]th",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.__route_key__record.__route_key__pa]th",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ]
+          ],
+          "decisions_local_private_without_intent": [
+            [
+              "$.__route_key__record.__route_key__pa]th",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ]
+          ],
+          "labels": [
+            [
+              "$.__route_key__record.__route_key__pa]th",
+              "private_project_data",
+              "private_only",
+              "accepted"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.pa]th",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ]
+          ],
+          "mirror_decisions_local_private": [
+            [
+              "$.record.pa]th",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ]
+          ],
+          "mirror_decisions_local_private_without_intent": [
+            [
+              "$.record.pa]th",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": []
+        }
+      },
+      {
+        "case_id": "raw-leaf-bracket-after-the-first-character",
+        "payload": {
+          "record": {
+            "privacy_classification": "public",
+            "redistribution_status": "public_permissive",
+            "p]ath": "invented-c11"
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__p]ath",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ],
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.__route_key__record.__route_key__p]ath",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ],
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "decisions_local_private_without_intent": [
+            [
+              "$.__route_key__record.__route_key__p]ath",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ],
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "labels": [
+            [
+              "$.__route_key__record.__route_key__p]ath",
+              "private_project_data",
+              "private_only",
+              "accepted"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.p]ath",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ],
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "mirror_decisions_local_private": [
+            [
+              "$.record.p]ath",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ],
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "mirror_decisions_local_private_without_intent": [
+            [
+              "$.record.p]ath",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ],
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-leaf-bracket-before-the-last-character",
+        "payload": {
+          "record": {
+            "privacy_classification": "public",
+            "redistribution_status": "public_permissive",
+            "pat]h": "invented-c11"
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__pat]h",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ],
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.__route_key__record.__route_key__pat]h",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ],
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "decisions_local_private_without_intent": [
+            [
+              "$.__route_key__record.__route_key__pat]h",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ],
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "labels": [
+            [
+              "$.__route_key__record.__route_key__pat]h",
+              "private_project_data",
+              "private_only",
+              "accepted"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.pat]h",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ],
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "mirror_decisions_local_private": [
+            [
+              "$.record.pat]h",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ],
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "mirror_decisions_local_private_without_intent": [
+            [
+              "$.record.pat]h",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ],
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-leaf-two-brackets-in-one-name",
+        "payload": {
+          "record": {
+            "privacy_classification": "public",
+            "redistribution_status": "public_permissive",
+            "p]a]th": "invented-c11"
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__p]a]th",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ],
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.__route_key__record.__route_key__p]a]th",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ],
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "decisions_local_private_without_intent": [
+            [
+              "$.__route_key__record.__route_key__p]a]th",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ],
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "labels": [
+            [
+              "$.__route_key__record.__route_key__p]a]th",
+              "private_project_data",
+              "private_only",
+              "accepted"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.p]a]th",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ],
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "mirror_decisions_local_private": [
+            [
+              "$.record.p]a]th",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ],
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "mirror_decisions_local_private_without_intent": [
+            [
+              "$.record.p]a]th",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ],
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-leaf-bracket-in-a-joined-suffix",
+        "payload": {
+          "record": {
+            "privacy_classification": "public",
+            "redistribution_status": "public_permissive",
+            "note_te]xt": "invented-c11"
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__note_te]xt",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ],
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.__route_key__record.__route_key__note_te]xt",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ],
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "decisions_local_private_without_intent": [
+            [
+              "$.__route_key__record.__route_key__note_te]xt",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ],
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "labels": [
+            [
+              "$.__route_key__record.__route_key__note_te]xt",
+              "private_project_data",
+              "private_only",
+              "accepted"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.note_te]xt",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ],
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "mirror_decisions_local_private": [
+            [
+              "$.record.note_te]xt",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ],
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "mirror_decisions_local_private_without_intent": [
+            [
+              "$.record.note_te]xt",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ],
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-leaf-bracket-in-an-upper-case-name",
+        "payload": {
+          "record": {
+            "privacy_classification": "public",
+            "redistribution_status": "public_permissive",
+            "PA]TH": "invented-c11"
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__PA]TH",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ],
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.__route_key__record.__route_key__PA]TH",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ],
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "decisions_local_private_without_intent": [
+            [
+              "$.__route_key__record.__route_key__PA]TH",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ],
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "labels": [
+            [
+              "$.__route_key__record.__route_key__PA]TH",
+              "private_project_data",
+              "private_only",
+              "accepted"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.PA]TH",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ],
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "mirror_decisions_local_private": [
+            [
+              "$.record.PA]TH",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ],
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "mirror_decisions_local_private_without_intent": [
+            [
+              "$.record.PA]TH",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ],
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-leaf-bracket-in-a-hyphenated-token",
+        "payload": {
+          "record": {
+            "privacy_classification": "public",
+            "redistribution_status": "public_permissive",
+            "design-ba]sis": "invented-c11"
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__design-ba]sis",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ],
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.__route_key__record.__route_key__design-ba]sis",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ],
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "decisions_local_private_without_intent": [
+            [
+              "$.__route_key__record.__route_key__design-ba]sis",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ],
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "labels": [
+            [
+              "$.__route_key__record.__route_key__design-ba]sis",
+              "private_project_data",
+              "private_only",
+              "accepted"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.design-ba]sis",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ],
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "mirror_decisions_local_private": [
+            [
+              "$.record.design-ba]sis",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ],
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "mirror_decisions_local_private_without_intent": [
+            [
+              "$.record.design-ba]sis",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ],
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-leaf-bracket-in-a-record-in-a-list-with-a-public-basis",
+        "payload": {
+          "record": {
+            "items": [
+              {
+                "privacy_classification": "public",
+                "redistribution_status": "public_permissive",
+                "pa]th": "invented-c11"
+              }
+            ]
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__items[0].__route_key__pa]th",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ],
+            [
+              "$.__route_key__record.__route_key__items[0].__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__items[0].__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.__route_key__record.__route_key__items[0].__route_key__pa]th",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ],
+            [
+              "$.__route_key__record.__route_key__items[0].__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__items[0].__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "decisions_local_private_without_intent": [
+            [
+              "$.__route_key__record.__route_key__items[0].__route_key__pa]th",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ],
+            [
+              "$.__route_key__record.__route_key__items[0].__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__items[0].__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "labels": [
+            [
+              "$.__route_key__record.__route_key__items[0].__route_key__pa]th",
+              "private_project_data",
+              "private_only",
+              "accepted"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.items[0].pa]th",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ],
+            [
+              "$.record.items[0].privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.items[0].redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "mirror_decisions_local_private": [
+            [
+              "$.record.items[0].pa]th",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ],
+            [
+              "$.record.items[0].privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.items[0].redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "mirror_decisions_local_private_without_intent": [
+            [
+              "$.record.items[0].pa]th",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ],
+            [
+              "$.record.items[0].privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.items[0].redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record.items[0]",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-leaf-bracket-in-a-record-in-a-list-without-a-public-basis",
+        "payload": {
+          "record": {
+            "items": [
+              {
+                "pa]th": 7
+              }
+            ]
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__items[0].__route_key__pa]th",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.__route_key__record.__route_key__items[0].__route_key__pa]th",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ]
+          ],
+          "decisions_local_private_without_intent": [
+            [
+              "$.__route_key__record.__route_key__items[0].__route_key__pa]th",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ]
+          ],
+          "labels": [
+            [
+              "$.__route_key__record.__route_key__items[0].__route_key__pa]th",
+              "private_project_data",
+              "private_only",
+              "accepted"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.items[0].pa]th",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ]
+          ],
+          "mirror_decisions_local_private": [
+            [
+              "$.record.items[0].pa]th",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ]
+          ],
+          "mirror_decisions_local_private_without_intent": [
+            [
+              "$.record.items[0].pa]th",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": []
+        }
+      },
+      {
+        "case_id": "raw-leaf-bracket-beneath-a-checksum-path-on-a-leaf-other-than-value",
+        "payload": {
+          "record": {
+            "checksum": {
+              "privacy_classification": "public",
+              "redistribution_status": "public_permissive",
+              "te]xt": true
+            }
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__checksum.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__checksum.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__checksum.__route_key__te]xt",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.__route_key__record.__route_key__checksum.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__checksum.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__checksum.__route_key__te]xt",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ]
+          ],
+          "decisions_local_private_without_intent": [
+            [
+              "$.__route_key__record.__route_key__checksum.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__checksum.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__checksum.__route_key__te]xt",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ]
+          ],
+          "labels": [
+            [
+              "$.__route_key__record.__route_key__checksum.__route_key__te]xt",
+              "private_project_data",
+              "private_only",
+              "accepted"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.checksum.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.checksum.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.checksum.te]xt",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ]
+          ],
+          "mirror_decisions_local_private": [
+            [
+              "$.record.checksum.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.checksum.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.checksum.te]xt",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ]
+          ],
+          "mirror_decisions_local_private_without_intent": [
+            [
+              "$.record.checksum.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.checksum.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.checksum.te]xt",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record.checksum",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-leaf-control-checksum-exemption-holds-for-a-bracketed-value-leaf",
+        "payload": {
+          "record": {
+            "checksum": {
+              "privacy_classification": "public",
+              "redistribution_status": "public_permissive",
+              "val]ue": "invented-c11"
+            }
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__checksum.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__checksum.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__checksum.__route_key__val]ue",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "labels": [
+            [
+              "$.__route_key__record.__route_key__checksum.__route_key__val]ue",
+              "public_metadata",
+              "public_permissive",
+              "accepted"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.checksum.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.checksum.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.checksum.val]ue",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record.checksum",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-leaf-control-unit-map-exemption-holds-for-a-bracketed-leaf",
+        "payload": {
+          "record": {
+            "model_units": {
+              "privacy_classification": "public",
+              "redistribution_status": "public_permissive",
+              "pa]th": "invented-c11"
+            }
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__model_units.__route_key__pa]th",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__model_units.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__model_units.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "labels": [
+            [
+              "$.__route_key__record.__route_key__model_units.__route_key__pa]th",
+              "public_metadata",
+              "public_permissive",
+              "accepted"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.model_units.pa]th",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.model_units.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.model_units.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record.model_units",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-leaf-control-a-list-index-after-a-bracketed-name-is-the-leaf",
+        "payload": {
+          "record": {
+            "privacy_classification": "public",
+            "redistribution_status": "public_permissive",
+            "pa]th": [
+              "invented-c11"
+            ]
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__pa]th[0]",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.__route_key__record.__route_key__pa]th[0]",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "labels": [
+            [
+              "$.__route_key__record.__route_key__pa]th[0]",
+              "unknown",
+              "unknown",
+              "pending"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.pa]th[0]",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "mirror_decisions_local_private": [
+            [
+              "$.record.pa]th[0]",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-leaf-open-and-close-brackets-in-one-name-read-as-a-separator",
+        "payload": {
+          "record": {
+            "privacy_classification": "public",
+            "redistribution_status": "public_permissive",
+            "a[pa]th": "invented-c12"
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__a[pa]th",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__a[pa]th",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ]
+          ],
+          "decisions_local_private_without_intent": [
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__a[pa]th",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ]
+          ],
+          "labels": [
+            [
+              "$.__route_key__record.__route_key__a[pa]th",
+              "private_project_data",
+              "private_only",
+              "accepted"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.a[pa]th",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ]
+          ],
+          "mirror_decisions_local_private": [
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.a[pa]th",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ]
+          ],
+          "mirror_decisions_local_private_without_intent": [
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.a[pa]th",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-leaf-control-hash-spelling-of-the-checksum-exemption",
+        "payload": {
+          "record": {
+            "hash": {
+              "privacy_classification": "public",
+              "redistribution_status": "public_permissive",
+              "val]ue": "invented-c12"
+            }
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__hash.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__hash.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__hash.__route_key__val]ue",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "labels": [
+            [
+              "$.__route_key__record.__route_key__hash.__route_key__val]ue",
+              "public_metadata",
+              "public_permissive",
+              "accepted"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.hash.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.hash.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.hash.val]ue",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record.hash",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-leaf-control-target-export-unit-map-exemption",
+        "payload": {
+          "record": {
+            "target_export_units": {
+              "privacy_classification": "public",
+              "redistribution_status": "public_permissive",
+              "pa]th": "invented-c12"
+            }
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__target_export_units.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__target_export_units.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__target_export_units.__route_key__pa]th",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "labels": [
+            [
+              "$.__route_key__record.__route_key__target_export_units.__route_key__pa]th",
+              "public_metadata",
+              "public_permissive",
+              "accepted"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.target_export_units.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.target_export_units.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.target_export_units.pa]th",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record.target_export_units",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-leaf-control-hyphenated-model-unit-map-exemption",
+        "payload": {
+          "record": {
+            "model-units": {
+              "privacy_classification": "public",
+              "redistribution_status": "public_permissive",
+              "pa]th": "invented-c12"
+            }
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__model-units.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__model-units.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__model-units.__route_key__pa]th",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ],
+          "labels": [
+            [
+              "$.__route_key__record.__route_key__model-units.__route_key__pa]th",
+              "public_metadata",
+              "public_permissive",
+              "accepted"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.model-units.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.model-units.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.model-units.pa]th",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record.model-units",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-leaf-null-value-at-a-token-reading-leaf-is-unknown",
+        "payload": {
+          "record": {
+            "privacy_classification": "public",
+            "redistribution_status": "public_permissive",
+            "pa]th": null
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__pa]th",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__pa]th",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ]
+          ],
+          "labels": [
+            [
+              "$.__route_key__record.__route_key__pa]th",
+              "unknown",
+              "unknown",
+              "pending"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.pa]th",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ]
+          ],
+          "mirror_decisions_local_private": [
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.pa]th",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-leaf-tbd-value-at-a-token-reading-leaf-is-unknown",
+        "payload": {
+          "record": {
+            "privacy_classification": "public",
+            "redistribution_status": "public_permissive",
+            "pa]th": "TBD"
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__pa]th",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__pa]th",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ]
+          ],
+          "labels": [
+            [
+              "$.__route_key__record.__route_key__pa]th",
+              "unknown",
+              "unknown",
+              "pending"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.pa]th",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ]
+          ],
+          "mirror_decisions_local_private": [
+            [
+              "$.record.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.pa]th",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-leaf-checksum-exemption-is-not-wider-than-its-word",
+        "payload": {
+          "record": {
+            "checksum": {
+              "privacy_classification": "public",
+              "redistribution_status": "public_permissive",
+              "x_val]ue": "invented-c12"
+            }
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__checksum.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__checksum.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__checksum.__route_key__x_val]ue",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.__route_key__record.__route_key__checksum.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__checksum.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__checksum.__route_key__x_val]ue",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ]
+          ],
+          "decisions_local_private_without_intent": [
+            [
+              "$.__route_key__record.__route_key__checksum.__route_key__privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__checksum.__route_key__redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.__route_key__checksum.__route_key__x_val]ue",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ]
+          ],
+          "labels": [
+            [
+              "$.__route_key__record.__route_key__checksum.__route_key__x_val]ue",
+              "private_project_data",
+              "private_only",
+              "accepted"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.checksum.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.checksum.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.checksum.x_val]ue",
+              "redact_value",
+              "PRIVATE_DATA_REDACTED"
+            ]
+          ],
+          "mirror_decisions_local_private": [
+            [
+              "$.record.checksum.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.checksum.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.checksum.x_val]ue",
+              "warning_only",
+              "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            ]
+          ],
+          "mirror_decisions_local_private_without_intent": [
+            [
+              "$.record.checksum.privacy_classification",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.checksum.redistribution_status",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.checksum.x_val]ue",
+              "block_export",
+              "LOCAL_PRIVATE_INTENT_REQUIRED"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record.checksum",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-contract-statement-in-the-provenance-of-an-item-shaped-record-in-an-intent-member",
+        "payload": {
+          "record": {
+            "user_intent": {
+              "value": "v",
+              "provenance": {
+                "privacy_classification": "protected_suspected"
+              }
+            }
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__user_intent.provenance",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.user_intent.provenance",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record.user_intent",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-contract-claim-beneath-an-item-shaped-record-in-an-intent-member",
+        "payload": {
+          "record": {
+            "user_intent": {
+              "value": "v",
+              "privacy_classification": "public_metadata",
+              "redistribution_status": "public_permissive",
+              "note": {
+                "professional_claim": true
+              }
+            }
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__user_intent.note",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.user_intent.note",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record.user_intent",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.user_intent.note",
+              "block_export",
+              "PROFESSIONAL_BOUNDARY_BLOCKED"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-contract-provenance-label-of-a-record-without-a-value",
+        "payload": {
+          "record": {
+            "privacy_classification": "public_metadata",
+            "provenance": {
+              "redistribution_status": "protected_suspected"
+            }
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.__route_key__record.__route_key__provenance.__route_key__redistribution_status",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.__route_key__record.__route_key__provenance",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ],
+          "decisions_local_private": [
+            [
+              "$.__route_key__record.__route_key__privacy_classification",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.__route_key__record.__route_key__provenance.__route_key__redistribution_status",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.__route_key__record.__route_key__provenance",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record.privacy_classification",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.provenance.redistribution_status",
+              "redact_value",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.provenance",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ],
+          "mirror_decisions_local_private": [
+            [
+              "$.record.privacy_classification",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.provenance.redistribution_status",
+              "warning_only",
+              "REDISTRIBUTION_STATUS_UNKNOWN"
+            ],
+            [
+              "$.record.provenance",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ]
+        }
+      },
+      {
+        "case_id": "raw-contract-intent-record-beneath-an-item-decided-whole",
+        "payload": {
+          "record": {
+            "value": "v",
+            "privacy_classification": "public_metadata",
+            "redistribution_status": "public_permissive",
+            "inner": {
+              "user_intent": {
+                "value": "v",
+                "provenance": {
+                  "privacy_classification": "protected_suspected"
+                }
+              }
+            }
+          }
+        },
+        "route": {
+          "decisions": [
+            [
+              "$.__route_key__record",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.__route_key__record.inner.user_intent.provenance",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ],
+          "mirror_decisions": [
+            [
+              "$.record",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.inner.user_intent.provenance",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ]
+        },
+        "walk": {
+          "decisions": [
+            [
+              "$.record",
+              "include",
+              "SAFE_PUBLIC_METADATA"
+            ],
+            [
+              "$.record.inner.user_intent.provenance",
+              "block_export",
+              "PROTECTED_CONTENT_BLOCKED"
+            ]
+          ]
+        }
+      }
+    ]
+  }
 }

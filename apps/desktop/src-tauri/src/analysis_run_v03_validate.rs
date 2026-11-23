@@ -157,8 +157,10 @@ fn js_canonical_value<S: Sink>(w: &mut Writer<'_, S>, value: &Value) {
             w.raw("]");
         }
         Value::Object(map) => {
-            let mut keys: Vec<_> = map.keys().collect();
-            keys.sort_by(|a, b| a.encode_utf16().cmp(b.encode_utf16()));
+            // Distinct keys: an unstable sort gives the stable sort's order with no heap scratch.
+            let mut keys: Vec<&String> = Vec::with_capacity(map.len());
+            keys.extend(map.keys());
+            keys.sort_unstable_by(|a, b| a.encode_utf16().cmp(b.encode_utf16()));
             w.raw("{");
             for (index, key) in keys.into_iter().enumerate() {
                 if index > 0 { w.raw(","); }
@@ -291,15 +293,16 @@ fn retained_route(source: &Value) -> bool {
 
 /// `numericalResultStanding(result, model).findings` for an unregistered
 /// result: the retained routes' registration requirement, or Rust's dispatch
-/// standing for the model.
+/// standing for the model. The verdict's `integrity_bound` (release exit
+/// criterion 18) is carried with it, as `numericalResultStanding` carries it.
 pub(crate) fn standing(source: &Value, model: Option<&Value>) -> Value {
     if retained_route(source) {
-        return json!({"route": rv::route(source).map(|(name, _)| name).unwrap_or("unsupported"), "status": "needs_recompute", "eligible": false, "findings": [RETAINED_PRECISION_VALIDATION_REQUIRED]});
+        return json!({"route": rv::route(source).map(|(name, _)| name).unwrap_or("unsupported"), "status": "needs_recompute", "eligible": false, "findings": [RETAINED_PRECISION_VALIDATION_REQUIRED], "integrity_bound": rv::integrity_bound()});
     }
     let model = model.filter(|model| !model.is_null());
     let dispatched = rv::dispatch(source, model, None);
     let standing = &dispatched["standing"];
-    json!({"route": standing["route"], "status": standing["status"], "eligible": standing["eligible"], "findings": standing["findings"]})
+    json!({"route": standing["route"], "status": standing["status"], "eligible": standing["eligible"], "findings": standing["findings"], "integrity_bound": standing["integrity_bound"]})
 }
 
 fn standing_findings(standing: &Value) -> Vec<String> {
@@ -368,14 +371,14 @@ fn retained_name(name: &str) -> bool {
 fn recorded_standing(source: &Value, variant: &RecordedVariant, model: Option<&Value>) -> Value {
     let route = route_name(&recorded_dispatch(source, variant, None)["route"]);
     if retained_name(route) {
-        return json!({"route": route, "status": "needs_recompute", "eligible": false, "findings": [RETAINED_PRECISION_VALIDATION_REQUIRED]});
+        return json!({"route": route, "status": "needs_recompute", "eligible": false, "findings": [RETAINED_PRECISION_VALIDATION_REQUIRED], "integrity_bound": rv::integrity_bound()});
     }
     if route == "pressure_source" {
         return standing(source, model);
     }
     let dispatched = recorded_dispatch(source, variant, model.filter(|model| !model.is_null()));
     let standing = &dispatched["standing"];
-    json!({"route": standing["route"], "status": standing["status"], "eligible": standing["eligible"], "findings": standing["findings"]})
+    json!({"route": standing["route"], "status": standing["status"], "eligible": standing["eligible"], "findings": standing["findings"], "integrity_bound": standing["integrity_bound"]})
 }
 
 /// `validateRetainedPrecisionRecorded(source, binding)`'s refusal (its

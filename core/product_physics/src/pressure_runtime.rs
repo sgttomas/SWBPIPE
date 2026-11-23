@@ -399,14 +399,10 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
                 exact_admission::admission(contract, ExactFamily::EquivalentStatic)
             {
                 problem(diagnostics, code, &[&case.id, "equivalent_static"], message);
-            } else if super::case_state::carries_fields(model) {
-                // W-16 slice c (§3): a load/reference-state document (the
-                // document-level detector, an authored null group included)
-                // refuses every authored case's generation, listed in the
-                // group or not, before the effective cases are selected.
-                problem(diagnostics, exact_admission::EQUIVALENT_STATIC_LOAD_STATE,
-                    &[&case.id, "equivalent_static"], exact_admission::EQUIVALENT_STATIC_LOAD_STATE_TEXT);
             }
+            // On a load/reference-state document generation is admitted: it is
+            // formed on the resolved effective case beside the declared source
+            // ledger, at factor 1 (DEL-05-01 REQ-008; DEL-04-07 REQ-011).
         }
         for load in &case.primitive_loads {
             if load.category == "pressure" || load.dimension == "pressure" {
