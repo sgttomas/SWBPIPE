@@ -84,6 +84,8 @@ code_paths:
 - apps/desktop/src-tauri/src/lib.rs
 - apps/desktop/src-tauri/tauri.conf.json
 - apps/desktop/src-tauri/src/close_guard.rs
+# The gate on the command registration: only the main webview reaches an application command.
+- apps/desktop/src-tauri/src/command_webview.rs
 - apps/desktop/src-tauri/src/model_document_file.rs
 - apps/desktop/src-tauri/src/model_document_save.rs
 # The scripted-run build and its driver. native_smoke.rs is shared with DEL-16-06. In
