@@ -9,6 +9,7 @@
  * are invented. */
 import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import { isDeepStrictEqual } from "node:util";
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -52,7 +53,10 @@ async function session() {
       persisted_mechanics_result_count: request.mechanics_result ? 1 : 0, persisted_analysis_run_count: request.analysis_run ? 1 : 0,
       persisted_analysis_run_ref: request.analysis_run?.analysis_run?.run_id ?? "not_persisted" },
     model: request.model, editor_intents: [], proposal: null, selected_review_target: null, mechanics_result: request.mechanics_result ?? null,
-    analysis_run: request.analysis_run ?? null, model_hash: request.model_hash, project_envelope_hash: { value: `sha256:row#${++row}` }, model_document_version: null
+    analysis_run: request.analysis_run ?? null, model_hash: request.model_hash,
+    // A stored revision's token, as the store's claim carries it (a digest of the invented row).
+    project_envelope_hash: { algorithm: "sha256", canonicalization: "rfc8785_jcs", payload_scope: "project_envelope_payload", payload_excludes: "storage_summary_and_envelope_hash_carrier_fields",
+      payload_ref: request.model.project.id, value: `sha256:${createHash("sha256").update(`row#${++row}`).digest("hex")}`, hash_status: "computed_local_preview" }, model_document_version: null
   }) as unknown as LocalProjectEnvelope;
   const fake = createNativePersistenceFake({
     heldBytes: transport.heldBytes,
