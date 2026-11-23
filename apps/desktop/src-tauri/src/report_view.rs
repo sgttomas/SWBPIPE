@@ -267,6 +267,15 @@ pub(crate) const MAX_WORDS: usize = 4;
 pub(crate) const MAX_DETAILS: usize = 6;
 const LABEL_PREFIX: &str = "report-view-";
 
+/// The label of the `n`th view window opened in this process: its window's
+/// and its webview's alike (`WebviewWindowBuilder` gives both the window's
+/// label). It is never the main window's, so the invoke handler's gate
+/// (`command_webview::main_webview_only`) refuses every application command
+/// called from a view window with `COMMAND-WEBVIEW-REFUSED`.
+fn view_label(n: u64) -> String {
+    format!("{LABEL_PREFIX}{n}")
+}
+
 /// The current render's kind.
 pub(crate) const KIND_CURRENT_RENDER: &str = "current_render";
 
@@ -1046,7 +1055,7 @@ pub(crate) fn open(app: &AppHandle, document: ViewDocument, lease: Lease) -> Res
     let identity = document.identity.clone();
     let receipt = |outcome: &'static str| ViewReceipt { outcome, kind: identity.kind, sha256_hex: identity.sha256_hex.clone() };
     let windows = RuntimeWindows(Some(app.clone()));
-    match open_in(&OPEN, &OPENING, &SHUT, &windows, document, lease, || format!("{LABEL_PREFIX}{}", NEXT_LABEL.fetch_add(1, Ordering::Relaxed)))? {
+    match open_in(&OPEN, &OPENING, &SHUT, &windows, document, lease, || view_label(NEXT_LABEL.fetch_add(1, Ordering::Relaxed)))? {
         Opened::New { .. } => Ok(receipt("opened")),
         Opened::BroughtForward { .. } => Ok(receipt("brought_forward")),
     }
@@ -1451,6 +1460,43 @@ mod tests {
         assert!(!(document.showable)(), "the line says \"current\" only while it is");
     }
 
+
+    /// A view window's label, whichever number it takes, is not the main one, so the invoke
+    /// handler's gate (`command_webview::only_from_main`, which `main_webview_only` is) refuses
+    /// a command called from it with `COMMAND-WEBVIEW-REFUSED` before the command is entered.
+    #[test]
+    fn a_command_from_a_view_window_is_refused_by_the_main_webview_gate() {
+        use crate::command_webview::{from_main, only_from_main, Caller, COMMAND_WEBVIEW_REFUSED};
+        struct FromView {
+            label: String,
+            refused: Arc<Mutex<Vec<&'static str>>>,
+        }
+        impl Caller for FromView {
+            fn from_main(&self) -> bool {
+                from_main(&self.label, &self.label)
+            }
+            fn refuse(self) {
+                self.refused.lock().unwrap().push(COMMAND_WEBVIEW_REFUSED);
+            }
+        }
+        let entered = Arc::new(AtomicUsize::new(0));
+        let counted = Arc::clone(&entered);
+        let gated = only_from_main(move |_: FromView| {
+            counted.fetch_add(1, Ordering::SeqCst);
+            true
+        });
+        for n in [0, 1, 2, u64::MAX] {
+            let label = view_label(n);
+            let config = view_window_config(&label, identity().wrapper_address().unwrap(), "Calculation report");
+            assert_eq!(config.label, label, "the window is built under this label");
+            assert_ne!(label, crate::command_webview::COMMAND_WEBVIEW);
+            let refused = Arc::new(Mutex::new(Vec::new()));
+            let handled = gated(FromView { label: label.clone(), refused: Arc::clone(&refused) });
+            assert!(handled, "{label}: reported handled");
+            assert_eq!(*refused.lock().unwrap(), [COMMAND_WEBVIEW_REFUSED], "{label}: refused once");
+        }
+        assert_eq!(entered.load(Ordering::SeqCst), 0, "no command was entered from a view window");
+    }
 
     /// The configuration handed to `WebviewWindowBuilder::from_config`: no script, no kept data, no
     /// developer tools, an ordinary window (not always on top), at its wrapper address.
