@@ -3569,7 +3569,11 @@ export function useWorkspaceSession() {
       // As in saveProject: an edit that lands while this verified write (or its history read) is in
       // flight, with no other project operation after it, leaves the session bound to the project.
       const keepStoredBinding = () => {
-        if (verifiedBasis && request === projectRequest.current && sameProjectSession()) setProjectSummary(created.summary);
+        if (!(verifiedBasis && request === projectRequest.current && sameProjectSession())) return;
+        setProjectSummary(created.summary);
+        // Issue 519: what this write did to the stored proposal stays true whatever came after it.
+        const outcome = writtenStoredProposalSentence(unadmitted, { projectId: requestModel.project.id, generation, kept: false, replacedWhole: true });
+        if (outcome) setProjectMessage(`${created.summary.message}${outcome}`);
       };
       if (!stillCurrent()) { keepStoredBinding(); return; }
       const returnedHistory = requestHistoricalRun
@@ -4606,7 +4610,11 @@ export function useWorkspaceSession() {
       // no other project operation followed: the write stands, so the session stays bound to the
       // stored project, and the newer working model (with its unsaved edits) is kept as it is.
       const keepStoredBinding = () => {
-        if (verifiedBasis && request === projectRequest.current && sameProjectSession()) setProjectSummary(saved.summary);
+        if (!(verifiedBasis && request === projectRequest.current && sameProjectSession())) return;
+        setProjectSummary(saved.summary);
+        // Issue 519: what this write did to the stored proposal stays true whatever came after it.
+        const outcome = writtenStoredProposalSentence(unadmitted, { projectId: requestModel.project.id, generation, kept, replacedWhole: keepStoredProposal && !kept });
+        if (outcome) setProjectMessage(`${saved.summary.message}${outcome}`);
       };
       if (!stillCurrent()) { keepStoredBinding(); return; }
       // A kept save's history is read from the stored envelope as written (the browser preview's

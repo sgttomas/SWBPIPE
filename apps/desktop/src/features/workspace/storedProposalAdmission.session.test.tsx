@@ -393,6 +393,9 @@ describe("the notice at the write's commit, while the session moved on (issue 51
     write.release();
     await act(async () => { await pending; });
     expect((await openLocalProject(model.project.id))!.proposal).toBeNull();
+    // The write's own sentence stands, though the selection moved while it was written.
+    expect(result.current.project.projectMessage).toContain(storedProposalSentence(notice.notice, "replaced"));
+    expect(result.current.project.projectMessage).not.toContain(OPEN_SENTENCE);
     const keeping = vi.spyOn(projectService, "saveLocalProjectKeepingStoredProposal");
     await act(async () => { await result.current.project.handleSaveProject(); });
     expect(result.current.project.projectOperation).toBe("save");
@@ -415,6 +418,8 @@ describe("the notice at the write's commit, while the session moved on (issue 51
     write.release();
     await act(async () => { await creating; });
     expect((await openLocalProject(model.project.id))!.proposal).toBeNull();
+    expect(result.current.project.projectMessage).toContain(storedProposalSentence(notice.notice, "replaced"));
+    expect(result.current.project.projectMessage).not.toContain(OPEN_SENTENCE);
     const keeping = vi.spyOn(projectService, "saveLocalProjectKeepingStoredProposal");
     await act(async () => { await result.current.project.handleSaveProject(); });
     expect(result.current.project.projectOperation).toBe("save");
