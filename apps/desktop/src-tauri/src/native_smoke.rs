@@ -724,23 +724,30 @@ pub fn native_smoke_take_report_views() -> Vec<ReportViewObservation> {
 /// not evidence that a window closed.
 #[tauri::command]
 pub async fn native_smoke_close_report_views(app: AppHandle) -> Result<Vec<String>, String> {
-    let remaining = || {
-        let mut labels: Vec<String> = app.webview_windows().into_keys().filter(|label| crate::report_view::is_view_label(label)).collect();
-        for label in crate::report_view::recorded_labels() {
-            if !labels.contains(&label) {
-                labels.push(label);
-            }
-        }
-        labels.sort();
-        labels
-    };
+    let remaining = || views_remaining(app.webview_windows().into_keys(), crate::report_view::recorded_labels());
     close_until_none_remain(crate::report_view::close_all, remaining, std::time::Duration::from_secs(2)).await
 }
 
+/// Every view window still there, sorted: each view label among `registered`
+/// (Tauri's window registry) and each of `recorded` (the view records, in any
+/// state).
+fn views_remaining(registered: impl IntoIterator<Item = String>, recorded: Vec<String>) -> Vec<String> {
+    let mut labels: Vec<String> = registered.into_iter().filter(|label| crate::report_view::is_view_label(label)).collect();
+    for label in recorded {
+        if !labels.contains(&label) {
+            labels.push(label);
+        }
+    }
+    labels.sort();
+    labels
+}
+
 /// `close`, then a wait under one deadline, `within` from the request, until
-/// `remaining` (every view window still registered or recorded) is empty: the
-/// labels present at the request and those `close` took, or an error naming
-/// the windows that remain at the deadline.
+/// `remaining` (every view window still registered or recorded) is found empty
+/// by a check observed at or before the deadline: the labels present at the
+/// request and those `close` took. Otherwise an error: naming the windows that
+/// remain, or, where none remained but the check came after the deadline,
+/// saying so.
 async fn close_until_none_remain(close: impl FnOnce() -> Vec<String>, remaining: impl Fn() -> Vec<String>, within: std::time::Duration) -> Result<Vec<String>, String> {
     let deadline = std::time::Instant::now() + within;
     let mut labels = remaining();
@@ -752,13 +759,18 @@ async fn close_until_none_remain(close: impl FnOnce() -> Vec<String>, remaining:
     labels.sort();
     loop {
         let left = remaining();
-        if left.is_empty() {
+        let observed = std::time::Instant::now();
+        if left.is_empty() && observed <= deadline {
             return Ok(labels);
         }
-        if std::time::Instant::now() >= deadline {
-            return Err(format!("The report view window(s) {} remain after the close request.", left.join(", ")));
+        if observed >= deadline {
+            return Err(if left.is_empty() {
+                "No report view window remained, but not within the close's deadline.".to_string()
+            } else {
+                format!("The report view window(s) {} remain after the close request.", left.join(", "))
+            });
         }
-        tokio::time::sleep(std::time::Duration::from_millis(10)).await;
+        tokio::time::sleep((deadline - observed).min(std::time::Duration::from_millis(10))).await;
     }
 }
 
@@ -1727,7 +1739,7 @@ mod reader_phase_tests {
 
 #[cfg(test)]
 mod report_view_close_tests {
-    use super::close_until_none_remain;
+    use super::{close_until_none_remain, views_remaining};
     use std::cell::RefCell;
     use std::time::{Duration, Instant};
 
@@ -1760,6 +1772,19 @@ mod report_view_close_tests {
         (result, closes)
     }
 
+    /// What the command waits for: a view window in the registry only (its record gone first)
+    /// and one in the records only (not yet, or no longer, registered) both remain; other
+    /// windows do not count.
+    #[test]
+    fn the_registry_and_the_records_each_hold_a_view_window_open() {
+        let registered = ["main".to_string(), "report-view-1".to_string(), "report-print-1".to_string()];
+        let recorded = vec!["report-view-2".to_string()];
+        assert_eq!(views_remaining(registered.clone(), recorded), vec!["report-view-1".to_string(), "report-view-2".to_string()]);
+        assert_eq!(views_remaining(registered, Vec::new()), vec!["report-view-1".to_string()]);
+        assert_eq!(views_remaining(["main".to_string()], vec!["report-view-2".to_string(), "report-view-2".to_string()]), vec!["report-view-2".to_string()]);
+        assert!(views_remaining(["main".to_string(), "report-print-1".to_string()], Vec::new()).is_empty());
+    }
+
     #[test]
     fn the_close_succeeds_only_once_no_view_window_remains_in_any_state() {
         let ms = Duration::from_millis;
@@ -1778,6 +1803,10 @@ mod report_view_close_tests {
         // even though it goes soon after the close returns.
         let (result, _) = run(vec![("report-view-2", Some(ms(150)))], ms(80), ms(100));
         assert_eq!(result, Err("The report view window(s) report-view-2 remain after the close request.".to_string()));
+        // A close that itself runs past the deadline: the window is gone when it is first checked,
+        // but that check is after the deadline, so the close fails.
+        let (result, _) = run(vec![("report-view-1", Some(ms(110)))], ms(120), ms(100));
+        assert_eq!(result, Err("No report view window remained, but not within the close's deadline.".to_string()));
     }
 }
 

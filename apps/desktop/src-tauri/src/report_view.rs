@@ -1092,7 +1092,13 @@ pub(crate) fn close_all() -> Vec<String> {
 /// or its opening fails (the scripted run's close waits for none to remain).
 #[cfg_attr(not(feature = "native-smoke"), allow(dead_code))]
 pub(crate) fn recorded_labels() -> Vec<String> {
-    lock(&OPEN).iter().map(|record| record.label.clone()).collect()
+    recorded_labels_in(&OPEN)
+}
+
+/// [`recorded_labels`] over `open`.
+#[cfg_attr(not(feature = "native-smoke"), allow(dead_code))]
+fn recorded_labels_in(open: &Mutex<Vec<OpenView>>) -> Vec<String> {
+    lock(open).iter().map(|record| record.label.clone()).collect()
 }
 
 /// An accepted close or quit (`finish_close` and the exit request in
@@ -2205,6 +2211,50 @@ mod tests {
             model.destroyed(&open, "report-view-1");
             assert_eq!(lease_pool.reserved_total(), 0);
         }
+    }
+
+    /// The scripted run's close waits for every record to go (`recorded_labels`): a close
+    /// (`close_where_in`, as `close_all` makes it) leaves a record being built, only marked, and
+    /// one already closing, skipped, both still recorded until their windows' destruction is
+    /// observed.
+    #[test]
+    fn a_record_being_built_or_already_closing_stays_recorded_after_a_close() {
+        let pool = routes::test_pool();
+        let custody = rendered(&pool);
+        let open = Arc::new(Mutex::new(Vec::new()));
+        let gate = Arc::new(Mutex::new(()));
+        let model = Arc::new(Model::default());
+        let lease_pool = routes::test_pool();
+        // One window open, then closed once: its record is closing until its destruction is observed.
+        open_with(&open, &gate, &model, offer(&custody), command_lease(&lease_pool), "report-view-1").unwrap();
+        assert_eq!(close_where_in(&open, None, &*model, |_| true), vec!["report-view-1".to_string()]);
+        // A second opening paused at its build.
+        let (at_tx, at_rx) = channel::<()>();
+        let (go_tx, go_rx) = channel::<()>();
+        let go_rx = Mutex::new(go_rx);
+        *lock(&model.hook) = Some(Arc::new(move |point: &str| {
+            if point == "build" {
+                at_tx.send(()).unwrap();
+                lock(&go_rx).recv().unwrap();
+            }
+        }));
+        let building = {
+            let (open, gate, model, document, lease) = (Arc::clone(&open), Arc::clone(&gate), Arc::clone(&model), offer(&custody), command_lease(&lease_pool));
+            std::thread::spawn(move || open_with(&open, &gate, &model, document, lease, "report-view-2"))
+        };
+        at_rx.recv().unwrap();
+        // The close asks nothing of either: the building one is only marked, the closing one skipped.
+        assert!(close_where_in(&open, None, &*model, |_| true).is_empty());
+        let mut recorded = recorded_labels_in(&open);
+        recorded.sort();
+        assert_eq!(recorded, vec!["report-view-1".to_string(), "report-view-2".to_string()], "both still recorded");
+        go_tx.send(()).unwrap();
+        assert!(building.join().unwrap().is_err(), "the opening of a window marked closing while built does not succeed");
+        assert!(lock(&model.destroy_asked).contains(&"report-view-2".to_string()), "its opening asked its destruction");
+        for label in ["report-view-1", "report-view-2"] {
+            model.destroyed(&open, label);
+        }
+        assert!(recorded_labels_in(&open).is_empty(), "each record goes once its destruction is observed");
     }
 
     /// An offer whose answer turns false while the opening waits for the records' lock matches
