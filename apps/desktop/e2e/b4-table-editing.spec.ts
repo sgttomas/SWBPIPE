@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { attachBrowserIdentity, currentModelHashThroughVisibleExport, gotoModel, readFixture, gotoRoutedFixture } from "./ui-foundation-workflows";
-import { ensureTreeExpanded, openWorkspaceSection, showModelTree } from "./workspace-driver";
+import { ensureTreeExpanded, openWorkspaceSection, projectCommand, showModelTree } from "./workspace-driver";
 
 // One connected journey per configured source viewport; no explicit-size repetition.
 test("B4 node coordinates apply through one operation with keyboard, history and saved-state ownership", async ({ page, browser }, info) => {
@@ -39,9 +39,9 @@ test("B4 node coordinates apply through one operation with keyboard, history and
   await expect(lastEditor).toHaveCount(0); await expect(last).not.toBeFocused();
   expect(await page.evaluate(() => document.activeElement !== document.body)).toBe(true);
   expect(lastLabel).toBeTruthy();
-  await openWorkspaceSection(page, "project"); await page.getByRole("button", { name: "Save local", exact: true }).click();
+  await openWorkspaceSection(page, "project"); await page.getByTestId("project-save").click();
   await expect(page.getByTestId("local-project-message")).toContainText("Saved local browser-preview project"); await expect(page.getByTestId("project-edited")).toHaveCount(0);
-  await page.getByRole("button", { name: "Open local", exact: true }).click(); await expect(page.getByTestId("local-project-message")).toContainText("Opened local browser-preview project");
+  await projectCommand(page, "open-local"); await expect(page.getByTestId("local-project-message")).toContainText("Opened local browser-preview project");
   await showModelTree(page); await page.getByTestId("layout-mode-grid").click(); await expect(cell).toHaveText("0.75"); await expect(page.getByTestId("workspace-undo")).toBeDisabled();
   await page.screenshot({ path: info.outputPath("b4-reopened-coordinate.png") });
 });
@@ -300,8 +300,8 @@ test("B4 text fields apply, recover filtered focus, preserve text Undo and retai
   await review.getByTestId("review-cell-node:N-100-provenance").dblclick(); await review.getByRole("textbox").fill("clear active");
   await page.getByTestId("clear-entity-grid-drafts").click(); await expect(page.getByTestId("entity-grid-change-count")).toHaveText("0 changed cells");
   await expect(review.getByRole("textbox")).toHaveCount(0); await page.getByTestId("node-grid-review-disclosure").click(); await expect(label).toHaveText("TBD");
-  await openWorkspaceSection(page, "project"); await page.getByRole("button", { name: "Save local", exact: true }).click(); await expect(page.getByTestId("local-project-message")).toContainText("Saved local browser-preview project");
-  await page.getByRole("button", { name: "Open local", exact: true }).click(); await expect(page.getByTestId("local-project-message")).toContainText("Opened local browser-preview project");
+  await openWorkspaceSection(page, "project"); await page.getByTestId("project-save").click(); await expect(page.getByTestId("local-project-message")).toContainText("Saved local browser-preview project");
+  await projectCommand(page, "open-local"); await expect(page.getByTestId("local-project-message")).toContainText("Opened local browser-preview project");
   await showModelTree(page); await page.getByTestId("layout-mode-grid").click(); await expect(label).toHaveText("TBD"); await expect(provenance).toHaveText("TBD"); await expect(page.getByTestId("workspace-undo")).toBeDisabled();
 });
 
@@ -430,7 +430,7 @@ export async function convertDisplayQuantities(items) {
   expect(geometry.body.height).toBeGreaterThan(0); expect(geometry.footer.bottom).toBeLessThanOrEqual(geometry.pane.bottom); expect(geometry.header.bottom).toBeLessThanOrEqual(geometry.body.y);
   for (const unit of geometry.units) { expect(unit.width).toBeGreaterThan(0); expect(unit.scroll).toBeLessThanOrEqual(unit.client); }
   await info.attach("materials-contained-units", { body: JSON.stringify(geometry, null, 2), contentType: "application/json" });
-  await openWorkspaceSection(page, "project"); await page.getByRole("button", { name: "Save local", exact: true }).click(); await expect(page.getByTestId("local-project-message")).toContainText("Saved local browser-preview project");
+  await openWorkspaceSection(page, "project"); await page.getByTestId("project-save").click(); await expect(page.getByTestId("local-project-message")).toContainText("Saved local browser-preview project");
   await showModelTree(page); await page.getByTestId("material-grid-review-disclosure").click();
   await page.evaluate(() => { (window as any).__b4MaterialConversionGate.hold = true; });
   await reviewCell.dblclick(); await review.getByRole("textbox").fill("70");
@@ -441,7 +441,7 @@ export async function convertDisplayQuantities(items) {
   await expect(nodeEditor).toBeFocused(); await expect(nodeEditor).toHaveValue(" "); await page.getByTestId("engineering-table").getByRole("button", { name: "Cancel", exact: true }).click();
   await page.getByTestId("entity-grid-type-materials").click(); await reviewCell.dblclick(); await review.getByRole("textbox").fill("80");
   await expect.poll(() => page.evaluate(() => (window as any).__b4MaterialConversionGate.pending.length)).toBeGreaterThan(0);
-  await openWorkspaceSection(page, "project"); await page.getByRole("button", { name: "Open local", exact: true }).click(); await expect(page.getByTestId("local-project-message")).toContainText("Opened local browser-preview project");
+  await openWorkspaceSection(page, "project"); await projectCommand(page, "open-local"); await expect(page.getByTestId("local-project-message")).toContainText("Opened local browser-preview project");
   await showModelTree(page); await page.getByTestId("layout-mode-grid").click(); await page.getByTestId("entity-grid-type-materials").click(); await expect(elastic).toHaveText("50"); await expect(page.getByTestId("workspace-undo")).toBeDisabled();
   if (await page.getByTestId("material-grid-review-disclosure").getAttribute("aria-expanded") === "true") await page.getByTestId("material-grid-review-disclosure").click();
   await direct.getByTestId(`table-cell-${firstId}-label`).dblclick(); const newEditor = direct.getByRole("textbox"); await newEditor.press("R"); await newEditor.press("S");

@@ -15,6 +15,7 @@ import { previewOperatingConditions, type OperatingConditionPreview } from "../.
 import { disabledBy, stableJson, useReseed } from "../model-data/modelDataIntents";
 import { NOT_USED_BY_SOLVE, conditionKeys, conditionUseIntent, isPressureFree } from "./conditionSetIntents";
 import { EngineFeedback, useEngineCheckedQueue, type EngineCheckedQueueProps } from "./engineCheckedQueue";
+import { loadRowDirection } from "../load-cases/primitiveLoadVocabulary";
 
 type LoadCase = PreviewModel["load_cases"][number];
 
@@ -171,7 +172,7 @@ export function ConditionResolutionPreview({ model, caseId }: { model: PreviewMo
                       <td>{typeof record.target === "string" ? record.target : record.target.pipe}</td>
                       <td>{record.category}</td>
                       <td>{record.magnitude.value} {record.magnitude.unit}</td>
-                      <td>{record.direction}</td>
+                      <td>{loadRowDirection(record.dimension, record.direction)}</td>
                       <td>{record.dimension}</td>
                     </tr>
                   ))}

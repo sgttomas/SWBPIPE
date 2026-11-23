@@ -5,6 +5,7 @@ const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 
 import { LibraryManagerPanel } from "./LibraryManagerPanel";
+import { setActiveLibraryRefProject } from "./libraryRefFindings";
 import {
   LIBRARY_IMPORT_BACKEND_DIAGNOSTIC,
   buildInventedLibraryImportTemplate,
@@ -757,6 +758,8 @@ describe("LibraryManagerPanel: apply to model (W-17)", () => {
       return Promise.reject(new Error(`unexpected command ${command}`));
     });
     const onQueueBatch = vi.fn();
+    // The workspace session makes an opened project the store's active project; the panel checks only that project's references.
+    setActiveLibraryRefProject(model.project.id);
     render(<LibraryManagerPanel model={model} selection={{ type: "material", id: target.id }} onQueueBatch={onQueueBatch} />);
     fireEvent.click(screen.getByTestId("library-refresh-list"));
     await waitFor(() => expect(screen.getByTestId(`library-ref-finding-${target.id}`).textContent).toContain("MODEL-LIBRARY-REF-VERSION-CHANGED (warning)"));

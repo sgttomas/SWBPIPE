@@ -14,6 +14,8 @@ export type LabelPriorityInput = Readonly<{
   hoverKey?: EntityKey | null;
   selectedKeys?: readonly EntityKey[];
   diagnosticKeys?: readonly EntityKey[];
+  /** Nodes that bound the system (a support, a line's end): admitted before the rest of the model. */
+  boundaryKeys?: readonly EntityKey[];
   hiddenKeys?: ReadonlySet<EntityKey>;
   cameraTarget?: Readonly<Vec3>;
   limit?: number;
@@ -71,7 +73,10 @@ export type ViewportViewCommand =
   | Readonly<{ type: "hide-selection" }>
   | Readonly<{ type: "isolate-selection" }>
   | Readonly<{ type: "show-all" }>
-  | Readonly<{ type: "fit-model" | "fit-visible" | "fit-selection" }>
+  | Readonly<{ type: "fit-model" | "fit-visible" }>
+  // Fit Selection frames `targets` when the command names them (a run sheet row's own entity,
+  // which the selection may not yet hold), else the selection.
+  | Readonly<{ type: "fit-selection"; targets?: readonly EntityRef[] }>
   // Key results (A6): the same view state the
   // result-colour toggle with its quantity and case selectors, and the deformation popover's case
   // selector, set. They carry ids the viewport already offers and form no value.
@@ -144,6 +149,55 @@ export function applyMeasurementTargetCommand(
   });
 }
 
+/** The marker or radius envelope an entity is drawn with, or null when it adds nothing to the
+ * displayed bounds (hidden, invalid, without geometry). */
+function displayedExtent(
+  index: ModelIndex,
+  key: EntityKey,
+  hiddenKeys: ReadonlySet<EntityKey>,
+  actualOdRadii: ReadonlyMap<EntityKey, number>
+): number | null {
+  if (hiddenKeys.has(key) || index.invalidGeometry.has(key)) return null;
+  const indexed = index.entities.get(key);
+  if (!indexed?.geometryBounds) return null;
+  const extent = indexed.ref.type === "pipe"
+    ? actualOdRadii.get(key) ?? 0.052
+    : indexed.ref.type === "node"
+      ? 0.095
+      : indexed.ref.type === "support"
+        ? 0.43
+        : indexed.ref.type === "component"
+          ? 0.3
+          : 0;
+  return Number.isFinite(extent) && extent >= 0 ? extent : null;
+}
+
+/** The keys among `keys` that contribute to displayedBoundsForEntityKeys: the ones a fit of them
+ * frames. */
+export function displayedEntityKeys(
+  index: ModelIndex,
+  keys: Iterable<EntityKey>,
+  hiddenKeys: ReadonlySet<EntityKey>,
+  actualOdRadii: ReadonlyMap<EntityKey, number>
+): EntityKey[] {
+  return [...keys].filter((key) => displayedExtent(index, key, hiddenKeys, actualOdRadii) !== null);
+}
+
+/**
+ * What a Fit Selection frames: of `targets`, the keys that contribute to the displayed bounds, and
+ * those bounds; null when none contributes, and then the camera is left alone.
+ */
+export function fitSelectionPlan(
+  index: ModelIndex,
+  targets: Iterable<EntityKey>,
+  hiddenKeys: ReadonlySet<EntityKey>,
+  actualOdRadii: ReadonlyMap<EntityKey, number>
+): Readonly<{ keys: readonly EntityKey[]; bounds: Bounds3 }> | null {
+  const keys = displayedEntityKeys(index, targets, hiddenKeys, actualOdRadii);
+  const bounds = displayedBoundsForEntityKeys(index, keys, hiddenKeys, actualOdRadii);
+  return bounds ? { keys, bounds } : null;
+}
+
 /**
  * Bounds the geometry as displayed, including schematic or converted OD pipe
  * radius and the actual marker envelopes used by the renderer.
@@ -156,19 +210,10 @@ export function displayedBoundsForEntityKeys(
 ): Bounds3 | null {
   let result: Bounds3 | null = null;
   for (const key of keys) {
-    if (hiddenKeys.has(key) || index.invalidGeometry.has(key)) continue;
-    const indexed = index.entities.get(key);
-    if (!indexed?.geometryBounds) continue;
-    const extent = indexed.ref.type === "pipe"
-      ? actualOdRadii.get(key) ?? 0.052
-      : indexed.ref.type === "node"
-        ? 0.095
-        : indexed.ref.type === "support"
-          ? 0.43
-          : indexed.ref.type === "component"
-            ? 0.3
-            : 0;
-    if (!Number.isFinite(extent) || extent < 0) continue;
+    const extent = displayedExtent(index, key, hiddenKeys, actualOdRadii);
+    if (extent === null) continue;
+    const indexed = index.entities.get(key)!;
+    if (!indexed.geometryBounds) continue;
     const expanded = {
       min: {
         x: indexed.geometryBounds.min.x - extent,
@@ -635,6 +680,10 @@ export function prioritizedLabelKeys(index: ModelIndex, input: LabelPriorityInpu
     if (output.length >= limit) break;
     include(key);
   }
+  for (const key of input.boundaryKeys ?? []) {
+    if (output.length >= limit) break;
+    include(key);
+  }
 
   const cameraTarget = input.cameraTarget ?? boundsCenter(index.geometryBounds);
   const context = input.cameraTarget
@@ -1093,14 +1142,34 @@ function segmentIntersectsClosedRect(a: ScreenPoint, b: ScreenPoint, rect: BoxSe
 }
 
 /** Fits every envelope corner with 10% frame margin, retaining the legacy pose when sufficient. */
-export function fittedViewportDistance(bounds: Bounds3 | null, preset: "front" | "top" | "iso", fovDegrees: number, aspect: number): number {
+export function fittedViewportDistance(bounds: Bounds3 | null, preset: "front" | "top" | "side" | "iso", fovDegrees: number, aspect: number): number {
   const extent = bounds ? Math.max(bounds.max.x - bounds.min.x, bounds.max.y - bounds.min.y, bounds.max.z - bounds.min.z, 1) : 4;
   let distance = Math.max(4, extent * 1.8);
   if (!bounds) return distance;
   const orientation = new THREE.PerspectiveCamera();
-  orientation.position.set(...(preset === "front" ? [0, 0, 1] : preset === "top" ? [0, 1, 0] : [1, 1, 1]) as [number, number, number]);
+  orientation.position.set(...(preset === "front" ? [0, 0, 1] : preset === "top" ? [0, 1, 0] : preset === "side" ? [1, 0, 0] : [1, 1, 1]) as [number, number, number]);
   orientation.lookAt(0, 0, 0);
   const inverseRotation = orientation.quaternion.clone().invert();
+  const center = new THREE.Vector3(bounds.min.x / 2 + bounds.max.x / 2, bounds.min.y / 2 + bounds.max.y / 2, bounds.min.z / 2 + bounds.max.z / 2);
+  const verticalSlope = Math.tan(THREE.MathUtils.degToRad(fovDegrees) / 2) * 0.9;
+  const horizontalSlope = verticalSlope * aspect;
+  for (const x of [bounds.min.x, bounds.max.x]) for (const y of [bounds.min.y, bounds.max.y]) for (const z of [bounds.min.z, bounds.max.z]) {
+    const corner = new THREE.Vector3(x, y, z).sub(center).applyQuaternion(inverseRotation);
+    distance = Math.max(distance, corner.z + Math.abs(corner.x) / horizontalSlope, corner.z + Math.abs(corner.y) / verticalSlope);
+  }
+  return distance;
+}
+
+/**
+ * The same fit as fittedViewportDistance (every envelope corner inside 90 % of the frame), seen from
+ * the direction the camera looks from now: `orientation` is the camera's quaternion. Fit uses it
+ * once the person has moved the camera off a standard view, so that it reframes without turning.
+ */
+export function fittedViewportDistanceAlong(bounds: Bounds3 | null, orientation: THREE.Quaternion, fovDegrees: number, aspect: number): number {
+  const extent = bounds ? Math.max(bounds.max.x - bounds.min.x, bounds.max.y - bounds.min.y, bounds.max.z - bounds.min.z, 1) : 4;
+  let distance = Math.max(4, extent * 1.8);
+  if (!bounds) return distance;
+  const inverseRotation = orientation.clone().invert();
   const center = new THREE.Vector3(bounds.min.x / 2 + bounds.max.x / 2, bounds.min.y / 2 + bounds.max.y / 2, bounds.min.z / 2 + bounds.max.z / 2);
   const verticalSlope = Math.tan(THREE.MathUtils.degToRad(fovDegrees) / 2) * 0.9;
   const horizontalSlope = verticalSlope * aspect;

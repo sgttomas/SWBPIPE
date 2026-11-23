@@ -2,7 +2,7 @@
   "schema_version": "0.1.0",
   "document_kind": "openpipestress.product_preview.design_knowledge",
   "knowledge_set_id": "knowledge:invented-loop-01",
-  "model_ref": "project:invented-loop-01",
+  "model_ref": "project:invented-demo-loop-01",
   "records": [
     {
       "id": "dk:endpoint:pump",
@@ -43,7 +43,7 @@
       "code": "RULE_CHECK_NOT_PERFORMED",
       "severity": "info",
       "message": "No code or owner rule pack is loaded in the technical preview.",
-      "affected_refs": ["project:invented-loop-01"]
+      "affected_refs": ["project:invented-demo-loop-01"]
     }
   ]
 }

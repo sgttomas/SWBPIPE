@@ -1609,6 +1609,9 @@
         },
         "equivalent_static": {
           "$ref": "#/$defs/PressureExactEquivalentStatic"
+        },
+        "test_condition": {
+          "$ref": "#/$defs/PressureExactTestCondition"
         }
       },
       "description": "pressure-3 exact case: the base common E/nu materials, or resolved per-member materials under the load/reference-state group. The RHS terms add the bend's removed caps and the junction remainder."
@@ -1632,6 +1635,208 @@
           "items": {
             "type": "string",
             "minLength": 1
+          }
+        },
+        "component_forces": {
+          "description": "DEL-05-01 (issue 450 item 4): present only on a case that forms a rigid-family component force; absent otherwise, so every other case keeps its earlier record.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/PressureExactEquivalentStaticComponentForce"
+          }
+        }
+      }
+    },
+    "PressureExactEquivalentStaticComponentForce": {
+      "description": "DEL-05-01 (issue 450 item 4): one rigid-family component force item of a seismic case, for one entered global axis, in generation order. Every binary64 is the 16 lowercase hexadecimal digits of its bits: the g-factor, the component weight W (N), the three global centre-of-gravity offset coordinates r (m), the force fl(g-factor x W) along the axis and one moment fl(force x signed coordinate) per nonzero transverse coordinate. Each load_id is one of the record's generated_load_ids, once. The model-bound reader recomputes every value from the model.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "component_ref",
+        "node_ref",
+        "axis",
+        "g_factor",
+        "weight_N",
+        "center_of_gravity_m",
+        "force",
+        "moments"
+      ],
+      "properties": {
+        "component_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "node_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "axis": {
+          "enum": [
+            "global_x",
+            "global_y",
+            "global_z"
+          ]
+        },
+        "g_factor": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{16}$"
+        },
+        "weight_N": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{16}$"
+        },
+        "center_of_gravity_m": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{16}$"
+          }
+        },
+        "force": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "load_id",
+            "value_N"
+          ],
+          "properties": {
+            "load_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "value_N": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{16}$"
+            }
+          }
+        },
+        "moments": {
+          "type": "array",
+          "maxItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "load_id",
+              "axis",
+              "value_N_m"
+            ],
+            "properties": {
+              "load_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "axis": {
+                "enum": [
+                  "global_x",
+                  "global_y",
+                  "global_z"
+                ]
+              },
+              "value_N_m": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{16}$"
+              }
+            }
+          }
+        }
+      }
+    },
+    "PressureExactTestCondition": {
+      "description": "The hydrostatic test a case was solved as (DEL-05-01 REQ-014): present only on a case that declares a test condition, absent on every other case. held_supports is the case's own choice; held_support_refs are the spring, variable spring and constant-effort supports replaced, each on the degree of freedom it acts on, by a rigid restraint at zero displacement (empty when none are held). A held variable spring hanger's rate and cold load do not act in that case, and a held constant-effort support's force does not act; each held support's reaction in that case is a rigid restraint's. contents_condition is the condition key the case selects; contents_resolution states, for each generated self-weight load of the case, the contents density that replaced the section's own contents, once, and the resulting mass and applied intensity.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "held_supports",
+        "held_support_refs",
+        "contents_condition",
+        "contents_resolution"
+      ],
+      "properties": {
+        "kind": {
+          "const": "hydrostatic"
+        },
+        "held_supports": {
+          "enum": [
+            "springs_and_constant_effort",
+            "none"
+          ]
+        },
+        "held_support_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "contents_condition": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contents_resolution": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "method",
+              "load_id",
+              "pipe_id",
+              "condition_set_ref",
+              "condition_key",
+              "contents_density",
+              "mass_kg_per_m",
+              "applied_n_per_m"
+            ],
+            "properties": {
+              "method": {
+                "const": "hydrostatic_test_contents_in_self_weight/v1"
+              },
+              "load_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "pipe_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "condition_set_ref": {
+                "type": "string",
+                "minLength": 1
+              },
+              "condition_key": {
+                "type": "string",
+                "minLength": 1
+              },
+              "contents_density": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "value",
+                  "unit"
+                ],
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  },
+                  "unit": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              },
+              "mass_kg_per_m": {
+                "type": "number"
+              },
+              "applied_n_per_m": {
+                "type": "number"
+              }
+            }
           }
         }
       }

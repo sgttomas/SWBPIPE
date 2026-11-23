@@ -11,43 +11,67 @@ export const VIEW_3D_SURFACE = "the 3D view's drawing, where a step says it was 
 export const PICTURE_BASIS = "This picture is the launched app's document, recorded in its own web view at this step and redrawn by Chromium; it is not a capture of the window. Fonts and form controls may differ in detail, and hover and focus rings are not shown.";
 
 /**
- * The native surfaces a person meets that this walkthrough does not picture, each with what stands in for it and the
- * permission prompt or missing means that prevents evidence of it (DEL-07-06 VER-007: an uncaptured surface without
- * such a record is missing evidence). `missing_evidence` is true where evidence could be produced without a
- * permission prompt but is not produced by this walkthrough. The menu bar's and the 3D view's entries depend on the
- * launch (nativeSurfacesFor); these are their forms when the launch supplied nothing for them.
+ * The native surfaces an attended capture may declare it shows (its sidecar's `surfaces`) or state it could not show
+ * (`prevented`): the fixed set, each with its key and the name the index gives it.
+ */
+export const SURFACE_KEYS = Object.freeze({
+  window: "the application window itself (its frame, title bar, and how the document is drawn in it)",
+  menu_bar: MENU_SURFACE,
+  file_chooser: "the file chooser (open and save panels)",
+  print_dialog: "the system print dialog",
+  view_3d: VIEW_3D_SURFACE,
+  other_native_dialog: "another native dialog (an alert, a sheet or a panel the system or the app raises)"
+});
+/** The four surfaces only an attended capture can supply; without one each is missing evidence. */
+export const ATTENDED_ONLY_SURFACES = Object.freeze(["window", "menu_bar", "file_chooser", "print_dialog"]);
+export const NOT_SUPPLIED = "not supplied: no attended capture of this surface in this walkthrough";
+
+/**
+ * The native surfaces a person meets, each with what the scripted runner does instead and, until an attended capture
+ * in the same output folder supplies it (compose-index.mjs), missing evidence (DEL-07-06 VER-007: an uncaptured
+ * surface without a record of what prevented its capture is missing evidence). The scripted runner itself takes no
+ * capture of the window, pictures no menu bar and presses no Print. The 3D view's entry depends on the launch
+ * (nativeSurfacesFor); this is its form when the launch supplied nothing for it.
  */
 export const NATIVE_SURFACES = Object.freeze([
   {
-    surface: "the application window itself (its frame, title bar, and how the document is drawn in it)",
+    key: "window",
+    surface: SURFACE_KEYS.window,
     captured: false,
-    prevented_by: "a capture of the window from outside the app needs the Screen Recording permission (a permission prompt); a snapshot of the web view from inside needs unsafe native calls this build does not offer",
-    instead: "each picture is the app's document recorded in its own web view and redrawn by Chromium",
-    missing_evidence: false
-  },
-  {
-    surface: MENU_SURFACE,
-    captured: false,
-    prevented_by: "a picture of the menu bar needs the Screen Recording permission and reading it from outside the app needs the Accessibility permission (permission prompts); this launch did not read the menu the app built with the scripted-run build's native_smoke_menu_items",
-    instead: "menu commands are delivered through the menu's own dispatch and marked on each step that uses one",
+    prevented_by: NOT_SUPPLIED,
+    instead: "the scripted runner takes no capture of the window: each of its pictures is the app's document recorded in its own web view and redrawn by Chromium",
     evidence: "missing",
     missing_evidence: true
   },
   {
-    surface: "the file chooser (open and save panels)",
+    key: "menu_bar",
+    surface: MENU_SURFACE,
     captured: false,
-    prevented_by: "substituted in the scripted-run build: the harness names the file the next chooser returns, and no panel is shown",
-    instead: "each step that uses it is marked",
-    missing_evidence: false
+    prevented_by: NOT_SUPPLIED,
+    instead: "the scripted runner pictures no menu bar: menu commands are delivered through the menu's own dispatch and marked on each step that uses one; this launch did not read the menu the app built",
+    evidence: "missing",
+    missing_evidence: true
   },
   {
-    surface: "the system print dialog",
+    key: "file_chooser",
+    surface: SURFACE_KEYS.file_chooser,
     captured: false,
-    prevented_by: "substituted in the scripted-run build: the print document is recorded in place of the dialog; these journeys do not press Print",
-    instead: "none: no journey here reaches it",
-    missing_evidence: false
+    prevented_by: NOT_SUPPLIED,
+    instead: "substituted in the scripted-run build: the harness names the file the next chooser returns, no panel is shown, and each step that uses it is marked",
+    evidence: "missing",
+    missing_evidence: true
   },
   {
+    key: "print_dialog",
+    surface: SURFACE_KEYS.print_dialog,
+    captured: false,
+    prevented_by: NOT_SUPPLIED,
+    instead: "the scripted runner presses no Print; in the scripted-run build the print document is recorded in place of the dialog",
+    evidence: "missing",
+    missing_evidence: true
+  },
+  {
+    key: "view_3d",
     surface: VIEW_3D_SURFACE,
     captured: false,
     prevented_by: "the window was not brought to the front (the run was not given --show-window): the web view reports its page hidden and gives no animation frame, so the viewport draws nothing",
@@ -58,24 +82,22 @@ export const NATIVE_SURFACES = Object.freeze([
 ]);
 
 /**
- * The native surfaces for one launch: the menu bar's entry says the evidence is supplied when the launch read the
- * menu the app built (`menu`, run.mjs nativeMenuRecord), and the 3D view's entry says captured when every step that
- * had the 3D view on screen read a drawn frame of it; with the window shown (`windowShown`) and a step not captured,
- * it says at how many steps and why not.
+ * The native surfaces for one launch: the menu bar's entry says what the launch read of the menu the app built
+ * (`menu`, run.mjs nativeMenuRecord), which is a reading, not the menu bar as drawn, so the entry stays missing
+ * evidence; and the 3D view's entry says captured when every step that had the 3D view on screen read a drawn frame of
+ * it; with the window shown (`windowShown`) and a step not captured, it says at how many steps and why not.
  */
 export function nativeSurfacesFor({ menu = null, windowShown = false, screens = [] } = {}) {
   return NATIVE_SURFACES.map((item) => {
-    if (item.surface === MENU_SURFACE && menu?.read) {
+    if (item.key === "menu_bar" && menu?.read) {
       return {
         ...item,
-        prevented_by: "a picture of the menu bar needs the Screen Recording permission and reading it from outside the app needs the Accessibility permission (permission prompts); neither is asked",
-        instead: `the menu the app built, read from the app by the scripted-run build's native_smoke_menu_items once in this launch (${menu.read_when ?? "once"}) and recorded in the index's native_menus: each menu and its items in order, with their labels, command identifiers, enabled and ticked state, and separators. It establishes the names, order and enabled state as built; not how the system draws the menu bar, where it places it, or the application menu's title as the system shows it`,
-        evidence: "supplied",
-        missing_evidence: false
+        instead: `the scripted runner pictures no menu bar; the menu the app built was read from the app by the scripted-run build's native_smoke_menu_items once in this launch (${menu.read_when ?? "once"}) and recorded in the index's native_menus: each menu and its items in order, with their labels, command identifiers, enabled and ticked state, and separators. It establishes the names, order and enabled state as built; not how the system draws the menu bar, where it places it, or the application menu's title as the system shows it`,
+        reading: "supplied"
       };
     }
-    if (item.surface === MENU_SURFACE && menu && !menu.read) return { ...item, prevented_by: `${item.prevented_by}: ${menu.error}` };
-    if (item.surface === VIEW_3D_SURFACE) {
+    if (item.key === "menu_bar" && menu && !menu.read) return { ...item, instead: `${item.instead}: ${menu.error}` };
+    if (item.key === "view_3d") {
       const on = screens.filter((screen) => screen.view_3d === "captured" || screen.view_3d === "not captured");
       const blank = on.filter((screen) => screen.view_3d === "not captured");
       const how = windowShown ? "the window was brought to the front for the run (--show-window)" : "the window was not brought to the front (the run was not given --show-window)";
@@ -215,9 +237,10 @@ function restoreDrawnState() {
 
 /**
  * Writes the journey's part file in the browser walkthrough's form, with its surface, the launch's reading of the
- * menu the app built (`native_menu`) and whether its window was shown (`window_shown`, run.mjs windowShownRecord).
+ * menu the app built (`native_menu`), whether its window was shown (`window_shown`, run.mjs windowShownRecord), and,
+ * where the journey has them, the stores it built at placement and its stored-run evidence.
  */
-export function writePart(out, { number, name, title, use_case, revision, build, screens, launch, native_menu = null, window_shown = null }) {
+export function writePart(out, { number, name, title, use_case, revision, build, screens, launch, native_menu = null, window_shown = null, built_placements, stored_runs }) {
   const windows = [...new Set(screens.map((screen) => screen.window).filter(Boolean))];
   const part = {
     number, name, title, use_case, revision, build, surface: NATIVE_SURFACE, picture_basis: PICTURE_BASIS,
@@ -225,7 +248,8 @@ export function writePart(out, { number, name, title, use_case, revision, build,
     native_surfaces: nativeSurfacesFor({ menu: native_menu, windowShown: window_shown?.shown === true, screens }),
     ...(native_menu ? { native_menu } : {}),
     ...(window_shown ? { window_shown } : {}),
-    launch, screens
+    launch,
+    ...(built_placements ? { built_placements } : {}), ...(stored_runs ? { stored_runs } : {}), screens
   };
   const file = path.join(out, `part-${String(number).padStart(2, "0")}-${name}.json`);
   writeFileSync(file, `${JSON.stringify(part, null, 2)}\n`);

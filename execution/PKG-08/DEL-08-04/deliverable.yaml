@@ -79,7 +79,9 @@ needs:
   gating: true
 - from: DEL-04-11
   condition: The hanger-sizing table renders from a view model that gives every candidate and every derived
-    solve with its published values, units, verification standing and disclosures.
+    solve with its published values, units, verification standing and disclosures, the result's
+    integrity bound, and each solve's solver standing and support-state confirmation, with the
+    shared words for them and a check that refuses any of them outside its closed vocabulary.
   when: Exporting the hanger-sizing table to CSV.
   gating: true
 - from: DEL-07-07
@@ -98,6 +100,12 @@ needs:
     and policy wherever the catalogue is held, and screens each payload before it is written.
   when: Saving an export on its governed route.
   gating: true
+- from: DEL-12-02
+  condition: The export decision interface states, name for name, the content-source traits through which a
+    producer gives a document too large to hold as one value (source objects and lists walked in canonical
+    order, members peeked by name), with what a source promises of its walk and of the bytes it stages.
+  when: Giving the streamed result document to the content rule as a source rather than as one value.
+  gating: false
 - from: DEL-07-11
   condition: The desktop shell's suggested file names have the form swbpipe-<kind>[-<qualifier>].<ext>,
     with a fixed kind for a result JSON and for each CSV table kind and no project or model identity.
@@ -114,6 +122,10 @@ code_paths:
 - core/reporting/result_export/Cargo.toml
 - core/reporting/result_export/src/lib.rs
 - core/reporting/result_export/src/derivative.rs
+# The same document written in canonical order from the held source, without the document as one value,
+# and held equal to derive_document by its tests.
+- core/reporting/result_document_stream/Cargo.toml
+- core/reporting/result_document_stream/src/**
 # The form check of a result document inside the report-package crate, and the schema evaluator it uses.
 - core/reporting/report_package/src/document_form.rs
 - core/reporting/report_package/src/schema_eval.rs
@@ -136,6 +148,12 @@ checks:
 - tests/test_results_dispatcher_v0_3.py
 - core/reporting/result_export/tests/derivative_contract.rs
 - core/reporting/result_export/tests/combined_connector_metadata.rs
+- core/reporting/result_document_stream/tests/committed_parity.rs
+- core/reporting/result_document_stream/tests/arm_differential.rs
+- core/reporting/result_document_stream/tests/refusal_parity.rs
+- core/reporting/result_document_stream/tests/walk_guarantees.rs
+- core/reporting/result_document_stream/tests/canonical_writer.rs
+- core/reporting/result_document_stream/tests/map_order.rs
 - core/product_physics/tests/combined_connector_export.rs
 - core/reporting/report_package/tests/schema_eval.rs
 - tests/test_schema_eval_parity.py

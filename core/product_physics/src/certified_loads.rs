@@ -191,6 +191,26 @@ pub(super) mod supplied_mutant {
         }
     }
 }
+/// A test-only replacement of the contents operand that
+/// [`intensity`] gives a hydrostatic test case's generated self-weight.
+#[cfg(test)]
+pub(crate) mod contents_operand_mutant {
+    use std::cell::RefCell;
+    thread_local! {
+        static OPERAND: RefCell<Option<f64>> = const { RefCell::new(None) };
+    }
+    pub(crate) fn arm(operand: f64) {
+        OPERAND.with(|o| *o.borrow_mut() = Some(operand));
+    }
+    pub(crate) fn disarm() {
+        OPERAND.with(|o| *o.borrow_mut() = None);
+    }
+    pub(super) fn apply(contents_density: &mut f64) {
+        if let Some(operand) = OPERAND.with(|o| *o.borrow()) {
+            *contents_density = operand;
+        }
+    }
+}
 pub(super) fn attach_last(ledger: &mut LoadLedger, source: Summand) {
     attach(ledger, ledger.term_count() - 1, vec![source]);
 }
@@ -288,9 +308,10 @@ pub(super) fn intensity(
     if let Some(case) = model.load_cases.iter().find(|case| case.id == case_id) {
         // W-16 slice c (§2): dispatch to the generator's operands only for a
         // load the generation produced; an authored id resembling the
-        // generated prefix stays authored.
+        // generated prefix stays authored. The origin test is judged on the
+        // effective case a load/reference-state document solves (DEL-05-01).
         if let Some(generation) = &case.equivalent_static {
-            if is_generated_equivalent_static_load(case, &load.load_id, Some("seismic")) {
+            if is_generated_in_effective_case(model, case, &load.load_id, Some("seismic")) {
                 if let Some(seismic) = &generation.seismic {
                     let coefficient = [
                         &seismic.g_factor_x,
@@ -310,7 +331,7 @@ pub(super) fn intensity(
                     };
                 }
             }
-            if is_generated_equivalent_static_load(case, &load.load_id, Some("wind")) {
+            if is_generated_in_effective_case(model, case, &load.load_id, Some("wind")) {
                 if let Some(wind) = &generation.wind {
                     return IntensityPrimitive::Wind {
                         pressure: wind.pressure.as_ref().map_or(f64::NAN, |q| q.value),
@@ -339,7 +360,21 @@ pub(super) fn intensity(
                 if evidence["method"] == self_weight::GENERATED_METHOD {
                     // This source provenance has already passed the applied-weight
                     // validation. A manual override is an authored intensity.
-                    let mass = recorded_mass(&evidence);
+                    let mut mass = recorded_mass(&evidence);
+                    // DEL-05-01 REQ-014: a hydrostatic test case's generated
+                    // self-weight is formed with the contents the model declares for
+                    // it (`hydrostatic::declared_contents`, captured before the
+                    // lowering, by a lookup separate from the resolution the solve
+                    // applies), in place of the section's own. Every other operand
+                    // stays the record's, and so does the gravity. A load the test
+                    // contents entered (its evidence names them) with no declared
+                    // contents has no intended contents: NaN, so the check fails.
+                    let declared = model.declared_test_contents.iter().find(|item| item.case_id == case_id && item.load_id == load.load_id);
+                    if declared.is_some() || evidence.get("test_contents").is_some() {
+                        mass.contents_density = declared.map_or(f64::NAN, |item| self_weight::contents_density_operand(&item.contents_density));
+                        #[cfg(test)]
+                        contents_operand_mutant::apply(&mut mass.contents_density);
+                    }
                     let gravity = evidence["normalized_acceleration_m_per_s2"]
                         .as_f64()
                         .unwrap_or(f64::NAN);
@@ -476,12 +511,21 @@ pub(super) fn spring_base_motion(ledger: &mut LoadLedger, springs: &[SpringEntry
 
 /// Factored nodal values are formed products, while unscaled authored nodal
 /// loads remain exact input terms under the normalized-input contract.
+/// DEL-05-01: a generated seismic component force or moment is an exact
+/// input term too, the stored value the rule gives, as the self-weight
+/// plan's component wrench is. It is bound to its operands here: the rule
+/// recomputed from the plan's converted operands
+/// (`seismic_component::rule_value`) must equal the prepared value bit for
+/// bit, or the term is not pushed and the case is refused by name
+/// (`EQUIVALENT_STATIC_COMPONENT_VALUE_MISMATCH`) before its ledger is
+/// finished.
 pub(super) fn nodal(
     ledger: &mut LoadLedger,
     model: &PreviewModel,
     application: &LoadApplication,
     case_id: &str,
     node_count: usize,
+    diagnostics: &mut Vec<crate::Diagnostic>,
 ) {
     for (ordinal, load) in application.nodal_loads.iter().enumerate() {
         if load.global_dof >= 6 * node_count {
@@ -515,6 +559,14 @@ pub(super) fn nodal(
                 ),
             );
         } else {
+            if let Some(rule) = crate::seismic_component::rule_value(model, case_id, &load.load_id) {
+                if let Some(refusal) = crate::seismic_component::value_mismatch(case_id, &load.load_id, load.value, &rule) {
+                    // The mismatched value is not pushed: the case is refused
+                    // before its ledger is finished (`solve_prepared_load_case`).
+                    diagnostics.push(refusal);
+                    continue;
+                }
+            }
             ledger.push(&load.load_id, load.global_dof, load.value);
         }
     }

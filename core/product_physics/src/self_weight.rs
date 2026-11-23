@@ -325,56 +325,7 @@ fn generate_operations(
         if !inspection && shared.is_some_and(|s| !provenance_present(&s.provenance)) {
             invalid(&mut d, &pipe.id, "referenced section provenance required");
         }
-        let section = &mut pipe.section;
-        normalize(
-            &mut section.outside_diameter,
-            Dimension::Length,
-            true,
-            "outside_diameter",
-            &mut d,
-        );
-        normalize(
-            &mut section.wall_thickness,
-            Dimension::Length,
-            true,
-            "wall_thickness",
-            &mut d,
-        );
-        for (name, q, dim) in [
-            (
-                "mill_tolerance",
-                &mut section.mill_tolerance,
-                Dimension::Length,
-            ),
-            (
-                "contents_density",
-                &mut section.contents_density,
-                Dimension::Density,
-            ),
-            (
-                "insulation_thickness",
-                &mut section.insulation_thickness,
-                Dimension::Length,
-            ),
-            (
-                "insulation_density",
-                &mut section.insulation_density,
-                Dimension::Density,
-            ),
-        ] {
-            if let Some(q) = q {
-                normalize(q, dim, false, name, &mut d);
-            }
-        }
-        if exact {
-            if let Some(q) = &mut section.corrosion_allowance {
-                normalize(q, Dimension::Length, false, "corrosion_allowance", &mut d);
-            }
-        }
-        match &mut section.material_density {
-            Some(q) => normalize(q, Dimension::Density, true, "material_density", &mut d),
-            None => invalid(&mut d, &pipe.id, "explicit material density required"),
-        }
+        normalize_mass_inputs(&mut pipe.section, &pipe.id, exact, &mut d);
         if !d.is_empty() {
             continue;
         }
@@ -460,6 +411,116 @@ fn generate_operations(
     })
 }
 
+/// The plan's normalization of one pipe's mass inputs, in its order: the
+/// section's lengths and densities (and, on the exact route, its corrosion
+/// allowance) in SI, with an explicit material density required. Shared by the
+/// plan and by a hydrostatic test case's contents resolution, so both form the
+/// mass per length from the same inputs in the same way.
+fn normalize_mass_inputs(section: &mut super::PipeSectionInput, pipe_id: &str, exact: bool, d: &mut Vec<Diagnostic>) {
+    normalize(
+        &mut section.outside_diameter,
+        Dimension::Length,
+        true,
+        "outside_diameter",
+        d,
+    );
+    normalize(
+        &mut section.wall_thickness,
+        Dimension::Length,
+        true,
+        "wall_thickness",
+        d,
+    );
+    for (name, q, dim) in [
+        (
+            "mill_tolerance",
+            &mut section.mill_tolerance,
+            Dimension::Length,
+        ),
+        (
+            "contents_density",
+            &mut section.contents_density,
+            Dimension::Density,
+        ),
+        (
+            "insulation_thickness",
+            &mut section.insulation_thickness,
+            Dimension::Length,
+        ),
+        (
+            "insulation_density",
+            &mut section.insulation_density,
+            Dimension::Density,
+        ),
+    ] {
+        if let Some(q) = q {
+            normalize(q, dim, false, name, d);
+        }
+    }
+    if exact {
+        if let Some(q) = &mut section.corrosion_allowance {
+            normalize(q, Dimension::Length, false, "corrosion_allowance", d);
+        }
+    }
+    match &mut section.material_density {
+        Some(q) => normalize(q, Dimension::Density, true, "material_density", d),
+        None => invalid(d, pipe_id, "explicit material density required"),
+    }
+}
+
+/// A contents density as a mass operand, in SI: normalized as
+/// [`normalize_mass_inputs`] normalizes a section's `contents_density`, which
+/// is the normalization [`mass_with_contents`] gives a hydrostatic test case's
+/// contents. NaN when it does not normalize, so a check that reads it fails
+/// closed.
+pub(crate) fn contents_density_operand(contents: &Quantity) -> f64 {
+    let mut q = contents.clone();
+    let mut d = Vec::new();
+    normalize(&mut q, Dimension::Density, false, "contents_density", &mut d);
+    if d.is_empty() { q.value } else { f64::NAN }
+}
+
+/// DEL-05-01 REQ-014 (the hydrostatic test case): the mass per length the
+/// self-weight calculation gives pipe `pipe_id` of `model` when the section's
+/// own contents density is replaced by `contents` (as entered, any density unit
+/// of the catalog), on the route's mass basis. The pipe's section is resolved
+/// and normalized exactly as the plan does (`normalize_mass_inputs`), the
+/// contents replace the section's before normalization, and the mass is
+/// `stable_mass_per_length`'s, so a contents density equal to the section's
+/// gives the plan's own mass bit for bit. Contents enter here once, as a mass
+/// input; nothing generates a second weight load.
+pub(crate) fn mass_with_contents(model: &PreviewModel, pipe_id: &str, contents: &Quantity) -> Result<f64, Vec<Diagnostic>> {
+    let mut d = Vec::new();
+    let Some(pipe) = model.pipe_segments.iter().find(|pipe| pipe.id == pipe_id) else {
+        invalid(&mut d, pipe_id, "selected pipe must resolve exactly once");
+        return Err(d);
+    };
+    // The one pipe resolved against the document's sections, as the plan
+    // resolves every selected pipe, with no copy of the rest of the model.
+    let mut pipe = pipe.clone();
+    super::resolve_shared_section(&mut pipe, &model.sections, &mut d);
+    if !d.is_empty() {
+        return Err(d);
+    }
+    let exact = super::pressure_runtime::is_exact(model);
+    let pipe = &mut pipe;
+    pipe.section.contents_density = Some(contents.clone());
+    normalize_mass_inputs(&mut pipe.section, &pipe.id, exact, &mut d);
+    if !d.is_empty() {
+        return Err(d);
+    }
+    match stable_mass_per_length(pipe, exact, &mut d) {
+        Some(mass) if mass.is_finite() && mass > 0.0 && d.is_empty() => Ok(mass),
+        _ => {
+            if d.is_empty() {
+                invalid(&mut d, pipe_id, "computed mass is outside the representable range");
+                d.last_mut().expect("just pushed").code = "SELF_WEIGHT_RANGE_INVALID".into();
+            }
+            Err(d)
+        }
+    }
+}
+
 /// The scope label of a plan with no component weight: the selected members'
 /// own pipe mass only (unchanged since before W-15).
 pub const PIPE_MASS_SCOPE: &str = "selected_pipe_mass_only";
@@ -506,13 +567,33 @@ fn axis_index(axis: &str) -> Option<usize> {
 /// product r_j·f (or its negation), rounded once.
 fn wrench(weight: f64, cog: [f64; 3], axis: usize, acceleration: f64) -> (f64, [f64; 3]) {
     let f = if acceleration > 0.0 { weight } else { -weight };
+    (f, moment_of_axis_force(f, cog, axis))
+}
+
+/// The signed lever of each moment component of r × (f·e_axis): component i
+/// is `lever[i] · f`. The axis's own component has no lever (0); each
+/// transverse one is a coordinate of r or its negation, so the moment is one
+/// product of two binary64 operands, rounded once (negation is exact).
+pub(crate) fn moment_levers(cog: [f64; 3], axis: usize) -> [f64; 3] {
     let [x, y, z] = cog;
-    let moment = match axis {
-        0 => [0.0, z * f, -(y * f)],
-        1 => [-(z * f), 0.0, x * f],
-        _ => [y * f, -(x * f), 0.0],
-    };
-    (f, moment)
+    match axis {
+        0 => [0.0, z, -y],
+        1 => [-z, 0.0, x],
+        _ => [y, -x, 0.0],
+    }
+}
+
+/// M = r × (f·e_axis): each transverse component one rounded product of the
+/// force and its signed lever; the axis's own component is exactly +0.
+pub(crate) fn moment_of_axis_force(force: f64, cog: [f64; 3], axis: usize) -> [f64; 3] {
+    let levers = moment_levers(cog, axis);
+    let mut moment = [0.0; 3];
+    for (i, lever) in levers.into_iter().enumerate() {
+        if i != axis {
+            moment[i] = lever * force;
+        }
+    }
+    moment
 }
 
 /// One selected member's component weight (Design §3): the component, its
@@ -536,6 +617,107 @@ fn component_dependencies(component: &PreviewComponent, pipe: &str, weight: f64,
         "center_of_gravity":{"x":cog[0],"y":cog[1],"z":cog[2],"unit":"m"}})
 }
 
+/// REQ-015's disposition of one rigid-family component that maps a selected
+/// member, in REQ-015's order after the mapping conflicts (which the caller
+/// receives first): the member does not resolve; a `not_solver_consumed`
+/// component is honoured quietly, before its weight or offset is read; a
+/// nonzero centre-of-gravity coordinate that normalizes to zero blocks
+/// before fallback; the first failed fallback condition (the consumption
+/// declaration, a member ending at the component's node, a finite positive
+/// W, a finite global offset) keeps the member's distributed load; otherwise
+/// the component's normalized W (N) and r (m) replace it. The self-weight
+/// plan, the seismic generation (`seismic_component`) and the modal mass
+/// read this one rule.
+pub(crate) enum Disposition {
+    Unresolved,
+    NotConsumed,
+    CogUnderflow,
+    Fallback(String),
+    Eligible { weight: f64, cog: [f64; 3] },
+}
+
+/// One mapped rigid-family component and its disposition.
+pub(crate) struct MappedComponent<'a> {
+    pub(crate) component: &'a PreviewComponent,
+    pub(crate) pipe_ref: &'a str,
+    pub(crate) disposition: Disposition,
+}
+
+/// The mapping conflicts on selected members (each a blocking finding, in
+/// `rigid_component::mapping_conflicts` order), then the disposition of
+/// every other rigid-family component whose mapped member is selected, in the
+/// model's component order.
+pub(crate) fn component_dispositions<'a>(
+    model: &'a PreviewModel,
+    selected: &dyn Fn(&str) -> bool,
+) -> (Vec<Diagnostic>, Vec<MappedComponent<'a>>) {
+    let mut conflicts = Vec::new();
+    let mut mapped = Vec::new();
+    if model.components.is_empty() {
+        return (conflicts, mapped);
+    }
+    let conflicted: HashSet<String> = rigid_component::mapping_conflicts(model)
+        .into_iter()
+        .filter(|(member, _)| selected(member))
+        .map(|(member, finding)| {
+            conflicts.push(finding);
+            member
+        })
+        .collect();
+    for component in model.components.iter().filter(|c| is_rigid_family(c)) {
+        let Some(pipe_ref) = mapped_pipe_ref(component).filter(|p| selected(p)) else {
+            continue;
+        };
+        if conflicted.contains(pipe_ref) {
+            continue;
+        }
+        let disposition = disposition(model, component, pipe_ref);
+        mapped.push(MappedComponent { component, pipe_ref, disposition });
+    }
+    (conflicts, mapped)
+}
+
+fn disposition(model: &PreviewModel, component: &PreviewComponent, pipe_ref: &str) -> Disposition {
+    // REQ-015's order: the member resolves first, then a
+    // `not_solver_consumed` component is honoured.
+    let Some(pipe) = model.pipe_segments.iter().find(|p| p.id == pipe_ref) else {
+        return Disposition::Unresolved;
+    };
+    let consumption = component.mechanics_interface.as_ref().and_then(|m| m.solver_consumption.as_deref());
+    if consumption == Some("not_solver_consumed") {
+        return Disposition::NotConsumed;
+    }
+    let geometry = component.geometry.as_ref();
+    let weight = geometry.and_then(|g| g.weight.as_ref()).and_then(normalized_weight);
+    let (cog, cog_underflow) = match geometry.and_then(|g| g.center_of_gravity.as_ref()) {
+        Some(v) => match normalized_cog(v) {
+            Ok(r) => (r, false),
+            Err(underflow) => (None, underflow),
+        },
+        None => (None, false),
+    };
+    if cog_underflow {
+        // A nonzero entered component that normalizes to zero would
+        // silently erase its moments.
+        return Disposition::CogUnderflow;
+    }
+    let unmet = match (consumption, weight, cog) {
+        (None, _, _) => Some("it declares no mechanics_interface.solver_consumption (no mode is assumed)".to_string()),
+        (Some(mode), _, _) if mode != GEOMETRY_ONLY => Some(format!("its solver_consumption is {mode}, not {GEOMETRY_ONLY}")),
+        _ if pipe.from != component.node && pipe.to != component.node => {
+            Some(format!("its mapped member {pipe_ref} does not end at its node {}", component.node))
+        }
+        (_, None, _) => Some("its geometry.weight is missing, not a force, or not finite and positive".to_string()),
+        (_, _, None) => Some("its geometry.center_of_gravity is missing, not a length vector, or not finite".to_string()),
+        _ => None,
+    };
+    match (unmet, weight, cog) {
+        (Some(reason), _, _) => Disposition::Fallback(reason),
+        (None, Some(weight), Some(cog)) => Disposition::Eligible { weight, cog },
+        (None, _, _) => unreachable!("every unmet condition is named above"),
+    }
+}
+
 /// Decisions 1 and 2 of W-15 slice b. For every selected member mapped by a
 /// rigid-family component: a mapping conflict (slice a) blocks; a
 /// `not_solver_consumed` component is honoured (pipe weight, no warning);
@@ -554,71 +736,34 @@ pub(crate) fn component_weights<'a>(
     warnings: &mut Vec<Diagnostic>,
 ) -> BTreeMap<String, ComponentWeight<'a>> {
     let mut bodies = BTreeMap::new();
-    if model.components.is_empty() {
-        return bodies;
-    }
-    let conflicted: HashSet<String> = rigid_component::mapping_conflicts(model)
-        .into_iter()
-        .filter(|(member, _)| selected.contains(member))
-        .map(|(member, finding)| {
-            d.push(finding);
-            member
-        })
-        .collect();
+    let (conflicts, mapped) = component_dispositions(model, &|member: &str| selected.contains(&member.to_string()));
+    d.extend(conflicts);
     let Some(axis) = axis_index(axis) else { return bodies };
-    for component in model.components.iter().filter(|c| is_rigid_family(c)) {
-        let Some(pipe_ref) = mapped_pipe_ref(component).filter(|p| selected.contains(&p.to_string())) else {
-            continue;
-        };
-        if conflicted.contains(pipe_ref) {
-            continue;
-        }
-        let consumption = component.mechanics_interface.as_ref().and_then(|m| m.solver_consumption.as_deref());
-        if consumption == Some("not_solver_consumed") {
-            continue;
-        }
-        let Some(pipe) = model.pipe_segments.iter().find(|p| p.id == pipe_ref) else {
-            invalid(d, pipe_ref, "selected pipe must resolve exactly once");
-            continue;
-        };
-        let geometry = component.geometry.as_ref();
-        let weight = geometry.and_then(|g| g.weight.as_ref()).and_then(normalized_weight);
-        let (cog, cog_underflow) = match geometry.and_then(|g| g.center_of_gravity.as_ref()) {
-            Some(v) => match normalized_cog(v) {
-                Ok(r) => (r, false),
-                Err(underflow) => (None, underflow),
-            },
-            None => (None, false),
-        };
-        if cog_underflow {
-            // A nonzero entered component that normalizes to zero would
-            // silently erase its moments.
-            invalid(d, &component.id, "a nonzero centre-of-gravity component normalizes to zero in model length units");
-            d.last_mut().unwrap().code = "SELF_WEIGHT_RANGE_INVALID".into();
-            continue;
-        }
-        let unmet = match (consumption, weight, cog) {
-            (None, _, _) => Some("it declares no mechanics_interface.solver_consumption (no mode is assumed)".to_string()),
-            (Some(mode), _, _) if mode != GEOMETRY_ONLY => Some(format!("its solver_consumption is {mode}, not {GEOMETRY_ONLY}")),
-            _ if pipe.from != component.node && pipe.to != component.node => {
-                Some(format!("its mapped member {pipe_ref} does not end at its node {}", component.node))
+    for MappedComponent { component, pipe_ref, disposition } in mapped {
+        let (weight, cog) = match disposition {
+            Disposition::NotConsumed => continue,
+            Disposition::Unresolved => {
+                invalid(d, pipe_ref, "selected pipe must resolve exactly once");
+                continue;
             }
-            (_, None, _) => Some("its geometry.weight is missing, not a force, or not finite and positive".to_string()),
-            (_, _, None) => Some("its geometry.center_of_gravity is missing, not a length vector, or not finite".to_string()),
-            _ => None,
+            Disposition::CogUnderflow => {
+                invalid(d, &component.id, "a nonzero centre-of-gravity component normalizes to zero in model length units");
+                d.last_mut().unwrap().code = "SELF_WEIGHT_RANGE_INVALID".into();
+                continue;
+            }
+            Disposition::Fallback(reason) => {
+                warnings.push(Diagnostic {
+                    id: format!("diagnostic:self-weight:component:{}:weight-not-applied", crate::stable_suffix(&component.id)),
+                    code: COMPONENT_WEIGHT_NOT_APPLIED.into(),
+                    severity: "warning".into(),
+                    message: format!("rigid/semi-rigid component {} maps selected member {pipe_ref}, but its weight is not generated: {reason}; the distributed self-weight of member {pipe_ref} is generated in its place", component.id),
+                    source: Some("self_weight".into()),
+                    affected_refs: vec![component.id.clone(), pipe_ref.to_string()],
+                });
+                continue;
+            }
+            Disposition::Eligible { weight, cog } => (weight, cog),
         };
-        if let Some(reason) = unmet {
-            warnings.push(Diagnostic {
-                id: format!("diagnostic:self-weight:component:{}:weight-not-applied", crate::stable_suffix(&component.id)),
-                code: COMPONENT_WEIGHT_NOT_APPLIED.into(),
-                severity: "warning".into(),
-                message: format!("rigid/semi-rigid component {} maps selected member {pipe_ref}, but its weight is not generated: {reason}; the distributed self-weight of member {pipe_ref} is generated in its place", component.id),
-                source: Some("self_weight".into()),
-                affected_refs: vec![component.id.clone(), pipe_ref.to_string()],
-            });
-            continue;
-        }
-        let (weight, cog) = (weight.unwrap(), cog.unwrap());
         let (force, moment) = wrench(weight, cog, axis, acceleration);
         if !force.is_finite() {
             invalid(d, &component.id, "component weight force is outside the representable range");
@@ -626,16 +771,11 @@ pub(crate) fn component_weights<'a>(
             continue;
         }
         let mut primitives = vec![("force", AXES[axis], force)];
+        let levers = moment_levers(cog, axis);
         for (i, value) in moment.into_iter().enumerate() {
             // r_j ≠ 0 with a zero or non-finite product is a range failure,
             // never a silently dropped moment.
-            let lever = match (axis, i) {
-                (0, 1) | (1, 0) => cog[2],
-                (0, 2) | (2, 0) => cog[1],
-                (1, 2) | (2, 1) => cog[0],
-                _ => 0.0,
-            };
-            if lever != 0.0 && (value == 0.0 || !value.is_finite()) {
+            if levers[i] != 0.0 && (value == 0.0 || !value.is_finite()) {
                 invalid(d, &component.id, "component weight moment is outside the representable range");
                 d.last_mut().unwrap().code = "SELF_WEIGHT_RANGE_INVALID".into();
             } else if value != 0.0 {
@@ -1605,6 +1745,17 @@ mod tests {
     }
     fn state(model: &PreviewModel) -> AppliedSelfWeightState {
         inspect_applied_self_weight(model, None)[0].state
+    }
+    /// REQ-015's order: an unresolved member is named before a
+    /// `not_solver_consumed` component is honoured.
+    #[test]
+    fn an_unresolved_member_precedes_a_not_consumed_component() {
+        let (model, _) = fixture();
+        let component: PreviewComponent = serde_json::from_value(json!({"id": "component:v", "kind": "valve", "node": "b",
+            "geometry": {"rigid_pipe_ref": "pipe:missing", "weight": {"value": 10.0, "unit": "N"}},
+            "mechanics_interface": {"solver_consumption": "not_solver_consumed"}, "provenance": "invented"})).unwrap();
+        assert!(matches!(disposition(&model, &component, "pipe:missing"), Disposition::Unresolved));
+        assert!(matches!(disposition(&model, &component, "pipe:é"), Disposition::NotConsumed));
     }
     #[test]
     fn applied_self_weight_is_pure_and_density_drift_blocks() {

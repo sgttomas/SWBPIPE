@@ -349,6 +349,15 @@ const PRIVATE_PRIVACY_CLASSES = new Set([
   "secret_like_data"
 ]);
 const UNKNOWN_PRIVACY_CLASSES = new Set<unknown>(["unknown", "TBD", null, undefined]);
+/** The privacy classifications the rule recognises: the safe, private, protected and stated
+ * unknown classes, built from the classification's own sets. A display that shows a decision's
+ * classification shows one of these and never other supplied label text. */
+export const RECOGNIZED_PRIVACY_CLASSIFICATIONS: ReadonlySet<string> = new Set([
+  ...SAFE_PRIVACY_CLASSES,
+  ...PRIVATE_PRIVACY_CLASSES,
+  "protected_suspected",
+  ...[...UNKNOWN_PRIVACY_CLASSES].filter((label): label is string => typeof label === "string")
+]);
 const PUBLIC_REDIS_STATUSES = new Set(["public_permissive", "invented_non_engineering_example"]);
 const UNKNOWN_REDIS_STATUSES = new Set<unknown>(["unknown", "TBD", null, undefined]);
 const PRIVATE_REDIS_STATUSES = new Set(["private_only"]);
@@ -775,22 +784,39 @@ function isValueBearing(item: PlainObject): boolean {
   return "value" in item || "text" in item || hasExplicitMetadata(item) || hasUnsafeItemDetail(item);
 }
 
+// Each check below is the stated flag (`*Flag`), read wherever an object occurs, or a member name
+// of its set, read on the item the classifier decides.
+
+function payloadFlag(item: PlainObject): boolean {
+  return blockingFlag(item.contains_payload) || blockingFlag(item.payload_present);
+}
+
 function containsPayload(item: PlainObject): boolean {
-  return (
-    blockingFlag(item.contains_payload) || blockingFlag(item.payload_present) || intersects(PAYLOAD_DETAIL_KEYS, item)
-  );
+  return payloadFlag(item) || intersects(PAYLOAD_DETAIL_KEYS, item);
+}
+
+function secretMaterialFlag(item: PlainObject): boolean {
+  return blockingFlag(item.secret_material_present);
 }
 
 function secretMaterialPresent(item: PlainObject): boolean {
-  return blockingFlag(item.secret_material_present) || intersects(SECRET_MATERIAL_KEYS, item);
+  return secretMaterialFlag(item) || intersects(SECRET_MATERIAL_KEYS, item);
+}
+
+function cloudOrNetworkFlag(item: PlainObject): boolean {
+  return blockingFlag(item.cloud_or_network_reference);
 }
 
 function cloudOrNetworkReference(item: PlainObject): boolean {
-  return blockingFlag(item.cloud_or_network_reference) || intersects(CLOUD_NETWORK_DETAIL_KEYS, item);
+  return cloudOrNetworkFlag(item) || intersects(CLOUD_NETWORK_DETAIL_KEYS, item);
+}
+
+function directSqlFlag(item: PlainObject): boolean {
+  return blockingFlag(item.direct_sql_access);
 }
 
 function directSqlAccess(item: PlainObject): boolean {
-  return blockingFlag(item.direct_sql_access) || intersects(DIRECT_SQL_DETAIL_KEYS, item);
+  return directSqlFlag(item) || intersects(DIRECT_SQL_DETAIL_KEYS, item);
 }
 
 function storageBypassRequested(item: PlainObject): boolean {
@@ -1055,7 +1081,13 @@ function classify(
     decisionIndex: number;
     findingIndex: number;
   }
-): { decision: RedactionDecision; finding: RedactionFinding | null; boundary: boolean } {
+): {
+  decision: RedactionDecision;
+  finding: RedactionFinding | null;
+  boundary: boolean;
+  /** The labels this classification took from the item's `provenance` object as the item's own. */
+  readFromProvenance: ReadonlySet<string>;
+} {
   const metadataPresent = hasExplicitMetadata(item) || intersects(UNSAFE_DETAIL_KEYS, item);
   const fieldClass = stringOrUnknown(item.field_class ?? "unknown");
   let privacy: unknown = item.privacy_classification;
@@ -1067,14 +1099,20 @@ function classify(
     args.exportContext === USER_RELEASED_REPORT_CONTEXT ? false : localPrivateIntent(item, args.explicitLocalPrivateIntent);
 
   const provenance = item.provenance;
+  const readFromProvenance = new Set<string>();
   if (isPlainObject(provenance)) {
-    privacy = privacy !== null && privacy !== undefined ? privacy : provenance.privacy_classification;
-    redistribution =
-      redistribution !== null && redistribution !== undefined ? redistribution : provenance.redistribution_status;
-    reviewStatus =
-      reviewStatus !== null && reviewStatus !== undefined && reviewStatus !== "unknown"
-        ? reviewStatus
-        : (reviewLabel(provenance.review_status) ?? "unknown");
+    if (privacy === null || privacy === undefined) {
+      privacy = provenance.privacy_classification;
+      readFromProvenance.add("privacy_classification");
+    }
+    if (redistribution === null || redistribution === undefined) {
+      redistribution = provenance.redistribution_status;
+      readFromProvenance.add("redistribution_status");
+    }
+    if (reviewStatus === null || reviewStatus === undefined || reviewStatus === "unknown") {
+      reviewStatus = reviewLabel(provenance.review_status) ?? "unknown";
+      readFromProvenance.add("review_status");
+    }
   }
 
   const { action, reason, boundary } = actionFor({
@@ -1106,7 +1144,7 @@ function classify(
     reason_code: reason,
     source_metadata_present: metadataPresent
   };
-  return { decision, finding: findingFor(decision, args.findingIndex), boundary };
+  return { decision, finding: findingFor(decision, args.findingIndex), boundary, readFromProvenance };
 }
 
 export function classifyExportItem(
@@ -1132,14 +1170,39 @@ export function classifyExportItem(
   }).decision;
 }
 
+/** A node's place: the root's is `$`; a member's is its parent's place, a dot, the member name's
+ * length, a colon and the name, as the walked data writes the name; an element's is its parent's
+ * place and its index in brackets. The length makes each segment's end known, so a member name
+ * holding a dot or brackets cannot read as a traversal and two distinct places never share one.
+ * Used only to compare places within one run; never emitted. Identical in
+ * core/security/redaction/controls.py (`_member_place`) and the Rust mirror (`member_place`). */
+function memberPlace(parent: string, name: string): string {
+  return `${parent}.${name.length}:${name}`;
+}
+
+function indexPlace(parent: string, index: number): string {
+  return `${parent}[${index}]`;
+}
+
+/** What the redaction walk records for the statement reading (`decideStatements`), by place:
+ * `blocked`, every place whose object the walk decided `block_export`; `fallback`, by the place of
+ * a blocked item's `provenance` object, the labels the item's own classification took from it
+ * (`classify`'s `readFromProvenance`). */
+type StatementReads = { blocked: Set<string>; fallback: Map<string, ReadonlySet<string>> };
+
 /** The redaction walk serves the five existing contexts only; `redactExportPayload` refuses
  * `user_released_report` before it is reached (§3.2). */
 type WalkArgs = {
   path: string;
+  /** The node's place as its member and index segments (`memberPlace`, `indexPlace`): unlike
+   * `path`, two distinct places never share it, whatever their member names hold. */
+  place: string;
   exportContext: RedactionExportContext;
   explicitLocalPrivateIntent: boolean;
   decisions: RedactionDecision[];
   findings: RedactionFinding[];
+  /** What the statement reading (`decideStatements`) takes from the walk, by place. */
+  reads: StatementReads;
   /** The route exporter's walk over its projection, which alone reads value-record nodes. */
   route?: boolean;
   /** A value record's item decision that every decision beneath is raised to (`walkValueRecord`). */
@@ -1181,7 +1244,7 @@ function raisedDecision(decision: RedactionDecision, args: WalkArgs): RedactionD
  * unsafe path key dropped entirely, key included (2(a)). */
 function walkValueRecord(node: PlainObject, args: WalkArgs): unknown {
   const item = node.item as PlainObject;
-  const { decision: itemDecision } = classify(item, {
+  const { decision: itemDecision, readFromProvenance } = classify(item, {
     path: args.path,
     exportContext: args.exportContext,
     explicitLocalPrivateIntent: args.explicitLocalPrivateIntent,
@@ -1190,6 +1253,9 @@ function walkValueRecord(node: PlainObject, args: WalkArgs): unknown {
     findingIndex: args.findings.length + 1
   });
   if (itemDecision.action === "block_export") {
+    // The projection prefixes this record's member names, its provenance's included.
+    args.reads.fallback.set(memberPlace(args.place, `${ROUTE_KEY_PREFIX}provenance`), readFromProvenance);
+    args.reads.blocked.add(args.place);
     args.decisions.push(itemDecision);
     const finding = findingFor(itemDecision, args.findings.length + 1);
     if (finding !== null) args.findings.push(finding);
@@ -1206,7 +1272,13 @@ function walkValueRecord(node: PlainObject, args: WalkArgs): unknown {
     // privacy review of #1722, P1-3): the stricter of the two floors applies.
     const floor = stricterFloor(args.floor ?? null, raise ? itemDecision : null);
     const omit = ownOmit || args.omit === true;
-    const result = walk(child, { ...args, path: `${args.path}.${key}`, floor, omit });
+    const result = walk(child, {
+      ...args,
+      path: `${args.path}.${key}`,
+      place: memberPlace(args.place, key),
+      floor,
+      omit
+    });
     if (!omit && result !== OMITTED_SENTINEL) setMember(output, key, result);
   }
   return output;
@@ -1234,7 +1306,7 @@ function walkNode(value: unknown, args: WalkArgs): unknown | typeof OMITTED_SENT
   if (isPlainObject(value)) {
     if (args.route === true && VALUE_RECORD_NODES.has(value)) return walkValueRecord(value, args);
     if (isValueBearing(value)) {
-      const { decision: classified } = classify(value, {
+      const { decision: classified, readFromProvenance } = classify(value, {
         path: args.path,
         exportContext: args.exportContext,
         explicitLocalPrivateIntent: args.explicitLocalPrivateIntent,
@@ -1242,7 +1314,13 @@ function walkNode(value: unknown, args: WalkArgs): unknown | typeof OMITTED_SENT
         decisionIndex: args.decisions.length + 1,
         findingIndex: args.findings.length + 1
       });
+      // What this item's own classification took from its provenance as the item's labels; the
+      // statement reading does not decide those labels a second time.
+      if (classified.action === "block_export") {
+        args.reads.fallback.set(memberPlace(args.place, "provenance"), readFromProvenance);
+      }
       const decision = raisedDecision(classified, args);
+      if (decision.action === "block_export") args.reads.blocked.add(args.place);
       args.decisions.push(decision);
       const finding = findingFor(decision, args.findings.length + 1);
       if (finding !== null) args.findings.push(finding);
@@ -1250,7 +1328,7 @@ function walkNode(value: unknown, args: WalkArgs): unknown | typeof OMITTED_SENT
     }
     const output: PlainObject = {};
     for (const [key, item] of Object.entries(value)) {
-      const child = walk(item, { ...args, path: `${args.path}.${key}` });
+      const child = walk(item, { ...args, path: `${args.path}.${key}`, place: memberPlace(args.place, key) });
       if (child !== OMITTED_SENTINEL) setMember(output, key, child);
     }
     return output;
@@ -1258,7 +1336,7 @@ function walkNode(value: unknown, args: WalkArgs): unknown | typeof OMITTED_SENT
   if (Array.isArray(value)) {
     const output: unknown[] = [];
     value.forEach((item, index) => {
-      const child = walk(item, { ...args, path: `${args.path}[${index}]` });
+      const child = walk(item, { ...args, path: `${args.path}[${index}]`, place: indexPlace(args.place, index) });
       if (child !== OMITTED_SENTINEL) output.push(child);
     });
     return output;
@@ -1325,7 +1403,10 @@ export function redactExportPayload(
   assertRedactionWalkContext(options.exportContext);
   const snapshot = plainDataSnapshot(payload);
   if ("refusal" in snapshot) return plainDataBlockedExport(snapshot.refusal, options.exportContext);
-  return redactSnapshot(snapshot.value, options.exportContext, options.explicitLocalPrivateIntent ?? false);
+  return redactSnapshot(snapshot.value, options.exportContext, options.explicitLocalPrivateIntent ?? false, {
+    source: snapshot.value,
+    routeItem: null
+  });
 }
 
 /** Whether a member name is one of the route exporter's internal names: the projector's key prefix,
@@ -1368,23 +1449,119 @@ function reservedNameDecision(path: string, exportContext: RedactionExportContex
   };
 }
 
+/** The reason of the first of decision-order steps 1-8 that an object's own explicit members state
+ * (a professional claim, a blocking flag, a `protected_suspected` privacy or redistribution, a
+ * `quarantined` or `rejected` review), read as the item classifier reads them; no member name
+ * decides here. `readByItem` names the labels of a `provenance` object that its item's
+ * classification already took as the item's own (`classify`): they are that item's statement,
+ * decided at the item. Identical in core/security/redaction/controls.py (`_statement_reason`). */
+function statementReason(item: PlainObject, readByItem: ReadonlySet<string> = new Set()): RedactionReasonCode | null {
+  const label = (key: string) => (readByItem.has(key) ? undefined : item[key]);
+  const decided = boundaryActionFor({
+    privacy: label("privacy_classification"),
+    redistribution: label("redistribution_status"),
+    reviewStatus: reviewLabel(label("review_status")),
+    metadataPresent: true,
+    exportContext: "public_report",
+    explicitLocalPrivateIntent: false,
+    explicitUserReleaseIntent: false,
+    professionalClaim: professionalClaim(item),
+    containsPayload: payloadFlag(item),
+    secretMaterialPresent: secretMaterialFlag(item),
+    cloudOrNetworkReference: cloudOrNetworkFlag(item),
+    directSqlAccess: directSqlFlag(item),
+    storageBypass: storageBypassRequested(item),
+    concretePathPresent: false,
+    publicBasisBarred: false
+  });
+  return decided === null ? null : decided.reason;
+}
+
+/** Every object at any depth of what the entry point was given that states a blocking statement
+ * (`statementReason`) is decided `block_export` at its own path, after the walk's decisions, in
+ * document order; iterative. Not decided again: the object the walk already blocked at that place,
+ * and a statement the item classifier took as its item's own label through the provenance
+ * fallback, which the item's decision already reports. Both are known by place (`memberPlace`),
+ * never by the written path, which a member name holding a dot or brackets can make two places
+ * share. The path and the place are written as the walk writes them: on a route, the projector
+ * prefixes each member name of a record it does not keep whole as an item (`routeItem`).
+ * Identical in core/security/redaction/controls.py (`_decide_statements`). */
+function decideStatements(
+  source: unknown,
+  options: {
+    routeItem: ((value: PlainObject) => boolean) | null;
+    exportContext: RedactionExportContext;
+    decisions: RedactionDecision[];
+    findings: RedactionFinding[];
+    reads: StatementReads;
+  }
+): void {
+  const stack: [unknown, string, string, boolean][] = [[source, "$", "$", options.routeItem === null]];
+  while (stack.length > 0) {
+    const [node, at, place, whole] = stack.pop() as [unknown, string, string, boolean];
+    if (Array.isArray(node)) {
+      for (let index = node.length - 1; index >= 0; index -= 1) {
+        stack.push([node[index], `${at}[${index}]`, indexPlace(place, index), whole]);
+      }
+    } else if (isPlainObject(node)) {
+      const reason = statementReason(node, options.reads.fallback.get(place));
+      if (reason !== null && !options.reads.blocked.has(place)) {
+        const decision: RedactionDecision = {
+          decision_id: `REDC-DEC-${String(options.decisions.length + 1).padStart(4, "0")}`,
+          path: at,
+          field_class: stringOrUnknown(node.field_class ?? "unknown"),
+          privacy_classification: stringOrUnknown(node.privacy_classification),
+          redistribution_status: stringOrUnknown(node.redistribution_status),
+          review_status: stringOrUnknown(reviewLabel(node.review_status) ?? "unknown"),
+          export_context: options.exportContext,
+          action: "block_export",
+          reason_code: reason,
+          source_metadata_present: true
+        };
+        options.decisions.push(decision);
+        const finding = findingFor(decision, options.findings.length + 1);
+        if (finding !== null) options.findings.push(finding);
+      }
+      const membersWhole = whole || (options.routeItem as (value: PlainObject) => boolean)(node);
+      const prefix = membersWhole ? "" : ROUTE_KEY_PREFIX;
+      const entries = Object.entries(node);
+      for (let index = entries.length - 1; index >= 0; index -= 1) {
+        const [key, item] = entries[index];
+        stack.push([item, `${at}.${prefix}${key}`, memberPlace(place, `${prefix}${key}`), membersWhole]);
+      }
+    }
+  }
+}
+
 /** The redaction walk over data this module built: a snapshot, or the route projector's
- * projection of one. It is not gated again. */
+ * projection of one, and the reading of every blocking statement in `statements.source`, the
+ * snapshot itself, before the route strips its payload intent members. It is not gated again. */
 function redactSnapshot(
   value: unknown,
   exportContext: RedactionExportContext,
   explicitLocalPrivateIntent: boolean,
+  statements: { source: unknown; routeItem: ((value: PlainObject) => boolean) | null },
   route = false
 ): RedactionRunResult {
   const decisions: RedactionDecision[] = [];
   const findings: RedactionFinding[] = [];
+  const reads: StatementReads = { blocked: new Set(), fallback: new Map() };
   const redacted = walk(value, {
     path: "$",
+    place: "$",
     exportContext,
     explicitLocalPrivateIntent,
     decisions,
     findings,
+    reads,
     route
+  });
+  decideStatements(statements.source, {
+    routeItem: statements.routeItem,
+    exportContext,
+    decisions,
+    findings,
+    reads
   });
   return {
     payload: redacted === OMITTED_SENTINEL ? null : redacted,
@@ -1421,6 +1598,16 @@ function hasContractLabel(value: PlainObject): boolean {
         Object.prototype.hasOwnProperty.call(object, key) && !isPlainObject(object[key]) && !Array.isArray(object[key])
     );
   return scalarLabel(value) || (isPlainObject(value.provenance) && scalarLabel(value.provenance));
+}
+
+function hasScalarValue(value: PlainObject): boolean {
+  return "value" in value && !isPlainObject(value.value) && !Array.isArray(value.value);
+}
+
+/** The projector's item test: a record it keeps whole, unprefixed, for the walk to decide as one
+ * item. Identical in core/security/redaction/route_control.py (`_is_route_item`). */
+function isRouteItem(value: PlainObject): boolean {
+  return hasScalarValue(value) && hasContractLabel(value);
 }
 
 const PRIVATE_ROUTE_TOKENS = [
@@ -1605,12 +1792,12 @@ function projectRouteValue(
     );
   }
   if (isPlainObject(value)) {
-    if ("value" in value && !isPlainObject(value.value) && !Array.isArray(value.value)) {
+    if (hasScalarValue(value)) {
       // Value records (HELP_HUMAN decision, 2026-10-28: "take the stricter decision per case").
       // A record with a scalar label is an item, as Python decides; one with only other metadata
       // is a value record, decided by the redaction walk as the stricter of the item and its
       // projection (`walkValueRecord`).
-      if (hasContractLabel(value)) return copyPlain(value);
+      if (isRouteItem(value)) return copyPlain(value);
       if (hasExplicitMetadata(value)) {
         return registered(VALUE_RECORD_NODES, { item: copyPlain(value), projected: projectRecordMembers(value, args) });
       }
@@ -1749,7 +1936,15 @@ export function controlRouteExport(
   // The options were asserted above, as `redactExportPayload` asserts them; the projection is
   // this module's own data, so it is not gated again.
   assertRedactionWalkContext(options.exportContext);
-  const controlled = redactSnapshot(projected, options.exportContext, options.explicitLocalPrivateIntent ?? false, true);
+  const controlled = redactSnapshot(
+    projected,
+    options.exportContext,
+    options.explicitLocalPrivateIntent ?? false,
+    // Blocking statements are read from the snapshot as received: removing a payload intent
+    // member from the controlled copy exempts no object inside it (DEL-12-02 AC-004).
+    { source, routeItem: isRouteItem },
+    true
+  );
   const destructive = controlled.decisions.some((decision) =>
     ["redact_value", "redact_field", "omit_field", "block_export"].includes(decision.action)
   );

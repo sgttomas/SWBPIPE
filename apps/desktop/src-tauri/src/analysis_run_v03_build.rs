@@ -351,7 +351,7 @@ fn container_depth(value: &Value) -> usize {
 
 /// The canonical writer's key-order scratch along `value`'s heaviest path:
 /// each object's member references, held while its members are written.
-fn sort_scratch_bytes(value: &Value) -> u64 {
+pub(crate) fn sort_scratch_bytes(value: &Value) -> u64 {
     match value {
         Value::Array(items) => items.iter().map(sort_scratch_bytes).max().unwrap_or(0),
         Value::Object(map) => {
@@ -497,7 +497,9 @@ impl<'s, S: Sink> Writer<'s, S> {
                     Style::Canonical => {
                         let mut keys: Vec<&String> = Vec::with_capacity(map.len());
                         keys.extend(map.keys());
-                        keys.sort_by(|left, right| left.encode_utf16().cmp(right.encode_utf16()));
+                        // An object's keys are distinct, so the order is total and an unstable sort
+                        // gives the stable sort's bytes without a heap scratch buffer.
+                        keys.sort_unstable_by(|left, right| left.encode_utf16().cmp(right.encode_utf16()));
                         for (index, key) in keys.into_iter().enumerate() {
                             if index > 0 {
                                 self.raw(",");

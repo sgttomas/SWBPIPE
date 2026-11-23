@@ -48,8 +48,9 @@ function mountLoads(model: PreviewModel) {
 
 function mountInspector(model: PreviewModel) {
   const queue = vi.fn<(intent: EditorOperationIntent) => void>();
-  render(<DisplayUnitsProvider initialPreference="SI"><PropertyInspector model={model} selection={{ type: "node", id: "node:B" }} onQueueIntent={queue} /></DisplayUnitsProvider>);
-  return queue;
+  // The New support form is opened as Insert > Support opens it.
+  const view = render(<DisplayUnitsProvider initialPreference="SI"><PropertyInspector model={model} selection={{ type: "node", id: "node:B" }} onQueueIntent={queue} taskRequest={{ sequence: 1, target: { type: "node", id: "node:B" }, view: "properties", focusTestId: "create-support-id" }} /></DisplayUnitsProvider>);
+  return Object.assign(queue, { rerender: view.rerender });
 }
 
 describe("load form composed defaults", () => {
@@ -185,9 +186,15 @@ describe("present but invalid keys never compose (Codex P2 on 93acfa719d)", () =
     const model = blankWith(SI_PROJECT_UNITS);
     model.project.units.linear_stiffness = "";
     model.project.units.temperature = " ";
-    mountInspector(model);
+    const view = mountInspector(model);
+    expect(byId("inspector-creation-support")).toBeVisible();
+    expect(byId("create-support-stiffness-unit-notice")).toBeVisible();
     expect(byId("create-support-stiffness-unit-notice")).toHaveTextContent("project.units.linear_stiffness is empty; choose one");
     expectFormControlValue(byId("create-support-stiffness-unit"), "");
+    // New material is opened by its own command before its notice is read.
+    view.rerender(<DisplayUnitsProvider initialPreference="SI"><PropertyInspector model={model} selection={{ type: "node", id: "node:B" }} onQueueIntent={vi.fn()} taskRequest={{ sequence: 2, target: { type: "node", id: "node:B" }, view: "properties", focusTestId: "create-material-id" }} /></DisplayUnitsProvider>);
+    expect(byId("inspector-creation-material")).toBeVisible();
+    expect(byId("create-material-thermal-unit-notice")).toBeVisible();
     expect(byId("create-material-thermal-unit-notice")).toHaveTextContent("project.units.temperature is empty; choose one");
     expectFormControlValue(byId("create-material-thermal-unit"), "");
   });

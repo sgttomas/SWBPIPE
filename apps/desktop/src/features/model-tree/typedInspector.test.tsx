@@ -262,29 +262,44 @@ describe("typed property inspection", () => {
     expect(String(component.modifiers?.sif_user_value?.value)).toBe(original);
   });
 
-  it("keeps creation forms collapsed, preserves their drafts and opens selected support configuration", async () => {
+  it("shows a creation form only when its command asks for it, keeps its draft when closed, and names the support form's action", async () => {
     const model = await loadPreviewModel();
     const props = { model, onQueueIntent: vi.fn() };
-    const view = render(<PropertyInspector {...props} selection={{ type: "project", id: model.project.id }} />);
+    const project = { type: "project", id: model.project.id } as const;
+    const view = render(<PropertyInspector {...props} selection={project} />);
+    // The command box's Create section, Create material and Components, and Insert > Support, ask by these focus targets.
+    const ask = (sequence: number, focusTestId: string) =>
+      view.rerender(<PropertyInspector {...props} selection={project} taskRequest={{ sequence, target: project, view: "properties", focusTestId }} />);
 
     for (const kind of ["section", "material", "support", "component"]) {
       expect(screen.getByTestId(`create-${kind}-intent-panel`)).not.toBeVisible();
     }
-    expect(screen.getByLabelText("Support configuration")).not.toBeVisible();
+    expect(screen.queryByText("New section", { selector: "summary" })).toBeNull();
 
-    const summary = screen.getByText("New section", { selector: "summary" });
-    fireEvent.click(summary);
+    ask(1, "create-section-id");
     const name = screen.getByTestId("create-section-name");
-    expect(name).toBeVisible();
+    expect(screen.getByTestId("create-section-intent-panel")).toBeVisible();
+    expect(screen.getByTestId("create-section-id")).toHaveFocus();
+    expect(screen.getByTestId("create-material-intent-panel")).not.toBeVisible();
     fireEvent.change(name, { target: { value: "Explicit draft section" } });
-    fireEvent.click(summary);
+    fireEvent.click(screen.getByRole("button", { name: "Close New section" }));
     expect(name).not.toBeVisible();
-    fireEvent.click(summary);
+    ask(2, "create-section-id");
     expect(name).toBeVisible();
     expect(name).toHaveValue("Explicit draft section");
 
+    for (const [sequence, focusTestId, kind] of [[3, "create-material-id", "material"], [4, "create-support-id", "support"], [5, "create-component-kind", "component"]] as const) {
+      ask(sequence, focusTestId);
+      expect(screen.getByTestId(`create-${kind}-intent-panel`)).toBeVisible();
+      expect(screen.getByTestId("create-section-intent-panel")).not.toBeVisible();
+    }
+    fireEvent.click(screen.getByRole("button", { name: "Close New component" }));
+
     model.supports[0].provenance = "";
     view.rerender(<PropertyInspector {...props} selection={{ type: "support", id: model.supports[0].id }} />);
+    const line = screen.getByText("Edit this support", { selector: "summary" });
+    expect(screen.getByLabelText("Support configuration")).not.toBeVisible();
+    fireEvent.click(line);
     expect(screen.getByLabelText("Support configuration")).toBeVisible();
     expect(screen.getByTestId("inspector-required-flags")).toBeVisible();
     expect(screen.getByTestId("editor-intent-panel")).not.toBeVisible();
@@ -299,7 +314,7 @@ describe("typed property inspection", () => {
     const rationale = screen.getByTestId("editor-intent-rationale");
     expect(rationale).not.toBeVisible();
     expect(rationale).toHaveValue("user_entered_preview_change");
-    fireEvent.click(screen.getByText("Operation details", { selector: "summary" }));
+    fireEvent.click(within(screen.getByTestId("editor-intent-panel")).getByText("Operation details", { selector: "summary" }));
     expect(rationale).toBeVisible();
     chooseField("material");
     expect(screen.getByRole("textbox", { name: "New material" })).toBeVisible();

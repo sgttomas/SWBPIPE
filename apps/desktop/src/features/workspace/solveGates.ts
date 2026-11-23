@@ -77,7 +77,8 @@ export function commitModelAfterSolveInvalidation(
 
 /** Whether the Solve command is offered for a model (DEL-07-07 REQ-008,
  * DEL-07-04 AC-001), read from the model checks (DEL-04-06 REQ-013), whose
- * findings equal the solver's leading diagnostics (DEL-04-06 AC-008):
+ * findings before stiffness formation equal the solver's leading diagnostics
+ * (DEL-04-06 AC-008) and whose load-generation findings are the solve's own for each case:
  * - `open`: the checks ran on this model value and no solve-blocking finding stands;
  * - `unknown`: no check run is current for this model value, or the checks did
  *   not run; the Solve command proceeds as it would without the gate;

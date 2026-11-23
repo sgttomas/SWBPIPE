@@ -7320,7 +7320,7 @@
       },
       "case_id": "s3a_15_carried_refusal_outside_scope_is_info",
       "claimed_model_hash": null,
-      "description": "The document already carries a hydrostatic test case HT, which the solve refuses (LOAD_CASE_TEST_CONDITION_UNSUPPORTED). No case uses conditions and no pipe references the new set, so HT is outside the set create's dependency scope: the create applies and HT's carried refusal is reported as info; the solve still refuses HT by name.",
+      "description": "The document already carries a hydrostatic test case HT, which the solve refuses (LOAD_CASE_TEST_CONDITION_PRESSURE_FREE: a hydrostatic test on the pressure-free route). No case uses conditions and no pipe references the new set, so HT is outside the set create's dependency scope: the create applies and HT's carried refusal is reported as info; the solve still refuses HT by name.",
       "expected": {
         "applied_model": {
           "analysis_status": {
@@ -7611,7 +7611,7 @@
                 "HT"
               ],
               "blocking": false,
-              "code": "LOAD_CASE_TEST_CONDITION_UNSUPPORTED",
+              "code": "LOAD_CASE_TEST_CONDITION_PRESSURE_FREE",
               "severity": "info"
             }
           ],
@@ -8684,7 +8684,7 @@
       },
       "case_id": "s3a_18_create_load_case_test_condition_stays_refused",
       "claimed_model_hash": null,
-      "description": "A created case carrying a condition use and a hydrostatic test_condition is still refused by name (LOAD_CASE_TEST_CONDITION_UNSUPPORTED, S1; RT-A6).",
+      "description": "A created case carrying a condition use and a hydrostatic test_condition is refused by name at admission on the pressure-free route (LOAD_CASE_TEST_CONDITION_PRESSURE_FREE).",
       "expected": {
         "applied_model": null,
         "applied_model_canonical_sha256": null,
@@ -8714,7 +8714,7 @@
                 "HT"
               ],
               "blocking": true,
-              "code": "LOAD_CASE_TEST_CONDITION_UNSUPPORTED",
+              "code": "LOAD_CASE_TEST_CONDITION_PRESSURE_FREE",
               "severity": "blocking"
             }
           ],
@@ -9688,7 +9688,7 @@
       },
       "case_id": "s3a_20_block_use_edit_of_the_hydrostatic_case",
       "claimed_model_hash": null,
-      "description": "Setting the condition use of the hydrostatic test case HT itself: HT is the edit's target, so its refusal (LOAD_CASE_TEST_CONDITION_UNSUPPORTED) is in the edit's scope and blocks.",
+      "description": "Setting the condition use of the hydrostatic test case HT itself: HT is the edit's target, so its refusal (LOAD_CASE_TEST_CONDITION_PRESSURE_FREE: a hydrostatic test on the pressure-free route) is in the edit's scope and blocks.",
       "expected": {
         "applied_model": null,
         "applied_model_canonical_sha256": null,
@@ -9718,7 +9718,7 @@
                 "HT"
               ],
               "blocking": true,
-              "code": "LOAD_CASE_TEST_CONDITION_UNSUPPORTED",
+              "code": "LOAD_CASE_TEST_CONDITION_PRESSURE_FREE",
               "severity": "blocking"
             },
             {
@@ -9817,6 +9817,2333 @@
           "software_makes_sealing_claim": false
         },
         "rationale": "Invented S3a condition-set corpus operation",
+        "target": {
+          "object_type": "Load",
+          "ref": "HT"
+        },
+        "validation": {
+          "application_status": "not_applied",
+          "constraint_validation": "not_run",
+          "diff_preview_status": "not_generated",
+          "schema_validation": "not_run",
+          "unit_validation": "not_run"
+        }
+      },
+      "mode": "apply"
+    },
+    {
+      "base_model": {
+        "analysis_status": {
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
+        },
+        "combinations": [],
+        "condition_sets": [
+          {
+            "conditions": [
+              {
+                "contents_density": {
+                  "unit": "kg/m^3",
+                  "value": 1015.0
+                },
+                "key": "HYDRO"
+              }
+            ],
+            "id": "cs:line",
+            "label": "Line",
+            "provenance": "invented_hydrostatic_corpus_input"
+          }
+        ],
+        "document_kind": "openpipestress.product_preview.model",
+        "load_cases": [
+          {
+            "id": "HT",
+            "kind": "primitive_user_load",
+            "label": "Hydrotest",
+            "pressure_regions": [],
+            "primitive_loads": [],
+            "provenance": "invented_hydrostatic_corpus_input",
+            "status": "draft"
+          }
+        ],
+        "materials": [
+          {
+            "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+            "elastic_modulus": {
+              "unit": "Pa",
+              "value": 203000000000.0
+            },
+            "id": "mat",
+            "poisson_ratio": {
+              "unit": "1",
+              "value": 0.29
+            },
+            "provenance": "invented_hydrostatic_corpus_input"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "node:a",
+            "label": "node:a",
+            "position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_hydrostatic_corpus_input"
+          },
+          {
+            "id": "node:b",
+            "label": "node:b",
+            "position": {
+              "x": 4.3,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_hydrostatic_corpus_input"
+          },
+          {
+            "id": "node:c",
+            "label": "node:c",
+            "position": {
+              "x": 8.6,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_hydrostatic_corpus_input"
+          }
+        ],
+        "pipe_segments": [
+          {
+            "condition_set_ref": "cs:line",
+            "from": "node:a",
+            "id": "pipe:a-b",
+            "material": "mat",
+            "provenance": "invented_hydrostatic_corpus_input",
+            "section": {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 865.0
+              },
+              "corrosion_allowance": {
+                "unit": "m",
+                "value": 0.0021
+              },
+              "material_density": {
+                "unit": "kg/m^3",
+                "value": 7830.0
+              },
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.29
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.0135
+              }
+            },
+            "to": "node:b",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:line",
+            "from": "node:b",
+            "id": "pipe:b-c",
+            "material": "mat",
+            "provenance": "invented_hydrostatic_corpus_input",
+            "section": {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 865.0
+              },
+              "corrosion_allowance": {
+                "unit": "m",
+                "value": 0.0021
+              },
+              "material_density": {
+                "unit": "kg/m^3",
+                "value": 7830.0
+              },
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.29
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.0135
+              }
+            },
+            "to": "node:c",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          }
+        ],
+        "pressure_contract": {
+          "mode": "exact_pressure_v3",
+          "shear_model": "euler_bernoulli",
+          "version": "3.0.0"
+        },
+        "project": {
+          "id": "invented:hydrostatic-corpus",
+          "units": {
+            "angle": "rad",
+            "force": "N",
+            "length": "m",
+            "pressure": "Pa",
+            "stress": "Pa",
+            "temperature": "degC"
+          }
+        },
+        "schema_version": "0.9.0",
+        "supports": [
+          {
+            "family": "guide",
+            "id": "support:a",
+            "node": "node:a",
+            "provenance": "invented_hydrostatic_corpus_input",
+            "restraints": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX"
+            ]
+          },
+          {
+            "family": "spring",
+            "id": "support:b",
+            "node": "node:b",
+            "provenance": "invented_hydrostatic_corpus_input",
+            "restraints": [
+              "UZ"
+            ],
+            "stiffness": {
+              "dof": "UZ",
+              "value": {
+                "unit": "N/m",
+                "value": 1350000.0
+              }
+            }
+          },
+          {
+            "family": "guide",
+            "id": "support:c",
+            "node": "node:c",
+            "provenance": "invented_hydrostatic_corpus_input",
+            "restraints": [
+              "UY",
+              "UZ"
+            ]
+          }
+        ]
+      },
+      "case_id": "hydro_21_accept_set_test_condition",
+      "claimed_model_hash": null,
+      "description": "DEL-05-01 REQ-014: declaring HT a hydrostatic test holding springs and constant-effort supports on the exact route applies; the case has no contents selection yet and its pressure_regions is [], two staged warnings (LOAD_CASE_TEST_CONTENTS_UNSELECTED, LOAD_CASE_TEST_PRESSURE_REGION_REQUIRED).",
+      "expected": {
+        "applied_model": {
+          "analysis_status": {
+            "mechanics": "ready_for_preview_diagnostics",
+            "professional_acceptance": "not_provided",
+            "rule_check": "not_performed_user_rule_inputs_missing"
+          },
+          "combinations": [],
+          "condition_sets": [
+            {
+              "conditions": [
+                {
+                  "contents_density": {
+                    "unit": "kg/m^3",
+                    "value": 1015.0
+                  },
+                  "key": "HYDRO"
+                }
+              ],
+              "id": "cs:line",
+              "label": "Line",
+              "provenance": "invented_hydrostatic_corpus_input"
+            }
+          ],
+          "document_kind": "openpipestress.product_preview.model",
+          "load_cases": [
+            {
+              "id": "HT",
+              "kind": "primitive_user_load",
+              "label": "Hydrotest",
+              "pressure_regions": [],
+              "primitive_loads": [],
+              "provenance": "invented_hydrostatic_corpus_input",
+              "status": "draft",
+              "test_condition": {
+                "held_supports": "springs_and_constant_effort",
+                "kind": "hydrostatic"
+              }
+            }
+          ],
+          "materials": [
+            {
+              "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+              "elastic_modulus": {
+                "unit": "Pa",
+                "value": 203000000000.0
+              },
+              "id": "mat",
+              "poisson_ratio": {
+                "unit": "1",
+                "value": 0.29
+              },
+              "provenance": "invented_hydrostatic_corpus_input"
+            }
+          ],
+          "nodes": [
+            {
+              "id": "node:a",
+              "label": "node:a",
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "provenance": "invented_hydrostatic_corpus_input"
+            },
+            {
+              "id": "node:b",
+              "label": "node:b",
+              "position": {
+                "x": 4.3,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "provenance": "invented_hydrostatic_corpus_input"
+            },
+            {
+              "id": "node:c",
+              "label": "node:c",
+              "position": {
+                "x": 8.6,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "provenance": "invented_hydrostatic_corpus_input"
+            }
+          ],
+          "pipe_segments": [
+            {
+              "condition_set_ref": "cs:line",
+              "from": "node:a",
+              "id": "pipe:a-b",
+              "material": "mat",
+              "provenance": "invented_hydrostatic_corpus_input",
+              "section": {
+                "contents_density": {
+                  "unit": "kg/m^3",
+                  "value": 865.0
+                },
+                "corrosion_allowance": {
+                  "unit": "m",
+                  "value": 0.0021
+                },
+                "material_density": {
+                  "unit": "kg/m^3",
+                  "value": 7830.0
+                },
+                "outside_diameter": {
+                  "unit": "m",
+                  "value": 0.29
+                },
+                "wall_thickness": {
+                  "unit": "m",
+                  "value": 0.0135
+                }
+              },
+              "to": "node:b",
+              "y_reference": {
+                "x": 0,
+                "y": 0,
+                "z": 1
+              }
+            },
+            {
+              "condition_set_ref": "cs:line",
+              "from": "node:b",
+              "id": "pipe:b-c",
+              "material": "mat",
+              "provenance": "invented_hydrostatic_corpus_input",
+              "section": {
+                "contents_density": {
+                  "unit": "kg/m^3",
+                  "value": 865.0
+                },
+                "corrosion_allowance": {
+                  "unit": "m",
+                  "value": 0.0021
+                },
+                "material_density": {
+                  "unit": "kg/m^3",
+                  "value": 7830.0
+                },
+                "outside_diameter": {
+                  "unit": "m",
+                  "value": 0.29
+                },
+                "wall_thickness": {
+                  "unit": "m",
+                  "value": 0.0135
+                }
+              },
+              "to": "node:c",
+              "y_reference": {
+                "x": 0,
+                "y": 0,
+                "z": 1
+              }
+            }
+          ],
+          "pressure_contract": {
+            "mode": "exact_pressure_v3",
+            "shear_model": "euler_bernoulli",
+            "version": "3.0.0"
+          },
+          "project": {
+            "id": "invented:hydrostatic-corpus",
+            "units": {
+              "angle": "rad",
+              "force": "N",
+              "length": "m",
+              "pressure": "Pa",
+              "stress": "Pa",
+              "temperature": "degC"
+            }
+          },
+          "schema_version": "0.9.0",
+          "supports": [
+            {
+              "family": "guide",
+              "id": "support:a",
+              "node": "node:a",
+              "provenance": "invented_hydrostatic_corpus_input",
+              "restraints": [
+                "UX",
+                "UY",
+                "UZ",
+                "RX"
+              ]
+            },
+            {
+              "family": "spring",
+              "id": "support:b",
+              "node": "node:b",
+              "provenance": "invented_hydrostatic_corpus_input",
+              "restraints": [
+                "UZ"
+              ],
+              "stiffness": {
+                "dof": "UZ",
+                "value": {
+                  "unit": "N/m",
+                  "value": 1350000.0
+                }
+              }
+            },
+            {
+              "family": "guide",
+              "id": "support:c",
+              "node": "node:c",
+              "provenance": "invented_hydrostatic_corpus_input",
+              "restraints": [
+                "UY",
+                "UZ"
+              ]
+            }
+          ]
+        },
+        "applied_model_canonical_sha256": "sha256:79dac421c2b4af00db916de1df75105a57b027cc5700a54fed5a1f6893afd3bf",
+        "outcome": {
+          "acceptance": {
+            "acceptance_basis": "user_initiated_apply_in_local_session",
+            "acceptance_is_professional_approval": false,
+            "persistence_status": "session_state_only_not_yet_saved"
+          },
+          "applied": true,
+          "audit_boundary": {
+            "applied_model_is_new_document": true,
+            "direct_model_mutation_allowed": false,
+            "input_model_mutated_in_place": false,
+            "mutation_route": "structured_operations_only",
+            "requires_user_acceptance": true
+          },
+          "change_id": "change:hydro:21",
+          "change_kind": "set_load_case_test_condition",
+          "deliverable_refs": [
+            "DEL-16-02",
+            "DEL-16-03"
+          ],
+          "diagnostics": [
+            {
+              "affected_refs": [
+                "HT"
+              ],
+              "blocking": false,
+              "code": "LOAD_CASE_TEST_CONTENTS_UNSELECTED",
+              "severity": "warning"
+            },
+            {
+              "affected_refs": [
+                "HT",
+                "pressure_regions"
+              ],
+              "blocking": false,
+              "code": "LOAD_CASE_TEST_PRESSURE_REGION_REQUIRED",
+              "severity": "warning"
+            }
+          ],
+          "diff_preview": [
+            {
+              "after": "{\"held_supports\":\"springs_and_constant_effort\",\"kind\":\"hydrostatic\"}",
+              "before": "not_present",
+              "change_kind": "set_load_case_test_condition",
+              "dimension": "dimensionless",
+              "entity_ref": "HT",
+              "field_path": "test_condition",
+              "object_type": "Load",
+              "unit": "none"
+            }
+          ],
+          "document_kind": "openpipestress.desktop.operation_outcome",
+          "input_model_unchanged": true,
+          "mode": "apply",
+          "model_basis": {
+            "backend_canonicalization": "rfc8785_jcs",
+            "backend_model_hash": "sha256:08b2690838209c482b8e3744bf77de5df751ded5c7aeb28561e0423ff2b26184",
+            "binding_status": "no_claimed_hash_before_state_check_is_the_staleness_guard",
+            "claimed_hash_canonicalization": "not_provided",
+            "claimed_model_hash": "not_provided"
+          },
+          "operation_id": "op:hydro:21",
+          "operation_kind": "modify",
+          "professional_boundary": {
+            "human_review_required": true,
+            "software_makes_approval_claim": false,
+            "software_makes_authentication_claim": false,
+            "software_makes_certification_claim": false,
+            "software_makes_compliance_claim": false,
+            "software_makes_sealing_claim": false
+          },
+          "schema_version": "0.1.0",
+          "target_object_type": "Load",
+          "target_ref": "HT",
+          "validation": {
+            "application_status": "applied_to_session_model",
+            "before_state_validation": "passed",
+            "diff_preview_status": "generated",
+            "reference_validation": "passed",
+            "schema_validation": "passed",
+            "unit_validation": "passed"
+          }
+        }
+      },
+      "intent": {
+        "audit_boundary": {
+          "direct_model_mutation_allowed": false,
+          "mutates_accepted_model_state": false,
+          "mutation_route": "structured_operations_only",
+          "requires_user_acceptance": true
+        },
+        "author_type": "user",
+        "change": {
+          "after": "{\"kind\": \"hydrostatic\", \"held_supports\": \"springs_and_constant_effort\"}",
+          "before": "not_present",
+          "change_id": "change:hydro:21",
+          "change_kind": "set_load_case_test_condition",
+          "dimension": "dimensionless",
+          "field_label": "test_condition",
+          "field_path": "test_condition",
+          "source_note": "invented hydrostatic corpus entry",
+          "unit": "none"
+        },
+        "operation_id": "op:hydro:21",
+        "operation_kind": "modify",
+        "operation_status": "proposed",
+        "professional_boundary": {
+          "human_review_required": true,
+          "software_makes_approval_claim": false,
+          "software_makes_authentication_claim": false,
+          "software_makes_certification_claim": false,
+          "software_makes_compliance_claim": false,
+          "software_makes_sealing_claim": false
+        },
+        "rationale": "Invented hydrostatic test-condition corpus operation",
+        "target": {
+          "object_type": "Load",
+          "ref": "HT"
+        },
+        "validation": {
+          "application_status": "not_applied",
+          "constraint_validation": "not_run",
+          "diff_preview_status": "not_generated",
+          "schema_validation": "not_run",
+          "unit_validation": "not_run"
+        }
+      },
+      "mode": "apply"
+    },
+    {
+      "base_model": {
+        "analysis_status": {
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
+        },
+        "combinations": [],
+        "condition_sets": [
+          {
+            "conditions": [
+              {
+                "contents_density": {
+                  "unit": "kg/m^3",
+                  "value": 1015.0
+                },
+                "key": "HYDRO"
+              }
+            ],
+            "id": "cs:line",
+            "label": "Line",
+            "provenance": "invented_hydrostatic_corpus_input"
+          }
+        ],
+        "document_kind": "openpipestress.product_preview.model",
+        "load_cases": [
+          {
+            "id": "HT",
+            "kind": "primitive_user_load",
+            "label": "Hydrotest",
+            "pressure_regions": [],
+            "primitive_loads": [],
+            "provenance": "invented_hydrostatic_corpus_input",
+            "status": "draft",
+            "test_condition": {
+              "held_supports": "springs_and_constant_effort",
+              "kind": "hydrostatic"
+            }
+          }
+        ],
+        "materials": [
+          {
+            "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+            "elastic_modulus": {
+              "unit": "Pa",
+              "value": 203000000000.0
+            },
+            "id": "mat",
+            "poisson_ratio": {
+              "unit": "1",
+              "value": 0.29
+            },
+            "provenance": "invented_hydrostatic_corpus_input"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "node:a",
+            "label": "node:a",
+            "position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_hydrostatic_corpus_input"
+          },
+          {
+            "id": "node:b",
+            "label": "node:b",
+            "position": {
+              "x": 4.3,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_hydrostatic_corpus_input"
+          },
+          {
+            "id": "node:c",
+            "label": "node:c",
+            "position": {
+              "x": 8.6,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_hydrostatic_corpus_input"
+          }
+        ],
+        "pipe_segments": [
+          {
+            "condition_set_ref": "cs:line",
+            "from": "node:a",
+            "id": "pipe:a-b",
+            "material": "mat",
+            "provenance": "invented_hydrostatic_corpus_input",
+            "section": {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 865.0
+              },
+              "corrosion_allowance": {
+                "unit": "m",
+                "value": 0.0021
+              },
+              "material_density": {
+                "unit": "kg/m^3",
+                "value": 7830.0
+              },
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.29
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.0135
+              }
+            },
+            "to": "node:b",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:line",
+            "from": "node:b",
+            "id": "pipe:b-c",
+            "material": "mat",
+            "provenance": "invented_hydrostatic_corpus_input",
+            "section": {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 865.0
+              },
+              "corrosion_allowance": {
+                "unit": "m",
+                "value": 0.0021
+              },
+              "material_density": {
+                "unit": "kg/m^3",
+                "value": 7830.0
+              },
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.29
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.0135
+              }
+            },
+            "to": "node:c",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          }
+        ],
+        "pressure_contract": {
+          "mode": "exact_pressure_v3",
+          "shear_model": "euler_bernoulli",
+          "version": "3.0.0"
+        },
+        "project": {
+          "id": "invented:hydrostatic-corpus",
+          "units": {
+            "angle": "rad",
+            "force": "N",
+            "length": "m",
+            "pressure": "Pa",
+            "stress": "Pa",
+            "temperature": "degC"
+          }
+        },
+        "schema_version": "0.9.0",
+        "supports": [
+          {
+            "family": "guide",
+            "id": "support:a",
+            "node": "node:a",
+            "provenance": "invented_hydrostatic_corpus_input",
+            "restraints": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX"
+            ]
+          },
+          {
+            "family": "spring",
+            "id": "support:b",
+            "node": "node:b",
+            "provenance": "invented_hydrostatic_corpus_input",
+            "restraints": [
+              "UZ"
+            ],
+            "stiffness": {
+              "dof": "UZ",
+              "value": {
+                "unit": "N/m",
+                "value": 1350000.0
+              }
+            }
+          },
+          {
+            "family": "guide",
+            "id": "support:c",
+            "node": "node:c",
+            "provenance": "invented_hydrostatic_corpus_input",
+            "restraints": [
+              "UY",
+              "UZ"
+            ]
+          }
+        ]
+      },
+      "case_id": "hydro_22_accept_contents_use_of_a_test_case",
+      "claimed_model_hash": null,
+      "description": "The test case's contents selection, contents_density alone, applies on the exact route; it has no generated self-weight yet and no pressure region, staged warnings (LOAD_CASE_TEST_SELF_WEIGHT_MISSING, LOAD_CASE_TEST_PRESSURE_REGION_REQUIRED).",
+      "expected": {
+        "applied_model": {
+          "analysis_status": {
+            "mechanics": "ready_for_preview_diagnostics",
+            "professional_acceptance": "not_provided",
+            "rule_check": "not_performed_user_rule_inputs_missing"
+          },
+          "combinations": [],
+          "condition_sets": [
+            {
+              "conditions": [
+                {
+                  "contents_density": {
+                    "unit": "kg/m^3",
+                    "value": 1015.0
+                  },
+                  "key": "HYDRO"
+                }
+              ],
+              "id": "cs:line",
+              "label": "Line",
+              "provenance": "invented_hydrostatic_corpus_input"
+            }
+          ],
+          "document_kind": "openpipestress.product_preview.model",
+          "load_cases": [
+            {
+              "condition_use": {
+                "contents_density": "HYDRO"
+              },
+              "id": "HT",
+              "kind": "primitive_user_load",
+              "label": "Hydrotest",
+              "pressure_regions": [],
+              "primitive_loads": [],
+              "provenance": "invented_hydrostatic_corpus_input",
+              "status": "draft",
+              "test_condition": {
+                "held_supports": "springs_and_constant_effort",
+                "kind": "hydrostatic"
+              }
+            }
+          ],
+          "materials": [
+            {
+              "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+              "elastic_modulus": {
+                "unit": "Pa",
+                "value": 203000000000.0
+              },
+              "id": "mat",
+              "poisson_ratio": {
+                "unit": "1",
+                "value": 0.29
+              },
+              "provenance": "invented_hydrostatic_corpus_input"
+            }
+          ],
+          "nodes": [
+            {
+              "id": "node:a",
+              "label": "node:a",
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "provenance": "invented_hydrostatic_corpus_input"
+            },
+            {
+              "id": "node:b",
+              "label": "node:b",
+              "position": {
+                "x": 4.3,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "provenance": "invented_hydrostatic_corpus_input"
+            },
+            {
+              "id": "node:c",
+              "label": "node:c",
+              "position": {
+                "x": 8.6,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "provenance": "invented_hydrostatic_corpus_input"
+            }
+          ],
+          "pipe_segments": [
+            {
+              "condition_set_ref": "cs:line",
+              "from": "node:a",
+              "id": "pipe:a-b",
+              "material": "mat",
+              "provenance": "invented_hydrostatic_corpus_input",
+              "section": {
+                "contents_density": {
+                  "unit": "kg/m^3",
+                  "value": 865.0
+                },
+                "corrosion_allowance": {
+                  "unit": "m",
+                  "value": 0.0021
+                },
+                "material_density": {
+                  "unit": "kg/m^3",
+                  "value": 7830.0
+                },
+                "outside_diameter": {
+                  "unit": "m",
+                  "value": 0.29
+                },
+                "wall_thickness": {
+                  "unit": "m",
+                  "value": 0.0135
+                }
+              },
+              "to": "node:b",
+              "y_reference": {
+                "x": 0,
+                "y": 0,
+                "z": 1
+              }
+            },
+            {
+              "condition_set_ref": "cs:line",
+              "from": "node:b",
+              "id": "pipe:b-c",
+              "material": "mat",
+              "provenance": "invented_hydrostatic_corpus_input",
+              "section": {
+                "contents_density": {
+                  "unit": "kg/m^3",
+                  "value": 865.0
+                },
+                "corrosion_allowance": {
+                  "unit": "m",
+                  "value": 0.0021
+                },
+                "material_density": {
+                  "unit": "kg/m^3",
+                  "value": 7830.0
+                },
+                "outside_diameter": {
+                  "unit": "m",
+                  "value": 0.29
+                },
+                "wall_thickness": {
+                  "unit": "m",
+                  "value": 0.0135
+                }
+              },
+              "to": "node:c",
+              "y_reference": {
+                "x": 0,
+                "y": 0,
+                "z": 1
+              }
+            }
+          ],
+          "pressure_contract": {
+            "mode": "exact_pressure_v3",
+            "shear_model": "euler_bernoulli",
+            "version": "3.0.0"
+          },
+          "project": {
+            "id": "invented:hydrostatic-corpus",
+            "units": {
+              "angle": "rad",
+              "force": "N",
+              "length": "m",
+              "pressure": "Pa",
+              "stress": "Pa",
+              "temperature": "degC"
+            }
+          },
+          "schema_version": "0.9.0",
+          "supports": [
+            {
+              "family": "guide",
+              "id": "support:a",
+              "node": "node:a",
+              "provenance": "invented_hydrostatic_corpus_input",
+              "restraints": [
+                "UX",
+                "UY",
+                "UZ",
+                "RX"
+              ]
+            },
+            {
+              "family": "spring",
+              "id": "support:b",
+              "node": "node:b",
+              "provenance": "invented_hydrostatic_corpus_input",
+              "restraints": [
+                "UZ"
+              ],
+              "stiffness": {
+                "dof": "UZ",
+                "value": {
+                  "unit": "N/m",
+                  "value": 1350000.0
+                }
+              }
+            },
+            {
+              "family": "guide",
+              "id": "support:c",
+              "node": "node:c",
+              "provenance": "invented_hydrostatic_corpus_input",
+              "restraints": [
+                "UY",
+                "UZ"
+              ]
+            }
+          ]
+        },
+        "applied_model_canonical_sha256": "sha256:683ad7ed69963073da84b6b4ebd247ed655e4da53b30c5fcaa92a8e444673dc7",
+        "outcome": {
+          "acceptance": {
+            "acceptance_basis": "user_initiated_apply_in_local_session",
+            "acceptance_is_professional_approval": false,
+            "persistence_status": "session_state_only_not_yet_saved"
+          },
+          "applied": true,
+          "audit_boundary": {
+            "applied_model_is_new_document": true,
+            "direct_model_mutation_allowed": false,
+            "input_model_mutated_in_place": false,
+            "mutation_route": "structured_operations_only",
+            "requires_user_acceptance": true
+          },
+          "change_id": "change:hydro:22",
+          "change_kind": "set_load_case_condition_use",
+          "deliverable_refs": [
+            "DEL-16-02",
+            "DEL-16-03"
+          ],
+          "diagnostics": [
+            {
+              "affected_refs": [
+                "HT",
+                "pressure_regions"
+              ],
+              "blocking": false,
+              "code": "LOAD_CASE_TEST_PRESSURE_REGION_REQUIRED",
+              "severity": "warning"
+            },
+            {
+              "affected_refs": [
+                "HT",
+                "HYDRO"
+              ],
+              "blocking": false,
+              "code": "LOAD_CASE_TEST_SELF_WEIGHT_MISSING",
+              "severity": "warning"
+            }
+          ],
+          "diff_preview": [
+            {
+              "after": "{\"contents_density\":\"HYDRO\"}",
+              "before": "not_present",
+              "change_kind": "set_load_case_condition_use",
+              "dimension": "dimensionless",
+              "entity_ref": "HT",
+              "field_path": "condition_use",
+              "object_type": "Load",
+              "unit": "none"
+            }
+          ],
+          "document_kind": "openpipestress.desktop.operation_outcome",
+          "input_model_unchanged": true,
+          "mode": "apply",
+          "model_basis": {
+            "backend_canonicalization": "rfc8785_jcs",
+            "backend_model_hash": "sha256:79dac421c2b4af00db916de1df75105a57b027cc5700a54fed5a1f6893afd3bf",
+            "binding_status": "no_claimed_hash_before_state_check_is_the_staleness_guard",
+            "claimed_hash_canonicalization": "not_provided",
+            "claimed_model_hash": "not_provided"
+          },
+          "operation_id": "op:hydro:22",
+          "operation_kind": "modify",
+          "professional_boundary": {
+            "human_review_required": true,
+            "software_makes_approval_claim": false,
+            "software_makes_authentication_claim": false,
+            "software_makes_certification_claim": false,
+            "software_makes_compliance_claim": false,
+            "software_makes_sealing_claim": false
+          },
+          "schema_version": "0.1.0",
+          "target_object_type": "Load",
+          "target_ref": "HT",
+          "validation": {
+            "application_status": "applied_to_session_model",
+            "before_state_validation": "passed",
+            "diff_preview_status": "generated",
+            "reference_validation": "passed",
+            "schema_validation": "passed",
+            "unit_validation": "passed"
+          }
+        }
+      },
+      "intent": {
+        "audit_boundary": {
+          "direct_model_mutation_allowed": false,
+          "mutates_accepted_model_state": false,
+          "mutation_route": "structured_operations_only",
+          "requires_user_acceptance": true
+        },
+        "author_type": "user",
+        "change": {
+          "after": "{\"contents_density\": \"HYDRO\"}",
+          "before": "not_present",
+          "change_id": "change:hydro:22",
+          "change_kind": "set_load_case_condition_use",
+          "dimension": "dimensionless",
+          "field_label": "condition_use",
+          "field_path": "condition_use",
+          "source_note": "invented hydrostatic corpus entry",
+          "unit": "none"
+        },
+        "operation_id": "op:hydro:22",
+        "operation_kind": "modify",
+        "operation_status": "proposed",
+        "professional_boundary": {
+          "human_review_required": true,
+          "software_makes_approval_claim": false,
+          "software_makes_authentication_claim": false,
+          "software_makes_certification_claim": false,
+          "software_makes_compliance_claim": false,
+          "software_makes_sealing_claim": false
+        },
+        "rationale": "Invented hydrostatic test-condition corpus operation",
+        "target": {
+          "object_type": "Load",
+          "ref": "HT"
+        },
+        "validation": {
+          "application_status": "not_applied",
+          "constraint_validation": "not_run",
+          "diff_preview_status": "not_generated",
+          "schema_validation": "not_run",
+          "unit_validation": "not_run"
+        }
+      },
+      "mode": "apply"
+    },
+    {
+      "base_model": {
+        "analysis_status": {
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
+        },
+        "combinations": [],
+        "condition_sets": [
+          {
+            "conditions": [
+              {
+                "contents_density": {
+                  "unit": "kg/m^3",
+                  "value": 1015.0
+                },
+                "key": "HYDRO"
+              }
+            ],
+            "id": "cs:line",
+            "label": "Line",
+            "provenance": "invented_hydrostatic_corpus_input"
+          }
+        ],
+        "document_kind": "openpipestress.product_preview.model",
+        "load_cases": [
+          {
+            "id": "HT",
+            "kind": "primitive_user_load",
+            "label": "Hydrotest",
+            "pressure_regions": [],
+            "primitive_loads": [],
+            "provenance": "invented_hydrostatic_corpus_input",
+            "status": "draft",
+            "test_condition": {
+              "held_supports": "springs_and_constant_effort",
+              "kind": "hydrostatic"
+            }
+          }
+        ],
+        "materials": [
+          {
+            "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+            "elastic_modulus": {
+              "unit": "Pa",
+              "value": 203000000000.0
+            },
+            "id": "mat",
+            "poisson_ratio": {
+              "unit": "1",
+              "value": 0.29
+            },
+            "provenance": "invented_hydrostatic_corpus_input"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "node:a",
+            "label": "node:a",
+            "position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_hydrostatic_corpus_input"
+          },
+          {
+            "id": "node:b",
+            "label": "node:b",
+            "position": {
+              "x": 4.3,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_hydrostatic_corpus_input"
+          },
+          {
+            "id": "node:c",
+            "label": "node:c",
+            "position": {
+              "x": 8.6,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_hydrostatic_corpus_input"
+          }
+        ],
+        "pipe_segments": [
+          {
+            "condition_set_ref": "cs:line",
+            "from": "node:a",
+            "id": "pipe:a-b",
+            "material": "mat",
+            "provenance": "invented_hydrostatic_corpus_input",
+            "section": {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 865.0
+              },
+              "corrosion_allowance": {
+                "unit": "m",
+                "value": 0.0021
+              },
+              "material_density": {
+                "unit": "kg/m^3",
+                "value": 7830.0
+              },
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.29
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.0135
+              }
+            },
+            "to": "node:b",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:line",
+            "from": "node:b",
+            "id": "pipe:b-c",
+            "material": "mat",
+            "provenance": "invented_hydrostatic_corpus_input",
+            "section": {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 865.0
+              },
+              "corrosion_allowance": {
+                "unit": "m",
+                "value": 0.0021
+              },
+              "material_density": {
+                "unit": "kg/m^3",
+                "value": 7830.0
+              },
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.29
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.0135
+              }
+            },
+            "to": "node:c",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          }
+        ],
+        "pressure_contract": {
+          "mode": "exact_pressure_v3",
+          "shear_model": "euler_bernoulli",
+          "version": "3.0.0"
+        },
+        "project": {
+          "id": "invented:hydrostatic-corpus",
+          "units": {
+            "angle": "rad",
+            "force": "N",
+            "length": "m",
+            "pressure": "Pa",
+            "stress": "Pa",
+            "temperature": "degC"
+          }
+        },
+        "schema_version": "0.9.0",
+        "supports": [
+          {
+            "family": "guide",
+            "id": "support:a",
+            "node": "node:a",
+            "provenance": "invented_hydrostatic_corpus_input",
+            "restraints": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX"
+            ]
+          },
+          {
+            "family": "spring",
+            "id": "support:b",
+            "node": "node:b",
+            "provenance": "invented_hydrostatic_corpus_input",
+            "restraints": [
+              "UZ"
+            ],
+            "stiffness": {
+              "dof": "UZ",
+              "value": {
+                "unit": "N/m",
+                "value": 1350000.0
+              }
+            }
+          },
+          {
+            "family": "guide",
+            "id": "support:c",
+            "node": "node:c",
+            "provenance": "invented_hydrostatic_corpus_input",
+            "restraints": [
+              "UY",
+              "UZ"
+            ]
+          }
+        ]
+      },
+      "case_id": "hydro_23_accept_clear_test_condition",
+      "claimed_model_hash": null,
+      "description": "Clearing HT's test condition, the inverse of hydro_21, applies and restores the document.",
+      "expected": {
+        "applied_model": {
+          "analysis_status": {
+            "mechanics": "ready_for_preview_diagnostics",
+            "professional_acceptance": "not_provided",
+            "rule_check": "not_performed_user_rule_inputs_missing"
+          },
+          "combinations": [],
+          "condition_sets": [
+            {
+              "conditions": [
+                {
+                  "contents_density": {
+                    "unit": "kg/m^3",
+                    "value": 1015.0
+                  },
+                  "key": "HYDRO"
+                }
+              ],
+              "id": "cs:line",
+              "label": "Line",
+              "provenance": "invented_hydrostatic_corpus_input"
+            }
+          ],
+          "document_kind": "openpipestress.product_preview.model",
+          "load_cases": [
+            {
+              "id": "HT",
+              "kind": "primitive_user_load",
+              "label": "Hydrotest",
+              "pressure_regions": [],
+              "primitive_loads": [],
+              "provenance": "invented_hydrostatic_corpus_input",
+              "status": "draft"
+            }
+          ],
+          "materials": [
+            {
+              "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+              "elastic_modulus": {
+                "unit": "Pa",
+                "value": 203000000000.0
+              },
+              "id": "mat",
+              "poisson_ratio": {
+                "unit": "1",
+                "value": 0.29
+              },
+              "provenance": "invented_hydrostatic_corpus_input"
+            }
+          ],
+          "nodes": [
+            {
+              "id": "node:a",
+              "label": "node:a",
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "provenance": "invented_hydrostatic_corpus_input"
+            },
+            {
+              "id": "node:b",
+              "label": "node:b",
+              "position": {
+                "x": 4.3,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "provenance": "invented_hydrostatic_corpus_input"
+            },
+            {
+              "id": "node:c",
+              "label": "node:c",
+              "position": {
+                "x": 8.6,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "provenance": "invented_hydrostatic_corpus_input"
+            }
+          ],
+          "pipe_segments": [
+            {
+              "condition_set_ref": "cs:line",
+              "from": "node:a",
+              "id": "pipe:a-b",
+              "material": "mat",
+              "provenance": "invented_hydrostatic_corpus_input",
+              "section": {
+                "contents_density": {
+                  "unit": "kg/m^3",
+                  "value": 865.0
+                },
+                "corrosion_allowance": {
+                  "unit": "m",
+                  "value": 0.0021
+                },
+                "material_density": {
+                  "unit": "kg/m^3",
+                  "value": 7830.0
+                },
+                "outside_diameter": {
+                  "unit": "m",
+                  "value": 0.29
+                },
+                "wall_thickness": {
+                  "unit": "m",
+                  "value": 0.0135
+                }
+              },
+              "to": "node:b",
+              "y_reference": {
+                "x": 0,
+                "y": 0,
+                "z": 1
+              }
+            },
+            {
+              "condition_set_ref": "cs:line",
+              "from": "node:b",
+              "id": "pipe:b-c",
+              "material": "mat",
+              "provenance": "invented_hydrostatic_corpus_input",
+              "section": {
+                "contents_density": {
+                  "unit": "kg/m^3",
+                  "value": 865.0
+                },
+                "corrosion_allowance": {
+                  "unit": "m",
+                  "value": 0.0021
+                },
+                "material_density": {
+                  "unit": "kg/m^3",
+                  "value": 7830.0
+                },
+                "outside_diameter": {
+                  "unit": "m",
+                  "value": 0.29
+                },
+                "wall_thickness": {
+                  "unit": "m",
+                  "value": 0.0135
+                }
+              },
+              "to": "node:c",
+              "y_reference": {
+                "x": 0,
+                "y": 0,
+                "z": 1
+              }
+            }
+          ],
+          "pressure_contract": {
+            "mode": "exact_pressure_v3",
+            "shear_model": "euler_bernoulli",
+            "version": "3.0.0"
+          },
+          "project": {
+            "id": "invented:hydrostatic-corpus",
+            "units": {
+              "angle": "rad",
+              "force": "N",
+              "length": "m",
+              "pressure": "Pa",
+              "stress": "Pa",
+              "temperature": "degC"
+            }
+          },
+          "schema_version": "0.9.0",
+          "supports": [
+            {
+              "family": "guide",
+              "id": "support:a",
+              "node": "node:a",
+              "provenance": "invented_hydrostatic_corpus_input",
+              "restraints": [
+                "UX",
+                "UY",
+                "UZ",
+                "RX"
+              ]
+            },
+            {
+              "family": "spring",
+              "id": "support:b",
+              "node": "node:b",
+              "provenance": "invented_hydrostatic_corpus_input",
+              "restraints": [
+                "UZ"
+              ],
+              "stiffness": {
+                "dof": "UZ",
+                "value": {
+                  "unit": "N/m",
+                  "value": 1350000.0
+                }
+              }
+            },
+            {
+              "family": "guide",
+              "id": "support:c",
+              "node": "node:c",
+              "provenance": "invented_hydrostatic_corpus_input",
+              "restraints": [
+                "UY",
+                "UZ"
+              ]
+            }
+          ]
+        },
+        "applied_model_canonical_sha256": "sha256:08b2690838209c482b8e3744bf77de5df751ded5c7aeb28561e0423ff2b26184",
+        "outcome": {
+          "acceptance": {
+            "acceptance_basis": "user_initiated_apply_in_local_session",
+            "acceptance_is_professional_approval": false,
+            "persistence_status": "session_state_only_not_yet_saved"
+          },
+          "applied": true,
+          "audit_boundary": {
+            "applied_model_is_new_document": true,
+            "direct_model_mutation_allowed": false,
+            "input_model_mutated_in_place": false,
+            "mutation_route": "structured_operations_only",
+            "requires_user_acceptance": true
+          },
+          "change_id": "change:hydro:23",
+          "change_kind": "clear_load_case_test_condition",
+          "deliverable_refs": [
+            "DEL-16-02",
+            "DEL-16-03"
+          ],
+          "diagnostics": [],
+          "diff_preview": [
+            {
+              "after": "not_present",
+              "before": "{\"held_supports\":\"springs_and_constant_effort\",\"kind\":\"hydrostatic\"}",
+              "change_kind": "clear_load_case_test_condition",
+              "dimension": "dimensionless",
+              "entity_ref": "HT",
+              "field_path": "test_condition",
+              "object_type": "Load",
+              "unit": "none"
+            }
+          ],
+          "document_kind": "openpipestress.desktop.operation_outcome",
+          "input_model_unchanged": true,
+          "mode": "apply",
+          "model_basis": {
+            "backend_canonicalization": "rfc8785_jcs",
+            "backend_model_hash": "sha256:79dac421c2b4af00db916de1df75105a57b027cc5700a54fed5a1f6893afd3bf",
+            "binding_status": "no_claimed_hash_before_state_check_is_the_staleness_guard",
+            "claimed_hash_canonicalization": "not_provided",
+            "claimed_model_hash": "not_provided"
+          },
+          "operation_id": "op:hydro:23",
+          "operation_kind": "modify",
+          "professional_boundary": {
+            "human_review_required": true,
+            "software_makes_approval_claim": false,
+            "software_makes_authentication_claim": false,
+            "software_makes_certification_claim": false,
+            "software_makes_compliance_claim": false,
+            "software_makes_sealing_claim": false
+          },
+          "schema_version": "0.1.0",
+          "target_object_type": "Load",
+          "target_ref": "HT",
+          "validation": {
+            "application_status": "applied_to_session_model",
+            "before_state_validation": "passed",
+            "diff_preview_status": "generated",
+            "reference_validation": "passed",
+            "schema_validation": "passed",
+            "unit_validation": "passed"
+          }
+        }
+      },
+      "intent": {
+        "audit_boundary": {
+          "direct_model_mutation_allowed": false,
+          "mutates_accepted_model_state": false,
+          "mutation_route": "structured_operations_only",
+          "requires_user_acceptance": true
+        },
+        "author_type": "user",
+        "change": {
+          "after": "not_present",
+          "before": "{\"held_supports\":\"springs_and_constant_effort\",\"kind\":\"hydrostatic\"}",
+          "change_id": "change:hydro:23",
+          "change_kind": "clear_load_case_test_condition",
+          "dimension": "dimensionless",
+          "field_label": "test_condition",
+          "field_path": "test_condition",
+          "source_note": "invented hydrostatic corpus entry",
+          "unit": "none"
+        },
+        "operation_id": "op:hydro:23",
+        "operation_kind": "modify",
+        "operation_status": "proposed",
+        "professional_boundary": {
+          "human_review_required": true,
+          "software_makes_approval_claim": false,
+          "software_makes_authentication_claim": false,
+          "software_makes_certification_claim": false,
+          "software_makes_compliance_claim": false,
+          "software_makes_sealing_claim": false
+        },
+        "rationale": "Invented hydrostatic test-condition corpus operation",
+        "target": {
+          "object_type": "Load",
+          "ref": "HT"
+        },
+        "validation": {
+          "application_status": "not_applied",
+          "constraint_validation": "not_run",
+          "diff_preview_status": "not_generated",
+          "schema_validation": "not_run",
+          "unit_validation": "not_run"
+        }
+      },
+      "mode": "apply"
+    },
+    {
+      "base_model": {
+        "analysis_status": {
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
+        },
+        "combinations": [],
+        "condition_sets": [
+          {
+            "conditions": [
+              {
+                "contents_density": {
+                  "unit": "kg/m^3",
+                  "value": 1015.0
+                },
+                "key": "HYDRO"
+              }
+            ],
+            "id": "cs:line",
+            "label": "Line",
+            "provenance": "invented_hydrostatic_corpus_input"
+          }
+        ],
+        "document_kind": "openpipestress.product_preview.model",
+        "load_cases": [
+          {
+            "id": "HT",
+            "kind": "primitive_user_load",
+            "label": "Hydrotest",
+            "primitive_loads": [],
+            "provenance": "invented_hydrostatic_corpus_input",
+            "status": "draft"
+          }
+        ],
+        "materials": [
+          {
+            "elastic_modulus": {
+              "unit": "Pa",
+              "value": 203000000000.0
+            },
+            "id": "mat",
+            "provenance": "invented_hydrostatic_corpus_input",
+            "shear_modulus": {
+              "unit": "Pa",
+              "value": 78680000000.0
+            }
+          }
+        ],
+        "nodes": [
+          {
+            "id": "node:a",
+            "label": "node:a",
+            "position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_hydrostatic_corpus_input"
+          },
+          {
+            "id": "node:b",
+            "label": "node:b",
+            "position": {
+              "x": 4.3,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_hydrostatic_corpus_input"
+          },
+          {
+            "id": "node:c",
+            "label": "node:c",
+            "position": {
+              "x": 8.6,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_hydrostatic_corpus_input"
+          }
+        ],
+        "pipe_segments": [
+          {
+            "condition_set_ref": "cs:line",
+            "from": "node:a",
+            "id": "pipe:a-b",
+            "material": "mat",
+            "provenance": "invented_hydrostatic_corpus_input",
+            "section": {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 865.0
+              },
+              "material_density": {
+                "unit": "kg/m^3",
+                "value": 7830.0
+              },
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.29
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.0135
+              }
+            },
+            "to": "node:b",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:line",
+            "from": "node:b",
+            "id": "pipe:b-c",
+            "material": "mat",
+            "provenance": "invented_hydrostatic_corpus_input",
+            "section": {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 865.0
+              },
+              "material_density": {
+                "unit": "kg/m^3",
+                "value": 7830.0
+              },
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.29
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.0135
+              }
+            },
+            "to": "node:c",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          }
+        ],
+        "project": {
+          "id": "invented:hydrostatic-corpus",
+          "units": {
+            "angle": "rad",
+            "force": "N",
+            "length": "m",
+            "pressure": "Pa",
+            "stress": "Pa",
+            "temperature": "degC"
+          }
+        },
+        "schema_version": "0.9.0",
+        "supports": [
+          {
+            "family": "guide",
+            "id": "support:a",
+            "node": "node:a",
+            "provenance": "invented_hydrostatic_corpus_input",
+            "restraints": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX"
+            ]
+          },
+          {
+            "family": "spring",
+            "id": "support:b",
+            "node": "node:b",
+            "provenance": "invented_hydrostatic_corpus_input",
+            "restraints": [
+              "UZ"
+            ],
+            "stiffness": {
+              "dof": "UZ",
+              "value": {
+                "unit": "N/m",
+                "value": 1350000.0
+              }
+            }
+          },
+          {
+            "family": "guide",
+            "id": "support:c",
+            "node": "node:c",
+            "provenance": "invented_hydrostatic_corpus_input",
+            "restraints": [
+              "UY",
+              "UZ"
+            ]
+          }
+        ]
+      },
+      "case_id": "hydro_24_block_set_test_condition_pressure_free",
+      "claimed_model_hash": null,
+      "description": "A hydrostatic test condition is not authored on the pressure-free route (LOAD_CASE_TEST_CONDITION_PRESSURE_FREE).",
+      "expected": {
+        "applied_model": null,
+        "applied_model_canonical_sha256": null,
+        "outcome": {
+          "acceptance": {
+            "acceptance_basis": "none_validation_only",
+            "acceptance_is_professional_approval": false,
+            "persistence_status": "not_applicable_no_application"
+          },
+          "applied": false,
+          "audit_boundary": {
+            "applied_model_is_new_document": false,
+            "direct_model_mutation_allowed": false,
+            "input_model_mutated_in_place": false,
+            "mutation_route": "structured_operations_only",
+            "requires_user_acceptance": true
+          },
+          "change_id": "change:hydro:24",
+          "change_kind": "set_load_case_test_condition",
+          "deliverable_refs": [
+            "DEL-16-02",
+            "DEL-16-03"
+          ],
+          "diagnostics": [
+            {
+              "affected_refs": [
+                "HT"
+              ],
+              "blocking": true,
+              "code": "LOAD_CASE_TEST_CONDITION_PRESSURE_FREE",
+              "severity": "blocking"
+            }
+          ],
+          "diff_preview": [],
+          "document_kind": "openpipestress.desktop.operation_outcome",
+          "input_model_unchanged": true,
+          "mode": "apply",
+          "model_basis": {
+            "backend_canonicalization": "rfc8785_jcs",
+            "backend_model_hash": "sha256:95949053840469ff1a50dc36f24a431250239b4531943fc80c7c5afa02a404b4",
+            "binding_status": "no_claimed_hash_before_state_check_is_the_staleness_guard",
+            "claimed_hash_canonicalization": "not_provided",
+            "claimed_model_hash": "not_provided"
+          },
+          "operation_id": "op:hydro:24",
+          "operation_kind": "modify",
+          "professional_boundary": {
+            "human_review_required": true,
+            "software_makes_approval_claim": false,
+            "software_makes_authentication_claim": false,
+            "software_makes_certification_claim": false,
+            "software_makes_compliance_claim": false,
+            "software_makes_sealing_claim": false
+          },
+          "schema_version": "0.1.0",
+          "target_object_type": "Load",
+          "target_ref": "HT",
+          "validation": {
+            "application_status": "blocked",
+            "before_state_validation": "not_run",
+            "diff_preview_status": "blocked_by_validation",
+            "reference_validation": "not_run",
+            "schema_validation": "passed",
+            "unit_validation": "not_run"
+          }
+        }
+      },
+      "intent": {
+        "audit_boundary": {
+          "direct_model_mutation_allowed": false,
+          "mutates_accepted_model_state": false,
+          "mutation_route": "structured_operations_only",
+          "requires_user_acceptance": true
+        },
+        "author_type": "user",
+        "change": {
+          "after": "{\"kind\": \"hydrostatic\", \"held_supports\": \"springs_and_constant_effort\"}",
+          "before": "not_present",
+          "change_id": "change:hydro:24",
+          "change_kind": "set_load_case_test_condition",
+          "dimension": "dimensionless",
+          "field_label": "test_condition",
+          "field_path": "test_condition",
+          "source_note": "invented hydrostatic corpus entry",
+          "unit": "none"
+        },
+        "operation_id": "op:hydro:24",
+        "operation_kind": "modify",
+        "operation_status": "proposed",
+        "professional_boundary": {
+          "human_review_required": true,
+          "software_makes_approval_claim": false,
+          "software_makes_authentication_claim": false,
+          "software_makes_certification_claim": false,
+          "software_makes_compliance_claim": false,
+          "software_makes_sealing_claim": false
+        },
+        "rationale": "Invented hydrostatic test-condition corpus operation",
+        "target": {
+          "object_type": "Load",
+          "ref": "HT"
+        },
+        "validation": {
+          "application_status": "not_applied",
+          "constraint_validation": "not_run",
+          "diff_preview_status": "not_generated",
+          "schema_validation": "not_run",
+          "unit_validation": "not_run"
+        }
+      },
+      "mode": "apply"
+    },
+    {
+      "base_model": {
+        "analysis_status": {
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
+        },
+        "combinations": [],
+        "condition_sets": [
+          {
+            "conditions": [
+              {
+                "contents_density": {
+                  "unit": "kg/m^3",
+                  "value": 1015.0
+                },
+                "key": "HYDRO"
+              }
+            ],
+            "id": "cs:line",
+            "label": "Line",
+            "provenance": "invented_hydrostatic_corpus_input"
+          }
+        ],
+        "document_kind": "openpipestress.product_preview.model",
+        "load_cases": [
+          {
+            "condition_use": {
+              "contents_density": "HYDRO"
+            },
+            "id": "HT",
+            "kind": "primitive_user_load",
+            "label": "Hydrotest",
+            "pressure_regions": [],
+            "primitive_loads": [],
+            "provenance": "invented_hydrostatic_corpus_input",
+            "status": "draft",
+            "test_condition": {
+              "held_supports": "springs_and_constant_effort",
+              "kind": "hydrostatic"
+            }
+          }
+        ],
+        "materials": [
+          {
+            "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+            "elastic_modulus": {
+              "unit": "Pa",
+              "value": 203000000000.0
+            },
+            "id": "mat",
+            "poisson_ratio": {
+              "unit": "1",
+              "value": 0.29
+            },
+            "provenance": "invented_hydrostatic_corpus_input"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "node:a",
+            "label": "node:a",
+            "position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_hydrostatic_corpus_input"
+          },
+          {
+            "id": "node:b",
+            "label": "node:b",
+            "position": {
+              "x": 4.3,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_hydrostatic_corpus_input"
+          },
+          {
+            "id": "node:c",
+            "label": "node:c",
+            "position": {
+              "x": 8.6,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_hydrostatic_corpus_input"
+          }
+        ],
+        "pipe_segments": [
+          {
+            "condition_set_ref": "cs:line",
+            "from": "node:a",
+            "id": "pipe:a-b",
+            "material": "mat",
+            "provenance": "invented_hydrostatic_corpus_input",
+            "section": {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 865.0
+              },
+              "corrosion_allowance": {
+                "unit": "m",
+                "value": 0.0021
+              },
+              "material_density": {
+                "unit": "kg/m^3",
+                "value": 7830.0
+              },
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.29
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.0135
+              }
+            },
+            "to": "node:b",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:line",
+            "from": "node:b",
+            "id": "pipe:b-c",
+            "material": "mat",
+            "provenance": "invented_hydrostatic_corpus_input",
+            "section": {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 865.0
+              },
+              "corrosion_allowance": {
+                "unit": "m",
+                "value": 0.0021
+              },
+              "material_density": {
+                "unit": "kg/m^3",
+                "value": 7830.0
+              },
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.29
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.0135
+              }
+            },
+            "to": "node:c",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          }
+        ],
+        "pressure_contract": {
+          "mode": "exact_pressure_v3",
+          "shear_model": "euler_bernoulli",
+          "version": "3.0.0"
+        },
+        "project": {
+          "id": "invented:hydrostatic-corpus",
+          "units": {
+            "angle": "rad",
+            "force": "N",
+            "length": "m",
+            "pressure": "Pa",
+            "stress": "Pa",
+            "temperature": "degC"
+          }
+        },
+        "schema_version": "0.9.0",
+        "supports": [
+          {
+            "family": "guide",
+            "id": "support:a",
+            "node": "node:a",
+            "provenance": "invented_hydrostatic_corpus_input",
+            "restraints": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX"
+            ]
+          },
+          {
+            "family": "spring",
+            "id": "support:b",
+            "node": "node:b",
+            "provenance": "invented_hydrostatic_corpus_input",
+            "restraints": [
+              "UZ"
+            ],
+            "stiffness": {
+              "dof": "UZ",
+              "value": {
+                "unit": "N/m",
+                "value": 1350000.0
+              }
+            }
+          },
+          {
+            "family": "guide",
+            "id": "support:c",
+            "node": "node:c",
+            "provenance": "invented_hydrostatic_corpus_input",
+            "restraints": [
+              "UY",
+              "UZ"
+            ]
+          }
+        ]
+      },
+      "case_id": "hydro_25_block_clear_test_condition_with_contents",
+      "claimed_model_hash": null,
+      "description": "Clearing the test condition while its contents selection stands would leave an ordinary case using contents on the exact route; refused by the route code (LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED). Clear the selection first.",
+      "expected": {
+        "applied_model": null,
+        "applied_model_canonical_sha256": null,
+        "outcome": {
+          "acceptance": {
+            "acceptance_basis": "none_validation_only",
+            "acceptance_is_professional_approval": false,
+            "persistence_status": "not_applicable_no_application"
+          },
+          "applied": false,
+          "audit_boundary": {
+            "applied_model_is_new_document": false,
+            "direct_model_mutation_allowed": false,
+            "input_model_mutated_in_place": false,
+            "mutation_route": "structured_operations_only",
+            "requires_user_acceptance": true
+          },
+          "change_id": "change:hydro:25",
+          "change_kind": "clear_load_case_test_condition",
+          "deliverable_refs": [
+            "DEL-16-02",
+            "DEL-16-03"
+          ],
+          "diagnostics": [
+            {
+              "affected_refs": [
+                "HT"
+              ],
+              "blocking": true,
+              "code": "LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED",
+              "severity": "blocking"
+            }
+          ],
+          "diff_preview": [],
+          "document_kind": "openpipestress.desktop.operation_outcome",
+          "input_model_unchanged": true,
+          "mode": "apply",
+          "model_basis": {
+            "backend_canonicalization": "rfc8785_jcs",
+            "backend_model_hash": "sha256:683ad7ed69963073da84b6b4ebd247ed655e4da53b30c5fcaa92a8e444673dc7",
+            "binding_status": "no_claimed_hash_before_state_check_is_the_staleness_guard",
+            "claimed_hash_canonicalization": "not_provided",
+            "claimed_model_hash": "not_provided"
+          },
+          "operation_id": "op:hydro:25",
+          "operation_kind": "modify",
+          "professional_boundary": {
+            "human_review_required": true,
+            "software_makes_approval_claim": false,
+            "software_makes_authentication_claim": false,
+            "software_makes_certification_claim": false,
+            "software_makes_compliance_claim": false,
+            "software_makes_sealing_claim": false
+          },
+          "schema_version": "0.1.0",
+          "target_object_type": "Load",
+          "target_ref": "HT",
+          "validation": {
+            "application_status": "blocked",
+            "before_state_validation": "passed",
+            "diff_preview_status": "blocked_by_validation",
+            "reference_validation": "passed",
+            "schema_validation": "passed",
+            "unit_validation": "passed"
+          }
+        }
+      },
+      "intent": {
+        "audit_boundary": {
+          "direct_model_mutation_allowed": false,
+          "mutates_accepted_model_state": false,
+          "mutation_route": "structured_operations_only",
+          "requires_user_acceptance": true
+        },
+        "author_type": "user",
+        "change": {
+          "after": "not_present",
+          "before": "{\"held_supports\":\"springs_and_constant_effort\",\"kind\":\"hydrostatic\"}",
+          "change_id": "change:hydro:25",
+          "change_kind": "clear_load_case_test_condition",
+          "dimension": "dimensionless",
+          "field_label": "test_condition",
+          "field_path": "test_condition",
+          "source_note": "invented hydrostatic corpus entry",
+          "unit": "none"
+        },
+        "operation_id": "op:hydro:25",
+        "operation_kind": "modify",
+        "operation_status": "proposed",
+        "professional_boundary": {
+          "human_review_required": true,
+          "software_makes_approval_claim": false,
+          "software_makes_authentication_claim": false,
+          "software_makes_certification_claim": false,
+          "software_makes_compliance_claim": false,
+          "software_makes_sealing_claim": false
+        },
+        "rationale": "Invented hydrostatic test-condition corpus operation",
         "target": {
           "object_type": "Load",
           "ref": "HT"
