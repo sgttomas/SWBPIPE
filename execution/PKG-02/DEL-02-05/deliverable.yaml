@@ -124,6 +124,10 @@ code_paths:
 - apps/desktop/src/features/workspace/storedProposalAdmission.ts
 - apps/desktop/src/features/workspace/storedProposalAdmission.test.ts
 - apps/desktop/src/features/workspace/storedProposalAdmission.session.test.tsx
+# The status line's publication count, by which a late write's sentence about the stored proposal
+# hides no newer status (issue 519).
+- apps/desktop/src/features/workspace/projectSessionState.ts
+- apps/desktop/src/features/workspace/projectSessionState.test.ts
 # The session's check of a save's returned hash claims (shared with DEL-07-11).
 - apps/desktop/src/features/workspace/savedModelBasis.ts
 # The native saves' keeping of a stored proposal (issue 519). The files are shared with DEL-07-07 and
@@ -157,6 +161,7 @@ checks:
 - apps/desktop/src/App.storedProposalWithoutMembers.test.tsx
 - apps/desktop/src/features/workspace/storedProposalAdmission.test.ts
 - apps/desktop/src/features/workspace/storedProposalAdmission.session.test.tsx
+- apps/desktop/src/features/workspace/projectSessionState.test.ts
 - apps/desktop/src-tauri/src/native_persistence_tests.rs
 - apps/desktop/src-tauri/src/stored_save_tests.rs
 - apps/desktop/e2e/b3b-project-persistence.spec.ts

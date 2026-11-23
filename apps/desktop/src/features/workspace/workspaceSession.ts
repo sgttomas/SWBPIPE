@@ -826,6 +826,7 @@ export function useWorkspaceSession() {
     modelDocumentVersion, setModelDocumentVersion,
     projectEnvelopeHashIntegrity, setProjectEnvelopeHashIntegrity,
     projectMessage, projectMessageDetails, setProjectMessage,
+    projectMessagePublications, settleLateProjectMessage,
     projectOperation, setProjectOperation,
     projectBusy, setProjectBusy
   } = useProjectSessionState(reportSource.owner.advance);
@@ -3426,8 +3427,9 @@ export function useWorkspaceSession() {
     if (!model) return;
     const owner = acquireProjectOperation();
     if (!owner) return;
-    // Issue 519: the status line as this write found it, so that a late outcome never hides a newer one.
-    const messageAtStart = projectMessage;
+    // Issue 519: the status line's publications when this write began, so that a late outcome never
+    // hides a newer one.
+    const publicationsAtStart = projectMessagePublications.current;
     const request = ++projectRequest.current;
     let epoch = requestEpochRef.current;
     // Save as a new project follows the session's own adoption of the renamed
@@ -3577,7 +3579,7 @@ export function useWorkspaceSession() {
         // takes the line only if nothing newer was published there (a close refused while the write ran
         // publishes without a new request); otherwise it is added to that newer message.
         const outcome = writtenStoredProposalSentence(unadmitted, { projectId: requestModel.project.id, generation, kept: false, replacedWhole: true });
-        if (outcome) setProjectMessage((current) => current === messageAtStart ? `${created.summary.message}${outcome}` : `${current}${outcome}`);
+        if (outcome) settleLateProjectMessage(publicationsAtStart, `${created.summary.message}${outcome}`, outcome);
       };
       if (!stillCurrent()) { keepStoredBinding(); return; }
       const returnedHistory = requestHistoricalRun
@@ -4415,8 +4417,9 @@ export function useWorkspaceSession() {
     if (!model) return;
     const owner = acquireProjectOperation();
     if (!owner) return;
-    // Issue 519: the status line as this write found it, so that a late outcome never hides a newer one.
-    const messageAtStart = projectMessage;
+    // Issue 519: the status line's publications when this write began, so that a late outcome never
+    // hides a newer one.
+    const publicationsAtStart = projectMessagePublications.current;
     const request = ++projectRequest.current;
     let epoch = requestEpochRef.current;
     // Save as a new project follows the session's own adoption of the renamed
@@ -4622,7 +4625,7 @@ export function useWorkspaceSession() {
         // takes the line only if nothing newer was published there (a close refused while the write ran
         // publishes without a new request); otherwise it is added to that newer message.
         const outcome = writtenStoredProposalSentence(unadmitted, { projectId: requestModel.project.id, generation, kept, replacedWhole: keepStoredProposal && !kept });
-        if (outcome) setProjectMessage((current) => current === messageAtStart ? `${saved.summary.message}${outcome}` : `${current}${outcome}`);
+        if (outcome) settleLateProjectMessage(publicationsAtStart, `${saved.summary.message}${outcome}`, outcome);
       };
       if (!stillCurrent()) { keepStoredBinding(); return; }
       // A kept save's history is read from the stored envelope as written (the browser preview's
