@@ -18,7 +18,7 @@
 //                          results and each of its views, the Evidence tab, the Analyze page, the Issues drawer.
 //   report             21  Solved, then the Review stage, the Report tab, "Load for…" where offered, the composer,
 //                          Render (local private), the preview, Open in a window (what its protocol served the
-//                          window recorded; the window left open), Save Shareable Report Package… to its release dialog
+//                          window recorded; fails unless it opened and was served the render; then closed), Save Shareable Report Package… to its release dialog
 //                          and its Cancel, Save Report Package… answered by the queued chooser, the outcome list.
 //                          Print is not pressed.
 //   exports            22  Solved, then the Exports page, top to foot.

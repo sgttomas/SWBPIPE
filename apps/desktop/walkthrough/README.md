@@ -67,7 +67,7 @@ VER-007 asks: `redrawn` is true where the picture is the app's document
 redrawn outside its window, and `substitutions` lists each act of the
 scripted-run build the step used in place of a person's (the file a chooser
 returns, a native menu command, a request to quit or to close the main window,
-the report print dialog). For the launched
+the report print dialog, the close of a report view window). For the launched
 app, the index's `native_surfaces` records each native surface: the window,
 the menu bar as drawn, the file chooser, the print dialog, the 3D view and any
 other native dialog. Each is supplied only by an attended capture of it in the
@@ -124,7 +124,7 @@ nothing. A launch invocation builds nothing: anything stale refuses it by name.
 | Journey | No. | What a person meets |
 | --- | --- | --- |
 | `solve-and-results` | 20 | The bundled demonstration model: Run, the progress, the Results stage and each of its panels scrolled to its foot, the filter to a support's rows, a row chosen and its place in the viewport, Key results and each of its views, the Evidence tab, the Analyze page, the Issues drawer. |
-| `report` | 21 | Solved, then the Review stage, the Report tab, "Load for…" where offered, the composer, Render (local private), the preview, Open in a window (what its protocol served the window is recorded; the window is left open), Save Shareable Report Package… to its release dialog and Cancel, Save Report Package… with its chooser answered inside the throwaway home, the outcome list. Print is not pressed. |
+| `report` | 21 | Solved, then the Review stage, the Report tab, "Load for…" where offered, the composer, Render (local private), the preview, Open in a window (what its protocol served the window is recorded, and the step fails unless it opened and was served the render; the window is then closed), Save Shareable Report Package… to its release dialog and Cancel, Save Report Package… with its chooser answered inside the throwaway home, the outcome list. Print is not pressed. |
 | `exports` | 22 | Solved, then the Exports page, top to foot. |
 | `reference-system` | 23 | Named alone, for its long solve: File > Open Model Document… of the reference system fixture, Run, the standing, the health line, Results, Report. |
 | `prepared-project` | 24 | A model document placed in the throwaway home before launch, opened by File > Open Model Document…: the start other journeys build on. |
