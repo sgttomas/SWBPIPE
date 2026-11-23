@@ -31,6 +31,8 @@ export const INGRESS_COMMANDS: ReadonlySet<string> = new Set([
   // DEL-08-01 REQ-022: the rendered report's HTML save and print (`retire_rendered_report` takes only a source and request ordinal).
   "save_rendered_report_html",
   "print_rendered_report",
+  // DEL-08-01 REQ-022: Open in a window (`report_view.rs`), named like the print; no document is sent.
+  "open_rendered_report_view",
   "save_local_result_json",
   "begin_local_csv_stream",
   "append_local_csv_stream",

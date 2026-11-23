@@ -1712,3 +1712,68 @@ test("the scripted-run print record is confined to the native-smoke build", () =
   }
   assert.match(read("native_smoke.rs"), /fn append_print_log\(path: &Path, observation: &ReportPrintObservation\)/);
 });
+
+test("the report journey's view-window step fails unless the window opened and was served the render, then closes it", async () => {
+  const driver = readFileSync(new URL("./driver.js", import.meta.url), "utf8");
+  const H = "a".repeat(64);
+  const served = (sha = H) => [{ window_label: "report-view-1", kind: "current_render", identity_sha256_hex: H, wrapper_served: true, document_served: true, document_sha256_hex: sha, document_byte_count: 10 }];
+  const run = async ({ status = "Report opened in a window.", views = served(), closed = ["report-view-1"] } = {}) => {
+    const calls = [];
+    let pressed = false;
+    const element = (fields) => ({ disabled: false, getAttribute: () => null, closest: () => null, checkVisibility: () => true, ...fields });
+    const button = element({ textContent: "Open in a window", click: () => { pressed = true; } });
+    const document = {
+      visibilityState: "hidden",
+      querySelector: (selector) => {
+        if (/desktop-preview-shell|tree-row-project/.test(selector)) return {};
+        if (selector.includes('"rendered-report-open-window"')) return button;
+        if (selector.includes('"rendered-report-view-status"')) return pressed ? element({ textContent: status }) : null;
+        if (selector.includes('"rendered-report-hash"')) return element({ textContent: `Canonical HTML SHA-256: ${H}` });
+        return null;
+      },
+      querySelectorAll: () => [], hasFocus: () => false, body: {}
+    };
+    let finished;
+    const done = new Promise((resolve) => { finished = resolve; });
+    const window = {
+      __TAURI_INTERNALS__: {
+        invoke: async (command, args) => {
+          calls.push([command, args]);
+          if (command === "native_smoke_plan") return { show_window: false, nonce: "n", journey: "probe", timeouts: { ui: 50, step: 50 } };
+          if (command === "native_smoke_menu_items") return [];
+          if (command === "native_smoke_take_report_views") { const answer = views; views = []; return answer; }
+          if (command === "native_smoke_close_report_views") return closed;
+          if (command === "native_smoke_finish") finished(args.report);
+          return null;
+        }
+      },
+      addEventListener: () => {}
+    };
+    const script = composeDriver(driver.replace('const JOURNEYS = { "solve-and-results"', 'const JOURNEYS = { probe: async (journey) => { await journey.step("view-window", "Open in a window", openViewWindow); }, "solve-and-results"'));
+    vm.runInNewContext(script, { window, document, navigator: { userAgent: "test" }, CSS: { escape: (text) => text }, setTimeout, Date, JSON, Promise, String, Error, Boolean, Object, Math, Array, Set, Map, RegExp, encodeURIComponent, getComputedStyle: () => ({}), requestAnimationFrame: (callback) => setTimeout(callback, 0), innerWidth: 1, innerHeight: 1, devicePixelRatio: 1, matchMedia: () => ({ matches: false }) });
+    const report = await done;
+    const step = JSON.parse(JSON.stringify(calls.find(([command, args]) => command === "native_smoke_checkpoint" && /^step-/.test(args.name))[1].report));
+    return { report, step, order: calls.map(([command]) => command), pressed };
+  };
+
+  const ok = await run();
+  assert.equal(ok.pressed, true);
+  assert.equal(ok.step.failed, undefined, ok.step.failed);
+  assert.equal(ok.report.stopped_at, null);
+  assert.match(ok.step.note, /Report opened in a window\. report-view-1 current_render: wrapper served, document served \(10 B, SHA-256 a{64}, the render's\); closed report-view-1$/);
+  // Closed after what was served is read, and the close is marked as the build's substitution.
+  assert.ok(ok.order.lastIndexOf("native_smoke_take_report_views") < ok.order.indexOf("native_smoke_close_report_views"));
+  assert.deepEqual(ok.step.substitutions.map((item) => item.kind), ["report view window close"]);
+
+  for (const [scenario, why] of [
+    [{ status: "The report could not be opened in a window: refused (REPORT-VIEW-DOCUMENT-REFUSED)" }, /the report window did not open: The report could not be opened/],
+    [{ status: "The report's window was brought forward." }, /the report window did not open/],
+    [{ views: [] }, /was not served its document within/],
+    [{ views: served("b".repeat(64)) }, /served a document of SHA-256 b{64}, not the render's a{64}/],
+    [{ closed: [] }, /the report window report-view-1 was not closed/]
+  ]) {
+    const failed = await run(scenario);
+    assert.match(failed.step.failed ?? "", why, JSON.stringify(scenario));
+    assert.equal(failed.report.stopped_at, "view-window");
+  }
+});

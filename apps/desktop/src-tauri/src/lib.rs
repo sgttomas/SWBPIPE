@@ -74,6 +74,7 @@ mod report_session_diagnostics_tests;
 mod report_render_exact;
 mod rendered_report_print;
 mod rendered_report_routes;
+mod report_view;
 #[cfg(test)]
 mod report_render_exact_tests;
 #[cfg(test)]
@@ -6255,8 +6256,13 @@ fn request_close<R: tauri::Runtime>(app: &tauri::AppHandle<R>, kind: close_guard
     }
 }
 
-/// Closes or quits once the guard approved the request.
+/// Closes or quits once the guard approved the request. First the rendered
+/// report is retired and then every report view window is asked to close (the
+/// two in turn, neither lock held across the other), so that nothing of the
+/// render stays current or shown while the application ends.
 fn finish_close<R: tauri::Runtime>(app: &tauri::AppHandle<R>, kind: close_guard::CloseKind) {
+    rendered_report_routes::retire_for_shutdown();
+    report_view::shutdown();
     match (kind, app.get_webview_window("main")) {
         (close_guard::CloseKind::Window, Some(window)) => {
             if let Err(error) = window.destroy() {
@@ -7192,6 +7198,7 @@ macro_rules! app_invoke_handler {
             save_report_package,
             rendered_report_routes::save_rendered_report_html,
             rendered_report_print::print_rendered_report,
+            report_view::open_rendered_report_view,
             rendered_report_routes::retire_rendered_report,
             rendered_report_routes::observe_report_source,
             rendered_report_routes::activate_report_source,
@@ -7212,6 +7219,7 @@ pub fn run() {
     let builder = tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .register_uri_scheme_protocol(rendered_report_print::SCHEME, rendered_report_print::serve)
+        .register_asynchronous_uri_scheme_protocol(report_view::SCHEME, report_view::serve)
         .manage(registry.clone())
         .manage(native_result_download::SaveAdmission::default())
         .manage(Arc::new(native_csv_stream::CsvStreams::default()))
@@ -7255,6 +7263,8 @@ pub fn run() {
         native_smoke::native_smoke_read_report_package,
         native_smoke::native_smoke_take_report_prints,
         native_smoke::native_smoke_close_report_print,
+        native_smoke::native_smoke_take_report_views,
+        native_smoke::native_smoke_close_report_views,
         native_smoke::native_smoke_checkpoint,
         native_smoke::native_smoke_finish,
     )));
@@ -7262,6 +7272,18 @@ pub fn run() {
         .build(tauri::generate_context!())
         .expect("error while building SWBPIPE")
         .run(|app, event| {
+            // A report view window's destruction, and the main window's, from
+            // the callback that exists from setup (report_view, "Closing").
+            if let tauri::RunEvent::WindowEvent { label, event: tauri::WindowEvent::Destroyed, .. } = &event {
+                report_view::window_destroyed(label);
+            }
+            // An exit request (an accepted quit, or the last window gone),
+            // before the embedded host can hold the exit while it drains: the
+            // render is retired, then every view window is asked to close.
+            if let tauri::RunEvent::ExitRequested { .. } = &event {
+                rendered_report_routes::retire_for_shutdown();
+                report_view::shutdown();
+            }
             #[cfg(target_os = "macos")]
             if let tauri::RunEvent::ExitRequested { api, .. } = event {
                 if !app.state::<embedded_agent::live_host::Host>().shutdown(app) {

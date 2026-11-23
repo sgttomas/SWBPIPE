@@ -632,13 +632,17 @@ const ENTRY_RULES: [(&str, &str, Entry); 6] = [
 /// `check_saved_package_entry`, `remove_saved_package_entry` and
 /// `keep_held_saved_package_entries`; the previous digest `659a5501…a8939a8`
 /// reproduced first; no `mod`, no `$parameter ::`, no scanned name).
+/// The report view window adds one ordinary handler entry after
+/// `print_rendered_report`: `open_rendered_report_view` (the previous digest
+/// `4511e433…ee63b14` reproduced first; the macro's only change is that line;
+/// no `mod`, no `$parameter ::`, no scanned name).
 /// Rule checks on the natively held result (#489) add one ordinary handler
 /// entry after `run_rule_checks`:
-/// `preview_rule_solver_rows` (the previous digest `4511e433…ee63b14`
+/// `preview_rule_solver_rows` (the previous digest `8abc6274…988bafdb`
 /// reproduced first; the macro's only change is that line; no `mod`, no
 /// `$parameter ::`, no scanned name).
 const MACRO_DEFINITIONS: [(&str, &str, &str); 3] = [
-    ("src-tauri/src/lib.rs", "app_invoke_handler", "91d16a56a0b9b51b4f68024c9c4e0a9a320c7febda119e853dda76bc32ed614c"),
+    ("src-tauri/src/lib.rs", "app_invoke_handler", "717241b3864df88e9d347f8cd769c8925cf0fe7d017e1fd0fd56a72d09ba446d"),
     ("headless/src/reader_binding.rs", "base", "d80e766036e0f651522ebfe11ebc6ba1fc32ec2b9c2b3702e0b978eb86558cb2"),
     ("headless/src/reader_binding.rs", "transport", "057aa56311a7531f094632a3fe9f2d781b9364ab4865add6c7d257403732169a"),
 ];

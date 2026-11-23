@@ -50,8 +50,8 @@
 //! command's product and is admitted in this class when the render is
 //! recorded ([`MemoryPool::acquire_interactive_resampling`]), counted as
 //! custody, for the current render's document only, and released when the
-//! render is retired or is superseded before it is recorded, or when a write
-//! or a print derivation already using it ends.
+//! render is retired or is superseded before it is recorded, or when a write,
+//! a print derivation or a window's serve already using it ends.
 //!
 //! Residency credit: a running worker's pages that are already resident were
 //! taken from the free queue when they were touched, so the headroom verdict

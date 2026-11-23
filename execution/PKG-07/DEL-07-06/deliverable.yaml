@@ -16,7 +16,7 @@ needs:
   condition: >-
     The scripted-run build drives the desktop by script, and what it substitutes is what the shell's
     scope declares: the file the chooser returns, the native menu commands, a request to quit or to
-    close the main window, and the report print dialog.
+    close the main window, the report print dialog, and the close of a report view window.
   gating: true
 - from: DEL-07-02
   when: Examining the timed-entry use case
