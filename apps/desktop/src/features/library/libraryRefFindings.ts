@@ -2,7 +2,8 @@
 // §2.7): MODEL-LIBRARY-REF-UNRESOLVED and MODEL-LIBRARY-REF-VERSION-CHANGED,
 // both warnings. They are published by the project open and model-document
 // open paths and by the Library Manager's list refresh, and read by the
-// diagnostics list and the inspector's Provenance record section.
+// diagnostics list and the inspector's Provenance record section. Only the
+// latest check of the open project publishes (`publishLibraryRefFindingsIfCurrent`).
 //
 // A finding is shown only while the entity still carries the reference it was
 // raised on (same library, record and recorded version), so a re-apply, an
@@ -38,12 +39,67 @@ function freezeFindingValue(value: unknown): void {
   for (const member of Object.values(value)) freezeFindingValue(member);
 }
 
-export function publishLibraryRefFindings(projectId: string, findings: LibraryRefFinding[]): void {
+function publish(projectId: string, findings: LibraryRefFinding[]): void {
   // Neither a publisher's retained record nor a consumer may change this capture.
   const snapshot = structuredClone(findings);
   freezeFindingValue(snapshot);
   published = Object.freeze({ projectId, findings: snapshot });
   for (const listener of listeners) listener();
+}
+
+// The checks' order. A check reads the store asynchronously, so its answer may
+// arrive after the project changed or after a later check of the same project
+// started. Each change of the active project, each check begun and each direct
+// publication takes the next number; a check's answer is published only while
+// its project is still the active one and its number is still the latest.
+let activeProjectId = "";
+let latestSequence = 0;
+// Advances with each change of the session's project only, so work begun under
+// one project can tell that the session has since moved, even to the same id.
+let activeProjectGeneration = 0;
+
+/** The session's project changed (an open, a create, a state adopted): every check in flight is superseded. */
+export function setActiveLibraryRefProject(projectId: string): void {
+  activeProjectId = projectId;
+  latestSequence += 1;
+  activeProjectGeneration += 1;
+}
+
+/** The number of times the session's project has been set; checks and publications leave it unchanged. */
+export function activeLibraryRefProjectGeneration(): number {
+  return activeProjectGeneration;
+}
+
+/** A check of `projectId`'s references starts: it supersedes every check in flight. Its number is returned. */
+export function beginLibraryRefCheck(projectId: string): number {
+  activeProjectId = projectId;
+  latestSequence += 1;
+  return latestSequence;
+}
+
+/** A check of `projectId`'s references starts only while `projectId` is the
+ * active project (or none is active yet): a check for a project the session has
+ * left begins nothing, changes neither the active project nor the latest check,
+ * and returns null. Otherwise it supersedes every check in flight and its number is returned. */
+export function beginLibraryRefCheckIfActive(projectId: string): number | null {
+  if (activeProjectId !== "" && projectId !== activeProjectId) return null;
+  activeProjectId = projectId;
+  latestSequence += 1;
+  return latestSequence;
+}
+
+/** Publishes a check's answer only while `projectId` is the active project and `sequence` the latest check; returns whether it did. */
+export function publishLibraryRefFindingsIfCurrent(projectId: string, sequence: number, findings: LibraryRefFinding[]): boolean {
+  if (projectId !== activeProjectId || sequence !== latestSequence) return false;
+  publish(projectId, findings);
+  return true;
+}
+
+/** Publishes at once, superseding every check in flight. */
+export function publishLibraryRefFindings(projectId: string, findings: LibraryRefFinding[]): void {
+  activeProjectId = projectId;
+  latestSequence += 1;
+  publish(projectId, findings);
 }
 
 /** The current publication. */

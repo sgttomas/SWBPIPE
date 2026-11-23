@@ -3,7 +3,7 @@
 
 The use case: the person opens a model that lacks values a solve requires;
 every missing value is shown as a finding on its entity; from each finding
-the person reaches the entity and enters the value; and the solve, refused
+the person reaches the entity and enters the value; and the solve, withheld
 before, then completes.
 
 This module judges a trace of that use case offline. The trace is an
@@ -29,7 +29,9 @@ Executions. Each solve request the harness observed has its own
 carries the model binding of the job that started; a custody record that
 contradicts it is rejected. A withheld Solve is evidenced by its request
 identity and the gate's own record; it has no native job, and a native job
-that appears for it is itself a finding. Native custody of a result
+that appears for it is itself a finding. The first execution is a withheld
+Solve on the start model; an executed solve, refused or not, is admitted only
+after it. Native custody of a result
 (`native_custody`) is kept apart from the run handle the agent can read
 (`result_handle`): a blocked result is held natively but is not readable.
 
@@ -71,7 +73,9 @@ OBSERVATION_SCHEMA = "swbpipe-agent-missing-data-observation/2"
 ADMITTED_MODE = "agent with a scripted provider"
 OBSERVER = "desktop_harness"
 # A solve that did not solve: withheld by the Solve gate (no job), refused as a
-# job, or ended as an incomplete model with no result.
+# job, or ended as an incomplete model with no result. The first solve of the use
+# case is withheld: the checks report every missing value before any solve, so the
+# Solve gate starts no job on the start model. A later solve may be any of these.
 WITHHELD = "withheld"
 NOT_SOLVED = (WITHHELD, "refused", "model_incomplete")
 OUTCOMES = NOT_SOLVED + ("completed", "failed", "cancelled")
@@ -529,21 +533,23 @@ def judge_trace(verdict: Verdict, scenario: Scenario, obs: dict) -> None:
     initial = by_request.get(obs["initial_execution"])
     final = by_request.get(obs["final_execution"])
     if obs["initial_execution"] == obs["final_execution"]:
-        verdict.fail("EXECUTION-ALIAS", "the refused and the completed solve are the same execution")
+        verdict.fail("EXECUTION-ALIAS", "the withheld and the completed solve are the same execution")
     if initial is None or final is None:
         verdict.fail("EXECUTION-UNKNOWN", "the initial or final execution is not among the observed solve requests")
         return
     if executions[0] is not initial or executions[-1] is not final:
-        verdict.fail("EXECUTION-ORDER", "the refused solve must be the first execution and the completed one the last")
+        verdict.fail("EXECUTION-ORDER", "the withheld solve must be the first execution and the completed one the last")
 
-    # The refused solve, bound to the start model.
-    if initial["outcome"] not in NOT_SOLVED:
-        verdict.fail("INITIAL-SOLVE-NOT-REFUSED", f"the first solve ended {initial['outcome']!r}")
+    # The withheld solve, bound to the start model: the Solve gate withheld it, so no
+    # job ran (an executed solve, refused or incomplete, is not the use case's first).
+    if initial["outcome"] != WITHHELD:
+        verdict.fail("INITIAL-SOLVE-NOT-WITHHELD",
+                     f"the first solve ended {initial['outcome']!r}; the Solve gate must withhold it before any solve")
     if initial["result_handle"] is not None or initial["results"] or initial["native_custody"] != "none":
-        verdict.fail("INITIAL-SOLVE-HAS-RESULT", "the refused solve carries a result")
+        verdict.fail("INITIAL-SOLVE-HAS-RESULT", "the withheld solve carries a result")
     if initial["model_text_sha256"] is not None and initial["model_text_sha256"] != witness_digest(scenario.start_text):
-        verdict.fail("INITIAL-MODEL-BINDING", "the refused solve concerns another model than the start")
-    compare_set(verdict, "INITIAL-FINDINGS", "the refused solve's solve-blocking findings", scenario.missing,
+        verdict.fail("INITIAL-MODEL-BINDING", "the withheld solve concerns another model than the start")
+    compare_set(verdict, "INITIAL-FINDINGS", "the withheld solve's solve-blocking findings", scenario.missing,
                 blocking_set(finding_list(initial["findings"], "initial.findings")))
 
     # Every missing value shown as a finding on its entity.

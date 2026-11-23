@@ -64,9 +64,9 @@ needs:
     built model cannot represent, as an explicit, named diagnostic; refuses an incomplete, invalid
     or unsupported model on every entry with the same named diagnostic and affected object; and
     lets no entry reach the kernel past a primitive's validation (DEL-04-07/CLM-001,
-    DEL-04-07/AC-001). DEL-04-07 does not state that its checks before stiffness formation can be
-    run alone, without solving, in their fixed order, which DEL-04-06/REQ-013 relies on; that part
-    is not allocated.
+    DEL-04-07/AC-001). DEL-04-07's checks before stiffness formation are one function,
+    `pre_formation`, which its solve calls and the on-demand checks call alone; the on-demand checks
+    also call its load generation alone.
   gating: true
 - from: DEL-07-07
   when: Running the on-demand model checks in the desktop
@@ -89,6 +89,12 @@ code_paths:
 - core/model_operations/operation_applier/tests/model_checks.rs
 - apps/desktop/src/features/diagnostics/modelChecks*
 - apps/desktop/src/features/diagnostics/ModelChecksPanel*
+# The one list of the codes that mean a solve input is missing, and the desktop's reader of it.
+- fixtures/diagnostics/solve_input_missing_codes.json
+- apps/desktop/src/features/diagnostics/solveInputMissingCodes.ts
+- apps/desktop/src/features/diagnostics/missingData.session.test.tsx
+# The desktop session that runs the automatic and requested checks and gates Solve on them.
+- apps/desktop/src/features/workspace/workspaceSession.ts
 # REQ-013's seismic warning: DEL-05-01's judgement, which the solve and the on-demand checks both
 # call, and VER-004's seismic cases (DEL-05-01's files).
 - core/product_physics/src/seismic_warning.rs
@@ -102,6 +108,8 @@ checks:
 - core/product_physics/tests/model_checks_runtime.rs
 - core/model_operations/operation_applier/tests/model_checks.rs
 - apps/desktop/src/features/diagnostics/modelChecks.test.ts
+- apps/desktop/src/features/diagnostics/modelChecks.session.test.tsx
 - apps/desktop/src/features/diagnostics/ModelChecksPanel.test.tsx
 - apps/desktop/src/App.modelChecks.test.tsx
+- apps/desktop/src/features/diagnostics/missingData.session.test.tsx
 - core/product_physics/tests/seismic_component_weight.rs

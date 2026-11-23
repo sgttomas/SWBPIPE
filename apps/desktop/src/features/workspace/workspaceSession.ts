@@ -93,14 +93,16 @@ import type { BlankProjectKind, BlankProjectUnitsRequest } from "../project-unit
 import { MODEL_DOCUMENT_FILE_SOURCE, checkNativeOutcome, modelFileRefusalMessage, modelFileWarningSuffix, type ModelDocumentSource } from "../../services/modelDocumentFile";
 import { checkModelLibraryRefs, modelLibraryRefs } from "../../services/libraryImportService";
 import {
+  beginLibraryRefCheck,
   currentLibraryRefFindings,
   libraryRefDiagnostics,
-  publishLibraryRefFindings,
+  publishLibraryRefFindingsIfCurrent,
   publishedLibraryRefFindings,
+  setActiveLibraryRefProject,
   subscribeLibraryRefFindings,
   type LibraryRefFindingsState
 } from "../library/libraryRefFindings";
-import { cancelNativeModelChecks, modelChecksNotCompleted, runModelChecks, type ModelCheckRun } from "../diagnostics/modelChecks";
+import { cancelNativeModelChecks, modelChecksNotCompleted, runModelChecks, withLibraryRefFindings, type ModelCheckRun } from "../diagnostics/modelChecks";
 import { retireMbfExportSession, reviewMbfExport, saveMbfExport } from "../caepipe-mbf/mbfExportCancel";
 import type { MbfExportDialogRequest } from "../caepipe-mbf/MbfExportDialog";
 import { closedSaveStatusLine } from "../caepipe-mbf/mbfExport";
@@ -305,13 +307,17 @@ import {
 } from "../report/reportOutputOutcomes";
 
 /** W-13 §3.5 / W-17 §2.7: the model's library references checked against the
- * local store at open and load. Warnings only; the recorded versions stand. */
+ * local store at open and load. Warnings only; the recorded versions stand. A check
+ * that answers after a later check began, or after the project changed, publishes
+ * nothing and adds no warning. */
 async function libraryReferenceWarnings(model: PreviewModel): Promise<string> {
-  publishLibraryRefFindings(model.project.id, []);
+  const projectId = model.project.id;
+  const sequence = beginLibraryRefCheck(projectId);
+  publishLibraryRefFindingsIfCurrent(projectId, sequence, []);
   try {
-    const checked = await checkModelLibraryRefs(model.project.id, modelLibraryRefs(model));
+    const checked = await checkModelLibraryRefs(projectId, modelLibraryRefs(model));
     if (checked.route !== "tauri_backend" || checked.findings.length === 0) return "";
-    publishLibraryRefFindings(model.project.id, checked.findings);
+    if (!publishLibraryRefFindingsIfCurrent(projectId, sequence, checked.findings)) return "";
     return modelFileWarningSuffix(checked.findings.map((finding) => ({ code: finding.code, path: finding.entity_ref, message: finding.message })));
   } catch (error) {
     return ` Library references were not checked: ${String(error)}.`;
@@ -528,7 +534,16 @@ export function useWorkspaceSession() {
       const model = currentModel.current;
       const applicable = (state: LibraryRefFindingsState) => (model ? JSON.stringify(currentLibraryRefFindings(model, state)) : "[]");
       if (applicable(previous) === applicable(next)) adoptLibraryRefFindingsState(next);
-      else setLibraryRefFindingsState(next);
+      else {
+        setLibraryRefFindingsState(next);
+        // DEL-04-06 REQ-013: a completed check of the model as it stands lists the
+        // library-reference findings the store now publishes for it (a warning that
+        // arrived after the engine's check, or a clear), without checking again.
+        const standing = modelCheckRunRef.current;
+        if (standing && standing.model === model && standing.solve.kind !== "unavailable") {
+          setModelCheckRun(withLibraryRefFindings(standing, () => libraryRefDiagnostics(currentLibraryRefFindings(standing.model, next))));
+        }
+      }
     };
     const unsubscribe = subscribeLibraryRefFindings(reconcile);
     reconcile(); // a publication made before this lifetime subscribed
@@ -987,7 +1002,7 @@ export function useWorkspaceSession() {
     Promise.all([loadPreviewModel(), loadDesignKnowledge(), getLocalStorageCapability()]).then(
       ([loadedModel, loadedKnowledge, loadedStorageCapability]) => {
         if (!active) return;
-        advanceProjectSession();
+        advanceProjectSession(loadedModel.project.id);
         commitModel(loadedModel);
         const generation = projectSessionGenerationRef.current;
         const revision = uiModelRevisionRef.current;
@@ -1200,7 +1215,10 @@ export function useWorkspaceSession() {
     );
   }
 
-  function advanceProjectSession(): void {
+  /** A new project session for the project `nextProjectId`. A library-reference
+   * check still in flight for the session it replaces publishes nothing. */
+  function advanceProjectSession(nextProjectId: string): void {
+    setActiveLibraryRefProject(nextProjectId);
     viewportViewCommandRef.current?.({ type: "cancel-box-selection" });
     invalidateReportPackageComputedState();
     const nextGeneration = ++projectSessionGenerationRef.current;
@@ -1443,6 +1461,15 @@ export function useWorkspaceSession() {
     if (check.ended) return;
     check.ended = reason;
     if (solveGateCheck.current === check) solveGateCheck.current = null;
+    if (reason === "cancelled") {
+      // DEL-07-07 REQ-008: a cancelled check is not started again behind the person's
+      // back; the automatic check waits for the model to change or a request. Nothing
+      // checked describes this model, so no earlier model's run stays beside it: the
+      // page reads that the model has not been checked.
+      cancelledCheckModel.current = check.model;
+      const shown = modelCheckRunRef.current;
+      if (shown !== null && shown.model !== check.model) setModelCheckRun(null);
+    }
     const latest = latestModelCheck.current;
     const ownsNewestCheck = latest !== null && latest.request === check.request && modelCheckRequest.current === check.request
       && latest.owner.kind === "solve" && latest.owner.token === check.token;
@@ -1473,16 +1500,17 @@ export function useWorkspaceSession() {
   function solveGateAllows(runGeneration: number): SolveGateOutcome | Promise<SolveGateOutcome> {
     if (!model) return { kind: "proceed", reading: { kind: "unknown", reason: "not_checked" } }; // The solve's own refusal of no model stands.
     const settle = (reading: SolveGateReading): SolveGateOutcome => {
-      if (reading.kind !== "withheld") {
-        solveLastWithheld.current = false;
-        return { kind: "proceed", reading };
-      }
+      if (reading.kind !== "withheld") return { kind: "proceed", reading };
       solveRunGate.current.finish(runGeneration);
       setIssuesDrawerOpen(true);
+      // Focus goes to the Model checks outcome, also where the run that withholds was
+      // published earlier (the opening check) and its outcome has been shown before.
+      setModelCheckFocusRequest({});
       return { kind: "withheld", reading };
     };
     const published = modelCheckRunRef.current;
     if (published?.model === model) return settle(readSolveGate(model, published));
+    cancelledCheckModel.current = null;
     const checked = model;
     const revision = modelRevision.current;
     const stillWanted = () => sessionMounted.current
@@ -3325,6 +3353,9 @@ export function useWorkspaceSession() {
   }
 
   function adoptSavedAsNewModel(renamed: PreviewModel) {
+    // The copy is the session's project now: a library-reference check in flight for the
+    // old id publishes nothing, and the copy's own checks begin.
+    setActiveLibraryRefProject(renamed.project.id);
     commitModel(renamed);
     storedBaseRef.current = null;
     preserveAndPruneSelection(renamed);
@@ -3654,7 +3685,7 @@ export function useWorkspaceSession() {
       ruleRevisionGate.current.invalidate();
       setModelHashIntegrity(null);
       setProjectEnvelopeHashIntegrity(null);
-      advanceProjectSession();
+      advanceProjectSession(created.model.project.id);
       recordPersistenceObservation(created, returnedHash, returnedEnvelopeHash, "create", projectSessionGenerationRef.current, ++persistedWriteObservation.current, verifiedBlankResponse, blankModel.project.id);
       // A successful New Blank starts the first-open shell context. Failed or
       // superseded creates never reach this commit boundary or change chrome.
@@ -3762,7 +3793,7 @@ export function useWorkspaceSession() {
       ruleRevisionGate.current.invalidate();
       setModelHashIntegrity(null);
       setProjectEnvelopeHashIntegrity(null);
-      advanceProjectSession();
+      advanceProjectSession(opened.model.project.id);
       commitModel(opened.model);
       recordStoredBase(opened);
       const openedGeneration = projectSessionGenerationRef.current;
@@ -3904,7 +3935,7 @@ export function useWorkspaceSession() {
       ruleRevisionGate.current.invalidate();
       setModelHashIntegrity(null);
       setProjectEnvelopeHashIntegrity(null);
-      advanceProjectSession();
+      advanceProjectSession(document.project.id);
       commitModel(document);
       storedBaseRef.current = null;
       unopenedStoredRun.current = null;
@@ -5097,12 +5128,21 @@ export function useWorkspaceSession() {
     setModelCheckRunState(run);
   }
   const [modelCheckBusy, setModelCheckBusy] = useState(false);
+  // A Solve withheld by the checks asks, with a fresh token each time, for keyboard focus
+  // on the Model checks outcome (`ModelChecksPanel`'s `focusRequest`).
+  const [modelCheckFocusRequest, setModelCheckFocusRequest] = useState<object | null>(null);
   const modelCheckRequest = useRef(0);
   // Who started the newest model-check request: the person (Run model checks),
   // the re-check after an edit while Solve is withheld, or a Solve request (by its
   // run token). Only a Solve request's own end cancels a check, and only the
   // check that request started while it is still the newest.
   const latestModelCheck = useRef<{ request: number; owner: ModelCheckOwner } | null>(null);
+  // The model value whose check a Solve request's Cancel ended: no automatic check
+  // starts for it again until the model changes, a new project session starts or the
+  // person (Run model checks, Solve) asks.
+  const cancelledCheckModel = useRef<PreviewModel | null>(null);
+  // The automatic check in progress: its model value, project session and request.
+  const automaticCheck = useRef<{ model: PreviewModel; generation: number; request: number } | null>(null);
   // Whether the latest request is a native check still in progress.
   const nativeModelCheckInFlight = useRef(false);
   // A new project session retires a run in progress and the last run's list
@@ -5114,6 +5154,7 @@ export function useWorkspaceSession() {
     if (nativeModelCheckInFlight.current) void cancelNativeModelChecks();
     nativeModelCheckInFlight.current = false;
     setModelCheckBusy(false);
+    cancelledCheckModel.current = null;
     setModelCheckRun(null);
   }, [projectSessionGeneration]);
   // File > Export MBF… (DEL-17-04 §3.9.5): a review or save in progress belongs to the project session that started
@@ -5159,7 +5200,8 @@ export function useWorkspaceSession() {
     nativeModelCheckInFlight.current = false;
     setModelCheckBusy(false);
     if (!publish()) return null;
-    const published = withStandingEvidence(run);
+    // The automatic check's outcome is announced without taking focus from an editor.
+    const published = { ...withStandingEvidence(run), focusSummary: owner.kind !== "recheck" };
     setModelCheckRun(published);
     return published;
   }
@@ -5179,26 +5221,41 @@ export function useWorkspaceSession() {
   async function handleRunModelChecks() {
     if (!model) return;
     setIssuesDrawerOpen(true);
+    cancelledCheckModel.current = null;
     await runModelChecksRequest(model, { kind: "person" });
   }
 
   // The Solve command's gate as it reads now, for the controls that offer Solve.
   const solveGate = readSolveGate(model, modelCheckRun);
-  // Once Solve has read withheld, and until a solve passes the gate or the project
-  // session changes, a change of the model value (an applied operation, an undo,
-  // a redo) runs the checks again for the new value without being asked, so the
-  // withheld notice updates, clears, or comes back by itself (an undo of the
-  // operation that supplied a value). A later change supersedes a check in
-  // progress, as a later request does.
-  const solveLastWithheld = useRef(false);
-  useEffect(() => { solveLastWithheld.current = false; }, [projectSessionGeneration]);
+  // Issue 530 and DEL-07-06 AC-007 (Missing data): whenever the model opens or
+  // changes (an applied operation, an undo, a redo, a new project session) without a
+  // completed run of the checks for it, the checks run for it without being asked, so
+  // their findings, the solve's input checks and missing inputs among them, are
+  // current without a solve and a finding stays listed until a run stops reporting it.
+  // Each run is `runModelChecksRequest`'s: a later change supersedes a check in
+  // progress as a later request does, nothing waits on it, and a native check runs
+  // under the memory pool's admission as before. A run that could not run
+  // (`checks_unavailable`) is not repeated until the model changes, nor is a check a
+  // Solve request's Cancel ended (DEL-07-07 REQ-008).
   useEffect(() => {
     // A model change ends a Solve request's check of the earlier value (before any re-check starts).
     const gateCheck = solveGateCheck.current;
     if (gateCheck && gateCheck.model !== model) endSolveGateCheck(gateCheck, "model_changed");
-    if (solveGate.kind === "withheld") solveLastWithheld.current = true;
-    else if (solveGate.kind === "unknown" && solveGate.reason === "model_changed" && solveLastWithheld.current && model) void runModelChecksRequest(model, { kind: "recheck" });
-  }, [model, modelCheckRun]);
+    if (cancelledCheckModel.current !== null && cancelledCheckModel.current !== model) cancelledCheckModel.current = null;
+    // A run published (or cleared, by a new project session) after this render is read
+    // in the render that shows it; this render's run no longer describes the session.
+    if (modelCheckRunRef.current !== modelCheckRun) return;
+    if (!model || cancelledCheckModel.current === model) return;
+    if (solveGate.kind !== "unknown" || (solveGate.reason !== "model_changed" && solveGate.reason !== "not_checked")) return;
+    const generation = projectSessionGenerationRef.current;
+    const inFlight = automaticCheck.current;
+    // One automatic check per model value and project session while it is the newest request.
+    if (inFlight && inFlight.model === model && inFlight.generation === generation && inFlight.request === modelCheckRequest.current) return;
+    const pending = runModelChecksRequest(model, { kind: "recheck" });
+    const started = { model, generation, request: modelCheckRequest.current };
+    automaticCheck.current = started;
+    void pending.finally(() => { if (automaticCheck.current === started) automaticCheck.current = null; });
+  }, [model, modelCheckRun, projectSessionGeneration]);
 
   // Single command sink for both the in-DOM menu bar (tested) and the native
   // macOS menu bar (Tauri shell only). View commands summon/dismiss workspace
@@ -5736,7 +5793,7 @@ export function useWorkspaceSession() {
     ruleRevisionGate.current.invalidate();
     setModelHashIntegrity(null);
     setProjectEnvelopeHashIntegrity(null);
-    advanceProjectSession();
+    advanceProjectSession(opened.model.project.id);
     commitModel(opened.model);
     savedBasisSequence.current += 1;
     setSavedModelBasis({ generation: projectSessionGenerationRef.current, revision: uiModelRevisionRef.current, hash: snapshotHash.value, source: "open" });
@@ -6047,6 +6104,7 @@ export function useWorkspaceSession() {
       issuesDrawerOpen, setIssuesDrawerOpen,
       modelCheckRun,
       modelCheckBusy,
+      modelCheckFocusRequest,
       handleRunModelChecks,
       stageSurface,
       stageViewMemory, setStageViewMemory,

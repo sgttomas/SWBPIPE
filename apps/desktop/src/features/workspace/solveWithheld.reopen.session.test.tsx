@@ -1,8 +1,8 @@
 /** The Solve request's model check with a saved run held (DEL-07-07 REQ-008). A solved result
  * never meets a pending gate check: the check run its own Solve request made stays current until
  * the model value changes, and a model change retires the result. A reopened saved run is the
- * output a session holds while no check run is current (a project session starts with none), so a
- * Solve request then runs the checks first. A cancel or a model change during that check, or a
+ * output a session holds while no check run is current (a project session starts with none, and its
+ * own check of the opened model is held here), so a Solve request then runs the checks first. A cancel or a model change during that check, or a
  * check that fails, must leave the restored run, its handle and the historical results surface
  * as they were. The reopen is the actual Rust commands' recorded replies
  * (`test-support/native-reopen/native_reopen_replies.json`), as `nativeReopen.session.test.tsx`
@@ -20,6 +20,7 @@ import { canonicalJsonString } from "../../services/hashService";
 import { loadDesignKnowledge, resetSessionResultCustodyForTests } from "../../services/previewService";
 import { NATIVE_OPEN_PROJECT_COMMAND, NATIVE_READ_RUN_COMMAND } from "../../services/nativeReopen";
 import { buildBulkChangeBatch } from "../bulk-change/bulkChange";
+import * as modelChecks from "../diagnostics/modelChecks";
 import { HistoricalRunPanel } from "../results/HistoricalRunContext";
 import { useWorkspaceSession, type WorkspaceSession } from "./workspaceSession";
 
@@ -84,6 +85,10 @@ async function reopenedSession(check: () => Promise<unknown>) {
     return null;
   });
   (window as Json).__TAURI_INTERNALS__ = {};
+  // The checks run by themselves for each model value the session opens (issue 530); those checks
+  // are held, never completing, so a Solve request finds no current run and runs its own, which
+  // these tests follow.
+  const opening = vi.spyOn(modelChecks, "runModelChecks").mockImplementation(() => new Promise(() => {}));
   let current!: WorkspaceSession;
   function Harness() {
     current = useWorkspaceSession();
@@ -95,6 +100,10 @@ async function reopenedSession(check: () => Promise<unknown>) {
   await act(async () => { await current.project.handleOpenProject(openReply.model.project.id as string); });
   await waitFor(() => expect(current.results.historicalRun?.designation).toBe("historical_saved_run"));
   await waitFor(() => expect(view.container.textContent).not.toBe(""));
+  expect(opening).toHaveBeenCalled();
+  opening.mockRestore();
+  // Opening the project cancelled the held check of the model loaded before it; count from here.
+  cancelsAtOpen = calls("cancel_model_checks");
   expect(current.results.solveGate).toEqual({ kind: "unknown", reason: "not_checked" });
   return { state: () => current, view, handle: HANDLE };
 }
@@ -109,6 +118,8 @@ function held(state: WorkspaceSession, container: HTMLElement) {
   };
 }
 const calls = (command: string) => invokeMock.mock.calls.filter(([name]) => name === command).length;
+/** The native cancels of model checks when the reopened session was ready. */
+let cancelsAtOpen = 0;
 
 it("a cancel while the Solve request's check runs leaves the reopened saved run, its handle and the results surface as they were", async () => {
   let release: (value: unknown) => void = () => {};
@@ -122,7 +133,7 @@ it("a cancel while the Solve request's check runs leaves the reopened saved run,
   expect(state().results.running).toBe(true);
   act(() => { state().results.handleCancelRun(); });
   // While the check is still pending: its native cancel, no solve, nothing of the session changed.
-  expect(calls("cancel_model_checks")).toBe(1);
+  expect(calls("cancel_model_checks") - cancelsAtOpen).toBe(1);
   expect(calls("start_preview_mechanics_job")).toBe(0);
   expect(state().results.running).toBe(false);
   for (const [key, value] of Object.entries(before)) expect(held(state(), view.container)[key as keyof typeof before], key).toBe(value);
@@ -152,7 +163,7 @@ it("a model change while the Solve request's check runs: the edit's own effect i
   await act(async () => { await state().operations.handleRunOperationBatch(state().operations.queuedBatches[0], true); });
   const afterEdit = held(state(), view.container);
   expect(afterEdit.historicalRun).not.toBe(beforeEdit.historicalRun);
-  expect(calls("cancel_model_checks")).toBe(1);
+  expect(calls("cancel_model_checks") - cancelsAtOpen).toBe(1);
   expect(calls("start_preview_mechanics_job")).toBe(0);
   expect(state().results.running).toBe(false);
   await act(async () => { release({ checked: true, diagnostics: [], diagnostics_not_shown: 0, slot_findings: [], slot_findings_not_shown: 0 }); await solving; });

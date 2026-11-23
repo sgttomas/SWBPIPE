@@ -150,7 +150,7 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 use std::f64::consts::PI;
 
 mod topology;
-mod validation;
+mod validation; pub use validation::{solve_input_missing_codes, SolveInputChecks, SOLVE_INPUT_MISSING_CODES_JSON}; // DEL-04-06 REQ-013, on this line so that no line moves.
 mod imposed_motion; mod held_status; mod skew; pub mod hydrostatic; // RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7) and R-6/R-7 S-K1 (DEL-04-03 `skew-restraints.md`), on this line so that no line moves.
 use validation::validate_model_inputs;
 mod rigid_component; mod seismic_component; mod seismic_warning; // DEL-05-01 static-equivalent seismic component force (LIM-028) and REQ-008's seismic model-check warning, on this line so that no line moves.
@@ -3079,155 +3079,19 @@ fn run_linear_static_preview_observed_inner(
     // The D1 domain clauses never read the caller's limit L; only the bound does.
     let early_domain=product.is_some() && capture.is_some_and(|captured|
         retained_memory::assess(captured,&request,retained_memory::Entry::Direct,RetainedByteLimit::new(0)).law().domain.is_none());
-    let mut model = request.model;
+    let model = request.model;
     let request_materials_supplied = !request.materials.is_empty();
-    let mut materials = if request.materials.is_empty() {
+    let materials = if request.materials.is_empty() {
         model.materials.clone()
     } else {
         request.materials
     };
-    let mut diagnostics = Vec::new();
-
-    // Model document 0.9.0 (DEL-02-01 Design `model-document-0.9.0.md` §1.5): the
-    // lowering judges the 0.9.0 members' document-level rules and S1's interim
-    // refusals, then removes the members no later stage reads. Everything after it
-    // is the existing pipeline applied to the lowered model.
-    model.declared_test_contents = hydrostatic::declared_contents(&model); // DEL-05-01 REQ-014: before the lowering clears the conditions.
-    let condition_added = operating_conditions::lower(&mut model, &mut diagnostics);
-    pressure_runtime::validate_profile(&model, &mut diagnostics);
-    // RT-A3 increment 1 (D-1): the junction closures' named warnings, once.
-    pressure_runtime::junction_closure_warnings(&model, &mut diagnostics);
-    case_state::resolve::validate_document(&model, request_materials_supplied, &mut diagnostics);
-    // W-16 slice a: the named imposed-displacement checks (and the exact
-    // route's refusal) run ahead of generic validation.
-    if imposed_motion::validate(&model, &mut diagnostics) {
-        return blocked_envelope(model, diagnostics);
-    }
-    validate_model_inputs(&model, &materials, &mut diagnostics);
-    validate_support_family_tokens(&model, &mut diagnostics);
-    pf_timoshenko::append_partial_span_refusals(&model, &mut diagnostics);
-    if model.document_kind != "openpipestress.product_preview.model" {
-        diagnostics.push(diag(
-            "diagnostic:physics:document-kind",
-            "PREVIEW_DOCUMENT_KIND_INVALID",
-            "blocking",
-            "physics adapter requires an openpipestress.product_preview.model document",
-            vec!["model".to_string()],
-        ));
-    }
-    if model.schema_version.is_empty() {
-        diagnostics.push(diag(
-            "diagnostic:physics:schema-version",
-            "PREVIEW_SCHEMA_VERSION_MISSING",
-            "blocking",
-            "preview model requires an explicit schema version",
-            vec!["model".to_string()],
-        ));
-    }
-    if has_blocking(&diagnostics) {
-        return blocked_envelope(model, diagnostics);
-    }
-    // S1's interim withholding (§2.2, §2.4): every combination was judged above.
-    document_members::withhold_interim_combinations(&mut model, &mut diagnostics);
-
-    self_weight::validate_applied_self_weight(&model, &mut diagnostics);
-    if has_blocking(&diagnostics) {
-        return blocked_envelope(model, diagnostics);
-    }
-    // DEL-05-01 REQ-008: what the seismic warning prints as entered, and the plan's fresh primitives.
-    let seismic_entered = seismic_warning::capture(&model, &condition_added);
-    let test_contents = std::mem::take(&mut model.test_contents);
-    hydrostatic::apply_contents(&mut model, &test_contents); // DEL-05-01 REQ-014: a test case's contents enter its checked self-weight once, after seismic capture.
-
-    resolve_shared_sections(&mut model, &mut diagnostics);
-    if has_blocking(&diagnostics) {
-        return blocked_envelope(model, diagnostics);
-    }
-
-    normalize_model_units(&mut model, &mut materials, &mut diagnostics);
-    if has_blocking(&diagnostics) {
-        return blocked_envelope(model, diagnostics);
-    }
-    // DEL-05-01 REQ-008: the seismic model-check warning, before formation (warnings only).
-    if !case_state::is_load_state(&model) {
-        seismic_warning::append(&model, &materials, None, &seismic_entered, &mut diagnostics);
-    }
-    // W-15 slice c (DEL-03-05 Design `eccentric-reducer-offset.md` §3.2): a
-    // declared eccentric offset is checked against the normalized node
-    // geometry, which governs. The first pass returns before any index is
-    // built, and before the tolerance is read, when no component carries the
-    // slot. The tolerance was admitted by `validate_model_settings`.
-    rigid_component::append_eccentric_offset_refusals(&model, &mut diagnostics);
-    if has_blocking(&diagnostics) {
-        return blocked_envelope(model, diagnostics);
-    }
-
-    let load_state = case_state::is_load_state(&model);
-    // A 0.4.0 document never consumes a case-wide base pair: each member's
-    // pair comes from its own resolved selection, so only consumed data counts.
-    if !load_state {
-        pressure_material::resolve_base(&model, &mut materials, &mut diagnostics);
-    }
-    if has_blocking(&diagnostics) {
-        return blocked_envelope(model, diagnostics);
-    }
-    if let Some(observer) = product.as_deref_mut() {
-        observer.normalized(&model, &materials, request_materials_supplied);
-    }
-    let resolved_cases = if load_state {
-        let resolved = model
-            .load_cases
-            .iter()
-            .filter_map(|case| {
-                case_state::resolve::resolve_case(&model, &materials, case, &mut diagnostics)
-            })
-            .collect::<Vec<_>>();
-        if has_blocking(&diagnostics) || resolved.len() != model.load_cases.len() {
-            return blocked_envelope(model, diagnostics);
-        }
-        case_state::resolve::refuse_resolved_span_strain(&model, &resolved, &mut diagnostics);
-        case_state::resolve::refuse_all_reference_states(&resolved, &mut diagnostics);
-        if has_blocking(&diagnostics) {
-            return blocked_envelope(model, diagnostics);
-        }
-        seismic_warning::append(&model, &materials, Some(&resolved), &seismic_entered, &mut diagnostics);
-        Some(resolved)
-    } else {
-        None
+    // DEL-04-06 REQ-013: every step before the first stiffness is `pre_formation`, which the on-demand model checks run too.
+    let (Formable { model, materials, resolved_cases, consumed_bases, built, boundary, test_contents }, mut diagnostics) = match pre_formation(model, materials, request_materials_supplied,
+        &mut |model, materials| if let Some(observer) = product.as_deref_mut() { observer.normalized(model, materials, request_materials_supplied); }) {
+        PreFormation::Formable(formable, diagnostics) => (formable, diagnostics),
+        PreFormation::Blocked(model, diagnostics) => return blocked_envelope(model, diagnostics),
     };
-    // PF Timoshenko (DEL-05-03 Design `pf-timoshenko.md` §2): the consumed bases, from
-    // the cases' selections before any build. The seed forms Timoshenko members only
-    // when a case consumes the base basis; otherwise it is never solved.
-    let consumed_bases = pf_timoshenko::ConsumedBases::of(&model);
-    let built = build_model_for_basis(
-        &model,
-        &materials,
-        resolved_cases.as_ref().map(|cases| &cases[0].pairs),
-        consumed_bases.base.as_ref(),
-        &mut diagnostics,
-    );
-    if has_blocking(&diagnostics) {
-        return blocked_envelope(model, diagnostics);
-    }
-    let built = built.expect("build_model returns Some when no blocking diagnostics were added");
-    append_constant_effort_consumption_diagnostics(&model, &mut diagnostics);
-    topology::append_topology_diagnostics(&model, &built, &mut diagnostics);
-
-    let boundary = prepare_boundary(built.nodes.len(), &built.supports);
-    // DEL-04-07 REQ-011 & DEL-04-06 REQ-013: the document's own ground
-    // restraints when some case is solved on it, and otherwise the replaced
-    // system's, checked before stiffness formation and per-case basis lookup.
-    check_pre_formation_restraints(
-        &model,
-        &materials,
-        resolved_cases.as_ref().map(|cases| &cases[0].pairs),
-        &built,
-        &boundary,
-        &mut diagnostics,
-    );
-    if has_blocking(&diagnostics) {
-        return blocked_envelope(model, diagnostics);
-    }
 
     // F1b (T3 D1 §4.8, W3): the kernel's sparse assembly per basis; no dense
     // matrix is held across cases or bases. F1b (§4.7, ROOT Q2): on a linear
@@ -3810,6 +3674,143 @@ fn run_linear_static_preview_observed_inner(
     combination_certificate::publish(&model.combinations, &case_ids, &mut envelope, &certificate_operands);
     if let Some(observer) = product.as_deref_mut() { observer.finish(&envelope); }
     envelope
+}
+
+/// The solve's steps before it forms the first stiffness (DEL-04-06 REQ-013): one function, which
+/// `run_linear_static_preview_observed_inner` runs and the on-demand model checks
+/// (`validation/model_checks.rs`) run without solving, so that the two cannot differ. It stops where
+/// the solve stops, `Blocked` with the model as it stands and every diagnostic so far; otherwise it is
+/// `Formable` with what the solve forms its stiffness from. `normalized` is the retained observer's
+/// hook after the base material pair; the checks pass one that does nothing.
+pub(crate) enum PreFormation { Blocked(PreviewModel, Vec<Diagnostic>), Formable(Formable, Vec<Diagnostic>) }
+/// What the solve forms its first stiffness from, once `pre_formation` has not stopped.
+pub(crate) struct Formable { pub(crate) model: PreviewModel, pub(crate) materials: Vec<MaterialInput>, pub(crate) resolved_cases: Option<Vec<case_state::resolve::ResolvedCase>>,
+    pub(crate) consumed_bases: pf_timoshenko::ConsumedBases, pub(crate) built: BuiltModel, pub(crate) boundary: open_pipe_stress_linear_supports::BoundaryPreparation,
+    pub(crate) test_contents: Vec<hydrostatic::ContentsResolution> }
+
+/// Each stop is one line, and the function stands right after the solve, so that no line after it in
+/// this file moved when the steps left the solve.
+pub(crate) fn pre_formation(mut model: PreviewModel, mut materials: Vec<MaterialInput>, request_materials_supplied: bool,
+    normalized: &mut dyn FnMut(&PreviewModel, &[MaterialInput])) -> PreFormation {
+    let mut diagnostics = Vec::new();
+
+    // Model document 0.9.0 (DEL-02-01 Design `model-document-0.9.0.md` §1.5): the
+    // lowering judges the 0.9.0 members' document-level rules and S1's interim
+    // refusals, then removes the members no later stage reads. Everything after it
+    // is the existing pipeline applied to the lowered model.
+    model.declared_test_contents = hydrostatic::declared_contents(&model); // DEL-05-01 REQ-014: before the lowering clears the conditions.
+    let condition_added = operating_conditions::lower(&mut model, &mut diagnostics);
+    pressure_runtime::validate_profile(&model, &mut diagnostics);
+    // RT-A3 increment 1 (D-1): the junction closures' named warnings, once.
+    pressure_runtime::junction_closure_warnings(&model, &mut diagnostics);
+    case_state::resolve::validate_document(&model, request_materials_supplied, &mut diagnostics);
+    // W-16 slice a: the named imposed-displacement checks (and the exact
+    // route's refusal) run ahead of generic validation.
+    if imposed_motion::validate(&model, &mut diagnostics) { return PreFormation::Blocked(model, diagnostics); }
+    validate_model_inputs(&model, &materials, &mut diagnostics);
+    validate_support_family_tokens(&model, &mut diagnostics);
+    pf_timoshenko::append_partial_span_refusals(&model, &mut diagnostics);
+    if model.document_kind != "openpipestress.product_preview.model" {
+        diagnostics.push(diag(
+            "diagnostic:physics:document-kind",
+            "PREVIEW_DOCUMENT_KIND_INVALID",
+            "blocking",
+            "physics adapter requires an openpipestress.product_preview.model document",
+            vec!["model".to_string()],
+        ));
+    }
+    if model.schema_version.is_empty() {
+        diagnostics.push(diag(
+            "diagnostic:physics:schema-version",
+            "PREVIEW_SCHEMA_VERSION_MISSING",
+            "blocking",
+            "preview model requires an explicit schema version",
+            vec!["model".to_string()],
+        ));
+    }
+    if has_blocking(&diagnostics) { return PreFormation::Blocked(model, diagnostics); }
+    // S1's interim withholding (§2.2, §2.4): every combination was judged above.
+    document_members::withhold_interim_combinations(&mut model, &mut diagnostics);
+
+    self_weight::validate_applied_self_weight(&model, &mut diagnostics);
+    if has_blocking(&diagnostics) { return PreFormation::Blocked(model, diagnostics); }
+    // DEL-05-01 REQ-008: what the seismic warning prints as entered, and the plan's fresh primitives.
+    let seismic_entered = seismic_warning::capture(&model, &condition_added);
+    let test_contents = std::mem::take(&mut model.test_contents);
+    hydrostatic::apply_contents(&mut model, &test_contents); // DEL-05-01 REQ-014: a test case's contents enter its checked self-weight once, after seismic capture.
+
+    resolve_shared_sections(&mut model, &mut diagnostics);
+    if has_blocking(&diagnostics) { return PreFormation::Blocked(model, diagnostics); }
+
+    normalize_model_units(&mut model, &mut materials, &mut diagnostics);
+    if has_blocking(&diagnostics) { return PreFormation::Blocked(model, diagnostics); }
+    // DEL-05-01 REQ-008: the seismic model-check warning, before formation (warnings only).
+    if !case_state::is_load_state(&model) {
+        seismic_warning::append(&model, &materials, None, &seismic_entered, &mut diagnostics);
+    }
+    // W-15 slice c (DEL-03-05 Design `eccentric-reducer-offset.md` §3.2): a
+    // declared eccentric offset is checked against the normalized node
+    // geometry, which governs. The first pass returns before any index is
+    // built, and before the tolerance is read, when no component carries the
+    // slot. The tolerance was admitted by `validate_model_settings`.
+    rigid_component::append_eccentric_offset_refusals(&model, &mut diagnostics);
+    if has_blocking(&diagnostics) { return PreFormation::Blocked(model, diagnostics); }
+
+    let load_state = case_state::is_load_state(&model);
+    // A 0.4.0 document never consumes a case-wide base pair: each member's
+    // pair comes from its own resolved selection, so only consumed data counts.
+    if !load_state {
+        pressure_material::resolve_base(&model, &mut materials, &mut diagnostics);
+    }
+    if has_blocking(&diagnostics) { return PreFormation::Blocked(model, diagnostics); }
+    normalized(&model, &materials);
+    let resolved_cases = if load_state {
+        let resolved = model
+            .load_cases
+            .iter()
+            .filter_map(|case| {
+                case_state::resolve::resolve_case(&model, &materials, case, &mut diagnostics)
+            })
+            .collect::<Vec<_>>();
+        if has_blocking(&diagnostics) || resolved.len() != model.load_cases.len() { return PreFormation::Blocked(model, diagnostics); }
+        case_state::resolve::refuse_resolved_span_strain(&model, &resolved, &mut diagnostics);
+        case_state::resolve::refuse_all_reference_states(&resolved, &mut diagnostics);
+        if has_blocking(&diagnostics) { return PreFormation::Blocked(model, diagnostics); }
+        seismic_warning::append(&model, &materials, Some(&resolved), &seismic_entered, &mut diagnostics);
+        Some(resolved)
+    } else {
+        None
+    };
+    // PF Timoshenko (DEL-05-03 Design `pf-timoshenko.md` §2): the consumed bases, from
+    // the cases' selections before any build. The seed forms Timoshenko members only
+    // when a case consumes the base basis; otherwise it is never solved.
+    let consumed_bases = pf_timoshenko::ConsumedBases::of(&model);
+    let built = build_model_for_basis(
+        &model,
+        &materials,
+        resolved_cases.as_ref().map(|cases| &cases[0].pairs),
+        consumed_bases.base.as_ref(),
+        &mut diagnostics,
+    );
+    if has_blocking(&diagnostics) { return PreFormation::Blocked(model, diagnostics); }
+    let built = built.expect("build_model returns Some when no blocking diagnostics were added");
+    append_constant_effort_consumption_diagnostics(&model, &mut diagnostics);
+    topology::append_topology_diagnostics(&model, &built, &mut diagnostics);
+
+    let boundary = prepare_boundary(built.nodes.len(), &built.supports);
+    // DEL-04-07 REQ-011 & DEL-04-06 REQ-013: the document's own ground
+    // restraints when some case is solved on it, and otherwise the replaced
+    // system's, checked before stiffness formation and per-case basis lookup.
+    check_pre_formation_restraints(
+        &model,
+        &materials,
+        resolved_cases.as_ref().map(|cases| &cases[0].pairs),
+        &built,
+        &boundary,
+        &mut diagnostics,
+    );
+    if has_blocking(&diagnostics) { return PreFormation::Blocked(model, diagnostics); }
+    PreFormation::Formable(Formable { model, materials, resolved_cases, consumed_bases, built, boundary, test_contents }, diagnostics)
 }
 
 /// U3: a permitted retained invocation (API.md §3). Everything after G-A runs on

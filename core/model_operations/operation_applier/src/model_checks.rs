@@ -1,6 +1,7 @@
 //! On-demand model checks for the desktop (DEL-04-06 Design
 //! `on-demand-model-checks.md`): the solve's own checks before stiffness
-//! formation (`LinearStaticPreviewRequest::pre_formation_checks_value`)
+//! formation and its load generation for every load case
+//! (`LinearStaticPreviewRequest::solve_input_checks_value`)
 //! and the W-13 model-data slot checks (`document_validator`), run on the
 //! session model as the desktop's solve request carries it
 //! (`{"model": …, "materials": []}`). Nothing here writes to the model, adds a
@@ -38,8 +39,8 @@ pub fn model_checks(model: &Value) -> Value {
 /// `{document_kind, checked, diagnostics, diagnostics_not_shown,
 /// diagnostics_not_shown_blocking, slot_findings, slot_findings_not_shown,
 /// slot_findings_not_shown_blocking}` (each `_blocking` count is how many of the
-/// findings not shown are blocking or errors): with `checked: true`, the solve's diagnostics as
-/// it publishes them; with `checked: false`, the solve's own refusal text in
+/// findings not shown are blocking or errors): with `checked: true`, the solve's diagnostics before
+/// formation and its load generation's, as it states them; with `checked: false`, the solve's own refusal text in
 /// `refusal` (and `refusal_truncated` when it was shortened) and no solve
 /// findings. The slot checks run either way. Bounded as the module says. The
 /// model is consumed.
@@ -48,7 +49,7 @@ pub fn model_checks_owned(model: Value) -> Value {
     let mut request = Map::new();
     request.insert("model".to_string(), model);
     request.insert("materials".to_string(), Value::Array(Vec::new()));
-    let solve = LinearStaticPreviewRequest::pre_formation_checks_value(Value::Object(request));
+    let solve = LinearStaticPreviewRequest::solve_input_checks_value(Value::Object(request)).map(|checks| checks.findings());
     let mut budget = Budget { remaining: MODEL_CHECKS_MAX_RESPONSE_BYTES };
     let mut report = Map::new();
     report.insert("document_kind".to_string(), json!(MODEL_CHECKS_DOCUMENT_KIND));

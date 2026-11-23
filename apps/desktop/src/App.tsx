@@ -340,6 +340,7 @@ function AppSession() {
     reviewDetailsOpen, setReviewDetailsOpen,
     issuesDrawerOpen, setIssuesDrawerOpen,
     modelCheckRun,
+    modelCheckFocusRequest,
     modelCheckBusy,
     handleRunModelChecks,
     stageSurface,
@@ -1327,6 +1328,7 @@ function AppSession() {
           onClose={() => setIssuesDrawerOpen(false)}
           onSelectDiagnostic={handleSelectDiagnostic}
           modelCheckRun={modelCheckRun}
+          modelCheckFocusRequest={modelCheckFocusRequest}
           modelCheckBusy={modelCheckBusy}
           onRunModelChecks={() => { void handleRunModelChecks(); }}
           onSelectEntity={(entity) => { handleSelectEntity(entity); }}
@@ -1701,6 +1703,7 @@ function IssuesHome({
   onClose,
   onSelectDiagnostic,
   modelCheckRun = null,
+  modelCheckFocusRequest = null,
   modelCheckBusy = false,
   onRunModelChecks = () => {},
   onSelectEntity = () => {}
@@ -1715,6 +1718,8 @@ function IssuesHome({
   onSelectDiagnostic: (diagnosticId: string) => void;
   /** B11: the session's last on-demand model-check run and its command. */
   modelCheckRun?: ModelCheckRun | null;
+  /** A withheld Solve's request for focus on the checks' outcome. */
+  modelCheckFocusRequest?: object | null;
   modelCheckBusy?: boolean;
   onRunModelChecks?: () => void;
   onSelectEntity?: (entity: EntityRef) => void;
@@ -1731,7 +1736,7 @@ function IssuesHome({
           Close
         </button>
       </div>
-      <ModelChecksPanel model={model} run={modelCheckRun} busy={modelCheckBusy} onRun={onRunModelChecks} onSelectEntity={onSelectEntity} />
+      <ModelChecksPanel model={model} run={modelCheckRun} focusRequest={modelCheckFocusRequest} busy={modelCheckBusy} onRun={onRunModelChecks} onSelectEntity={onSelectEntity} />
       {operationDiagnostics.length > 0 ? (
         <section className="panel issues-operation-list" aria-label="Operation diagnostics">
           <div className="panel-title">Operation diagnostics</div>

@@ -5,7 +5,7 @@ vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test
 import { loadPreviewModel } from "../../services/previewService";
 import type { PreviewModel } from "../../types";
 import { loadedWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
-import { MODEL_CHECKS_MAX_BROWSER_INPUT_BYTES, runModelChecks, utf8ByteLength } from "./modelChecks";
+import { MODEL_CHECKS_MAX_BROWSER_INPUT_BYTES, modelChecksNotCompleted, runModelChecks, utf8ByteLength, withLibraryRefFindings } from "./modelChecks";
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -190,5 +190,38 @@ describe("on-demand model checks", () => {
     const full = await runModelChecks(clone(await loadPreviewModel()), () => Array.from({ length: 2 }, (_, i) => ({ ...library[0], id: `library:${i}`, message: "m".repeat(600_000) })));
     expect(full.notShown.library).toBe(1);
     expect(full.notShownBlocking).toBe(1);
+  });
+
+  it("reads a completed run's library group again within what the engine's findings leave of the bound, and leaves the engine's part and an unadmitted run as they were", async () => {
+    const model = clone(await loadPreviewModel());
+    const warning = (i: number, length = 20) => ({ id: `library:${i}`, code: "INVENTED_LIBRARY", severity: "warning" as const, message: "m".repeat(length), affected_refs: [model.materials![0].id] });
+    const run = await runModelChecks(model, () => [warning(0)]);
+    expect(run.engineBytes).toBeGreaterThan(0);
+    const engine = run.findings.filter((item) => item.group !== "library");
+    const refreshed = withLibraryRefFindings(run, () => [warning(1), warning(2)]);
+    expect(refreshed.model).toBe(run.model);
+    expect(refreshed.solve).toBe(run.solve);
+    expect(refreshed.findings.filter((item) => item.group !== "library")).toEqual(engine);
+    expect(refreshed.findings.filter((item) => item.group === "library").map((item) => item.diagnostic.id)).toEqual(["library:1", "library:2"]);
+    expect(refreshed.findings.find((item) => item.group === "library")!.entity).toEqual({ type: "material", id: model.materials![0].id });
+    expect(refreshed.focusSummary).toBe(false);
+    // Cleared.
+    expect(withLibraryRefFindings(run, () => []).findings).toEqual(engine);
+    // Within what is left: the engine's bytes stand, so the second large warning is counted, not listed.
+    const left = 1024 * 1024 - run.engineBytes!;
+    const bounded = withLibraryRefFindings(run, () => [warning(3, left - 200), { ...warning(4, 400), severity: "blocking" as const }]);
+    expect(bounded.findings.filter((item) => item.group === "library").map((item) => item.diagnostic.id)).toEqual(["library:3"]);
+    expect(bounded.notShown).toEqual({ ...run.notShown, library: 1 });
+    expect(bounded.notShownBlockingByGroup).toEqual({ ...run.notShownBlockingByGroup, library: 1 });
+    expect(bounded.notShownBlocking).toBe(run.notShownBlockingByGroup.solve + run.notShownBlockingByGroup.slots + 1);
+    // A collection that fails says so; one that succeeds again clears the note.
+    const failed = withLibraryRefFindings(run, () => { throw new Error("invented collection failure"); });
+    expect(failed.libraryNotCompleted).toBe("invented collection failure");
+    expect(withLibraryRefFindings(failed, () => []).libraryNotCompleted).toBeUndefined();
+    // A run whose engine checks were not admitted reads no library findings.
+    const unadmitted = modelChecksNotCompleted(model, new Error("invented"));
+    const collect = vi.fn(() => [warning(5)]);
+    expect(withLibraryRefFindings(unadmitted, collect)).toBe(unadmitted);
+    expect(collect).not.toHaveBeenCalled();
   });
 });
