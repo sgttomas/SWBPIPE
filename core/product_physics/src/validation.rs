@@ -2261,8 +2261,11 @@ fn validate_directional_sifs(model: &crate::PreviewModel, diagnostics: &mut Vec<
 }
 
 /// On-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`): the
-/// solve's own checks before stiffness formation, without solving, exposed as
-/// `LinearStaticPreviewRequest::pre_formation_checks_value`. Declared here, in
+/// solve's own checks before stiffness formation and its load generation,
+/// without solving, exposed as
+/// `LinearStaticPreviewRequest::pre_formation_checks_value` and
+/// `LinearStaticPreviewRequest::solve_input_checks_value`. Declared here, in
 /// a module that no retained-pricing owner source is, so the owner sources
 /// stay byte-identical (Codex reviews r1 and r2 of #1665).
 mod model_checks;
+pub use model_checks::{solve_input_missing_codes, SolveInputChecks, SOLVE_INPUT_MISSING_CODES_JSON};

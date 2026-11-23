@@ -69,7 +69,7 @@ export function ExportAdapterSdkPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="export-adapter-sdk-export-link"
-          download={`openpipestress-preview-export-adapter-sdk-${safeFileToken(model.project.id)}.json`}
+          download={suggestedFileName("exportAdapterSdk")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />
@@ -539,3 +539,4 @@ function safeFileToken(value: string): string {
   return value.replace(/[^a-z0-9-]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase() || "preview";
 }
 import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";
+import { suggestedFileName } from "../fileNames";

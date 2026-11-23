@@ -12,6 +12,7 @@ mod autosave_commands;
 mod backup;
 mod close_guard;
 mod command_ingress;
+mod command_webview;
 mod embedded_agent;
 mod exact_source_binding;
 mod export_disposition_screen;
@@ -79,8 +80,11 @@ mod report_render_exact_tests;
 #[cfg(test)]
 mod report_render_pf_timoshenko_tests;
 #[cfg(test)]
+mod report_standing_package_tests;
+#[cfg(test)]
 mod object_form_tests;
 mod rule_solver_selection;
+mod saved_package_entries;
 mod result_text_digest;
 mod solve_attestation;
 #[allow(unsafe_code)]
@@ -140,7 +144,7 @@ async fn save_report_package(
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError<report_package_save::SaveCommandError>> {
     // Before the route is known, only the ingress layer refuses.
-    let (request, mut lease) = decode_report_package_save(&registry, invoke.body(), invoke.headers())?;
+    let (mut request, mut lease) = decode_report_package_save(&registry, invoke.body(), invoke.headers())?;
     // The lease is held through the growth, admission (which may grow it,
     // W-18b route 010), the save dialog, the write, the route's one exit and
     // the response, except after a worker panic: its unwind drops the lease
@@ -149,7 +153,7 @@ async fn save_report_package(
     // (`report_package_save::SaveRoute::exit`): route 010's refusals bounded,
     // whatever stage refused, and route 009's unchanged.
     let route = report_package_save::SaveRoute::of(&request);
-    let (outcome, lease) = match grow_report_package_save_lease(&registry, &request, &mut lease) {
+    let (outcome, lease) = match grow_report_package_save_lease(&registry, &mut request, &mut lease) {
         Ok(()) => save_report_package_decoded(app, request, lease, registry.inner().clone()).await,
         Err(error) => (Err(error), Some(lease)),
     };
@@ -178,12 +182,28 @@ fn decode_report_package_save(
 /// route-aware (`report_package_save::ingress_lease_bytes`; W-18b, DEL-08-01
 /// Design `report-user-release.md` §2.5, "The outer command"): route 010
 /// refuses the exact texts before they are priced.
+///
+/// Route 009's optional run record (DEL-08-01 REQ-023) never refuses the
+/// save: the raw body, record included, is admitted and capped as before,
+/// but if the growth is refused while the request holds a record, the record
+/// is dropped (admission then records the entry as not checked), the lease
+/// shrinks by the share the raw ingress priced for its decoded text, never
+/// below what the request's remaining texts hold, and the growth is asked
+/// again; only that refusal refuses the save.
 fn grow_report_package_save_lease(
     registry: &SolveJobRegistry,
-    request: &report_package_save::ReportPackageSaveRequest,
+    request: &mut report_package_save::ReportPackageSaveRequest,
     lease: &mut memory_pool::Lease,
 ) -> Result<(), CommandError<ReportPackageSaveCommandError>> {
     let growth = report_package_save::ingress_lease_bytes(request).map_err(CommandError::Command)?;
+    let refusal = match lease.grow_to(lease.bytes().saturating_add(growth)) {
+        Ok(()) => return Ok(()),
+        Err(refusal) => refusal,
+    };
+    let Some(share) = request.drop_route_009_record_for_memory() else {
+        return Err(CommandError::Ingress(registry.refuse(refusal)));
+    };
+    lease.shrink_to(lease.bytes().saturating_sub(share).max(request.texts_bytes()));
     lease.grow_to(lease.bytes().saturating_add(growth)).map_err(|refusal| CommandError::Ingress(registry.refuse(refusal)))
 }
 
@@ -196,8 +216,8 @@ fn admit_report_package_save(
     body: &tauri::ipc::InvokeBody,
     headers: &tauri::http::HeaderMap,
 ) -> Result<(report_package_save::ReportPackageSaveRequest, memory_pool::Lease), CommandError<ReportPackageSaveCommandError>> {
-    let (request, mut lease) = decode_report_package_save(registry, body, headers)?;
-    grow_report_package_save_lease(registry, &request, &mut lease)?;
+    let (mut request, mut lease) = decode_report_package_save(registry, body, headers)?;
+    grow_report_package_save_lease(registry, &mut request, &mut lease)?;
     Ok((request, lease))
 }
 
@@ -218,9 +238,24 @@ async fn save_report_package_decoded(
         let custody = |job: &str| registry.custody_binding(job);
         let outcome = {
             let mut session = report_package_save::UserReleaseSession { registry: &registry, lease: &mut lease };
-            report_package_save::save_report_package_session(request, &software, &mut lookup, &custody, &mut session, |file_name| {
-                choose_report_package_save_path(&app, file_name)
-            })
+            // DEL-08-01 REQ-023: a published package's entry, kept in the
+            // project store from the save's own outcome, or held by the
+            // session under the holder the page presents while the store
+            // does not hold the project.
+            let held = app.state::<saved_package_entries::SessionHeldEntries>();
+            let holder = request.saved_package_entry_holder.clone();
+            let mut keep = |published: &saved_package_entries::PublishedPackage| {
+                saved_package_entries::keep_or_hold_in(|| app_store_path(&app), &held, holder.as_deref(), published)
+            };
+            report_package_save::save_report_package_session(
+                request,
+                &software,
+                &mut lookup,
+                &custody,
+                &mut session,
+                |file_name| choose_report_package_save_path(&app, file_name),
+                &mut keep,
+            )
         };
         let outcome = outcome.map_err(|refusal| match refusal {
             report_package_save::SaveRefusal::Command(error) => CommandError::Command(error),
@@ -240,6 +275,10 @@ async fn save_report_package_decoded(
     })
 }
 
+/// The file type the report package saves' chooser names: the file is a
+/// report package, not the project's portable package (issue 509).
+const REPORT_PACKAGE_FILE_TYPE: &str = "SWBPIPE Report Package";
+
 fn choose_report_package_save_path(app: &AppHandle, file_name: &str) -> Option<Result<PathBuf, String>> {
     #[cfg(feature = "native-smoke")]
     if let Some(path) = native_smoke::take_chosen_path(app, "choose_report_package_save_path") {
@@ -248,7 +287,7 @@ fn choose_report_package_save_path(app: &AppHandle, file_name: &str) -> Option<R
     app.dialog()
         .file()
         .set_file_name(file_name)
-        .add_filter("SWBPIPE Project Package", &["opsproj"])
+        .add_filter(REPORT_PACKAGE_FILE_TYPE, &["opsproj"])
         .blocking_save_file()
         .map(|selected| selected.into_path().map_err(|error| error.to_string()))
 }
@@ -669,7 +708,7 @@ fn carry_forward_legacy_project_store(new_dir: &Path) -> Result<bool, String> {
     Ok(true)
 }
 
-const STORE_SCHEMA_TARGET_VERSION: i64 = 14;
+const STORE_SCHEMA_TARGET_VERSION: i64 = 15;
 const STORE_MIGRATION_FRAMEWORK: &str = "versioned_sqlite_user_version_migration_ledger";
 
 struct StoreMigration {
@@ -876,6 +915,14 @@ fn store_migrations() -> Vec<StoreMigration> {
             migration_id: "store-v14-retire-project-fts-sidecar",
             deferrable: true,
             apply: migrate_v14_retire_project_fts,
+        },
+        // The project's saved-package entries (DEL-08-01 REQ-023, DEL-02-05
+        // REQ-039): the record that a report package was saved from it.
+        StoreMigration {
+            version: 15,
+            migration_id: "store-v15-saved-package-entries-table",
+            deferrable: false,
+            apply: saved_package_entries::migrate_v15_saved_package_entries,
         },
     ]
 }
@@ -1281,6 +1328,182 @@ pub(crate) fn upsert_project_texts(
             ],
         )?;
     Ok(())
+}
+
+/// Issue 519: the refusal of a save that asks the store to keep the stored
+/// proposal (`keepStoredProposal`, `keep_stored_proposal` in the plain save's
+/// request) when it cannot: a value other than `true`, a request carrying a
+/// proposal or an envelope hash of its own, a create, or no stored project.
+/// Nothing is written.
+pub(crate) const STORED_PROPOSAL_KEEP_REFUSED: &str = "STORED-PROPOSAL-KEEP-REFUSED";
+
+/// Issue 519: a save's keep-stored-proposal member, closed: present and
+/// `true`, or absent. A save keeping the stored proposal is an unconfirmed
+/// save in place that carries no proposal of its own; a create has nothing
+/// stored to keep, and a Replace (`confirmed_revision`) never keeps it, so it
+/// is refused here, before the stored revision is read.
+/// `proposal` is the request's proposal as sent (absent or `null` is none).
+pub(crate) fn keep_stored_proposal(member: &str, value: Option<Value>, create: bool, proposal: Option<&Value>, confirmed_revision: Option<&str>) -> Result<bool, String> {
+    let kind = |value: &Value| match value {
+        Value::Null => "null",
+        Value::Bool(_) => "false",
+        Value::Number(_) => "a number",
+        Value::String(_) => "a string",
+        Value::Array(_) => "an array",
+        Value::Object(_) => "an object",
+    };
+    match value {
+        None => Ok(false),
+        Some(Value::Bool(true)) if create => Err(format!(
+            "{STORED_PROPOSAL_KEEP_REFUSED}: `{member}` keeps a stored project's proposal in a save in place; a create has no stored proposal to keep. Nothing was saved."
+        )),
+        Some(Value::Bool(true)) if proposal.is_some_and(|proposal| !proposal.is_null()) => Err(format!(
+            "{STORED_PROPOSAL_KEEP_REFUSED}: a save with `{member}` carries no proposal of its own; this one carries both. Nothing was saved."
+        )),
+        Some(Value::Bool(true)) if confirmed_revision.is_some() => Err(format!(
+            "{STORED_PROPOSAL_KEEP_REFUSED}: a save with `{member}` cannot confirm replacing the stored project; Replace does not keep the stored proposal. Nothing was saved."
+        )),
+        Some(Value::Bool(true)) => Ok(true),
+        Some(other) => Err(format!("{STORED_PROPOSAL_KEEP_REFUSED}: `{member}` is true or absent; it was {}. Nothing was saved.", kind(&other))),
+    }
+}
+
+/// Issue 519: the stored proposal a save keeps, read in the save's own
+/// transaction: its text as stored, never rewritten, and JavaScript's reading
+/// of it (each number as the webview reads it), which the envelope hash is
+/// computed over, as every open verifies it (the webview's recomputation and
+/// the native reopen's findings alike). The value is read only for the hash
+/// and the summary's count; no reply carries it. It lives under the command's
+/// own reservations, made before each step: SQLite's copy of the value, the
+/// loaded text, its parse at the ingress prescan's bound
+/// ([`stored_read::parse_bytes`]) and the canonical writer's key-order scratch
+/// while the hash is computed over it.
+pub(crate) struct KeptProposal {
+    pub(crate) text: String,
+    pub(crate) value: Value,
+    _reservations: [stored_read::ReadReservation; 4],
+}
+
+pub(crate) fn read_kept_proposal(transaction: &rusqlite::Transaction<'_>, project_id: &str, memory: &dyn stored_read::ReadMemory) -> Result<KeptProposal, String> {
+    let length: Option<i64> = transaction
+        .query_row("SELECT octet_length(proposal_json) FROM local_projects WHERE project_id = ?1", params![project_id], |row| row.get(0))
+        .optional()
+        .map_err(|error| stored_read::sql_error(&error))?;
+    let Some(length) = length else {
+        return Err(format!(
+            "{STORED_PROPOSAL_KEEP_REFUSED}: project `{}` is not stored, so it has no stored proposal to keep. Nothing was saved.",
+            stored_read::shown(project_id)
+        ));
+    };
+    let refused = |what: &str, why: String| format!("{STORED_PROPOSAL_KEEP_REFUSED}: project `{}`'s stored proposal {what} ({why}). Nothing was saved.", stored_read::shown(project_id));
+    let sqlite = stored_read::reserve_sqlite_value(memory, "the stored proposal's text", length).map_err(|why| refused("could not be read", why))?;
+    let bytes = u64::try_from(length).unwrap_or(0);
+    let loaded = memory.reserve("the stored proposal's text", stored_read::loaded_text_bytes(bytes)).map_err(|why| refused("could not be read", why))?;
+    let text: String = transaction
+        .query_row("SELECT proposal_json FROM local_projects WHERE project_id = ?1", params![project_id], |row| row.get(0))
+        .map_err(|error| stored_read::sql_error(&error))?;
+    let parse = stored_read::parse_bytes(&text).map_err(|why| refused("is not JSON this app reads", why))?;
+    let parsed = memory.reserve("parsing the stored proposal", parse).map_err(|why| refused("could not be read", why))?;
+    let mut value = serde_json::from_str::<Value>(&text).map_err(|error| refused("is not JSON this app reads", stored_read::json_error(&error)))?;
+    crate::analysis_run_v03_build::js_numbers(&mut value);
+    let scratch = memory
+        .reserve("hashing the stored proposal", crate::analysis_run_v03_build::sort_scratch_bytes(&value))
+        .map_err(|why| refused("could not be read", why))?;
+    Ok(KeptProposal { text, value, _reservations: [sqlite, loaded, parsed, scratch] })
+}
+
+/// The project row's update for a save that keeps the stored proposal: every
+/// column [`upsert_project_texts`] writes except `proposal_json`, which the
+/// statement does not name, so its stored text is left exactly as it is.
+/// `texts.proposal_json` is not written. The row must exist.
+pub(crate) fn update_project_texts_keeping_proposal(
+    transaction: &rusqlite::Transaction<'_>,
+    project_id: &str,
+    project_name: &str,
+    texts: &ProjectTexts<'_>,
+    now: i64,
+) -> Result<(), rusqlite::Error> {
+    let ProjectTexts { model_json, editor_intents_json, proposal_json: _, selected_review_target_json, mechanics_result_json, analysis_run_json, model_hash_json, project_envelope_hash_json } = *texts;
+    let changed = transaction.execute(
+        "
+        UPDATE local_projects SET
+            project_name = ?2,
+            model_json = ?3,
+            editor_intents_json = ?4,
+            selected_review_target_json = ?5,
+            mechanics_result_json = ?6,
+            analysis_run_json = ?7,
+            model_hash_json = ?8,
+            project_envelope_hash_json = ?9,
+            updated_at_unix = ?10
+        WHERE project_id = ?1
+        ",
+        params![project_id, project_name, model_json, editor_intents_json, selected_review_target_json, mechanics_result_json, analysis_run_json, model_hash_json, project_envelope_hash_json, now],
+    )?;
+    if changed == 1 {
+        Ok(())
+    } else {
+        Err(rusqlite::Error::QueryReturnedNoRows)
+    }
+}
+
+/// The row write of a save: the upsert, or with a kept stored proposal the
+/// update that leaves `proposal_json` as stored.
+pub(crate) fn write_project_texts(
+    transaction: &rusqlite::Transaction<'_>,
+    project_id: &str,
+    project_name: &str,
+    texts: &ProjectTexts<'_>,
+    now: i64,
+    keep_stored_proposal: bool,
+) -> Result<(), rusqlite::Error> {
+    if keep_stored_proposal {
+        update_project_texts_keeping_proposal(transaction, project_id, project_name, texts, now)
+    } else {
+        upsert_project_texts(transaction, project_id, project_name, texts, now)
+    }
+}
+
+/// `computeProjectEnvelopeHash`'s evidence for the plain save that keeps the
+/// stored proposal: the payload hash over the request's members and the
+/// stored proposal as read, in RFC 8785's order and forms.
+fn kept_proposal_envelope_hash(
+    model: &Value,
+    editor_intents: &Value,
+    proposal: &Value,
+    selected_review_target: &Value,
+    mechanics_result: &Value,
+    analysis_run: &Value,
+    model_hash: &Value,
+) -> Value {
+    use crate::analysis_run_v03_build::{Sink, Style, Writer};
+    use sha2::{Digest, Sha256};
+    let mut hasher = Sha256::new();
+    let members: [(&str, &Value); 7] = [
+        ("analysis_run", analysis_run),
+        ("editor_intents", editor_intents),
+        ("mechanics_result", mechanics_result),
+        ("model", model),
+        ("model_hash", model_hash),
+        ("proposal", proposal),
+        ("selected_review_target", selected_review_target),
+    ];
+    for (index, (key, value)) in members.into_iter().enumerate() {
+        hasher.put(if index == 0 { b"{\"" } else { b",\"" });
+        hasher.put(key.as_bytes());
+        hasher.put(b"\":");
+        Writer::new(&mut hasher, Style::Canonical).value(value);
+    }
+    hasher.put(b"}");
+    json!({
+        "algorithm": "sha256",
+        "canonicalization": "rfc8785_jcs",
+        "payload_scope": "project_envelope_payload",
+        "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
+        "payload_ref": model.pointer("/project/id").cloned().unwrap_or(Value::Null),
+        "value": format!("sha256:{}", crate::analysis_run_v03_build::hex(&hasher.finalize())),
+        "hash_status": "computed_local_preview"
+    })
 }
 
 struct StoredProjectRecord {
@@ -3530,58 +3753,108 @@ fn save_local_project(
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError> {
-    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "save_local_project", ArgsDecoding::Moved)?;
-    respond(save_local_project_args(&mut args, || app_store_path(&app)))
+    let (mut args, lease) = command_ingress::admit(&registry, &invoke, "save_local_project", ArgsDecoding::Moved)?;
+    // Issue 519: a stored proposal the save keeps is read under the command's own admission.
+    let memory = stored_read::PoolReadMemory::new(&registry, &lease);
+    respond(save_local_project_args_within(&mut args, || app_store_path(&app), &memory))
 }
 
 /// `{request}` (snake_case fields, see `SaveLocalProjectRequest`).
+#[cfg(test)]
 fn save_local_project_args(
     args: &mut Args,
     store: impl FnOnce() -> Result<PathBuf, String>,
 ) -> Result<LocalProjectEnvelope, CommandError> {
-    let request = args.decode_with("request", SaveLocalProjectRequest::from_value)?;
-    store().and_then(|path| save_project_in_store(path, request)).map_err(CommandError::Command)
+    save_local_project_args_within(args, store, &stored_read::UnmeteredReadMemory)
+}
+
+/// `save_local_project_args` with the command's memory, under which a kept
+/// stored proposal is read (issue 519).
+fn save_local_project_args_within(
+    args: &mut Args,
+    store: impl FnOnce() -> Result<PathBuf, String>,
+    memory: &dyn stored_read::ReadMemory,
+) -> Result<LocalProjectEnvelope, CommandError> {
+    // Issue 519: `keep_stored_proposal` as sent (absent: `None`), beside the request's other fields.
+    let (request, keep) = args.decode_with("request", |mut value| {
+        let keep = value.as_object_mut().and_then(|map| map.remove("keep_stored_proposal"));
+        SaveLocalProjectRequest::from_value(value).map(|request| (request, keep))
+    })?;
+    store().and_then(|path| save_project_in_store_keeping(path, request, keep, memory)).map_err(CommandError::Command)
 }
 
 /// `save_local_project` on a given store, with the same single transaction as
 /// `create_project_in_store`.
 fn save_project_in_store(path: PathBuf, request: SaveLocalProjectRequest) -> Result<LocalProjectEnvelope, String> {
+    save_project_in_store_keeping(path, request, None, &stored_read::UnmeteredReadMemory)
+}
+
+/// `save_project_in_store` with the request's `keep_stored_proposal` as sent
+/// (issue 519): with it, the stored proposal is kept as stored, read and
+/// hashed under `memory`; the reply's `proposal` is then null (the stored
+/// proposal stays in the store) and its envelope hash the store's.
+fn save_project_in_store_keeping(path: PathBuf, request: SaveLocalProjectRequest, keep: Option<Value>, memory: &dyn stored_read::ReadMemory) -> Result<LocalProjectEnvelope, String> {
+    // Refused before the store is opened; nothing is written.
+    let keep = keep_stored_proposal("keep_stored_proposal", keep, false, Some(&request.proposal), request.confirmed_revision.as_deref())?;
+    if keep && !request.project_envelope_hash.is_null() {
+        return Err(format!("{STORED_PROPOSAL_KEEP_REFUSED}: a save with `keep_stored_proposal` carries no envelope hash; the store computes it over what it stores. Nothing was saved."));
+    }
     let (mut connection, migration) = open_project_store(&path)?;
     // One write transaction from the preparation's reads to the commit.
     let transaction = immediate_transaction(&mut connection)?;
     let editor_intents = normalized_editor_intents(Some(request.editor_intents));
-    let proposal = normalized_proposal(Some(request.proposal));
+    let mut proposal = normalized_proposal(Some(request.proposal));
     let selected_review_target =
         normalized_selected_review_target(Some(request.selected_review_target));
     let mechanics_result = request.mechanics_result;
     let analysis_run = request.analysis_run;
     let model = request.model;
     let model_hash = request.model_hash;
-    let project_envelope_hash = request.project_envelope_hash;
+    let mut project_envelope_hash = request.project_envelope_hash;
+    let mut kept_count = None;
     let document_version = check_model_document_for_persist(&model)?;
-    guarded_write_project_rows(
-        &transaction,
-        request.confirmed_revision.as_deref(),
-        request.expected_base.as_deref(),
-        &request.project_id,
-        &request.project_name,
-        &model,
-        &editor_intents,
-        &proposal,
-        &selected_review_target,
-        &mechanics_result,
-        &analysis_run,
-        &model_hash,
-        &project_envelope_hash,
-    )?;
-    transaction.commit().map_err(|error| error.to_string())?;
-    Ok(LocalProjectEnvelope {
-        summary: project_summary(
-            request.project_id,
-            request.project_name,
+    if keep {
+        // The checks of `guarded_write_project_rows`, then the stored proposal read in this
+        // transaction: the envelope hash is computed over it and its text is left as stored.
+        refuse_unconfirmed_replacement(&transaction, &request.project_id, request.confirmed_revision.as_deref(), request.expected_base.as_deref())?;
+        refuse_dropping_withheld_run(&transaction, &request.project_id, request.confirmed_revision.as_deref(), &mechanics_result, solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES)?;
+        let kept = read_kept_proposal(&transaction, &request.project_id, memory)?;
+        // The canonical writer's key-order scratch over the request's values (the kept value's is reserved with it).
+        let scratch = [&model, &editor_intents, &selected_review_target, &mechanics_result, &analysis_run, &model_hash]
+            .into_iter()
+            .map(crate::analysis_run_v03_build::sort_scratch_bytes)
+            .max()
+            .unwrap_or(0);
+        let hashing = memory.reserve("hashing the project envelope", scratch).map_err(|why| {
+            format!("{STORED_PROPOSAL_KEEP_REFUSED}: project `{}`'s project envelope could not be hashed ({why}). Nothing was saved.", stored_read::shown(&request.project_id))
+        })?;
+        project_envelope_hash = kept_proposal_envelope_hash(&model, &editor_intents, &kept.value, &selected_review_target, &mechanics_result, &analysis_run, &model_hash);
+        drop(hashing);
+        let text = |value: &Value| serde_json::to_string(value).map_err(|error| error.to_string());
+        let (model_json, editor_intents_json, selected_review_target_json) = (text(&model)?, text(&editor_intents)?, text(&selected_review_target)?);
+        let (mechanics_result_json, analysis_run_json, model_hash_json, project_envelope_hash_json) = (text(&mechanics_result)?, text(&analysis_run)?, text(&model_hash)?, text(&project_envelope_hash)?);
+        let texts = ProjectTexts {
+            model_json: &model_json,
+            editor_intents_json: &editor_intents_json,
+            proposal_json: &kept.text,
+            selected_review_target_json: &selected_review_target_json,
+            mechanics_result_json: &mechanics_result_json,
+            analysis_run_json: &analysis_run_json,
+            model_hash_json: &model_hash_json,
+            project_envelope_hash_json: &project_envelope_hash_json,
+        };
+        update_project_texts_keeping_proposal(&transaction, &request.project_id, &request.project_name, &texts, now_unix_seconds()?).map_err(|error| error.to_string())?;
+        // Only the summary's count reads the kept value; the reply carries no stored proposal.
+        kept_count = Some(proposal_count(&kept.value));
+        proposal = Value::Null;
+    } else {
+        guarded_write_project_rows(
+            &transaction,
+            request.confirmed_revision.as_deref(),
+            request.expected_base.as_deref(),
+            &request.project_id,
+            &request.project_name,
             &model,
-            path,
-            &migration,
             &editor_intents,
             &proposal,
             &selected_review_target,
@@ -3589,8 +3862,29 @@ fn save_project_in_store(path: PathBuf, request: SaveLocalProjectRequest) -> Res
             &analysis_run,
             &model_hash,
             &project_envelope_hash,
-            "Saved current project model snapshot without external file copies.".to_string(),
-        ),
+        )?;
+    }
+    transaction.commit().map_err(|error| error.to_string())?;
+    let mut summary = project_summary(
+        request.project_id,
+        request.project_name,
+        &model,
+        path,
+        &migration,
+        &editor_intents,
+        &proposal,
+        &selected_review_target,
+        &mechanics_result,
+        &analysis_run,
+        &model_hash,
+        &project_envelope_hash,
+        "Saved current project model snapshot without external file copies.".to_string(),
+    );
+    if let Some(count) = kept_count {
+        summary.proposal_count = count;
+    }
+    Ok(LocalProjectEnvelope {
+        summary,
         model,
         editor_intents,
         proposal,
@@ -5473,6 +5767,16 @@ fn finish_close<R: tauri::Runtime>(app: &tauri::AppHandle<R>, kind: close_guard:
     }
 }
 
+/// SWBPIPE › Quit SWBPIPE (⌘Q) as the menu click delivers it, and the
+/// scripted-run build's `native_smoke_request_close` the same way: through the
+/// unsaved-changes guard, exiting here only when the guard has already
+/// approved.
+fn request_quit<R: tauri::Runtime>(app: &tauri::AppHandle<R>) {
+    if request_close(app, close_guard::CloseKind::Quit) {
+        app.exit(0);
+    }
+}
+
 /// The webview received an attempt of a close request (`close_guard.rs`).
 /// True when the host accepted it; only then may the webview ask the user.
 #[tauri::command]
@@ -6338,6 +6642,10 @@ macro_rules! app_invoke_handler {
             analysis_runs::edit_analysis_run_labels,
             analysis_runs::delete_analysis_run,
             analysis_runs::admit_analysis_run_comparison,
+            saved_package_entries::list_saved_package_entries,
+            saved_package_entries::check_saved_package_entry,
+            saved_package_entries::remove_saved_package_entry,
+            saved_package_entries::keep_held_saved_package_entries,
             autosave_commands::write_project_autosave,
             autosave_commands::list_project_autosaves,
             autosave_commands::read_project_autosave,
@@ -6392,12 +6700,11 @@ pub fn run() {
         .manage(close_guard::CloseGuard::default())
         .manage(mbf_worker::MbfRuns::default())
         .manage(mbf_import::MbfImports::default())
+        .manage(saved_package_entries::SessionHeldEntries::default())
         .menu(|handle| build_app_menu(handle))
         .on_menu_event(|app, event| {
             if event.id().0 == QUIT_MENU_ID {
-                if request_close(app, close_guard::CloseKind::Quit) {
-                    app.exit(0);
-                }
+                request_quit(app);
                 return;
             }
             restore_native_check_item_after_activation(app, &event.id().0);
@@ -6413,12 +6720,13 @@ pub fn run() {
     #[cfg(target_os = "macos")]
     let builder = builder.manage(embedded_agent::live_host::Host::new(registry.clone()));
     #[cfg(not(feature = "native-smoke"))]
-    let builder = builder.invoke_handler(app_invoke_handler!());
+    let builder = builder.invoke_handler(command_webview::main_webview_only(app_invoke_handler!()));
     #[cfg(feature = "native-smoke")]
-    let builder = native_smoke::install(builder).invoke_handler(app_invoke_handler!(
+    let builder = native_smoke::install(builder).invoke_handler(command_webview::main_webview_only(app_invoke_handler!(
         native_smoke::native_smoke_choose,
         native_smoke::native_smoke_clear_choices,
         native_smoke::native_smoke_menu,
+        native_smoke::native_smoke_request_close,
         native_smoke::native_smoke_menu_items,
         native_smoke::native_smoke_show_window,
         native_smoke::native_smoke_plan,
@@ -6433,7 +6741,7 @@ pub fn run() {
         native_smoke::native_smoke_close_report_views,
         native_smoke::native_smoke_checkpoint,
         native_smoke::native_smoke_finish,
-    ));
+    )));
     builder
         .build(tauri::generate_context!())
         .expect("error while building SWBPIPE")
@@ -8482,14 +8790,15 @@ mod tests {
             .collect()
     }
 
-    /// A fresh store migrates to v14 with no FTS sidecar, and a save on it
-    /// writes no search row and creates no table.
+    /// A fresh store migrates to the current version (v14 retired the FTS
+    /// sidecar) with no FTS sidecar, and a save on it writes no search row and
+    /// creates no table.
     #[test]
     fn a_fresh_store_is_at_v14_with_no_fts_sidecar_and_a_save_creates_none() {
         let mut connection = Connection::open_in_memory().unwrap();
         let migration = apply_store_migrations(&connection).unwrap();
-        assert_eq!(migration.store_schema_version, 14);
-        assert_eq!(migration.migrations_applied_on_open.last().map(String::as_str), Some("store-v14-retire-project-fts-sidecar"));
+        assert_eq!(migration.store_schema_version, STORE_SCHEMA_TARGET_VERSION);
+        assert!(migration.migrations_applied_on_open.iter().any(|step| step == "store-v14-retire-project-fts-sidecar"));
         assert!(fts_sidecar_objects(&connection).is_empty());
         let model = json!({ "project": { "id": "project:fresh-v14", "name": "Fresh" } });
         upsert_project(&mut connection, "project:fresh-v14", "Fresh", &model, &json!(["editor"]), &json!({ "review": 1 }), &Value::Null, &Value::Null, &json!({ "run": 1 }), &Value::Null, &Value::Null).unwrap();
@@ -8555,11 +8864,12 @@ mod tests {
                 "store-v12-model-states-tables",
                 "store-v13-analysis-runs-tables",
                 "store-v14-retire-project-fts-sidecar",
+                "store-v15-saved-package-entries-table",
             ]
         );
         assert_eq!(
             first_open.migration_status,
-            "migrated_on_open_store_schema_v0_to_v14"
+            "migrated_on_open_store_schema_v0_to_v15"
         );
         assert!(fts_sidecar_objects(&connection).is_empty(), "v1 creates the sidecar and v14 drops it");
 
@@ -8577,7 +8887,7 @@ mod tests {
         assert_eq!(second_open.pending_migration_count, 0);
         assert_eq!(
             second_open.migration_status,
-            "current_store_schema_v14_no_pending_migrations"
+            "current_store_schema_v15_no_pending_migrations"
         );
     }
 
@@ -8614,10 +8924,10 @@ mod tests {
         let migration = apply_store_migrations(&connection).expect("legacy store migrations apply");
         assert_eq!(migration.store_schema_version_before_open, 0);
         assert_eq!(migration.store_schema_version, STORE_SCHEMA_TARGET_VERSION);
-        assert_eq!(migration.migrations_applied_on_open.len(), 14);
+        assert_eq!(migration.migrations_applied_on_open.len(), 15);
         assert_eq!(
             migration.migration_status,
-            "migrated_on_open_store_schema_v0_to_v14"
+            "migrated_on_open_store_schema_v0_to_v15"
         );
 
         let loaded = load_project(&connection, Some("project:legacy-local"))
@@ -8688,12 +8998,13 @@ mod tests {
                 "store-v11-local-libraries-table",
                 "store-v12-model-states-tables",
                 "store-v13-analysis-runs-tables",
-                "store-v14-retire-project-fts-sidecar"
+                "store-v14-retire-project-fts-sidecar",
+                "store-v15-saved-package-entries-table"
             ]
         );
         assert_eq!(
             migration.migration_status,
-            "migrated_on_open_store_schema_v7_to_v14"
+            "migrated_on_open_store_schema_v7_to_v15"
         );
         assert!(fts_sidecar_objects(&connection).is_empty(), "the v7 store's sidecar is dropped");
 
@@ -9495,6 +9806,250 @@ mod tests {
         let after = load_project(&connection, Some("project:slots-malformed")).unwrap().unwrap();
         assert_eq!(after.model, malformed, "the stored bytes are never rewritten");
         drop(connection);
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
+    /// Issue 519, the plain save: with `keep_stored_proposal` the stored
+    /// proposal's text (key order, whitespace, `1.0`, `-0`, an integer above
+    /// 2^53) is byte identical after a save in place, the other columns are
+    /// those of an ordinary save of the same values, and the envelope hash is
+    /// the one computed over the stored proposal as read. Without the member a
+    /// save replaces it as before; a request carrying a proposal or an
+    /// envelope hash with it, a value other than true, or no stored project is
+    /// refused by name with every column unchanged; a save that fails after
+    /// the row's update leaves the text as stored.
+    #[test]
+    fn save_local_project_keeps_the_stored_proposal_text_as_stored() {
+        let root = std::env::temp_dir().join(format!(
+            "keep-proposal-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()
+        ));
+        std::fs::create_dir(&root).unwrap();
+        let golden: Value = serde_json::from_str(include_str!("../../../../fixtures/model_document/desktop_emitted.json")).unwrap();
+        let model = golden["entries"].as_array().unwrap().last().unwrap()["document"].clone();
+        let project_id = model["project"]["id"].as_str().unwrap().to_string();
+        let odd = "{ \"zeta\" : 1.0,\n  \"alpha\": [ -0, 9007199254740993, {\"b\":2,\"a\":1} ],\n \"proposal_id\":\"proposal:odd\" }";
+        let parsed: Value = serde_json::from_str(odd).unwrap();
+        assert_ne!(serde_json::to_string(&parsed).unwrap(), odd, "a re-serialisation changes this text");
+        // What the webview reads of it, and so what a session would send and hash.
+        let mut read = parsed.clone();
+        crate::analysis_run_v03_build::js_numbers(&mut read);
+        assert_ne!(read, parsed);
+        let request = |extra: Value| {
+            let mut value = json!({
+                "project_id": project_id, "project_name": "Invented keep", "model": model,
+                "model_hash": computed_model_hash(&model, &project_id), "expected_base": "base"
+            });
+            value.as_object_mut().unwrap().extend(extra.as_object().unwrap().clone());
+            SaveLocalProjectRequest::from_value(value).unwrap()
+        };
+        let seeded = |name: &str| {
+            let db = root.join(name);
+            let (mut connection, _) = open_project_store(&db).unwrap();
+            upsert_project(&mut connection, &project_id, "Invented keep", &model, &json!([]), &Value::Null, &Value::Null, &Value::Null, &Value::Null, &Value::Null, &json!({"value": "base"})).unwrap();
+            connection.execute("UPDATE local_projects SET proposal_json = ?1", params![odd]).unwrap();
+            db
+        };
+        let text = |db: &Path, column: &str| -> String {
+            Connection::open(db).unwrap().query_row(&format!("SELECT {column} FROM local_projects"), [], |row| row.get(0)).unwrap()
+        };
+        let row = |db: &Path| -> Vec<String> {
+            ["project_name", "model_json", "editor_intents_json", "proposal_json", "selected_review_target_json", "mechanics_result_json", "analysis_run_json", "model_hash_json", "project_envelope_hash_json"]
+                .iter().map(|column| text(db, column)).collect()
+        };
+
+        // Kept: the text as stored; the reply carries no stored proposal (it stays in the store).
+        let kept_db = seeded("kept.sqlite");
+        let saved = save_project_in_store_keeping(kept_db.clone(), request(json!({})), Some(json!(true)), &stored_read::UnmeteredReadMemory).unwrap();
+        assert_eq!(text(&kept_db, "proposal_json"), odd, "byte identical");
+        assert_eq!(saved.proposal, Value::Null, "no reply carries the stored proposal");
+        assert_eq!(saved.summary.proposal_count, 1);
+        // An ordinary save of the same values (as the session computed its hash): every other column alike.
+        let reference_db = seeded("reference.sqlite");
+        let envelope = computed_project_envelope_hash(&project_id, &model, &json!([]), &read, &Value::Null, &Value::Null, &Value::Null, &computed_model_hash(&model, &project_id));
+        save_project_in_store(reference_db.clone(), request(json!({"proposal": read, "project_envelope_hash": envelope}))).unwrap();
+        let (kept_row, reference_row) = (row(&kept_db), row(&reference_db));
+        assert_eq!(reference_row[3], serde_json::to_string(&read).unwrap(), "the ordinary save re-serialises");
+        for (index, (kept, reference)) in kept_row.iter().zip(&reference_row).enumerate() {
+            if index != 3 {
+                assert_eq!(kept, reference, "column {index}");
+            }
+        }
+        assert_eq!(saved.project_envelope_hash, envelope, "the hash over the stored proposal as read");
+        // A reopen reads the kept text again, unchanged, and the webview's check of the stored
+        // envelope hash passes: recomputed over what the open sends, each number as JavaScript reads
+        // it (`-0` as 0, 9007199254740993 as 9007199254740992), it is the stored claim.
+        let reopened = open_project_in_store(kept_db.clone(), Some(&project_id)).unwrap().unwrap();
+        assert_eq!(reopened.proposal, parsed);
+        let mut webview = reopened.proposal.clone();
+        crate::analysis_run_v03_build::js_numbers(&mut webview);
+        assert_eq!(
+            computed_project_envelope_hash(&project_id, &reopened.model, &reopened.editor_intents, &webview, &reopened.selected_review_target, &reopened.mechanics_result, &reopened.analysis_run, &reopened.model_hash),
+            reopened.project_envelope_hash,
+            "the reopen's check of the stored claim passes for these number forms"
+        );
+        assert_eq!(text(&kept_db, "proposal_json"), odd);
+
+        // Without the member a save replaces it, as before.
+        let plain_db = seeded("plain.sqlite");
+        save_project_in_store_keeping(plain_db.clone(), request(json!({})), None, &stored_read::UnmeteredReadMemory).unwrap();
+        assert_eq!(text(&plain_db, "proposal_json"), "null");
+
+        // Refusals: nothing written.
+        for (name, extra, keep, expected) in [
+            ("both", json!({"proposal": {"proposal_id": "proposal:own"}}), Some(json!(true)), "carries both"),
+            ("hash", json!({"project_envelope_hash": {"value": "sha256:0"}}), Some(json!(true)), "carries no envelope hash"),
+            ("false", json!({}), Some(json!(false)), "it was false"),
+            ("null", json!({}), Some(Value::Null), "it was null"),
+            ("string", json!({}), Some(json!("true")), "it was a string"),
+            ("number", json!({}), Some(json!(1)), "it was a number"),
+            // A Replace never keeps the stored proposal: refused before the stored revision is read.
+            ("confirmed", json!({"confirmed_revision": "stale"}), Some(json!(true)), "cannot confirm replacing"),
+        ] {
+            let db = seeded(&format!("refused-{name}.sqlite"));
+            let before = row(&db);
+            let error = save_project_in_store_keeping(db.clone(), request(extra), keep, &stored_read::UnmeteredReadMemory).unwrap_err();
+            assert!(error.starts_with(STORED_PROPOSAL_KEEP_REFUSED) && error.contains(expected), "{name}: {error}");
+            assert_eq!(row(&db), before, "{name}: every column unchanged");
+        }
+        let empty = root.join("empty.sqlite");
+        let error = save_project_in_store_keeping(empty.clone(), SaveLocalProjectRequest::from_value(json!({
+            "project_id": project_id, "project_name": "Invented keep", "model": model, "model_hash": computed_model_hash(&model, &project_id)
+        })).unwrap(), Some(json!(true)), &stored_read::UnmeteredReadMemory).unwrap_err();
+        assert!(error.starts_with(STORED_PROPOSAL_KEEP_REFUSED) && error.contains("is not stored"), "{error}");
+        let (connection, _) = open_project_store(&empty).unwrap();
+        assert_eq!(connection.query_row("SELECT count(*) FROM local_projects", [], |row| row.get::<_, i64>(0)).unwrap(), 0);
+        drop(connection);
+
+        // A failure after the row's update rolls the save back: the text as stored.
+        let failing = seeded("failing.sqlite");
+        Connection::open(&failing).unwrap().execute_batch(
+            "CREATE TRIGGER invented_failure AFTER UPDATE ON local_projects BEGIN SELECT RAISE(FAIL, 'INVENTED-FAILURE: after the project row'); END;"
+        ).unwrap();
+        let before = row(&failing);
+        let error = save_project_in_store_keeping(failing.clone(), request(json!({})), Some(json!(true)), &stored_read::UnmeteredReadMemory).unwrap_err();
+        assert!(error.contains("INVENTED-FAILURE"), "{error}");
+        assert_eq!(row(&failing), before);
+        assert_eq!(text(&failing, "proposal_json"), odd);
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
+    /// Issue 519 review: the plain save reads the stored proposal it keeps under
+    /// the command's memory: a stored proposal whose text or parse is above
+    /// what the memory admits refuses the save by name, and the row is byte for
+    /// byte unchanged. The same save with the allowance raised keeps it.
+    #[test]
+    fn save_local_project_refuses_a_kept_proposal_above_its_allowance() {
+        struct Allowance(u64);
+        impl stored_read::ReadMemory for Allowance {
+            fn reserve(&self, what: &str, bytes: u64) -> Result<stored_read::ReadReservation, String> {
+                if bytes > self.0 {
+                    return Err(format!("{}: reading {what} needs {bytes} bytes, above the invented allowance of {} bytes; nothing more was read.", stored_read::STORE_READ_MEMORY_UNAVAILABLE, self.0));
+                }
+                stored_read::ReadMemory::reserve(&stored_read::UnmeteredReadMemory, what, bytes)
+            }
+        }
+        let root = std::env::temp_dir().join(format!(
+            "keep-proposal-allowance-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()
+        ));
+        std::fs::create_dir(&root).unwrap();
+        let golden: Value = serde_json::from_str(include_str!("../../../../fixtures/model_document/desktop_emitted.json")).unwrap();
+        let model = golden["entries"].as_array().unwrap().last().unwrap()["document"].clone();
+        let project_id = model["project"]["id"].as_str().unwrap().to_string();
+        // A dense scalar array: its parse is many times its text.
+        let large = format!("{{\"proposal_id\":\"proposal:large\",\"pad\":[{}]}}", vec!["0"; 1 << 16].join(","));
+        let parse = stored_read::parse_bytes(&large).unwrap();
+        let loaded = stored_read::loaded_text_bytes(large.len() as u64);
+        let sqlite = (large.len() as u64) * stored_read::SQLITE_WORKING_SET_FACTOR;
+        assert!(parse > loaded && parse > sqlite, "the parse is the largest step: {parse} {loaded} {sqlite}");
+        let db = root.join("large.sqlite");
+        let (mut connection, _) = open_project_store(&db).unwrap();
+        upsert_project(&mut connection, &project_id, "Invented keep", &model, &json!([]), &Value::Null, &Value::Null, &Value::Null, &Value::Null, &Value::Null, &json!({"value": "base"})).unwrap();
+        connection.execute("UPDATE local_projects SET proposal_json = ?1", params![large]).unwrap();
+        drop(connection);
+        let request = || SaveLocalProjectRequest::from_value(json!({
+            "project_id": project_id, "project_name": "Invented keep", "model": model,
+            "model_hash": computed_model_hash(&model, &project_id), "expected_base": "base"
+        })).unwrap();
+        let row = || -> Vec<Option<String>> {
+            let connection = Connection::open(&db).unwrap();
+            let mut statement = connection.prepare("SELECT * FROM local_projects").unwrap();
+            let count = statement.column_count();
+            statement.query_row([], |row| (0..count).map(|index| row.get::<_, rusqlite::types::Value>(index).map(|value| Some(format!("{value:?}")))).collect()).unwrap()
+        };
+        let before = row();
+        for (allowance, step) in [(loaded - 1, "the stored proposal's text"), (parse - 1, "parsing the stored proposal")] {
+            let refused = save_project_in_store_keeping(db.clone(), request(), Some(json!(true)), &Allowance(allowance)).unwrap_err();
+            assert!(refused.starts_with(STORED_PROPOSAL_KEEP_REFUSED) && refused.contains(stored_read::STORE_READ_MEMORY_UNAVAILABLE) && refused.contains(step) && refused.contains("Nothing was saved"), "{refused}");
+            assert_eq!(row(), before, "byte for byte unchanged");
+        }
+        // The envelope's own hashing scratch refused after the stored proposal was read: the same
+        // refusal by name, nothing written.
+        struct RefusingStep(&'static str);
+        impl stored_read::ReadMemory for RefusingStep {
+            fn reserve(&self, what: &str, bytes: u64) -> Result<stored_read::ReadReservation, String> {
+                if what == self.0 {
+                    return Err(format!("{}: reading {what} needs {bytes} bytes, above the invented allowance; nothing more was read.", stored_read::STORE_READ_MEMORY_UNAVAILABLE));
+                }
+                stored_read::ReadMemory::reserve(&stored_read::UnmeteredReadMemory, what, bytes)
+            }
+        }
+        let refused = save_project_in_store_keeping(db.clone(), request(), Some(json!(true)), &RefusingStep("hashing the project envelope")).unwrap_err();
+        assert!(refused.starts_with(STORED_PROPOSAL_KEEP_REFUSED) && refused.contains(stored_read::STORE_READ_MEMORY_UNAVAILABLE) && refused.contains("project envelope") && refused.contains("Nothing was saved"), "{refused}");
+        assert_eq!(row(), before, "byte for byte unchanged");
+        save_project_in_store_keeping(db.clone(), request(), Some(json!(true)), &Allowance(u64::MAX)).unwrap();
+        let kept: String = Connection::open(&db).unwrap().query_row("SELECT proposal_json FROM local_projects", [], |row| row.get(0)).unwrap();
+        assert_eq!(kept, large);
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
+    /// Issue 519 review, repair 1, as the store sees Open State: a project with
+    /// a stored proposal, a saved model state of it, the state read back
+    /// (Open State reads it), then the save in place of the state's model with
+    /// the keep member against the base the session opened: the stored
+    /// proposal's text is byte identical.
+    #[test]
+    fn a_save_after_open_state_keeps_the_stored_proposal_text() {
+        use crate::model_states::{labels_from_value, read_state_in_store, save_state_in_store, SaveModelStateRequest, StateWriteHooks};
+        let root = std::env::temp_dir().join(format!(
+            "keep-proposal-open-state-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()
+        ));
+        std::fs::create_dir(&root).unwrap();
+        let golden: Value = serde_json::from_str(include_str!("../../../../fixtures/model_document/desktop_emitted.json")).unwrap();
+        let model = golden["entries"].as_array().unwrap().last().unwrap()["document"].clone();
+        let project_id = model["project"]["id"].as_str().unwrap().to_string();
+        let odd = "{ \"zeta\" : 1.0,\n  \"alpha\": [ -0, 9007199254740993, {\"b\":2,\"a\":1} ],\n \"proposal_id\":\"proposal:odd\" }";
+        let db = root.join("open-state.sqlite");
+        let (mut connection, _) = open_project_store(&db).unwrap();
+        upsert_project(&mut connection, &project_id, "Invented keep", &model, &json!([]), &Value::Null, &Value::Null, &Value::Null, &Value::Null, &Value::Null, &json!({"value": "base"})).unwrap();
+        connection.execute("UPDATE local_projects SET proposal_json = ?1", params![odd]).unwrap();
+        drop(connection);
+        let model_canonical = open_pipe_stress_operation_applier::canonical_json(&model);
+        let state = save_state_in_store(&db, SaveModelStateRequest {
+            project_id: project_id.clone(),
+            expected_base: "base".to_string(),
+            model_hash: format!("sha256:{}", open_pipe_stress_operation_applier::sha256_hex(&model_canonical)),
+            model_canonical,
+            state_kind: "design_snapshot".to_string(),
+            parent_state_id: None,
+            labels: labels_from_value(json!({ "state_name": "Invented state" })).unwrap(),
+        }, &StateWriteHooks {
+            allocate: &|| -> Result<(String, i64), String> { Ok(("0123456789abcdef0123456789abcdef".to_string(), 1_793_000_000_000)) },
+            between_rows: &|_: &rusqlite::Transaction<'_>| -> Result<(), String> { Ok(()) },
+        }).unwrap().state;
+        let opened = read_state_in_store(&db, &project_id, &state.state_id).unwrap();
+        let request = SaveLocalProjectRequest::from_value(json!({
+            "project_id": project_id, "project_name": "Invented keep", "model": opened.model,
+            "model_hash": computed_model_hash(&opened.model, &project_id), "expected_base": "base"
+        })).unwrap();
+        save_project_in_store_keeping(db.clone(), request, Some(json!(true)), &stored_read::UnmeteredReadMemory).unwrap();
+        let kept: String = Connection::open(&db).unwrap().query_row("SELECT proposal_json FROM local_projects", [], |row| row.get(0)).unwrap();
+        assert_eq!(kept, odd, "byte identical");
         std::fs::remove_dir_all(root).unwrap();
     }
 
@@ -11305,6 +11860,31 @@ mod tests {
             }
         }
 
+        /// Issue 519: `save_local_project`'s request carries `keep_stored_proposal`
+        /// beside its fields; absent, the request decodes as before.
+        #[test]
+        fn save_local_project_args_read_keep_stored_proposal() {
+            let root = std::env::temp_dir().join(format!("keep-proposal-args-{}-{}", std::process::id(), std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()));
+            std::fs::create_dir(&root).unwrap();
+            let db = root.join("store.sqlite");
+            let model: Value = serde_json::from_str::<Value>(include_str!("../../../../fixtures/model_document/desktop_emitted.json")).unwrap()["entries"]
+                .as_array().unwrap().last().unwrap()["document"].clone();
+            let project_id = model["project"]["id"].as_str().unwrap().to_string();
+            let args = |keep: Option<Value>| {
+                let mut request = json!({"project_id": project_id, "project_name": "Invented keep", "model": model});
+                if let Some(keep) = keep {
+                    request["keep_stored_proposal"] = keep;
+                }
+                admit("save_local_project", json!({"request": request}))
+            };
+            let refused = save_local_project_args(&mut args(Some(json!("yes"))).0, || Ok(db.clone())).unwrap_err();
+            assert!(format!("{refused:?}").contains("STORED-PROPOSAL-KEEP-REFUSED"), "{refused:?}");
+            let refused = save_local_project_args(&mut args(Some(json!(true))).0, || Ok(db.clone())).unwrap_err();
+            assert!(format!("{refused:?}").contains("is not stored"), "{refused:?}");
+            assert!(save_local_project_args(&mut args(None).0, || Ok(db.clone())).is_ok());
+            std::fs::remove_dir_all(root).unwrap();
+        }
+
         #[test]
         fn rule_pack_and_rule_check_commands_decode_raw_bodies() {
             let document = example_rule_pack_document();
@@ -11478,17 +12058,26 @@ mod tests {
                     let invoke_body = tauri::ipc::InvokeBody::Raw(body.to_vec());
                     let (mut args, mut lease) =
                         command_ingress::admit_body(&registry, &invoke_body, &current, "save_report_package", ArgsDecoding::Moved).unwrap();
-                    let request = report_package_save::save_report_package_args(&mut args).unwrap();
+                    let mut request = report_package_save::save_report_package_args(&mut args).unwrap();
                     drop(args);
-                    report_package_save::validate_report_package_save_evidence(&request.screening, request.local_first.as_ref()).unwrap();
-                    let growth = report_package_save::parse_lease_bytes(&request.request_text, &request.model_text, &request.input_manifest_text).unwrap();
-                    lease.grow_to(lease.bytes() + growth).unwrap();
+                    grow_report_package_save_lease(&registry, &mut request, &mut lease).unwrap_or_else(|error| panic!("{label}: growth refused: {error:?}"));
                     let mut picks = 0usize;
-                    let receipt = save_report_package_with_picker(request, &software(), &mut no_store, &report_package_save::no_custody, |_| {
-                        picks += 1;
-                        None
-                    })
-                    .unwrap_or_else(|error| panic!("{label}: refused: {}", error.message));
+                    let receipt = {
+                        let mut session = report_package_save::UserReleaseSession { registry: &registry, lease: &mut lease };
+                        report_package_save::save_report_package_session(
+                            request,
+                            &software(),
+                            &mut no_store,
+                            &report_package_save::no_custody,
+                            &mut session,
+                            |_| {
+                                picks += 1;
+                                None
+                            },
+                            &mut report_package_save::keep_no_entry,
+                        )
+                        .unwrap_or_else(|refusal| panic!("{label}: refused: {refusal:?}"))
+                    };
                     assert_eq!(picks, 1);
                     let code = receipt.code.clone();
                     let response = respond::<_, String>(Ok(receipt)).unwrap();
@@ -11545,6 +12134,23 @@ mod tests {
             use report_package_save::test_support::{args_body, desktop_request, model, save_request};
             let body = serde_json::to_vec(&args_body(&save_request(&desktop_request(&model()), &model()))).unwrap();
             report_package_whole_command_within_its_lease("witness", &body);
+        }
+
+        /// The whole command on route 009 with its optional run record
+        /// (DEL-08-01 REQ-023 "Basis"): the user-release vectors' basis, the
+        /// committed model and sparse solve, with the record given, so the
+        /// record's growth and check are within the measured lease.
+        #[test]
+        fn report_package_save_whole_command_with_a_run_record_is_within_its_lease() {
+            use report_package_save::test_support::{args_body, desktop_request_from, model, save_request_with};
+            let vectors: Value = serde_json::from_str(include_str!("../../../../fixtures/reports/invented/user_release_derivation_vectors.json")).unwrap();
+            let source: Value = serde_json::from_str(include_str!("../../../../fixtures/results/preview_physics_connected_sparse.json")).unwrap();
+            let vector = &vectors["vectors"][0];
+            let (model, manifest) = (model(), vector["input_manifest"].clone());
+            let request = desktop_request_from(&model, &manifest, &source);
+            let mut body = args_body(&save_request_with(&request, &model, &manifest));
+            body["analysisRunCanonicalText"] = json!(open_pipe_stress_canonical_json::canonical_json(&vector["run_record"]));
+            report_package_whole_command_within_its_lease("route 009 with a run record", &serde_json::to_vec(&body).unwrap());
         }
 
         /// The whole command on the demo's request: the bundled demo
@@ -12404,3 +13010,480 @@ mod stored_result_limit_tests {
         save_in_place(&store, Value::Null, None).expect("a run the session opened is its to replace");
     }
 }
+
+/// Source reads of the scripted-run build's quit and window close (`native_smoke_request_close`) beside the menu
+/// click's Quit handling, and the close guard's own states for a quit and a window request. The command is compiled
+/// only into the scripted-run build, so it is read here as source (`syn`, with span locations); none of these tests
+/// runs the command, `request_quit`, the close-requested handler or the web view.
+#[cfg(test)]
+mod scripted_close_route_tests {
+    use crate::close_guard::{CloseDecision, CloseGuard, CloseKind};
+    use std::path::Path;
+    use syn::visit::{self, Visit};
+
+    fn source(file: &str) -> String {
+        std::fs::read_to_string(Path::new(env!("CARGO_MANIFEST_DIR")).join("src").join(file)).unwrap()
+    }
+
+    /// Every `.rs` file under `src/`, at any depth: (path relative to `src/`, text).
+    fn crate_sources() -> Vec<(String, String)> {
+        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
+        let mut files = Vec::new();
+        let mut dirs = vec![root.clone()];
+        while let Some(dir) = dirs.pop() {
+            for entry in std::fs::read_dir(dir).unwrap() {
+                let path = entry.unwrap().path();
+                if path.is_dir() {
+                    dirs.push(path);
+                } else if path.extension().is_some_and(|ext| ext == "rs") {
+                    let relative = path.strip_prefix(&root).unwrap().to_string_lossy().into_owned();
+                    files.push((relative, std::fs::read_to_string(&path).unwrap()));
+                }
+            }
+        }
+        assert!(files.len() > 20, "the walk reads the crate's sources");
+        files
+    }
+
+    fn normalized(text: &str) -> String {
+        text.chars().filter(|c| !c.is_whitespace()).collect()
+    }
+
+    /// The text between two span locations, whitespace removed.
+    fn between(text: &str, start: proc_macro2::LineColumn, end: proc_macro2::LineColumn) -> String {
+        let lines: Vec<&str> = text.lines().collect();
+        let mut out = String::new();
+        for line in start.line..=end.line {
+            let chars: Vec<char> = lines[line - 1].chars().collect();
+            let from = if line == start.line { start.column } else { 0 };
+            let to = if line == end.line { end.column } else { chars.len() };
+            out.extend(chars[from..to].iter());
+        }
+        normalized(&out)
+    }
+
+    fn top_fn<'a>(file: &'a syn::File, name: &str) -> Option<&'a syn::ItemFn> {
+        file.items.iter().find_map(|item| match item {
+            syn::Item::Fn(function) if function.sig.ident == name => Some(function),
+            _ => None,
+        })
+    }
+
+    fn body(text: &str, function: &syn::ItemFn) -> String {
+        let braces = function.block.brace_token.span;
+        between(text, braces.open().start(), braces.close().end())
+    }
+
+    /// The source text between two span locations, exactly as written.
+    fn span_text(text: &str, start: proc_macro2::LineColumn, end: proc_macro2::LineColumn) -> String {
+        let lines: Vec<&str> = text.lines().collect();
+        let mut out = Vec::new();
+        for line in start.line..=end.line {
+            let chars: Vec<char> = lines[line - 1].chars().collect();
+            let from = if line == start.line { start.column } else { 0 };
+            let to = if line == end.line { end.column } else { chars.len() };
+            out.push(chars[from..to].iter().collect::<String>());
+        }
+        out.join("\n")
+    }
+
+    /// A whole function item as written: from its first outer attribute (doc comments included) or, without one, its
+    /// visibility or `fn`, through its closing brace; so its attributes, visibility, qualifiers (`const`, `async`,
+    /// `unsafe`, `extern`), signature and body.
+    fn item_text(text: &str, function: &syn::ItemFn) -> String {
+        let start = match (function.attrs.first(), &function.vis) {
+            (Some(attr), _) => attr.pound_token.span.start(),
+            (None, syn::Visibility::Public(token)) => token.span.start(),
+            (None, _) => function.sig.constness.as_ref().map(|token| token.span.start())
+                .or(function.sig.asyncness.as_ref().map(|token| token.span.start()))
+                .or(function.sig.unsafety.as_ref().map(|token| token.span.start()))
+                .unwrap_or_else(|| function.sig.fn_token.span.start()),
+        };
+        span_text(text, start, function.block.brace_token.span.close().end())
+    }
+
+    /// Source text as tokens, at every depth of its groups: identifiers, punctuation with its spacing, and literals
+    /// exactly as written (a string literal keeps every character between its quotes); whitespace outside literals
+    /// and comments other than doc comments do not count.
+    fn tokens(text: &str) -> Vec<String> {
+        fn walk(stream: proc_macro2::TokenStream, out: &mut Vec<String>) {
+            for token in stream {
+                match token {
+                    proc_macro2::TokenTree::Ident(ident) => out.push(format!("ident {ident}")),
+                    proc_macro2::TokenTree::Punct(punct) => out.push(format!("punct {} {:?}", punct.as_char(), punct.spacing())),
+                    proc_macro2::TokenTree::Literal(literal) => out.push(format!("literal {literal}")),
+                    proc_macro2::TokenTree::Group(group) => {
+                        out.push(format!("open {:?}", group.delimiter()));
+                        walk(group.stream(), out);
+                        out.push(format!("close {:?}", group.delimiter()));
+                    }
+                }
+            }
+        }
+        let mut out = Vec::new();
+        walk(text.parse::<proc_macro2::TokenStream>().unwrap_or_else(|error| panic!("does not lex: {error}")), &mut out);
+        out
+    }
+
+    /// The identifiers in macro tokens, inside their groups at every depth.
+    fn macro_idents(tokens: proc_macro2::TokenStream, out: &mut Vec<String>) {
+        for token in tokens {
+            match token {
+                proc_macro2::TokenTree::Ident(ident) => out.push(ident.to_string()),
+                proc_macro2::TokenTree::Group(group) => macro_idents(group.stream(), out),
+                _ => {}
+            }
+        }
+    }
+
+    /// Every identifier (macro tokens included, at every depth) and the menu event's first `if` (its Quit branch).
+    #[derive(Default)]
+    struct Read {
+        idents: Vec<String>,
+        quit_branch: Option<(proc_macro2::LineColumn, proc_macro2::LineColumn, proc_macro2::LineColumn)>,
+    }
+    impl<'ast> Visit<'ast> for Read {
+        fn visit_ident(&mut self, node: &'ast proc_macro2::Ident) {
+            self.idents.push(node.to_string());
+        }
+        fn visit_macro(&mut self, node: &'ast syn::Macro) {
+            macro_idents(node.tokens.clone(), &mut self.idents);
+            visit::visit_macro(self, node);
+        }
+        fn visit_expr_method_call(&mut self, node: &'ast syn::ExprMethodCall) {
+            if node.method == "on_menu_event" {
+                if let Some(syn::Expr::Closure(closure)) = node.args.first() {
+                    if let syn::Expr::Block(block) = &*closure.body {
+                        if let Some(syn::Stmt::Expr(syn::Expr::If(branch), _)) = block.block.stmts.first() {
+                            let braces = branch.then_branch.brace_token.span;
+                            self.quit_branch = Some((branch.if_token.span.end(), braces.open().start(), braces.close().end()));
+                        }
+                    }
+                }
+            }
+            visit::visit_expr_method_call(self, node);
+        }
+    }
+
+    /// The command as reviewed: the whole item, its doc comment and attributes, visibility, signature and body,
+    /// compared token by token with literals exactly as written ([`tokens`]).
+    const COMMAND: &str = r##"        /// A quit or a close of the main window, delivered by the route a person's takes.
+        ///
+        /// - `"quit"` calls `request_quit`, the function the SWBPIPE › Quit SWBPIPE menu click calls, and then returns
+        ///   `Ok(())`; it has no error of its own. Where the main web view is missing or the close request cannot be
+        ///   dispatched to it, `request_close`'s own fallback applies, as it does for the menu click: the request proceeds
+        ///   without a prompt.
+        /// - `"window"` asks the main window to close, so its close-requested handler runs. Only this arm returns
+        ///   `NATIVE-WINDOW-UNAVAILABLE`, when there is no main window.
+        /// - Any other kind returns `NATIVE-CLOSE-KIND-UNKNOWN`.
+        ///
+        /// Either request meets the unsaved-changes guard (`close_guard.rs`). The prompt is shown and answered in the page
+        /// only where the web view acknowledges the request and its state needs a prompt; an attempt the web view does not
+        /// acknowledge in time proceeds without one. This command answers no prompt, abandons no request and exits nothing
+        /// of its own. Where the app then exits, the caller may never see the reply.
+        #[tauri::command]
+        pub fn native_smoke_request_close(app: AppHandle, kind: String) -> Result<(), String> {
+            match kind.as_str() {
+                "quit" => {
+                    crate::request_quit(&app);
+                    Ok(())
+                }
+                "window" => {
+                    let window = app.get_webview_window("main").ok_or_else(|| "NATIVE-WINDOW-UNAVAILABLE: main webview is not installed".to_string())?;
+                    window.close().map_err(|error| error.to_string())
+                }
+                other => Err(format!("NATIVE-CLOSE-KIND-UNKNOWN: {other:?}; the kind is \"quit\" or \"window\"")),
+            }
+        }"##;
+
+    /// Identifiers the command must not name: it answers no prompt, abandons no request and exits nothing of its own.
+    /// The denylist walks only the command's own body; a helper the command called would not be read. What closes that
+    /// is the exact comparison with [`COMMAND`]: the item can call nothing but what that text calls.
+    const REFUSED: [&str; 18] = [
+        "exit", "process", "destroy", "eval", "finish_close", "request_close", "resolve", "resolve_close_request", "acknowledge", "acknowledge_close_request",
+        "acknowledgement_deadline", "abandon_to_proceed", "CloseGuard", "CloseDecision", "state", "try_state", "emit", "prevent_close",
+    ];
+
+    /// What is wrong with the command in `native_smoke` (the text of `native_smoke.rs`): empty when the whole item is,
+    /// token by token, [`COMMAND`], and its body names nothing on [`REFUSED`].
+    fn command_problems(native_smoke: &str) -> Vec<String> {
+        let file = syn::parse_file(native_smoke).unwrap();
+        let Some(command) = top_fn(&file, "native_smoke_request_close") else { return vec!["no fn native_smoke_request_close".into()] };
+        let mut problems = Vec::new();
+        let found = item_text(native_smoke, command);
+        if tokens(&found) != tokens(COMMAND) {
+            problems.push(format!("the command differs from its reviewed text: {found}"));
+        }
+        let mut read = Read::default();
+        read.visit_block(&command.block);
+        problems.extend(REFUSED.iter().filter(|refused| read.idents.iter().any(|ident| ident == *refused)).map(|refused| format!("the command names {refused}")));
+        problems
+    }
+
+    /// Every place `request_quit` is named outside test-only items, in any file of `files`: as an identifier anywhere
+    /// in the code (a call, a path, a function pointer, an import) or inside macro tokens at any depth. Returns (the
+    /// allowed sites found, each by its name, and every other occurrence as `file:line:column`). The allowed sites
+    /// are three: the `fn request_quit` definition in `lib.rs`, the call in the menu event's Quit branch in `lib.rs`,
+    /// and the `"quit"` arm of `native_smoke_request_close` in `native_smoke.rs`.
+    fn request_quit_uses(files: &[(String, String)]) -> (Vec<String>, Vec<String>) {
+        type At = proc_macro2::LineColumn;
+        #[derive(Default)]
+        struct Uses {
+            at: Vec<At>,
+        }
+        fn macro_uses(stream: proc_macro2::TokenStream, at: &mut Vec<At>) {
+            for token in stream {
+                match token {
+                    proc_macro2::TokenTree::Ident(ident) if ident == "request_quit" => at.push(ident.span().start()),
+                    proc_macro2::TokenTree::Group(group) => macro_uses(group.stream(), at),
+                    _ => {}
+                }
+            }
+        }
+        impl<'ast> Visit<'ast> for Uses {
+            fn visit_item(&mut self, node: &'ast syn::Item) {
+                let attrs: &[syn::Attribute] = match node {
+                    syn::Item::Const(item) => &item.attrs,
+                    syn::Item::Enum(item) => &item.attrs,
+                    syn::Item::Fn(item) => &item.attrs,
+                    syn::Item::Impl(item) => &item.attrs,
+                    syn::Item::Macro(item) => &item.attrs,
+                    syn::Item::Mod(item) => &item.attrs,
+                    syn::Item::Static(item) => &item.attrs,
+                    syn::Item::Struct(item) => &item.attrs,
+                    syn::Item::Trait(item) => &item.attrs,
+                    syn::Item::Type(item) => &item.attrs,
+                    syn::Item::Use(item) => &item.attrs,
+                    _ => &[],
+                };
+                let test_only = attrs.iter().any(|attr| attr.path().is_ident("cfg") && matches!(&attr.meta, syn::Meta::List(list) if list.tokens.to_string() == "test"));
+                if !test_only {
+                    visit::visit_item(self, node);
+                }
+            }
+            fn visit_ident(&mut self, node: &'ast proc_macro2::Ident) {
+                if node == "request_quit" {
+                    self.at.push(node.span().start());
+                }
+            }
+            fn visit_macro(&mut self, node: &'ast syn::Macro) {
+                macro_uses(node.tokens.clone(), &mut self.at);
+                visit::visit_macro(self, node);
+            }
+        }
+        let within = |at: At, open: At, close: At| (open.line, open.column) <= (at.line, at.column) && (at.line, at.column) < (close.line, close.column);
+        let mut allowed = Vec::new();
+        let mut other = Vec::new();
+        for (name, text) in files {
+            let file = syn::parse_file(text).unwrap_or_else(|error| panic!("{name} does not parse: {error}"));
+            let mut uses = Uses::default();
+            uses.visit_file(&file);
+            // The allowed sites of this file, by name and span.
+            let mut sites: Vec<(&str, At, At)> = Vec::new();
+            if name == "lib.rs" {
+                if let Some(function) = top_fn(&file, "request_quit") {
+                    let ident = function.sig.ident.span();
+                    sites.push(("lib.rs definition", ident.start(), ident.end()));
+                }
+                let mut read = Read::default();
+                read.visit_file(&file);
+                if let Some((_, open, close)) = read.quit_branch {
+                    sites.push(("lib.rs menu Quit branch", open, close));
+                }
+            }
+            if name == "native_smoke.rs" {
+                if let Some(command) = top_fn(&file, "native_smoke_request_close") {
+                    for statement in &command.block.stmts {
+                        if let syn::Stmt::Expr(syn::Expr::Match(matched), _) = statement {
+                            for arm in &matched.arms {
+                                let quit = matches!(&arm.pat, syn::Pat::Lit(pattern) if matches!(&pattern.lit, syn::Lit::Str(literal) if literal.value() == "quit"));
+                                if let (true, syn::Expr::Block(block)) = (quit, &*arm.body) {
+                                    let braces = block.block.brace_token.span;
+                                    sites.push(("native_smoke.rs quit arm", braces.open().start(), braces.close().end()));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            for at in uses.at {
+                match sites.iter().find(|(_, open, close)| within(at, *open, *close)) {
+                    Some((site, _, _)) => allowed.push(site.to_string()),
+                    None => other.push(format!("{name}:{}:{}", at.line, at.column + 1)),
+                }
+            }
+        }
+        allowed.sort();
+        (allowed, other)
+    }
+
+    /// Where `lib` (the text of `lib.rs`) names the command: (inside an `app_invoke_handler!` in a `let` gated exactly
+    /// on the native-smoke feature, anywhere else in its code).
+    fn command_naming(lib: &str) -> (usize, usize) {
+        #[derive(Default)]
+        struct Named {
+            depth: usize,
+            gated: usize,
+            other: usize,
+        }
+        impl<'ast> Visit<'ast> for Named {
+            fn visit_local(&mut self, node: &'ast syn::Local) {
+                let gate = node.attrs.iter().any(|attr| {
+                    attr.path().is_ident("cfg") && matches!(&attr.meta, syn::Meta::List(list) if list.tokens.to_string() == "feature = \"native-smoke\"")
+                });
+                self.depth += usize::from(gate);
+                visit::visit_local(self, node);
+                self.depth -= usize::from(gate);
+            }
+            fn visit_ident(&mut self, node: &'ast proc_macro2::Ident) {
+                if node == "native_smoke_request_close" {
+                    self.other += 1;
+                }
+            }
+            fn visit_macro(&mut self, node: &'ast syn::Macro) {
+                let mut idents = Vec::new();
+                macro_idents(node.tokens.clone(), &mut idents);
+                let named = idents.iter().filter(|ident| *ident == "native_smoke_request_close").count();
+                if self.depth > 0 && node.path.is_ident("app_invoke_handler") {
+                    self.gated += named;
+                } else {
+                    self.other += named;
+                }
+                visit::visit_macro(self, node);
+            }
+        }
+        let mut named = Named::default();
+        named.visit_file(&syn::parse_file(lib).unwrap());
+        (named.gated, named.other)
+    }
+
+    #[test]
+    fn the_menu_clicks_quit_branch_calls_request_quit_whose_body_is_the_two_moved_lines() {
+        let lib = source("lib.rs");
+        let file = syn::parse_file(&lib).unwrap();
+        assert_eq!(body(&lib, top_fn(&file, "request_quit").expect("fn request_quit")), "{ifrequest_close(app,close_guard::CloseKind::Quit){app.exit(0);}}");
+        let mut read = Read::default();
+        read.visit_file(&file);
+        let (condition_start, open, close) = read.quit_branch.expect("on_menu_event begins with its Quit branch");
+        assert_eq!(between(&lib, condition_start, open), "event.id().0==QUIT_MENU_ID");
+        assert_eq!(between(&lib, open, close), "{request_quit(app);return;}");
+        // The window's own close-requested handler: a close is held unless request_close approves it.
+        assert!(lib.contains("if window.label() == \"main\" && !request_close(window.app_handle(), close_guard::CloseKind::Window) {\n                    api.prevent_close();"));
+    }
+
+    #[test]
+    fn the_command_is_exactly_its_reviewed_text() {
+        let smoke = source("native_smoke.rs");
+        assert_eq!(command_problems(&smoke), Vec::<String>::new());
+        // One extra statement in the quit arm.
+        let added = smoke.replacen("crate::request_quit(&app);\n", "crate::request_quit(&app);\n            helper(&app);\n", 1);
+        assert_ne!(added, smoke);
+        assert!(command_problems(&added).iter().any(|problem| problem.starts_with("the command differs")));
+        // The other arm changed to answer the guard.
+        let other: String = smoke
+            .lines()
+            .map(|line| if line.trim_start().starts_with("other => Err(format!(\"NATIVE-CLOSE-KIND-UNKNOWN") { "        other => { crate::finish_close(&app, crate::close_guard::CloseKind::Quit); Err(other.to_string()) }" } else { line })
+            .collect::<Vec<_>>()
+            .join("\n");
+        assert_ne!(normalized(&other), normalized(&smoke));
+        let problems = command_problems(&other);
+        assert!(problems.iter().any(|problem| problem.starts_with("the command differs")) && problems.contains(&"the command names finish_close".to_string()), "{problems:?}");
+        // The signature changed.
+        let signature = smoke.replacen("pub fn native_smoke_request_close(app: AppHandle, kind: String)", "pub fn native_smoke_request_close(app: AppHandle, kind: String, proceed: bool)", 1);
+        assert_ne!(signature, smoke);
+        assert!(command_problems(&signature).iter().any(|problem| problem.starts_with("the command differs")));
+        // A string literal changed by one space.
+        let literal = smoke.replacen("app.get_webview_window(\"main\")", "app.get_webview_window(\"main \")", 1);
+        assert_ne!(literal, smoke);
+        assert!(command_problems(&literal).iter().any(|problem| problem.starts_with("the command differs")));
+        // A qualifier added to the signature.
+        let qualified = smoke.replacen("pub fn native_smoke_request_close(", "pub async fn native_smoke_request_close(", 1);
+        assert_ne!(qualified, smoke);
+        assert!(command_problems(&qualified).iter().any(|problem| problem.starts_with("the command differs")));
+        // The attribute removed.
+        let unattributed = smoke.replacen("#[tauri::command]\npub fn native_smoke_request_close(", "pub fn native_smoke_request_close(", 1);
+        assert_ne!(unattributed, smoke);
+        assert!(command_problems(&unattributed).iter().any(|problem| problem.starts_with("the command differs")));
+    }
+
+    #[test]
+    fn macro_tokens_are_read_inside_their_groups() {
+        let file = syn::parse_file("fn f() { m!(a, (b, [{ exit(0) }])); }").unwrap();
+        let mut read = Read::default();
+        read.visit_file(&file);
+        assert!(read.idents.iter().any(|ident| ident == "exit"), "{:?}", read.idents);
+    }
+
+    #[test]
+    fn request_quit_is_named_only_at_its_definition_the_menu_branch_and_the_commands_quit_arm() {
+        let files = crate_sources();
+        let (allowed, other) = request_quit_uses(&files);
+        assert_eq!(allowed, ["lib.rs definition", "lib.rs menu Quit branch", "native_smoke.rs quit arm"]);
+        assert_eq!(other, Vec::<String>::new());
+        // A call, a function pointer and a macro argument in a third file, at any depth of the tree, are each found.
+        for sample in [
+            "fn f(app: &tauri::AppHandle) { crate::request_quit(app); }",
+            "fn f() { let quit = crate::request_quit::<tauri::Wry>; drop(quit); }",
+            "fn f() { some_macro!(request_quit); }",
+            "fn f() { some_macro!(a, (b, [crate::request_quit])); }",
+        ] {
+            let mut with = files.clone();
+            with.push(("embedded_agent/sample.rs".to_string(), sample.to_string()));
+            let (allowed, other) = request_quit_uses(&with);
+            assert_eq!(allowed.len(), 3, "{sample}");
+            assert_eq!(other.len(), 1, "{sample}: {other:?}");
+            assert!(other[0].starts_with("embedded_agent/sample.rs:1:"), "{sample}: {other:?}");
+        }
+        // A second use beside an allowed site, in lib.rs itself, is found too.
+        let lib = files.iter().find(|(name, _)| name == "lib.rs").unwrap().1.clone();
+        let extra = lib.replacen("fn request_quit<", "fn quit_pointer() { let _ = request_quit::<tauri::Wry>; }\nfn request_quit<", 1);
+        assert_ne!(extra, lib);
+        let with: Vec<(String, String)> = files.iter().map(|(name, text)| (name.clone(), if name == "lib.rs" { extra.clone() } else { text.clone() })).collect();
+        assert_eq!(request_quit_uses(&with).1.len(), 1);
+    }
+
+    #[test]
+    fn the_command_is_named_only_in_the_scripted_run_builds_invoke_handler_list() {
+        let lib = source("lib.rs");
+        assert!(lib.contains("#[cfg(feature = \"native-smoke\")]\nmod native_smoke;\n"), "the module is compiled only into the scripted-run build");
+        assert_eq!(command_naming(&lib), (1, 0));
+        // Gated, but in another macro; and in app_invoke_handler, but ungated.
+        assert_eq!(command_naming("fn run() { #[cfg(feature = \"native-smoke\")] let b = other!(native_smoke::native_smoke_request_close); }"), (0, 1));
+        assert_eq!(command_naming("fn run() { let b = app_invoke_handler!(native_smoke::native_smoke_request_close); }"), (0, 1));
+        // No other source of the crate names it but the module that defines it and lib.rs.
+        let naming: Vec<String> = crate_sources().into_iter().filter(|(_, text)| text.contains("native_smoke_request_close")).map(|(name, _)| name).collect::<std::collections::BTreeSet<_>>().into_iter().collect();
+        assert_eq!(naming, ["lib.rs", "native_smoke.rs"]);
+    }
+
+    /// The close guard's own states, driven directly, for a quit and a window request; the two answers are the ones
+    /// the web view gives: keep open (`resolve(.., false)`, as after Cancel in the unsaved-changes prompt) and proceed
+    /// (`resolve(.., true)`, as with no unsaved edits or after Discard). A first request is asked, never approved; an
+    /// acknowledged attempt has no deadline; a repeat is a new attempt of the held request; keeping open proceeds
+    /// nothing and the next request is asked again; proceeding returns the request's kind, after which a request
+    /// proceeds without asking.
+    #[test]
+    fn the_guard_asks_a_first_quit_or_window_request_and_proceeds_only_once_it_is_resolved_to() {
+        for kind in [CloseKind::Quit, CloseKind::Window] {
+            let guard = CloseGuard::default();
+            let CloseDecision::Ask { request_id, attempt, kind: asked } = guard.request(kind) else { panic!("a first request is asked") };
+            assert_eq!(asked, kind);
+            assert!(guard.acknowledge(request_id, attempt));
+            assert_eq!(guard.acknowledgement_deadline(request_id, attempt), None, "an acknowledged attempt has no deadline");
+            let CloseDecision::Ask { request_id: same, attempt: again, .. } = guard.request(CloseKind::Quit) else { panic!("the request is held") };
+            assert_eq!((same, again), (request_id, attempt + 1));
+            assert!(guard.acknowledge(request_id, again));
+            assert_eq!(guard.resolve(request_id, false), None);
+            assert!(matches!(guard.request(kind), CloseDecision::Ask { .. }));
+
+            let guard = CloseGuard::default();
+            let CloseDecision::Ask { request_id, attempt, .. } = guard.request(kind) else { panic!("a first request is asked") };
+            assert!(guard.acknowledge(request_id, attempt));
+            assert_eq!(guard.resolve(request_id, true), Some(kind));
+            assert_eq!(guard.request(kind), CloseDecision::Proceed);
+        }
+    }
+}
+
+#[cfg(test)]
+#[path = "model_settings_persistence_tests.rs"]
+mod model_settings_persistence_tests;

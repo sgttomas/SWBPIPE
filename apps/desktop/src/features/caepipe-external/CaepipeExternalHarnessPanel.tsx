@@ -61,7 +61,7 @@ export function CaepipeExternalHarnessPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="caepipe-external-export-link"
-          download={`openpipestress-preview-external-run-${safeFileToken(model.project.id)}.json`}
+          download={suggestedFileName("externalRunJson")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />
@@ -70,7 +70,7 @@ export function CaepipeExternalHarnessPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="caepipe-external-csv-link"
-          download={`openpipestress-preview-external-run-${safeFileToken(model.project.id)}.csv`}
+          download={suggestedFileName("externalRunCsv")}
           href={textDataHref(packet.csv_text)}
         >
           <Download size={14} aria-hidden="true" />
@@ -215,8 +215,8 @@ function buildCaePipeExternalHarnessPacket({
       run_directory_ref: `fixture:desktop-caepipe-external:${safeFileToken(model.project.id)}`,
       working_directory: "apps/desktop/browser-preview",
       input_mbf_path: MBF_INPUT_NOT_AVAILABLE,
-      expected_csv_path: "openpipestress-preview-external-run-results.csv",
-      observed_csv_path: "openpipestress-preview-external-run-results.csv",
+      expected_csv_path: suggestedFileName("externalRunResultsCsv"),
+      observed_csv_path: suggestedFileName("externalRunResultsCsv"),
       output_discovery_status: "fixture_generated_browser_preview"
     },
     execution_result: {
@@ -262,7 +262,7 @@ function buildCaePipeExternalHarnessPacket({
     boundary_notes: [
       "An external prover run is optional and user-owned.",
       "This desktop preview does not configure, discover, invoke, bundle, download, install, or license an external tool.",
-      "Parsed CSV rows are invented parser-only regression and handoff evidence.",
+      "Parsed CSV rows are invented, parser-only examples; a comparison with the program's output is validation evidence.",
       "Validation occurs in the user's accepted professional tools; this is screening and handoff evidence."
     ],
     privacy: {
@@ -584,3 +584,4 @@ function safeFileToken(value: string): string {
   return value.replace(/[^a-z0-9-]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase() || "preview";
 }
 import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";
+import { suggestedFileName } from "../fileNames";

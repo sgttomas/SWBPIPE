@@ -10,6 +10,7 @@ history: `tools/serialization/semantic_contract_tables.py repin` never edits thi
 | Directory | Files | Origin |
 |---|---|---|
 | `preview_physics_2/` | `preview_physics_connected_sparse.json`, `transient_run_input.json`, `recorded_run_witness.json`, `transient_run_input_rule_packs.json`, `recorded_run_witness_rule_packs.json`, `s2_unresolved_rule_pack_run.json` | Main at 6c3cb46d3, verbatim (`git show 6c3cb46d3:fixtures/results/preview_physics_connected_sparse.json` and `git show 6c3cb46d3:fixtures/persistence/<name>.json`). The desktop's own records of a preview-physics-2 run, binding 1ccc9561… |
+| | `invented_demo_result_preview_physics_1_sparse.json` | Main at 6c3cb46d3, verbatim (`git show 6c3cb46d3:fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json`). The invented demo's preview-physics-2 result with two nonlinear supports (its model is `fixtures/product_preview/invented_demo_model.json`, unchanged since); today's support-state reader refuses it, so the desktop states that its confirmation record could not be read (release exit criterion 18) |
 | `preview_physics_timoshenko_1/` | `preview_physics_timoshenko_straight_sparse.json` | Main at 6c3cb46d3, verbatim (`fixtures/results/`) |
 | | `preview_physics_timoshenko_straight_sparse.analysis_run.json` | Built by main's record builder (below); binds a7b83c37… |
 | `preview_physics_retained_1/` | `retained_precision_milestone_successor_sparse_interactive.json` | Main at 6c3cb46d3, verbatim (`fixtures/results/`; `{id, invocation, source}`) |

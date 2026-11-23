@@ -155,7 +155,7 @@
 //! What it does not establish: code that builds a document without calling
 //! the scanned functions, and a listed external macro whose version would
 //! emit a call without naming it (§2.8, "What the scan does not
-//! establish").
+//! establish"). Standard claim fence applies (claims taxonomy per DEC-081).
 
 use proc_macro2::{Span, TokenStream, TokenTree};
 use std::collections::{BTreeMap, BTreeSet};
@@ -626,12 +626,18 @@ const ENTRY_RULES: [(&str, &str, Entry); 6] = [
 /// `activate_report_source`: `observe_report_source` (the previous digest
 /// `88f99c22…4ca92df` reproduced first; the macro's only change is that line;
 /// no `mod`, no `$parameter ::`, no scanned name).
+/// DEL-08-01 REQ-023's saved-package entries add four ordinary handler
+/// entries after `analysis_runs::admit_analysis_run_comparison`
+/// (`saved_package_entries::list_saved_package_entries`,
+/// `check_saved_package_entry`, `remove_saved_package_entry` and
+/// `keep_held_saved_package_entries`; the previous digest `659a5501…a8939a8`
+/// reproduced first; no `mod`, no `$parameter ::`, no scanned name).
 /// The report view window adds one ordinary handler entry after
 /// `print_rendered_report`: `open_rendered_report_view` (the previous digest
-/// `659a5501…8939a8` reproduced first; the macro's only change is that line;
+/// `4511e433…ee63b14` reproduced first; the macro's only change is that line;
 /// no `mod`, no `$parameter ::`, no scanned name).
 const MACRO_DEFINITIONS: [(&str, &str, &str); 3] = [
-    ("src-tauri/src/lib.rs", "app_invoke_handler", "51455b77dd90cba4070b00933c877d7f32347eea56e09644924b90db38d347b2"),
+    ("src-tauri/src/lib.rs", "app_invoke_handler", "8abc6274ea4e2306a98461e8f2ffcaefea211ce1c03bcda7faff1d6a988bafdb"),
     ("headless/src/reader_binding.rs", "base", "d80e766036e0f651522ebfe11ebc6ba1fc32ec2b9c2b3702e0b978eb86558cb2"),
     ("headless/src/reader_binding.rs", "transport", "057aa56311a7531f094632a3fe9f2d781b9364ab4865add6c7d257403732169a"),
 ];

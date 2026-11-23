@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { canonicalJsonString } from "../../services/hashService";
 import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
+import { deleteLine } from "../model-tree/inspectorActions";
 type RemovalKind = "material" | "section" | "component";
 const removalTypes = {
   material: "Material",
@@ -110,16 +111,11 @@ export function GuardedRemoval({ model, selection, onQueueIntent, operationBusy 
   const ready = prepared?.model === model && prepared?.entity === entity && prepared?.type === selection.type && prepared.intent.target.ref === selection.id;
   return (
     <section
-      className="editor-intent"
+      className="inspector-delete"
       tabIndex={-1}
       data-testid="guarded-removal-panel"
       aria-label="Remove selected entity"
     >
-      <h3>Remove {selection.type}</h3>
-      <p>
-        Remove <strong>{"label" in entity ? entity.label : entity.name}</strong> ({entity.id}).
-        References from other records can block removal. No connected records will be removed automatically.
-      </p>
       <button
         type="button"
         data-testid={`queue-delete-${selection.type}-intent`}
@@ -128,10 +124,10 @@ export function GuardedRemoval({ model, selection, onQueueIntent, operationBusy 
           if (ready && prepared && !operationBusy) onQueueIntent(prepared.intent);
         }}
       >
-        Queue removal for review
+        Delete {selection.type}
       </button>
+      <p className="inspector-delete-note">{deleteLine(selection.type === "material" ? "Its temperature points go with it." : "Nothing else is removed.")}</p>
       {error ? <p role="alert">{error}</p> : !ready ? <p role="status">Preparing the current entity snapshot…</p> : null}
-      <p>The queued change must be validated and explicitly applied in Pending changes.</p>
     </section>
   );
 }

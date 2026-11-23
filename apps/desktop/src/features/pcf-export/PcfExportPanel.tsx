@@ -112,7 +112,7 @@ export function PcfExportPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="pcf-export-link"
-          download={`openpipestress-preview-pcf-package-${safeFileToken(model.project.id)}.json`}
+          download={suggestedFileName("pcfPackage")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />
@@ -121,7 +121,7 @@ export function PcfExportPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="pcf-text-link"
-          download={`openpipestress-preview-${safeFileToken(model.project.id)}.pcf`}
+          download={suggestedFileName("pcfText")}
           href={textDataHref(packet.pcf_text)}
         >
           <Download size={14} aria-hidden="true" />
@@ -889,3 +889,4 @@ function safePcfToken(value: string): string {
     .toUpperCase();
 }
 import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";
+import { suggestedFileName } from "../fileNames";

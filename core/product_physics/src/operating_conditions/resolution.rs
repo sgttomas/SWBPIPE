@@ -135,12 +135,15 @@ pub struct ResolutionPlan {
 impl ResolutionPlan {
     /// Appends the plan to the model it was computed from: generated primitives
     /// after the authored ones (temperature, then added weight), and the case's
-    /// wind exposure.
-    pub(crate) fn apply(self, model: &mut PreviewModel) {
+    /// wind exposure. Returns the added weights it appended, as (case index,
+    /// load id).
+    pub(crate) fn apply(self, model: &mut PreviewModel) -> Vec<(usize, String)> {
+        let mut added = Vec::new();
         for resolved in self.cases {
             let case = &mut model.load_cases[resolved.case_index];
             debug_assert_eq!(case.id, resolved.case_id);
             case.primitive_loads.extend(resolved.temperatures);
+            added.extend(resolved.added_weights.iter().map(|load| (resolved.case_index, load.id.clone())));
             case.primitive_loads.extend(resolved.added_weights);
             if let Some(refs) = resolved.wind_exposed_pipe_refs {
                 let wind = case
@@ -153,6 +156,7 @@ impl ResolutionPlan {
                 wind.exposed_pipe_refs_authored = true;
             }
         }
+        added
     }
 }
 

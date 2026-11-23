@@ -52,6 +52,13 @@ BENCHMARK = ROOT / "validation" / "caepipe_benchmark"
 MANIFEST = BENCHMARK / "manifest.json"
 
 
+@pytest.fixture(autouse=True)
+def _live_session_passed_through(monkeypatch):
+    """Every live route opens its session first (liveness, then the share's letter); that opening is examined in
+    tests/test_caepipe_live_session.py, and here it passes the configuration through unchanged."""
+    monkeypatch.setattr(run_pilot, "live_session", lambda config, emit=print: config)
+
+
 def tracked_models() -> list[dict]:
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     return [json.loads((BENCHMARK / entry["file"]).read_text(encoding="utf-8")) for entry in manifest["models"]]
@@ -390,8 +397,8 @@ def test_every_pressurised_model_declares_three_runs_of_the_same_file():
         assert declared["oppres_line"] == lines[name] and declared["screened"] is (name != RUNS[2])
         assert [member["model_id"] for member in declared["members"]] == names
     capture_text = manifest["series"][RUNS[2]]["description"]
-    assert manifest["series"][RUNS[2]]["swbpipe"] is None and "collects nothing for it" in capture_text
-    assert "capture_path_unavailable" in capture_text and "screened against nothing" not in capture_text
+    assert manifest["series"][RUNS[2]]["swbpipe"] is None and "no SWBPIPE counterpart" in capture_text
+    assert "collected, bound and parsed" in capture_text
     hypothesis = manifest["pressure_hypothesis"]
     assert hypothesis["statement"].startswith("HYPOTHESIS") and "tests and does not assume" in hypothesis["statement"]
     assert "docs.sstcae.com/users_manual/import_mbf.htm" in hypothesis["format_source"]
@@ -718,7 +725,9 @@ def test_the_exact_class_and_the_floor_and_the_stated_formula():
     # near-zero term; this expected value was the near-zero relaxation's True before the profile was applied as stated).
     check = screen(0.0, 5.0, 1.0, "named_inexact")
     assert check["within"] is False and check["allowed"] == 1.0 + 5e-3 * 5.0
-    assert SCREENING_PROFILE["relative"] == {"exact": 1e-4, "named_inexact": 5e-3}
+    # The classes of the Screening profile definition (DEL-17-05 ScopeOfWork.md): nonlinear is 2e-2, with support
+    # status matching exactly; the batch route never derives it, a window comparison takes it from the declaration.
+    assert SCREENING_PROFILE["relative"] == {"exact": 1e-4, "named_inexact": 5e-3, "nonlinear": 2e-2}
 
 
 def test_a_closed_form_that_disagrees_with_swbpipe_makes_a_finding():
@@ -945,9 +954,66 @@ def test_an_unwitnessed_or_shorter_section_leaves_its_unit_unmatched():
     rows = rows_of(shorter, "case:expansion", "displacement", DISPLACEMENT_NODES)
     assert len(rows) == 9 and all(row["resolution_cause"] == "shorter_than_format" for row in rows)
     assert "print shows at most 1 places, format expects 3" in rows[0]["reason"]
-    # The expansion case prints no nonzero rotation: every rotation is unmatched for want of a witness.
+    # The expansion case prints no nonzero rotation: no witness. Each printed zero is screened by the zero-against-zero
+    # rule (ZERO_AGAINST_ZERO) instead, marked with its cause; SWBPIPE's rotations are zero, so each is an agreement.
     rotations = rows_of(shorter, "case:expansion", "rotation", DISPLACEMENT_NODES)
-    assert len(rotations) == 9 and all(row["resolution_cause"] == "no_witness" for row in rotations)
+    assert len(rotations) == 9 and all(row["zero_against_zero"]["resolution_cause"] == "no_witness"
+                                       and row["classification"] == WITHIN for row in rotations)
+
+
+ROTATION_UNIT = math.radians(1.0e-4)  # one printed unit at the candidate places of SI deg (4), in rad
+
+
+@pytest.mark.parametrize("swbpipe_rad, expected", [
+    (0.0, WITHIN), (ROTATION_UNIT, WITHIN), (-ROTATION_UNIT * 0.999, WITHIN),
+    (ROTATION_UNIT * 1.01, FINDING), (-2.0 * ROTATION_UNIT, FINDING), (1.0e-3, FINDING)])
+def test_zero_against_zero_screens_a_printed_zero_without_a_witness_with_the_candidate_floor(swbpipe_rad, expected):
+    """Item A: CAEPIPE prints zero and its section shows no nonzero token of the unit. The row is screened with one
+    printed unit at the candidate places: an agreement when SWBPIPE's value is zero within the allowed difference
+    a + r |S|, and a finding beyond it (a nonzero SWBPIPE value stays a finding, never unmatched)."""
+    payload = payload_with(set_value("global_nodal_rotation_z", "node:M", "case:expansion", swbpipe_rad))
+    row = find(record_of(invented_print(), payload), "case:expansion", "rotation", "node:M", "z")
+    assert row["values"] == {"swbpipe": swbpipe_rad, "caepipe": 0.0}
+    assert row["screen"]["floor"] == pytest.approx(ROTATION_UNIT, rel=1e-15)
+    assert row["screen"]["allowed"] == pytest.approx(ROTATION_UNIT + 1.0e-4 * abs(swbpipe_rad), rel=1e-12)
+    assert row["classification"] == expected and "unmatched_cause" not in row
+    assert row["zero_against_zero"] == {"resolution_cause": "no_witness", "floor_basis": "candidate places"}
+
+
+def test_zero_against_zero_does_not_reach_a_blank_a_shorter_section_or_a_label_without_candidate_places():
+    """Item A's condition: a blank token is no printed zero; a section whose nonzero tokens are shorter keeps its cause;
+    an English or radian label has no candidate places. Each stays unmatched with its cause."""
+    blank = record_of(invented_print(override={"Expansion (T1)": {"displacements": {"20": ["0", "0", "0", "0", "0",
+                                                                                             ""]}}}))
+    row = find(blank, "case:expansion", "rotation", "node:M", "z")
+    assert row["classification"] == UNMATCHED and row["resolution_cause"] == "no_witness"
+    assert "zero_against_zero" not in row
+    shorter = record_of(invented_print(override={"Expansion (T1)": {"displacements": {"30": ["4.8", "0", "0", "0", "0",
+                                                                                              "0"]}}}))
+    row = find(shorter, "case:expansion", "displacement", "node:M", "y")
+    assert row["classification"] == UNMATCHED and row["resolution_cause"] == "shorter_than_format"
+    english = record_of(relabel(invented_print(), ENGLISH))
+    assert not any("zero_against_zero" in row for row in english["results"])
+    counts = record_of(invented_print())["summary"]["zero_against_zero"]
+    assert counts[WITHIN] > 0 and counts[FINDING] == 0
+    # The command's printed counts state the zero-against-zero rows apart.
+    assert f"of which zero against zero: {FINDING} 0, {WITHIN} {counts[WITHIN]}" in run_pilot._counts(
+        record_of(invented_print())["summary"])
+    assert "zero against zero" not in run_pilot._counts({"by_classification": {WITHIN: 1},
+                                                         "zero_against_zero": {WITHIN: 0, FINDING: 0}})
+    assert "except a printed zero under zero_against_zero" in SCREENING_PROFILE["floor_basis"]
+
+
+def test_a_swbpipe_row_in_a_unit_of_another_dimension_is_unmatched_by_name_never_an_agreement():
+    """A rotation published in a length unit is not converted: the row is unmatched as swbpipe_unit_dimension, never
+    screened zero against zero beside a printed zero (0.001 mm would otherwise read as 1e-6 rad, within the floor)."""
+    def in_mm(row: dict) -> dict:
+        hit = (row["kind"], row["entity_ref"], row["basis_ref"]["ref_id"]) == ("global_nodal_rotation_z", "node:M",
+                                                                               "case:expansion")
+        return {**row, "value": 0.001, "unit": "mm"} if hit else row
+    row = find(record_of(invented_print(), payload_with(in_mm)), "case:expansion", "rotation", "node:M", "z")
+    assert row["classification"] == UNMATCHED and row["unmatched_cause"] == "swbpipe_unit_dimension"
+    assert "zero_against_zero" not in row and "screen" not in row and row["values"]["swbpipe"] is None
 
 
 @pytest.mark.parametrize("section, node, column, kind, entities, printed, cause, words", [
@@ -988,6 +1054,21 @@ def test_a_malformed_token_is_its_own_cause_and_does_not_unseat_the_witness():
     assert find(record, "case:expansion", "displacement", "node:B", "x")["classification"] == WITHIN
 
 
+# One printed unit at the candidate places of each SI label (print_csv.PRINTED_DECIMALS), in SI: the candidate floor a
+# zero-against-zero row is screened with.
+CANDIDATE_FLOOR = {"displacement": 1.0e-6, "rotation": math.radians(1.0e-4), "element_force": 1.0,
+                   "element_moment": 1.0, "support_force": 1.0, "support_moment": 1.0}
+
+
+def no_witness_locally(row: dict) -> bool:
+    """The section's own no-witness cause: unmatched with it, or, for a printed zero, screened zero against zero with
+    that cause and the candidate floor of its own unit (nothing borrowed from another section)."""
+    if "zero_against_zero" in row:
+        return (row["zero_against_zero"] == {"resolution_cause": "no_witness", "floor_basis": "candidate places"}
+                and row["screen"]["floor"] == pytest.approx(CANDIDATE_FLOOR[row["kind"]], rel=1e-15))
+    return row["classification"] == UNMATCHED and row["resolution_cause"] == "no_witness"
+
+
 def test_a_row_that_does_not_bind_supplies_no_resolution():
     """Policy boundary (evidence stays local): an element row pair that binds to no member and a displacement row at
     a label no node maps to carry witnesses, but bound values of the section stay unwitnessed."""
@@ -999,9 +1080,9 @@ def test_a_row_that_does_not_bind_supplies_no_resolution():
             "case:expansion"} == {"element_forces_global", "displacements"}
     for kind in ("element_force", "element_moment"):
         rows = [row for row in record["results"] if row["case"] == "case:expansion" and row["kind"] == kind]
-        assert rows and all(row["resolution_cause"] == "no_witness" for row in rows), kind
+        assert rows and all(no_witness_locally(row) for row in rows), kind
     rotations = rows_of(record, "case:expansion", "rotation", DISPLACEMENT_NODES)
-    assert all(row["resolution_cause"] == "no_witness" for row in rotations)
+    assert rotations and all(no_witness_locally(row) for row in rotations)
 
 
 def test_no_resolution_is_borrowed_across_section_case_or_quantity():
@@ -1010,11 +1091,11 @@ def test_no_resolution_is_borrowed_across_section_case_or_quantity():
     not reach the expansion case's unwitnessed sections."""
     record = record_of(invented_print())
     assert find(record, "case:sustained", "support_force", "node:10", "y")["classification"] == WITHIN
-    assert find(record, "case:sustained", "support_force", "node:20", "y")["resolution_cause"] == "no_witness"
+    assert no_witness_locally(find(record, "case:sustained", "support_force", "node:20", "y"))
     assert find(record, "case:expansion", "displacement", "node:B", "x")["classification"] == WITHIN
-    assert find(record, "case:expansion", "rotation", "node:B", "z")["resolution_cause"] == "no_witness"
+    assert no_witness_locally(find(record, "case:expansion", "rotation", "node:B", "z"))
     assert find(record, "case:sustained", "element_force", "pipe:P1", "y", "end_i")["classification"] == WITHIN
-    assert find(record, "case:expansion", "element_force", "pipe:P1", "y", "end_i")["resolution_cause"] == "no_witness"
+    assert no_witness_locally(find(record, "case:expansion", "element_force", "pipe:P1", "y", "end_i"))
 
 
 # The SI labels of the invented print replaced by the English ones, and the degree labels by radians.
@@ -1163,8 +1244,11 @@ def test_the_integer_digit_count_witness_counts_and_changes_no_verdict():
 def test_the_profile_states_the_formula_and_the_record_version_moves():
     """Policy boundary: the profile's metadata, its rule as computed, and the record version."""
     assert set(SCREENING_PROFILE) == {"basis", "relative", "floor", "floor_basis", "printed_decimals",
-                                      "resolution_judgment", "resolution_causes", "limit", "rule"}
-    assert SCREENING_PROFILE["relative"] == {"exact": 1e-4, "named_inexact": 5e-3}
+                                      "resolution_judgment", "resolution_causes", "limit", "rule", "zero_against_zero",
+                                      "nonlinear"}
+    # The classes of the Screening profile definition (DEL-17-05 ScopeOfWork.md): nonlinear is 2e-2, with support
+    # status matching exactly; the batch route never derives it, a window comparison takes it from the declaration.
+    assert SCREENING_PROFILE["relative"] == {"exact": 1e-4, "named_inexact": 5e-3, "nonlinear": 2e-2}
     # Candidates exist for the SI labels only: none for an English label or for rad.
     assert SCREENING_PROFILE["printed_decimals"] == {"SI N": 0, "SI Nm": 0, "SI deg": 4, "SI mm": 3}
     assert SCREENING_PROFILE["resolution_causes"] == CAUSES
@@ -1179,7 +1263,7 @@ def test_the_profile_states_the_formula_and_the_record_version_moves():
         assert check["allowed"] == floor + rel * max(abs(swb), abs(cae))
         assert check["within"] == (abs(cae - swb) <= floor + rel * max(abs(swb), abs(cae)))
     record = compare(invented_print())
-    assert BENCHMARK_RECORD_VERSION == "3" and record["record_version"] == "3"
+    assert BENCHMARK_RECORD_VERSION == "4" and record["record_version"] == "4"
     assert record["screening_profile"] == SCREENING_PROFILE
 
 
@@ -1286,29 +1370,53 @@ def test_the_benchmark_option_writes_a_private_record_per_model_one_at_a_time(fa
     out = capsys.readouterr().out
     assert "batch 1/2: cpb-g1-01, cpb-g1-02, cpb-g1-03, cpb-g1-04" in out and "batch 2/2: cpb-g1-05" in out
     root = state["config"].exchange_root
-    record = json.loads((root / "cases" / "cpb-g1-01" / "comparison" / "benchmark_comparison.json").read_text())
+    [record_path] = comparisons(root, "cpb-g1-01")
+    record = json.loads(record_path.read_text())
     assert record["document_kind"] == BENCHMARK_RECORD_KIND and record["piping_code"] == "B311-80"
     manifest = json.loads((root / "cases" / "cpb-g1-01" / "case_manifest.json").read_text())
     assert (manifest["mode"], manifest["outcome"], manifest["route"], manifest["attempt"]) == (
         "benchmark_live", "recorded", "csv_from_batch", 1)
+    # The comparison names the solve it compared and the print it compared with; the manifest names the same solve.
+    assert record["swbpipe_solve"] == manifest["swbpipe_solve"] and record_path.parent.name == \
+        record["swbpipe_solve"]["solve_id"]
+    assert record["caepipe_print"] == {"csv": "caepipe_out/model.csv", "route": "csv_from_batch", "sha256": hashlib.sha256(
+        (root / "cases" / "cpb-g1-01" / "caepipe_out" / "model.csv").read_bytes()).hexdigest()}
     rendered = (root / "cases" / "cpb-g1-01" / "caepipe_in" / "model.mbf").read_text()
     assert "HGRA,B311-80,SI" in rendered
-    # Operational status only on standard output: no classification or count.
-    assert "within_profile" not in out and "finding" not in out
-    # A recorded case is never run again, live (one batch alone) or offline: each is refused by name before anything
-    # is solved, round-tripped or written, and the exchange folder is unchanged.
-    before = tree_bytes(root)
+    # Standard output names the record, the solve and the comparison's counts by screening class.
+    assert f"cpb-g1-01: route=csv_from_batch; benchmark record written: {record_path.relative_to(root)}; solve " \
+           f"{record['swbpipe_solve']['solve_id']}; " in out and "within_profile " in out
+    # A case already holding a collected print is not run live again: the print and its run record stay as they are.
+    kept = {name: (root / "cases" / "cpb-g1-05" / "caepipe_out" / name).read_bytes()
+            for name in ("model.csv", "run_record.json")}
     state["calls"].clear()
     assert run_pilot.main(state["argv"] + ["--batch", "2", "--pace-s", "90"], environ={}) == 1
     assert state["calls"] == []
     out = capsys.readouterr().out
-    assert "batch 2/2: cpb-g1-05" in out and "cpb-g1-05: route=already_recorded;" in out
+    assert "batch 2/2: cpb-g1-05" in out and "cpb-g1-05: route=print_stored;" in out
+    # Offline, SWBPIPE's side is solved again and compared again with the same stored print: a new solve folder and
+    # a new comparison beside the first, the first left as it was, and nothing round-tripped.
+    first = {path: path.read_bytes() for path in comparisons(root, "cpb-g1-02")}
     state["sleeps"].clear()
     offline = ["--benchmark", str(state["manifest"]), "--runner", state["runner"], "--offline"]
-    assert run_pilot.main(offline + ["--case", "cpb-g1-02"], environ={}) == 1
+    assert run_pilot.main(offline + ["--case", "cpb-g1-02"], environ={}) == 0
     assert state["calls"] == [] and state["sleeps"] == []
-    assert "cpb-g1-02: route=already_recorded;" in capsys.readouterr().out
-    assert tree_bytes(root) == before
+    records = comparisons(root, "cpb-g1-02")
+    assert len(records) == 2 and all(path.read_bytes() == data for path, data in first.items())
+    again = json.loads(next(path for path in records if path not in first).read_text())
+    assert again["swbpipe_solve"]["solve_id"] != json.loads(next(iter(first)).read_text())["swbpipe_solve"]["solve_id"]
+    assert again["caepipe_print"]["csv"] == "caepipe_out/model.csv"
+    assert "cpb-g1-02: route=csv_from_batch; benchmark record written:" in capsys.readouterr().out
+    assert {name: (root / "cases" / "cpb-g1-05" / "caepipe_out" / name).read_bytes() for name in kept} == kept
+
+
+def comparisons(root: Path, case_id: str) -> list[Path]:
+    """The comparison records of a case, one per SWBPIPE solve, oldest first."""
+    return sorted((root / "cases" / case_id / "comparison").glob("*/benchmark_comparison.json"))
+
+
+def solve_folder(root: Path, case_id: str, manifest: dict) -> Path:
+    return root / "cases" / case_id / "swbpipe" / manifest["swbpipe_solve"]["solve_id"]
 
 
 def tree_bytes(root: Path) -> dict[str, bytes]:
@@ -1319,14 +1427,19 @@ def tree_bytes(root: Path) -> dict[str, bytes]:
 def test_the_case_manifest_binds_the_revision_runner_request_and_result(fake_benchmark):
     state = fake_benchmark
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 0
-    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
-    custody = json.loads((case / "case_manifest.json").read_text())["custody"]
-    assert set(custody) == set(run_pilot.BENCHMARK_CUSTODY_KEYS)
-    assert custody["source_commit"] == checkout_head()
-    assert custody["source_tree_clean"] in (True, False, None)
-    assert custody["runner_sha256"] == hashlib.sha256(Path(state["runner"]).read_bytes()).hexdigest()
+    root = state["config"].exchange_root
+    manifest = json.loads((root / "cases" / "cpb-g1-01" / "case_manifest.json").read_text())
+    solve = manifest["swbpipe_solve"]
+    assert solve["source_commit"] == checkout_head()
+    assert solve["source_tree_clean"] in (True, False, None)
+    assert solve["runner_sha256"] == hashlib.sha256(Path(state["runner"]).read_bytes()).hexdigest()
+    folder = solve_folder(root, "cpb-g1-01", manifest)
+    assert folder.name.endswith(("-" + (checkout_head() or "unknown-commit")[:12],
+                                 "-" + (checkout_head() or "unknown-commit")[:12] + "-dirty"))
     for name in ("request", "result"):
-        assert custody[f"{name}_sha256"] == hashlib.sha256((case / "swbpipe" / f"{name}.json").read_bytes()).hexdigest()
+        assert solve[name] == f"swbpipe/{folder.name}/{name}.json"
+        assert solve[f"{name}_sha256"] == hashlib.sha256((folder / f"{name}.json").read_bytes()).hexdigest()
+    assert solve["standing"]["note"] == run_pilot.STANDING_NOTE
 
 
 def checkout_head() -> str | None:
@@ -1337,79 +1450,41 @@ def checkout_head() -> str | None:
 
 
 def test_an_inherited_git_dir_does_not_change_the_recorded_commit(fake_benchmark, monkeypatch, tmp_path):
-    """Run from a Git hook, GIT_DIR would name another repository; the custody still records this checkout's commit."""
+    """Run from a Git hook, GIT_DIR would name another repository; the solve still records this checkout's commit."""
     state = fake_benchmark
     other = tmp_path / "other"
     subprocess.run(["git", "init", "-q", str(other)], check=True)
     monkeypatch.setenv("GIT_DIR", str(other / ".git"))
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 0
     manifest = state["config"].exchange_root / "cases" / "cpb-g1-01" / "case_manifest.json"
-    assert json.loads(manifest.read_text())["custody"]["source_commit"] == checkout_head()
+    assert json.loads(manifest.read_text())["swbpipe_solve"]["source_commit"] == checkout_head()
 
-
-def test_a_half_made_case_is_refused_by_name_and_left_as_it_is(fake_benchmark, monkeypatch, capsys):
-    """Seeded, the half-made forms an interrupt after authorised creation can leave (a request alone; a request and
-    result), a result alone, and stored files beside a case manifest that records no custody (one written before the
-    solve). A later invocation refuses each by name, before any solve, and leaves it exactly as it is; a manifest that
-    cannot be read is refused by its own name."""
+@pytest.mark.parametrize("manifest", [None, "{ NOT JSON", json.dumps({"outcome": "invented", "custody": {
+    "request_sha256": "0" * 64}})], ids=["no manifest", "an unreadable manifest", "an earlier manifest"])
+def test_a_case_holding_earlier_files_is_solved_again_and_leaves_them_as_they_are(fake_benchmark, monkeypatch,
+                                                                                   capsys, manifest):
+    """A case folder already holding a SWBPIPE request or result (of an earlier layout or an interrupted run), with or
+    without a case manifest of any content, is not refused: SWBPIPE is solved again in a new solve folder and the
+    earlier files are left exactly as they are."""
     state = fake_benchmark
     solves = []
     monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case: solves.append(case) or (
         {"invented": True}, {"payload": invented_payload()}, ""))
     root = state["config"].exchange_root
-    no_custody = json.dumps({"outcome": "no_record", "route": "not_run",
-                             "custody": dict.fromkeys(run_pilot.BENCHMARK_CUSTODY_KEYS)})
-    seeds = {"cpb-g1-01": (("request.json",), None), "cpb-g1-02": (("request.json", "result.json"), None),
-             "cpb-g1-03": (("result.json",), None), "cpb-g1-04": (("request.json",), no_custody),
-             "cpb-g1-05": (("request.json",), "{ NOT JSON")}
-    for case_id, (names, manifest) in seeds.items():
-        folder = root / "cases" / case_id / "swbpipe"
-        folder.mkdir(parents=True)
-        for name in names:
-            (folder / name).write_text("INVENTED STORED FILE\n", encoding="utf-8")
-        if manifest is not None:
-            (folder.parent / "case_manifest.json").write_text(manifest, encoding="utf-8")
-    before = tree_bytes(root)
-    for case_id in seeds:
-        expected = ("manifest_unreadable; this case's manifest cannot be read" if case_id == "cpb-g1-05"
-                    else "half_made; this case is half-made")
-        assert run_pilot.main(state["argv"] + ["--case", case_id], environ={}) == 1
-        assert f"{case_id}: route={expected}" in capsys.readouterr().out
-    assert solves == [] and state["calls"] == [] and tree_bytes(root) == before
-
-
-def test_a_stored_request_or_result_is_never_replaced(fake_benchmark, monkeypatch, capsys):
-    """Seeded (round 1's seeds, kept beside the half-made test): a case folder already holding only a request, or only
-    a result, with no case manifest, is refused by name before any solve and left exactly as it is."""
-    state = fake_benchmark
-    solves = []
-    monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case: solves.append(case) or (
-        {"invented": True}, {"payload": invented_payload()}, ""))
-    root = state["config"].exchange_root
-    for case_id, name in (("cpb-g1-01", "request.json"), ("cpb-g1-02", "result.json")):
-        stored = case_paths(state["config"], case_id)["swbpipe"] / name
-        stored.write_text("INVENTED STORED FILE\n", encoding="utf-8")
-    before = tree_bytes(root)
-    for case_id in ("cpb-g1-01", "cpb-g1-02"):
-        assert run_pilot.main(state["argv"] + ["--case", case_id], environ={}) == 1
-        assert f"{case_id}: route=half_made;" in capsys.readouterr().out
-    assert solves == [] and state["calls"] == [] and tree_bytes(root) == before
-
-
-def test_an_admission_refusal_of_a_recorded_case_creates_no_folder(fake_benchmark, capsys):
-    """A recorded case (stored files and a case manifest) missing its other layer folders is refused at admission,
-    before anything of it is authorised: no folder is created."""
-    state = fake_benchmark
-    root = state["config"].exchange_root
-    case = root / "cases" / "cpb-g1-01"
-    (case / "swbpipe").mkdir(parents=True)
-    (case / "swbpipe" / "request.json").write_text("INVENTED\n", encoding="utf-8")
-    (case / "case_manifest.json").write_text(json.dumps({"outcome": "invented", "route": "invented",
-                                                         "custody": {"request_sha256": "0" * 64}}), encoding="utf-8")
-    before = tree_bytes(root)
-    assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 1
-    assert "cpb-g1-01: route=already_recorded;" in capsys.readouterr().out
-    assert tree_bytes(root) == before
+    folder = root / "cases" / "cpb-g1-01" / "swbpipe"
+    folder.mkdir(parents=True)
+    for name in ("request.json", "result.json"):
+        (folder / name).write_text("INVENTED STORED FILE\n", encoding="utf-8")
+    if manifest is not None:
+        (folder.parent / "case_manifest.json").write_text(manifest, encoding="utf-8")
+    assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 0
+    # One solve of the model; the stated bases' solves follow it (stated_bases.compare_bases).
+    assert len([case for case in solves if not case.get("stated_bases")]) == 1
+    assert [call[0] for call in state["calls"]] == ["cpb-g1-01"]
+    assert all((folder / name).read_text(encoding="utf-8") == "INVENTED STORED FILE\n"
+               for name in ("request.json", "result.json"))
+    recorded = json.loads((folder.parent / "case_manifest.json").read_text())
+    assert recorded["outcome"] == "recorded" and (solve_folder(root, "cpb-g1-01", recorded) / "result.json").is_file()
 
 
 def test_o_excl_does_not_replace_a_stored_file(tmp_path):
@@ -1424,11 +1499,11 @@ def test_o_excl_does_not_replace_a_stored_file(tmp_path):
 def test_the_clean_flag_is_what_git_reports(fake_benchmark):
     state = fake_benchmark
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 0
-    custody = json.loads((state["config"].exchange_root / "cases" / "cpb-g1-01" / "case_manifest.json").read_text())[
-        "custody"]
+    solve = json.loads((state["config"].exchange_root / "cases" / "cpb-g1-01" / "case_manifest.json").read_text())[
+        "swbpipe_solve"]
     env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
     status = subprocess.run(["git", "-C", str(ROOT), "status", "--porcelain"], capture_output=True, text=True, env=env)
-    assert custody["source_tree_clean"] == ((status.stdout == "") if status.returncode == 0 else None)
+    assert solve["source_tree_clean"] == ((status.stdout == "") if status.returncode == 0 else None)
 
 
 def _bench_entry(state, model_id="cpb-g1-01"):
@@ -1446,55 +1521,48 @@ def _collecting_round_trip(config_, case_id, mbf_text, **kwargs):
     return record
 
 
-def test_the_custody_is_on_disk_when_the_round_trip_starts(fake_benchmark):
-    """At the moment the round trip is invoked, the persisted case manifest already binds the two stored files; an
-    interrupt there leaves that custody recorded, the manifest in the custody_recorded state (no terminal outcome
-    recorded)."""
+def test_the_manifest_names_the_solve_when_the_round_trip_starts(fake_benchmark):
+    """At the moment the round trip is invoked, the persisted case manifest is in the round_trip_started state and names
+    the solve, whose two files are on disk; an interrupt there leaves it so."""
     state = fake_benchmark
-    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+    root = state["config"].exchange_root
+    case = root / "cases" / "cpb-g1-01"
     seen = {}
 
     def round_trip(config_, case_id, mbf_text, **kwargs):
         manifest = json.loads((case / "case_manifest.json").read_text())
         seen["outcome"] = manifest["outcome"]
         for name in ("request", "result"):
-            seen[name] = manifest["custody"][f"{name}_sha256"] == hashlib.sha256(
-                (case / "swbpipe" / f"{name}.json").read_bytes()).hexdigest()
+            seen[name] = manifest["swbpipe_solve"][f"{name}_sha256"] == hashlib.sha256(
+                (solve_folder(root, "cpb-g1-01", manifest) / f"{name}.json").read_bytes()).hexdigest()
         raise KeyboardInterrupt
     with pytest.raises(KeyboardInterrupt):
         run_pilot._run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
-                                       emit=lambda line: None, round_trip=round_trip, gui_fallback=False, attempt=1,
-                                       collect_only=True)
-    assert seen == {"outcome": "custody_recorded", "request": True, "result": True}
-    assert json.loads((case / "case_manifest.json").read_text())["outcome"] == "custody_recorded"
+                                       emit=lambda line: None, round_trip=round_trip, gui_fallback=False, attempt=1)
+    assert seen == {"outcome": "round_trip_started", "request": True, "result": True}
+    assert json.loads((case / "case_manifest.json").read_text())["outcome"] == "round_trip_started"
 
 
-@pytest.mark.parametrize("side", ["before the round trip starts", "after it returns, before the final update"])
-def test_an_interrupt_on_either_side_of_the_round_trip_leaves_custody_recorded(fake_benchmark, monkeypatch, side):
-    """The custody_recorded state shows only that no terminal outcome was recorded: an interrupt after the custody is
-    on disk and before the round trip is called, or after it returns and before the final manifest update, leaves
-    it so, with the custody readable."""
+def test_an_interrupt_after_the_round_trip_returns_leaves_round_trip_started(fake_benchmark, monkeypatch):
+    """The round_trip_started state shows only that no outcome of the attempt was written: an interrupt after the
+    round trip returns and before the final manifest update leaves it so."""
     state = fake_benchmark
     case = state["config"].exchange_root / "cases" / "cpb-g1-01"
     calls = []
 
     def interrupt(*args, **kwargs):
         raise KeyboardInterrupt
-    if side.startswith("before"):
-        monkeypatch.setattr(run_pilot, "write_private", interrupt)  # the MBF write, after the custody write
-    else:
-        monkeypatch.setattr(run_pilot, "bound_csv", interrupt)  # after the round trip has returned
+    monkeypatch.setattr(run_pilot, "bound_csv", interrupt)  # after the round trip has returned
     with pytest.raises(KeyboardInterrupt):
         run_pilot._run_benchmark_model(
             _bench_entry(state), state["config"], runner=state["runner"], offline=False, emit=lambda line: None,
             round_trip=lambda *a, **k: calls.append(1) or _collecting_round_trip(*a, **k), gui_fallback=False,
             attempt=1, collect_only=True)
-    assert calls == ([] if side.startswith("before") else [1])
-    manifest = json.loads((case / "case_manifest.json").read_text())
-    assert manifest["outcome"] == "custody_recorded" and manifest["custody"]["request_sha256"]
+    assert calls == [1]
+    assert json.loads((case / "case_manifest.json").read_text())["outcome"] == "round_trip_started"
 
 
-def test_an_interrupted_later_manifest_write_leaves_the_custody_readable(fake_benchmark, monkeypatch):
+def test_an_interrupted_later_manifest_write_leaves_the_earlier_manifest_readable(fake_benchmark, monkeypatch):
     state = fake_benchmark
     case = state["config"].exchange_root / "cases" / "cpb-g1-01"
     first = {}
@@ -1513,77 +1581,24 @@ def test_an_interrupted_later_manifest_write_leaves_the_custody_readable(fake_be
                                        emit=lambda line: None, round_trip=round_trip, gui_fallback=False, attempt=1,
                                        collect_only=True)
     assert (case / "case_manifest.json").read_bytes() == first["bytes"]
-    assert json.loads(first["bytes"])["custody"]["request_sha256"]
+    assert json.loads(first["bytes"])["outcome"] == "round_trip_started"
     assert not [path for path in case.iterdir() if path.name.endswith(".tmp")]
 
 
-def test_a_custody_changed_on_disk_is_refused_and_nothing_written(fake_benchmark):
-    state = fake_benchmark
-    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
-    edited = {}
-
-    def round_trip(config_, case_id, mbf_text, **kwargs):
-        manifest = json.loads((case / "case_manifest.json").read_text())
-        manifest["custody"]["request_sha256"] = "0" * 64
-        (case / "case_manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
-        edited["bytes"] = (case / "case_manifest.json").read_bytes()
-        return _collecting_round_trip(config_, case_id, mbf_text, **kwargs)
-    with pytest.raises(run_pilot.CustodyChanged):
-        run_pilot._run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
-                                       emit=lambda line: None, round_trip=round_trip, gui_fallback=False, attempt=1,
-                                       collect_only=True)
-    assert (case / "case_manifest.json").read_bytes() == edited["bytes"]
-
-
-@pytest.mark.parametrize("change", ["runner", "runner of the same size", "commit"])
-def test_a_changed_runner_or_checkout_refuses_before_the_round_trip(fake_benchmark, monkeypatch, change):
-    """Assumed stable through the invocation, the runner and the checkout are checked again before the round trip; an
-    ordinary change refuses by name, and the case keeps its custody manifest (outcome no_record, route
-    identity_changed), which a later invocation refuses as already recorded, naming that outcome and route."""
-    state = fake_benchmark
-    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
-    real_solve = run_pilot.solve_swbpipe
-    if change.startswith("runner"):
-        def solve(runner, case_):
-            size = Path(state["runner"]).stat().st_size
-            replacement = "X" * size if change.endswith("same size") else "REPLACED DURING THE SOLVE"
-            Path(state["runner"]).write_text(replacement, encoding="utf-8")
-            return real_solve(runner, case_)
-        monkeypatch.setattr(run_pilot, "solve_swbpipe", solve)
-    else:
-        identities = iter([{"source_commit": "a" * 40, "source_tree_clean": True},
-                           {"source_commit": "b" * 40, "source_tree_clean": True}])
-        monkeypatch.setattr(run_pilot, "_source_identity", lambda: next(identities))
-    calls = []
-    status, route, _ = run_pilot._run_benchmark_model(
-        _bench_entry(state), state["config"], runner=state["runner"], offline=False, emit=lambda line: None,
-        round_trip=lambda *a, **k: calls.append(1), gui_fallback=False, attempt=1, collect_only=True)
-    assert (status, route, calls) == (run_pilot.NOT_RUN, "identity_changed", [])
-    manifest = json.loads((case / "case_manifest.json").read_text())
-    assert manifest["outcome"] == "no_record" and manifest["custody"]["request_sha256"]
-    before = tree_bytes(state["config"].exchange_root)
-    status, route, reason = run_pilot._run_benchmark_model(
-        _bench_entry(state), state["config"], runner=state["runner"], offline=False, emit=lambda line: None,
-        round_trip=lambda *a, **k: calls.append(1), gui_fallback=False, attempt=1, collect_only=True)
-    assert (status, route, calls) == (run_pilot.NOT_RUN, "already_recorded", [])
-    assert "the manifest records outcome 'no_record', route 'identity_changed'" in reason
-    assert tree_bytes(state["config"].exchange_root) == before
-
-
 def test_a_settings_stop_records_its_outcome_before_it_stops(fake_benchmark):
-    """A round trip that concluded with an unclean settings check: the outcome is written (keeping the custody)
-    before the run stops, so the manifest is not left in the custody_recorded state."""
+    """A round trip that concluded with an unclean settings check: the outcome is written before the run stops,
+    so the manifest is not left in the round_trip_started state."""
     state = fake_benchmark
     state["outcomes"][:] = [{"route": "timeout", "settings_guard": {"status": "owned_process_running"}}]
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 1
     manifest = json.loads((state["config"].exchange_root / "cases" / "cpb-g1-01" / "case_manifest.json").read_text())
     assert (manifest["outcome"], manifest["route"]) == ("no_record", "settings_stop")
-    assert manifest["custody"]["request_sha256"]
+    assert manifest["swbpipe_solve"]["request_sha256"]
 
 
 @pytest.mark.parametrize("failure", [OSError, KeyboardInterrupt])
-def test_a_failed_settings_stop_write_keeps_the_custody_and_the_stopping_reason(fake_benchmark, monkeypatch, failure):
-    """When writing the settings stop's outcome fails, the custody already on disk stays readable and the stop
+def test_a_failed_settings_stop_write_keeps_the_manifest_and_the_stopping_reason(fake_benchmark, monkeypatch, failure):
+    """When writing the settings stop's outcome fails, the manifest already on disk stays readable and the stop
     wins: on an error, RunStopped is raised and its message and an emitted line name the failure (what the callers
     print or record); an interrupt propagates with the RunStopped as its context. The run record keeps the settings
     check either way."""
@@ -1613,7 +1628,7 @@ def test_a_failed_settings_stop_write_keeps_the_custody_and_the_stopping_reason(
     else:
         assert isinstance(raised.value.__context__, run_pilot.RunStopped)
     assert (case / "case_manifest.json").read_bytes() == first["bytes"]
-    assert json.loads(first["bytes"])["custody"]["request_sha256"]
+    assert json.loads(first["bytes"])["outcome"] == "round_trip_started"
     record = json.loads((case / "caepipe_out" / "run_record.json").read_text())
     assert record["settings_guard"]["status"] == "owned_process_running"
     assert not [path for path in case.iterdir() if path.name.endswith(".tmp")]
@@ -1623,7 +1638,7 @@ def test_a_failed_settings_stop_write_keeps_the_custody_and_the_stopping_reason(
                                       {"route": "batch_no_csv", "settings_guard": {"status": "unchanged"}}])
 def test_a_stop_survives_a_containment_error_on_its_write(fake_benchmark, monkeypatch, capsys, stopping):
     """A stop's outcome write (a settings stop, or a batch run that left no CSV) meets a ContainmentError: the manifest
-    is replaced by a link after the custody write. The run still stops at that model, no further model runs, and the
+    is replaced by a link after the round_trip_started write. The run still stops at that model, no further model runs, and the
     line the benchmark command prints names the failed write."""
     state = fake_benchmark
     real = run_pilot._guard_stop
@@ -1646,7 +1661,7 @@ def test_a_stop_survives_a_containment_error_on_its_write(fake_benchmark, monkey
 
 
 def test_the_batch_callable_raises_the_stop_naming_a_failed_write(fake_benchmark, monkeypatch):
-    """Through run_benchmark_model, the callable the batch wrapper uses (it records str(error)): a failed write of a
+    """Through run_benchmark_model, the per-model step (a caller records str(error)): a failed write of a
     stop's outcome raises RunStopped, never a not-run outcome, and its text names the failure."""
     state = fake_benchmark
     state["outcomes"][:] = [{"route": "batch_no_csv", "settings_guard": {"status": "unchanged"}}]
@@ -1677,137 +1692,7 @@ def test_a_settings_stop_on_the_raise_path_records_its_outcome(fake_benchmark):
     manifest = json.loads(
         (state["config"].exchange_root / "cases" / "cpb-g1-01" / "case_manifest.json").read_text())
     assert (manifest["outcome"], manifest["route"]) == ("no_record", "settings_stop")
-    assert "the round trip raised" in manifest["reason"] and manifest["custody"]["request_sha256"]
-
-
-RECORDED_CUSTODY = json.dumps({"outcome": "invented", "route": "invented",
-                               "custody": {"request_sha256": "0" * 64, "result_sha256": None}})
-
-
-@pytest.mark.parametrize("stored", [True, False], ids=["with a stored request", "with no stored file"])
-@pytest.mark.parametrize("content, route", [
-    (json.dumps({"custody": "invented"}), "manifest_unreadable"),
-    (json.dumps({"custody": ["invented"]}), "manifest_unreadable"),
-    (json.dumps({"custody": None}), "manifest_unreadable"),
-    ("[]", "manifest_unreadable"), ('"invented"', "manifest_unreadable"), ("{ NOT JSON", "manifest_unreadable"),
-    (RECORDED_CUSTODY, "already_recorded"),
-], ids=["custody a string", "custody a list", "custody null", "a list", "a string", "not JSON", "recorded custody"])
-def test_a_manifest_of_unknown_or_recorded_custody_is_refused_at_admission(fake_benchmark, monkeypatch, content,
-                                                                            route, stored):
-    """Through run_benchmark_model, the batch wrapper's callable: a case manifest that cannot be read, or whose
-    custody member is not an object, leaves the custody unknown; one that records custody keeps the case recorded even
-    with its request and result gone. Each is refused by name, with or without stored files, before anything is
-    solved or any file is created, and nothing is written or reconstructed."""
-    state = fake_benchmark
-    solves = []
-    monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case: solves.append(case) or (
-        {"invented": True}, {"payload": invented_payload()}, ""))
-    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
-    case.mkdir(parents=True)
-    if stored:
-        (case / "swbpipe").mkdir()
-        (case / "swbpipe" / "request.json").write_text("INVENTED\n", encoding="utf-8")
-    (case / "case_manifest.json").write_text(content, encoding="utf-8")
-    before = tree_bytes(state["config"].exchange_root)
-    assert run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
-                                         emit=lambda line: None, collect_only=True)[:2] == (run_pilot.NOT_RUN, route)
-    assert solves == [] and state["calls"] == [] and tree_bytes(state["config"].exchange_root) == before
-
-
-def test_a_manifest_that_is_a_link_is_refused_as_unknown_custody(fake_benchmark):
-    state = fake_benchmark
-    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
-    case.mkdir(parents=True)
-    (case / "elsewhere.json").write_text(RECORDED_CUSTODY, encoding="utf-8")
-    os.symlink("elsewhere.json", case / "case_manifest.json")
-    before = tree_bytes(state["config"].exchange_root)
-    assert run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
-                                         emit=lambda line: None, collect_only=True)[:2] == (
-        run_pilot.NOT_RUN, "manifest_unreadable")
-    assert state["calls"] == [] and tree_bytes(state["config"].exchange_root) == before
-
-
-def test_a_manifest_recording_no_custody_and_no_stored_file_is_admitted(fake_benchmark):
-    """A manifest written before any solve (an MBF refusal records custody with no value) does not hold the case."""
-    state = fake_benchmark
-    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
-    case.mkdir(parents=True)
-    (case / "case_manifest.json").write_text(json.dumps({
-        "outcome": "no_record", "route": "not_run", "custody": dict.fromkeys(run_pilot.BENCHMARK_CUSTODY_KEYS)}),
-        encoding="utf-8")
-    assert run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
-                                         emit=lambda line: None, collect_only=True)[0] == run_pilot.COLLECTED
-
-
-def test_recorded_custody_without_a_request_digest_is_still_carried_and_compared(fake_benchmark, monkeypatch):
-    """A custody member with any value records custody, the same reading admission makes: a later write compares it
-    and refuses when it differs, even when it holds no request digest. The manifest is not replaced."""
-    state = fake_benchmark
-    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
-    real = run_pilot._guard_stop
-    replaced = {}
-
-    def guard(config, case_id, settings, emit):
-        manifest = json.loads((case / "case_manifest.json").read_text())
-        manifest["custody"] = {**dict.fromkeys(run_pilot.BENCHMARK_CUSTODY_KEYS), "source_commit": "f" * 40}
-        (case / "case_manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
-        replaced["bytes"] = (case / "case_manifest.json").read_bytes()
-        return real(config, case_id, settings, emit)
-    monkeypatch.setattr(run_pilot, "_guard_stop", guard)
-    # The program has run (completed), so the refused write is a stop that names it, never a retry or not_run.
-    stopped = r"start_completed; its outcome could not be recorded \(CustodyChanged: .*custody differs .* not replaced"
-    with pytest.raises(run_pilot.RunStopped, match=stopped):
-        run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
-                                      emit=lambda line: None, collect_only=True)
-    assert (case / "case_manifest.json").read_bytes() == replaced["bytes"]
-
-
-@pytest.mark.parametrize("write", ["collected", "not collected", "settings stop"])
-def test_custody_malformed_between_admission_and_a_later_write_is_refused(fake_benchmark, monkeypatch, write):
-    """Custody well formed at admission and made malformed before a later write reads it (the collected write, a
-    not-collected outcome, a stop's write): the later write refuses, treating malformed custody as unknown, never as
-    absent, and the manifest is not replaced. Asserted through run_benchmark_model, the batch wrapper's callable:
-    every one is a stop whose text names the CustodyChanged, since the program has run (completed) and a failure to
-    record its outcome is never a retry or not_run; at a stop the stop wins."""
-    state = fake_benchmark
-    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
-    state["outcomes"][:] = [{"collected": {"settings_guard": {"status": "unchanged"}},
-                             "not collected": {"route": "timeout", "settings_guard": {"status": "unchanged"}},
-                             "settings stop": {"route": "timeout",
-                                               "settings_guard": {"status": "owned_process_running"}}}[write]]
-    real = run_pilot._guard_stop
-    corrupted = {}
-
-    def guard(config, case_id, settings, emit):
-        manifest = json.loads((case / "case_manifest.json").read_text())
-        assert manifest["outcome"] == "custody_recorded" and manifest["custody"]["request_sha256"]
-        manifest["custody"] = "invented"  # made malformed between admission and the later write
-        (case / "case_manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
-        corrupted["bytes"] = (case / "case_manifest.json").read_bytes()
-        return real(config, case_id, settings, emit)
-    monkeypatch.setattr(run_pilot, "_guard_stop", guard)
-    with pytest.raises(run_pilot.RunStopped) as raised:
-        run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
-                                      emit=lambda line: None, collect_only=True)
-    text = f"{type(raised.value).__name__}: {raised.value}"
-    assert "custody member is not an object; the case manifest was not replaced" in text
-    stop = {"collected": "start_completed", "not collected": "timeout", "settings stop": "settings_stop"}[write]
-    assert text.startswith(f"RunStopped: cpb-g1-01 ({stop}; its outcome could not be recorded (CustodyChanged: ")
-    assert (case / "case_manifest.json").read_bytes() == corrupted["bytes"]
-
-
-def test_an_unreadable_manifest_is_refused_on_a_later_write(fake_benchmark):
-    state = fake_benchmark
-    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
-
-    def round_trip(config_, case_id, mbf_text, **kwargs):
-        (case / "case_manifest.json").write_text("{ NOT JSON", encoding="utf-8")
-        return _collecting_round_trip(config_, case_id, mbf_text, **kwargs)
-    with pytest.raises(run_pilot.CustodyChanged, match="cannot be read"):
-        run_pilot._run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
-                                       emit=lambda line: None, round_trip=round_trip, gui_fallback=False, attempt=1,
-                                       collect_only=True)
-    assert (case / "case_manifest.json").read_text(encoding="utf-8") == "{ NOT JSON"
+    assert "the round trip raised" in manifest["reason"] and manifest["swbpipe_solve"]["request_sha256"]
 
 
 def test_the_runner_hashed_is_the_runner_run(fake_benchmark, monkeypatch, tmp_path):
@@ -1830,16 +1715,15 @@ def test_the_runner_hashed_is_the_runner_run(fake_benchmark, monkeypatch, tmp_pa
                                                                                                              case_))
     run_pilot._run_benchmark_model(_bench_entry(state), state["config"], runner="invented-runner", offline=False,
                                    emit=lambda line: None, round_trip=_collecting_round_trip, gui_fallback=False,
-                                   attempt=1, collect_only=True)
-    assert given == [str(real.resolve())]
+                                   attempt=1)
+    assert set(given) == {str(real.resolve())}  # the plain solve and each stated basis's solve
     manifest = json.loads((state["config"].exchange_root / "cases" / "cpb-g1-01" / "case_manifest.json").read_text())
-    assert manifest["custody"]["runner_sha256"] == hashlib.sha256(real.read_bytes()).hexdigest()
+    assert manifest["swbpipe_solve"]["runner_sha256"] == hashlib.sha256(real.read_bytes()).hexdigest()
 
 
-def test_collect_only_offline_and_recorded_refusals_through_the_model_callable(fake_benchmark):
-    """Through run_benchmark_model, the callable the batch wrapper uses: collect-only offline is refused before
-    anything is written; offline, a recorded case and a case with no folder are refused at admission, creating
-    nothing."""
+def test_collect_only_offline_and_a_later_comparison_through_the_model_callable(fake_benchmark):
+    """Through run_benchmark_model: collect-only offline is refused before anything is written; offline, a case with no
+    folder is refused creating nothing; a collected case is then compared offline with its print left unchanged."""
     state = fake_benchmark
     root = state["config"].exchange_root
     entry = _bench_entry(state)
@@ -1854,16 +1738,19 @@ def test_collect_only_offline_and_recorded_refusals_through_the_model_callable(f
     assert run_pilot.run_benchmark_model(entry, state["config"], runner=state["runner"], offline=False,
                                          emit=lambda line: None, round_trip=_collecting_round_trip,
                                          collect_only=True)[0] == run_pilot.COLLECTED
-    recorded = tree_bytes(root)
+    out = root / "cases" / "cpb-g1-01" / "caepipe_out"
+    kept = {path.name: path.read_bytes() for path in out.iterdir()}
     assert run_pilot.run_benchmark_model(entry, state["config"], runner=state["runner"], offline=True,
-                                         emit=lambda line: None)[1] == "already_recorded"
-    assert tree_bytes(root) == recorded
+                                         emit=lambda line: None)[0] == run_pilot.RECORDED
+    assert {path.name: path.read_bytes() for path in out.iterdir()} == kept
+    assert len(comparisons(root, "cpb-g1-01")) == 1
 
 
 def test_the_retry_reuses_its_own_solve_and_replaces_nothing(fake_benchmark, monkeypatch):
     state = fake_benchmark
     solves = []
-    monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case: solves.append(case["case_id"]) or (
+    monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case: (
+        None if case.get("stated_bases") else solves.append(case["case_id"])) or (
         {"invented": case["case_id"]}, {"payload": invented_payload()}, ""))
     failure = RuntimeError("invented transport failure")
     failure.settings_guard = {"status": "unchanged"}  # a clean settings check, so the model is retried
@@ -1871,49 +1758,50 @@ def test_the_retry_reuses_its_own_solve_and_replaces_nothing(fake_benchmark, mon
     state["outcomes"].append(failure)
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 0
     assert [call[0] for call in state["calls"]] == ["cpb-g1-01", "cpb-g1-01"] and solves == ["cpb-g1-01"]
-    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
-    manifest = json.loads((case / "case_manifest.json").read_text())
+    root = state["config"].exchange_root
+    manifest = json.loads((root / "cases" / "cpb-g1-01" / "case_manifest.json").read_text())
     assert (manifest["attempt"], manifest["outcome"]) == (2, "recorded")
-    assert manifest["custody"]["request_sha256"] == hashlib.sha256(
-        (case / "swbpipe" / "request.json").read_bytes()).hexdigest()
+    assert manifest["swbpipe_solve"]["request_sha256"] == hashlib.sha256(
+        (solve_folder(root, "cpb-g1-01", manifest) / "request.json").read_bytes()).hexdigest()
+    # One plain solve, reused by the retry; every other solve folder is a stated basis's, named in its record.
+    [record] = comparisons(root, "cpb-g1-01")
+    bases = json.loads((record.parent / run_pilot.STATED_BASES_RECORD).read_text())
+    basis_solves = {block["swbpipe_solve"]["solve_id"] for block in bases["bases"] if block.get("swbpipe_solve")}
+    assert {path.name for path in (root / "cases" / "cpb-g1-01" / "swbpipe").iterdir()} == {
+        manifest["swbpipe_solve"]["solve_id"], *basis_solves}
 
 
-def test_collect_only_binds_first_collects_and_reads_no_print(fake_benchmark, monkeypatch, capsys):
-    """Bind first, capture now, screen later: the SWBPIPE request and result are created before the round trip, the
-    print is collected and bound, and nothing parses it or writes a comparison; the GUI fallback is off even when the
-    guard restores the whole key."""
+def test_collect_only_collects_and_binds_and_offline_then_compares(fake_benchmark, monkeypatch, capsys):
+    """Collect-only: the print is collected and bound, and nothing solves SWBPIPE, parses the print or writes a
+    comparison; the GUI fallback is off even when the guard restores the whole key. Offline then compares it."""
     state = fake_benchmark
     config = dataclasses.replace(state["config"], settings_guard=dataclasses.replace(
         state["config"].settings_guard, restore_scope="key"))
     assert config.settings_guard.restores_whole_key
     monkeypatch.setattr(run_pilot, "resolve_harness_config", lambda environ, require_vm_tools: config)
-    real_solve = run_pilot.solve_swbpipe
     case = config.exchange_root / "cases" / "cpb-g1-01"
-
-    def solve(runner, case_):
-        state["events"].append(("solve",))
-        return real_solve(runner, case_)
-    monkeypatch.setattr(run_pilot, "solve_swbpipe", solve)
-
-    def refuse(*args, **kwargs):
-        raise AssertionError("a collect-only run must not read the print or compare")
-    for name in ("read_caepipe_print_csv", "build_benchmark_record"):
-        monkeypatch.setattr(run_pilot, name, refuse)
+    calls = []
+    real = {name: getattr(run_pilot, name) for name in ("solve_swbpipe", "parse_caepipe_print_bytes",
+                                                         "build_benchmark_record")}
+    for name, function in real.items():
+        monkeypatch.setattr(run_pilot, name, lambda *a, _name=name, **k: calls.append(_name) or real[_name](*a, **k))
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01", "--collect-only"], environ={}) == 0
-    # The SWBPIPE side is solved and its files created before the round trip.
-    assert [event for event in state["events"] if event[0] in ("solve", "round_trip")] == [
-        ("solve",), ("round_trip", "cpb-g1-01")]
-    assert state["calls"][0][1] == {"gui_fallback": False}
+    assert calls == [] and state["calls"][0][1] == {"gui_fallback": False}
     manifest = json.loads((case / "case_manifest.json").read_text())
-    assert (manifest["outcome"], manifest["route"], manifest["parser_status"]) == (
-        "collected", "csv_from_batch", "not_parsed")
-    assert manifest["csv"] == "caepipe_out/model.csv" and manifest["custody"]["result_sha256"]
-    assert not (case / "parsed").exists() or not any((case / "parsed").iterdir())
-    assert not (case / "comparison").exists() or not any((case / "comparison").iterdir())
+    assert (manifest["outcome"], manifest["route"], manifest["parser_status"], manifest["swbpipe_solve"]) == (
+        "collected", "csv_from_batch", "not_parsed", None)
+    assert manifest["csv"] == "caepipe_out/model.csv"
+    assert not any((case / "parsed").iterdir()) and not any((case / "comparison").iterdir())
     assert "cpb-g1-01: route=csv_from_batch; collected and bound; not parsed or compared" in capsys.readouterr().out
     with pytest.raises(SystemExit):
         run_pilot.main(["--benchmark", str(state["manifest"]), "--runner", state["runner"], "--offline",
                         "--collect-only"], environ={})
+    assert run_pilot.main(["--benchmark", str(state["manifest"]), "--runner", state["runner"], "--offline", "--case",
+                           "cpb-g1-01"], environ={}) == 0
+    # Solve, parse, compare; then each stated basis's own solve (stated_bases.compare_bases).
+    assert calls[:3] == ["solve_swbpipe", "parse_caepipe_print_bytes", "build_benchmark_record"]
+    assert set(calls[3:]) <= {"solve_swbpipe"}
+    assert len(comparisons(config.exchange_root, "cpb-g1-01")) == 1
 
 
 def test_offline_leaves_a_case_without_a_bound_print_untouched(fake_benchmark):
@@ -1984,7 +1872,8 @@ def test_two_states_of_one_model_leave_two_distinct_records(fake_benchmark, monk
     solved = {}
 
     def solve(runner, case):
-        solved[case["case_id"]] = case["model"]
+        if not case.get("stated_bases"):  # a stated basis's own solve follows the plain one
+            solved[case["case_id"]] = case["model"]
         return {"invented": case["source_location"]}, {"payload": invented_payload()}, ""
     monkeypatch.setattr(run_pilot, "solve_swbpipe", solve)
     argv = ["--benchmark", str(path)] + state["argv"][2:]
@@ -1999,8 +1888,8 @@ def test_two_states_of_one_model_leave_two_distinct_records(fake_benchmark, monk
         "0,0,0,1,0", "0,1,0,1,1"]
     assert sorted(solved) == run_ids and "model_settings" not in solved[run_ids[0]]
     assert solved[run_ids[1]]["model_settings"]["pressure_elongation"] == {"operating_load_cases": ["case:sustained"]}
-    records = [root / "cases" / run_id / "comparison" / "benchmark_comparison.json" for run_id in run_ids]
-    assert records[0].is_file() and records[1].is_file()
+    records = [path for run_id in run_ids for path in comparisons(root, run_id)]
+    assert len(records) == 2
     first, second = (json.loads(record.read_text()) for record in records)
     assert first["model_id"] == second["model_id"] == "cpb-p2-01"
     assert "pressure_elongation_convention" not in first["load_cases"][1]["inexact_inputs"]
@@ -2010,117 +1899,224 @@ def test_two_states_of_one_model_leave_two_distinct_records(fake_benchmark, monk
         (run_ids[0], RUNS[0], "0,0,0,1,0", "recorded"), (run_ids[1], RUNS[1], "0,1,0,1,1", "recorded")]
 
 
-CAPTURE_REFUSAL = ("cpb-p2-01--pressure-bourdon-expansion-capture: route=capture_path_unavailable; a capture-only run "
-                   "needs the capture-only path, which collects its result without reading it; that path is a "
-                   "separate change and is not on this build; not run")
-
-
-def test_a_capture_run_is_refused_by_name_and_nothing_is_read_or_written(fake_benchmark, monkeypatch, capsys):
-    """On this build a capture run is declared and refused by name, live or offline, at every entry point, before
-    anything is solved, written, collected, hashed or read. An invented stored result is seeded for its case, and every
-    spy records its call (and then raises), so a read through any parser alias, a recognition helper that swallows
-    the raised error, or a plain open of the seeded files still fails this test."""
-    import builtins
-    import io
-    from core.handoff.caepipe_external import harness, print_csv
-    import core.handoff.caepipe_external as external
-
+def test_a_capture_run_is_collected_bound_and_parsed_and_never_compared(fake_benchmark, monkeypatch, capsys):
+    """A capture-only run (no SWBPIPE state equals it) goes through the batch round trip like any run: its print is
+    collected, bound and parsed, no SWBPIPE solve or comparison is made, and offline it is parsed again from the stored
+    print. A mixed list runs its other model as usual."""
     state = fake_benchmark
     path = benchmark_manifest(state["manifest"].parent.parent / "pressure-set", ids=("cpb-p2-01", "cpb-g1-01"))
     [capture] = run_pilot.load_benchmark(path, ["cpb-p2-01"], RUNS[2])
     [plain] = run_pilot.load_benchmark(path, ["cpb-g1-01"])
     config = state["config"]
     root = config.exchange_root
-    # An invented stored result for the capture run's case: obviously made-up text and a run record naming it.
-    out = case_paths(config, capture["run_id"])["caepipe_out"]
-    out.mkdir(parents=True, exist_ok=True)
-    (out / "model.csv").write_text("INVENTED CAPTURE FIXTURE, NOT A RESULT OF ANY PROGRAM,\r\n", encoding="utf-8")
-    (out / "run_record.json").write_text(json.dumps({"document_kind": RUN_RECORD_KIND, "route": "csv_from_batch",
-                                                     "invented": True}), encoding="utf-8")
-    watched = (root / "cases" / capture["run_id"]).resolve()
-
-    def snapshot() -> dict[str, bytes]:
-        return {str(item.relative_to(root)): item.read_bytes() if item.is_file() else b"<dir>"
-                for item in sorted(root.rglob("*"))}
-    before = snapshot()
-
-    calls: list[str] = []
-    active = {"on": True}
-
-    def spy(name):
-        def call(*args, **kwargs):
-            if active["on"]:
-                calls.append(name)
-            raise AssertionError(f"a capture run must not reach {name}")
-        return call
-    for module in (run_pilot, external, print_csv, harness):
-        for name in ("read_caepipe_print_csv", "parse_caepipe_print_csv", "_print_layout_problem",
-                     "stored_run_record", "_sha256", "bound_csv", "case_paths"):
-            if hasattr(module, name):
-                monkeypatch.setattr(module, name, spy(f"{module.__name__}.{name}"))
-    for name in ("solve_swbpipe", "render_caepipe_mbf_si", "write_private", "_write_json", "_create_private_json",
-                 "check_guest_alive",
-                 "check_no_foreign_instance", "resolve_harness_config"):
-        monkeypatch.setattr(run_pilot, name, spy(f"run_pilot.{name}"))
-    real_open, real_os_open = builtins.open, os.open
-
-    def touched(target) -> None:
-        try:
-            resolved = Path(os.fspath(target)).resolve()
-        except TypeError:
-            return  # a file descriptor
-        if active["on"] and (resolved == watched or watched in resolved.parents):
-            calls.append(f"open {resolved.relative_to(root.resolve())}")
-
-    def spy_open(file, *args, **kwargs):
-        touched(file)
-        return real_open(file, *args, **kwargs)
-
-    def spy_os_open(file, *args, **kwargs):
-        touched(file)
-        return real_os_open(file, *args, **kwargs)
-    monkeypatch.setattr(builtins, "open", spy_open)
-    monkeypatch.setattr(io, "open", spy_open)
-    monkeypatch.setattr(os, "open", spy_os_open)
-
-    def round_trip(*args, **kwargs):
-        calls.append("round_trip")
-        raise AssertionError("a capture run must not be round-tripped")
+    solves = []
+    monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case: (
+        None if case.get("stated_bases") else solves.append(case["case_id"])) or (
+        {"invented": True}, {"payload": invented_payload()}, ""))
     lines: list[str] = []
-    probes = {
-        "command live": lambda: run_pilot.main(["--benchmark", str(path), "--case", "cpb-p2-01", "--series", RUNS[2]]
-                                               + state["argv"][2:], environ={}),
-        "command offline": lambda: run_pilot.main(["--benchmark", str(path), "--case", "cpb-p2-01", "--runner",
-                                                   state["runner"], "--offline", "--series", RUNS[2]], environ={}),
-        "run_benchmark live": lambda: run_pilot.run_benchmark(
-            [capture], config, runner=state["runner"], offline=False, emit=lines.append, round_trip=round_trip),
-        "run_benchmark offline": lambda: run_pilot.run_benchmark([capture], config, runner=state["runner"],
-                                                                 offline=True, emit=lines.append),
-        "mixed batch": lambda: run_pilot.run_benchmark([plain, capture], config, runner=state["runner"],
-                                                       offline=True, emit=lines.append),
-        "run_benchmark_model live": lambda: run_pilot.run_benchmark_model(
-            capture, config, runner=state["runner"], offline=False, emit=lines.append, round_trip=round_trip)[1],
-        "run_benchmark_model offline": lambda: run_pilot.run_benchmark_model(
-            capture, config, runner=state["runner"], offline=True, emit=lines.append)[1],
-        "internal live": lambda: run_pilot._run_benchmark_model(
-            capture, config, runner=state["runner"], offline=False, emit=lines.append, round_trip=round_trip,
-            gui_fallback=False, attempt=1)[1],
-        "internal offline": lambda: run_pilot._run_benchmark_model(
-            capture, config, runner=state["runner"], offline=True, emit=lines.append, round_trip=round_trip,
-            gui_fallback=False, attempt=1)[1],
-    }
-    expected = {name: 2 for name in probes if name.startswith(("command", "run_benchmark ", "mixed"))}
-    for name, probe in probes.items():
-        lines.clear()
-        assert probe() == expected.get(name, "capture_path_unavailable"), name
-        assert calls == [], (name, calls)
-        if name.startswith("command"):
-            assert capsys.readouterr().out.strip() == CAPTURE_REFUSAL, name
-        else:
-            # Only the refusal's own status line; the mixed batch runs nothing, its other model included.
-            assert lines == [CAPTURE_REFUSAL], (name, lines)
-    active["on"] = False
-    assert state["calls"] == [] and state["sleeps"] == [] and snapshot() == before
+    assert run_pilot.run_benchmark([plain, capture], config, runner=state["runner"], offline=False, emit=lines.append,
+                                   stops=run_pilot.BenchmarkStops(state["freeze"], state["exclusive"])) == 0
+    run_id = capture["run_id"]
+    assert [call[0] for call in state["calls"]] == ["cpb-g1-01", run_id] and solves == ["cpb-g1-01"]
+    assert "0,1,0,1,0" in state["mbf"][run_id]  # its own substituted OPPRES line
+    case = root / "cases" / run_id
+    manifest = json.loads((case / "case_manifest.json").read_text())
+    assert (manifest["outcome"], manifest["capture_only"], manifest["swbpipe_solve"], manifest["parser_status"]) == (
+        "captured", True, None, "parsed")
+    assert json.loads((case / "parsed" / "caepipe_results.json").read_text())["sections_parsed"]
+    assert not any((case / "comparison").iterdir()) and not any((case / "swbpipe").iterdir())
+    assert any(line.startswith(f"{run_id}: route=csv_from_batch; print captured and parsed: ")
+               and line.endswith("no SWBPIPE counterpart, so no comparison") for line in lines)
+    kept = {item.name: item.read_bytes() for item in (case / "caepipe_out").iterdir()}
+    lines.clear()
+    assert run_pilot.run_benchmark_model(capture, config, runner=state["runner"], offline=True,
+                                         emit=lines.append)[0] == run_pilot.CAPTURED
+    assert {item.name: item.read_bytes() for item in (case / "caepipe_out").iterdir()} == kept
+    assert solves == ["cpb-g1-01"] and not any((case / "comparison").iterdir())
+
+
+TOKEN = "0123456789abcdef0123456789abcdef"
+
+
+def _run_mbf_sha256(entry: dict) -> str:
+    mbf = render_caepipe_mbf_si(entry["model"], title=entry["model_id"],
+                                reference_temperature_c=entry.get("reference_temperature_c", 20.0),
+                                piping_code=entry["piping_code"])
+    return hashlib.sha256(benchmark_models.run_mbf_text(entry, mbf.text).encode("utf-8")).hexdigest()
+
+
+def _seed_print(state, entry: dict, **fields) -> tuple[Path, bytes]:
+    """An invented print stored under an attempt token, with a harness run record binding it (fields override)."""
+    paths = case_paths(state["config"], entry["model_id"])
+    data = invented_print().encode("utf-8")
+    (paths["caepipe_out"] / TOKEN).mkdir()
+    (paths["caepipe_out"] / TOKEN / "model.csv").write_bytes(data)
+    sha = _run_mbf_sha256(entry)
+    record = {"document_kind": RUN_RECORD_KIND, "route": "csv_from_batch", "mbf": {"sha256": sha},
+              "guest_mbf_sha256": sha, "input_hash_verified": True, "attempt_token": TOKEN, "exit_status": 0,
+              "start": {"state": "completed"}, "observed_csv_path": {"host": f"caepipe_out/{TOKEN}/model.csv"},
+              "guest_log": {"status": "csv_from_batch", "csv_path": f"C:\\invented-work\\{TOKEN}\\model.csv"},
+              "outputs_collected": ["model.csv"], "outputs_sha256": {"model.csv": hashlib.sha256(data).hexdigest()}}
+    record.update(fields)
+    (paths["caepipe_out"] / "run_record.json").write_text(json.dumps(record), encoding="utf-8")
+    return paths["root"], data
+
+
+class _FixedClock(run_pilot.datetime):
+    @classmethod
+    def now(cls, tz=None):
+        return run_pilot.datetime(2026, 11, 21, 12, 0, 0, tzinfo=tz)
+
+
+def test_a_new_solve_never_reuses_an_id_whose_solve_or_comparison_folder_exists(fake_benchmark, monkeypatch):
+    """An id whose comparison folder exists, or whose solve folder appears between the check and its creation, is
+    passed over for the next suffix, so no earlier comparison can be replaced."""
+    monkeypatch.setattr(run_pilot, "datetime", _FixedClock)
+    root = fake_benchmark["config"].exchange_root
+    paths = case_paths(fake_benchmark["config"], "cpb-g1-01")
+    identity = {"source_commit": "a" * 40, "source_tree_clean": True}
+    name = "20261121T120000Z-" + "a" * 12
+    (paths["comparison"] / name).mkdir()
+    assert run_pilot._new_solve_folder(root, paths["swbpipe"], identity)[0] == f"{name}-2"
+    # A folder that appears after the existence check: mkdir raises FileExistsError and the next suffix is taken.
+    (paths["swbpipe"] / f"{name}-3").mkdir()
+    real = os.path.lexists
+    monkeypatch.setattr(run_pilot.os.path, "lexists", lambda path: False if Path(path).name == f"{name}-3"
+                        else real(path))
+    assert run_pilot._new_solve_folder(root, paths["swbpipe"], identity)[0] == f"{name}-4"
+
+
+def test_a_comparison_record_is_created_and_never_replaced(fake_benchmark, monkeypatch):
+    state = fake_benchmark
+    entry = _bench_entry(state)
+    case, _ = _seed_print(state, entry)
+    seeded = case / "comparison" / "seeded" / "benchmark_comparison.json"
+    seeded.parent.mkdir()
+    seeded.write_text("EARLIER COMPARISON\n", encoding="utf-8")
+
+    def same_id(root, swbpipe_dir, identity):  # an id whose comparison already exists, its solve folder new
+        folder = swbpipe_dir / "seeded"
+        folder.mkdir()
+        return "seeded", folder
+    monkeypatch.setattr(run_pilot, "_new_solve_folder", same_id)
+    with pytest.raises(FileExistsError):
+        run_pilot.run_benchmark_model(entry, state["config"], runner=state["runner"], offline=True,
+                                      emit=lambda line: None)
+    assert seeded.read_text(encoding="utf-8") == "EARLIER COMPARISON\n"
+
+
+def test_a_comparison_binds_its_print_by_digest_and_token(fake_benchmark):
+    state = fake_benchmark
+    entry = _bench_entry(state)
+    case, data = _seed_print(state, entry)
+    assert run_pilot.run_benchmark_model(entry, state["config"], runner=state["runner"], offline=True,
+                                         emit=lambda line: None)[0] == run_pilot.RECORDED
+    [path] = comparisons(state["config"].exchange_root, "cpb-g1-01")
+    assert json.loads(path.read_text())["caepipe_print"] == {
+        "csv": f"caepipe_out/{TOKEN}/model.csv", "route": "csv_from_batch",
+        "sha256": hashlib.sha256(data).hexdigest(), "attempt_token": TOKEN}
+    # A print whose bytes differ from the run record's digest is not compared.
+    (case / "caepipe_out" / TOKEN / "model.csv").write_bytes(data.replace(b"-4.000", b"-4.001"))
+    assert run_pilot.run_benchmark_model(entry, state["config"], runner=state["runner"], offline=True,
+                                         emit=lambda line: None)[:2] == (run_pilot.NOT_RUN, "print_digest_mismatch")
+    assert len(comparisons(state["config"].exchange_root, "cpb-g1-01")) == 1
+
+
+def test_a_stored_print_refuses_every_live_attempt_and_an_odd_record_does_not_crash(fake_benchmark):
+    state = fake_benchmark
+    entry = _bench_entry(state)
+    _seed_print(state, entry)
+    for attempt in (1, 2):
+        assert run_pilot._run_benchmark_model(
+            entry, state["config"], runner=state["runner"], offline=False, emit=lambda line: None,
+            round_trip=lambda *a, **k: pytest.fail("round-tripped"), gui_fallback=False,
+            attempt=attempt)[:2] == (run_pilot.NOT_RUN, "print_stored")
+    # A run record whose observed_csv_path is not a mapping names no print: the live run proceeds.
+    other = _bench_entry(state, "cpb-g1-02")
+    _seed_print(state, other, observed_csv_path="caepipe_out/model.csv")
+    calls = []
+    run_pilot._run_benchmark_model(other, state["config"], runner=state["runner"], offline=False,
+                                   emit=lambda line: None, round_trip=lambda *a, **k: calls.append(1) or {
+                                       "route": "not_started", "start": {"state": "not_started"},
+                                       "settings_guard": {"status": "unchanged"}},
+                                   gui_fallback=False, attempt=1)
+    assert calls == [1]
+
+
+def test_a_print_collected_before_a_harness_error_is_stored_bound_and_compared(fake_benchmark):
+    """The batch exited 0 on the verified input and its print was collected under its token, but the run record ended
+    in harness_error (a settings write-back failed afterwards), so observed_csv_path.host is null. The print is still
+    the case's: a live run is refused as print_stored and --offline binds it by digest and compares it."""
+    state = fake_benchmark
+    entry = _bench_entry(state)
+    _seed_print(state, entry, route="harness_error", observed_csv_path={"guest": None, "host": None},
+                harness_error="RuntimeError: invented settings write-back failure")
+    lines: list[str] = []
+    assert run_pilot._run_benchmark_model(
+        entry, state["config"], runner=state["runner"], offline=False, emit=lines.append,
+        round_trip=lambda *a, **k: pytest.fail("round-tripped"), gui_fallback=False, attempt=1)[:2] == (
+        run_pilot.NOT_RUN, "print_stored")
+    assert "recovered from a run record that ended in harness_error" in lines[0]
+    assert run_pilot.run_benchmark_model(entry, state["config"], runner=state["runner"], offline=True,
+                                         emit=lambda line: None)[0] == run_pilot.RECORDED
+    [path] = comparisons(state["config"].exchange_root, "cpb-g1-01")
+    printed = json.loads(path.read_text())["caepipe_print"]
+    assert (printed["csv"], printed["route"], printed["run_record_route"]) == (
+        f"caepipe_out/{TOKEN}/model.csv", "csv_from_batch", "harness_error")
+
+
+def test_a_harness_error_record_that_does_not_establish_a_clean_batch_still_protects_its_folder(fake_benchmark):
+    state = fake_benchmark
+    entry = _bench_entry(state)
+    _seed_print(state, entry, route="harness_error", observed_csv_path={"guest": None, "host": None}, exit_status=1)
+    lines: list[str] = []
+    assert run_pilot._run_benchmark_model(
+        entry, state["config"], runner=state["runner"], offline=False, emit=lines.append,
+        round_trip=lambda *a, **k: pytest.fail("round-tripped"), gui_fallback=False, attempt=1)[:2] == (
+        run_pilot.NOT_RUN, "print_unestablished")
+    assert "the batch's exit status is not 0" in lines[0]
+    assert run_pilot.run_benchmark_model(entry, state["config"], runner=state["runner"], offline=True,
+                                         emit=lambda line: None)[:2] == (run_pilot.NOT_RUN, "harness_error")
+
+
+def test_a_manifest_that_is_a_link_is_refused_at_admission(fake_benchmark):
+    """A case manifest that is a symbolic link is refused before anything is solved, written or round-tripped."""
+    state = fake_benchmark
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+    case.mkdir(parents=True)
+    (case / "elsewhere.json").write_text("{}", encoding="utf-8")
+    os.symlink("elsewhere.json", case / "case_manifest.json")
+    before = tree_bytes(state["config"].exchange_root)
+    for offline in (False, True):
+        assert run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"],
+                                             offline=offline, emit=lambda line: None)[:2] == (
+            run_pilot.NOT_RUN, "manifest_link")
+    assert state["calls"] == [] and tree_bytes(state["config"].exchange_root) == before
+
+
+def test_a_window_run_is_refused_by_name_before_anything_runs(fake_benchmark, capsys):
+    """A run declared with a window instruction (a hand-entry or an option-addition run) cannot be made by the batch
+    round trip: every entry point refuses it by name before anything is solved, written or round-tripped."""
+    state = fake_benchmark
+    manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    entry = next(item for item in manifest["models"] if any(run.get("kind") == "hand_entry"
+                                                             for run in item.get("runs") or []))
+    [run] = [run for run in entry["runs"] if run.get("kind") == "hand_entry"]
+    path = benchmark_manifest(state["manifest"].parent.parent / "hand-set", ids=(entry["model_id"],))
+    [window] = run_pilot.load_benchmark(path, [entry["model_id"]], run["series"])
+    root = state["config"].exchange_root
+    before = tree_bytes(root)
+    lines: list[str] = []
+    expected = f"{window['run_id']}: route=window_run; this run is declared with a window instruction"
+    assert run_pilot.main(["--benchmark", str(path), "--case", entry["model_id"], "--series", run["series"]]
+                          + state["argv"][2:], environ={}) == 2
+    assert capsys.readouterr().out.startswith(expected)
+    assert run_pilot.run_benchmark([window], state["config"], runner=state["runner"], offline=True,
+                                   emit=lines.append) == 2
+    assert run_pilot.run_benchmark_model(window, state["config"], runner=state["runner"], offline=False,
+                                         emit=lines.append)[:2] == (run_pilot.NOT_RUN, run_pilot.WINDOW_RUN)
+    assert len(lines) == 2 and all(line.startswith(expected) for line in lines)
+    assert state["calls"] == [] and tree_bytes(root) == before
 
 
 def test_the_pace_is_the_callers(fake_benchmark):
@@ -2182,7 +2178,26 @@ def test_a_model_that_leaves_no_csv_twice_is_recorded_and_the_run_goes_on(fake_b
     root = state["config"].exchange_root
     manifest = json.loads((root / "cases" / "cpb-g1-01" / "case_manifest.json").read_text())
     assert (manifest["outcome"], manifest["route"], manifest["attempt"]) == ("no_record", "csv_missing", 2)
-    assert not (root / "cases" / "cpb-g1-01" / "comparison" / "benchmark_comparison.json").exists()
+    assert comparisons(root, "cpb-g1-01") == []
+
+
+def test_a_failed_write_of_a_retry_outcome_stops_the_list(fake_benchmark, monkeypatch, capsys):
+    """The round trip raised with the program never started (a retry is due), and writing that outcome meets a
+    ContainmentError: the list stops there, so the retry is not lost and the next model does not run."""
+    state = fake_benchmark
+    state["outcomes"][:] = [raised_after_a_clean_check()]
+    real = run_pilot._benchmark_manifest
+
+    def failing(*args, **kwargs):
+        if kwargs.get("route") == "round_trip_raised":
+            raise ContainmentError("invented containment failure writing the outcome")
+        return real(*args, **kwargs)
+    monkeypatch.setattr(run_pilot, "_benchmark_manifest", failing)
+    assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01", "--case", "cpb-g1-02"], environ={}) == 1
+    out = capsys.readouterr().out
+    assert [call[0] for call in state["calls"]] == ["cpb-g1-01"], out
+    assert "its outcome could not be recorded (ContainmentError: invented containment failure" in out
+    assert "route=containment_violation" not in out
 
 
 def test_a_round_trip_that_raises_twice_stops_the_run(fake_benchmark):
@@ -2234,13 +2249,15 @@ def test_a_pending_exclusive_job_holds_the_run(fake_benchmark, monkeypatch, caps
     monkeypatch.setattr(run_pilot.time, "sleep", command_sleep(poll))
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 0
     assert polls == [30.0, 30.0] and [call[0] for call in state["calls"]] == ["cpb-g1-01"]
-    assert "cpb-g1-01: an exclusive job is pending; waiting for it (up to 1800 s)" in capsys.readouterr().out
+    # The hold is checked before the session's first guest call, so the run waits there, then opens the session.
+    assert "before the session: an exclusive job is pending; waiting for it (up to 1800 s)" in capsys.readouterr().out
     state["calls"].clear()
     state["exclusive"].write_text(f"{os.getpid()}\n", encoding="ascii")
     monkeypatch.setattr(run_pilot.time, "sleep", command_sleep(lambda seconds: None))
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 1
     assert state["calls"] == []
-    assert "stopped before cpb-g1-01: an exclusive job was still pending after 1800 s" in capsys.readouterr().out
+    assert "stopped before the first guest step: an exclusive job was still pending after 1800 s" in \
+        capsys.readouterr().out
 
 
 # The answer's form is the Windows version line alone, with nothing on stderr: any other text with exit 0 (an
@@ -2305,7 +2322,7 @@ def _manifest_of(state, case_id="cpb-g1-01") -> dict:
 
 
 @pytest.mark.parametrize("how", ["StartUnresolved", "raised while unresolved"])
-def test_an_unresolved_start_stops_with_the_manifest_left_at_custody_recorded(fake_benchmark, capsys, how):
+def test_an_unresolved_start_stops_with_the_manifest_left_at_round_trip_started(fake_benchmark, capsys, how):
     state = fake_benchmark
     if how == "StartUnresolved":
         error = StartUnresolved("start unresolved: invented")
@@ -2316,17 +2333,17 @@ def test_an_unresolved_start_stops_with_the_manifest_left_at_custody_recorded(fa
     state["outcomes"][:] = [error]
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01", "--case", "cpb-g1-02"], environ={}) == 1
     manifest = _manifest_of(state)
-    assert (manifest["outcome"], manifest["route"]) == ("custody_recorded", "custody_recorded")
+    assert (manifest["outcome"], manifest["route"]) == ("round_trip_started", "round_trip_started")
     assert [call[0] for call in state["calls"]] == ["cpb-g1-01"]  # never retried, and no further model ran
     out = capsys.readouterr().out
     assert "cpb-g1-01: route=start_unresolved;" in out and "retrying" not in out
-    # Through the per-model step the wrapper calls: the stop is raised, and no outcome is written.
+    # Through the per-model step (run_benchmark_model): the stop is raised, and no outcome is written.
     state["calls"].clear()
     state["outcomes"][:] = [error]
     with pytest.raises(run_pilot.RunStopped, match="start_unresolved"):
         run_pilot.run_benchmark_model(_bench_entry(state, "cpb-g1-03"), state["config"], runner=state["runner"],
                                       offline=False, emit=lambda line: None, collect_only=True)
-    assert _manifest_of(state, "cpb-g1-03")["outcome"] == "custody_recorded"
+    assert _manifest_of(state, "cpb-g1-03")["outcome"] == "round_trip_started"
 
 
 def test_a_partial_start_is_recorded_never_retried_and_a_second_stops_the_run(fake_benchmark, capsys):
@@ -2537,7 +2554,7 @@ def test_p1_3_a_termination_at_the_post_run_boundary_keeps_the_start_unresolved(
     assert [call[0] for call in state["calls"]] == ["cpb-g1-01"]  # the next model did not run
     assert getattr(received.value, "start_unresolved", False) is True
     assert received.value.settings_guard["status"] == "start_unresolved"
-    assert _manifest_of(state)["outcome"] == "custody_recorded"
+    assert _manifest_of(state)["outcome"] == "round_trip_started"
 
 
 # --------------------------------------------------------------------------------------------------------------
@@ -2608,9 +2625,9 @@ def test_a_success_reply_with_a_nonzero_exit_never_becomes_a_success_route(fake_
         assert status[:2] == (run_pilot.PARTIAL, "start_partial"), status
     elif kind == "chunk":  # completed, nothing collected: never retried, the list stops with the route named
         assert status[0] == "stopped" and _manifest_of(state)["route"] == "collection_failed", status
-    else:  # the start stays unresolved: a stop, the manifest left at custody_recorded
+    else:  # the start stays unresolved: a stop, the manifest left at round_trip_started
         assert status[0] == "stopped" and "start_unresolved" in status[1], status
-        assert _manifest_of(state)["outcome"] == "custody_recorded"
+        assert _manifest_of(state)["outcome"] == "round_trip_started"
 
 
 def _bound_export_case(tmp_path):

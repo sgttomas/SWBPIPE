@@ -704,6 +704,30 @@ fn n1_realized_arcs_keep_their_extent_refusal() {
     }
 }
 
+/// N1, the refused case's path: the arc's refusal is raised while the case's
+/// certified ledger is built, and the case keeps the path it has always had
+/// (assembled and solved before the document is refused). The document
+/// publishes exactly these findings, in this order, the trailing inspection
+/// finding included; only a generated seismic component value that is not the
+/// rule's stops a case before its ledger is finished.
+#[test]
+fn n1_an_arc_refusal_keeps_the_case_s_path() {
+    let wire = arc_document(wind(&[], &[("pipe:BEND".into(), 0.2, 0.7)]), TIMOSHENKO);
+    for mode in MODES {
+        let out = run(&wire, mode);
+        assert_eq!(out["status"]["mechanics"], "MODEL_INCOMPLETE", "{mode:?}");
+        assert!(rows(&out).is_empty(), "{mode:?}");
+        let found: Vec<String> = out["diagnostics"].as_array().unwrap().iter()
+            .map(|d| format!("{}:{}", d["severity"].as_str().unwrap(), d["code"].as_str().unwrap())).collect();
+        assert_eq!(found, [
+            "warning:BEND_GEOMETRY_INPUT_MISSING",
+            "warning:BEND_USER_MODIFIER_INPUT_MISSING",
+            "blocking:LOAD_INPUT_INVALID",
+            "info:NUMERICAL_INTEGRITY_INSPECTION_ONLY",
+        ], "{mode:?}");
+    }
+}
+
 /// N2: a wind marking on a connector-replaced span stays refused under
 /// Timoshenko.
 #[test]
@@ -735,10 +759,13 @@ fn n2_replaced_spans_stay_refused() {
     assert!(found[0]["affected_refs"].as_array().unwrap().contains(&json!("pipe:b-c")));
 }
 
-/// N3: a load/reference-state document refuses the generation by name, a
-/// Timoshenko partial span included, and a case not listed in the group too.
+/// N3: on a load/reference-state document a Timoshenko partial span generates
+/// as on the plain document (DEL-05-01 REQ-008 and AC-007): the case solves,
+/// with every row equal to the plain document's whole (kind, entity, basis,
+/// metadata, unit and value, bit for bit), the same standing and the same
+/// generation record, in both modes.
 #[test]
-fn n3_load_state_documents_stay_refused() {
+fn n3_load_state_documents_generate_the_partial_span() {
     let state = json!({"contract": "openpipestress.load_reference_state/1.0.0", "reference_configuration_ref": "reference:installed",
         "element_states": [{"pipe_ref": "pipe:a-b", "material_selection": {"kind": "explicit_base_properties", "material_ref": "material:w16t",
             "applicability_reference": "invented analytical basis declared applicable to this member"},
@@ -750,11 +777,30 @@ fn n3_load_state_documents_stay_refused() {
     first["analysis_state"] = state;
     let reference = case_ref("W16T-CANT-INTERIOR");
     let (nodes, pipes, supports) = geometry(&reference["request"]);
-    let mut wire = document(TIMOSHENKO, nodes, pipes, supports, vec![first, case("case:unlisted", Some(partial))]);
+    let plain = document(TIMOSHENKO, nodes.clone(), pipes.clone(), supports.clone(), vec![case(CASE, Some(partial))]);
+    let mut wire = document(TIMOSHENKO, nodes, pipes, supports, vec![first]);
     wire["model"]["reference_configurations"] = json!([{"id": "reference:installed", "label": "Installed reference", "geometry_ref": {"kind": "authored_model_geometry"},
         "member_references": [{"pipe_ref": "pipe:a-b", "basis": {"kind": "direct_strain_reference"}, "fit": {"kind": "none"}, "provenance": PROV}], "provenance": PROV}]);
-    let found = refused(&wire, "EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED", "load-state Timoshenko partial span");
-    assert_eq!(found.len(), 2);
+    for mode in MODES {
+        let solve = |wire: &Value, what: &str| {
+            let out = serde_json::to_value(run_linear_static_preview_value_with_mode(wire.clone(), mode).unwrap()).unwrap();
+            assert_eq!(out["status"]["mechanics"], "MECHANICS_SOLVED", "{what} {mode:?}: {:#?}", out["diagnostics"]);
+            let mut rows = out["results"].as_array().unwrap().iter().map(|row| {
+                let mut row = row.clone();
+                row["value"] = json!(format!("{:016x}", row["value"].as_f64().unwrap().to_bits()));
+                serde_json::to_string(&row).unwrap()
+            }).collect::<Vec<_>>();
+            rows.sort();
+            let record = out["contract_evidence"]["exact_cases"].as_array().unwrap().iter().find(|c| c["load_case_id"] == CASE).unwrap()["equivalent_static"].clone();
+            (rows, json!({"status": out["status"], "numerical_quality": out["numerical_quality"]}), record)
+        };
+        let (p, l) = (solve(&plain, "plain"), solve(&wire, "load state"));
+        assert!(!p.0.is_empty());
+        assert_eq!(l.0, p.0, "{mode:?}: every row equal whole, bit for bit");
+        assert_eq!(l.1, p.1, "{mode:?}: the same standing");
+        assert!(!p.2["generated_load_ids"].as_array().unwrap().is_empty(), "{mode:?}");
+        assert_eq!(l.2, p.2, "{mode:?}: the same generation record");
+    }
 }
 
 /// N4: invalid fractions, overlap and double marking keep

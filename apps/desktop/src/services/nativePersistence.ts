@@ -31,6 +31,7 @@ import { previewChecksum } from "./analysisRunPreview";
 import { nativeCustody, nativeRunPreview, type NativeAnalysisRun, type NativeResult } from "./nativeResult";
 import { deliveredIntakeText } from "./previewService";
 import type { RestoredFindings, RestoredRun } from "./nativeReopen";
+import { wellFormedEnvelopeHashClaim } from "./projectService";
 import type { CurrentSessionInputManifestEvidence } from "./inputManifestService";
 import type { ExcludedRulePackRef } from "./rulePackRefDiagnostics";
 import type { RuleCheckStatus } from "./ruleCheckService";
@@ -112,6 +113,9 @@ export type NativeProjectFields = {
   confirmedRevision: string | null;
   /** A save of the session's own stored project: the stored envelope hash it last opened or saved. */
   expectedBase: string | null;
+  /** Issue 519: a save in place that keeps the stored proposal as stored (sent only as true, with no
+   * proposal); absent otherwise, so every other request is unchanged. */
+  keepStoredProposal?: true;
 };
 
 /** What happened to the result in a native save. */
@@ -153,15 +157,25 @@ const count = (value: unknown) => typeof value === "number" && Number.isSafeInte
 
 /** The reply as the session reads it, or `NATIVE-PROJECT-SAVE-MALFORMED`. */
 export function decodeNativeProjectSave(value: unknown): NativeProjectSave {
-  return decodeSave(value, null);
+  return decodeSave(value, null, false);
 }
 
-/** A reopened saved run's re-save reply (`restored` carries the restored run's members). */
-export function decodeRestoredProjectSave(value: unknown, restored: RestoredRun): NativeProjectSave {
-  return decodeSave(value, restored);
+/** A reopened saved run's re-save reply (`restored` carries the restored run's members). With
+ * `expectedBasis`, the envelope basis the request sent: a re-save that kept it carries exactly its
+ * claim. */
+export function decodeRestoredProjectSave(value: unknown, restored: RestoredRun, expectedBasis?: RestoredEnvelopeBasis): NativeProjectSave {
+  return decodeSave(value, restored, false, expectedBasis);
 }
 
-function decodeSave(value: unknown, restored: RestoredRun | null): NativeProjectSave {
+/** The same claim, member for member (none is the same as none only). */
+function sameEnvelopeClaim(expected: ProjectEnvelopeHashEvidence | null, actual: unknown): boolean {
+  return expected === null ? actual === null
+    : isObject(actual) && Object.keys({ ...expected, ...actual }).every((key) => Reflect.get(expected, key) === Reflect.get(actual, key));
+}
+
+/** `keptStoredProposal`: the request asked the store to keep the stored proposal, so the reply carries
+ * none. `expectedBasis`: a restored re-save's envelope basis as sent. */
+function decodeSave(value: unknown, restored: RestoredRun | null, keptStoredProposal: boolean, expectedBasis?: RestoredEnvelopeBasis): NativeProjectSave {
   const fail = (detail: string): never => { throw new Error(`${NATIVE_PROJECT_SAVE_MALFORMED}: ${detail}`); };
   if (!isObject(value)) return fail("the reply is not an object");
   for (const member of ["model", "mechanics_result", "analysis_run", "editor_intents"]) {
@@ -169,8 +183,8 @@ function decodeSave(value: unknown, restored: RestoredRun | null): NativeProject
   }
   const summary = value.summary;
   if (!isObject(summary) || typeof summary.project_id !== "string" || typeof summary.message !== "string") fail("the summary is not a project summary");
-  const envelope = value.project_envelope_hash;
-  if (!(isObject(envelope) && typeof envelope.value === "string") && !(restored && envelope === null)) fail("the envelope hash is not one");
+  // Issue 519: a kept save leaves the stored proposal in the store; its reply carries none.
+  if (keptStoredProposal && value.proposal !== null) fail("a kept save's reply must carry a null proposal");
   if (typeof value.stored_model_hash !== "string" || !/^sha256:[0-9a-f]{64}$/.test(value.stored_model_hash)) fail("the stored model hash is not one");
   const result = value.result;
   if (!isObject(result)) return fail("the result outcome is missing");
@@ -198,6 +212,19 @@ function decodeSave(value: unknown, restored: RestoredRun | null): NativeProject
       && (found.recorded_table_read === null || isObject(found.recorded_table_read)) && typeof found.run_id === "string";
     if (result.outcome === "saved" ? !findingsRead : found !== null) fail("the restored run's findings are malformed");
   }
+  // The envelope claim, read once the summary and the restored run are: a fresh claim (a fresh save, or
+  // a re-save that did not keep its basis) is the store's, of the form a save computes for the
+  // project; a re-save that kept its basis preserves the stored claim as stored (stale or none), so it
+  // is the claim of the basis the request sent.
+  const envelope = value.project_envelope_hash;
+  const basisKept = restored !== null && (value.restored as Record<string, unknown>).envelope_basis_kept === true;
+  if (!basisKept) {
+    if (!wellFormedEnvelopeHashClaim(envelope, (summary as Record<string, unknown>).project_id as string)) fail("the envelope hash is not the store's for the project");
+  } else if (expectedBasis !== undefined) {
+    if (!sameEnvelopeClaim(expectedBasis.evidence, envelope)) fail("a re-save that kept its basis carries another envelope claim");
+  } else if (!(envelope === null || (isObject(envelope) && typeof envelope.value === "string"))) {
+    fail("the envelope hash is not one");
+  }
   return Object.freeze(value) as unknown as NativeProjectSave;
 }
 
@@ -214,9 +241,10 @@ export async function saveNativeLocalProject(request: NativePersistenceRequest, 
     selectedReviewTarget: fields.selectedReviewTarget,
     modelHash: fields.modelHash,
     confirmedRevision: fields.confirmedRevision,
-    expectedBase: fields.expectedBase
+    expectedBase: fields.expectedBase,
+    ...(fields.keepStoredProposal ? { keepStoredProposal: true } : {})
   });
-  return decodeNativeProjectSave(reply);
+  return decodeSave(reply, null, Boolean(fields.keepStoredProposal));
 }
 
 /** The envelope basis the session holds for a reopened saved run: the payload hash and the stored
@@ -239,9 +267,10 @@ export async function saveRestoredLocalProject(restored: RestoredRun, basis: Res
     proposal: fields.proposal,
     selectedReviewTarget: fields.selectedReviewTarget,
     confirmedRevision: fields.confirmedRevision,
-    expectedBase: fields.expectedBase
+    expectedBase: fields.expectedBase,
+    ...(fields.keepStoredProposal ? { keepStoredProposal: true } : {})
   });
-  return decodeRestoredProjectSave(reply, restored);
+  return decodeSave(reply, restored, Boolean(fields.keepStoredProposal), basis);
 }
 
 /** The stored model's hash evidence, as `computeModelHash` writes it for the request's model. */

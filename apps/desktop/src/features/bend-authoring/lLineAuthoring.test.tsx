@@ -98,7 +98,7 @@ describe("the L line authored on the desktop (T4-U2)", () => {
     queue = vi.fn();
     render(<PressureAuthoringPanel model={model} selection={{ type: "load", id: "case:u2" }} onQueueIntent={queue} />);
     change("Pressure profile", "exact_pressure_v3");
-    change("Shear model", "euler_bernoulli");
+    change("Shear deformation in straight members", "euler_bernoulli");
     const profile = await queued(() => fireEvent.click(screen.getByRole("button", { name: "Queue pressure profile" })), queue);
     expect(JSON.parse(profile.change.after)).toEqual({ schema_version: "0.9.0", pressure_contract: { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "euler_bernoulli" } });
     model = await apply(model, profile);

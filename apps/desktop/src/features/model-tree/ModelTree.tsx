@@ -4,7 +4,7 @@ import type React from "react";
 import { createPortal } from "react-dom";
 import { useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import type { EditorOperationIntent, EditorOperationObjectType, EntityRef, PreviewModel } from "../../types";
-import { entityKey, entityRefFromKey, type EntityKey, type OrderedSelectionState, type SelectionModifiers } from "../workspace/selectionState";
+import { applyDisplayedRange, applySelection, entityKey, entityRefFromKey, sameSelection, type EntityKey, type OrderedSelectionState, type SelectionModifiers } from "../workspace/selectionState";
 import { modelIndexFor, type ModelIndex } from "../workspace/modelIndex";
 import { canSurfaceRevealNow } from "../workspace/surfaceReveal";
 import { VirtualList } from "../workspace/VirtualList";
@@ -165,24 +165,58 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
     onFocusChange(fallback?.kind === "entity" ? entityKey(fallback.item) : null);
   }, [focusedTreeKey, onFocusChange, selectionState?.focusKey, treeRows]);
 
-  // A selection made outside the tree (the viewport, the grid, a result row) is
-  // revealed here: its group opens and its row becomes the tree's current row,
-  // which the list scrolls into view. Neither DOM focus nor the selection moves.
-  // A selection made while focus is in the tree list is the tree's own and is
-  // left. The request is kept while the tree list cannot show it (the Grid
-  // layout, a hidden, inert or CSS-hidden pane: `canSurfaceRevealNow`) or a
-  // filter hides the row, and done when the row can be shown.
+  // A selection made outside the tree (the viewport, the grid, a result row, a
+  // reference in the inspector) is revealed here: its group opens and its row
+  // becomes the tree's current row, which the list scrolls into view. Neither DOM
+  // focus nor the selection moves. A selection publication the tree made itself (a
+  // row pressed, with or without a modifier, Enter or Space on a row), including one
+  // that only changes membership, is the tree's own and is left, wherever focus is:
+  // a click in the 3D view need not take focus from the tree. The request is kept
+  // while the tree list cannot show it (the Grid layout, a hidden, inert or
+  // CSS-hidden pane: `canSurfaceRevealNow`) or a filter hides the row, and done
+  // when the row can be shown. While a person types in a field (the filter, a form),
+  // only the tree's own scroller moves; no ancestor of the tree is scrolled.
   const treeRootRef = useRef<HTMLDivElement>(null);
   const primarySelectionKey = selectionState ? selectionState.primaryKey : entityKey(selection);
   const revealedSelectionKey = useRef(primarySelectionKey);
   const pendingTreeReveal = useRef<string | null>(null);
+  // The whole selection (its members and its primary), so that a press that only changes
+  // membership is recognised as the tree's own publication too.
+  const selectionSignature = selectionState
+    ? `${selectionState.orderedKeys.join("\u0001")}\u0002${selectionState.primaryKey ?? ""}`
+    : entityKey(selection);
+  // The selection as it stood when the tree pressed a row, until the selection next changes:
+  // that change is the tree's own publication, whenever the shell hands it back. A press that
+  // changes nothing leaves no mark; a mark the shell never
+  // answers lapses (TREE_PUBLICATION_LAPSE_MS) so that it cannot hold back a later reveal.
+  const treeOwnPublication = useRef<string | null>(null);
   const [treeRevealRequest, setTreeRevealRequest] = useState(0);
-  const focusInTreeList = () => Boolean(treeRootRef.current?.querySelector('[role="tree"]')?.contains(document.activeElement));
+  const selectFromTree: typeof onSelect = (item, modifiers, order) => {
+    const plain = !modifiers?.toggle && !modifiers?.additive && !modifiers?.range;
+    // A press that leaves the selection as it is (a plain or Shift press on the only selected row, a
+    // modified press on the project) publishes nothing to answer, so it leaves no mark. The shell
+    // decides the selection by these same functions.
+    const unchanged = selectionState
+      ? sameSelection(modifiers?.range ? applyDisplayedRange(selectionState, item, order ?? []) : applySelection(selectionState, item, modifiers), selectionState)
+      : plain && entityKey(selection) === entityKey(item);
+    if (!unchanged) {
+      const mark = selectionSignature;
+      treeOwnPublication.current = mark;
+      window.setTimeout(() => { if (treeOwnPublication.current === mark) treeOwnPublication.current = null; }, TREE_PUBLICATION_LAPSE_MS);
+    }
+    onSelect(item, modifiers, order);
+  };
   useLayoutEffect(() => {
+    if (treeOwnPublication.current !== null && treeOwnPublication.current !== selectionSignature) {
+      treeOwnPublication.current = null;
+      revealedSelectionKey.current = primarySelectionKey;
+      pendingTreeReveal.current = null;
+      return;
+    }
     if (revealedSelectionKey.current === primarySelectionKey) return;
     revealedSelectionKey.current = primarySelectionKey;
-    pendingTreeReveal.current = primarySelectionKey && !focusInTreeList() ? primarySelectionKey : null;
-  }, [primarySelectionKey]);
+    pendingTreeReveal.current = primarySelectionKey || null;
+  }, [primarySelectionKey, selectionSignature]);
   useLayoutEffect(() => {
     const key = pendingTreeReveal.current;
     if (key === null || layoutMode !== "tree") return;
@@ -194,14 +228,14 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
     const projectRow = shown.project && entityKey(shown.project) === key;
     if (!group && !projectRow) return;
     pendingTreeReveal.current = null;
-    if (focusInTreeList()) return;
     if (group && filtering && filteredCollapsedGroups.has(group.title)) {
       setFilteredCollapsedGroups((current) => { const next = new Set(current); next.delete(group.title); return next; });
     } else if (group && !filtering && !expandedGroups.has(group.title)) {
       setExpandedGroups((current) => new Set(current).add(group.title));
     }
     setFocusedTreeKey(key);
-    setTreeRevealRequest((value) => value + 1);
+    // The current row moves within the tree's own scroller; its ancestors scroll only while no field is being typed in.
+    if (!typingInField()) setTreeRevealRequest((value) => value + 1);
     onFocusChange(key as EntityKey);
   });
 
@@ -227,6 +261,16 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
       publishedAt: performance.now()
     });
   }, [filterText, filteredTree.count, onFilterPublication]);
+
+  // The selected entity's name when a filter hides its row; the tree says so and offers to clear it.
+  const selectionFilteredOut = (() => {
+    if (!filterText.trim() || !primarySelectionKey) return null;
+    const inTree = (shown: TreeModel | FilteredTreeModel) =>
+      (shown.project && entityKey(shown.project) === primarySelectionKey) ? shown.project :
+        shown.groups.flatMap((group) => group.items).find((item) => entityKey(item) === primarySelectionKey) ?? null;
+    if (inTree(filteredTree)) return null;
+    return inTree(tree)?.id ?? null;
+  })();
 
   // Details is nonmodal: Tab can leave the dialog while staying in the table.
   // Own Escape after the editor/enum handlers but before the shell drawer.
@@ -276,12 +320,7 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
         filteredCount={filteredTree.count}
         totalCount={tree.count}
         windowed={layoutMode === "tree" && treeRows.length >= TREE_WINDOW_ROWS}
-        onFilterChange={(value, inputAt, inputEventTimeStamp) => {
-          filterInputTiming.current = { inputAt, inputEventTimeStamp };
-          filterActionSequence.current += 1;
-          if (value.trim().toLowerCase() !== filterText.trim().toLowerCase()) setFilteredCollapsedGroups(new Set());
-          setFilterText(value);
-        }}
+        onFilterChange={changeFilter}
       />
       <div className="model-grid-toolbar-target" ref={setToolbarTarget} />
       </OverflowRail>
@@ -313,6 +352,17 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
           viewCommand={viewCommand}
         />
       </div> : null}
+      {layoutMode !== "grid" && selectionFilteredOut ? (
+        <p className="model-tree-selection-filtered" role="status" data-testid="model-tree-selection-filtered">
+          <span>{selectionFilteredOut} is selected but filtered out.</span>
+          <button type="button" data-testid="model-tree-selection-filtered-clear" onClick={(event) => {
+            changeFilter("", performance.now(), event.nativeEvent.timeStamp);
+            // The button goes with the message: focus returns to the filter field, and the selection is revealed.
+            pendingTreeReveal.current = primarySelectionKey || null;
+            treeRootRef.current?.querySelector<HTMLInputElement>('[data-testid="model-tree-filter-input"]')?.focus();
+          }}>Clear filter</button>
+        </p>
+      ) : null}
       {layoutMode !== "grid" ? (
         treeRows.length > 0 ? (
           <VirtualList
@@ -347,8 +397,8 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
                 ) toggleExpandedGroup(row.groupKey);
                 return;
               }
-              if (event.key === "Enter") onSelect(row.item, {}, displayedEntityOrder);
-              if (event.key === " ") onSelect(row.item, {
+              if (event.key === "Enter") selectFromTree(row.item, {}, displayedEntityOrder);
+              if (event.key === " ") selectFromTree(row.item, {
                 additive: event.shiftKey,
                 range: event.shiftKey,
                 toggle: event.ctrlKey || event.metaKey
@@ -389,7 +439,7 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
                 onClick={(event) => {
                   setFocusedTreeKey(row.key);
                   onFocusChange(entityKey(row.item));
-                  onSelect(row.item, {
+                  selectFromTree(row.item, {
                     additive: event.shiftKey,
                     range: event.shiftKey,
                     toggle: event.ctrlKey || event.metaKey
@@ -402,7 +452,7 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
                   const ref: EntityRef = { type: row.item.type, id: row.item.id };
                   setFocusedTreeKey(row.key);
                   onFocusChange(entityKey(ref));
-                  if (!selectedKeys.has(entityKey(ref))) onSelect(row.item, {}, displayedEntityOrder);
+                  if (!selectedKeys.has(entityKey(ref))) selectFromTree(row.item, {}, displayedEntityOrder);
                   list?.focus();
                   openTreeMenu(ref, pointerMenuRequest(event, list));
                 }}
@@ -436,6 +486,13 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
     </TableContextMenuContext.Provider>
     </TableChromeContext.Provider>
   );
+
+  function changeFilter(value: string, inputAt: number, inputEventTimeStamp: number) {
+    filterInputTiming.current = { inputAt, inputEventTimeStamp };
+    filterActionSequence.current += 1;
+    if (value.trim().toLowerCase() !== filterText.trim().toLowerCase()) setFilteredCollapsedGroups(new Set());
+    setFilterText(value);
+  }
 
   function toggleExpandedGroup(groupKey: string) {
     if (filterText.trim()) {
@@ -2096,4 +2153,15 @@ function safeToken(value: string): string {
 
 function numericGridValue(value: string): string | number {
   return value.trim() !== "" && Number.isFinite(Number(value)) ? Number(value) : value;
+}
+
+/** How long the tree waits for the shell to publish a selection it pressed before treating the next change as another surface's. */
+const TREE_PUBLICATION_LAPSE_MS = 2000;
+
+/** Whether keyboard focus is in a field a person types in (an input, a text area, a select, an editable region). */
+function typingInField(): boolean {
+  const active = document.activeElement;
+  if (!(active instanceof HTMLElement)) return false;
+  return active.isContentEditable || active instanceof HTMLTextAreaElement || active instanceof HTMLSelectElement ||
+    (active instanceof HTMLInputElement && !["button", "checkbox", "radio", "submit", "reset"].includes(active.type));
 }

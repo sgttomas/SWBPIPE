@@ -30,6 +30,13 @@
 //!   target `Load`, `field_path` `condition_use`): `before` the current member's
 //!   canonical JSON or `not_present`; `after` the whole `ConditionUse` object
 //!   text (set) or `not_present` (clear).
+//! - `set_load_case_test_condition` and `clear_load_case_test_condition`
+//!   (modify, target `Load`, `field_path` `test_condition`; DEL-05-01 REQ-014):
+//!   `before` the current member's canonical JSON or `not_present`; `after` the
+//!   whole `TestCondition` object text, `{"kind": "hydrostatic",
+//!   "held_supports": "springs_and_constant_effort" | "none"}` (set), or
+//!   `not_present` (clear). Setting is admitted on a document with a pressure
+//!   contract only (`LOAD_CASE_TEST_CONDITION_PRESSURE_FREE`); clearing always.
 //!
 //! Every operation carries unit `none` and dimension `dimensionless`. The same
 //! value as stored, and a clear of an absent member, is `OP-DATA-UNCHANGED`.
@@ -46,8 +53,15 @@
 //! `contents_density` is refused (`LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED`)
 //! and `pressure` is refused
 //! (`LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT`). On a document with
-//! a `pressure_contract` every use is refused
-//! (`LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED`, until S4).
+//! a `pressure_contract` the only use admitted is a hydrostatic test case's
+//! contents selection, `{"contents_density": <key>}` alone; every other use is
+//! refused (`LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED`). A test case stated
+//! before its contents selection, its generated self-weight or its pressure
+//! regions is a staged state (`LOAD_CASE_TEST_CONTENTS_UNSELECTED`,
+//! `LOAD_CASE_TEST_SELF_WEIGHT_MISSING`,
+//! `LOAD_CASE_TEST_PRESSURE_REGION_REQUIRED`, warnings). A self-weight the
+//! contents cannot enter (`LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID`) is not
+//! staged and blocks.
 //!
 //! **The solve's judgement, classified (SWBPIPE Agent 0, 2026-11-02;
 //! [`report_judgement`]).** After an admitted operation, and once the document
@@ -75,6 +89,7 @@
 use crate::document_validator;
 use crate::geometry_operations::{GeometryEdit, GeometryError};
 use crate::{canonical_json, is_valid_schema_id, DiffPreviewRow};
+use open_pipe_stress_product_physics::hydrostatic as pp_hydrostatic;
 use open_pipe_stress_product_physics::operating_conditions::{self as pp_conditions, resolution as pp_resolution};
 use serde_json::{Map, Value};
 use std::collections::BTreeSet;
@@ -91,6 +106,10 @@ pub(crate) const ASSIGN: &str = "assign_condition_set";
 pub(crate) const SET_USE: &str = "set_load_case_condition_use";
 /// Removes one load case's `condition_use`.
 pub(crate) const CLEAR_USE: &str = "clear_load_case_condition_use";
+/// Sets one load case's hydrostatic `test_condition` (DEL-05-01 REQ-014).
+pub(crate) const SET_TEST: &str = "set_load_case_test_condition";
+/// Removes one load case's `test_condition`.
+pub(crate) const CLEAR_TEST: &str = "clear_load_case_test_condition";
 
 /// The record operations' object type and collection.
 pub(crate) const OBJECT_TYPE: &str = "ConditionSet";
@@ -120,7 +139,7 @@ pub(crate) enum Staged {
 
 /// The staged-state findings (SWBPIPE Agent 0, 2026-11-02): exactly these
 /// are warnings. Every other finding blocks.
-pub(crate) const STAGED_FINDINGS: [Staged; 8] = [
+pub(crate) const STAGED_FINDINGS: [Staged; 11] = [
     Staged::Code(pp_resolution::OPERATING_CONDITION_SET_MISSING),
     Staged::Code(pp_resolution::OPERATING_CONDITION_KEY_MISSING),
     Staged::Code(pp_resolution::OPERATING_CONDITION_VALUE_MISSING),
@@ -128,6 +147,13 @@ pub(crate) const STAGED_FINDINGS: [Staged; 8] = [
     Staged::Code(pp_resolution::LOAD_CASE_CONDITION_TEMPERATURE_CONFLICT),
     Staged::Code(pp_resolution::LOAD_CASE_CONDITION_WIND_EXPOSURE_CONFLICT),
     Staged::Code(pp_resolution::LOAD_CASE_CONDITION_WIND_INPUT_MISSING),
+    // A hydrostatic test case stated before its contents selection, its
+    // generated self-weight or its pressure regions (DEL-05-01 REQ-014): any
+    // order of authoring passes through these. A self-weight the contents
+    // cannot enter is not a staged state and blocks.
+    Staged::Code(pp_hydrostatic::LOAD_CASE_TEST_CONTENTS_UNSELECTED),
+    Staged::Code(pp_hydrostatic::LOAD_CASE_TEST_SELF_WEIGHT_MISSING),
+    Staged::Code(pp_hydrostatic::LOAD_CASE_TEST_PRESSURE_REGION_REQUIRED),
     Staged::EmptyGeneratedWindExposure,
 ];
 
@@ -144,7 +170,7 @@ pub(crate) fn is_change_kind(change_kind: &str) -> bool {
 pub(crate) fn operation_kind_for(change_kind: &str) -> Option<&'static str> {
     match change_kind {
         CREATE => Some("create"),
-        UPDATE | ASSIGN | SET_USE | CLEAR_USE => Some("modify"),
+        UPDATE | ASSIGN | SET_USE | CLEAR_USE | SET_TEST | CLEAR_TEST => Some("modify"),
         DELETE => Some("delete"),
         _ => None,
     }
@@ -203,15 +229,19 @@ pub(crate) fn has_pressure_contract(model: &Value) -> bool {
 /// refusal; empty means admitted. A use that is not an object, an empty use and
 /// `false` in a `true`-only member are the validator's findings on the
 /// candidate.
-pub(crate) fn admit_case_use(model: &Value, case_ref: &str, using: &Value) -> Vec<GeometryError> {
+pub(crate) fn admit_case_use(model: &Value, case_ref: &str, using: &Value, test_case: bool) -> Vec<GeometryError> {
     let refs = [case_ref.to_string()];
     let Some(members) = using.as_object() else {
         return Vec::new();
     };
     if has_pressure_contract(model) {
+        // DEL-05-01 REQ-014: a hydrostatic test case's contents selection, alone.
+        if test_case && members.len() == 1 && members.contains_key("contents_density") {
+            return Vec::new();
+        }
         return vec![refusal(
             pp_conditions::LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED,
-            format!("Load case `{case_ref}` would use operating conditions on a document with a pressure contract; the exact route's condition resolution is not built yet (S4), so the use is not authored."),
+            format!("Load case `{case_ref}` would use operating conditions on a document with a pressure contract; the exact route resolves only a hydrostatic test case's contents_density, stated alone, so the use is not authored."),
             &refs,
         )];
     }
@@ -227,11 +257,27 @@ pub(crate) fn admit_case_use(model: &Value, case_ref: &str, using: &Value) -> Ve
     if let Some(key) = key("contents_density") {
         refusals.push(refusal(
             pp_resolution::LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED,
-            format!("Load case `{case_ref}` would use condition `{key}` for contents density; the resolution of contents density is not designed yet (RT-A6), so the use is not authored."),
+            format!("Load case `{case_ref}` would use condition `{key}` for contents density on a pressure-free document; contents density from conditions is resolved only for a hydrostatic test case on the exact route, so the use is not authored."),
             &refs,
         ));
     }
     refusals
+}
+
+/// The route admission of a case's `test_condition`: a hydrostatic test is
+/// defined on the exact route only, so it is not authored on a pressure-free
+/// document (clearing one is always admitted).
+pub(crate) fn admit_test_condition(model: &Value, case_ref: &str) -> Vec<GeometryError> {
+    if has_pressure_contract(model) {
+        return Vec::new();
+    }
+    vec![refusal(pp_hydrostatic::LOAD_CASE_TEST_CONDITION_PRESSURE_FREE, pressure_free_test_message(case_ref), &[case_ref.to_string()])]
+}
+
+/// The message of `LOAD_CASE_TEST_CONDITION_PRESSURE_FREE`, for the case-level
+/// operations and for create_load_case.
+pub(crate) fn pressure_free_test_message(case_ref: &str) -> String {
+    format!("Load case `{case_ref}` would be a hydrostatic test on a document without a pressure contract; the test is solved on the exact pressure route only, so the test condition is not authored.")
 }
 
 /// One finding of the classified judgement.
@@ -435,11 +481,21 @@ pub(crate) fn edit_scope(before: &Value, candidate: &Value, change_kind: &str, t
             scope.extend(pipes_on(&sets));
             scope.extend(using_cases());
         }
-        SET_USE | CLEAR_USE | CREATE_LOAD_CASE => {
+        SET_USE | CLEAR_USE | SET_TEST | CLEAR_TEST | CREATE_LOAD_CASE => {
             for pipe in pipes() {
                 if let Some(set) = set_ref_of(pipe) {
                     scope.insert(set.to_string());
                     scope.extend(id_of(pipe).map(str::to_string));
+                }
+            }
+            // A test case's held supports are judged with it: every support (the
+            // held set is document-wide), for a test-condition edit or a created
+            // test case.
+            let test_target = documents.into_iter().flat_map(|model| records(model, "load_cases"))
+                .any(|case| id_of(case) == Some(target_ref) && case.get("test_condition").is_some());
+            if matches!(change_kind, SET_TEST | CLEAR_TEST) || (change_kind == CREATE_LOAD_CASE && test_target) {
+                for support in documents.into_iter().flat_map(|model| records(model, "supports")) {
+                    scope.extend(id_of(support).map(str::to_string));
                 }
             }
         }
@@ -633,6 +689,7 @@ pub(crate) fn resolve(model: &Value, intent: &Value) -> Result<GeometryEdit, Vec
         CREATE | UPDATE | DELETE => resolve_record(model, intent).map_err(|error| vec![error]),
         ASSIGN => resolve_assignment(model, intent).map_err(|error| vec![error]),
         SET_USE | CLEAR_USE => resolve_use(model, intent),
+        SET_TEST | CLEAR_TEST => resolve_test(model, intent),
         _ => Err(vec![refusal("OP-KIND-UNSUPPORTED", format!("`{change_kind}` is not a condition-set operation."), &refs)]),
     }
 }
@@ -888,7 +945,8 @@ fn resolve_use(model: &Value, intent: &Value) -> Result<GeometryEdit, Vec<Geomet
         let Ok(parsed @ Value::Object(_)) = serde_json::from_str::<Value>(after) else {
             return one("OP-DATA-PAYLOAD-INVALID", format!("{SET_USE} takes the whole condition use as a JSON object."));
         };
-        let refusals = admit_case_use(model, target_ref, &parsed);
+        let test_case = cases[index].get("test_condition").is_some();
+        let refusals = admit_case_use(model, target_ref, &parsed, test_case);
         if !refusals.is_empty() {
             return Err(refusals);
         }
@@ -928,6 +986,87 @@ fn resolve_use(model: &Value, intent: &Value) -> Result<GeometryEdit, Vec<Geomet
     })
 }
 
+/// `set_load_case_test_condition` and `clear_load_case_test_condition`
+/// (modify, target `Load`, `field_path` `test_condition`): `before` the current
+/// member's canonical JSON or `not_present`; `after` the whole `TestCondition`
+/// object text (`{"kind": "hydrostatic", "held_supports": ...}`, both members
+/// entered; its shape is the document validator's) or `not_present` (clear).
+/// Setting is admitted on a document with a pressure contract only.
+fn resolve_test(model: &Value, intent: &Value) -> Result<GeometryEdit, Vec<GeometryError>> {
+    let change_kind = text_at(intent, "/change/change_kind");
+    let object_type = text_at(intent, "/target/object_type");
+    let target_ref = text_at(intent, "/target/ref");
+    let field_path = text_at(intent, "/change/field_path");
+    let before = text_at(intent, "/change/before");
+    let after = text_at(intent, "/change/after");
+    let refs = [target_ref.to_string()];
+    let one = |code, message: String| Err(vec![refusal(code, message, &refs)]);
+    let clearing = change_kind == CLEAR_TEST;
+    if object_type != "Load" || field_path != "test_condition" || !shape_ok(intent) || clearing != (after == "not_present") {
+        return one(
+            "OP-DATA-SHAPE-INVALID",
+            format!("{change_kind} requires object type Load, field_path test_condition, unit none and dimension dimensionless; {SET_TEST} takes the whole test condition as JSON object text and {CLEAR_TEST} takes after-value `not_present`."),
+        );
+    }
+    let cases = model.get("load_cases").and_then(Value::as_array).map(Vec::as_slice).unwrap_or(&[]);
+    let matching: Vec<usize> = cases.iter().enumerate().filter(|(_, case)| id_of(case) == Some(target_ref)).map(|(index, _)| index).collect();
+    let [index] = matching[..] else {
+        return one("OP-TARGET-NOT-FOUND", format!("Load case `{target_ref}` was not found exactly once in load_cases."));
+    };
+    let current = cases[index].get("test_condition");
+    let current_text = current.map(canonical_json).unwrap_or_else(|| "not_present".into());
+    if before != current_text {
+        return one(
+            "OP-STALE-BEFORE-VALUE",
+            format!("Intent before-value `{before}` no longer matches load case `{target_ref}`'s test condition (`{current_text}`)."),
+        );
+    }
+    let next = if clearing {
+        None
+    } else {
+        let Ok(parsed @ Value::Object(_)) = serde_json::from_str::<Value>(after) else {
+            return one("OP-DATA-PAYLOAD-INVALID", format!("{SET_TEST} takes the whole test condition as a JSON object."));
+        };
+        let refusals = admit_test_condition(model, target_ref);
+        if !refusals.is_empty() {
+            return Err(refusals);
+        }
+        Some(parsed)
+    };
+    if same_value(next.as_ref(), current) {
+        let message = if clearing {
+            format!("Load case `{target_ref}` has no test condition; nothing to clear.")
+        } else {
+            format!("Load case `{target_ref}`'s test condition is already {current_text}; nothing to apply.")
+        };
+        return one("OP-DATA-UNCHANGED", message);
+    }
+    let mut candidate = model.clone();
+    let Some(case) = candidate
+        .get_mut("load_cases")
+        .and_then(Value::as_array_mut)
+        .and_then(|cases| cases.get_mut(index))
+        .and_then(Value::as_object_mut)
+    else {
+        return one("OP-DATA-PAYLOAD-INVALID", format!("Load case `{target_ref}` is not an object; repair the document first."));
+    };
+    let after_text = match next {
+        Some(value) => {
+            let text = canonical_json(&value);
+            case.insert("test_condition".into(), value);
+            text
+        }
+        None => {
+            case.remove("test_condition");
+            "not_present".to_string()
+        }
+    };
+    Ok(GeometryEdit {
+        model: candidate,
+        diff_preview: vec![row(target_ref, "Load", "test_condition", current_text, after_text, change_kind)],
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -941,10 +1080,10 @@ mod tests {
         json!({"id": format!("diagnostic:{code}"), "code": code, "severity": "blocking", "message": format!("message of {code}"), "affected_refs": ["L1"]})
     }
 
-    /// Exactly the eight staged findings are warnings; the list is the one
+    /// Exactly the ten staged findings are warnings; the list is the one
     /// constant and nothing else is downgraded.
     #[test]
-    fn the_staged_list_is_exactly_the_eight_findings() {
+    fn the_staged_list_is_exactly_the_ten_findings() {
         let codes: Vec<&str> = STAGED_FINDINGS
             .iter()
             .filter_map(|staged| match staged {
@@ -962,6 +1101,9 @@ mod tests {
                 "LOAD_CASE_CONDITION_TEMPERATURE_CONFLICT",
                 "LOAD_CASE_CONDITION_WIND_EXPOSURE_CONFLICT",
                 "LOAD_CASE_CONDITION_WIND_INPUT_MISSING",
+                "LOAD_CASE_TEST_CONTENTS_UNSELECTED",
+                "LOAD_CASE_TEST_SELF_WEIGHT_MISSING",
+                "LOAD_CASE_TEST_PRESSURE_REGION_REQUIRED",
             ]
         );
         assert!(STAGED_FINDINGS.contains(&Staged::EmptyGeneratedWindExposure));
@@ -988,7 +1130,7 @@ mod tests {
             "OPERATING_CONDITION_SET_UNRESOLVED",
             "OPERATING_CONDITION_QUANTITY_INVALID",
             "OPERATING_CONDITION_TEMPERATURE_RANGE_UNSUPPORTED",
-            "LOAD_CASE_TEST_CONDITION_UNSUPPORTED",
+            "LOAD_CASE_TEST_CONDITION_PRESSURE_FREE",
             "SUPPORT_DIRECTION_SKEW_UNSUPPORTED",
             "EQUIVALENT_STATIC_INPUT_MISSING",
             "PREVIEW_SCHEMA_VERSION_MISSING",
@@ -1037,7 +1179,7 @@ mod tests {
     fn a_carried_refusal_outside_the_scope_is_info_and_everything_else_blocks() {
         let before = before_document();
         let snub = || refs_diagnostic("SNUBBER_DYNAMIC_ONLY_UNSUPPORTED", json!(["snub"]));
-        let test_case = || refs_diagnostic("LOAD_CASE_TEST_CONDITION_UNSUPPORTED", json!(["HT"]));
+        let test_case = || refs_diagnostic("LOAD_CASE_TEST_CONDITION_PRESSURE_FREE", json!(["HT"]));
         let route = || refs_diagnostic(pp_conditions::LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED, json!(["L9"]));
         let staged = || refs_diagnostic(pp_resolution::OPERATING_CONDITION_SET_MISSING, json!(["L9"]));
         let judged_before = classify(&before, &preview(json!([snub(), test_case(), route(), staged()])));
@@ -1047,7 +1189,7 @@ mod tests {
                 snub(),
                 snub(),
                 test_case(),
-                refs_diagnostic("LOAD_CASE_TEST_CONDITION_UNSUPPORTED", json!(["L9"])),
+                refs_diagnostic("LOAD_CASE_TEST_CONDITION_PRESSURE_FREE", json!(["L9"])),
                 route(),
                 staged(),
                 refs_diagnostic("SOMETHING_NEW", json!(["snub"])),
@@ -1061,8 +1203,8 @@ mod tests {
             vec![
                 (s("SNUBBER_DYNAMIC_ONLY_UNSUPPORTED"), "info", vec![s("snub")]),
                 (s("SNUBBER_DYNAMIC_ONLY_UNSUPPORTED"), "blocking", vec![s("snub")]),
-                (s("LOAD_CASE_TEST_CONDITION_UNSUPPORTED"), "blocking", vec![s("HT")]),
-                (s("LOAD_CASE_TEST_CONDITION_UNSUPPORTED"), "blocking", vec![s("L9")]),
+                (s("LOAD_CASE_TEST_CONDITION_PRESSURE_FREE"), "blocking", vec![s("HT")]),
+                (s("LOAD_CASE_TEST_CONDITION_PRESSURE_FREE"), "blocking", vec![s("L9")]),
                 (s(pp_conditions::LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED), "blocking", vec![s("L9")]),
                 (s(pp_resolution::OPERATING_CONDITION_SET_MISSING), "warning", vec![s("L9")]),
                 (s("SOMETHING_NEW"), "blocking", vec![s("snub")]),

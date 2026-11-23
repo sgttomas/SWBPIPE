@@ -317,9 +317,9 @@ fn the_interim_condition_uses_are_refused_by_name_on_both_routes_and_a_present_n
 }
 
 #[test]
-fn a_test_condition_is_refused_by_name() {
+fn a_test_condition_on_the_pressure_free_route_is_refused_by_name() {
     assert_refused_by(&mutated(|d| d["load_cases"][0]["test_condition"] = json!({"kind": "hydrostatic", "held_supports": "none"})),
-        "LOAD_CASE_TEST_CONDITION_UNSUPPORTED", "load case `L1` is a hydrostatic test condition");
+        "LOAD_CASE_TEST_CONDITION_PRESSURE_FREE", "load case `L1` is a hydrostatic test on a document without a pressure contract");
 }
 
 #[test]
