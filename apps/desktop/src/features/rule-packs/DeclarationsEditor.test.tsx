@@ -276,10 +276,8 @@ function harnessDoc(): DeclarationDocument {
 describe("DeclarationsEditor component", () => {
   it("lists the declared required inputs and value slots", () => {
     render(<Harness initial={buildDraftRulePackDocument()} />);
-    expect(screen.getByTestId("rule-pack-required-inputs").textContent).toContain(
-      "Required inputs (1)"
-    );
-    expect(screen.getByTestId("rule-pack-value-slots").textContent).toContain("Value slots (1)");
+    expect(screen.getByTestId("rule-pack-required-inputs").textContent).toContain("Inputs (1)");
+    expect(screen.getByTestId("rule-pack-value-slots").textContent).toContain("Limits (1)");
     expect((screen.getByTestId("rule-pack-input-id") as HTMLInputElement).value).toBe(
       "user_required_input_1"
     );
@@ -545,7 +543,7 @@ describe("DeclarationsEditor component", () => {
     expect(screen.getByTestId("rule-pack-input-library-ref")).toBeTruthy();
     expect(inputsOf(harnessDoc())[0].library_value_ref).toEqual(defaultLibraryValueRef());
     expect(screen.getByTestId("rule-pack-input-library-ref-note").textContent).toContain(
-      "never embedded in the rule pack"
+      "the pack keeps only where to find it"
     );
   });
 
@@ -651,7 +649,7 @@ describe("DeclarationsEditor component", () => {
     expect(screen.getByTestId("rule-pack-input-solver-ref")).toBeTruthy();
     expect(inputsOf(harnessDoc())[0].solver_result_ref).toEqual(defaultSolverResultRef());
     expect(screen.getByTestId("rule-pack-input-solver-ref-note").textContent).toContain(
-      "On each required load case of a check"
+      "Picks one solved row on each load case"
     );
     // Without a current solved result the members are typed.
     expect(screen.getByTestId("rule-pack-input-solver-offer-none").textContent).toContain("type the selector members");

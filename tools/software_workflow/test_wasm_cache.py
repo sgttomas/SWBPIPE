@@ -44,7 +44,7 @@ def test_key_covers_input_classes_and_is_stable(tmp_path):
 def test_input_enumeration_reuses_selection_and_tracks_whole_crates(tmp_path):
     files = fixture_tree(tmp_path)
     with patch.object(wasm_cache, 'wasm_engine_inputs', return_value=({'crate'}, {'schemas/compile.json'})), \
-         patch.object(wasm_cache, 'declared_compiled_reads', return_value={'schemas/compile.json'}), \
+         patch.object(wasm_cache, 'declared_compiled_reads', return_value=(frozenset({'schemas/compile.json'}), ())), \
          patch.object(wasm_cache.subprocess, 'check_output', return_value=('\0'.join(files) + '\0').encode()):
         paths = wasm_cache.input_paths(tmp_path)
         assert set(files) <= set(paths)
@@ -64,7 +64,7 @@ def test_cargo_configuration_on_any_working_directory_chain_disables_reuse(tmp_p
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text('[build]\nrustflags = ["-C", "opt-level=0"]\n')
         with patch.object(wasm_cache, 'wasm_engine_inputs', return_value=({'crate'}, {'schemas/compile.json'})), \
-             patch.object(wasm_cache, 'declared_compiled_reads', return_value={'schemas/compile.json'}), \
+             patch.object(wasm_cache, 'declared_compiled_reads', return_value=(frozenset({'schemas/compile.json'}), ())), \
              patch.object(wasm_cache.subprocess, 'check_output', return_value=('\0'.join(tracked) + '\0').encode()):
             with pytest.raises(ValueError, match='Cargo configuration'):
                 wasm_cache.input_paths(tmp_path)
@@ -80,7 +80,7 @@ def test_npm_configuration_disables_reuse_or_enters_the_key(tmp_path, monkeypatc
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text('script-shell=${PWD}/tools/engine-shell.sh\n')
         with patch.object(wasm_cache, 'wasm_engine_inputs', return_value=({'crate'}, {'schemas/compile.json'})), \
-             patch.object(wasm_cache, 'declared_compiled_reads', return_value={'schemas/compile.json'}), \
+             patch.object(wasm_cache, 'declared_compiled_reads', return_value=(frozenset({'schemas/compile.json'}), ())), \
              patch.object(wasm_cache.subprocess, 'check_output', return_value=('\0'.join(files + tracked_extra) + '\0').encode()):
             with pytest.raises(ValueError, match='npm configuration'):
                 wasm_cache.input_paths(tmp_path)
@@ -103,7 +103,7 @@ def test_tracked_node_modules_tooling_disables_reuse(tmp_path):
     files = fixture_tree(tmp_path)
     for shadow in ['apps/node_modules/.bin/cargo', 'node_modules/.bin/wasm-bindgen', 'apps/desktop/node_modules/x/index.js']:
         with patch.object(wasm_cache, 'wasm_engine_inputs', return_value=({'crate'}, {'schemas/compile.json'})), \
-             patch.object(wasm_cache, 'declared_compiled_reads', return_value={'schemas/compile.json'}), \
+             patch.object(wasm_cache, 'declared_compiled_reads', return_value=(frozenset({'schemas/compile.json'}), ())), \
              patch.object(wasm_cache.subprocess, 'check_output', return_value=('\0'.join(files + [shadow]) + '\0').encode()):
             with pytest.raises(ValueError, match='node_modules'):
                 wasm_cache.input_paths(tmp_path)
@@ -140,3 +140,14 @@ def test_key_computation_error_disables_cache_without_failing_build(tmp_path, mo
     with patch.object(wasm_cache.subprocess, 'check_output', side_effect=OSError('tool unavailable')):
         wasm_cache.main()
     assert output.read_text() == 'key=\nvalid=false\n'
+
+
+def test_stale_runtime_read_declaration_in_an_engine_crate_disables_reuse(tmp_path):
+    # A stale declaration may read a file it does not list, which the key would miss.
+    files = fixture_tree(tmp_path)
+    with patch.object(wasm_cache, 'wasm_engine_inputs', return_value=({'crate'}, {'schemas/compile.json'})), \
+         patch.object(wasm_cache, 'declared_compiled_reads',
+                      return_value=(frozenset({'schemas/compile.json'}), ('crate/src/lib.rs',))), \
+         patch.object(wasm_cache.subprocess, 'check_output', return_value=('\0'.join(files) + '\0').encode()):
+        with pytest.raises(ValueError, match='Stale runtime read declaration'):
+            wasm_cache.input_paths(tmp_path)

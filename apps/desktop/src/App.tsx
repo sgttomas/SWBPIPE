@@ -1,6 +1,6 @@
 import { C2ResultGate } from "./features/results/C2ResultGate";
 import type { SessionResult } from "./services/nativeResult";
-import { reportPackageUnavailableReason } from "./features/report/reportPackageRequest";
+import { reportPackageSourceUnavailableReason } from "./features/report/reportPackageRequest";
 import { CompactSelectScope } from "./features/workspace/CompactSelect";
 import { HangerSelectionPanel } from "./features/hanger-selection";
 import { HangerSizingForm } from "./features/hanger-sizing";
@@ -20,14 +20,11 @@ import {
   Bot,
   ClipboardCheck,
   Crosshair,
-  Database,
   FilePlus,
   FolderOpen,
   HardDrive,
-  List,
   Play,
   Save,
-  Sparkles,
   X
 } from "lucide-react";
 import { AgentStrip } from "./features/workspace/shell/AgentStrip";
@@ -64,6 +61,7 @@ import { DesignWorkspacePanel } from "./features/design-workspace/DesignWorkspac
 import { DiffPreviewPanel } from "./features/diff-preview/DiffPreviewPanel";
 import { EditorContractPanel } from "./features/editor-contract/EditorContractPanel";
 import { KnowledgePanel } from "./features/knowledge/KnowledgePanel";
+import { designKnowledgeDiagnostics } from "./services/designKnowledge";
 import { LibraryManagerPanel } from "./features/library/LibraryManagerPanel";
 import { LoadCaseManagerPanel } from "./features/load-cases/LoadCaseManagerPanel";
 import { LocalFeaHandoffPanel } from "./features/local-fea-handoff/LocalFeaHandoffPanel";
@@ -89,9 +87,10 @@ import { OperationLedgerPanel } from "./features/operations/OperationLedgerPanel
 import { PcfExportPanel } from "./features/pcf-export/PcfExportPanel";
 import { ProjectStorageAuditPanel } from "./features/project-storage/ProjectStorageAuditPanel";
 import { ReplaceProjectPrompt } from "./features/project-storage/ReplaceProjectPrompt";
-import { HistoryPanel } from "./features/history/HistoryPanel";
+import { ProjectPage } from "./features/project-storage/ProjectPage";
 import { QuitWhileBusyPrompt, UnsavedChangesPrompt } from "./features/project-storage/UnsavedChangesPrompt";
-import { AUTOSAVE_DESKTOP_ONLY, AutosaveRecoveryPrompt } from "./features/autosave";
+import { AutosaveRecoveryPrompt } from "./features/autosave";
+import { formatAutosaveTime } from "./features/autosave/autosaveRecovery";
 import { ProjectUnitsDialog } from "./features/project-units/ProjectUnitsDialog";
 import { ModelDocumentSaveDialog } from "./features/model-file/ModelDocumentSaveDialog";
 import { HandoffSaveDialog } from "./features/handoff/HandoffSaveDialog";
@@ -119,6 +118,7 @@ import { ReviewGeometryPanel } from "./features/review-geometry/ReviewGeometryPa
 import { RuleCheckPanel } from "./features/rule-check/RuleCheckPanel";
 import { RuleCheckRunPanel } from "./features/rule-check/RuleCheckRunPanel";
 import { RulePackManagerPanel } from "./features/rule-packs/RulePackManagerPanel";
+import { useReturnCount } from "./features/rule-packs/useReturnCount";
 import { LinesSection } from "./features/model-data/LinesSection";
 import { AssumptionsPanel } from "./features/model-data/AssumptionsPanel";
 import { ConstraintsPanel } from "./features/model-data/ConstraintsPanel";
@@ -167,7 +167,8 @@ export function App() {
 }
 
 function AppSession() {
-  const session = useWorkspaceSession();
+  // DEL-16-03, Commit: the editors' binder stays here, out of the context; this slice binds no editor to it.
+  const { editorBinding, ...session } = useWorkspaceSession();
   // DEL-08-01 REQ-022: the report source sequence and the report output outcomes, owned by
   // the session; the outcomes are shown outside the dormant Report section.
   const reportOutput = {
@@ -238,7 +239,6 @@ function AppSession() {
     handleInspectBundledReference,
     handleCancelRun,
     handleRuleCheckAggregate,
-    handleProposal,
     handleSelectResult,
     handleSelectDiagnostic,
     handleSaveReportPackage,
@@ -248,8 +248,12 @@ function AppSession() {
   // Save Report Package… (DEL-08-01 Design `report-package-current-results.md` §2.1):
   // enablement is synchronous, the output policy's route gate plus the presence
   // checks below. The builder's own refusals (admission, rule-check binding, rule
-  // packs) are shown in the report panel's status line after an attempt.
-  const reportPackageUnavailable = reportPackageUnavailableReason(currentSolvedResult);
+  // packs) are shown in the report panel's status line after an attempt. Its source is
+  // the rendered report's (DEL-08-01 REQ-024, "Package and user release"): Current, or an
+  // exact-route result the rendered report takes whatever its numerical standing. A
+  // pressure-free Timoshenko result the rendered report takes that is not Current is not
+  // offered a package (LIM-016), and the panel says why.
+  const reportPackageUnavailable = reportPackageSourceUnavailableReason(renderableSolvedResult, currentSolvedResult);
   // The viewport's result overlays read the same standing and numerical health view as the results panel.
   const viewportResultStanding = useMemo(() => ({ eligible: numericallyEligible, health: numericalHealth }), [numericallyEligible, numericalHealth]);
   const {
@@ -294,21 +298,21 @@ function AppSession() {
   const {
     storageCapability,
     projectSummary,
+    storedRunNotOpened,
     projectIndex,
     modelHashIntegrity,
     projectEnvelopeHash,
     projectEnvelopeHashIntegrity,
     modelDocumentVersion,
     projectMessage,
+    projectMessageDetails,
     projectOperation,
     projectBusy,
-    handleCreateProject,
     requestBlankProject,
     blankProjectUnitsRequest,
     handleOpenProject,
     handleOpenModelDocument,
     handleSaveProject,
-    handleListProjects,
     replaceProjectPrompt,
     modelDocumentSaveRequest,
     handoffSaveRequest,
@@ -336,6 +340,7 @@ function AppSession() {
     reviewDetailsOpen, setReviewDetailsOpen,
     issuesDrawerOpen, setIssuesDrawerOpen,
     modelCheckRun,
+    modelCheckFocusRequest,
     modelCheckBusy,
     handleRunModelChecks,
     stageSurface,
@@ -353,6 +358,8 @@ function AppSession() {
     exposeViewportForNarrowInteraction,
     toggleWorkspaceRail
   } = session.chrome;
+  // Each return to the Rules page reaches the retained, sleeping page as a new count, and it reads its list again.
+  const rulePacksVisit = useReturnCount(activeSection === "rule-packs");
   // "Show solver diagnostic" (DEL-07-05 numerical health §3): the Issues drawer's
   // Diagnostics panel opens filtered to exactly that diagnostic, once.
   const { filterRequest: diagnosticFilterRequest, requestDiagnosticFilter } = useDiagnosticFilterRequest({ issuesDrawerOpen, result, analysisRun });
@@ -437,7 +444,7 @@ function AppSession() {
           openMenu={openMenu}
           projectBusy={projectBusy}
           modelDocumentSaveReady={model !== null && !projectBusy}
-          reportPackageReady={!reportPackageUnavailable && Boolean(currentSolvedResult && analysisRun && inputManifest) && !running && !reportPackageBusy}
+          reportPackageReady={!reportPackageUnavailable && Boolean(renderableSolvedResult && analysisRun && inputManifest) && !running && !reportPackageBusy}
           running={running}
           solveWithheld={solveGate.kind === "withheld" ? solveWithheldReason(solveGate) : null}
           treeCollapsed={treeCollapsed}
@@ -469,7 +476,8 @@ function AppSession() {
             })}
           />
       </ShellToolbar>
-      <ReportOutputStatus outcomes={reportOutput.outcomes} entries={reportOutput.entries} currentSequence={reportOutput.sequence} />
+      <ReportOutputStatus outcomes={reportOutput.outcomes} entries={reportOutput.entries} currentSequence={reportOutput.sequence}
+        currentProjectId={model?.project.id ?? null} />
 
       <div className="shell-body">
         <StageRail issueCount={issueCount} />
@@ -615,7 +623,6 @@ function AppSession() {
             <EmbeddedAgentPanel session={session.agent} active={activeSection === "operations" && operationTab === "agent"} onReview={() => {setActiveSection("operations");setOperationTab("review");}} />
             <AgentWorkbenchPanel
               appliedOperationCount={appliedOperations.length}
-              mechanicsReady={Boolean(result)}
               model={model}
               proposal={proposal}
               queuedIntentCount={editorIntents.length}
@@ -624,7 +631,6 @@ function AppSession() {
               selectedReviewTarget={selectedReviewTarget}
               statusText={r3ExitJourneyStatus({ result, ruleCheckAggregate, projectSummary })}
               reviewActive={activeSection === "operations" && operationTab === "review"}
-              onGenerateProposal={handleProposal}
               onOpenOperations={() => { setActiveSection("operations"); setOperationTab("review"); }}
               onOpenResults={() => setActiveSection("results")}
               onRunMechanics={handleRun}
@@ -735,9 +741,7 @@ function AppSession() {
                   />
                   <AgentProposalPanel
                     proposal={proposal}
-                    mechanicsReady={Boolean(result)}
                     selectedReviewTarget={selectedReviewTarget}
-                    onLoad={handleProposal}
                   />
                 </div>
               </section>
@@ -758,6 +762,7 @@ function AppSession() {
                 operationBusy={operationBusy}
                 getPreparationEpoch={getPreparationEpoch}
                 onQueueIntent={handleQueueEditorIntent}
+                onQueueBatch={handleQueueOperationBatch}
                 onSelect={handleSelectEntity}
                 selection={selection}
               />
@@ -780,7 +785,7 @@ function AppSession() {
                   Key results
                 </button>
               </div>
-              {historicalRun ? <HistoricalRunPanel key={historicalRun.runId} context={historicalRun} /> : <ResultsPanel
+              {historicalRun ? <HistoricalRunPanel key={historicalRun.viewKey} context={historicalRun} /> : <ResultsPanel
                 result={result}
                 model={model}
                 exportAnalysisRun={currentSolvedResult !== null && result === currentSolvedResult ? analysisRun : null}
@@ -904,10 +909,11 @@ function AppSession() {
               <DormantSection page="report" active={activeSection === "report"} sessionGeneration={projectSessionGeneration}>
               <Fragment key={`report:${dormantOutputBasis}`}>
               <ComparisonPackageNotice packaged={packagedWithinRun} dropped={droppedWithinRunBases} testId="report-comparison-package-notice" />
-              {/* DEL-08-01 REQ-017, REQ-024: the rendered report's own source (a readable exact-route
-                  result whatever its standing); its package save stays on currentSolvedResult. */}
+              {/* DEL-08-01 REQ-017, REQ-024: the rendered report's own source (a readable exact-route or
+                  pressure-free Timoshenko result whatever its standing), which its package save and user
+                  release also take on the exact route. */}
               <C2ResultGate result={renderableSolvedResult} analysisRun={analysisRun} feature="the rendered report"
-                withheld={reportPackageRoute ? <ReportPackageSaveStatus route={reportPackageRoute} announce /> : null}>
+                withheld={reportPackageRoute ? <ReportPackageSaveStatus route={reportPackageRoute} /> : null}>
                 {(full) => (
                   <RenderedReportPanel
                     model={model}
@@ -924,7 +930,6 @@ function AppSession() {
                     packageRedaction={reportPackageRedaction}
                     packageRoute={reportPackageRoute}
                     onPackagePrivateIntentChange={setReportPackagePrivateIntent}
-                    packageNeedsCurrent={currentSolvedResult === null}
                     restoredRun={historicalRun?.designation === "historical_saved_run" && !running}
                     onSaveReportPackage={reportPackageUnavailable ? undefined : () => void handleSaveReportPackage()}
                     onSaveShareableReportPackage={reportPackageUnavailable ? undefined : () => void requestSaveShareableReportPackage()}
@@ -1051,6 +1056,9 @@ function AppSession() {
               getPreparationEpoch={getPreparationEpoch}
               model={model}
               onSelectReference={(entity) => { handleSelectEntity(entity); }}
+              onChangeSelected={openBulkChange}
+              armedCreationTool={armedCreationTool}
+              onArmCreationTool={handleArmCreationTool}
               onQueueIntent={handleQueueEditorIntent}
               onValidateIntent={handleValidateIntent}
               onApplyIntent={handleApplyIntent}
@@ -1075,37 +1083,20 @@ function AppSession() {
           <header className="workspace-dock-header" data-testid="workspace-dock-header">
             <h2>{shell.page ? WORKSPACE_SECTIONS.find((candidate) => candidate.id === shell.page)?.label ?? shell.page : ""}</h2>
             <div className={shell.page === "project" ? "titlebar-actions shell-project-controls" : "titlebar-actions shell-project-controls inactive"} aria-label="Local project controls">
-          <button type="button" onClick={handleCreateProject} disabled={projectBusy}>
-            <Database size={15} aria-hidden="true" />
-            Create local
-          </button>
-          <button type="button" onClick={() => requestBlankProject("local")} disabled={projectBusy}>
+          {/* New, Open… and Save: the File menu keeps the complete list (Save as New Local Project,
+              Open Local Project…, List Local Projects); the saved projects are listed on the page.
+              New's dialog offers the starting model, the ordinary blank or the one set up for internal pressure. */}
+          <button type="button" data-testid="project-new" onClick={() => requestBlankProject()} disabled={projectBusy}>
             <FilePlus size={15} aria-hidden="true" />
-            New blank
-          </button>
-          <button type="button" data-testid="new-blank-040" onClick={() => requestBlankProject("load_state")} disabled={projectBusy}>
-            <FilePlus size={15} aria-hidden="true" />
-            Blank load/reference model
+            New
           </button>
           <button data-testid="open-model-document" type="button" onClick={() => void handleOpenModelDocument()} disabled={projectBusy}>
             <FolderOpen size={15} aria-hidden="true" />
-            Open model file
+            Open…
           </button>
-          <button data-testid="project-recover-autosave" type="button" onClick={() => void autosave.recoverAutosave()} disabled={projectBusy || !autosave.settings} title={autosave.settings ? "Offer each autosave not shown to be saved" : AUTOSAVE_DESKTOP_ONLY}>
-            <FolderOpen size={15} aria-hidden="true" />
-            Recover autosave…
-          </button>
-          <button data-testid="open-local-project" type="button" onClick={() => handleOpenProject()} disabled={projectBusy}>
-            <FolderOpen size={15} aria-hidden="true" />
-            Open local
-          </button>
-          <button type="button" onClick={handleListProjects} disabled={projectBusy}>
-            <List size={15} aria-hidden="true" />
-            List local
-          </button>
-          <button type="button" onClick={handleSaveProject} disabled={projectBusy}>
+          <button type="button" data-testid="project-save" onClick={handleSaveProject} disabled={projectBusy}>
             <Save size={15} aria-hidden="true" />
-            Save local
+            Save
           </button>
             </div>
             {shell.page ? (
@@ -1117,9 +1108,10 @@ function AppSession() {
           <div className={shell.page === "project" ? "shell-project-strip" : "shell-project-strip inactive"}>
       <details className="project-strip" aria-label="Project summary">
         <summary><span data-testid="local-project-message" role="status">{projectMessage}</span><span className="project-details-label">Details</span></summary>
+        {projectMessageDetails ? <p data-testid="local-project-message-details">{projectMessageDetails}</p> : null}
         <span data-testid="local-project-review-context">{projectReviewContext(editorIntents, proposal, appliedOperations.length)}</span>
         {projectIndex && projectIndex.length > 0 ? (
-          <div className="project-index-picker" data-testid="project-index-picker" aria-label="Open listed project by id">
+          <div className="project-index-picker" data-testid="project-index-picker" aria-label="Open a listed project">
             {projectIndex.map((entry) => (
               <button
                 key={entry.project_id}
@@ -1129,7 +1121,7 @@ function AppSession() {
                 disabled={projectBusy}
               >
                 <FolderOpen size={15} aria-hidden="true" />
-                {entry.project_name} ({entry.project_id})
+                {entry.project_name} · saved {formatAutosaveTime(entry.updated_at_unix * 1000)}
               </button>
             ))}
           </div>
@@ -1158,7 +1150,8 @@ function AppSession() {
               {activeSection === "rule-packs" || activatedExpensiveSections.has("rule-packs") ? (
               <DormantSection page="rule-packs" active={activeSection === "rule-packs"} sessionGeneration={projectSessionGeneration}>
               <RulePackManagerPanel model={model} result={currentSolvedResult} onR3JourneyEvent={recordR3JourneyEvent}
-                queuedIntents={editorIntents} onQueueIntent={handleQueueEditorIntent} operationBusy={operationBusy} />
+                queuedIntents={editorIntents} onQueueIntent={handleQueueEditorIntent} operationBusy={operationBusy}
+                visit={rulePacksVisit} />
               </DormantSection>) : null}
             </section>
 
@@ -1203,7 +1196,7 @@ function AppSession() {
                 }, run ?? null)}
                 onR3JourneyEvent={recordR3JourneyEvent}
               />
-              <KnowledgePanel knowledge={knowledge} result={currentSolvedResult} />
+              <KnowledgePanel knowledge={knowledge} model={model} result={currentSolvedResult} />
               </DormantSection>) : null}
             </section>
 
@@ -1214,32 +1207,35 @@ function AppSession() {
             >
               {activeSection === "project" || activatedExpensiveSections.has("project") ? (
               <DormantSection page="project" active={activeSection === "project"} sessionGeneration={projectSessionGeneration}>
-              <ProjectStorageAuditPanel
-                model={model}
-                storageCapability={storageCapability}
-                projectSummary={projectSummary}
-                projectIndex={projectIndex}
-                projectMessage={projectMessage}
-                projectOperation={projectOperation}
-                editorIntents={editorIntents}
-                proposal={proposal}
-                modelHashIntegrity={modelHashIntegrity}
-                projectEnvelopeHashIntegrity={projectEnvelopeHashIntegrity}
-              />
-              <HistoryPanel />
-              <ProjectValidationPanel
-                model={model}
-                storageCapability={storageCapability}
-                projectSummary={projectSummary}
-                projectOperation={projectOperation}
-                editorIntents={editorIntents}
-                proposal={proposal}
-                modelHash={modelHash}
-                modelHashIntegrity={modelHashIntegrity}
-                projectEnvelopeHash={projectEnvelopeHash}
-                projectEnvelopeHashIntegrity={projectEnvelopeHashIntegrity}
-                modelDocumentVersion={modelDocumentVersion}
-              />
+              <ProjectPage storageRecord={<>
+                  <ProjectStorageAuditPanel
+                    model={model}
+                    storageCapability={storageCapability}
+                    projectSummary={projectSummary}
+                    projectIndex={projectIndex}
+                    projectMessage={projectMessage}
+                    projectMessageDetails={projectMessageDetails}
+                    projectOperation={projectOperation}
+                    editorIntents={editorIntents}
+                    proposal={proposal}
+                    modelHashIntegrity={modelHashIntegrity}
+                    projectEnvelopeHashIntegrity={projectEnvelopeHashIntegrity}
+                    storedRunNotOpened={storedRunNotOpened}
+                  />
+                  <ProjectValidationPanel
+                    model={model}
+                    storageCapability={storageCapability}
+                    projectSummary={projectSummary}
+                    projectOperation={projectOperation}
+                    editorIntents={editorIntents}
+                    proposal={proposal}
+                    modelHash={modelHash}
+                    modelHashIntegrity={modelHashIntegrity}
+                    projectEnvelopeHash={projectEnvelopeHash}
+                    projectEnvelopeHashIntegrity={projectEnvelopeHashIntegrity}
+                    modelDocumentVersion={modelDocumentVersion}
+                  />
+              </>} />
               </DormantSection>) : null}
             </section>
 
@@ -1323,6 +1319,7 @@ function AppSession() {
           onClose={() => setIssuesDrawerOpen(false)}
           onSelectDiagnostic={handleSelectDiagnostic}
           modelCheckRun={modelCheckRun}
+          modelCheckFocusRequest={modelCheckFocusRequest}
           modelCheckBusy={modelCheckBusy}
           onRunModelChecks={() => { void handleRunModelChecks(); }}
           onSelectEntity={(entity) => { handleSelectEntity(entity); }}
@@ -1595,7 +1592,6 @@ function MenuBar({
 
 function AgentWorkbenchPanel({
   appliedOperationCount,
-  mechanicsReady,
   model,
   proposal,
   queuedIntentCount,
@@ -1604,13 +1600,11 @@ function AgentWorkbenchPanel({
   selectedReviewTarget,
   statusText,
   reviewActive,
-  onGenerateProposal,
   onOpenOperations,
   onOpenResults,
   onRunMechanics
 }: {
   appliedOperationCount: number;
-  mechanicsReady: boolean;
   model: PreviewModel;
   proposal: AgentProposal | null;
   queuedIntentCount: number;
@@ -1619,7 +1613,6 @@ function AgentWorkbenchPanel({
   selectedReviewTarget: SelectedReviewTarget | null;
   statusText: string;
   reviewActive: boolean;
-  onGenerateProposal: () => void;
   onOpenOperations: () => void;
   onOpenResults: () => void;
   onRunMechanics: () => void;
@@ -1652,16 +1645,6 @@ function AgentWorkbenchPanel({
         <button type="button" data-testid="agent-run-mechanics" onClick={onRunMechanics} disabled={running}>
           <Play size={15} aria-hidden="true" />
           Run
-        </button>
-        <button
-          type="button"
-          data-testid="agent-generate-proposal"
-          onClick={onGenerateProposal}
-          disabled={!mechanicsReady}
-          title={mechanicsReady ? undefined : "Run mechanics before generating a review proposal."}
-        >
-          <Sparkles size={15} aria-hidden="true" />
-          Propose
         </button>
         <button type="button" data-testid="agent-open-operations" aria-pressed={reviewActive} onClick={onOpenOperations}>
           <ClipboardCheck size={15} aria-hidden="true" />
@@ -1711,6 +1694,7 @@ function IssuesHome({
   onClose,
   onSelectDiagnostic,
   modelCheckRun = null,
+  modelCheckFocusRequest = null,
   modelCheckBusy = false,
   onRunModelChecks = () => {},
   onSelectEntity = () => {}
@@ -1725,6 +1709,8 @@ function IssuesHome({
   onSelectDiagnostic: (diagnosticId: string) => void;
   /** B11: the session's last on-demand model-check run and its command. */
   modelCheckRun?: ModelCheckRun | null;
+  /** A withheld Solve's request for focus on the checks' outcome. */
+  modelCheckFocusRequest?: object | null;
   modelCheckBusy?: boolean;
   onRunModelChecks?: () => void;
   onSelectEntity?: (entity: EntityRef) => void;
@@ -1741,7 +1727,7 @@ function IssuesHome({
           Close
         </button>
       </div>
-      <ModelChecksPanel model={model} run={modelCheckRun} busy={modelCheckBusy} onRun={onRunModelChecks} onSelectEntity={onSelectEntity} />
+      <ModelChecksPanel model={model} run={modelCheckRun} focusRequest={modelCheckFocusRequest} busy={modelCheckBusy} onRun={onRunModelChecks} onSelectEntity={onSelectEntity} />
       {operationDiagnostics.length > 0 ? (
         <section className="panel issues-operation-list" aria-label="Operation diagnostics">
           <div className="panel-title">Operation diagnostics</div>
@@ -1780,7 +1766,7 @@ function StatusPill({ label, value, testId, summaryText }: {
   );
 }
 
-function issueCountFor(
+export function issueCountFor(
   model: PreviewModel,
   knowledge: DesignKnowledge | null,
   result: SessionResult | null,
@@ -1792,7 +1778,7 @@ function issueCountFor(
   );
   return (
     model.diagnostics.length +
-    (knowledge?.diagnostics.length ?? 0) +
+    designKnowledgeDiagnostics(knowledge, model).length +
     (result?.diagnostics.length ?? 0) +
     operationDiagnosticCount +
     countMissingDataBlockers({ model, result })

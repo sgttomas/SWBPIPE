@@ -80,7 +80,7 @@ function standingOf(result: MechanicsResult, model: unknown, record?: unknown): 
     if (recorded) return recordedResultStanding(result, recorded, model as Parameters<typeof recordedResultStanding>[2]);
     return numericalResultStanding(result, model as Parameters<typeof numericalResultStanding>[1]);
   } catch (error) {
-    return { contract: "unsupported", status: "needs_recompute", eligible: false, findings: [error instanceof Error ? error.message.split(":")[0] : "RESULT_READER_UNAVAILABLE"] };
+    return { contract: "unsupported", status: "needs_recompute", eligible: false, findings: [error instanceof Error ? error.message.split(":")[0] : "RESULT_READER_UNAVAILABLE"], integrity_bound: null };
   }
 }
 

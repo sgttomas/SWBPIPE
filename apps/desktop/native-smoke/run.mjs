@@ -411,6 +411,19 @@ const BLANK = {
 // Euler-Bernoulli cantilever tip deflection in mm (the pressure-free route's straight member).
 const blankInertia = (Math.PI / 64) * (BLANK.outside_diameter_m ** 4 - (BLANK.outside_diameter_m - 2 * BLANK.wall_m) ** 4);
 const blankTipMm = (BLANK.force_n * BLANK.length_m ** 3) / (3 * BLANK.elastic_modulus_pa * blankInertia) * 1000;
+// The same tip with shear deformation included, as a new document states it (Timoshenko):
+// PL^3/3EI + PL/(kappa_E G A), with the energy-matched annular shear factor kappa_E as DEL-05-03
+// defines it, in its operation order, from the section's radii and nu = E/(2G) - 1 (n1 = 1 + nu = E/(2G)).
+const blankShearFactor = (() => {
+  const ro = BLANK.outside_diameter_m / 2, ri = BLANK.outside_diameter_m / 2 - BLANK.wall_m;
+  const n1 = BLANK.elastic_modulus_pa / (2 * BLANK.shear_modulus_pa), nu = n1 - 1;
+  const m = ri / ro, m2 = m * m, a = 1 + m2, b = 1 - m2;
+  const c = (8 * nu + 14) * nu + 7;
+  const D = c * (b * b) + 48 * (m2 * (n1 * n1));
+  return (6 * (n1 * n1)) * (a * a) / D;
+})();
+const blankArea = Math.PI * ((BLANK.outside_diameter_m / 2) ** 2 - (BLANK.outside_diameter_m / 2 - BLANK.wall_m) ** 2);
+const blankTimoshenkoTipMm = blankTipMm + (BLANK.force_n * BLANK.length_m) / (blankShearFactor * BLANK.shear_modulus_pa * blankArea) * 1000;
 const UNIT_KEYS = ["length", "force", "moment", "pressure", "stress", "temperature", "angle"];
 
 // Each launch's recorded outcome and judged failures, for summary.json.
@@ -680,13 +693,29 @@ const signedTip = (observed) => {
   const [ux, uy, uz] = ["ux", "uy", "uz"].map((axis) => enteredMm(observed?.components?.[axis]));
   return withinCriterion(uy) && Math.abs(ux) <= 1e-9 * blankTipMm && Math.abs(uz) <= 1e-9 * blankTipMm;
 };
+// The same criterion and direction against the Timoshenko tip.
+const withinTimoshenko = (observedMm) => Math.abs(observedMm - blankTimoshenkoTipMm) <= 1e-9 * Math.abs(blankTimoshenkoTipMm);
+const signedTimoshenkoTip = (observed) => {
+  const [ux, uy, uz] = ["ux", "uy", "uz"].map((axis) => enteredMm(observed?.components?.[axis]));
+  return withinTimoshenko(uy) && Math.abs(ux) <= 1e-9 * blankTimoshenkoTipMm && Math.abs(uz) <= 1e-9 * blankTimoshenkoTipMm;
+};
 {
   const blank = first.blank;
   check("from blank: New Blank Project opens the units dialog (SI, US customary, custom)", ["si", "us_customary", "custom"].every((preset) => blank?.unit_presets?.includes(preset)), blank?.unit_presets);
-  check("from blank: node, material, pipe, support, load case and force authored through the GUI", blank?.steps?.length === 8, blank?.steps);
+  check("from blank: node, material, pipe, support, load case and force authored through the GUI", blank?.steps?.length === 10, blank?.steps);
+  // As authored, a new document includes shear deformation in straight members (Timoshenko); Model settings then
+  // sets it to not included (Euler-Bernoulli), as a person chooses it, and the solve below is that document's.
+  const asAuthored = blank?.solve_as_authored;
+  check("from blank, as authored: native solve completed, its proof bound to the session's project", asAuthored?.solve_job_summary?.includes("state=completed") && asAuthored.proof_project === blankId && asAuthored.solve_proof?.includes("identity=match"), asAuthored?.solve_job_summary);
+  check(`from blank, as authored: tip deflection magnitude equals PL^3/3EI + PL/(kappa_E G A) = ${blankTimoshenkoTipMm} mm (kappa_E = ${blankShearFactor}) within 1e-9 relative`, withinTimoshenko(tipMm(asAuthored)), asAuthored?.probe_entered);
+  check("from blank, as authored: tip uy = +(PL^3/3EI + PL/(kappa_E G A)), ux and uz zero", signedTimoshenkoTip(asAuthored), asAuthored?.components);
+  const notIncluded = blank?.shear_not_included;
+  check("from blank: a new document states shear deformation included, and Model settings sets it to not included",
+    notIncluded?.before === "Effective: Included (Timoshenko)" && notIncluded.pressed === "Not included (Euler–Bernoulli)"
+      && notIncluded.after === "Effective: Not included (Euler–Bernoulli)", notIncluded);
   const solved = blank?.solve;
   check("from blank: native solve completed, its proof bound to the session's project", solved?.solve_job_summary?.includes("state=completed") && solved.proof_project === blankId && solved.solve_proof?.includes("identity=match"), solved?.solve_job_summary);
-  check("from blank: numerical integrity checks passed", solved?.standing?.startsWith("Numerical integrity: checks_passed."), solved?.standing?.slice(0, 60));
+  check("from blank: solver checks found no problem", solved?.standing?.startsWith("Numerical health: solver checks found no problem."), solved?.standing?.slice(0, 60));
   check("from blank: the unfiltered results count every solved row", solved && solved.proof_rows > 0 && solved.all_rows_summary === `${solved.proof_rows} of ${solved.proof_rows} results match filter`, `${solved?.proof_rows}; ${solved?.all_rows_summary}`);
   check("from blank: deformation overlay available for both nodes", solved?.deformation?.startsWith("available; nodes=2;"), solved?.deformation);
   check(`from blank: tip deflection magnitude equals PL^3/3EI = ${blankTipMm} mm within 1e-9 relative`, withinCriterion(tipMm(solved)), solved?.probe_entered);
@@ -856,6 +885,25 @@ for (const doc of documents) {
   check("from blank, reopened: same rows, tip value and model hash as before save", after && before && after.proof_rows === before.proof_rows && after.probe_entered === before.probe_entered && after.proof_model_sha256 === before.proof_model_sha256, `${after?.proof_rows}; ${after?.probe_entered}`);
   check("from blank, reopened: tip deflection still equals PL^3/3EI, along +Y only", withinCriterion(tipMm(after)) && signedTip(after), after?.components);
   check("from blank, reopened: the unfiltered results count every solved row", after && after.all_rows_summary === `${after.proof_rows} of ${after.proof_rows} results match filter`, after?.all_rows_summary);
+}
+
+// W-4, appended: the authored default (shear deformation included, Timoshenko) survives a save and a reopen.
+// Set back to included through Model settings after the reopened checks above, solved, saved in place,
+// reopened from the store in the same process and solved again, against the Timoshenko closed form.
+{
+  const included = second.blank?.included;
+  const solvedIncluded = included?.solve;
+  const reopenedIncluded = included?.solve_reopened;
+  check("from blank, included: Model settings sets shear deformation from not included back to included",
+    included?.shear?.before === "Effective: Not included (Euler–Bernoulli)" && included.shear.pressed === "Included (Timoshenko)"
+      && included.shear.after === "Effective: Included (Timoshenko)", included?.shear);
+  check("from blank, included: native solve completed, its proof bound to the session's project", solvedIncluded?.solve_job_summary?.includes("state=completed") && solvedIncluded.proof_project === blankId && solvedIncluded.solve_proof?.includes("identity=match"), solvedIncluded?.solve_job_summary);
+  check(`from blank, included: tip deflection magnitude equals PL^3/3EI + PL/(kappa_E G A) = ${blankTimoshenkoTipMm} mm within 1e-9 relative, along +Y only`, withinTimoshenko(tipMm(solvedIncluded)) && signedTimoshenkoTip(solvedIncluded), solvedIncluded?.components);
+  check("from blank, included: Save Local Project saves in place without a prompt", included?.save && !included.save.prompted && included.save.message?.includes("Saved current project model snapshot"), included?.save?.message);
+  check("from blank, included, reopened: the stored document still states shear deformation included", included?.reopened_effective === "Effective: Included (Timoshenko)", included?.reopened_effective);
+  check("from blank, included, reopened: solved, with the same rows, tip value and model hash as before the save", reopenedIncluded?.solve_job_summary?.includes("state=completed") && reopenedIncluded.solve_proof?.includes("identity=match") && solvedIncluded
+    && reopenedIncluded.proof_rows === solvedIncluded.proof_rows && reopenedIncluded.probe_entered === solvedIncluded.probe_entered && reopenedIncluded.proof_model_sha256 === solvedIncluded.proof_model_sha256, `${reopenedIncluded?.proof_rows}; ${reopenedIncluded?.probe_entered}`);
+  check(`from blank, included, reopened: tip deflection equals PL^3/3EI + PL/(kappa_E G A) = ${blankTimoshenkoTipMm} mm within 1e-9 relative, along +Y only`, withinTimoshenko(tipMm(reopenedIncluded)) && signedTimoshenkoTip(reopenedIncluded), reopenedIncluded?.components);
 }
 
 // File > Save Handoff… on

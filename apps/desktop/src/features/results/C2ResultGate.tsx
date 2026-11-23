@@ -5,13 +5,13 @@
  * 64 MiB and read with the legacy readers on the exact copied bytes. A consumer given the run record
  * also gets the full record built on that copy and checked against the native preview's checksums;
  * one given none is neither refused for the record's size nor made to wait for its build. Above the
- * limit (the result's, or the record's for a consumer given it) the panel shows
- * `RESULT-DETAIL-WEBVIEW-LIMIT` with the sizes, what still works and #51's advice; nothing is
- * withheld silently. A full result in the webview already (historical, browser reference) passes
+ * limit (the result's, or the record's for a consumer given it) the panel says what is too large
+ * for the feature with both sizes, what can still be read and #51's advice, with the code and the
+ * exact sizes behind Details; nothing is withheld silently. A full result in the webview already (historical, browser reference) passes
  * through unchanged. No C1 surface uses this gate. Rule checks do not: they send the native
  * handle, and the native host checks the result it holds. */
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { describeFullResultRefused, FullResultRefused, isNativeAnalysisRun, isNativeJobLive, isNativeResult, nativeCustody, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
+import { FullResultRefused, fullResultRefusalWords, isNativeAnalysisRun, isNativeJobLive, isNativeResult, nativeCustody, type FullResultRefusalWords, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
 import { nativeFailureText } from "../../services/nativeIngress";
 import { useOptionalSessionResults } from "../workspace/WorkspaceSessionContext";
 import type { AnalysisRunEnvelope, MechanicsResult } from "../../types";
@@ -26,7 +26,7 @@ type GateState =
   | { status: "idle" }
   | { status: "loading"; of: SessionResult; run: SessionAnalysisRun | null }
   | { status: "ready"; full: C2FullResult; of: SessionResult; run: SessionAnalysisRun | null }
-  | { status: "refused"; text: string; of: SessionResult; run: SessionAnalysisRun | null }
+  | { status: "refused"; words: FullResultRefusalWords; of: SessionResult; run: SessionAnalysisRun | null }
   | { status: "failed"; text: string; of: SessionResult; run: SessionAnalysisRun | null };
 
 export function C2ResultGate({
@@ -40,7 +40,7 @@ export function C2ResultGate({
 }: {
   result: SessionResult | null;
   analysisRun: SessionAnalysisRun | null;
-  /** The feature's name in the refusal ("the report", "comparisons", …). */
+  /** The feature's name in the refusal, read as "too large for {feature}" ("the report", "comparisons", …). */
   feature: string;
   /** The loader; the session's when omitted. */
   load?: C2FullResultLoader;
@@ -87,7 +87,7 @@ export function C2ResultGate({
       (error) => {
         if (!live) return;
         setState(error instanceof FullResultRefused
-          ? { status: "refused", text: describeFullResultRefused(error, feature), of: result, run: analysisRun }
+          ? { status: "refused", words: fullResultRefusalWords(error, feature), of: result, run: analysisRun }
           : { status: "failed", text: `${feature} could not read the full result: ${nativeFailureText(error)}`, of: result, run: analysisRun });
       }
     );
@@ -99,12 +99,21 @@ export function C2ResultGate({
   if (shown?.status === "ready") return <>{children({ result: shown.full.result, analysisRun: shown.full.analysisRun })}</>;
   // The content announces itself (one status per outcome); the wrapper only places it.
   const withheldDetail = withheld ? <div data-testid="c2-result-withheld">{withheld}</div> : null;
-  if (shown?.status === "refused") return <><p role="status" data-testid="c2-result-refused" className="result-refusal">{shown.text}</p>{withheldDetail}</>;
+  if (shown?.status === "refused") {
+    const { fact, stillWorks, advice, details } = shown.words;
+    return (
+      <>
+        <p role="status" data-testid="c2-result-refused" className="result-refusal">{`${fact} ${stillWorks} ${advice}`}</p>
+        <details data-testid="c2-result-refused-details"><summary>Details</summary><p>{details}</p></details>
+        {withheldDetail}
+      </>
+    );
+  }
   if (shown?.status === "failed") return <><p role="alert" data-testid="c2-result-failed">{shown.text}</p>{withheldDetail}</>;
   if (explicit && !requested) {
     return (
       <p data-testid="c2-result-explicit">
-        {`The full result rows for ${feature} are read on request (they stay native until then). `}
+        {`The full result rows for ${feature} are read on request. `}
         <button type="button" data-testid="c2-result-load" onClick={() => setRequestedFor(result)}>Load for {feature}</button>
       </p>
     );

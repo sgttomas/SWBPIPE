@@ -22,10 +22,11 @@ and evaluates no source code: a code file's claim rests on reading it. Of data i
 text held in strings (recursively) and the retained-precision DAG storage; any other assembly is not reconstructed.
 One such store exists: the CAEPIPE MBF writer parity vectors (`fixtures/caepipe_mbf/invented/parity/
 writer_vectors.json`) keep many of their models as blobs assembled from a base blob and a prefix, middle and
-suffix (`tools/fixtures/caepipe_mbf_import_vectors.py`), so the 58 writer models recorded below are those held
-as full strings; the independent review of this change reconstructed 107 pressurised writer models, 49 of them
-assembled. Every one is an MBF writer input compared between the Python and Rust writers; none is solved, as
-source-reviewed at a6392aafb and 986096a03. What the committed test detects is narrower: it fails if a tracked code
+suffix (`tools/fixtures/caepipe_mbf_import_vectors.py`), so the writer models recorded below are those held
+as full strings (58 at the a6392aafb and 986096a03 review, where independent review reconstructed 107 pressurised
+writer models, 49 of them assembled; subsequent harvests add further full-string writer inputs, including the 22
+elongation-on benchmark models). Every one is an MBF writer input compared between the Python and Rust writers;
+none is solved, as source-reviewed at a6392aafb and 986096a03. What the committed test detects is narrower: it fails if a tracked code
 file (`.rs`, `.py`, `.ts`, `.tsx`, `.js`, `.mjs`) that names the parity vectors or their harvest modules, or the
 Cargo manifest of a Rust one's crate, names a mechanics solve entry. It excludes two files that name both, this
 producer and its test module. It matches names, not reachability.
@@ -61,8 +62,9 @@ The data facts, asserted directly on the parsed fixtures: the K-D5 M3-T frozen s
 documents, one pressurised case each and twelve nonzero regions in all, none naming the setting; and the five files
 whose documents are held only (the desktop native-replay requests, the desktop analysis-run v0.3 cases, the
 pressure-source reader corpus and the two MBF parity vectors) hold them at the recorded locations, with the
-recorded pressurised cases, each named in the setting except in the parity vectors. These are bounded facts about
-those bytes, not about the source that reads them.
+recorded pressurised cases, each named in the setting in the three solved stores, unnamed in the import parity
+vectors, and either named (the harvested elongation-on benchmark inputs) or unnamed in the writer parity vectors.
+These are bounded facts about those bytes, not about the source that reads them.
 
 What it does not establish. The source classifications (an IN_CODE record's cases_named and expectations, a group's
 producer) and the exemptions are curated assertions supported by review at identified revisions: an independent

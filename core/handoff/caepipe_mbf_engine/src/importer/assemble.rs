@@ -422,6 +422,7 @@ impl<'a> Importer<'a> {
             .map(|component| component.get_or_null("geometry").get_or_null("bend_pipe_ref").as_str().expect("ref").to_string())
             .collect();
         let pressure = self.assemble_pressure(&pipes, &pressures, &arcs, &point_of, &mut id_map, &mut claims)?;
+        let free_shear = self.free_shear_model(pressure.is_some())?;
         let regions = pressure.as_ref().map(|(_, regions)| regions.clone());
         let load_cases = self.assemble_loads(&node_id, &support_ids, &weights, &thermals, length_unit, angle_unit, &mut id_map, &mut claims, regions.as_ref())?;
         if self.has_errors() {
@@ -533,6 +534,9 @@ impl<'a> Importer<'a> {
         model.insert("document_kind".into(), Value::str(MODEL_KIND));
         if let Some((contract, _)) = &pressure {
             model.insert("pressure_contract".into(), contract.clone());
+        }
+        if let Some(shear) = free_shear {
+            model.insert("model_settings".into(), dict![("shear_model", shear)]);
         }
         model.insert(
             "data_boundary".into(),

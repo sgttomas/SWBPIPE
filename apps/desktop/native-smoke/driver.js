@@ -136,8 +136,11 @@
     return {
       root,
       load: all("c2-result-load").find((button) => said(button) === `Load for ${feature}`) ?? null,
-      // The gate's own wording (C2ResultGate.tsx; describeFullResultRefused in nativeResult.ts).
-      stopped: all("c2-result-refused").find((element) => said(element).includes(`so ${feature} cannot read it`))
+      // The gate's own wording (C2ResultGate.tsx; fullResultRefusalWords in nativeResult.ts).
+      stopped: all("c2-result-refused").find((element) => {
+        const text = said(element);
+        return text.includes(`too large for ${feature}:`) || text.includes(`too large for ${feature}.`);
+      })
         ?? all("c2-result-failed").find((element) => said(element).startsWith(`${feature} could not read`) || said(element).startsWith(`${feature} has no route`))
         ?? null,
       reading: all("c2-result-loading").some((element) => said(element).includes(`for ${feature}`)),
@@ -1024,8 +1027,35 @@
       click("queue-create-primitive-intent");
       await applyQueued("tip force");
     });
+    // The new document states Timoshenko: solved as authored, then set to shear deformation not included
+    // through Model settings as a person chooses it, so the solve and the save below are Euler-Bernoulli's.
+    report.blank.solve_as_authored = await step("solve, as authored", () => solveCurrent("blank/as-authored", report.blank.project_id, blank.probe));
+    report.blank.shear_not_included = await step("shear deformation: not included", () => chooseShear("blank/not-included", report.blank.project_id, "euler_bernoulli"));
     report.blank.solve = await step("solve", () => solveCurrent("blank", report.blank.project_id, blank.probe));
     report.blank.save = await step("save in place", () => saveInPlace("blank/save"));
+  }
+
+  // Model settings' "Shear deformation in straight members": select the project, read the effective line, press
+  // the choice `value`, apply it, and read the line again. Returns what was pressed and what the control said.
+  async function chooseShear(label, projectId, value) {
+    const before = await shearEffective(label, projectId);
+    const choice = await waitFor(`${label}: choice`, () => { const radio = byTestId(`model-settings-shear-model-${value}`); return radio && !radio.disabled ? radio : null; }, 15000);
+    const pressed = choice.parentElement?.textContent ?? null;
+    choice.click();
+    await waitFor(`${label}: queued`, () => /queued for Review\/Apply/.test(text("model-settings-shear-model-notice") ?? "") ? true : null, 15000);
+    const applied = await applyQueued(label);
+    await shearEffective(label, projectId);
+    // The line once it shows the change; if it never does, what it shows (the check judges it).
+    const after = await waitFor(`${label}: effective line changed`, () => { const now = byTestId("model-settings-shear-model-effective")?.textContent; return now && now !== before ? now : null; }, 15000)
+      .catch(() => byTestId("model-settings-shear-model-effective")?.textContent ?? null);
+    return { pressed, before, after, applied };
+  }
+
+  // The project's Model settings effective line for shear deformation, as the control shows it.
+  async function shearEffective(label, projectId) {
+    await ensureInspector();
+    typedTreeRow("project", projectId)?.click();
+    return (await waitFor(`${label}: shear control`, () => byTestId("model-settings-shear-model-effective"), 15000)).textContent;
   }
 
   async function phaseOpenSolveSave(plan, report) {
@@ -1070,6 +1100,19 @@
       report.opened.push({ case: "blank", message: await openProjectById(plan.blank.project_id, previousId) });
       report.blank = { solve: await solveCurrent("blank/reopened", plan.blank.project_id, plan.blank.probe) };
       previousId = reopened = plan.blank.project_id;
+      // Then the authored default survives a save and a reopen: shear deformation set back to included
+      // through Model settings, solved, saved in place, and the project reopened from the store (another
+      // stored project opened first, as the model tree requires) and solved again.
+      const other = plan.documents.find((doc) => doc.project_id !== plan.blank.project_id)?.project_id;
+      if (!other) throw new Error("blank/included: no other stored project to open before reopening the blank project");
+      const included = report.blank.included = {};
+      included.shear = await chooseShear("blank/included", plan.blank.project_id, "timoshenko_annulus_energy_v1");
+      included.solve = await solveCurrent("blank/included", plan.blank.project_id, plan.blank.probe);
+      included.save = await saveInPlace("blank/included/save");
+      report.opened.push({ case: "blank/included/other", message: await openProjectById(other, plan.blank.project_id) });
+      report.opened.push({ case: "blank/included", message: await openProjectById(plan.blank.project_id, other) });
+      included.reopened_effective = await shearEffective("blank/included/reopened", plan.blank.project_id);
+      included.solve_reopened = await solveCurrent("blank/included/reopened", plan.blank.project_id, plan.blank.probe);
     }
     // W-6b: last, so nothing the earlier checks observe changes.
     if (plan.handoff) await handoffRoundTrip(plan, report, previousId, reopened);

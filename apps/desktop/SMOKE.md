@@ -142,15 +142,10 @@ Open the Vite URL printed by the command, normally
    includes the result-value hash and `result_envelope` audit context.
 31. Report packet includes `data-testid="report-load-basis-refs"` with
     `load:L-100`, `load:L-200`, and `combination:C-OPER-ALT`.
-32. Click `data-testid="generate-review-proposal"`.
-33. Proposal renders `data-testid="proposal-body"` and references the selected
-   review target `result:stress:pipe-P-120:end-j:torsional-shear` if the
-   endpoint stress row remains selected.
-34. After selecting `diagnostic-HIGH_DISPLACEMENT_REVIEW`, generating a proposal
-   references `diagnostic:physics:high-displacement-review` and uses diagnostic
-   review wording.
-35. `data-testid="accept-proposal-disabled"` is disabled; the proposal must
-    remain review-only and must not mutate accepted model state.
+32. to 35. No longer steps: the preview's two sample proposal buttons were
+    removed (issue 512), so nothing in the desktop generates a review
+    proposal. A proposal that an opened project already carries is still
+    shown, with `data-testid="accept-proposal-disabled"` disabled.
 36. Footer retains the technical-preview boundary text and does not claim
     production readiness, release readiness, certification, sealing, code
     compliance, or licensed engineering reliance.

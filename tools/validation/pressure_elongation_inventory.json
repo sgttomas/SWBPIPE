@@ -28,11 +28,11 @@
    ".json",
    ".jsonl"
   ],
-  "files": 545,
+  "files": 563,
   "claimed_by": {
-   "group": 142,
-   "in_code": 64,
-   "exemption": 339
+   "group": 146,
+   "in_code": 71,
+   "exemption": 346
   }
  },
  "counts": {
@@ -66,10 +66,15 @@
    "documents": 1,
    "pressurised_load_cases": 1
   },
+  "hydrostatic_four_span_reader_models": {
+   "files": 1,
+   "documents": 2,
+   "pressurised_load_cases": 3
+  },
   "reference_system": {
    "files": 1,
    "documents": 1,
-   "pressurised_load_cases": 3
+   "pressurised_load_cases": 4
   },
   "caepipe_benchmark": {
    "files": 22,
@@ -129,6 +134,13 @@
    "pressurised_load_cases": 0,
    "held_documents": 4,
    "held_pressurised_load_cases": 6
+  },
+  "report_standing_package_inputs": {
+   "files": 2,
+   "documents": 2,
+   "pressurised_load_cases": 3,
+   "held_documents": 2,
+   "held_pressurised_load_cases": 3
   },
   "report_standing_app_render_request": {
    "files": 1,
@@ -226,8 +238,8 @@
    "files": 1,
    "documents": 0,
    "pressurised_load_cases": 0,
-   "held_documents": 75,
-   "held_pressurised_load_cases": 95
+   "held_documents": 77,
+   "held_pressurised_load_cases": 97
   },
   "desktop_analysis_run_v03_cases": {
    "files": 1,
@@ -240,8 +252,8 @@
    "files": 2,
    "documents": 0,
    "pressurised_load_cases": 0,
-   "held_documents": 64,
-   "held_pressurised_load_cases": 64
+   "held_documents": 260,
+   "held_pressurised_load_cases": 260
   },
   "pressure_source_reader_corpus": {
    "files": 1,
@@ -249,6 +261,11 @@
    "pressurised_load_cases": 0,
    "held_documents": 150,
    "held_pressurised_load_cases": 150
+  },
+  "hanger_sizing_ex_pressurised": {
+   "files": 1,
+   "documents": 1,
+   "pressurised_load_cases": 3
   }
  },
  "entries": [
@@ -1486,7 +1503,9 @@
    },
    "pinned_by": [
     "core/product_physics/src/rt_a3_s6_tests.rs",
-    "tests/test_rt_a3_nonlinear_reader.py"
+    "tests/test_rt_a3_nonlinear_reader.py",
+    "core/analysis/hanger_sizing/src/derived.rs",
+    "tests/test_hanger_sizing_evidence.py"
    ],
    "anchor": {
     "kind": "excluded",
@@ -1498,6 +1517,46 @@
      "schema_version": "0.9.0",
      "pressurised_load_cases": [
       "load:VACUUM"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "hydrostatic_four_span_reader_models",
+   "group": "hydrostatic_four_span_reader_models",
+   "path": "fixtures/hydrostatic_test/four_span_reader_models.json",
+   "producer": {
+    "kind": "rust_test",
+    "path": "core/model_operations/operation_applier/tests/hydrostatic_four_span_journey.rs",
+    "write": "OPENPIPESTRESS_WRITE_HYDROSTATIC_READER_MODELS=1 with the_reader_models_are_current",
+    "switch_plumbed": false,
+    "switch_route": "takes the committed four-span test model through the operation route; re-produce that source with the switch, then re-run this writer"
+   },
+   "pinned_by": [
+    "core/model_operations/operation_applier/tests/hydrostatic_four_span_journey.rs",
+    "core/product_physics/tests/hydrostatic_test_case.rs",
+    "core/product_physics/src/hydrostatic_certificate_tests.rs",
+    "tests/test_hydrostatic_test_readers.py",
+    "apps/desktop/src/features/results/hydrostaticTestReaders.test.tsx",
+    "apps/desktop/src-tauri/src/exact_source_binding.rs"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   },
+   "documents": [
+    {
+     "pointer": "/models/journey",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "HT-4S-TEST"
+     ]
+    },
+    {
+     "pointer": "/models/load_state_twin",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "HT-4S-TEST",
+      "HT-4S-OPERATING"
      ]
     }
    ]
@@ -1530,7 +1589,8 @@
      "pressurised_load_cases": [
       "load:RS-SUS",
       "load:RS-OPE",
-      "load:RS-SAM"
+      "load:RS-SAM",
+      "load:RS-OPE-REF"
      ]
     }
    ]
@@ -3879,6 +3939,88 @@
     },
     {
      "pointer": "/input_manifest_text",
+     "text_pointers": [
+      "/model_basis/model_payload"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:PRESSURE",
+      "load:VACUUM"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "report_standing_package_inputs/pressure_3_coupled_friction_sensitive.package",
+   "group": "report_standing_package_inputs",
+   "path": "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive.package.json",
+   "producer": {
+    "kind": "ts_test",
+    "path": "apps/desktop/src/features/report/reportStandingWitness.test.tsx",
+    "write": "its write mode (OPENPIPESTRESS_WRITE_REPORT_STANDING_RENDER_INPUTS), beside the render inputs, from request_path and raw_path",
+    "switch_plumbed": false,
+    "switch_route": "copies its model from a committed source: re-produce that source with the switch, then re-run this writer"
+   },
+   "pinned_by": [
+    "apps/desktop/src-tauri/src/report_standing_package_tests.rs"
+   ],
+   "anchor": {
+    "kind": "excluded",
+    "reason": "the model is held inside the input manifest of package-request witness inputs, beside the render inputs that hold it as intake text"
+   },
+   "documents": [
+    {
+     "pointer": "/input_manifest/manifest/model_basis/model_payload",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:RS-SUS"
+     ]
+    }
+   ],
+   "held_documents": [
+    {
+     "pointer": "/input_manifest/canonical_bytes",
+     "text_pointers": [
+      "/model_basis/model_payload"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:RS-SUS"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "report_standing_package_inputs/pressure_3_gap_unresolved.package",
+   "group": "report_standing_package_inputs",
+   "path": "fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved.package.json",
+   "producer": {
+    "kind": "ts_test",
+    "path": "apps/desktop/src/features/report/reportStandingWitness.test.tsx",
+    "write": "its write mode (OPENPIPESTRESS_WRITE_REPORT_STANDING_RENDER_INPUTS), beside the render inputs, from request_path and raw_path",
+    "switch_plumbed": false,
+    "switch_route": "copies its model from a committed source: re-produce that source with the switch, then re-run this writer"
+   },
+   "pinned_by": [
+    "apps/desktop/src-tauri/src/report_standing_package_tests.rs"
+   ],
+   "anchor": {
+    "kind": "excluded",
+    "reason": "the model is held inside the input manifest of package-request witness inputs, beside the render inputs that hold it as intake text"
+   },
+   "documents": [
+    {
+     "pointer": "/input_manifest/manifest/model_basis/model_payload",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:PRESSURE",
+      "load:VACUUM"
+     ]
+    }
+   ],
+   "held_documents": [
+    {
+     "pointer": "/input_manifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6316,28 +6458,7 @@
    "documents": [],
    "held_documents": [
     {
-     "pointer": "/requests/10/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/40/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:cold-pressure",
-      "case:hot-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/49/args/modelJson",
+     "pointer": "/requests/57/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6358,7 +6479,7 @@
      ]
     },
     {
-     "pointer": "/requests/94/args/modelJson",
+     "pointer": "/requests/95/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6368,7 +6489,7 @@
      ]
     },
     {
-     "pointer": "/requests/107/args/invocationJson",
+     "pointer": "/requests/109/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6378,256 +6499,7 @@
      ]
     },
     {
-     "pointer": "/requests/140/args/invocationJson",
-     "text_pointers": [
-      "/request/model"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/145/args/inputManifest/canonical_bytes",
-     "text_pointers": [
-      "/model_basis/model_payload"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:cold-pressure",
-      "case:hot-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/149/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:cold-pressure",
-      "case:hot-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/185/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:cold-pressure",
-      "case:hot-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/201/args/invocationJson",
-     "text_pointers": [
-      "/request/model"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/203/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/235/args/inputManifest/canonical_bytes",
-     "text_pointers": [
-      "/model_basis/model_payload"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "load:RS-SUS"
-     ]
-    },
-    {
-     "pointer": "/requests/243/args/inputManifest/canonical_bytes",
-     "text_pointers": [
-      "/model_basis/model_payload"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:closed-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/248/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:cold-pressure",
-      "case:hot-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/267/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:cold-pressure",
-      "case:hot-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/284/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/284/args/invocationJson",
-     "text_pointers": [
-      "/request/model"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/288/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:cold-pressure",
-      "case:hot-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/317/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:closed-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/321/args/invocationJson",
-     "text_pointers": [
-      "/request/model"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/332/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:cold-pressure",
-      "case:hot-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/340/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:closed-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/358/args/inputManifest/canonical_bytes",
-     "text_pointers": [
-      "/model_basis/model_payload"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:cold-pressure",
-      "case:hot-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/368/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/370/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/370/args/invocationJson",
-     "text_pointers": [
-      "/request/model"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/380/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:cold-pressure",
-      "case:hot-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/393/args/invocationJson",
-     "text_pointers": [
-      "/request/model"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/453/args/invocationJson",
-     "text_pointers": [
-      "/request/model"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/461/args/modelJson",
+     "pointer": "/requests/127/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6637,7 +6509,232 @@
      ]
     },
     {
-     "pointer": "/requests/471/args/modelJson",
+     "pointer": "/requests/148/args/invocationJson",
+     "text_pointers": [
+      "/request/model"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/190/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/190/args/invocationJson",
+     "text_pointers": [
+      "/request/model"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/213/args/invocationJson",
+     "text_pointers": [
+      "/request/model"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/217/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/256/args/inputManifest/canonical_bytes",
+     "text_pointers": [
+      "/model_basis/model_payload"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:closed-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/299/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/299/args/invocationJson",
+     "text_pointers": [
+      "/request/model"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/335/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:closed-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/348/args/invocationJson",
+     "text_pointers": [
+      "/request/model"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/354/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:cold-pressure",
+      "case:hot-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/358/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:closed-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/384/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/385/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/385/args/invocationJson",
+     "text_pointers": [
+      "/request/model"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/396/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:cold-pressure",
+      "case:hot-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/409/args/invocationJson",
+     "text_pointers": [
+      "/request/model"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/413/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:cold-pressure",
+      "case:hot-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/414/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/427/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:cold-pressure",
+      "case:hot-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/447/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:cold-pressure",
+      "case:hot-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/472/args/invocationJson",
+     "text_pointers": [
+      "/request/model"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/480/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6647,7 +6744,18 @@
      ]
     },
     {
-     "pointer": "/requests/479/args/modelJson",
+     "pointer": "/requests/492/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:cold-pressure",
+      "case:hot-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/506/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6657,7 +6765,7 @@
      ]
     },
     {
-     "pointer": "/requests/512/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/544/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6667,56 +6775,13 @@
      ]
     },
     {
-     "pointer": "/requests/557/args/modelJson",
+     "pointer": "/requests/572/args/modelJson",
      "text_pointers": [
       ""
      ],
      "schema_version": "0.9.0",
      "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/561/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:cold-pressure",
-      "case:hot-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/565/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:cold-pressure",
-      "case:hot-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/569/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:cold-pressure",
-      "case:hot-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/571/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:closed-pressure"
+      "load:RS-SUS"
      ]
     },
     {
@@ -6726,58 +6791,37 @@
      ],
      "schema_version": "0.9.0",
      "pressurised_load_cases": [
-      "case:cold-pressure",
-      "case:hot-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/601/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
       "case:ordinary-pressure"
      ]
     },
     {
-     "pointer": "/requests/601/args/invocationJson",
-     "text_pointers": [
-      "/request/model"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/608/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/613/args/inputManifest/canonical_bytes",
-     "text_pointers": [
-      "/model_basis/model_payload"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/620/args/modelJson",
+     "pointer": "/requests/605/args/modelJson",
      "text_pointers": [
       ""
      ],
      "schema_version": "0.9.0",
      "pressurised_load_cases": [
       "case:closed-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/633/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/633/args/invocationJson",
+     "text_pointers": [
+      "/request/model"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
      ]
     },
     {
@@ -6787,7 +6831,7 @@
      ],
      "schema_version": "0.9.0",
      "pressurised_load_cases": [
-      "case:closed-pressure"
+      "case:ordinary-pressure"
      ]
     },
     {
@@ -6797,11 +6841,73 @@
      ],
      "schema_version": "0.9.0",
      "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/652/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
       "case:closed-pressure"
      ]
     },
     {
-     "pointer": "/requests/687/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/656/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:cold-pressure",
+      "case:hot-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/673/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:closed-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/677/args/inputManifest/canonical_bytes",
+     "text_pointers": [
+      "/model_basis/model_payload"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:closed-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/681/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:RS-SUS"
+     ]
+    },
+    {
+     "pointer": "/requests/701/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:cold-pressure",
+      "case:hot-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/719/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6811,7 +6917,18 @@
      ]
     },
     {
-     "pointer": "/requests/706/args/modelJson",
+     "pointer": "/requests/731/args/inputManifest/canonical_bytes",
+     "text_pointers": [
+      "/model_basis/model_payload"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:cold-pressure",
+      "case:hot-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/738/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6821,7 +6938,7 @@
      ]
     },
     {
-     "pointer": "/requests/706/args/invocationJson",
+     "pointer": "/requests/738/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6831,27 +6948,18 @@
      ]
     },
     {
-     "pointer": "/requests/735/args/modelJson",
+     "pointer": "/requests/759/args/modelJson",
      "text_pointers": [
       ""
      ],
      "schema_version": "0.9.0",
      "pressurised_load_cases": [
-      "case:closed-pressure"
+      "case:cold-pressure",
+      "case:hot-pressure"
      ]
     },
     {
-     "pointer": "/requests/742/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/757/args/modelJson",
+     "pointer": "/requests/764/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6867,12 +6975,43 @@
      ],
      "schema_version": "0.9.0",
      "pressurised_load_cases": [
+      "case:closed-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/778/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
       "case:cold-pressure",
       "case:hot-pressure"
      ]
     },
     {
-     "pointer": "/requests/770/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/779/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:cold-pressure",
+      "case:hot-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/793/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:closed-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/806/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6882,28 +7021,7 @@
      ]
     },
     {
-     "pointer": "/requests/784/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/786/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:cold-pressure",
-      "case:hot-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/806/args/modelJson",
+     "pointer": "/requests/821/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6919,23 +7037,11 @@
      ],
      "schema_version": "0.9.0",
      "pressurised_load_cases": [
-      "case:cold-pressure",
-      "case:hot-pressure"
+      "case:ordinary-pressure"
      ]
     },
     {
-     "pointer": "/requests/825/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:cold-pressure",
-      "case:hot-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/842/args/modelJson",
+     "pointer": "/requests/844/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6945,7 +7051,7 @@
      ]
     },
     {
-     "pointer": "/requests/845/args/modelJson",
+     "pointer": "/requests/883/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6955,17 +7061,7 @@
      ]
     },
     {
-     "pointer": "/requests/845/args/invocationJson",
-     "text_pointers": [
-      "/request/model"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/847/args/modelJson",
+     "pointer": "/requests/886/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6975,7 +7071,7 @@
      ]
     },
     {
-     "pointer": "/requests/851/args/modelJson",
+     "pointer": "/requests/891/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6985,7 +7081,7 @@
      ]
     },
     {
-     "pointer": "/requests/903/args/modelJson",
+     "pointer": "/requests/945/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6995,7 +7091,7 @@
      ]
     },
     {
-     "pointer": "/requests/926/args/invocationJson",
+     "pointer": "/requests/968/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -7005,9 +7101,20 @@
      ]
     },
     {
-     "pointer": "/requests/980/args/modelJson",
+     "pointer": "/requests/979/args/inputManifest/canonical_bytes",
      "text_pointers": [
-      ""
+      "/model_basis/model_payload"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:cold-pressure",
+      "case:hot-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/992/args/inputManifest/canonical_bytes",
+     "text_pointers": [
+      "/model_basis/model_payload"
      ],
      "schema_version": "0.9.0",
      "pressurised_load_cases": [
@@ -7015,47 +7122,7 @@
      ]
     },
     {
-     "pointer": "/requests/988/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:closed-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/1003/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:closed-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/1050/args/invocationJson",
-     "text_pointers": [
-      "/request/model"
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/1052/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/1054/args/modelJson",
+     "pointer": "/requests/1037/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -7063,6 +7130,26 @@
      "pressurised_load_cases": [
       "case:cold-pressure",
       "case:hot-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/1040/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:closed-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/1057/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:closed-pressure"
      ]
     },
     {
@@ -7072,17 +7159,92 @@
      ],
      "schema_version": "0.9.0",
      "pressurised_load_cases": [
+      "case:cold-pressure",
+      "case:hot-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/1082/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:cold-pressure",
+      "case:hot-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/1088/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:cold-pressure",
+      "case:hot-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/1110/args/invocationJson",
+     "text_pointers": [
+      "/request/model"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
       "case:ordinary-pressure"
      ]
     },
     {
-     "pointer": "/requests/1079/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/1111/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/1129/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:ordinary-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/1132/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:cold-pressure",
+      "case:hot-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/1141/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
      "schema_version": "0.9.0",
      "pressurised_load_cases": [
       "case:closed-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/1146/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:cold-pressure",
+      "case:hot-pressure"
      ]
     }
    ]
@@ -7174,7 +7336,7 @@
    "documents": [],
    "held_documents": [
     {
-     "pointer": "/imports/13496/9/model",
+     "pointer": "/imports/13711/9/model",
      "text_pointers": [
       ""
      ],
@@ -7184,7 +7346,7 @@
      ]
     },
     {
-     "pointer": "/imports/13497/9/model",
+     "pointer": "/imports/13712/9/model",
      "text_pointers": [
       ""
      ],
@@ -7194,7 +7356,7 @@
      ]
     },
     {
-     "pointer": "/imports/13499/9/model",
+     "pointer": "/imports/13714/9/model",
      "text_pointers": [
       ""
      ],
@@ -7204,7 +7366,7 @@
      ]
     },
     {
-     "pointer": "/imports/13500/9/model",
+     "pointer": "/imports/13715/9/model",
      "text_pointers": [
       ""
      ],
@@ -7214,7 +7376,7 @@
      ]
     },
     {
-     "pointer": "/imports/13501/9/model",
+     "pointer": "/imports/13716/9/model",
      "text_pointers": [
       ""
      ],
@@ -7224,7 +7386,7 @@
      ]
     },
     {
-     "pointer": "/imports/13503/9/model",
+     "pointer": "/imports/13718/9/model",
      "text_pointers": [
       ""
      ],
@@ -7480,6 +7642,676 @@
     },
     {
      "pointer": "/blobs/1026a19c8dd53872/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:p"
+     ]
+    },
+    {
+     "pointer": "/blobs/d0564eb895ac4108/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/43622ad760fa5db4/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/09e6da8bdd171fc9/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/a5e4e4b17a8bc8d9/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/49251ee40a2572bc/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/5c9aad1c8966972c/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/750689e665ece467/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/f6a72d520f17abff/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/4f637ebd9ccf0f6f/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/aba954a3dd4e839b/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/85936f4adf0d5580/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/e1cfb798c4b08541/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/7de593d297fb516e/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/ddccb46419ffacda/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/23ff6c5b9301a38b/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/4775c8a1a9ce768c/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/335b4f89094cb060/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/5ffee45ea07accb1/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/23633044b332bb7d/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/2b7f6dd7822cbd65/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/0bf7959922b34b92/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/a12061e308ce0773/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/5a189dcdc17c7dca/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/cc95965cc4d3559d/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/6368a2d9ae1263a2/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/6d7b6b3981dab25a/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/6fb523d34b6a25f7/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/5d81e21679112f31/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/ae74caba84ab9301/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/352482123332263a/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/c8ff0efcb171e524/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/1a35e69bd60a65eb/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/e0208b85a2a34118/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/3a7f03417e758b56/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/1d89464b5b504cf7/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/886f67de4abab307/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/b813fcb2898ba09a/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/373c4e89856d483d/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/a6b2180e8dfc74ef/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/99c73d782bf68f70/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/462a53da6c9c6c8a/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/564f00c75d221262/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/0a05851ef716c3c3/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/9b80a052b19e80bd/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/8592d80010f05021/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/ba18fb51f8d6d325/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/ae65a220634a16d6/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/c70b2703781d818e/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/b7618266d0667f5c/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/1db5fc76053f9e4f/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/1b1a81aec7aaa1e1/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/af32830949a03bb9/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/552433316840a0e7/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/3de780a150706fa2/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/6192c6c927fb2a9a/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/7ed1f1a473a30894/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/344b4e7a568ddb4b/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/e815b102d8943261/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/6619e4aa99153dc0/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/b6c3323c9d25af9e/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/4c293910bf6dbcbe/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/eaaf81b911c13a9f/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/2051acdba35af62e/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/6f4e9b9a34023cee/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/24f94c187bb9a53a/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/1819cb126ea91ceb/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/c43625bc368b4142/text",
      "text_pointers": [
       ""
      ],
@@ -7756,6 +8588,1296 @@
      "schema_version": "0.9.0",
      "pressurised_load_cases": [
       "case:p"
+     ]
+    },
+    {
+     "pointer": "/blobs/3093d15665535aed/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/ac3bf1cd8720e1f6/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/22fac0a8e443637b/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/f60d847193154d5e/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/c26886bcf05bacca/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/85cfd8d5e2f5038c/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/0d91010c33b7d32d/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/8664cefdaa5dfb95/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/7ba51b7de05cd65f/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/af56fba00e9f1b33/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/53376b750d87a53c/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/0e9475425837dbee/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/a57b950bd804945a/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/961ed357669cf6dc/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/1faaa59e176f5f4f/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/b35315ad43c58363/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/30701e4b65dc8442/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/7e49552063dab3b3/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/8b2a2b0111c528d9/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/417566a7342a061f/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/153e7f74e92d06a8/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/1ea359c890576b0b/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/689a1713814696d7/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/d284054aa44e938a/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/2e64fc351eff32dc/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/733ede4086adb9bf/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/e5fff0da115ad39d/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/cafe3434617fbdc3/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/1b9d40e8984b8139/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/4187b5238fdac708/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/510936a7c7aef662/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/c949791b9f1c1b51/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/5c0565c2ad5ca21a/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/094ab2028328af2d/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/f971f4d28086ae24/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/be7e2142be852d99/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/dde85962d02bd9aa/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/76a9aa206a36355c/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/26b44af574152c0c/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/5e7531b8a253e856/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/a49f881e1372fea2/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/97bcdf0391ac5822/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/8220e7dfcb14d351/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/88e03e28df3db575/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/0fa37958a1a90285/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/66e92fd94179e664/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/b904ad04fac7393c/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/a262f8547f24b102/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/cea8d68bace5e54b/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/d278c1eab14dc9d3/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/828ddec90fc8eb20/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/bdc13f4a6bba9a8a/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/451bcab487117c3c/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/352c0b575a7f7888/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/3e9b306730d15e58/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/7e1682ffa0ab38e4/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/b853c22081d7d26f/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/cb7a8bdeee822dcb/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/7b8b72d2a285eda3/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/69f842663ce37609/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/1e2f61e1010cbd3e/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/565fc7d021b3263e/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/5b51eb2a81e0f8b1/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/2b49db12ee11f2bf/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/97bbf1ecfb4f9b83/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/bbc25f4e0852ad87/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/73b7e81c2b485257/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/51a1f51f60bbeee2/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/0871e28fa2a2ba26/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/ff0e6b398da09d19/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/d16d6cbbb717212c/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/8faf6d19967f9f5a/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/44dd44a6ccd3c1a7/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/86ed209f3f1f08b9/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/c9a4709899a5322f/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/4e760b7fe64c49de/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/799180a8dc7b2951/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/cab0022056bcc824/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/9644faa4a1c857e3/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/d243e3e19d423a1f/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/861fe4294b0f7ec7/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/d1c1863686b80f09/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/e1f7ded4a3fbceac/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/e4202d7108bac2c1/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/9e9cfd5f47c26403/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/d22455ca16f5a5a9/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/80927c11c19bee59/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/055b3267ed889344/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/65e335bf4eac7bda/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/1a4d55e28a6e9803/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/4e7eb79e74b16299/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/b10412f425640279/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/f94faf4a71b940ea/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/ba686f273d5ac3b7/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/852c35ebe2bec97a/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/9ab6a0545b002c46/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/1958c64d82f118b2/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/3e0258bebb5391a1/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/4922592ca68a61d1/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/64fdb256af6d1085/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/84874bd2ecb8a9ee/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/69ad7461c025464b/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/83240145fc869576/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/65cd78c705368c0f/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/5b4ca4b3ca9fc1dd/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/3fbc9b0cfee4dada/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/ab835cffde6fafe2/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/c4928644650bc5ed/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/d12d1d5d62dd352f/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/9d4d54602889fc64/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/d1201703f0066cbf/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/0e72d733d32ab5aa/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/c783371e72c2d19a/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/30953e58fe7acd64/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/79272b491b5812cd/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/3ee119f8be4b14e7/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/4a12c6db48214970/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/633fcaf08dc68583/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/73a9b78af865477f/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/88116cd0ad22e92c/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/c5be8908ed82a8a8/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/9b8639b8e1c6da6d/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/93e58abe5ad072bc/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/9f67894c3f285aa5/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/cb775cfea7f9c3b5/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/bdc6606a2ee28398/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/d4617470c9634d58/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/42c452b7d382579c/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    },
+    {
+     "pointer": "/blobs/4451b7220dfa1a28/text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
      ]
     },
     {
@@ -9063,6 +11185,42 @@
      "storage": "retained-precision-corpus-dag/v1"
     }
    ]
+  },
+  {
+   "id": "hanger_sizing_ex_pressurised",
+   "group": "hanger_sizing_ex_pressurised",
+   "path": "fixtures/results/hanger_sizing_input_ex_pressurised.json",
+   "producer": {
+    "kind": "rust_test",
+    "path": "core/analysis/hanger_sizing/tests/publication.rs",
+    "write": "HANGER_SIZING_WRITE_FIXTURES=1 with the_committed_inputs_are_the_builders",
+    "switch_plumbed": false,
+    "switch_route": "ex_input uses common/model_builder.rs exs_request without a pressure-elongation setting; EXS-A frozen vertical sizing quantities are pressure independent, and the separate ex_references regression authors O1 explicitly"
+   },
+   "pinned_by": [
+    "core/analysis/hanger_sizing/tests/publication.rs",
+    "core/analysis/hanger_sizing/tests/desktop.rs",
+    "core/analysis/hanger_sizing/tests/source_admission.rs",
+    "core/analysis/hanger_sizing/tests/projection_family.rs",
+    "core/runner/headless/tests/size_hangers_cli.rs",
+    "tests/test_hanger_sizing_evidence.py",
+    "apps/desktop/src/features/results/HangerSizingPanel.test.tsx",
+    "fixtures/results/hanger_sizing_result_ex_pressurised.json (solve_request and derived_document hashes)"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   },
+   "documents": [
+    {
+     "pointer": "/request/model",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "W",
+      "O1",
+      "O2"
+     ]
+    }
+   ]
   }
  ],
  "derived_consumers": [
@@ -9289,11 +11447,37 @@
   },
   {
    "paths": [
+    "core/product_physics/tests/hydrostatic_test_case.rs"
+   ],
+   "reference": "validation/references/hydrostatic_test",
+   "expectations": "reference_file",
+   "cases_named": "none",
+   "detail": "hydrostatic_test frozen references, every case under its own test pressure; unnamed by design: every row it compares is marked independent of the case's pressure elongation (the reference's conventions.pressure_elongation)"
+  },
+  {
+   "paths": [
+    "core/product_physics/tests/exact_load_state_generated_references.rs"
+   ],
+   "reference": "validation/references/exact_load_state_equivalent_static",
+   "expectations": "reference_file",
+   "cases_named": "some",
+   "detail": "exact_load_state_equivalent_static frozen references: STRAIGHT and FRAME built from the package and solved as load and reference-state documents in both settings; named (eqs_document with elongation on lists every pressurised case) against the package's elongation-on values, unnamed (off) against its elongation-off values; the refusal controls solve the unnamed document. The generated-interactions models carry no pressure region"
+  },
+  {
+   "paths": [
     "core/product_physics/tests/load_reference_state_runtime_extension.rs"
    ],
    "expectations": "reference_file",
    "cases_named": "all",
    "detail": "reference_cases.json and stated derivations; solve helper names every pressurised case"
+  },
+  {
+   "paths": [
+    "core/product_physics/tests/model_checks_runtime.rs"
+   ],
+   "expectations": "no_response_value",
+   "cases_named": "all",
+   "detail": "the committed shared_terminal_junction request (case:pressure named), as committed, with one region's pressure changed and with one region removed; the model checks and the solve in both modes are compared on their diagnostics and status only (EXACT_PRESSURE_JUNCTION_PRESSURES_DIFFER, EXACT_PRESSURE_JUNCTION_PIPE_OUTSIDE_REGIONS); no response value is judged"
   },
   {
    "paths": [
@@ -9483,6 +11667,15 @@
   },
   {
    "paths": [
+    "core/model_operations/operation_applier/tests/hydrostatic_four_span_journey.rs"
+   ],
+   "reference": "validation/references/hydrostatic_test",
+   "expectations": "reference_file",
+   "cases_named": "none",
+   "detail": "the committed four-span test model taken through self-weight, region, test condition and contents, against the hydrostatic_test held four-span rows; unnamed by design: every row it compares is marked independent of the case's pressure elongation"
+  },
+  {
+   "paths": [
     "core/model_operations/operation_applier/tests/l_line_authoring.rs"
    ],
    "reference": "validation/references/t4_i7",
@@ -9567,6 +11760,14 @@
   },
   {
    "paths": [
+    "tests/test_caepipe_stated_bases.py"
+   ],
+   "expectations": "closed_form",
+   "cases_named": "some",
+   "detail": "CAEPIPE benchmark stated-bases tests. Named: elongation-on series documents (cpb-p1-01, cpb-p1-04, cpb-p2-01, cpb-p2-03, cpb-p4-01, cpb-p5-01) solved directly and transformed by stated_bases.realize (which removes pressure_elongation and places free-strain thermal loads), judged against closed forms and product superposition. Unnamed: default-series documents (cpb-p1-01, cpb-p1-04, cpb-p2-01, cpb-p2-03, cpb-p3-01..04, cpb-p4-01, cpb-p5-01), judged against closed-end zero-reaction, open-end p A_i and thin-wall strain closed forms and product superposition"
+  },
+  {
+   "paths": [
     "tests/test_caepipe_mbf_round_trip.py"
    ],
    "expectations": "product_output",
@@ -9628,6 +11829,23 @@
   },
   {
    "paths": [
+    "core/analysis/hanger_sizing/tests/common/model_builder.rs"
+   ],
+   "expectations": "reference_file",
+   "cases_named": "some",
+   "reference": "validation/references/hanger_sizing/ex_sizing.json",
+   "detail": "exs_request builds EXS-A pressurised load/reference-state documents without a pressure-elongation setting; publication and baseline EX comparisons leave it absent, while ex_references and source_admission author selected operating cases before real sizing. Frozen comparisons concern pressure-independent vertical sizing quantities; source-admission controls assert admission only. EXS-B and exact() twins have no nonzero-pressure region."
+  },
+  {
+   "paths": [
+    "core/analysis/hanger_sizing/tests/source_admission.rs"
+   ],
+   "expectations": "product_output",
+   "cases_named": "some",
+   "detail": "Reads committed EXS-A and other sized sources, creates isolated faults and compares ordinary neutralised admission with real sizing; positive controls also compare candidates with committed product results. Selected operating cases are authored by the setting tests; other controls preserve the fixture default without a setting. No independent pressure-sensitive numerical expectation is introduced."
+  },
+  {
+   "paths": [
     "core/model_operations/operation_applier/tests/agent_catalog_reach.rs"
    ],
    "expectations": "no_response_value",
@@ -9641,6 +11859,7 @@
    "paths": [
     "core/product_physics/src/case_state/resolve.rs",
     "core/product_physics/src/exact_admission.rs",
+    "core/product_physics/src/hydrostatic.rs",
     "core/product_physics/src/joint.rs",
     "core/product_physics/src/lib.rs",
     "core/product_physics/src/retained_memory.rs",
@@ -9651,6 +11870,7 @@
    "files": [
     "core/product_physics/src/case_state/resolve.rs",
     "core/product_physics/src/exact_admission.rs",
+    "core/product_physics/src/hydrostatic.rs",
     "core/product_physics/src/joint.rs",
     "core/product_physics/src/lib.rs",
     "core/product_physics/src/retained_memory.rs",
@@ -9771,6 +11991,7 @@
     "core/handoff/caepipe_mbf/si_writer.py",
     "core/handoff/caepipe_mbf_engine/src/*",
     "core/handoff/caepipe_mbf_engine/tests/import_review.rs",
+    "core/handoff/caepipe_mbf_engine/tests/pressure_free_shear_model.rs",
     "core/handoff/caepipe_mbf_engine/tests/sidecar_format6.rs",
     "apps/desktop/src-tauri/src/mbf_import_tests.rs",
     "tests/caepipe_mbf_canonical.py",
@@ -9790,6 +12011,7 @@
     "core/handoff/caepipe_mbf_engine/src/writer/read.rs",
     "core/handoff/caepipe_mbf_engine/src/writer/render.rs",
     "core/handoff/caepipe_mbf_engine/tests/import_review.rs",
+    "core/handoff/caepipe_mbf_engine/tests/pressure_free_shear_model.rs",
     "core/handoff/caepipe_mbf_engine/tests/sidecar_format6.rs",
     "tests/caepipe_mbf_canonical.py",
     "tests/test_caepipe_mbf_importer.py",
@@ -9882,6 +12104,7 @@
    "reason": "every region list it builds is empty, absent or at zero pressure, so no case carries pressure",
    "paths": [
     "core/model_operations/operation_applier/tests/condition_set_authoring.rs",
+    "core/model_operations/operation_applier/tests/hydrostatic_test_authoring.rs",
     "core/product_physics/src/d5_mass_product_tests.rs",
     "core/product_physics/src/modal/tests.rs",
     "core/product_physics/src/retained_facade_tests.rs",
@@ -9914,6 +12137,7 @@
    ],
    "files": [
     "core/model_operations/operation_applier/tests/condition_set_authoring.rs",
+    "core/model_operations/operation_applier/tests/hydrostatic_test_authoring.rs",
     "core/product_physics/src/d5_mass_product_tests.rs",
     "core/product_physics/src/modal/tests.rs",
     "core/product_physics/src/retained_facade_tests.rs",
@@ -10221,6 +12445,7 @@
     "core/product_physics/tests/fixtures/rf_source_method/order_four_sensitive.request.json",
     "core/product_physics/tests/fixtures/rt_a3_nonlinear/b1_loaded_inactive_reaction.json",
     "core/product_physics/tests/fixtures/silent_zero/*.request.json",
+    "core/reporting/result_export/tests/fixtures/generated_identities.json",
     "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz.request.json",
     "core/runner/headless/tests/t4_u5b_requests/MO-F.request.json",
     "core/runner/headless/tests/t4_u5b_requests/MO-T.request.json",
@@ -10253,7 +12478,8 @@
     "validation/references/rt_a3_s6/requests/ls1_*.json",
     "validation/references/t4_i12/u3_reference_cases.json",
     "validation/references/t4_u8/requests/LOAD-STATE-PER-CASE-NU-*.request.json",
-    "validation/references/t4_u8/requests/S-*.request.json"
+    "validation/references/t4_u8/requests/S-*.request.json",
+    "fixtures/model_operations/condition_set_contract_corpus.json"
    ],
    "files": [
     "core/product_physics/src/source_recovery/j7_i12_request.json",
@@ -10263,9 +12489,11 @@
     "core/product_physics/tests/fixtures/rt_a3_nonlinear/b1_loaded_inactive_reaction.json",
     "core/product_physics/tests/fixtures/silent_zero/load_state_prestressed_connector_unlisted.request.json",
     "core/product_physics/tests/fixtures/silent_zero/stress_free_connector_empty.request.json",
+    "core/reporting/result_export/tests/fixtures/generated_identities.json",
     "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz.request.json",
     "core/runner/headless/tests/t4_u5b_requests/MO-F.request.json",
     "core/runner/headless/tests/t4_u5b_requests/MO-T.request.json",
+    "fixtures/model_operations/condition_set_contract_corpus.json",
     "fixtures/model_operations/contract_corpus/case_82_accept_insert_bend_at_corner.json",
     "fixtures/model_operations/contract_corpus/case_83_accept_set_field_bend_realization.json",
     "fixtures/model_operations/contract_corpus/case_84_block_agent_bend_flexibility.json",
@@ -10485,6 +12713,15 @@
    ]
   },
   {
+   "reason": "EXS-B source is solved but contains no pressurised case: every case has an empty region list and no condition pressure use; no pressure-elongation setting applies. This is the zero-pressure data rule, not an exemption because the model is solved.",
+   "paths": [
+    "fixtures/results/hanger_sizing_input_ex_riser.json"
+   ],
+   "files": [
+    "fixtures/results/hanger_sizing_input_ex_riser.json"
+   ]
+  },
+  {
    "reason": "catalog parsing and admission checks, including pressure-region operation payloads; no model document is solved",
    "paths": [
     "apps/desktop/src-tauri/src/embedded_agent/catalog.rs"
@@ -10509,6 +12746,15 @@
    ],
    "files": [
     "apps/desktop/src/services/embeddedAgentSession.test.ts"
+   ]
+  },
+  {
+   "reason": "the benchmark stated-bases helper: transforms caller-supplied benchmark documents (claimed by caepipe_benchmark or its test) and calls a caller-supplied solve; it owns no model or response expectation",
+   "paths": [
+    "tools/caepipe_correlation/stated_bases.py"
+   ],
+   "files": [
+    "tools/caepipe_correlation/stated_bases.py"
    ]
   }
  ]

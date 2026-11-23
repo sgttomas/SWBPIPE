@@ -25,10 +25,12 @@ fn read_json(name: &str) -> Value {
     serde_json::from_slice(&read_bytes(name)).unwrap()
 }
 
-const INPUTS: [(&str, &str, bool); 3] = [
+const INPUTS: [(&str, &str, bool); 5] = [
     ("hanger_sizing_input_two_span.json", "hanger_sizing_result_two_span.json", true),
     ("hanger_sizing_input_four_span.json", "hanger_sizing_result_four_span.json", true),
     ("hanger_sizing_input_refused.json", "hanger_sizing_result_refused.json", false),
+    ("hanger_sizing_input_ex_pressurised.json", "hanger_sizing_result_ex_pressurised.json", true),
+    ("hanger_sizing_input_ex_riser.json", "hanger_sizing_result_ex_riser.json", true),
 ];
 
 const STANDINGS: [&str; 5] = ["closure", "binding", "arithmetic_consistent_with_published_positions", "derivation", "reproduction"];
@@ -47,7 +49,8 @@ fn lowercase_sha256(text: &str) -> bool {
 /// tests (a plain object; `document_sha256` matching `^[0-9a-f]{64}$`; each of
 /// the five standings a plain object with `status` passed, failed or
 /// not_checked and `difference` null or a string; `binding.not_checked` an
-/// array of strings), with each object's members exactly those of
+/// array of strings; `integrity_bound` exactly `{status: not_verified, reason:
+/// inverse_norm_bound_not_verified}`), with each object's members exactly those of
 /// `HangerSizingReaderEvidence`.
 fn assert_desktop_evidence(evidence: &Value) {
     assert_eq!(keys(evidence), ["document_sha256", "verdict"]);
@@ -55,9 +58,12 @@ fn assert_desktop_evidence(evidence: &Value) {
     let verdict = &evidence["verdict"];
     assert_eq!(keys(verdict), {
         let mut names = STANDINGS.to_vec();
+        names.push("integrity_bound");
         names.sort_unstable();
         names
     });
+    assert_eq!(keys(&verdict["integrity_bound"]), ["reason", "status"]);
+    assert_eq!(verdict["integrity_bound"], json!({"status": "not_verified", "reason": "inverse_norm_bound_not_verified"}));
     for name in STANDINGS {
         let standing = &verdict[name];
         let members: &[&str] = if name == "binding" { &["difference", "not_checked", "status"] } else { &["difference", "status"] };
@@ -144,8 +150,23 @@ fn the_crate_hash_of_the_committed_two_span_document_is_the_desktops() {
     let committed = read_json("hanger_sizing_result_two_span.json");
     assert_eq!(
         checked_sha256(&committed).as_deref(),
-        Some("a0d3764ae80d968cebd91c953412f287d869fba96dd631e671a29a3b4b653338")
+        Some("0264fd8e5d22c82815486fd143ae6c4cc6fcd5da6da12c3a156e7b39acc4133a")
     );
+}
+
+/// The committed two-span reply (`hanger_sizing_reply_two_span.json`), which the
+/// desktop's worker test pins byte for byte (`hanger_sizing_job_tests.rs`), is
+/// this entry's reply on the committed input. With `HANGER_SIZING_WRITE_FIXTURES=1`
+/// it is rewritten from this build, as `publication.rs` rewrites the documents.
+#[test]
+fn the_committed_two_span_reply_is_the_entrys() {
+    let reply = size_and_read(&read_bytes("hanger_sizing_input_two_span.json")).unwrap().into_reply();
+    if std::env::var("HANGER_SIZING_WRITE_FIXTURES").is_ok_and(|v| v == "1") {
+        std::fs::write(fixture_path("hanger_sizing_reply_two_span.json"), &reply).unwrap();
+    }
+    let committed: Value = serde_json::from_slice(&read_bytes("hanger_sizing_reply_two_span.json")).unwrap();
+    let reply: Value = serde_json::from_str(&reply).unwrap();
+    assert_eq!(committed["document"], reply["document"], "rerun with HANGER_SIZING_WRITE_FIXTURES=1");
 }
 
 #[test]
@@ -205,7 +226,7 @@ fn an_input_outside_the_profile_is_the_headless_refusal_read_with_nothing_suppli
     assert!(out.verdict.binding_not_checked.is_empty());
 }
 
-/// The corpus mutations (`replace` and `add`), as `tests/publication.rs` applies them.
+/// The corpus mutations (`replace`, `add` and `remove`), as `tests/publication.rs` applies them.
 fn mutate(doc: &mut Value, ops: &[Value]) {
     for op in ops {
         let path = op["path"].as_str().unwrap();
@@ -214,6 +235,10 @@ fn mutate(doc: &mut Value, ops: &[Value]) {
             "add" => {
                 let (parent, key) = path.rsplit_once('/').unwrap();
                 doc.pointer_mut(parent).unwrap()[key] = op["value"].clone();
+            }
+            "remove" => {
+                let (parent, key) = path.rsplit_once('/').unwrap();
+                doc.pointer_mut(parent).unwrap().as_object_mut().unwrap().remove(key).unwrap();
             }
             other => panic!("unknown op {other}"),
         }

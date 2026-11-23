@@ -149,9 +149,9 @@ function glueProblems(text, keys) {
 // diff (PIN_MESSAGE). Recompute after the applicable reading clears; merging main does not waive that reading:
 //   shasum -a 256 apps/desktop/native-smoke/run.mjs apps/desktop/native-smoke/mbf-journey.mjs apps/desktop/native-smoke/judged-launch.mjs
 const PIN = {
-  "run.mjs": "f3a110833d5de995897efb4fc993446b90b0da85b4f6943f9e57141de9baafd3",
+  "run.mjs": "6b124776d7addba82afdfea715ae2adf1d2c259336b99f390e0d587048741c7f",
   "mbf-journey.mjs": "34ca4d4e08e739918dcdceba80e6c3b4c6e8bf2e4164a18fa67fc5e43e49bd71",
-  "judged-launch.mjs": "ab6469bbd7443955e32613afa773f8a9875fa7c7f4f8b2f154a816fd26ac5cfc"
+  "judged-launch.mjs": "72621e4e032a9afb45d0b674652131e5f6350532b2cde8c7165e3ac587dd92c0"
 };
 const PIN_MESSAGE = (file) => [
   `${file} changed since its stop handling was last independently read. Before this pin is updated, the independent reader of the pull request that changes it re-reads it, and that pull request quotes the reading:`,

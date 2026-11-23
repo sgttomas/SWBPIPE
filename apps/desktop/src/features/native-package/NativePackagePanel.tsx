@@ -103,7 +103,7 @@ export function NativePackagePanel({
         <ControlledExportLink
               className="report-export-link"
               data-testid="native-package-link"
-              download={`openpipestress-preview-native-package-${safeFileToken(model.project.id)}.json`}
+              download={suggestedFileName("nativePackage")}
               href={jsonDataHref}
             >
               <Download size={14} aria-hidden="true" />
@@ -1006,16 +1006,9 @@ function nativePackageBoundary(packet: ReturnType<typeof buildNativePackageRevie
   return "boundary requires review before export";
 }
 
-function safeFileToken(value: string): string {
-  return (
-    value
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "") || "project"
-  );
-}
 
 function round(value: number): number {
   return Number(value.toFixed(6));
 }
 import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";
+import { suggestedFileName } from "../fileNames";

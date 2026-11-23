@@ -56,10 +56,12 @@ fn controlled(run: &Run) -> Value {
 /// With the intent flag, the document is the payload, unchanged: the runner's
 /// document is the one this build forms in-process from the same input (both
 /// are this build on this platform, so no committed bytes are compared), and
-/// the product reader passes every standing on the runner's own bytes.
+/// the product reader passes every standing on the runner's own bytes. The two
+/// `ex_` inputs are on the exact pressure route.
 #[test]
 fn a_sized_request_with_intent_publishes_the_document_with_exit_zero() {
-    for stem in ["two_span", "four_span"] {
+    for (stem, route) in [("two_span", "pressure_free"), ("four_span", "pressure_free"), ("ex_pressurised", "exact_pressure"),
+                          ("ex_riser", "exact_pressure")] {
         let input = fixture(&format!("hanger_sizing_input_{stem}.json"));
         let out = run(&["size-hangers", "--explicit-local-private-intent", "--input", "-"], input.as_bytes());
         assert_eq!(out.code, 0, "{stem}: {}", out.stderr);
@@ -67,6 +69,7 @@ fn a_sized_request_with_intent_publishes_the_document_with_exit_zero() {
         assert_eq!(c["blocked"], false, "{stem}");
         let document = &c["payload"];
         assert_eq!(document, &size_hangers(&input).into_document(), "{stem}: the payload is not the document");
+        assert_eq!(document["route"], route, "{stem}");
         let bound: Value = serde_json::from_str(&input).unwrap();
         let verdict = reader::read(
             &serde_json::to_string(document).unwrap(),
@@ -197,5 +200,54 @@ fn with_intent_the_whole_document_is_kept_with_one_warning() {
         let c = controlled(&out);
         assert_gate(&c, false, stem);
         assert_eq!(c["payload"], size_hangers(&input).into_document(), "{stem}");
+    }
+}
+
+/// The support state W is formed in, on both routes: absent, the runner's
+/// document refuses it as required; another value, as unsupported. Exit 1.
+#[test]
+fn the_weight_support_state_is_refused_by_its_own_codes_on_both_routes() {
+    for stem in ["two_span", "ex_pressurised"] {
+        for (value, code) in [(None, "HANGER_SIZING_WEIGHT_SUPPORT_STATE_REQUIRED"),
+                              (Some(json!("design_operating_case")), "HANGER_SIZING_WEIGHT_SUPPORT_STATE_UNSUPPORTED")] {
+            let mut input: Value = serde_json::from_str(&fixture(&format!("hanger_sizing_input_{stem}.json"))).unwrap();
+            match value {
+                None => {
+                    input["sizing"].as_object_mut().unwrap().remove("weight_support_state");
+                }
+                Some(value) => input["sizing"]["weight_support_state"] = value,
+            }
+            let out = run(&["size-hangers", "--explicit-local-private-intent"], input.to_string().as_bytes());
+            assert_eq!(out.code, 1, "{stem}: {}", out.stderr);
+            let document = &controlled(&out)["payload"];
+            assert_eq!(document["refusals"], json!([{"code": code, "names": ["$.sizing.weight_support_state"],
+                "message": document["refusals"][0]["message"]}]), "{stem}");
+            assert_eq!(reader::closure(document), Ok(()), "{stem}");
+        }
+    }
+}
+
+/// Absent required inputs, on both routes, through the runner: each is refused by
+/// its own code naming its path. Exit 1.
+#[test]
+fn absent_required_inputs_are_refused_by_their_own_codes_through_the_runner() {
+    for stem in ["two_span", "ex_pressurised"] {
+        for (pointer, code, path) in [
+            ("/library", "HANGER_SIZING_LIBRARY_REQUIRED", "$.library"),
+            ("/sizing/weight_case", "HANGER_SIZING_WEIGHT_CASE_REQUIRED", "$.sizing.weight_case"),
+            ("/sizing/method/variation_limit", "HANGER_SIZING_VARIATION_LIMIT_REQUIRED", "$.sizing.method.variation_limit"),
+            ("/sizing/solver_mode", "HANGER_SIZING_SOLVER_MODE_REQUIRED", "$.sizing.solver_mode"),
+        ] {
+            let mut input: Value = serde_json::from_str(&fixture(&format!("hanger_sizing_input_{stem}.json"))).unwrap();
+            let (parent, key) = pointer.rsplit_once('/').unwrap();
+            let parent = if parent.is_empty() { &mut input } else { input.pointer_mut(parent).unwrap() };
+            parent.as_object_mut().unwrap().remove(key).unwrap();
+            let out = run(&["size-hangers", "--explicit-local-private-intent"], input.to_string().as_bytes());
+            assert_eq!(out.code, 1, "{stem} {pointer}: {}", out.stderr);
+            let document = &controlled(&out)["payload"];
+            assert_eq!(document["refusals"].as_array().unwrap().len(), 1, "{stem} {pointer}: {}", document["refusals"]);
+            assert_eq!((&document["refusals"][0]["code"], &document["refusals"][0]["names"]), (&json!(code), &json!([path])), "{stem} {pointer}");
+            assert_eq!(reader::closure(document), Ok(()), "{stem} {pointer}");
+        }
     }
 }

@@ -2,7 +2,7 @@
 
 The use case: the person opens a model that lacks values a solve requires.
 Every missing value is shown as a finding on its entity. From each finding the
-person reaches the entity and enters the value. The solve, refused before,
+person reaches the entity and enters the value. The solve, withheld before,
 then completes.
 
 This directory holds that use case's input and its expected outcome. The
@@ -50,11 +50,8 @@ person's value and stress unit, and supplies none itself
 `apps/desktop/src/App.materialShearModulusEntry.test.tsx`). Neither behavior
 changes this scenario's authored missing values.
 
-The desktop's on-demand model checks do not run the static-equivalent
-generation, so before the first solve they show no finding for these values.
-Each missing value is shown as a finding once that solve is refused. This is a
-product gap against DEL-07-07 REQ-008 and DEL-07-02 REQ-004, not evidence that
-pre-solve detection is complete; the scenario does not waive those requirements.
+The desktop's model checks run the static-equivalent generation when the model
+opens, so each missing value is a finding before any solve.
 `tools/agent_missing_data_judge_test.py` solves the start and the expected
 final model with the headless runner. The start must end `MODEL_INCOMPLETE`,
 with blocking findings that name exactly the two missing values, and the
@@ -116,10 +113,12 @@ The members:
     empty where none is held.
 - `initial_execution` (the first execution) and `final_execution` (the last):
   `request_id`s of two different executions. Request identities, native job
-  identities and run handles are each unique across the trace. The final one must be completed,
+  identities and run handles are each unique across the trace. The first one
+  must be withheld: the Solve gate withholds Solve on the start model, so no
+  job runs on it. The final one must be completed,
   `held`, readable through its handle, matched by the host for both model and
   result, and bound to `final_model_text`.
-- `findings_shown`: the Diagnostics list after the refusal. Each finding gives
+- `findings_shown`: the Model checks list in the Issues drawer before any solve, while Solve is withheld. Each finding gives
   `finding_id`, `entity_ref`, `field_path` and `blocks_solve`, as the harness
   read them from the finding. The product supplies the entity and the field
   leaf in `affected_refs`.
@@ -141,9 +140,9 @@ is used. A malformed one fails by name, and the judge never raises on it.
 
 ## Limits
 
-Truthful refusal reporting, harness entry of the person's repairs and a subsequent
-solved model do not establish pre-solve detection or completion of exit criterion
-8's Missing data use case while the pre-solve finding gap remains.
+Truthful finding reporting, harness entry of the person's repairs and a subsequent
+solved model do not by themselves establish completion of exit criterion 8's
+Missing data use case without a live desktop run and the owner's verdict.
 
 The judge cannot authenticate the harness: a forged observation that is
 consistent with itself passes. A pass is

@@ -325,56 +325,7 @@ fn generate_operations(
         if !inspection && shared.is_some_and(|s| !provenance_present(&s.provenance)) {
             invalid(&mut d, &pipe.id, "referenced section provenance required");
         }
-        let section = &mut pipe.section;
-        normalize(
-            &mut section.outside_diameter,
-            Dimension::Length,
-            true,
-            "outside_diameter",
-            &mut d,
-        );
-        normalize(
-            &mut section.wall_thickness,
-            Dimension::Length,
-            true,
-            "wall_thickness",
-            &mut d,
-        );
-        for (name, q, dim) in [
-            (
-                "mill_tolerance",
-                &mut section.mill_tolerance,
-                Dimension::Length,
-            ),
-            (
-                "contents_density",
-                &mut section.contents_density,
-                Dimension::Density,
-            ),
-            (
-                "insulation_thickness",
-                &mut section.insulation_thickness,
-                Dimension::Length,
-            ),
-            (
-                "insulation_density",
-                &mut section.insulation_density,
-                Dimension::Density,
-            ),
-        ] {
-            if let Some(q) = q {
-                normalize(q, dim, false, name, &mut d);
-            }
-        }
-        if exact {
-            if let Some(q) = &mut section.corrosion_allowance {
-                normalize(q, Dimension::Length, false, "corrosion_allowance", &mut d);
-            }
-        }
-        match &mut section.material_density {
-            Some(q) => normalize(q, Dimension::Density, true, "material_density", &mut d),
-            None => invalid(&mut d, &pipe.id, "explicit material density required"),
-        }
+        normalize_mass_inputs(&mut pipe.section, &pipe.id, exact, &mut d);
         if !d.is_empty() {
             continue;
         }
@@ -458,6 +409,116 @@ fn generate_operations(
         scope_label: scope.into(),
         warnings,
     })
+}
+
+/// The plan's normalization of one pipe's mass inputs, in its order: the
+/// section's lengths and densities (and, on the exact route, its corrosion
+/// allowance) in SI, with an explicit material density required. Shared by the
+/// plan and by a hydrostatic test case's contents resolution, so both form the
+/// mass per length from the same inputs in the same way.
+fn normalize_mass_inputs(section: &mut super::PipeSectionInput, pipe_id: &str, exact: bool, d: &mut Vec<Diagnostic>) {
+    normalize(
+        &mut section.outside_diameter,
+        Dimension::Length,
+        true,
+        "outside_diameter",
+        d,
+    );
+    normalize(
+        &mut section.wall_thickness,
+        Dimension::Length,
+        true,
+        "wall_thickness",
+        d,
+    );
+    for (name, q, dim) in [
+        (
+            "mill_tolerance",
+            &mut section.mill_tolerance,
+            Dimension::Length,
+        ),
+        (
+            "contents_density",
+            &mut section.contents_density,
+            Dimension::Density,
+        ),
+        (
+            "insulation_thickness",
+            &mut section.insulation_thickness,
+            Dimension::Length,
+        ),
+        (
+            "insulation_density",
+            &mut section.insulation_density,
+            Dimension::Density,
+        ),
+    ] {
+        if let Some(q) = q {
+            normalize(q, dim, false, name, d);
+        }
+    }
+    if exact {
+        if let Some(q) = &mut section.corrosion_allowance {
+            normalize(q, Dimension::Length, false, "corrosion_allowance", d);
+        }
+    }
+    match &mut section.material_density {
+        Some(q) => normalize(q, Dimension::Density, true, "material_density", d),
+        None => invalid(d, pipe_id, "explicit material density required"),
+    }
+}
+
+/// A contents density as a mass operand, in SI: normalized as
+/// [`normalize_mass_inputs`] normalizes a section's `contents_density`, which
+/// is the normalization [`mass_with_contents`] gives a hydrostatic test case's
+/// contents. NaN when it does not normalize, so a check that reads it fails
+/// closed.
+pub(crate) fn contents_density_operand(contents: &Quantity) -> f64 {
+    let mut q = contents.clone();
+    let mut d = Vec::new();
+    normalize(&mut q, Dimension::Density, false, "contents_density", &mut d);
+    if d.is_empty() { q.value } else { f64::NAN }
+}
+
+/// DEL-05-01 REQ-014 (the hydrostatic test case): the mass per length the
+/// self-weight calculation gives pipe `pipe_id` of `model` when the section's
+/// own contents density is replaced by `contents` (as entered, any density unit
+/// of the catalog), on the route's mass basis. The pipe's section is resolved
+/// and normalized exactly as the plan does (`normalize_mass_inputs`), the
+/// contents replace the section's before normalization, and the mass is
+/// `stable_mass_per_length`'s, so a contents density equal to the section's
+/// gives the plan's own mass bit for bit. Contents enter here once, as a mass
+/// input; nothing generates a second weight load.
+pub(crate) fn mass_with_contents(model: &PreviewModel, pipe_id: &str, contents: &Quantity) -> Result<f64, Vec<Diagnostic>> {
+    let mut d = Vec::new();
+    let Some(pipe) = model.pipe_segments.iter().find(|pipe| pipe.id == pipe_id) else {
+        invalid(&mut d, pipe_id, "selected pipe must resolve exactly once");
+        return Err(d);
+    };
+    // The one pipe resolved against the document's sections, as the plan
+    // resolves every selected pipe, with no copy of the rest of the model.
+    let mut pipe = pipe.clone();
+    super::resolve_shared_section(&mut pipe, &model.sections, &mut d);
+    if !d.is_empty() {
+        return Err(d);
+    }
+    let exact = super::pressure_runtime::is_exact(model);
+    let pipe = &mut pipe;
+    pipe.section.contents_density = Some(contents.clone());
+    normalize_mass_inputs(&mut pipe.section, &pipe.id, exact, &mut d);
+    if !d.is_empty() {
+        return Err(d);
+    }
+    match stable_mass_per_length(pipe, exact, &mut d) {
+        Some(mass) if mass.is_finite() && mass > 0.0 && d.is_empty() => Ok(mass),
+        _ => {
+            if d.is_empty() {
+                invalid(&mut d, pipe_id, "computed mass is outside the representable range");
+                d.last_mut().expect("just pushed").code = "SELF_WEIGHT_RANGE_INVALID".into();
+            }
+            Err(d)
+        }
+    }
 }
 
 /// The scope label of a plan with no component weight: the selected members'

@@ -148,6 +148,7 @@ def models() -> dict[str, tuple[dict, str, float]]:
     found.update({
         "writer-cantilever-m": (writer_tests.cantilever("m"), "INVENTED CANTILEVER", 20.0),
         "writer-cantilever-mm": (writer_tests.cantilever("mm"), "INVENTED CANTILEVER", 20.0),
+        "writer-cantilever-timoshenko": ({**writer_tests.cantilever(), "model_settings": {"shear_model": "timoshenko_annulus_energy_v1"}}, "INVENTED CANTILEVER", 20.0),
         "writer-branched": (writer_tests.branched(), "INVENTED BRANCH", 20.0),
         "writer-weight": (weighted(), "WEIGHT", 20.0),
         "writer-bent-l": (writer_tests.bent_l(), "INVENTED L", 20.0),
@@ -268,7 +269,7 @@ def test_bound_import_equals_the_source_within_the_derived_bounds(trips, name):
 
 
 def test_every_excluded_loss_and_model_is_listed():
-    assert len(canon.EXCLUDED_LOSSES) == 9
+    assert len(canon.EXCLUDED_LOSSES) == 10
     assert EXCLUDED == {}
     # Formerly excluded: the component names the far tangent node. Format 6 records it, and the bound import
     # restores it, so the model compares equal; the same pair downgraded to format 4 still loses that reference.
@@ -292,6 +293,8 @@ def test_unbound_import_under_pd1_equals_by_caepipe_name(trips, name):
                                 shear_model=shear, source_label=name)
     assert result.status == "imported", result.diagnostics
     assert any("PD-1" in note for note in result.assumptions)
+    # The comparison sets a pressure-free shear model aside unbound; the import states none.
+    assert "model_settings" not in result.model
     reference = trip.reference()
     reference_unoriented, limits = canon.unoriented(reference, trip.limits(reference))
     comparison = canon.compare(reference_unoriented, trip.imported(result, oriented=False), limits)
@@ -629,6 +632,179 @@ def test_the_shear_model_travels_only_in_the_sidecar():
     conflict = import_caepipe_mbf(trip.data, sidecar=trip.sidecar, material_provenance=INVENTED, source_label="c",
                                   shear_model="timoshenko_annulus_energy_v1")
     assert refusals(conflict) == {("MBF-IMPORT-SIDECAR-CONFLICT", "shear_model")}
+
+
+def test_a_pressure_free_shear_model_selection_travels_in_the_sidecar():
+    # A pressure-free document's model_settings.shear_model is not in the MBF either: the sidecar's pressure_map
+    # carries the document's timoshenko_annulus_energy_v1 under contract "none", and a bound import restores it.
+    # euler_bernoulli there is no statement: a document that states none, or states euler_bernoulli, comes back
+    # stating none, which reads as euler_bernoulli. A bound import keeps the sidecar's; a different shear_model with
+    # it is refused. An unbound import of a file without pressure states none, whatever shear_model is given.
+    def model(settings):
+        built = writer_tests.cantilever()
+        if settings is not None:
+            built["model_settings"] = settings
+        return built
+
+    timoshenko = Trip("pf-timoshenko", model({"shear_model": "timoshenko_annulus_energy_v1"}), "PF TIMOSHENKO", 20.0)
+    assert timoshenko.sidecar["pressure_map"] == {"contract": "none", "shear_model": "timoshenko_annulus_energy_v1",
+                                                  "regions": []}
+    assert timoshenko.bound.status == "imported", timoshenko.bound.diagnostics
+    assert timoshenko.bound.model["model_settings"] == {"shear_model": "timoshenko_annulus_energy_v1"}
+    assert "pressure_contract" not in timoshenko.bound.model
+    lost = {(item["code"], item["entity"]) for item in timoshenko.writer.loss_report}
+    assert ("MBF-SI-SHEAR-MODEL-NOT-EXPORTED", "model.model_settings.shear_model") in lost
+    assert ("MBF-SI-MODEL-SETTINGS-NOT-EXPORTED", "model.model_settings") not in lost
+    reference = timoshenko.reference()
+    limits = timoshenko.limits(reference)
+    assert canon.compare(reference, timoshenko.imported(timoshenko.bound, oriented=True), limits).failures == []
+    dropped = deepcopy(timoshenko.bound)
+    dropped.model.pop("model_settings")  # the selection lost on the way back is a canonical difference
+    assert canon.compare(reference, timoshenko.imported(dropped, oriented=True), limits).failures
+    again = render_caepipe_mbf_si(timoshenko.bound.model, title="PF TIMOSHENKO", reference_temperature_c=20.0)
+    assert again.status == "written", again.diagnostics
+    assert again.sidecar("0" * 64)["pressure_map"] == timoshenko.sidecar["pressure_map"]
+    for settings in (None, {"shear_model": "euler_bernoulli"}):
+        trip = Trip("pf-euler", model(settings), "PF EULER", 20.0)
+        assert trip.sidecar["pressure_map"] == {"contract": "none", "shear_model": "euler_bernoulli", "regions": []}
+        assert trip.bound.status == "imported", trip.bound.diagnostics
+        assert "model_settings" not in trip.bound.model, settings
+    kept = import_caepipe_mbf(timoshenko.data, sidecar=timoshenko.sidecar, material_provenance=INVENTED,
+                              source_label="k", shear_model="timoshenko_annulus_energy_v1")
+    assert kept.model["model_settings"] == {"shear_model": "timoshenko_annulus_energy_v1"}
+    conflict = import_caepipe_mbf(timoshenko.data, sidecar=timoshenko.sidecar, material_provenance=INVENTED,
+                                  source_label="c", shear_model="euler_bernoulli")
+    assert refusals(conflict) == {("MBF-IMPORT-SIDECAR-CONFLICT", "shear_model")}
+    unbound = lambda **options: import_caepipe_mbf(  # noqa: E731
+        timoshenko.data, material_provenance=INVENTED, source_label="u", **options)
+    for shear in (None, "euler_bernoulli", "timoshenko_annulus_energy_v1"):
+        assert "model_settings" not in unbound(shear_model=shear).model, shear
+    assert refusals(unbound(shear_model="timoshenko")) == {("MBF-IMPORT-SHEAR-MODEL-INVALID", "shear_model")}
+
+
+def test_a_stated_shear_model_comes_back_bound_with_the_same_mechanics():
+    # The sidecar's one accepted loss, guarded: a pressure-free document that states euler_bernoulli explicitly comes
+    # back from a bound import stating none, and solves as Euler-Bernoulli (preview-physics-2), never as any authored
+    # default; one that states timoshenko_annulus_energy_v1 comes back stating it, and solves as Timoshenko. Here an
+    # absent selection means Euler-Bernoulli everywhere (the canonical comparison counts it as euler_bernoulli), so
+    # the lost statement changes no mechanics; the solves below show it. The Rust half runs through the desktop's
+    # import and solve (apps/desktop/src-tauri mbf_import_tests.rs).
+    imported = {}
+    for stated in ("euler_bernoulli", "timoshenko_annulus_energy_v1"):
+        model = writer_tests.cantilever()
+        model["model_settings"] = {"shear_model": stated}
+        trip = Trip(f"stated-{stated}", model, "STATED SHEAR", 20.0)
+        assert trip.bound.status == "imported" and trip.bound.source["binding"] == "bound", trip.bound.diagnostics
+        kept = (trip.bound.model.get("model_settings") or {}).get("shear_model")
+        assert kept == (None if stated == "euler_bernoulli" else stated), stated
+        imported[stated] = trip.bound.model
+    runner = runner_binary()
+    for stated, identity in (("euler_bernoulli", "preview-physics-2"),
+                             ("timoshenko_annulus_energy_v1", "preview-physics-timoshenko-1")):
+        _, output, error = solve_swbpipe(runner, {"case_id": f"stated-{stated}", "model": imported[stated]})
+        assert error == "", (stated, error)
+        producer = output["payload"]["mechanics_envelope"]["producer"]["semantic_contract_id"]
+        assert producer.endswith("/" + identity), (stated, producer)
+
+
+def test_every_committed_sidecar_reads_as_before_and_regenerates_unchanged():
+    # The pressure-free shear selection added no byte to a sidecar written before it, and a new reader reads each as
+    # its writer meant. Over every committed sidecar (the sitting pack's records), record by record: a pressure-free
+    # one states euler_bernoulli under contract "none" with no region (or, from format 6, the document's
+    # timoshenko_annulus_energy_v1); each whose MBF is committed beside it imports bound, stating no selection for
+    # euler_bernoulli and the stated one otherwise, and the writer regenerates it from the imported model (the
+    # regeneration identity). No total is fixed, so the corpus may grow. The pack's own test binds the bytes.
+    records = sorted((ROOT / "validation/caepipe_sitting_pack/records/cases").glob("*/*.swbpipe-ids.json"))
+    assert records
+    for path in records:
+        name = path.name.removesuffix(".swbpipe-ids.json")
+        sidecar = json.loads(path.read_bytes())
+        state = sidecar["pressure_map"]
+        stated = None
+        if state["contract"] == "none":
+            free = ("euler_bernoulli", "timoshenko_annulus_energy_v1") if sidecar.get("sidecar_format") == 6 \
+                else ("euler_bernoulli",)
+            assert state["shear_model"] in free and state["regions"] == [], name
+            stated = None if state["shear_model"] == "euler_bernoulli" else state["shear_model"]
+        data = (ROOT / "validation/caepipe_sitting_pack/pack/cases" / name / f"{name}.mbf").read_bytes()
+        if hashlib.sha256(data).hexdigest() != sidecar["mbf_sha256"]:
+            continue  # a run whose MBF is not the writer's (a substituted or added record): it binds no sidecar
+        result = import_as_given(data, sidecar=sidecar, material_provenance=INVENTED, source_label=name)
+        assert result.status == "imported" and result.source["binding"] == "bound", (name, result.diagnostics)
+        if state["contract"] == "none":
+            assert (result.model.get("model_settings") or {}).get("shear_model") == stated, name
+        assert regeneration_difference(sidecar, result) is None, name
+
+
+def test_a_pressure_free_shear_model_the_solve_refuses_is_not_exported():
+    model = writer_tests.cantilever()
+    model["model_settings"] = {"shear_model": "cowper"}
+    writer_tests.assert_refused(render_caepipe_mbf_si(model, title="T", reference_temperature_c=20.0),
+                                "MBF-SI-SHEAR-MODEL-UNSUPPORTED", "cowper")
+    # A present null is a value the solve refuses (the model schema lists it), not an absent selection: it is refused
+    # by name, with or without a contract, rather than exported as a pair whose bound import would solve. Parity
+    # vectors cannot catch an error both implementations share; the Rust twin is
+    # a_present_null_shear_model_is_refused_with_or_without_a_contract.
+    model = writer_tests.cantilever()
+    model["model_settings"] = {"shear_model": None}
+    writer_tests.assert_refused(render_caepipe_mbf_si(model, title="T", reference_temperature_c=20.0),
+                                "MBF-SI-SHEAR-MODEL-UNSUPPORTED", "model_settings.shear_model None is not one of")
+    model = writer_tests.pressurized_l()
+    model["model_settings"] = {"shear_model": None}
+    writer_tests.assert_refused(render_caepipe_mbf_si(model, title="T", reference_temperature_c=20.0),
+                                "MBF-SI-SHEAR-MODEL-UNSUPPORTED", "MODEL_SETTING_SHEAR_MODEL_WITH_PRESSURE_CONTRACT")
+    model = writer_tests.pressurized_l()
+    model["model_settings"] = {"shear_model": "timoshenko_annulus_energy_v1"}
+    writer_tests.assert_refused(render_caepipe_mbf_si(model, title="T", reference_temperature_c=20.0),
+                                "MBF-SI-SHEAR-MODEL-UNSUPPORTED", "MODEL_SETTING_SHEAR_MODEL_WITH_PRESSURE_CONTRACT")
+    model = writer_tests.cantilever()
+    model["model_settings"] = {"shear_model": "timoshenko_annulus_energy_v1",
+                               "node_proximity_tolerance": {"value": 5.0, "unit": "mm"}}
+    written = render_caepipe_mbf_si(model, title="T", reference_temperature_c=20.0)
+    lost = {(item["code"], item["entity"]) for item in written.loss_report}
+    assert {("MBF-SI-SHEAR-MODEL-NOT-EXPORTED", "model.model_settings.shear_model"),
+            ("MBF-SI-MODEL-SETTINGS-NOT-EXPORTED", "model.model_settings")} <= lost
+
+
+def test_before_format_6_a_sidecar_without_a_contract_states_only_euler_bernoulli():
+    # Formats 2, 3 and 4 never recorded a pressure-free Timoshenko selection: without a contract their shear model is
+    # the route's euler_bernoulli, and timoshenko_annulus_energy_v1 there is refused at pressure_map (format 2 has no
+    # self-digest to protect it). Format 6 carries it. euler_bernoulli is admitted in every format. The Rust twin is
+    # before_format_6_a_sidecar_without_a_contract_states_only_euler_bernoulli.
+    for stated, refused in (("timoshenko_annulus_energy_v1", True), ("euler_bernoulli", False)):
+        model = writer_tests.cantilever()
+        model["model_settings"] = {"shear_model": stated}
+        data, sidecar = bound_parts(model)
+        for number in (2, 3, 4):
+            result = import_as_given(data, sidecar=as_format(sidecar, number), material_provenance=INVENTED,
+                                     source_label=f"format {number}")
+            assert (("MBF-IMPORT-SIDECAR-INVALID", "pressure_map") in refusals(result)) is refused, (
+                stated, number, result.diagnostics)
+            if not refused:
+                assert result.status == "imported", (number, result.diagnostics)
+        current = import_as_given(data, sidecar=sidecar, material_provenance=INVENTED, source_label="format 6")
+        assert current.status == "imported", (stated, current.diagnostics)
+
+
+def test_a_contract_only_pair_edited_to_no_contract_imports_as_the_contract_free_document():
+    # A contract-only pair (a Timoshenko contract and no region) edited to contract "none", its self-digest
+    # recomputed, imports bound as the contract-free document stating the same shear model. The pair agrees with a
+    # genuine export of that document in every field a bound import can regenerate: the MBF is the same file (a
+    # contract without regions writes no pressure load) and so is the pressure map; they differ only in the derivation
+    # (the source model's digest) and the self-digest, which regeneration sets aside by design (Design §14: the guard
+    # proves consistency, not authorship). The bound import cannot tell the pair from the genuine one; the
+    # designated-source check, in the engine, detects it (the Rust twin,
+    # a_contract_only_pair_edited_to_no_contract_imports_as_that_document_and_the_designated_source_refuses_it). The
+    # edit changes the solve route, exact to pressure-free, and keeps the straight members' theory.
+    data, sidecar = bound_parts(contract_only_model())
+    edited = canon.redigested({**sidecar, "pressure_map": {**sidecar["pressure_map"], "contract": "none"}})
+    result = import_as_given(data, sidecar=edited, material_provenance=INVENTED, source_label="edited")
+    assert result.status == "imported" and result.source["binding"] == "bound", result.diagnostics
+    assert "pressure_contract" not in result.model
+    assert result.model["model_settings"] == {"shear_model": "timoshenko_annulus_energy_v1"}
+    again_data, again = bound_parts(result.model)
+    assert again_data == data and again["pressure_map"] == edited["pressure_map"]
+    assert again["derivation"] != edited["derivation"]
 
 
 def test_a_pressure_map_that_does_not_match_the_file_is_refused(trips):
@@ -1855,10 +2031,25 @@ def sidecar_replacements(sidecar: dict, data: bytes) -> list[tuple[str, dict, st
     if state["contract"] == "none":
         at("pressure_map.contract", "imported", lambda s: s["pressure_map"].update(
             contract={"version": "3.0.0", "mode": "exact_pressure_v3"}))
-        at("pressure_map.shear_model", "refused", lambda s: s["pressure_map"].update(
+        # A pressure-free document's own Timoshenko selection: imported as its model_settings.shear_model.
+        at("pressure_map.shear_model", "imported", lambda s: s["pressure_map"].update(
             shear_model="timoshenko_annulus_energy_v1"))
+        end = {"node_ref": "node:zz", "closure_transfer": "transfers_to_wall", "provenance": "invented"}
+        at("pressure_map.regions", "refused", lambda s: s["pressure_map"].update(  # no region without a contract
+            regions=[{"id": "region:zz", "members": ["zz"], "terminals": [dict(end), dict(end)]}]))
     else:
-        at("pressure_map.contract", "refused", lambda s: s["pressure_map"].update(contract="none"))
+        # Without a contract there is no region, so where regions exist "none" is refused by the parser
+        # (MBF-IMPORT-SIDECAR-INVALID at pressure_map) and by the identity (the MBF then carries pressure loads that
+        # a document without a contract does not write). Where none exist (the contract-only base), the re-digested
+        # edit imports as the contract-free document stating the same shear model: it agrees with a genuine export
+        # of that document in every field a bound import can regenerate (the same MBF, since a contract without
+        # regions writes no pressure load, and the same pressure map), differing only in the derivation and the
+        # self-digest, which regeneration sets aside (Design §14: the guard proves consistency, not authorship). The
+        # bound import cannot tell it from the genuine pair; the designated-source check detects it. The edit changes
+        # the solve route and keeps the straight members' theory
+        # (test_a_contract_only_pair_edited_to_no_contract_imports_as_the_contract_free_document).
+        at("pressure_map.contract", "refused" if state["regions"] else "imported",
+           lambda s: s["pressure_map"].update(contract="none"))
         other = next(model for model in ("euler_bernoulli", "timoshenko_annulus_energy_v1")
                      if model != state["shear_model"])
         at("pressure_map.shear_model", "imported", lambda s, v=other: s["pressure_map"].update(shear_model=v))
@@ -2480,8 +2671,8 @@ def test_every_comparison_model_regenerates_its_sidecar_identically_or_with_iden
         if groups(trip.bound):
             excluded_models.add(name)
     assert excluded_models == {"writer-cancelling-forces"}
-    assert len(REVERSIBLE) == 25  # tranche 3 added writer-springs; the bend SIF pair added writer-bent-l-sifs;
-    # sidecar format 4 added writer-sections
+    assert len(REVERSIBLE) == 26  # tranche 3 added writer-springs; the bend SIF pair added writer-bent-l-sifs;
+    # sidecar format 4 added writer-sections; the pressure-free shear selection added writer-cantilever-timoshenko
 
 
 def test_a_straight_recorded_as_a_bend_is_refused_on_both_routes():

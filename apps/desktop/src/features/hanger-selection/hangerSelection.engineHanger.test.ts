@@ -1,8 +1,11 @@
 // DEL-04-11 REQ-008: the structural predicate for a batch that writes a support's hanger selection, and its
 // classification checked against the engine's own.
 // - The behavioural check is the shared case table, fixtures/results/hanger_sizing_engine_kind_corpus.json: each case's
-//   "engine" (how the engine classifies the value) and "gate" (whether a write of it is a hanger write). Only its
-//   desktop half is exercised here until a test on the engine's side reads the same table.
+//   "engine" (how the engine classifies the value, observed against the engine by
+//   core/analysis/hanger_sizing/tests/engine_kind_corpus.rs) and "gate" (whether a write of it is a hanger write). The
+//   rule: where the mirror classifies a value (a hanger kind or none), it equals the table's engine value; where the
+//   mirror leaves it unclassified, the gate is true whatever the engine value; and wherever the engine value is a hanger
+//   kind or document_refused, the gate is true.
 // - The source pin reads core/product_physics/src/lib.rs as text. As review round 2 found, it catches a changed name or a
 //   removed step in `support_hanger_type`, `is_variable_spring_hanger` and `is_constant_effort_support`, but not a
 //   filter added after the fall back; the table is what checks behaviour.
@@ -88,9 +91,20 @@ describe("the shared engine-kind case table", () => {
     }
   });
 
+  it("leaves unclassified only values the gate refuses, and classifies the rest", () => {
+    const unclassified = CASES.filter((entry) => engineHangerKind(entry.support) === "unclassified");
+    expect(unclassified.length).toBeGreaterThan(0);
+    for (const entry of unclassified) expect(entry.gate, entry.name).toBe(true);
+  });
+
   for (const entry of CASES) {
     it(`${entry.name}: engine ${entry.engine}, gate ${entry.gate}`, () => {
-      expect(engineHangerKind(entry.support) ?? "none").toBe(entry.engine);
+      const mirror = engineHangerKind(entry.support);
+      if (mirror === "unclassified") {
+        expect(entry.gate, "an unclassified value is refused by the gate").toBe(true);
+      } else {
+        expect(mirror ?? "none", "where the mirror classifies a value it equals the engine's").toBe(entry.engine);
+      }
       const before = { id: entry.support.id, node: "node:B", restraints: ["UZ"], family: "guide" };
       expect(writesSupportHangerSelection(configuration(entry.support, before)), "configuration").toBe(entry.gate);
       expect(writesSupportHangerSelection(created(entry.support)), "create").toBe(entry.gate);

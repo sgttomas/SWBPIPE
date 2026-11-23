@@ -209,7 +209,7 @@
     },
     {
       "path": "fixtures/model_document/desktop_emitted.json",
-      "sha256": "a2815e0d9593086728b1fef780e37f5195eae8e4456401e86691fdd5914826bf",
+      "sha256": "4e1009280d7d2cd6c5f78480cc269b0e6514ccb971584931f8458610ecb08653",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -265,7 +265,7 @@
     },
     {
       "path": "fixtures/redaction_export_controls/cases.json",
-      "sha256": "b6d5aff75c3c7421564b7c5ff2aef0645859cf36acee4b80d724cfaf3359637a",
+      "sha256": "590fddc48d2e2bf8d667665c6c49b9941b082b5768ec9af24747f0228ef7b3ce",
       "labels": [
         [
           "\"TBD\"",
@@ -346,6 +346,10 @@
         [
           "\"unknown\"",
           "\"pending\""
+        ],
+        [
+          "\"unknown\"",
+          "<missing>"
         ],
         [
           "1",
@@ -442,7 +446,7 @@
     },
     {
       "path": "fixtures/results/pressure_load_state_connected_dense.document.json",
-      "sha256": "c8dfc40c3efd0ec4430df9187b049d9a1e07e3286f5e0c701da5f938eb74602b",
+      "sha256": "4e4338d2db2da2b7cf3d51a77029f5af543bc11caecc89a5b38f1ec7dc7ca81b",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -453,7 +457,7 @@
     },
     {
       "path": "fixtures/results/pressure_load_state_connected_sparse.document.json",
-      "sha256": "8a1f097d7497244d2252fc233116acf9d0f9c691ae8a2cafb02e47595d46c155",
+      "sha256": "8a3f941c7f035351ba729180b442bc155a722e979f0c5d8f53e1765e6d39419e",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -464,7 +468,7 @@
     },
     {
       "path": "fixtures/results/pressure_load_state_pressure_dense.document.json",
-      "sha256": "9cef7ed948e484d1047bc24478554b8b32e1488b62e7c9083157b6dc97451414",
+      "sha256": "598aeb2fe28637ad065258c793e997b8b85920e7d68acde33493c13c061778ff",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -475,7 +479,7 @@
     },
     {
       "path": "fixtures/results/pressure_load_state_pressure_sparse.document.json",
-      "sha256": "9fcfee9e6e10cdca232fbed9df0093f065c24df60d810a839fea681a20550f30",
+      "sha256": "9fae32aa178aceca6c54b6cea9aa2a3606b9300e69994dd3d0516cc7791c0f6d",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -516,7 +520,7 @@
     },
     {
       "path": "fixtures/results/pressure_source_load_state_eigen_motion_dense.document.json",
-      "sha256": "a3cd6d3aa4620a29c425f5f1c7e927f28983ca2b0c6c9be1b853204e6821b884",
+      "sha256": "eee5a98813be3422cd371e6e2d74ce75462a7d38135a67b28726384dd5c216c4",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -527,7 +531,7 @@
     },
     {
       "path": "fixtures/results/pressure_source_load_state_eigen_motion_sparse.document.json",
-      "sha256": "0585f435f0a66911ff0676f72f0a698b8e7cd555bf206d839582deb00660c4e2",
+      "sha256": "9ef9e320ddfe4a75985fff7f40a3cb2d2850ab48e6d6b4fb141e96610f1617df",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -538,7 +542,7 @@
     },
     {
       "path": "fixtures/results/pressure_source_load_state_fields_dense.document.json",
-      "sha256": "ae4826758b9119c328f174303bf742c4789b7d2b288bbdb5624f730ca3da5f3d",
+      "sha256": "1281544174d9c940e2b8bb80b34167afd404f5186bd4a02eea0e9fdfde2eea49",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -549,7 +553,7 @@
     },
     {
       "path": "fixtures/results/pressure_source_load_state_fields_sparse.document.json",
-      "sha256": "56a624508f3b417c0a3ccf4cc51e440efe07f92949add77af1924868b69c9aa9",
+      "sha256": "1ec98a8cf61a8153adb44b96600611267775ddde3b5370d08cc6241a45917dad",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -560,7 +564,7 @@
     },
     {
       "path": "fixtures/results/pressure_source_load_state_mixed_dense.document.json",
-      "sha256": "27d8c378abf2a6895b0cd6bd0c887bda3e0efea189075e4083452eb3b1bc3d02",
+      "sha256": "2b827d5e8f34fdcc5c0d0e96ad57001e5e3d51a5736fee65316431fc8753bbc4",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -571,7 +575,7 @@
     },
     {
       "path": "fixtures/results/pressure_source_load_state_mixed_sparse.document.json",
-      "sha256": "63e88feeb63d792903ef60143db9536ea9fc3c938e6323e9cfc6dfdbc1d68c03",
+      "sha256": "17782a343364e7dc3261a4066d237ac09877f0c88961a96564e75e16105d15d9",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -582,7 +586,7 @@
     },
     {
       "path": "fixtures/results/pressure_source_load_state_n05_dense.document.json",
-      "sha256": "8ee8cde63b6a99e7470027c93438971b0adba9081ea334e21fcf2cfa4832de9d",
+      "sha256": "386b95553f3e23c727f68bae1ecf3d6afd1f1928e6b6a70251c2124fe50be5ad",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -593,7 +597,7 @@
     },
     {
       "path": "fixtures/results/pressure_source_load_state_n05_sparse.document.json",
-      "sha256": "90f93ef8efd3ecca4eb65018a51cbfc5140fadfebca4f13c6c5ed16d228dc740",
+      "sha256": "344af393b3e4e06a527f6aadae1f38d56f00257652144a68d393be1d18bb394d",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -604,7 +608,7 @@
     },
     {
       "path": "fixtures/results/pressure_source_load_state_n06_dense.document.json",
-      "sha256": "669adc50b5613552c493beeac78b27989f8aa9b51717802fd78e6fb075ead908",
+      "sha256": "99e15180ae4dc8b1ee4336cc01e51c93d2ed440bab19ebe0b8cc36f9910fd1db",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -615,7 +619,7 @@
     },
     {
       "path": "fixtures/results/pressure_source_load_state_n06_sparse.document.json",
-      "sha256": "4029dd04d999a64d5cb278b699f6bdac9a49b6dbe448e99a7605ecd1aeb3dcdb",
+      "sha256": "333e61a9a25d48c743e6d25d5d53f29dfb2943e8b6ed2420fbc27730bf96950a",
       "labels": [
         [
           "\"invented_non_engineering_example\"",

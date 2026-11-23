@@ -16,7 +16,7 @@ import { HistoricalReaderFindings, recordedRunBindingFindings } from "../results
 import { RulePackRunReferences } from "../rule-packs/RulePackRunReferences";
 import { RULE_PACKS_NOT_RESOLVED, unreadableGuidance, type UnreadableRow } from "../../services/historyListEntries";
 import { useSessionHistory, useSessionModel, useSessionProject } from "../workspace/WorkspaceSessionContext";
-import { notOpenableReason, runCompareUnavailableReason, stateCompareUnavailableReason } from "./useModelStateHistory";
+import { NO_MODEL_STATES_LISTED, notOpenableReason, RECORD_RUN_SNAPSHOT_NAME_NOTE, runCompareUnavailableReason, stateCompareUnavailableReason } from "./useModelStateHistory";
 import { StateComparisonView } from "../comparison/StateComparisonView";
 import { RunComparisonView } from "../comparison/RunComparisonView";
 import { CURRENT_RUN_DESCRIPTION, CURRENT_RUN_ID } from "../comparison/runComparisonSides";
@@ -76,6 +76,13 @@ function RunCompareSelect({ id, testId, selection, refusal }: { id: string; test
       {refusal ? <span id={`${testId}-not-compared`} className="muted"> Not compared: {refusal}</span> : null}
     </label>
   );
+}
+
+/** A refusal's words without its leading code, for a person: "RUN-RECORD-NO-RUN: solve the
+ * model to record a run." reads "Solve the model to record a run." */
+export function plainReason(reason: string): string {
+  const words = reason.replace(/^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+:\s*/, "");
+  return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
 /** A disabled control's stated reason (the dead-control audit's accessible reason). */
@@ -340,7 +347,7 @@ function UnreadableRowItem({ kind, row }: { kind: "state" | "run"; row: Unreadab
 }
 
 function RecordRunForm({ onDone }: { onDone: () => void }) {
-  const { recordRun, recordRunState, recordRunUnavailableReason, recordRunManifest, recordRunRecord, historyBusy } = useSessionHistory();
+  const { recordRun, recordRunState, recordRunStateKnown, recordRunUnavailableReason, recordRunManifest, recordRunRecord, historyBusy } = useSessionHistory();
   const { projectBusy } = useSessionProject();
   const busy = historyBusy || projectBusy;
   const [draft, setDraft] = useState<LabelsDraft>(() => runDraftFrom(null));
@@ -359,16 +366,21 @@ function RecordRunForm({ onDone }: { onDone: () => void }) {
         void recordRun({ labels, snapshotName: needsSnapshot ? snapshotName : null }).then((recorded) => { if (recorded) onDone(); });
       }}
     >
-      <p className="muted" data-testid="record-run-state">
-        {recordRunState
-          ? <>The run is recorded against the saved state {modelStateDescription(recordRunState)}, which holds the solved model.</>
-          : <>No saved state holds the solved model. The run is recorded against a new post-solve snapshot of the solved model, written with it.</>}
-      </p>
+      {recordRunState || recordRunStateKnown ? (
+        <p className="muted" data-testid="record-run-state">
+          {recordRunState
+            ? <>The run is recorded against the saved state {modelStateDescription(recordRunState)}, which holds the solved model.</>
+            : <>No saved state holds the solved model. The run is recorded against a new post-solve snapshot of the solved model, written with it.</>}
+        </p>
+      ) : null}
       {needsSnapshot ? (
-        <label className="memory-pool-field">
-          <span>Post-solve snapshot name (required)</span>
-          <input data-testid="record-run-snapshot-name" value={snapshotName} required onChange={(event) => setSnapshotName(event.target.value)} />
-        </label>
+        <>
+          <label className="memory-pool-field">
+            <span>Post-solve snapshot name (required)</span>
+            <input data-testid="record-run-snapshot-name" value={snapshotName} required onChange={(event) => setSnapshotName(event.target.value)} />
+          </label>
+          {recordRunStateKnown ? null : <p className="muted" data-testid="record-run-snapshot-name-note">{RECORD_RUN_SNAPSHOT_NAME_NOTE}</p>}
+        </>
       ) : null}
       <RulePackRunReferences manifest={recordRunManifest} record={recordRunRecord} testId="record-run-rule-pack-refs" />
       <LabelsFields draft={draft} onChange={setDraft} testId="record-run" legend={RUN_ASSUMPTIONS_LEGEND} />
@@ -495,7 +507,7 @@ function StateRow({ state, states, runs, selected, selectionFull, onToggleSelect
 
 export function HistoryPanel() {
   const {
-    states, runs, unreadable, historyMessage, historyBusy, refreshStates, recordRunUnavailableReason, compareStates, stateComparison, closeStateComparison,
+    states, runs, unreadable, historyMessage, historyMessageDetails, historyBusy, refreshStates, recordRunUnavailableReason, compareStates, stateComparison, closeStateComparison,
     compareRuns, runComparison, closeRunComparison, currentRunUnavailableReason, refusedRuns, refusedStateExport, exportRefusedState
   } = useSessionHistory();
   const { model } = useSessionModel();
@@ -526,6 +538,10 @@ export function HistoryPanel() {
   // A readable run whose state is not a readable listed state has no row under a state.
   const orphanRuns = states ? (runs ?? []).filter((run) => !states.some((state) => state.state_id === run.state_id)) : [];
   const runsOf = (stateId: string) => (runs ?? []).filter((run) => run.state_id === stateId).sort((left, right) => left.created_at < right.created_at ? -1 : left.created_at > right.created_at ? 1 : 0);
+  const recordRunReason = recordRunUnavailableReason ? plainReason(recordRunUnavailableReason) : null;
+  const recordRunReasonShown = recordRunReason !== null && !historyBusy && !projectBusy;
+  // The states the list below shows: readable rows, and rows the store cannot read (by id).
+  const statesShown = Boolean(states?.length || unreadable?.states.length);
   if (!model) return null;
   return (
     <section className="panel model-history-panel" aria-label="Model history" data-testid="model-history-panel">
@@ -533,16 +549,12 @@ export function HistoryPanel() {
         <History size={16} aria-hidden="true" />
         Model History
       </div>
-      <p className="muted">
-        Saved model states of project {model.project.id}: immutable snapshots of the model, kept in the local store for
-        reopening and comparison, each with the analysis runs recorded against it. A recorded run ties a solve's result,
-        solver, settings, units and load basis to the exact saved model it solved. Human review is still required for any use of them.
-      </p>
+      <p className="muted" data-testid="model-history-intro">Saved snapshots of this model, each with the runs recorded against it.</p>
       <div className="report-actions">
         <button type="button" data-testid="model-state-save-open" disabled={saving || historyBusy || projectBusy} title={reasonFor(historyBusy || projectBusy, saving ? "The Save Model State form is open below." : null)} onClick={() => setSaving(true)}>
           Save Model State…
         </button>
-        <button type="button" data-testid="record-run-open" disabled={recording || historyBusy || projectBusy || recordRunUnavailableReason !== null} title={reasonFor(historyBusy || projectBusy, recording ? "The Record Run form is open below." : recordRunUnavailableReason)} onClick={() => setRecording(true)}>
+        <button type="button" data-testid="record-run-open" disabled={recording || historyBusy || projectBusy || recordRunUnavailableReason !== null} title={reasonFor(historyBusy || projectBusy, recording ? "The Record Run form is open below." : recordRunReason)} aria-describedby={recordRunReasonShown ? "record-run-unavailable" : undefined} onClick={() => setRecording(true)}>
           Record Run…
         </button>
         <button
@@ -561,10 +573,14 @@ export function HistoryPanel() {
           Refresh
         </button>
       </div>
-      {recordRunUnavailableReason && !historyBusy && !projectBusy ? <p className="muted" data-testid="record-run-unavailable">Record Run: {recordRunUnavailableReason}</p> : null}
+      {/* The reason Record Run… is disabled is its title; this is the same reason for assistive technology. */}
+      {recordRunReasonShown ? <p className="visually-hidden" id="record-run-unavailable" data-testid="record-run-unavailable">{recordRunReason}</p> : null}
       {saving ? <SaveStateForm onDone={() => setSaving(false)} /> : null}
       {recording ? <RecordRunForm onDone={() => setRecording(false)} /> : null}
-      <p className="muted" role="status" data-testid="model-history-message">{historyMessage}</p>
+      <p className="muted" role="status" data-testid="model-history-message">{historyMessage === NO_MODEL_STATES_LISTED && statesShown ? "" : historyMessage}</p>
+      {historyMessageDetails ? (
+        <details data-testid="model-history-message-details"><summary>Details</summary><p>{historyMessageDetails}</p></details>
+      ) : null}
       {refusedStateExport ? (
         <div className="report-actions" data-testid="model-history-refused-state-export">
           <button type="button" data-testid="model-history-export-stored-state" disabled={historyBusy || projectBusy} title={reasonFor(historyBusy || projectBusy, null)} onClick={() => exportRefusedState()}>

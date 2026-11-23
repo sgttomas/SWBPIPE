@@ -39,7 +39,11 @@ def input_paths(root):
     declared_compiled_reads.cache_clear()
     profile = root / 'tools/hosted-ci-routing.json'
     declarations = json.loads(profile.read_text())['piping_runtime_reads']
-    paths.update(declared_compiled_reads(root, frozenset(crates), json.dumps(declarations, sort_keys=True)))
+    reads, stale = declared_compiled_reads(root, frozenset(crates), json.dumps(declarations, sort_keys=True))
+    if stale:
+        # A stale declaration may read a file it does not list, which the key would miss.
+        raise ValueError('Stale runtime read declaration disables engine output reuse: ' + ', '.join(stale))
+    paths.update(reads)
     paths.add('tools/hosted-ci-routing.json')
     for name in filter(None, tracked):
         if (any(name.startswith(crate + '/') for crate in crates)

@@ -48,8 +48,11 @@ pub const BOUNDARY: &str = "every restrained DOF prescribed; reduced K_ff u_f = 
 pub const EIGENLOAD: &str =
     "axial E_member*A_s*total_eigenstrain assembled once and removed once in recovery";
 /// Frozen `schemas/load_reference_state.schema.json` (relayed by the manager).
+/// DEL-04-07 REQ-011 / DEL-05-01 REQ-014: a generated load source's contribution
+/// and a hydrostatic test case's stored-primitive magnitude descriptions
+/// (was 736769f8... on main, 497caa66... on PR 478, b95947ea... prior).
 pub const TRANSPORT_SCHEMA_SHA256: &str =
-    "b95947ea4b62406ea050ba46e8b7d32d3fe8cc9d4f4892f53ab0c9f6df1189b9";
+    "c1aae90fe9626666f9e823045225d694e6aad961612c0f3e5df1e127acca8ff9";
 const TRANSPORT_SCHEMA_BYTES: &str =
     include_str!("../../../../schemas/load_reference_state.schema.json");
 
@@ -171,6 +174,9 @@ const MEMBER_STATE_KEYS: &[&str] = &[
 ];
 const SUPPORT_STATE_KEYS: &[&str] = &["source_id", "owner_kind", "classification", "value"];
 const PRESSURE_REGION_KEYS: &[&str] = &["source_id", "owner_kind", "classification", "factor"];
+/// DEL-04-07 REQ-011: a generated static-equivalent load source, once at factor 1.
+const GENERATED_KEYS: &[&str] = &["source_id", "owner_kind", "classification", "factor", "generation_kind"];
+const GENERATION_KINDS: &[&str] = &["seismic", "wind"];
 const EXCLUDED_KEYS: &[&str] = &[
     "source_id",
     "owner_kind",
@@ -395,6 +401,10 @@ pub(crate) fn prepass(source: &Value, raw: bool, method: Method) -> Check {
         // T4-U4b (§2.6): an ordinary case with a directional arc adds
         // `intensified_measures` (non-empty; checked by the physics pass).
         let directional = !joined && case.get("intensified_measures").is_some();
+        // DEL-05-01 REQ-014: a hydrostatic test case adds its mark,
+        // `test_condition`, never on the joined composite; its shape is checked
+        // by the physics pass (`physics_evidence::test_condition_record`).
+        let test_case = !joined && case.get("test_condition").is_some();
         // DEL-05-01 REQ-008: a generating case adds its `equivalent_static`
         // record (checked by the physics pass).
         let generating = case.get("equivalent_static").is_some();
@@ -402,6 +412,7 @@ pub(crate) fn prepass(source: &Value, raw: bool, method: Method) -> Check {
             .iter()
             .copied()
             .chain(directional.then_some("intensified_measures"))
+            .chain(test_case.then_some("test_condition"))
             .chain(generating.then_some("equivalent_static"))
             .collect();
         require(keys(case, &case_keys), "CASE_SHAPE")?;
@@ -741,11 +752,16 @@ fn validate_record(
             "SUPPORT_COMPONENT_NODE",
         )?;
     }
-    // R10 contributions.
+    // R10 contributions. DEL-05-01 REQ-014: a hydrostatic test case's mark
+    // names the loads its test contents entered.
+    let mark = cases
+        .iter()
+        .find(|(c, _)| *c == case_id)
+        .and_then(|(_, case)| case.get("test_condition"));
     let contributions = array(&record["contributions"])?;
     let mut contribution_ids: Vec<&str> = Vec::new();
     for contribution in contributions {
-        validate_contribution(contribution)?;
+        validate_contribution(contribution, mark)?;
         let id = text(&contribution["source_id"])?;
         require(!contribution_ids.contains(&id), "CONTRIBUTION_DUPLICATE")?;
         contribution_ids.push(id);
@@ -886,6 +902,28 @@ fn validate_record(
                 .collect::<HashSet<_>>(),
         "PRESSURE_CONTRIBUTION_COVERAGE",
     )?;
+    // DEL-04-07 REQ-011: each generated source once, in the order and with the
+    // identities of the exact case's generation record; none without one.
+    let generated: Vec<&Value> = contributions
+        .iter()
+        .filter(|c| c["owner_kind"] == "generated_equivalent_static")
+        .map(|c| &c["source_id"])
+        .collect();
+    let expected_generated: Vec<&Value> = match case.get("equivalent_static") {
+        Some(record) => record["generated_load_ids"].as_array().map(|ids| ids.iter().collect()).unwrap_or_default(),
+        None => Vec::new(),
+    };
+    require(
+        case.get("equivalent_static").is_none_or(|record| record["generated_load_ids"].is_array())
+            && generated == expected_generated,
+        "GENERATED_CONTRIBUTION_COVERAGE",
+    )?;
+    for id in generated {
+        let id = text(id)?;
+        let c = find(id).ok_or_else(|| code("GENERATED_CONTRIBUTION_COVERAGE"))?;
+        let kind = text(&c["generation_kind"])?;
+        require(id.starts_with(&format!("{case_id}:generated:{kind}:")), "GENERATED_CONTRIBUTION_BINDING")?;
+    }
     Ok(())
 }
 
@@ -1135,12 +1173,13 @@ fn support_law_classification(component: &Value) -> Option<&'static str> {
 
 const SUPPORT_CLASSIFICATIONS: &[&str] = &["prescribed_boundary", "nonlinear_ground_motion", "spring_base_motion"];
 
-fn validate_contribution(contribution: &Value) -> Check {
+fn validate_contribution(contribution: &Value, mark: Option<&Value>) -> Check {
     let (shape, classification) = match contribution["owner_kind"].as_str() {
         Some("stored_primitive") => (STORED_KEYS, "ordinary_applied"),
         Some("resolved_member_state") => (MEMBER_STATE_KEYS, "eigenstrain"),
         Some("support_state") => (SUPPORT_STATE_KEYS, ""),
         Some("pressure_region") => (PRESSURE_REGION_KEYS, "pressure_eigen_and_closure"),
+        Some("generated_equivalent_static") => (GENERATED_KEYS, "generated_applied"),
         _ => return Err(code("CONTRIBUTION_KIND")),
     };
     require(keys(contribution, shape), "CONTRIBUTION_SHAPE")?;
@@ -1163,10 +1202,19 @@ fn validate_contribution(contribution: &Value) -> Check {
             text(&contribution["dimension"])?;
             let authored = number(&contribution["authored_normalized_magnitude"])?;
             let applied = number(&contribution["applied_magnitude"])?;
-            require(
-                applied == authored * factor,
-                "CONTRIBUTION_APPLIED_MAGNITUDE",
-            )
+            // DEL-05-01 REQ-014: on a marked case, a stored primitive that one
+            // of the mark's contents items names was applied with the test
+            // contents, so its applied magnitude is the factor times that
+            // item's applied_n_per_m; its authored magnitude is the document's.
+            // Every other entry: the factor times its authored magnitude.
+            let item = mark
+                .and_then(|mark| mark["contents_resolution"].as_array())
+                .and_then(|items| items.iter().find(|item| item["load_id"] == contribution["source_id"]));
+            let base = match item {
+                Some(item) => number(&item["applied_n_per_m"])?,
+                None => authored,
+            };
+            require(applied == base * factor, "CONTRIBUTION_APPLIED_MAGNITUDE")
         }
         Some("resolved_member_state") => {
             for reference in array(&contribution["consumed_input_refs"])? {
@@ -1175,6 +1223,13 @@ fn validate_contribution(contribution: &Value) -> Check {
             number(&contribution["value"]).map(|_| ())
         }
         Some("support_state") => number(&contribution["value"]).map(|_| ()),
+        Some("generated_equivalent_static") => {
+            require(contribution["factor"].as_f64() == Some(1.0), "CONTRIBUTION_FACTOR")?;
+            require(
+                GENERATION_KINDS.iter().any(|kind| contribution["generation_kind"] == *kind),
+                "CONTRIBUTION_GENERATION_KIND",
+            )
+        }
         _ => require(contribution["factor"].is_null(), "CONTRIBUTION_FACTOR"),
     }
 }

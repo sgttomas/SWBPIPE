@@ -8,7 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import twoSpanInput from "../../../../fixtures/results/hanger_sizing_input_two_span.json";
 import twoSpanReply from "../../../../fixtures/results/hanger_sizing_reply_two_span.json";
 import twoSpanDocument from "../../../../fixtures/results/hanger_sizing_result_two_span.json";
-import { hangerSizingView } from "../features/results/hangerSizingView";
+import { hangerSizingView, integrityDisclosureMessage } from "../features/results/hangerSizingView";
 import type { HangerSizingInput } from "./hangerSizingService";
 
 const invokeMock = vi.hoisted(() => vi.fn());
@@ -120,6 +120,7 @@ describe("sizeHangers", () => {
       ["derivation", "passed"],
       ["reproduction", "not_checked"]
     ]);
+    expect(view.readerStandings.integrityBound).toEqual({ status: "not_verified", reason: "inverse_norm_bound_not_verified" });
   });
 
   it("awaits its retirement before sending, and carries the epoch that retirement acknowledged", async () => {
@@ -154,6 +155,94 @@ describe("sizeHangers", () => {
       host(() => Promise.resolve(reply));
       const completion = await service.sizeHangers(input());
       expect(completion.kind === "failed" && completion.code).toBe(service.HANGER_SIZING_REPLY_UNREADABLE);
+    }
+  });
+
+  it("reads no reply whose sized document's integrity bound, solve standing or confirmation is tampered", async () => {
+    type Tamperable = { document: { result: { integrity_bound: unknown; solves: Record<string, unknown>[]; disclosures: unknown[] } } };
+    const integrity = (names: string[], message = integrityDisclosureMessage("sensitive")) => ({ code: "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", names, message });
+    const tampered: Array<[string, (reply: Tamperable) => void, string]> = [
+      ["bound verified", (r) => { r.document.result.integrity_bound = { status: "verified", reason: "inverse_norm_bound_not_verified" }; }, "HANGER_SIZING_INTEGRITY_BOUND_MALFORMED"],
+      ["bound extra", (r) => { r.document.result.integrity_bound = { status: "not_verified", reason: "inverse_norm_bound_not_verified", bound: 1 }; }, "HANGER_SIZING_INTEGRITY_BOUND_MALFORMED"],
+      ["bound missing", (r) => { delete (r.document.result as Record<string, unknown>).integrity_bound; }, "HANGER_SIZING_INTEGRITY_BOUND_MALFORMED"],
+      ["standing wire token", (r) => { r.document.result.solves[2].solver_standing = "checks_passed"; }, "HANGER_SIZING_SOLVE_STANDING_MALFORMED: S_O1"],
+      ["standing undisclosed", (r) => { r.document.result.solves[2].solver_standing = "sensitive"; }, "HANGER_SIZING_SOLVE_STANDING_UNDISCLOSED: S_O1"],
+      ["confirmation outcome", (r) => { r.document.result.solves[2].support_state_confirmation = { outcome: "verified", detail: null }; }, "HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: S_O1"],
+      ["confirmation not applicable with states", (r) => { r.document.result.solves[2].support_state_confirmation = { outcome: "not_applicable", detail: null }; }, "HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: S_O1"],
+      ["confirmation blank detail", (r) => { r.document.result.solves[2].support_state_confirmation = { outcome: "not_established_detail_quoted", detail: "" }; }, "HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: S_O1"],
+      ...["  ", "\u0085", "\uFEFF", "\u0085\uFEFF"].map((detail): [string, (reply: Tamperable) => void, string] => [
+        `confirmation blank detail ${JSON.stringify(detail)}`,
+        (r) => { r.document.result.solves[2].support_state_confirmation = { outcome: "not_established_detail_quoted", detail }; },
+        "HANGER_SIZING_SOLVE_CONFIRMATION_MALFORMED: S_O1"
+      ]),
+      ["integrity disclosure of an orphan label", (r) => { r.document.result.disclosures = [integrity(["S_O99"])]; }, "HANGER_SIZING_SOLVE_INTEGRITY_DISCLOSURE_MALFORMED: disclosures[0]"],
+      ["integrity disclosure naming two solves", (r) => { r.document.result.solves[0].solver_standing = "sensitive"; r.document.result.disclosures = [integrity(["S_W", "S_C"])]; }, "HANGER_SIZING_SOLVE_INTEGRITY_DISCLOSURE_MALFORMED: disclosures[0]"],
+      ["integrity disclosure duplicated", (r) => { r.document.result.solves[0].solver_standing = "sensitive"; r.document.result.disclosures = [integrity(["S_W"]), integrity(["S_W"])]; }, "HANGER_SIZING_SOLVE_INTEGRITY_DISCLOSURE_DUPLICATE: S_W"],
+      ["integrity disclosure with a forged message", (r) => { r.document.result.solves[0].solver_standing = "sensitive"; r.document.result.disclosures = [integrity(["S_W"], "sensitive: a verified error bound for this solve")]; }, "HANGER_SIZING_SOLVE_INTEGRITY_DISCLOSURE_MALFORMED: disclosures[0]"]
+    ];
+    for (const [name, change, fault] of tampered) {
+      const reply = structuredClone(twoSpanReply) as unknown as Tamperable;
+      change(reply);
+      host(() => Promise.resolve(reply));
+      const completion = await service.sizeHangers(input());
+      expect(completion.kind, name).toBe("failed");
+      if (completion.kind !== "failed") continue;
+      expect(completion.code, name).toBe(service.HANGER_SIZING_REPLY_UNREADABLE);
+      expect(completion.message, name).toBe(`the native reply's sized document is not readable here (${fault}).`);
+    }
+    // The committed reply itself is read, and so is a sensitive weight solve carrying the engine's exact message.
+    host(() => Promise.resolve(structuredClone(twoSpanReply)));
+    expect((await service.sizeHangers(input())).kind).toBe("replied");
+    const sensitive = structuredClone(twoSpanReply) as unknown as Tamperable;
+    sensitive.document.result.solves[0].solver_standing = "sensitive";
+    sensitive.document.result.disclosures = [integrity(["S_W"])];
+    host(() => Promise.resolve(sensitive));
+    expect((await service.sizeHangers(input())).kind).toBe("replied");
+  });
+
+  it("reads no reply whose solve is reported established beside its unavailable correction, and reads the withdrawn one", async () => {
+    type Tamperable = { document: { result: { solves: Record<string, unknown>[]; disclosures: unknown[] } } };
+    // S_O1 (solves[2]) sensitive with its integrity and correction-unavailable disclosures: the producer withdraws a
+    // confirmed state when the correction fails, so solver_reported_established is a contradiction.
+    const withS_O1 = (outcome: string) => {
+      const reply = structuredClone(twoSpanReply) as unknown as Tamperable;
+      reply.document.result.solves[2].solver_standing = "sensitive";
+      reply.document.result.disclosures = [
+        { code: "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", names: ["S_O1"], message: integrityDisclosureMessage("sensitive") },
+        { code: "DISPLACEMENT_CORRECTION_UNAVAILABLE", names: ["S_O1"], message: "Load case load:OPERATING: the corrected displacement of node:A:UX could not be certified (invented); no published result of this case relies on the member-relative formation check." }
+      ];
+      reply.document.result.solves[2].support_state_confirmation = { outcome, detail: null };
+      return reply;
+    };
+    /** The well-formed correction-unavailable disclosure of S_O1 a reply carries. */
+    const unavailableOf = (reply: Tamperable) => structuredClone(reply.document.result.disclosures[1]) as Record<string, unknown>;
+    host(() => Promise.resolve(withS_O1("solver_reported_established")));
+    const completion = await service.sizeHangers(input());
+    expect(completion.kind).toBe("failed");
+    if (completion.kind === "failed") {
+      expect(completion.code).toBe(service.HANGER_SIZING_REPLY_UNREADABLE);
+      expect(completion.message).toBe("the native reply's sized document is not readable here (HANGER_SIZING_SOLVE_CONFIRMATION_CONTRADICTION: S_O1).");
+    }
+    host(() => Promise.resolve(withS_O1("no_confirmation_record")));
+    expect((await service.sizeHangers(input())).kind).toBe("replied");
+    // A malformed or repeated correction-unavailable disclosure is not read either.
+    const unavailable = unavailableOf(withS_O1("no_confirmation_record"));
+    const malformed: Array<[string, Record<string, unknown>, string]> = [
+      ["orphan label", { ...unavailable, names: ["S_O99"] }, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_MALFORMED: disclosures[2]"],
+      ["multi-label", { ...unavailable, names: ["S_O1", "S_O2"] }, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_MALFORMED: disclosures[2]"],
+      ["no label", { ...unavailable, names: [] }, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_MALFORMED: disclosures[2]"],
+      ["empty message", { ...unavailable, message: "" }, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_MALFORMED: disclosures[2]"],
+      ["repeated", unavailable, "HANGER_SIZING_CORRECTION_UNAVAILABLE_DISCLOSURE_DUPLICATE: S_O1"]
+    ];
+    for (const [name, extra, fault] of malformed) {
+      const reply = withS_O1("no_confirmation_record");
+      reply.document.result.disclosures.push(extra);
+      host(() => Promise.resolve(reply));
+      const done = await service.sizeHangers(input());
+      expect(done.kind, name).toBe("failed");
+      if (done.kind !== "failed") continue;
+      expect(done.code, name).toBe(service.HANGER_SIZING_REPLY_UNREADABLE);
+      expect(done.message, name).toBe(`the native reply's sized document is not readable here (${fault}).`);
     }
   });
 
