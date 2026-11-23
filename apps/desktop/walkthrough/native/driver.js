@@ -538,6 +538,20 @@
       const preview = await control("rendered-report-preview", { timeoutMs: T.ui });
       await scrollTo(preview, "start");
     });
+    // Open in a window (report_view.rs): pressed as a person does; the build records what the view window's protocol
+    // served it (native_smoke_take_report_views), not what WebKit drew. The window is left open: the launch ends with it.
+    await journey.step("view-window", "Open in a window: the rendered report in a native window of its own", async () => {
+      await press("rendered-report-open-window");
+      const status = await waitFor("the window's outcome", () => { const now = text("rendered-report-view-status"); return now && !/^Opening/.test(now) ? now : null; }, T.step);
+      const views = [];
+      const started = Date.now();
+      while (!views.some((view) => view.document_served) && Date.now() - started < T.ui) {
+        views.push(...(await call("native_smoke_take_report_views")));
+        if (!views.some((view) => view.document_served)) await sleep(250);
+      }
+      const served = views.map((view) => `${view.window_label} ${view.kind} wrapper ${view.wrapper_served ? "served" : "not served"}, document ${view.document_served ? `served (${view.document_byte_count} B, SHA-256 ${view.document_sha256_hex})` : "not served"}`);
+      return `${status}; ${served.length ? served.join("; ") : "no view window was served"}`;
+    });
     await journey.step("shareable-dialog", "File > Save Shareable Report Package…: the release dialog", async () => {
       await menu("file.save-shareable-report-package");
       await waitFor("the release dialog", () => visible(byTestId("user-release-dialog")), T.step);
