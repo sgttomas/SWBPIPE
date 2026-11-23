@@ -276,6 +276,12 @@ fn view_label(n: u64) -> String {
     format!("{LABEL_PREFIX}{n}")
 }
 
+/// Whether `label` is a view window's ([`view_label`]).
+#[cfg_attr(not(feature = "native-smoke"), allow(dead_code))]
+pub(crate) fn is_view_label(label: &str) -> bool {
+    label.starts_with(LABEL_PREFIX)
+}
+
 /// The current render's kind.
 pub(crate) const KIND_CURRENT_RENDER: &str = "current_render";
 
@@ -1079,6 +1085,14 @@ pub(crate) fn close_unshowable() -> Vec<String> {
 #[cfg_attr(not(feature = "native-smoke"), allow(dead_code))]
 pub(crate) fn close_all() -> Vec<String> {
     close_where_in(&OPEN, None, &RuntimeWindows::current(), |_| true)
+}
+
+/// The label of every view window record, in whatever state: being built,
+/// open or closing. A record goes once its window's destruction is observed
+/// or its opening fails (the scripted run's close waits for none to remain).
+#[cfg_attr(not(feature = "native-smoke"), allow(dead_code))]
+pub(crate) fn recorded_labels() -> Vec<String> {
+    lock(&OPEN).iter().map(|record| record.label.clone()).collect()
 }
 
 /// An accepted close or quit (`finish_close` and the exit request in

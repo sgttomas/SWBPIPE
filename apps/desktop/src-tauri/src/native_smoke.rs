@@ -36,8 +36,10 @@
 //! (`report_view`) is opened and served as in the product, and the harness
 //! records what its protocol served each window (`record_report_view`, read by
 //! `native_smoke_take_report_views`); in place of a person's close of a view
-//! window, it asks for every open view window's destruction through the
-//! window's own API and confirms that each has left the window registry
+//! window, it asks, through each window's own API, for the destruction of
+//! every open view window and confirms, within two seconds of the request,
+//! that no view window remains in the window registry or in any state of its
+//! record, being built or already closing included, and fails otherwise
 //! (`native_smoke_close_report_views`). Everything else, from the
 //! open checks to solve, persistence and export, runs on the product's code.
 //! The evidence journeys (`native-smoke/evidence-journeys.mjs`) also write
@@ -714,17 +716,50 @@ pub fn native_smoke_take_report_views() -> Vec<ReportViewObservation> {
     std::mem::take(&mut *REPORT_VIEWS.lock().unwrap_or_else(std::sync::PoisonError::into_inner))
 }
 
-/// Closes every open report view window (`report_view::close_all`) and
-/// confirms that each label the close took leaves Tauri's window registry;
-/// returns those labels. A close request alone is not evidence that a window
-/// closed.
+/// Asks every report view window to close (`report_view::close_all`) and,
+/// within two seconds of the request, confirms that no view window remains in
+/// any state: none in Tauri's window registry and no view record, one being
+/// built or already closing included; fails otherwise. Returns the labels
+/// present at the request and those the close took. A close request alone is
+/// not evidence that a window closed.
 #[tauri::command]
 pub async fn native_smoke_close_report_views(app: AppHandle) -> Result<Vec<String>, String> {
-    let labels = crate::report_view::close_all();
-    for label in &labels {
-        confirm_closed(Some(label.clone()), |label| app.get_webview_window(label).is_some(), std::time::Duration::from_secs(2)).await?;
+    let remaining = || {
+        let mut labels: Vec<String> = app.webview_windows().into_keys().filter(|label| crate::report_view::is_view_label(label)).collect();
+        for label in crate::report_view::recorded_labels() {
+            if !labels.contains(&label) {
+                labels.push(label);
+            }
+        }
+        labels.sort();
+        labels
+    };
+    close_until_none_remain(crate::report_view::close_all, remaining, std::time::Duration::from_secs(2)).await
+}
+
+/// `close`, then a wait under one deadline, `within` from the request, until
+/// `remaining` (every view window still registered or recorded) is empty: the
+/// labels present at the request and those `close` took, or an error naming
+/// the windows that remain at the deadline.
+async fn close_until_none_remain(close: impl FnOnce() -> Vec<String>, remaining: impl Fn() -> Vec<String>, within: std::time::Duration) -> Result<Vec<String>, String> {
+    let deadline = std::time::Instant::now() + within;
+    let mut labels = remaining();
+    for label in close() {
+        if !labels.contains(&label) {
+            labels.push(label);
+        }
     }
-    Ok(labels)
+    labels.sort();
+    loop {
+        let left = remaining();
+        if left.is_empty() {
+            return Ok(labels);
+        }
+        if std::time::Instant::now() >= deadline {
+            return Err(format!("The report view window(s) {} remain after the close request.", left.join(", ")));
+        }
+        tokio::time::sleep(std::time::Duration::from_millis(10)).await;
+    }
 }
 
 #[tauri::command]
@@ -1687,6 +1722,62 @@ mod reader_phase_tests {
             assert!(panic.is_err());
             assert_eq!(take(), vec![(phase, "exit", "incomplete")]);
         }
+    }
+}
+
+#[cfg(test)]
+mod report_view_close_tests {
+    use super::close_until_none_remain;
+    use std::cell::RefCell;
+    use std::time::{Duration, Instant};
+
+    /// A registry of view windows, each gone at its own time after the request
+    /// (`None`: it never goes): an open window the close takes, one still being
+    /// built (the close only marks it; its opening destroys it later) and one
+    /// already closing (the close skips it).
+    struct Views {
+        start: Instant,
+        windows: Vec<(&'static str, Option<Duration>)>,
+    }
+
+    impl Views {
+        fn remaining(&self) -> Vec<String> {
+            let now = self.start.elapsed();
+            self.windows.iter().filter(|(_, gone)| gone.is_none_or(|at| now < at)).map(|(label, _)| label.to_string()).collect()
+        }
+    }
+
+    fn run(windows: Vec<(&'static str, Option<Duration>)>, close_takes: Duration, within: Duration) -> (Result<Vec<String>, String>, RefCell<u32>) {
+        let views = Views { start: Instant::now(), windows };
+        let closes = RefCell::new(0);
+        let close = || {
+            *closes.borrow_mut() += 1;
+            std::thread::sleep(close_takes);
+            // close_where_in returns only the open window's label.
+            vec!["report-view-1".to_string()]
+        };
+        let result = tauri::async_runtime::block_on(close_until_none_remain(close, || views.remaining(), within));
+        (result, closes)
+    }
+
+    #[test]
+    fn the_close_succeeds_only_once_no_view_window_remains_in_any_state() {
+        let ms = Duration::from_millis;
+        // Open, being built and closing: all gone within the deadline, so the close succeeds,
+        // naming every window present at the request.
+        let (result, closes) = run(vec![("report-view-1", Some(ms(5))), ("report-view-2", Some(ms(40))), ("report-view-3", Some(ms(60)))], ms(0), ms(500));
+        assert_eq!(result, Ok(vec!["report-view-1".to_string(), "report-view-2".to_string(), "report-view-3".to_string()]));
+        assert_eq!(*closes.borrow(), 1);
+        // The window being built never goes: the close fails, naming it, though the open one went.
+        let (result, _) = run(vec![("report-view-1", Some(ms(5))), ("report-view-2", None)], ms(0), ms(60));
+        assert_eq!(result, Err("The report view window(s) report-view-2 remain after the close request.".to_string()));
+        // The window already closing never goes: the close fails, naming it.
+        let (result, _) = run(vec![("report-view-1", Some(ms(5))), ("report-view-3", None)], ms(0), ms(60));
+        assert_eq!(result, Err("The report view window(s) report-view-3 remain after the close request.".to_string()));
+        // One deadline from the request: a window gone after it, counted from the request, fails
+        // even though it goes soon after the close returns.
+        let (result, _) = run(vec![("report-view-2", Some(ms(150)))], ms(80), ms(100));
+        assert_eq!(result, Err("The report view window(s) report-view-2 remain after the close request.".to_string()));
     }
 }
 
