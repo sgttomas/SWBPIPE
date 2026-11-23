@@ -639,9 +639,9 @@ pub async fn native_smoke_close_report_print(app: AppHandle) -> Result<bool, Str
     confirm_closed(selected, |label| app.get_webview_window(label).is_some(), std::time::Duration::from_secs(2)).await
 }
 
-/// `false` when no print window was selected; `true` once the selected label
-/// is no longer `registered`; an error when it remains registered at the
-/// deadline.
+/// `false` when no window was selected; `true` once the selected label (a
+/// print window's or a report view window's) is no longer `registered`; an
+/// error when it remains registered at the deadline.
 async fn confirm_closed(selected: Option<String>, registered: impl Fn(&str) -> bool, within: std::time::Duration) -> Result<bool, String> {
     let Some(label) = selected else {
         return Ok(false);
@@ -652,7 +652,7 @@ async fn confirm_closed(selected: Option<String>, registered: impl Fn(&str) -> b
             return Ok(true);
         }
         if std::time::Instant::now() >= deadline {
-            return Err(format!("The print window {label} remains registered after its close request."));
+            return Err(format!("The window {label} remains registered after its close request."));
         }
         tokio::time::sleep(std::time::Duration::from_millis(10)).await;
     }
@@ -1710,6 +1710,6 @@ mod report_print_close_tests {
         // The selected window does not leave the registry: an error, never success, even though
         // another window is gone.
         let lingering = tauri::async_runtime::block_on(confirm_closed(Some("report-print-2".to_string()), registered, Duration::from_millis(30)));
-        assert_eq!(lingering, Err("The print window report-print-2 remains registered after its close request.".to_string()));
+        assert_eq!(lingering, Err("The window report-print-2 remains registered after its close request.".to_string()));
     }
 }
