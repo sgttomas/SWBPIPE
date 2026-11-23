@@ -42,8 +42,12 @@ export function useProjectSessionState(advanceReportSource?: () => number) {
     message: "Local project store not opened.",
     details: null
   });
+  // Issue 519: every publication of the status line, counted when it is made (identical text
+  // included), so that a write settling late can tell whether anything was published since it began.
+  const projectMessagePublications = useRef(0);
   const setProjectMessage = useCallback(
     (next: string | ((prev: string) => string), details: string | null = null) => {
+      projectMessagePublications.current += 1;
       setProjectStatus((prev) => ({
         message: typeof next === "function" ? next(prev.message) : next,
         details: typeof next === "function" ? prev.details : details
@@ -51,6 +55,14 @@ export function useProjectSessionState(advanceReportSource?: () => number) {
     },
     []
   );
+  /** Issue 519: a write's outcome that arrives after the session moved on. Where nothing was
+   * published since the write began (`seen`), `replacement` takes the line and its details are
+   * cleared; otherwise `addition` is added to the newer message, whose details stay. */
+  const settleLateProjectMessage = useCallback((seen: number, replacement: string, addition: string) => {
+    const unchanged = projectMessagePublications.current === seen;
+    projectMessagePublications.current += 1;
+    setProjectStatus((prev) => unchanged ? { message: replacement, details: null } : { message: `${prev.message}${addition}`, details: prev.details });
+  }, []);
   const [projectOperation, setProjectOperation] = useState("not_started");
   const [projectBusy, setProjectBusy] = useState(false);
   return {
@@ -66,6 +78,7 @@ export function useProjectSessionState(advanceReportSource?: () => number) {
     projectMessage: projectStatus.message,
     projectMessageDetails: projectStatus.details,
     setProjectMessage,
+    projectMessagePublications, settleLateProjectMessage,
     projectOperation, setProjectOperation,
     projectBusy, setProjectBusy
   };

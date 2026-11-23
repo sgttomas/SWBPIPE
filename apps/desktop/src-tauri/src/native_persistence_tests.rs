@@ -2990,3 +2990,218 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:rule-pack-excluded save reply", "1593898dcb8e8171347b2eb24f958a0072107b822dc005d51c2996adf4cad6b3:3415"),
 ];
 
+
+/// Issue 519: a stored proposal's text in forms a re-serialisation changes
+/// (key order, whitespace, `1.0`, `-0`, an integer above 2^53).
+pub(crate) const ODD_PROPOSAL_TEXT: &str = "{ \"zeta\" : 1.0,\n  \"alpha\": [ -0, 9007199254740993, {\"b\":2,\"a\":1} ],\n \"proposal_id\":\"proposal:odd\" }";
+
+/// Issue 519: writes `text` as the stored project's proposal, as another tool would.
+pub(crate) fn set_stored_proposal(path: &Path, text: &str) {
+    assert_eq!(Connection::open(path).unwrap().execute("UPDATE local_projects SET proposal_json = ?1", [text]).unwrap(), 1);
+}
+
+pub(crate) fn stored_proposal_text(path: &Path) -> String {
+    Connection::open(path).unwrap().query_row("SELECT proposal_json FROM local_projects", [], |row| row.get(0)).unwrap()
+}
+
+/// Issue 519: a store whose project row's update fails after the row is written.
+pub(crate) fn fail_after_project_row_update(path: &Path) {
+    Connection::open(path).unwrap().execute_batch(
+        "CREATE TRIGGER invented_failure AFTER UPDATE ON local_projects BEGIN SELECT RAISE(FAIL, 'INVENTED-FAILURE: after the project row'); END;",
+    ).unwrap();
+}
+
+/// What the webview reads of a stored text: each number as JavaScript reads it.
+pub(crate) fn webview_reading(text: &str) -> Value {
+    let mut value: Value = serde_json::from_str(text).unwrap();
+    crate::analysis_run_v03_build::js_numbers(&mut value);
+    value
+}
+
+/// `args` with `edit` applied to its object.
+pub(crate) fn edited(args: &Value, edit: impl FnOnce(&mut serde_json::Map<String, Value>)) -> Value {
+    let mut args = args.clone();
+    edit(args.as_object_mut().unwrap());
+    args
+}
+
+/// Issue 519, the native Save Project: with `keepStoredProposal` the stored
+/// proposal's text is byte identical after a save in place, every other
+/// column is an ordinary save's of the same values, and the envelope hash is
+/// computed over the stored proposal as read (a reopen's findings agree).
+/// Without the member a save replaces it as before. Refused by name, nothing
+/// written: the member with a proposal, a value other than true, on a create,
+/// with no stored project. A save that fails after the row's update leaves
+/// the text as stored.
+#[test]
+fn a_native_save_in_place_keeps_the_stored_proposal_text_as_stored() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let dir = scratch("keep-proposal");
+    let case = case_named("preview:connected");
+    let parsed = webview_reading(ODD_PROPOSAL_TEXT);
+    let seeded = |name: &str, job: &str| {
+        let path = dir.join(name);
+        let first = native_save(&registry, &path, &edited(&case.save_args(job, "save", Value::Null, Value::Null), |args| { args.insert("proposal".into(), Value::Null); }), &unlimited()).unwrap();
+        set_stored_proposal(&path, ODD_PROPOSAL_TEXT);
+        (path, first["project_envelope_hash"]["value"].clone())
+    };
+    let in_place = |job: &str, base: &Value, keep: Option<Value>, proposal: Value| edited(&case.save_args(job, "save", base.clone(), Value::Null), |args| {
+        args.insert("proposal".into(), proposal);
+        if let Some(keep) = keep {
+            args.insert("keepStoredProposal".into(), keep);
+        }
+    });
+
+    let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
+    let (kept, base) = seeded("kept.sqlite", &job);
+    let reply = native_save(&registry, &kept, &in_place(&job, &base, Some(json!(true)), Value::Null), &unlimited()).unwrap();
+    assert_eq!(stored_proposal_text(&kept), ODD_PROPOSAL_TEXT, "byte identical");
+    assert_eq!(reply["proposal"], Value::Null, "no reply carries the stored proposal");
+    assert_eq!(reply["summary"]["proposal_count"], 1);
+    let (reference, reference_base) = seeded("reference.sqlite", &job);
+    let ordinary = native_save(&registry, &reference, &in_place(&job, &reference_base, None, parsed.clone()), &unlimited()).unwrap();
+    assert_eq!(stored_proposal_text(&reference), serde_json::to_string(&parsed).unwrap(), "an ordinary save re-serialises");
+    same_rows(&reference, &kept, "local_projects", &["proposal_json"], "kept");
+    assert_eq!(reply["project_envelope_hash"], ordinary["project_envelope_hash"], "the hash over the stored proposal as read");
+    registry.dispose_all_results();
+    let reopened = crate::stored_custody::tests::native_open(&registry, &kept, Some(case.project_id())).unwrap();
+    assert_eq!(reopened["stored_run"]["state"], "restored");
+    assert_eq!(reopened["stored_run"]["findings"]["envelope_payload_hash"], reply["project_envelope_hash"]["value"], "a reopen verifies the hash");
+    // The reopen's own check of the stored claim passes for these number forms (`-0`, 9007199254740993).
+    assert!(!reopened["stored_run"]["findings"]["findings"].as_array().unwrap().iter().any(|finding| finding == "HISTORICAL_ENVELOPE_HASH_MISMATCH"), "{}", reopened["stored_run"]["findings"]);
+    assert_eq!(reopened["proposal"], serde_json::from_str::<Value>(ODD_PROPOSAL_TEXT).unwrap(), "the open sends serde_json's reading");
+    assert_eq!(stored_proposal_text(&kept), ODD_PROPOSAL_TEXT, "the open did not rewrite it");
+    registry.dispose_all_results();
+
+    let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
+    let (plain, base) = seeded("plain.sqlite", &job);
+    native_save(&registry, &plain, &in_place(&job, &base, None, Value::Null), &unlimited()).unwrap();
+    assert_eq!(stored_proposal_text(&plain), "null", "without the member, as before");
+
+    for (name, keep, proposal, mode, expected) in [
+        ("both", json!(true), json!({"proposal_id": "proposal:own"}), "save", "carries both"),
+        ("false", json!(false), Value::Null, "save", "it was false"),
+        ("null", Value::Null, Value::Null, "save", "it was null"),
+        ("string", json!("true"), Value::Null, "save", "it was a string"),
+        ("number", json!(1), Value::Null, "save", "it was a number"),
+        ("create", json!(true), Value::Null, "create", "a create has no stored proposal"),
+    ] {
+        let (path, base) = seeded(&format!("refused-{name}.sqlite"), &job);
+        let before = dump(&path, "local_projects", &[]);
+        let args = edited(&in_place(&job, &base, Some(keep), proposal), |args| { args.insert("mode".into(), json!(mode)); });
+        let error = native_save(&registry, &path, &args, &unlimited()).unwrap_err();
+        assert!(error.starts_with(crate::STORED_PROPOSAL_KEEP_REFUSED) && error.contains(expected), "{name}: {error}");
+        assert_eq!(dump(&path, "local_projects", &[]), before, "{name}: every column unchanged");
+    }
+    // A Replace never keeps the stored proposal: refused before the stored revision is read, so a
+    // confirmed revision that no longer matches is not reported as a moved base.
+    for confirmed in ["stale", "matching"] {
+        let (path, base) = seeded(&format!("refused-confirmed-{confirmed}.sqlite"), &job);
+        let revision = if confirmed == "matching" { base.clone() } else { json!("sha256:stale") };
+        let before = dump(&path, "local_projects", &[]);
+        let args = edited(&in_place(&job, &base, Some(json!(true)), Value::Null), |args| { args.insert("confirmedRevision".into(), revision.clone()); });
+        let error = native_save(&registry, &path, &args, &unlimited()).unwrap_err();
+        assert!(error.starts_with(crate::STORED_PROPOSAL_KEEP_REFUSED) && error.contains("cannot confirm replacing"), "{confirmed}: {error}");
+        assert_eq!(dump(&path, "local_projects", &[]), before, "{confirmed}: every column unchanged");
+    }
+    let empty = dir.join("empty.sqlite");
+    let error = native_save(&registry, &empty, &in_place(&job, &Value::Null, Some(json!(true)), Value::Null), &unlimited()).unwrap_err();
+    assert!(error.starts_with(crate::STORED_PROPOSAL_KEEP_REFUSED) && error.contains("is not stored"), "{error}");
+    assert!(dump(&empty, "local_projects", &[]).is_empty());
+
+    let (failing, base) = seeded("failing.sqlite", &job);
+    fail_after_project_row_update(&failing);
+    let before = dump(&failing, "local_projects", &[]);
+    let error = native_save(&registry, &failing, &in_place(&job, &base, Some(json!(true)), Value::Null), &unlimited()).unwrap_err();
+    assert!(error.contains("INVENTED-FAILURE"), "{error}");
+    assert_eq!(dump(&failing, "local_projects", &[]), before);
+    assert_eq!(stored_proposal_text(&failing), ODD_PROPOSAL_TEXT);
+    assert!(registry.dispose_result(&job).unwrap().released);
+    std::fs::remove_dir_all(&dir).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
+/// Issue 519 review: a save that keeps the stored proposal reads it under the
+/// command's own memory. The smallest per-invocation budget (doubling from
+/// 1 MiB) under which `save` keeps a small stored proposal is found; a stored
+/// proposal whose parse is above twice that budget is then refused by name
+/// (the store's read refusal, naming the stored proposal), and the row is byte
+/// for byte unchanged. `seed` writes a project whose stored proposal is the
+/// given text and returns its store.
+pub(crate) fn a_kept_proposal_above_the_allowance_is_refused(
+    registry: &crate::solve_jobs::SolveJobRegistry,
+    seed: &dyn Fn(&str, &str) -> PathBuf,
+    save: &dyn Fn(&Path) -> Result<Value, String>,
+) {
+    const GIB: u64 = 1 << 30;
+    let mut budget = 1u64 << 20;
+    // Seeding runs under the ordinary budget; only the keeping save runs under the one tried.
+    let generous = || registry.configure_pool(192 * GIB, 64 * GIB, false).unwrap();
+    loop {
+        generous();
+        let path = seed(&format!("allowance-{budget}.sqlite"), "{\"proposal_id\":\"proposal:small\"}");
+        registry.configure_pool(192 * GIB, budget, false).unwrap();
+        if save(&path).is_ok() {
+            assert_eq!(stored_proposal_text(&path), "{\"proposal_id\":\"proposal:small\"}");
+            break;
+        }
+        budget *= 2;
+        assert!(budget <= 8 * GIB, "a budget the save fits");
+    }
+    let mut count = 1usize << 16;
+    let text = loop {
+        // A dense scalar array: its parse is many times its text.
+        let text = format!("{{\"proposal_id\":\"proposal:large\",\"pad\":[{}]}}", vec!["0"; count].join(","));
+        if crate::stored_read::parse_bytes(&text).unwrap() > 2 * budget {
+            break text;
+        }
+        count *= 2;
+    };
+    generous();
+    let path = seed("allowance-large.sqlite", &text);
+    let before = dump(&path, "local_projects", &[]);
+    registry.configure_pool(192 * GIB, budget, false).unwrap();
+    let refused = save(&path).unwrap_err();
+    assert!(
+        refused.starts_with(crate::STORED_PROPOSAL_KEEP_REFUSED) && refused.contains(crate::stored_read::STORE_READ_MEMORY_UNAVAILABLE) && refused.contains("stored proposal") && refused.contains("Nothing was saved"),
+        "refused by name: {refused}"
+    );
+    assert_eq!(dump(&path, "local_projects", &[]), before, "byte for byte unchanged");
+    assert_eq!(stored_proposal_text(&path), text);
+    generous();
+}
+
+/// Issue 519 review, the native Save Project: a stored proposal above the
+/// command's allowance is refused by name and the row is unchanged.
+#[test]
+fn a_native_save_refuses_a_kept_proposal_above_its_allowance() {
+    use crate::memory_pool::PressureLevel;
+    const GIB: u64 = 1 << 30;
+    let host = ScriptedHost::with(Some(256 * GIB), Some(1024 * GIB), PressureLevel::Normal);
+    let (registry, gate) = gated(&host);
+    registry.configure_pool(192 * GIB, 64 * GIB, false).unwrap();
+    let dir = scratch("keep-proposal-allowance");
+    let case = case_named("preview:connected");
+    let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
+    let bases = std::cell::RefCell::new(std::collections::HashMap::<PathBuf, Value>::new());
+    let seed = |name: &str, text: &str| {
+        let path = dir.join(name);
+        let first = native_save(&registry, &path, &edited(&case.save_args(&job, "save", Value::Null, Value::Null), |args| { args.insert("proposal".into(), Value::Null); }), &unlimited()).unwrap();
+        set_stored_proposal(&path, text);
+        bases.borrow_mut().insert(path.clone(), first["project_envelope_hash"]["value"].clone());
+        path
+    };
+    let save = |path: &Path| {
+        let base = bases.borrow()[path].clone();
+        let args = edited(&case.save_args(&job, "save", base, Value::Null), |args| {
+            args.insert("proposal".into(), Value::Null);
+            args.insert("keepStoredProposal".into(), json!(true));
+        });
+        native_save(&registry, path, &args, &unlimited())
+    };
+    a_kept_proposal_above_the_allowance_is_refused(&registry, &seed, &save);
+    assert!(registry.dispose_result(&job).unwrap().released);
+    std::fs::remove_dir_all(&dir).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}

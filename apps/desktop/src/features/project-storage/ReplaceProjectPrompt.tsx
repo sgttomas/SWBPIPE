@@ -68,6 +68,7 @@ export function ReplaceProjectPrompt({ prompt }: { prompt: ReplaceProjectPromptS
             ? <>The stored project {storedProjectDescription(prompt.existing)} has been saved since this session last saw it. {prompt.kind === "create" ? "Creating" : "Saving"} this project would replace that stored copy.</>
             : <>{prompt.kind === "create" ? "Creating" : "Saving"} this project would replace the stored project {storedProjectDescription(prompt.existing)}.</>}
           {savedStatesSentence(prompt.existing)}
+          {prompt.note ? <> {prompt.note}</> : null}
         </p>
         <div className="report-actions">
           <button type="button" ref={cancel} data-testid="replace-project-cancel" onClick={() => prompt.choose("cancel")}>

@@ -157,8 +157,10 @@ fn js_canonical_value<S: Sink>(w: &mut Writer<'_, S>, value: &Value) {
             w.raw("]");
         }
         Value::Object(map) => {
-            let mut keys: Vec<_> = map.keys().collect();
-            keys.sort_by(|a, b| a.encode_utf16().cmp(b.encode_utf16()));
+            // Distinct keys: an unstable sort gives the stable sort's order with no heap scratch.
+            let mut keys: Vec<&String> = Vec::with_capacity(map.len());
+            keys.extend(map.keys());
+            keys.sort_unstable_by(|a, b| a.encode_utf16().cmp(b.encode_utf16()));
             w.raw("{");
             for (index, key) in keys.into_iter().enumerate() {
                 if index > 0 { w.raw(","); }

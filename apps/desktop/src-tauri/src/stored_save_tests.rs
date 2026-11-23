@@ -738,3 +738,206 @@ fn the_resave_runs_off_the_async_executor() {
     drop(held);
     assert_eq!(registry.pool().reserved_total(), 0);
 }
+
+/// Issue 519, the re-save of a reopened saved run: with `keepStoredProposal`
+/// the stored proposal's text is byte identical after a save in place, the
+/// envelope hash is computed over it as read, and the product's own reopen
+/// checks the stored claim and passes (no `HISTORICAL_ENVELOPE_HASH_MISMATCH`),
+/// for an ordinary stored proposal and for the number forms JavaScript reads
+/// otherwise (`-0` as 0, 9007199254740993 as 9007199254740992), both on an
+/// unchanged re-save when the stored claim matches what was stored and on an
+/// edited re-save that computes a fresh claim over the kept text; an unchanged
+/// re-save of a stale stored claim preserves the historical basis instead of
+/// rewriting it. The reopen gives the same proposal. No reply carries the stored
+/// proposal. Without the member the re-save replaces it as before. Refused by
+/// name, nothing written: the member with a proposal, a value other than true,
+/// on a create. A re-save that fails after the row's update leaves the text as
+/// stored.
+#[test]
+fn a_resave_in_place_keeps_the_stored_proposal_text_as_stored() {
+    use crate::native_persistence::tests::{edited, fail_after_project_row_update, set_stored_proposal, stored_proposal_text, webview_reading, ODD_PROPOSAL_TEXT};
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let dir = scratch("resave-keep-proposal");
+    let case = persistence_cases().into_iter().next().unwrap();
+    let parsed = webview_reading(ODD_PROPOSAL_TEXT);
+    let read: Value = serde_json::from_str(ODD_PROPOSAL_TEXT).unwrap();
+    let reopened_with = |name: &str, text: &str, valid_claim: bool| {
+        let path = dir.join(name);
+        let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
+        let first = native_save(&registry, &path, &edited(&case.save_args(&job, "create", Value::Null, Value::Null), |args| { args.insert("proposal".into(), Value::Null); }), &unlimited()).unwrap();
+        set_stored_proposal(&path, text);
+        if valid_claim {
+            native_save(&registry, &path, &edited(&case.save_args(&job, "save", first["project_envelope_hash"]["value"].clone(), Value::Null), |args| {
+                args.insert("proposal".into(), Value::Null);
+                args.insert("keepStoredProposal".into(), json!(true));
+            }), &unlimited()).unwrap();
+            assert_eq!(stored_proposal_text(&path), text, "{name}: kept while seeding valid stored claim");
+        }
+        registry.dispose_all_results();
+        let opened = native_open(&registry, &path, Some(case.project_id())).unwrap();
+        assert_eq!(opened["stored_run"]["state"], "restored");
+        let expected_read: Value = serde_json::from_str(text).unwrap();
+        assert_eq!(opened["proposal"], expected_read, "the open sends serde_json's reading");
+        if valid_claim {
+            assert!(!opened["stored_run"]["findings"]["findings"].as_array().unwrap().iter().any(|finding| finding == "HISTORICAL_ENVELOPE_HASH_MISMATCH"), "{name}: {}", opened["stored_run"]["findings"]);
+        }
+        (path, opened)
+    };
+    let keeping = |opened: &Value, keep: Option<Value>, proposal: Value| edited(&in_place(opened), |args| {
+        args.insert("proposal".into(), proposal);
+        if let Some(keep) = keep {
+            args.insert("keepStoredProposal".into(), keep);
+        }
+    });
+
+    // The product's own reopen of a kept save: its check of the stored envelope claim passes.
+    let reopen_passes = |path: &Path, reply: &Value, what: &str| {
+        let again = native_open(&registry, path, Some(case.project_id())).unwrap();
+        let findings = &again["stored_run"]["findings"];
+        assert_eq!(findings["envelope_payload_hash"], reply["restored"]["envelope_payload_hash"], "{what}: a reopen recomputes the same hash");
+        assert_eq!(again["project_envelope_hash"]["value"], findings["envelope_payload_hash"], "{what}: the stored claim is the recomputed hash");
+        assert!(!findings["findings"].as_array().unwrap().iter().any(|finding| finding == "HISTORICAL_ENVELOPE_HASH_MISMATCH"), "{what}: {findings}");
+        again
+    };
+    let (kept, opened) = reopened_with("kept.sqlite", ODD_PROPOSAL_TEXT, true);
+    let reply = native_resave(&registry, &kept, &keeping(&opened, Some(json!(true)), Value::Null), &unlimited()).unwrap();
+    assert_eq!(stored_proposal_text(&kept), ODD_PROPOSAL_TEXT, "byte identical");
+    assert_eq!(reply["proposal"], Value::Null, "no reply carries the stored proposal");
+    assert_ne!(parsed, read, "JavaScript reads these numbers otherwise");
+    // The opened values re-saved as they are: the basis is kept and its findings are the reopen's.
+    assert_eq!(reply["restored"]["envelope_basis_kept"], true);
+    assert_eq!(reply["restored"]["envelope_payload_hash"], opened["stored_run"]["findings"]["envelope_payload_hash"]);
+    registry.dispose_all_results();
+    let again = reopen_passes(&kept, &reply, "the odd number forms unchanged");
+    assert_eq!(again["proposal"], read);
+    // Editing another field computes a fresh envelope claim over the kept odd-number proposal text.
+    let mut fields = opened_fields(&again);
+    fields["model"]["project"]["name"] = json!("Invented kept-proposal rename");
+    let base = again["project_envelope_hash"]["value"].clone();
+    let edited_reply = native_resave(&registry, &kept, &edited(&resave_args(&again, &fields, "save", base, Value::Null), |args| {
+        args.insert("proposal".into(), Value::Null);
+        args.insert("keepStoredProposal".into(), json!(true));
+    }), &unlimited()).unwrap();
+    assert_eq!(stored_proposal_text(&kept), ODD_PROPOSAL_TEXT, "byte identical after edited re-save");
+    assert_eq!(edited_reply["proposal"], Value::Null, "no reply carries the stored proposal");
+    assert_eq!(edited_reply["restored"]["envelope_basis_kept"], false, "fresh envelope claim computed over kept text");
+    registry.dispose_all_results();
+    let again_edited = reopen_passes(&kept, &edited_reply, "the odd number forms edited");
+    assert_eq!(again_edited["proposal"], read);
+    registry.dispose_all_results();
+
+    // Unchanged re-save of a project whose stored envelope claim was stale preserves historical evidence as advisory.
+    let (stale, opened) = reopened_with("stale.sqlite", ODD_PROPOSAL_TEXT, false);
+    let reply = native_resave(&registry, &stale, &keeping(&opened, Some(json!(true)), Value::Null), &unlimited()).unwrap();
+    assert_eq!(stored_proposal_text(&stale), ODD_PROPOSAL_TEXT, "byte identical on stale claim");
+    assert_eq!(reply["restored"]["envelope_basis_kept"], true);
+    assert_eq!(reply["project_envelope_hash"], opened["project_envelope_hash"]);
+    assert!(reply["restored"]["findings"]["findings"].as_array().unwrap().contains(&json!("HISTORICAL_ENVELOPE_HASH_MISMATCH")));
+    registry.dispose_all_results();
+
+    // An ordinary stored proposal: kept, and the reopen's check passes unchanged and edited.
+    const ORDINARY: &str = "{\"proposal_id\":\"proposal:ordinary\",\"rationale\":\"Invented.\",\"weight\":1.5}";
+    let (ordinary_path, opened) = reopened_with("ordinary.sqlite", ORDINARY, true);
+    let reply = native_resave(&registry, &ordinary_path, &keeping(&opened, Some(json!(true)), Value::Null), &unlimited()).unwrap();
+    assert_eq!(stored_proposal_text(&ordinary_path), ORDINARY, "byte identical");
+    assert_eq!(reply["restored"]["envelope_basis_kept"], true);
+    registry.dispose_all_results();
+    let again = reopen_passes(&ordinary_path, &reply, "an ordinary stored proposal unchanged");
+    assert_eq!(again["proposal"], serde_json::from_str::<Value>(ORDINARY).unwrap());
+    let mut fields = opened_fields(&again);
+    fields["model"]["project"]["name"] = json!("Invented ordinary kept rename");
+    let base = again["project_envelope_hash"]["value"].clone();
+    let edited_reply = native_resave(&registry, &ordinary_path, &edited(&resave_args(&again, &fields, "save", base, Value::Null), |args| {
+        args.insert("proposal".into(), Value::Null);
+        args.insert("keepStoredProposal".into(), json!(true));
+    }), &unlimited()).unwrap();
+    assert_eq!(stored_proposal_text(&ordinary_path), ORDINARY, "byte identical after edited re-save");
+    assert_eq!(edited_reply["restored"]["envelope_basis_kept"], false);
+    registry.dispose_all_results();
+    let again_edited = reopen_passes(&ordinary_path, &edited_reply, "an ordinary stored proposal edited");
+    assert_eq!(again_edited["proposal"], serde_json::from_str::<Value>(ORDINARY).unwrap());
+    registry.dispose_all_results();
+
+    let (plain, opened) = reopened_with("plain.sqlite", ODD_PROPOSAL_TEXT, true);
+    native_resave(&registry, &plain, &keeping(&opened, None, Value::Null), &unlimited()).unwrap();
+    assert_eq!(stored_proposal_text(&plain), "null", "without the member, as before");
+    registry.dispose_all_results();
+
+    for (name, keep, proposal, mode, expected) in [
+        ("both", json!(true), json!({"proposal_id": "proposal:own"}), "save", "carries both"),
+        ("false", json!(false), Value::Null, "save", "it was false"),
+        ("string", json!("true"), Value::Null, "save", "it was a string"),
+        ("create", json!(true), Value::Null, "create", "a create has no stored proposal"),
+    ] {
+        let (path, opened) = reopened_with(&format!("refused-{name}.sqlite"), ODD_PROPOSAL_TEXT, true);
+        let before = dump(&path, "local_projects", &[]);
+        let args = edited(&keeping(&opened, Some(keep), proposal), |args| { args.insert("mode".into(), json!(mode)); });
+        let error = native_resave(&registry, &path, &args, &unlimited()).unwrap_err();
+        assert!(error.starts_with(crate::STORED_PROPOSAL_KEEP_REFUSED) && error.contains(expected), "{name}: {error}");
+        assert_eq!(dump(&path, "local_projects", &[]), before, "{name}: every column unchanged");
+        registry.dispose_all_results();
+    }
+
+    // A Replace never keeps the stored proposal: refused before the stored revision is read, so a
+    // confirmed revision that no longer matches is not reported as a moved base.
+    {
+        let (path, opened) = reopened_with("refused-confirmed.sqlite", ODD_PROPOSAL_TEXT, true);
+        let before = dump(&path, "local_projects", &[]);
+        let args = edited(&keeping(&opened, Some(json!(true)), Value::Null), |args| { args.insert("confirmedRevision".into(), json!("sha256:stale")); });
+        let error = native_resave(&registry, &path, &args, &unlimited()).unwrap_err();
+        assert!(error.starts_with(crate::STORED_PROPOSAL_KEEP_REFUSED) && error.contains("cannot confirm replacing"), "{error}");
+        assert_eq!(dump(&path, "local_projects", &[]), before, "every column unchanged");
+        registry.dispose_all_results();
+    }
+
+    let (failing, opened) = reopened_with("failing.sqlite", ODD_PROPOSAL_TEXT, true);
+    fail_after_project_row_update(&failing);
+    let before = dump(&failing, "local_projects", &[]);
+    let error = native_resave(&registry, &failing, &keeping(&opened, Some(json!(true)), Value::Null), &unlimited()).unwrap_err();
+    assert!(error.contains("INVENTED-FAILURE"), "{error}");
+    assert_eq!(dump(&failing, "local_projects", &[]), before);
+    assert_eq!(stored_proposal_text(&failing), ODD_PROPOSAL_TEXT);
+    registry.dispose_all_results();
+    std::fs::remove_dir_all(&dir).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
+/// Issue 519 review, the re-save of a reopened saved run: a stored proposal
+/// above the command's allowance is refused by name and the row is unchanged.
+#[test]
+fn a_resave_refuses_a_kept_proposal_above_its_allowance() {
+    use crate::memory_pool::PressureLevel;
+    use crate::native_persistence::tests::{a_kept_proposal_above_the_allowance_is_refused, edited, set_stored_proposal};
+    const GIB: u64 = 1 << 30;
+    let host = ScriptedHost::with(Some(256 * GIB), Some(1024 * GIB), PressureLevel::Normal);
+    let (registry, gate) = gated(&host);
+    registry.configure_pool(192 * GIB, 64 * GIB, false).unwrap();
+    let dir = scratch("resave-keep-proposal-allowance");
+    let case = persistence_cases().into_iter().next().unwrap();
+    let opened_by_path = std::cell::RefCell::new(std::collections::HashMap::<std::path::PathBuf, Value>::new());
+    let seed = |name: &str, text: &str| {
+        registry.dispose_all_results();
+        let path = dir.join(name);
+        let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
+        native_save(&registry, &path, &edited(&case.save_args(&job, "create", Value::Null, Value::Null), |args| { args.insert("proposal".into(), Value::Null); }), &unlimited()).unwrap();
+        assert!(registry.dispose_result(&job).unwrap().released);
+        set_stored_proposal(&path, text);
+        let opened = native_open(&registry, &path, Some(case.project_id())).unwrap();
+        assert_eq!(opened["stored_run"]["state"], "restored");
+        opened_by_path.borrow_mut().insert(path.clone(), opened);
+        path
+    };
+    let save = |path: &Path| {
+        let opened = opened_by_path.borrow()[path].clone();
+        let args = edited(&in_place(&opened), |args| {
+            args.insert("proposal".into(), Value::Null);
+            args.insert("keepStoredProposal".into(), json!(true));
+        });
+        native_resave(&registry, path, &args, &unlimited())
+    };
+    a_kept_proposal_above_the_allowance_is_refused(&registry, &seed, &save);
+    registry.dispose_all_results();
+    std::fs::remove_dir_all(&dir).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}

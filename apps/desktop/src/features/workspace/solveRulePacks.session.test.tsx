@@ -15,6 +15,7 @@ import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { isDeepStrictEqual } from "node:util";
+import { createHash } from "node:crypto";
 import { afterEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
@@ -67,11 +68,12 @@ async function session(references: RulePackReference[] | null, packs: LocalRuleP
   }, { jobIdPrefix: `unit-solve-rule-packs:${++sequence}` });
   const store = { base: null as string | null, states: [] as ModelStateSummary[], runs: [] as AnalysisRunSummary[], records: [] as Json[], reads: new Map<string, AnalysisRunRead>() };
   const saveProject = (request: Json) => {
-    store.base = `sha256:${request.model.project.id}#saved`;
+    // A stored revision's token, as the store's claim carries it (a digest of the invented row).
+    store.base = `sha256:${createHash("sha256").update(`${request.model.project.id}#saved`).digest("hex")}`;
     return {
       summary: { project_id: request.model.project.id, project_name: request.model.project.name, message: "Saved." },
       model: request.model, editor_intents: [], proposal: null, selected_review_target: null, mechanics_result: request.mechanics_result ?? null,
-      analysis_run: request.analysis_run ?? null, model_hash: request.model_hash, project_envelope_hash: { value: store.base }, model_document_version: null
+      analysis_run: request.analysis_run ?? null, model_hash: request.model_hash, project_envelope_hash: { algorithm: "sha256", canonicalization: "rfc8785_jcs", payload_scope: "project_envelope_payload", payload_excludes: "storage_summary_and_envelope_hash_carrier_fields", payload_ref: request.model.project.id, value: store.base, hash_status: "computed_local_preview" }, model_document_version: null
     } as unknown as LocalProjectEnvelope;
   };
   const recordRun = async (request: Json) => {

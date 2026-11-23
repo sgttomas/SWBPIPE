@@ -350,6 +350,71 @@ fn the_canonical_writer_is_canonical_json() {
     }
 }
 
+/// Both canonical writers order an object's keys by an unstable sort (no heap
+/// scratch while the key list is live); an object's keys are distinct, so the
+/// order is total and the bytes are those of a stable sort. The oracle orders
+/// keys with the stable sort and writes leaves as each writer does, over ASCII
+/// keys, BMP against supplementary-plane keys (`\u{E000}` sorts after
+/// `\u{10000}`'s leading surrogate), numeric keys, nested and empty objects and
+/// an object of 65,536 keys.
+#[test]
+fn the_canonical_writers_key_order_is_the_stable_sorts() {
+    fn oracle(out: &mut Vec<u8>, value: &Value, js: bool) {
+        match value {
+            Value::Object(map) => {
+                let mut keys: Vec<&String> = map.keys().collect();
+                keys.sort_by(|left, right| left.encode_utf16().cmp(right.encode_utf16()));
+                out.push(b'{');
+                for (index, key) in keys.into_iter().enumerate() {
+                    if index > 0 {
+                        out.push(b',');
+                    }
+                    out.extend(serde_json::to_string(key).unwrap().into_bytes());
+                    out.push(b':');
+                    oracle(out, &map[key.as_str()], js);
+                }
+                out.push(b'}');
+            }
+            Value::Array(items) => {
+                out.push(b'[');
+                for (index, item) in items.iter().enumerate() {
+                    if index > 0 {
+                        out.push(b',');
+                    }
+                    oracle(out, item, js);
+                }
+                out.push(b']');
+            }
+            Value::Number(number) if js => out.extend(open_pipe_stress_canonical_json::ecma_number_to_string(number.as_f64().unwrap()).into_bytes()),
+            leaf => Writer::new(out, Style::Canonical).value(leaf),
+        }
+    }
+    let wide: serde_json::Map<String, Value> = (0..1u32 << 16)
+        .map(|index| (format!("k{:x}{}", index.wrapping_mul(2_654_435_761), char::from_u32(0xE000 + (index % 0x1000)).unwrap()), json!(index)))
+        .collect();
+    assert_eq!(wide.len(), 1 << 16, "distinct keys");
+    let values = [
+        json!({"b": 1, "a": 2, "c": {"z": [], "y": {}, "x": null}, "A": true, "_": false, "": "empty"}),
+        json!({"\u{E000}": 1, "\u{10000}": 2, "\u{FFFF}": 3, "\u{D7FF}": 4, "\u{1F600}": 5, "a": 6, "\u{00E9}": 7, "e\u{0301}": 8}),
+        json!({"10": 1, "9": 2, "1e3": 3, "-0": 4, "0": 5, "01": 6, "1.0": 7, "-1": 8, "Infinity": 9}),
+        json!({"outer": {"\u{10FFFF}": {"inner": {"b": [{"d": 1, "c": 2}], "a": {}}}, "\u{FFFD}": [1.5, -0.0, 1e21, 9007199254740993u64]}}),
+        json!({}),
+        json!([{}, {"k": {}}, []]),
+        Value::Object(wide),
+    ];
+    for (index, value) in values.iter().enumerate() {
+        let mut written = Vec::new();
+        Writer::new(&mut written, Style::Canonical).value(value);
+        let mut expected = Vec::new();
+        oracle(&mut expected, value, false);
+        assert_eq!(written, expected, "case {index}: the canonical writer");
+        assert_eq!(canonical_sha256(value), hex(&<sha2::Sha256 as sha2::Digest>::digest(&expected)), "case {index}");
+        let mut js_expected = Vec::new();
+        oracle(&mut js_expected, value, true);
+        assert_eq!(crate::analysis_run_v03_validate::jcs_sha256(value), hex(&<sha2::Sha256 as sha2::Digest>::digest(&js_expected)), "case {index}: the historical canonical writer");
+    }
+}
+
 /// The stored writer writes each number as JavaScript's `JSON.stringify`
 /// writes its binary64 value, read back by serde_json, and each object in
 /// serde_json's key order (UTF-8 bytes, where the canonical writer orders by

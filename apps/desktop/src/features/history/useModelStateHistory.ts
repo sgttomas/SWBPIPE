@@ -6,6 +6,7 @@
 // Called only by the session
 // (`useWorkspaceSession`), which hands it the cells and handlers it needs; the
 // History panel reads the result through `useSessionHistory()`.
+import type { UnadmittedStoredProposal } from "../workspace/storedProposalAdmission";
 import { fullResultRefusalWords, FullResultRefused, isNativeResult } from "../../services/nativeResult";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { MutableRefObject } from "react";
@@ -111,6 +112,9 @@ export type ProjectBinding = {
   base: { projectId: string; value: string | null } | null;
   summary: LocalProjectSummary | null;
   envelopeHash: ProjectEnvelopeHashEvidence | null;
+  /** Issue 519: the session's private record of the bound project's stored proposal that was not
+   * admitted, which goes with the base (absent: none). */
+  unadmittedProposal?: UnadmittedStoredProposal | null;
 };
 
 /** A Save Local Project that landed: the stored project, its new base and the
