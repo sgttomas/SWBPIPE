@@ -216,8 +216,10 @@ input file, a runtime read with no declaration, an unused or unknown declaration
 or an anchor absent from compiled source. A scan's file inventory is computed
 from the tree, and a reader's callers from the Cargo graph, so neither is kept
 in the record: the record's `source_trees` digests, each declaration's
-`source_trees` list and a scan's `files` are retained but unchecked and need no
-edit. A deleted path that any scan's root and rule cover, or that any
+`source_trees` list and a scan's `files` are retained and need no edit. The
+selector derives callers and scan membership from the tree. A hosted-CI
+regression also uses one retained caller list as an expected subset of the
+selected manifests. A deleted path that any scan's root and rule cover, or that any
 declaration lists, selects every crate, as an unknown path does.
 
 Each declaration attests its reader's `sha256` and each anchor source's
