@@ -454,20 +454,18 @@ permission changes and releases. Use [Git conventions](#git-conventions) below.
 
 **Record-only overlap.** The update and fresh run may be omitted for one PR
 with a green hosted `harness` on its reviewed head when its overlap with what
-has merged to `main` since its base is confined to derived content of one or
-both of two records. Auto-merge is off before this assessment begins and
-through the merge, which Agent 0 makes by hand.
+has merged to `main` since its base is confined to derived content of one
+record. Auto-merge is off before this assessment begins and through the merge,
+which Agent 0 makes by hand.
 
-- The records are `tools/validation/pressure_elongation_inventory.json`,
+- The record is `tools/validation/pressure_elongation_inventory.json`,
   regenerated on each side by
-  `tools/validation/pressure_elongation_inventory.py`, and
-  `tools/hosted-ci-routing.json`, in which either side may change only existing
-  digest values in `piping_runtime_reads.source_trees`, existing `sha256`
-  values on its readers, and the membership of an input's `files` list where
-  that input has an unchanged `scan`; and no reader whose `sha256` changes on
-  one side has a `files` list or any declared input file changed on the other.
-  Every other edit to the routing record takes the update and the fresh run. No
-  other generated or partly generated file qualifies, whatever produced it.
+  `tools/validation/pressure_elongation_inventory.py`. No other generated or
+  partly generated file qualifies, whatever produced it.
+  `tools/hosted-ci-routing.json` does not need this exception: its caller
+  digests and scan inventories are not checked, and its per-file attestations
+  merge line by line (`docs/CI_STRATEGY.md`). A PR that edits it takes the
+  update and the fresh run.
 - From the merge-base of `main` and the reviewed head, Agent 0 compares the
   PR's diff with each first-parent change landed on `main` since, and reads
   both sides' diffs of each shared record. On the merged tree built below, and
@@ -481,14 +479,10 @@ through the merge, which Agent 0 makes by hand.
   reviewed head in a clean checkout and edits nothing in it. The merge is
   conflict-free, each shared record's diff against the merge-base holds only
   the content above, and each merged record parses with no duplicate JSON key.
-- On that tree: for a shared pressure inventory, `python3
+- On that tree: `python3
   tools/validation/pressure_elongation_inventory.py --check` and
-  `tools/validation/test_pressure_elongation_inventory.py` pass; for a shared
-  routing record, `tests/test_ci_numerical.py` and
-  `tools/software_workflow/test_hosted_ci.py` pass and every `source_trees` key
-  is a discovered Cargo manifest whose digest equals
-  `numerical_ci.rust_tree_digest`; and `python3 -m tools.deliverables --project
-  . check` reports no error.
+  `tools/validation/test_pressure_elongation_inventory.py` pass, and `python3
+  -m tools.deliverables --project . check` reports no error.
 - The merged candidate's effective hosted selection equals the green run's.
   From the merge commit against the checked `main` (`python3
   tools/software_workflow/hosted_ci.py plan --event pull_request --base <main>
@@ -518,6 +512,7 @@ reviews and the conditions for composed branches are unchanged.
 - Treat `main` as SWBPIPE's integration branch. Name task branches with a prefix that identifies the authoring agent, such as `codex/` or `claude/`, unless the user specifies otherwise. Integrate a PR with a merge commit (no fast-forward) unless the PR chooses otherwise.
 - Use a separate worktree when the user requests isolation or when concurrent sessions make isolation proportionate, such as overlapping writes to governance surfaces, risky refactors, or tool interference. Do not require a worktree for every change. High-risk overlap paths here include `AGENTS.md`, governance documents under `docs/`, accepted snapshots, generated derivative packages, and shared control roots such as `execution/_Coordination/`; warn when two lanes overlap on them.
 - Close authorized work through a PR. No separate commit, push, PR or merge approval is needed when its conditions hold. Use the configured authenticated identity and retain truthful authorship; agent review is not personal owner review.
+- Keep open work small. A Type 1 lane has at most two open PRs at a time and finishes or closes one before opening a third; drafts the owner has chosen to keep do not count. A draft untouched for three days is closed into an issue that names what replaced it or where its remaining work is recorded, and its branch is kept, unless the owner has chosen to keep it.
 - Verify in proportion to consequence and confirm required checks pass on the exact head. Obtain independent scrutiny where the grant requires it. Clear blocking findings and reassess affected checks after candidate changes; a passing rerun does not establish that a known defect was repaired. Verify the source HEAD when merging.
 - Git integration, human acceptance and product release remain distinct.
 - Update affected live consumers and references in the change itself.
