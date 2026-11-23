@@ -248,7 +248,7 @@ pub(crate) fn run() -> i32 {
 }
 fn run_inner() -> Result<(), &'static str> {
     let start = Instant::now();
-    let registry = SolveJobRegistry::new(MemoryPool::new(Arc::new(MacHostMemory)));
+    let registry = SolveJobRegistry::new(MemoryPool::new(Arc::new(MacHostMemory))).map_err(|_| "issue_tag_unavailable")?;
     let _backing = registry
         .acquire_interactive_ingress(64 * 1024 * 1024)
         .map_err(|_| "fixture_admission")?;

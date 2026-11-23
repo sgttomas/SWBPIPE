@@ -779,7 +779,7 @@ pub(crate) mod test_support {
     use std::time::Duration;
 
     pub(crate) fn registry(host: Arc<ScriptedHost>) -> SolveJobRegistry {
-        SolveJobRegistry::new(MemoryPool::with_wait_tick(host, Duration::from_millis(5)))
+        SolveJobRegistry::new(MemoryPool::with_wait_tick(host, Duration::from_millis(5))).expect("the registry is constructed")
     }
 
     pub(crate) fn headers(value: Option<&str>) -> HeaderMap {

@@ -638,6 +638,7 @@ const namesMissingInputs = (rules) => Boolean(rules?.aggregate?.includes("RULE_I
   check("demo local-private report print: the document printed is the one rendered and shown", printed?.shown_hash === render?.hash, { printed: printed?.shown_hash ?? null, rendered: render?.hash ?? null });
   const rules = first.rule_checks;
   check("demo rule checks: refused as RULE_INPUTS_INCOMPLETE, naming the missing inputs", namesMissingInputs(rules), rules?.outcomes);
+  check("demo rule checks: run by the result's handle, with no full copy offered", rules?.gate?.full_copy_offered === false, rules?.gate);
   checkStressRatioAfterRuleChecks("demo rule checks", rules);
 }
 // W-4. Exact-route (pressure-3) gates, by name.
@@ -676,6 +677,7 @@ const namesMissingInputs = (rules) => Boolean(rules?.aggregate?.includes("RULE_I
       && ["openpipestress.result_semantics/0.3.0/pressure-3", "openpipestress.result_semantics/0.3.0/pressure-source-1"].includes(exactIdentity),
     exactRead?.error ?? exactPackage?.status ?? exact?.report_package_refusal ?? { identity: exactIdentity });
   check("exact route: rule checks refused as RULE_INPUTS_INCOMPLETE, naming the missing inputs", namesMissingInputs(exact?.rule_checks), exact?.rule_checks?.outcomes);
+  check("exact route: rule checks run by the result's handle, with no full copy offered", exact?.rule_checks?.gate?.full_copy_offered === false, exact?.rule_checks?.gate);
   checkStressRatioAfterRuleChecks("exact route: rule checks", exact?.rule_checks);
 }
 // W-4. The model authored from blank in the GUI.

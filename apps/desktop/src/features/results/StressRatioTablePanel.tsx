@@ -12,10 +12,12 @@
  * significant digits, half away from zero, Pa shown as MPa) in the stored units. A view only: it
  * changes no model, result, run or export, and it persists and sends nothing. */
 
-import { boundSummary, isNativeResult, nativeIdsOf, nativeOrdinalsIn, nativeRowKey, withPublishedIds, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
+import { boundSummary, isNativeResult, nativeIdsOf, nativeOrdinalsIn, nativeRowKey, nativeRowOrdinal, resolveNativeRowKey, withPublishedIds, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
 import { stressRatioTableFromSummary } from "../../services/resultSummary";
 import { useNativeRowKey } from "./useNativeRowKey";
-import { useEffect, useMemo, useState } from "react";
+import { ruleRowsRead, useRuleCheckRows } from "./useRuleCheckRows";
+import type { SupportLoadCase } from "./supportLoadSummary";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
 import { rulePackReference, type SessionRuleCheckRun } from "../report/renderableReportInput";
 import { displayQuantityParts } from "../report/reportQuantityDisplay";
@@ -37,6 +39,7 @@ import type { ResultOverlayStanding } from "./numericalHealth";
 import {
   THRESHOLD_INVALID_NOTE,
   buildStressRatioTable,
+  stressRatioTableWithRuleRows,
   ratioDirection,
   stressRatioLocationText,
   stressRatioPage,
@@ -92,8 +95,6 @@ export const RATIO_DISABLED_EMITTED = "Emitted stress: no rule outcome";
 export type StressRatioTablePanelProps = Readonly<{
   model: PreviewModel;
   result: SessionResult | null;
-  /** A native result's C2 full copy, held when its rule-check run was run on it (the run's rows are looked up by id). */
-  fullResult?: MechanicsResult | null;
   /** The result's analysis-run record, for the CSV preamble's result hash (RT-R6). */
   analysisRun?: SessionAnalysisRun | null;
   /** The reader's numerical standing and the session's numerical health view (the overlays' input). */
@@ -108,10 +109,17 @@ export type StressRatioTablePanelProps = Readonly<{
   testIdPrefix?: string;
 }>;
 
-/** A value under the display rule; its title carries the same number and unit and the row's id. */
+/** The published ids of the shown rows of a native table, by ordinal (bounded lookups). */
+const PublishedIds = createContext<ReadonlyMap<number, string> | null>(null);
+
+/** A value under the display rule; its title carries the same number and unit and the row's
+ * published id (for a native table's row, once its id is read; until then no id). */
 function ValueText({ value, id, shareUnit }: { value: StressRatioValue; id: string; shareUnit: boolean }) {
+  const published = useContext(PublishedIds);
   const parts = displayQuantityParts(value.value, value.unit);
-  return <span title={`${parts.number} ${parts.unit} (${id})`}>{shareUnit ? parts.number : `${parts.number} ${parts.unit}`}</span>;
+  const ordinal = nativeRowOrdinal(id);
+  const shownId = ordinal === null ? id : published?.get(ordinal) ?? null;
+  return <span title={shownId === null ? `${parts.number} ${parts.unit}` : `${parts.number} ${parts.unit} (${shownId})`}>{shareUnit ? parts.number : `${parts.number} ${parts.unit}`}</span>;
 }
 
 /** An empty cell: a dash on screen, a word for a screen reader. */
@@ -137,16 +145,33 @@ async function publishedGroupAndView<G, V>(result: SessionResult | null, group: 
 }
 
 export function StressRatioTablePanel({
-  model, result, fullResult = null, analysisRun = null, standing, ruleCheckRun = null, selectedResultId: selectedId = null, onSelectLocation, testIdPrefix = "stress-ratio"
+  model, result, analysisRun = null, standing, ruleCheckRun = null, selectedResultId: selectedId = null, onSelectLocation, testIdPrefix = "stress-ratio"
 }: StressRatioTablePanelProps) {
-  // C1: a native result's table is S's (no rule-check run), its rows keyed by internal row keys;
-  // with a rule-check run, the run's rows come from the result's C2 full copy.
+  // C1: a native result's table is S's, its rows keyed by internal row keys; with a rule-check run,
+  // the run's groups are formed from the rows it binds, read from the held result by id. Until
+  // they are read, or if their read is refused, the result's own stresses are shown and the run's
+  // note says the rows are being read, or could not be read in the refusal's words.
   const summary = boundSummary(result, model);
+  const ruleRows = useRuleCheckRows(result, ruleCheckRun);
   const table = useMemo(() => {
     if (!result || !isNativeResult(result)) return buildStressRatioTable({ model, result: result as MechanicsResult | null, standing, ruleCheckRun });
-    if (ruleCheckRun) return buildStressRatioTable({ model, result: fullResult, standing, ruleCheckRun });
-    return summary ? stressRatioTableFromSummary(summary, nativeRowKey) : buildStressRatioTable({ model, result: null, standing, ruleCheckRun: null });
-  }, [model, result, fullResult, summary, standing, ruleCheckRun]);
+    if (!summary) return buildStressRatioTable({ model, result: null, standing, ruleCheckRun: null });
+    const summaryTable = stressRatioTableFromSummary(summary, nativeRowKey);
+    if (!ruleCheckRun) return summaryTable;
+    return stressRatioTableWithRuleRows({ summaryTable, cases: summary.header.tables.support_load_cases as unknown as SupportLoadCase[], standing, ruleCheckRun, rows: ruleRowsRead(ruleRows) });
+  }, [model, result, summary, standing, ruleCheckRun, ruleRows]);
+  // A native table's row keys name rows by ordinal: a location's selection, and a value's title,
+  // name the row by its published id, read by bounded lookup.
+  const shownResult = useRef(result);
+  shownResult.current = result;
+  const selectLocation = useMemo(() => onSelectLocation && ((target: StressRatioTarget) => {
+    if (nativeRowOrdinal(target.resultId) === null) return onSelectLocation(target);
+    const shown = result;
+    void resolveNativeRowKey(shown, target.resultId!).then(
+      (resultId) => { if (shownResult.current === shown) onSelectLocation({ ...target, resultId }); },
+      () => { if (shownResult.current === shown) onSelectLocation({ ...target, resultId: null }); }
+    );
+  }), [onSelectLocation, result]);
   const selectedResultId = useNativeRowKey(result, selectedId);
   const [chosenId, setChosenId] = useState<string | null>(null);
   const [chosenMode, setChosenMode] = useState<StressRatioMode>("ratio");
@@ -160,6 +185,15 @@ export function StressRatioTablePanel({
   // A new category, mode or threshold lists from the top again.
   useEffect(() => setLimit(STRESS_RATIO_PAGE), [group?.id, view?.mode, thresholds]);
   const page = useMemo(() => (view ? stressRatioPage(view, limit) : null), [view, limit]);
+  const [publishedIds, setPublishedIds] = useState<{ result: SessionResult | null; ids: ReadonlyMap<number, string> } | null>(null);
+  useEffect(() => {
+    if (!result || !isNativeResult(result) || !page) return;
+    const ordinals = nativeOrdinalsIn(page);
+    if (ordinals.length === 0) return;
+    let live = true;
+    nativeIdsOf(result, ordinals).then((ids) => { if (live) setPublishedIds({ result, ids }); }, () => undefined);
+    return () => { live = false; };
+  }, [result, page]);
   const tid = (suffix: string) => `${testIdPrefix}-${suffix}`;
   const health = standing?.health ?? null;
 
@@ -198,7 +232,9 @@ export function StressRatioTablePanel({
               threshold: thresholds[view.mode]
             })}
           />
-          <RowsTable group={group} view={view} page={page} selectedResultId={selectedResultId} onSelectLocation={onSelectLocation} tid={tid} />
+          <PublishedIds.Provider value={publishedIds && publishedIds.result === result ? publishedIds.ids : null}>
+            <RowsTable group={group} view={view} page={page} selectedResultId={selectedResultId} onSelectLocation={selectLocation} tid={tid} />
+          </PublishedIds.Provider>
           <p aria-live="polite" data-testid={tid("summary")}>{stressRatioSummaryText(view, page)}</p>
           {page.notListedCount > 0 ? (
             <button type="button" data-testid={tid("more")} onClick={() => setLimit((current) => current + STRESS_RATIO_PAGE)}>
@@ -224,7 +260,14 @@ function Controls({ table, group, view, threshold, onGroup, onMode, onThreshold,
 }) {
   const rules = table.groups.filter((item) => item.source === "rule_category");
   const stresses = table.groups.filter((item) => item.source === "emitted_stress");
-  const ratioDisabledReason = group.modes.includes("ratio") ? null : table.run.state === "used" ? RATIO_DISABLED_EMITTED : RATIO_DISABLED_NO_RUN;
+  // While the run's rows are read, or once their read is refused, the run's own note says why.
+  const ratioDisabledReason = group.modes.includes("ratio")
+    ? null
+    : table.run.state === "used"
+      ? RATIO_DISABLED_EMITTED
+      : table.run.state === "rows_pending" || table.run.state === "rows_unread"
+        ? table.run.note
+        : RATIO_DISABLED_NO_RUN;
   const unit = view.keyUnit ? displayQuantityParts(0, view.keyUnit).unit : null;
   const disabled = view.threshold.state === "disabled";
   return (

@@ -102,6 +102,8 @@ mod user_release_save_tests;
 mod worker_alloc;
 #[cfg(test)]
 mod rule_check_object_form_tests;
+#[cfg(test)]
+mod rule_check_handle_tests;
 
 #[cfg(all(target_os = "macos", feature = "native-smoke"))]
 pub fn run_agent_session_fixture() -> i32 { embedded_agent::session_fixture::run() }
@@ -3064,8 +3066,8 @@ async fn read_restored_result_record_all(
 }
 
 /// C1 interim (slice 4): a native-custody result's exact bytes, copied
-/// whole for a C2 consumer (reports, comparisons, rule checks, derivative
-/// exports, handoffs) only at or under 64 MiB
+/// whole for a C2 consumer (reports, comparisons, derivative exports,
+/// handoffs; a rule check reads the held result by handle) only at or under 64 MiB
 /// (`solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES`); above it refused by name
 /// (`RESULT-DETAIL-WEBVIEW-LIMIT`). The copy's lease is held as custody
 /// until `release_preview_mechanics_job_full_copy` or disposal. The copy runs
@@ -4166,47 +4168,552 @@ fn validate_rule_pack_value(
 /// 0.5.0, DEL-06-01 Design `rule-pack-0.5.0.md` §2.7). The pack is validated
 /// first; a pack with blocking validation findings (any format other than
 /// 0.5.0 among them) is reported as `RULE_INPUTS_INCOMPLETE` without running
-/// checks. Solver values are resolved from the solved mechanics envelope
-/// supplied via `solved_envelope` (a solve-job result; this command does not
-/// solve) by each input's in-pack selector on each basis (§2.5); user values and value-slot limits come from
+/// checks. Solver values are resolved from the solved result this session's
+/// native custody holds under `jobId` (a fresh solve's handle; this command
+/// does not solve and the web view sends no copy of the result) by each
+/// input's in-pack selector on each basis (§2.5); user values and value-slot limits come from
 /// `supplied_value_bindings`. This emits only the automatic rule-check statuses
 /// and makes no professional, certification, sealing, authentication, approval,
-/// or code-compliance claim.
+/// or code-compliance claim. The held result is parsed and checked in a
+/// blocking task, off the main thread.
 #[tauri::command]
-fn run_rule_checks(
+async fn run_rule_checks(
     app: AppHandle,
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError> {
-    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "run_rule_checks", ArgsDecoding::Moved)?;
-    respond(run_rule_checks_args(&mut args, &|| app_store_path(&app)))
+    let (mut args, lease) = admit_rule_check_args(&registry, invoke.body(), invoke.headers())?;
+    let registry = registry.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        // The reply's text is made, and custody rechecked, before it is handed over.
+        let response = run_rule_checks_args(&mut args, &|| app_store_path(&app), &registry).map(|(text, reply_lease)| {
+            let response = tauri::ipc::Response::new(text);
+            drop(reply_lease);
+            response
+        });
+        drop(lease);
+        response
+    })
+    .await
+    .unwrap_or_else(|_| Err(CommandError::Command("RULE-CHECK-WORKER-FAILED: the rule check's worker did not complete.".to_string())))
 }
 
-/// `{rulePackDocument, model?, solvedEnvelope?, solverResultBindings?,
+/// `run_rule_checks`'s admission of its raw arguments, the command's own
+/// ([`command_ingress::admit_body`]).
+fn admit_rule_check_args(
+    registry: &SolveJobRegistry,
+    body: &tauri::ipc::InvokeBody,
+    headers: &tauri::http::HeaderMap,
+) -> Result<(Args, memory_pool::Lease), solve_jobs::SolveJobError> {
+    command_ingress::admit_body(registry, body, headers, "run_rule_checks", ArgsDecoding::Moved)
+}
+
+/// `preview_rule_solver_rows`'s admission of its raw arguments, bounded before
+/// their prescan and parse: see [`rule_solver_selection::MAX_PREVIEW_ARGS_BYTES`].
+fn admit_preview_args(
+    registry: &SolveJobRegistry,
+    body: &tauri::ipc::InvokeBody,
+    headers: &tauri::http::HeaderMap,
+) -> Result<(Args, memory_pool::Lease), solve_jobs::SolveJobError> {
+    command_ingress::admit_body_within(registry, body, headers, "preview_rule_solver_rows", ArgsDecoding::Moved, rule_solver_selection::MAX_PREVIEW_ARGS_BYTES)
+}
+
+/// The refusal of a rule check sent a copy of the result instead of its handle.
+const RULE_CHECK_SOLVED_ENVELOPE_RETIRED: &str = "RULE_CHECK_SOLVED_ENVELOPE_RETIRED";
+/// The refusal of a handle that selects no result this session holds natively.
+const RULE_CHECK_RESULT_NOT_HELD: &str = "RULE_CHECK_RESULT_NOT_HELD";
+
+/// The custody a rule check reads under: this session's native custody of the
+/// result `job_id` names, taken as a share of its exact held bytes. Refused by
+/// name, before any byte is read, for a handle the registry does not know (never
+/// issued by this registry, or pruned after disposal), one whose result was
+/// disposed or taken into the web view, one held in web view custody rather than
+/// natively, and a restored (saved or recorded) run, which has historical
+/// standing only: the web view refused that last one as
+/// `RULE_NATIVE_INVOCATION_REQUIRED`, and so does this. `allow_restored` admits
+/// a restored run for display-only readers. Every outcome reached after this
+/// share is taken, a refusal included, is answered through [`answer_while_held`].
+fn acquire_rule_check_source(registry: &SolveJobRegistry, job_id: &str, allow_restored: bool) -> Result<Arc<solve_jobs::HeldResult>, CommandError> {
+    let not_held = |reason: String| CommandError::Command(format!("{RULE_CHECK_RESULT_NOT_HELD}: {reason}"));
+    match registry.result_origin(job_id) {
+        None => return Err(not_held(format!("{} is not a result held in this session", stored_read::shown(job_id)))),
+        Some(solve_jobs::ResultOrigin::Restored(_)) if !allow_restored => {
+            return Err(CommandError::Command(
+                "RULE_NATIVE_INVOCATION_REQUIRED: reference or saved data is not a fresh supported solve.".to_string(),
+            ))
+        }
+        Some(_) => {}
+    }
+    if registry.result_custody(job_id) != Some(solve_jobs::ResultCustody::Native) {
+        return Err(not_held(format!("{} is not held natively", stored_read::shown(job_id))));
+    }
+    registry.held_result(job_id).map_err(|_| not_held(format!("{} is not a result held in this session", stored_read::shown(job_id))))
+}
+
+/// The held result `held` parsed from its exact bytes under a result-parse lease
+/// priced by the prescan, as the native readers parse it. The lease is returned
+/// with the value and must outlive it. A result holding a number outside the
+/// checked JSON profile is refused as the web view's registration refused it
+/// ([`outside_checked_json_profile`]). Called under the share it reads; its
+/// refusals are answered through [`answer_while_held`].
+fn read_rule_check_source(registry: &SolveJobRegistry, held: &solve_jobs::HeldResult) -> Result<(Value, memory_pool::Lease), CommandError> {
+    #[cfg(test)]
+    crate::native_verdict::tests::gate::pass(crate::native_verdict::tests::gate::key(registry, "rule-check-read"));
+    let bounds = native_verdict::prescan_in_order(registry, &[("source", Some(held.text()))])?;
+    let (bound, _) = bounds[0].expect("the held source is prescanned");
+    let lease = registry.acquire_result_parse(bound.materialization_bytes)?;
+    let value = serde_json::from_str::<Value>(held.text()).map_err(|error| {
+        CommandError::Command(format!("{RULE_CHECK_RESULT_NOT_HELD}: the held result is not readable JSON: {}", stored_read::shown(&error.to_string())))
+    })?;
+    if outside_checked_json_profile(&value) {
+        return Err(CommandError::Command(format!(
+            "RULE_NATIVE_INVOCATION_REQUIRED: {CHECKED_JSON_NUMBER_OUTSIDE_PROFILE}: the held result holds an integral number beyond ±(2^53 − 1), or a number binary64 cannot represent, which the checked JSON profile refuses; it is not checked"
+        )));
+    }
+    Ok((value, lease))
+}
+
+/// `checkedJsonText`'s number refusal (`hashService.ts`), which the web view's
+/// registration of a received result applied to the whole result.
+const CHECKED_JSON_NUMBER_OUTSIDE_PROFILE: &str = "CHECKED-JSON-NUMBER-OUTSIDE-PROFILE";
+
+/// Whether `value` holds a number the checked JSON profile refuses: an integral
+/// value outside the safe integer range ±(2^53 − 1), whether written as an
+/// integer or with a fraction or exponent. It fails closed: a number with no
+/// finite binary64 reading is refused too (the parser admits none today).
+fn outside_checked_json_profile(value: &Value) -> bool {
+    const SAFE: u64 = 9_007_199_254_740_991;
+    match value {
+        Value::Number(number) => {
+            if let Some(unsigned) = number.as_u64() {
+                unsigned > SAFE
+            } else if let Some(signed) = number.as_i64() {
+                signed.unsigned_abs() > SAFE
+            } else {
+                match number.as_f64() {
+                    Some(float) if float.is_finite() => float.fract() == 0.0 && float.abs() > SAFE as f64,
+                    _ => true,
+                }
+            }
+        }
+        Value::Array(items) => items.iter().any(outside_checked_json_profile),
+        Value::Object(members) => members.values().any(outside_checked_json_profile),
+        _ => false,
+    }
+}
+
+/// DEL-07-07 REQ-015: a rule-check reader answers only while custody still holds
+/// the bytes it read. `outcome` is the reader's complete answer, its reply text
+/// made or its refusal formed, under the share `held` it was read from; it is
+/// returned only if the handle still names that same share. Otherwise the answer
+/// is the refusal, and nothing that was read is returned, not even a refusal
+/// that quotes it. The share is dropped after the check.
+fn answer_while_held<T>(registry: &SolveJobRegistry, job_id: &str, held: Arc<solve_jobs::HeldResult>, outcome: Result<T, CommandError>) -> Result<T, CommandError> {
+    #[cfg(test)]
+    crate::native_verdict::tests::gate::pass(crate::native_verdict::tests::gate::key(registry, "rule-check-answer"));
+    let still = matches!(registry.held_result(job_id), Ok(now) if Arc::ptr_eq(&now, &held));
+    drop(held);
+    if still {
+        outcome
+    } else {
+        drop(outcome);
+        Err(CommandError::Command(format!(
+            "{RULE_CHECK_RESULT_NOT_HELD}: {} was released while it was read; nothing it read is returned",
+            stored_read::shown(job_id)
+        )))
+    }
+}
+
+/// Display only: which rows of the held result each `solver_result` input's
+/// selector names on its bases, with the run's own row index and row gate
+/// ([`rule_solver_selection::parse_preview_queries`], [`preview_rule_solver_rows_reply`]), for the rule-check
+/// panel's selector preview and binding pre-check. Raw args body
+/// `{jobId, queries: [{input_id, selector, bases}]}`. It reads a restored run
+/// too (it binds and evaluates nothing); the handle is otherwise refused as
+/// the run refuses it. Parsed in a blocking task, off the main thread.
+#[tauri::command]
+async fn preview_rule_solver_rows(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError> {
+    let (mut args, lease) = admit_preview_args(&registry, invoke.body(), invoke.headers())?;
+    let registry = registry.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        // The reply's text is built under its own lease, held until it is handed over.
+        let response = preview_rule_solver_rows_reply(&mut args, &registry).map(|(text, reply_lease)| {
+            let response = tauri::ipc::Response::new(text);
+            drop(reply_lease);
+            response
+        });
+        drop(lease);
+        response
+    })
+    .await
+    .unwrap_or_else(|_| Err(CommandError::Command("RULE-CHECK-WORKER-FAILED: the selector preview's worker did not complete.".to_string())))
+}
+
+/// The selector preview's reply text and its lease. The arguments were admitted
+/// within [`rule_solver_selection::MAX_PREVIEW_ARGS_BYTES`]; the queries are read
+/// and bounded before the result is ([`rule_solver_selection::parse_preview_queries`]).
+/// The reply is counted as it would be written and refused by name as soon as its
+/// running length passes [`rule_solver_selection::MAX_PREVIEW_REPLY_BYTES`]; its
+/// exact length is then leased and its text written, as the detail readers lease
+/// theirs. The whole answer is made under the held share and returned through
+/// [`answer_while_held`].
+fn preview_rule_solver_rows_reply(args: &mut Args, registry: &SolveJobRegistry) -> Result<(String, memory_pool::Lease), CommandError> {
+    preview_rule_solver_rows_reply_within(args, registry, rule_solver_selection::MAX_PREVIEW_REPLY_BYTES)
+}
+
+/// [`preview_rule_solver_rows_reply`] under a reply limit of `limit` bytes.
+fn preview_rule_solver_rows_reply_within(args: &mut Args, registry: &SolveJobRegistry, limit: u64) -> Result<(String, memory_pool::Lease), CommandError> {
+    let job_id: String = args.decode("jobId")?;
+    let queries = rule_solver_selection::parse_preview_queries(args.value("queries")?).map_err(CommandError::Command)?;
+    let held = acquire_rule_check_source(registry, &job_id, true)?;
+    let outcome = (|| {
+        let (envelope, parse) = read_rule_check_source(registry, &held)?;
+        let length = rule_solver_selection::preview_reply_length(&envelope, &queries, &job_id, limit).map_err(CommandError::Command)?;
+        #[cfg(test)]
+        crate::native_verdict::tests::gate::pass(crate::native_verdict::tests::gate::key(registry, "rule-check-reply-lease"));
+        let reply_lease = registry.acquire_result_parse(length)?;
+        #[cfg(test)]
+        crate::native_verdict::tests::gate::pass(crate::native_verdict::tests::gate::key(registry, "rule-check-serialize"));
+        let text = rule_solver_selection::write_preview_reply(&envelope, &queries, &job_id, length);
+        debug_assert!(text.len() as u64 == length, "the preview reply is {} bytes, not its leased {length}", text.len());
+        drop(envelope);
+        drop(parse);
+        Ok((text, reply_lease))
+    })();
+    answer_while_held(registry, &job_id, held, outcome)
+}
+
+/// `{rulePackDocument, jobId, model?, solverResultBindings?,
 /// suppliedValueBindings?, projectId?, sourceBlockInvocation?}`.
+/// `jobId` names the solved result in this session's native custody
+/// ([`acquire_rule_check_source`]); a `solvedEnvelope` copy is refused by name
+/// (`RULE_CHECK_SOLVED_ENVELOPE_RETIRED`). The model is checked first, as
+/// before, so a run without a model is refused without reading the result.
 /// `solverResultBindings` is retired for a 0.5.0 pack and refused by name
 /// (`RULE_CALLER_SOLVER_BINDING_RETIRED`; DEL-06-01 Design
 /// `rule-pack-0.5.0.md` §2.5); it is still read so that it is refused rather
 /// than silently ignored.
-fn run_rule_checks_args(args: &mut Args, store: &dyn Fn() -> Result<PathBuf, String>) -> Result<Value, CommandError> {
+/// The answer is the reply's text and its lease, made under the held share and
+/// returned through [`answer_while_held`]. Bounded before the runner: the pack's
+/// projected outcomes ([`rule_check_projection`]) are refused by name when even
+/// their least reply passes [`MAX_RULE_CHECK_REPLY_BYTES`], and their priced
+/// working memory is leased once the result is parsed. The reply is counted as it
+/// would be written and refused by name as soon as the count passes the limit;
+/// its exact length is then leased and its text written.
+fn run_rule_checks_args(args: &mut Args, store: &dyn Fn() -> Result<PathBuf, String>, registry: &SolveJobRegistry) -> Result<(String, memory_pool::Lease), CommandError> {
+    if args.keys().any(|key| key == "solvedEnvelope") {
+        return Err(CommandError::Command(format!(
+            "{RULE_CHECK_SOLVED_ENVELOPE_RETIRED}: a rule check reads the solved result held natively; send its jobId, not a copy of the result"
+        )));
+    }
     let rule_pack_document = args.value("rulePackDocument")?;
+    let job_id: Option<String> = args.decode("jobId")?;
     let model = args.opt_value("model");
-    let solved_envelope = args.opt_value("solvedEnvelope");
     let solver_result_bindings = args.opt_value("solverResultBindings");
     let supplied_value_bindings = args.opt_value("suppliedValueBindings");
     let project_id = args.decode::<Option<String>>("projectId")?;
     let source_block_invocation = args.opt_value("sourceBlockInvocation");
-    run_rule_checks_value(
-        store,
-        rule_pack_document,
-        model,
-        solved_envelope,
-        solver_result_bindings,
-        supplied_value_bindings,
-        project_id,
-        source_block_invocation,
-    )
-    .map_err(CommandError::Command)
+    if model.is_none() {
+        return Err(CommandError::Command(
+            "RULE_NUMERICAL_CASE_COVERAGE_UNAVAILABLE: supply the current model with explicit load cases and recompute mechanics".to_string(),
+        ));
+    }
+    let job_id = job_id.ok_or_else(|| CommandError::Command(
+        "RULE_CHECK_SOLVED_ENVELOPE_REQUIRED: run the solve job and supply its jobId".to_string(),
+    ))?;
+    let projection = rule_check_projection(&rule_pack_document);
+    if projection.least_bytes > MAX_RULE_CHECK_REPLY_BYTES {
+        return Err(CommandError::Command(format!(
+            "{RULE_CHECK_RESPONSE_LIMIT}: the rule check would return {} outcomes, at least {} bytes, past its {MAX_RULE_CHECK_REPLY_BYTES}-byte reply limit; check fewer load cases or checks",
+            projection.outcomes, projection.least_bytes
+        )));
+    }
+    let held = acquire_rule_check_source(registry, &job_id, false)?;
+    let outcome = (|| {
+        let (envelope, parse) = read_rule_check_source(registry, &held)?;
+        #[cfg(test)]
+        crate::native_verdict::tests::gate::pass(crate::native_verdict::tests::gate::key(registry, "rule-check-work-lease"));
+        let work = registry.acquire_result_parse(projection.work_bytes)?;
+        #[cfg(test)]
+        RULE_CHECK_RUNS_STARTED.with(|count| count.set(count.get() + 1));
+        let answer = run_rule_checks_value(
+            store,
+            rule_pack_document,
+            model,
+            Some(envelope),
+            solver_result_bindings,
+            supplied_value_bindings,
+            project_id,
+            source_block_invocation,
+        )
+        .map_err(CommandError::Command)?;
+        drop(parse);
+        #[cfg(test)]
+        crate::native_verdict::tests::gate::pass(crate::native_verdict::tests::gate::key(registry, "rule-check-serialize"));
+        let length = capped_reply_length(&answer, MAX_RULE_CHECK_REPLY_BYTES).map_err(|()| {
+            CommandError::Command(format!(
+                "{RULE_CHECK_RESPONSE_LIMIT}: the rule check's reply passes its {MAX_RULE_CHECK_REPLY_BYTES}-byte limit; check fewer load cases or checks"
+            ))
+        })?;
+        let reply_lease = registry.acquire_result_parse(length)?;
+        // Written into a buffer of exactly the leased length.
+        let mut bytes = Vec::with_capacity(length as usize);
+        serde_json::to_writer(&mut bytes, &answer).map_err(|error| CommandError::Response(error.to_string()))?;
+        debug_assert!(bytes.len() as u64 == length, "the rule check reply is {} bytes, not its leased {length}", bytes.len());
+        let text = String::from_utf8(bytes).map_err(|error| CommandError::Response(error.to_string()))?;
+        drop(answer);
+        drop(work);
+        Ok((text, reply_lease))
+    })();
+    // A result disposed while it was checked answers with the refusal, never with findings.
+    answer_while_held(registry, &job_id, held, outcome)
+}
+
+/// The refusal of a rule check whose reply would pass [`MAX_RULE_CHECK_REPLY_BYTES`].
+const RULE_CHECK_RESPONSE_LIMIT: &str = "RULE_CHECK_RESPONSE_LIMIT";
+/// The most bytes a rule check's reply may hold: the selector preview's limit
+/// ([`rule_solver_selection::MAX_PREVIEW_REPLY_BYTES`]), the bound on a rule-check
+/// reply the display reads whole.
+pub(crate) const MAX_RULE_CHECK_REPLY_BYTES: u64 = rule_solver_selection::MAX_PREVIEW_REPLY_BYTES;
+/// The fewest bytes one outcome takes in the reply: the runner's `CheckOutcome`
+/// serializes every member but its two values, so its member names, punctuation
+/// and separator with every value empty are always written.
+pub(crate) const RULE_CHECK_OUTCOME_LEAST_BYTES: u64 = r#"{"check_id":"","category_ref":"","basis_ref":null,"status":"","acceptability_relation":"","bound_inputs":[],"completeness_findings":[],"evaluator_findings":[],"diagnostic_codes":[]},"#.len() as u64;
+/// One outcome's text is priced at this many bytes, and this many more for each
+/// input and value slot its check names (a bound input, and a finding about it,
+/// for each), plus [`RULE_CHECK_ID_REPEATS`] times the written length of every
+/// pack record the outcome can quote: its check definition, its stress category,
+/// its mapping's required load cases, and the definition of each input and value
+/// slot it names, selector strings included. No string of those records escapes
+/// the price, whichever finding or diagnostic echoes it. The committed rule-check
+/// runs stay within it (`rule_check_handle_tests.rs`).
+pub(crate) const RULE_CHECK_OUTCOME_TEXT_BYTES: u64 = 4096;
+pub(crate) const RULE_CHECK_INPUT_TEXT_BYTES: u64 = 1024;
+/// How many times an outcome may write one pack string: as its own member and in
+/// the subject and message of findings about it.
+pub(crate) const RULE_CHECK_ID_REPEATS: u64 = 4;
+/// The working memory of one outcome, as a multiple of its priced text: the
+/// runner's typed outcome, the JSON value of the answer (whose maps and strings
+/// take several times their text) and the reply's text.
+pub(crate) const RULE_CHECK_OUTCOME_WORK_FACTOR: u64 = 8;
+
+/// A rule check's size, projected from the pack alone before anything is
+/// planned or run: one outcome per check and mapped basis, and one for a check
+/// the runner's basis plan (`plan_check_bases`) gives no basis list, counted
+/// from the pack's own declarations without building the plan; the least bytes
+/// those outcomes take in the reply; and the working memory they are priced at.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct RuleCheckProjection {
+    pub(crate) outcomes: u64,
+    pub(crate) least_bytes: u64,
+    pub(crate) work_bytes: u64,
+}
+
+/// One check's share of a [`RuleCheckProjection`]: how many outcomes it makes,
+/// and the least and priced text of each.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct RuleCheckPrice {
+    pub(crate) outcomes: u64,
+    pub(crate) least_text: u64,
+    pub(crate) priced_text: u64,
+}
+
+/// The length of `value` as compact JSON writes it, counted without keeping it.
+fn json_written_len(value: &Value) -> u64 {
+    struct Count(u64);
+    impl std::io::Write for Count {
+        fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+            self.0 += buf.len() as u64;
+            Ok(buf.len())
+        }
+        fn flush(&mut self) -> std::io::Result<()> {
+            Ok(())
+        }
+    }
+    let mut count = Count(0);
+    let _ = serde_json::to_writer(&mut count, value);
+    count.0
+}
+
+/// The length of `text` as compact JSON writes it, without its quotes.
+fn json_text_len(text: &str) -> u64 {
+    text.chars()
+        .map(|c| match c {
+            '"' | '\\' | '\n' | '\r' | '\t' | '\u{8}' | '\u{c}' => 2,
+            c if (c as u32) < 0x20 => 6,
+            c => c.len_utf8() as u64,
+        })
+        .sum()
+}
+
+/// Each check's price, in `check_definitions` order. Each category's basis list
+/// is counted once, as `plan_check_bases` would form it (one load-case mapping,
+/// a non-empty list of required load case references each declared once with a
+/// well-formed `basis_ref`, none repeated), so a pack whose checks share a
+/// category costs its declarations, not checks × bases.
+pub(crate) fn rule_check_prices(pack: &Value) -> Vec<RuleCheckPrice> {
+    use std::collections::{HashMap, HashSet};
+    fn list<'a>(value: &'a Value, key: &str) -> &'a [Value] {
+        value.get(key).and_then(Value::as_array).map(Vec::as_slice).unwrap_or(&[])
+    }
+    fn ref_of<'a>(value: Option<&'a Value>, ref_type: &str) -> Option<&'a str> {
+        value
+            .filter(|reference| reference.get("ref_type").and_then(Value::as_str) == Some(ref_type))
+            .and_then(|reference| reference.get("ref_id").and_then(Value::as_str))
+            .filter(|id| !id.is_empty())
+    }
+    // The written length of each record an outcome can quote, by its id (summed over
+    // records sharing an id), each counted once for the whole pack.
+    fn records<'a>(pack: &'a Value, key: &str, id_key: &str) -> HashMap<&'a str, u64> {
+        let mut lengths: HashMap<&str, u64> = HashMap::new();
+        for item in list(pack, key) {
+            if let Some(id) = item.get(id_key).and_then(Value::as_str) {
+                let length = lengths.entry(id).or_default();
+                *length = length.saturating_add(json_written_len(item));
+            }
+        }
+        lengths
+    }
+    let input_records = records(pack, "required_inputs", "input_id");
+    let slot_records = records(pack, "value_slots", "slot_id");
+    let category_records = records(pack, "stress_categories", "category_id");
+    let mut load_cases: HashMap<&str, Vec<&Value>> = HashMap::new();
+    for item in list(pack, "required_load_cases") {
+        if let Some(id) = item.get("required_load_case_id").and_then(Value::as_str).filter(|id| !id.is_empty()) {
+            load_cases.entry(id).or_default().push(item);
+        }
+    }
+    let mut mappings: HashMap<&str, Vec<&Value>> = HashMap::new();
+    for mapping in list(pack, "load_case_mappings") {
+        if let Some(category) = ref_of(mapping.get("category_ref"), rule_pack_document::format::CATEGORY_REF_TYPE) {
+            mappings.entry(category).or_default().push(mapping);
+        }
+    }
+    // Per category: its basis count (None where the plan gives no basis list) and
+    // the written length of the identifiers its bases (or its refusal) can carry.
+    let mut categories: HashMap<&str, (Option<u64>, u64)> = HashMap::new();
+    let plan = |category: &str| -> (Option<u64>, u64) {
+        #[cfg(test)]
+        RULE_CHECK_CATEGORIES_PRICED.with(|count| count.set(count.get() + 1));
+        let Some([mapping]) = mappings.get(category).map(Vec::as_slice) else {
+            return (None, 0);
+        };
+        let refs = list(mapping, "required_load_case_refs");
+        let mut ids = 0u64;
+        let mut seen = HashSet::new();
+        let mut planned = !refs.is_empty();
+        for reference in refs {
+            let Some(id) = ref_of(Some(reference), rule_pack_document::format::REQUIRED_LOAD_CASE_REF_TYPE) else {
+                planned = false;
+                continue;
+            };
+            ids = ids.saturating_add(json_text_len(id));
+            let declared = match load_cases.get(id).map(Vec::as_slice) {
+                Some([declared]) => *declared,
+                Some(several) => {
+                    ids = several.iter().fold(ids, |ids, record| ids.saturating_add(json_written_len(record)));
+                    planned = false;
+                    continue;
+                }
+                None => {
+                    planned = false;
+                    continue;
+                }
+            };
+            // The whole declared record: its id, name and basis.
+            ids = ids.saturating_add(json_written_len(declared));
+            if declared.get("basis_ref").and_then(rule_pack_document::BasisRef::from_value).is_none() {
+                planned = false;
+            }
+            if !seen.insert(id) {
+                planned = false;
+            }
+        }
+        (planned.then_some(refs.len() as u64), ids)
+    };
+    list(pack, "check_definitions")
+        .iter()
+        .map(|check| {
+            let check_id = check.get("check_id").and_then(Value::as_str).map_or(0, json_text_len);
+            let category = ref_of(check.get("category_ref"), rule_pack_document::format::CATEGORY_REF_TYPE);
+            let category_record = category.map_or(0, |id| json_text_len(id).saturating_add(category_records.get(id).copied().unwrap_or(0)));
+            let (bases, basis_ids) = match category {
+                None => (None, 0),
+                Some(category) => *categories.entry(category).or_insert_with(|| plan(category)),
+            };
+            // Each input and value slot the check names: its reference and its whole
+            // definition (a solver input's selector strings among them).
+            let named = |key: &str, definitions: &HashMap<&str, u64>| {
+                list(check, key).iter().fold((0u64, 0u64), |(count, length), reference| {
+                    let id = reference.get("ref_id").and_then(Value::as_str);
+                    let record = id.and_then(|id| definitions.get(id)).copied().unwrap_or(0);
+                    (count + 1, length.saturating_add(json_written_len(reference)).saturating_add(record))
+                })
+            };
+            let (inputs, input_records_len) = named("required_input_refs", &input_records);
+            let (slots, slot_records_len) = named("value_slot_refs", &slot_records);
+            let count = inputs + slots;
+            let ids = json_written_len(check)
+                .saturating_add(category_record)
+                .saturating_add(basis_ids)
+                .saturating_add(input_records_len)
+                .saturating_add(slot_records_len);
+            RuleCheckPrice {
+                outcomes: bases.unwrap_or(1),
+                least_text: RULE_CHECK_OUTCOME_LEAST_BYTES.saturating_add(check_id),
+                priced_text: RULE_CHECK_OUTCOME_TEXT_BYTES
+                    .saturating_add(RULE_CHECK_INPUT_TEXT_BYTES.saturating_mul(count))
+                    .saturating_add(RULE_CHECK_ID_REPEATS.saturating_mul(ids)),
+            }
+        })
+        .collect()
+}
+
+pub(crate) fn rule_check_projection(pack: &Value) -> RuleCheckProjection {
+    rule_check_prices(pack).into_iter().fold(RuleCheckProjection { outcomes: 0, least_bytes: 0, work_bytes: 0 }, |total, price| RuleCheckProjection {
+        outcomes: total.outcomes.saturating_add(price.outcomes),
+        least_bytes: total.least_bytes.saturating_add(price.outcomes.saturating_mul(price.least_text)),
+        work_bytes: total.work_bytes.saturating_add(price.outcomes.saturating_mul(price.priced_text).saturating_mul(RULE_CHECK_OUTCOME_WORK_FACTOR)),
+    })
+}
+
+/// The exact length of `value`'s compact JSON, counted as it is written and
+/// stopped as soon as the count passes `limit`; nothing is kept.
+fn capped_reply_length(value: &Value, limit: u64) -> Result<u64, ()> {
+    struct Count {
+        length: u64,
+        limit: u64,
+    }
+    impl std::io::Write for Count {
+        fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+            self.length += buf.len() as u64;
+            #[cfg(test)]
+            RULE_CHECK_REPLY_COUNTED.with(|counted| counted.set(self.length));
+            if self.length > self.limit {
+                return Err(std::io::Error::other("the reply passes its limit"));
+            }
+            Ok(buf.len())
+        }
+        fn flush(&mut self) -> std::io::Result<()> {
+            Ok(())
+        }
+    }
+    let mut count = Count { length: 0, limit };
+    serde_json::to_writer(&mut count, value).map_err(|_| ())?;
+    Ok(count.length)
+}
+
+#[cfg(test)]
+thread_local! {
+    /// Test support: how many rule checks have reached the runner on this thread.
+    pub(crate) static RULE_CHECK_RUNS_STARTED: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+    /// Test support: how many stress categories' basis lists the pricing has counted on this thread.
+    pub(crate) static RULE_CHECK_CATEGORIES_PRICED: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+    /// Test support: how many reply bytes the last count had seen when it stopped or ended.
+    pub(crate) static RULE_CHECK_REPLY_COUNTED: std::cell::Cell<u64> = const { std::cell::Cell::new(0) };
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -6680,6 +7187,7 @@ macro_rules! app_invoke_handler {
             list_local_rule_packs,
             delete_local_rule_pack,
             run_rule_checks,
+            preview_rule_solver_rows,
             validate_library_import,
             save_local_library,
             open_local_library,
@@ -6705,7 +7213,9 @@ macro_rules! app_invoke_handler {
 }
 
 pub fn run() {
-    let registry = SolveJobRegistry::new(memory_pool::MemoryPool::new(Arc::new(host_memory::MacHostMemory)));
+    // Without an issue tag no handle can be issued: the app does not start, and says why.
+    let registry = SolveJobRegistry::new(memory_pool::MemoryPool::new(Arc::new(host_memory::MacHostMemory)))
+        .unwrap_or_else(|error| panic!("{error}"));
     let builder = tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .register_uri_scheme_protocol(rendered_report_print::SCHEME, rendered_report_print::serve)
@@ -11937,12 +12447,18 @@ mod tests {
             let (mut args, _lease) = admit("save_local_rule_pack", json!({"projectId": " ", "document": document}));
             assert_eq!(command_error(save_local_rule_pack_args(&mut args, || Ok(store.clone())).unwrap_err()), "project_id must be non-empty");
 
+            let jobs = registry(ScriptedHost::normal());
+            let (mut args, _lease) =
+                admit("run_rule_checks", json!({"rulePackDocument": document, "jobId": "job-unknown", "projectId": null}));
+            let error = command_error(run_rule_checks_args(&mut args, &|| Ok(store.clone()), &jobs).unwrap_err());
+            assert!(error.starts_with("RULE_NUMERICAL_CASE_COVERAGE_UNAVAILABLE"), "{error}");
+            // A copy of the result is refused by name, whatever else is sent.
             let (mut args, _lease) =
                 admit("run_rule_checks", json!({"rulePackDocument": document, "solvedEnvelope": {}, "projectId": null}));
-            let error = command_error(run_rule_checks_args(&mut args, &|| Ok(store.clone())).unwrap_err());
-            assert!(error.starts_with("RULE_NUMERICAL_CASE_COVERAGE_UNAVAILABLE"), "{error}");
+            let error = command_error(run_rule_checks_args(&mut args, &|| Ok(store.clone()), &jobs).unwrap_err());
+            assert!(error.starts_with("RULE_CHECK_SOLVED_ENVELOPE_RETIRED"), "{error}");
             let (mut args, _lease) = admit("run_rule_checks", json!({"rulePackDocument": document, "projectId": 5}));
-            assert!(invalid_args(run_rule_checks_args(&mut args, &|| Ok(store.clone())).unwrap_err()).contains("`projectId`"));
+            assert!(invalid_args(run_rule_checks_args(&mut args, &|| Ok(store.clone()), &jobs).unwrap_err()).contains("`projectId`"));
             fs::remove_dir_all(store.parent().unwrap()).unwrap();
         }
 

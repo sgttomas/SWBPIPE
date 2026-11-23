@@ -149,7 +149,7 @@ function glueProblems(text, keys) {
 // diff (PIN_MESSAGE). Recompute after the applicable reading clears; merging main does not waive that reading:
 //   shasum -a 256 apps/desktop/native-smoke/run.mjs apps/desktop/native-smoke/mbf-journey.mjs apps/desktop/native-smoke/judged-launch.mjs
 const PIN = {
-  "run.mjs": "15053871b30ce51ecb835cab71bb2c1275388b7fb33a905310217ffbff494597",
+  "run.mjs": "6b124776d7addba82afdfea715ae2adf1d2c259336b99f390e0d587048741c7f",
   "mbf-journey.mjs": "34ca4d4e08e739918dcdceba80e6c3b4c6e8bf2e4164a18fa67fc5e43e49bd71",
   "judged-launch.mjs": "72621e4e032a9afb45d0b674652131e5f6350532b2cde8c7165e3ac587dd92c0"
 };

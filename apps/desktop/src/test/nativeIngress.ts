@@ -22,6 +22,7 @@ export const INGRESS_COMMANDS: ReadonlySet<string> = new Set([
   "save_local_project",
   "validate_rule_pack",
   "run_rule_checks",
+  "preview_rule_solver_rows",
   "compute_rule_pack_document_checksum",
   "save_local_rule_pack",
   "validate_library_import",

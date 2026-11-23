@@ -130,7 +130,9 @@ export type StressRatioGroup = Readonly<{
   withheldCases: readonly StressRatioWithheldCase[];
 }>;
 
-export type StressRatioRunState = "none" | "used" | "not_this_result" | "no_outcomes";
+/** A native result's run whose bound rows are being read ("rows_pending") or whose read was refused
+ * ("rows_unread"): its outcomes are withheld, the result's own stresses shown. */
+export type StressRatioRunState = "none" | "used" | "not_this_result" | "no_outcomes" | "rows_pending" | "rows_unread";
 
 export type StressRatioTable = Readonly<{
   state: "available" | "unavailable";
@@ -144,6 +146,12 @@ export const STRESS_RATIO_NOT_SOLVED = "Mechanics not solved";
 export const STRESS_RATIO_NOTHING = "No emitted stress rows and no rule-check outcomes";
 export const STRESS_RATIO_NO_RUN = "No rule-check run in this session; emitted stresses are sorted by magnitude.";
 export const STRESS_RATIO_RUN_NOT_THIS_RESULT = "The rule-check run does not belong to this result; its outcomes are not shown.";
+/** A native result's run whose bound rows are being read from the held result. */
+export const STRESS_RATIO_RULE_ROWS_PENDING = "Reading the rule-check rows from the held result; the run's outcomes are shown once they are read.";
+/** A native result's run whose bound rows could not be read, in the native refusal's own words. */
+export function stressRatioRuleRowsUnreadText(refusal: string): string {
+  return `The rule-check rows could not be read: ${refusal}`;
+}
 export const STRESS_RATIO_RUN_NO_OUTCOMES = "The rule-check run has no outcomes; emitted stresses are sorted by magnitude.";
 export function stressRatioRunText(rulePackId: string, outcomeCount: number): string {
   return `Rule-check run of pack ${rulePackId}: ${outcomeCount} outcome${outcomeCount === 1 ? "" : "s"}, one per check and load case or combination.`;
@@ -362,14 +370,26 @@ export function incompleteReason(outcome: RuleCheckOutcome, standing: StressRati
   return parts.length > 0 ? parts.join(" ") : INCOMPLETE_NO_REASON;
 }
 
+/** The result ids a rule-check run's outcomes bind to its solver inputs: the rows its groups read
+ * (the guard below and each outcome's locations), once each, in run order. */
+export function ruleCheckBoundResultIds(run: SessionRuleCheckRun): string[] {
+  const solverInputs = new Set(deriveRuleCheckBindingPlan(run.rulePackDocument).solverInputs.map((input) => input.input_id));
+  const ids = new Set<string>();
+  for (const outcome of run.result.checks) {
+    for (const input of outcome.bound_inputs) if (solverInputs.has(input.input_id) && input.result_id) ids.add(input.result_id);
+  }
+  return [...ids];
+}
+
+/** The run's groups. `rowsById` holds this result's rows by id: all of them, or at least every id
+ * `ruleCheckBoundResultIds` names that is a row of this result. */
 function ruleGroups(
   run: SessionRuleCheckRun,
-  result: MechanicsResult,
+  rowsById: ReadonlyMap<string, ResultRow>,
   cases: ReadonlyMap<string, SupportLoadCase>,
   standing: ResultOverlayStanding | null | undefined
 ): StressRatioGroup[] | "not_this_result" {
   const plan = deriveRuleCheckBindingPlan(run.rulePackDocument);
-  const rowsById = new Map(result.results.map((row) => [row.id, row] as const));
   const solverInputs = new Map(plan.solverInputs.map((input) => [input.input_id, input] as const));
   const checkInputs = new Map(plan.checks.map((check) => [check.check_id, check.input_refs.filter((id) => solverInputs.has(id))] as const));
   // The guard of §2.2: a bound row that is not a row of this result means the run is another result's.
@@ -464,12 +484,63 @@ export function buildStressRatioTable(input: {
   if (!result) return unavailable(STRESS_RATIO_NO_RESULT);
   if (result.status.mechanics !== "MECHANICS_SOLVED") return unavailable(STRESS_RATIO_NOT_SOLVED);
   const cases = caseIndex(model, result);
+  const { run, rules } = runGroups(ruleCheckRun, (from) => ruleGroups(from, new Map(result.results.map((row) => [row.id, row] as const)), cases, standing));
+  return assembled(run, [...rules, ...stressGroups(result, cases, standing)]);
+}
+
+/**
+ * A native result's table with the session's rule-check run, as `buildStressRatioTable` forms it on
+ * the full rows: the run's groups from the rows it binds, looked up by id in the result the native
+ * host holds, and the summary's load cases (`support_load_cases`, `supportLoadCases` of the full
+ * rows), then the summary's emitted stress groups. `rows` maps each bound id the lookup found to its
+ * row, keyed as the table keys rows; a bound id it did not find is not a row of this result.
+ * While the rows are read (`loading`), or when their read is refused (`error`), the run's outcomes
+ * are withheld and its note says so (in the refusal's words for a refusal); the emitted stress
+ * groups are kept either way.
+ */
+/** The read of a native run's bound rows, as `useRuleCheckRows` gives it. */
+export type RuleRowsRead = Readonly<
+  | { state: "loading" }
+  | { state: "ready"; rows: ReadonlyMap<string, ResultRow> }
+  | { state: "error"; message: string }
+>;
+
+export function stressRatioTableWithRuleRows(input: {
+  summaryTable: StressRatioTable;
+  cases: readonly SupportLoadCase[];
+  standing: ResultOverlayStanding | null | undefined;
+  ruleCheckRun: SessionRuleCheckRun | null;
+  rows: RuleRowsRead;
+}): StressRatioTable {
+  const { summaryTable, standing, ruleCheckRun, rows } = input;
+  // No result, or not solved: the run is not read, as on the full rows.
+  if (summaryTable.state === "unavailable" && summaryTable.reason !== STRESS_RATIO_NOTHING) return summaryTable;
+  const emitted = summaryTable.groups.filter((group) => group.source !== "rule_category");
+  if (ruleCheckRun && rows.state !== "ready") {
+    const run = Object.freeze({
+      state: rows.state === "loading" ? "rows_pending" as const : "rows_unread" as const,
+      rulePackId: ruleCheckRun.result.rule_pack_id,
+      outcomeCount: ruleCheckRun.result.checks.length,
+      note: rows.state === "loading" ? STRESS_RATIO_RULE_ROWS_PENDING : stressRatioRuleRowsUnreadText(rows.message)
+    });
+    return assembled(run, [...emitted]);
+  }
+  const cases = new Map(input.cases.map((item) => [item.key, item] as const));
+  const found = rows.state === "ready" ? rows.rows : new Map<string, ResultRow>();
+  const { run, rules } = runGroups(ruleCheckRun, (from) => ruleGroups(from, found, cases, standing));
+  return assembled(run, [...rules, ...emitted]);
+}
+
+function runGroups(
+  ruleCheckRun: SessionRuleCheckRun | null,
+  build: (run: SessionRuleCheckRun) => StressRatioGroup[] | "not_this_result"
+): { run: StressRatioTable["run"]; rules: StressRatioGroup[] } {
   let run: StressRatioTable["run"] = Object.freeze({ state: "none", rulePackId: null, outcomeCount: 0, note: STRESS_RATIO_NO_RUN });
   let rules: StressRatioGroup[] = [];
   if (ruleCheckRun) {
     const rulePackId = ruleCheckRun.result.rule_pack_id;
     const outcomeCount = ruleCheckRun.result.checks.length;
-    const built = outcomeCount === 0 ? [] : ruleGroups(ruleCheckRun, result, cases, standing);
+    const built = outcomeCount === 0 ? [] : build(ruleCheckRun);
     if (built === "not_this_result") {
       run = Object.freeze({ state: "not_this_result", rulePackId, outcomeCount, note: STRESS_RATIO_RUN_NOT_THIS_RESULT });
     } else if (outcomeCount === 0) {
@@ -479,7 +550,10 @@ export function buildStressRatioTable(input: {
       run = Object.freeze({ state: "used", rulePackId, outcomeCount, note: stressRatioRunText(rulePackId, outcomeCount) });
     }
   }
-  const groups = [...rules, ...stressGroups(result, cases, standing)];
+  return { run, rules };
+}
+
+function assembled(run: StressRatioTable["run"], groups: StressRatioGroup[]): StressRatioTable {
   if (groups.length === 0) return Object.freeze({ state: "unavailable", reason: STRESS_RATIO_NOTHING, run, groups: Object.freeze([]) });
   return Object.freeze({ state: "available", reason: null, run, groups: Object.freeze(groups) });
 }

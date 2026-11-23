@@ -1,4 +1,5 @@
-import { isNativeResult, overlaySourceOf, type SessionResult } from "../../services/nativeResult";
+import { boundSummary, isNativeResult, nativeRowKey, overlaySourceOf, type SessionResult } from "../../services/nativeResult";
+import { stressRatioTableFromSummary } from "../../services/resultSummary";
 import { CompactSelect } from "../workspace/CompactSelect";
 import { SelectionPresentationBinding } from "./selectionPresentationBinding";
 import { QuantityReadout, useDisplayQuantity } from "../display-units";
@@ -123,6 +124,7 @@ import { instancedRotationGlyphMeshes, type RotationGlyphPlacement } from "./vie
 import {
   availableResultColourQuantities,
   buildResultColourOverlay,
+  requestedRuleRatioQuantity,
   resultColourTable,
   resultOverlayCases,
   type ResultColourDisplay,
@@ -134,7 +136,9 @@ import { ResultOverlayLegend, useDisplayPerStored, type OverlayFocus } from "./R
 import { contourValueLabels, thresholdInOverlayUnit } from "./resultContour";
 import { buildResultContourMesh, contourMeshMembers, type ContourMeshMember } from "./resultContourMesh";
 import { ResultValueLabels, resultValueLabelAnchors } from "./ResultValueLabels";
-import { buildStressRatioTable } from "../results/stressRatioTable";
+import { buildStressRatioTable, stressRatioTableWithRuleRows } from "../results/stressRatioTable";
+import type { SupportLoadCase } from "../results/supportLoadSummary";
+import { ruleRowsRead, useRuleCheckRows } from "../results/useRuleCheckRows";
 import type { SessionRuleCheckRun } from "../report/renderableReportInput";
 import type { ResultOverlayStanding } from "../results/numericalHealth";
 import type { ViewportPaletteRole } from "./viewportPalette";
@@ -253,9 +257,6 @@ type Props = {
   queuedIntents?: EditorOperationIntent[];
   reservedIntents?: ReadonlyArray<unknown>;
   result?: SessionResult | null;
-  /** A native result's C2 full copy when the session holds one (loaded for its rule-check run):
-   * the rule-ratio colour reads the run's rows from it. */
-  fullResult?: MechanicsResult | null;
   /** The reader's numerical standing and the session's numerical health view of `result`. The
    * result overlays (colour, reaction arrows) draw only rows these admit; absent, they draw none. */
   resultStanding?: ResultOverlayStanding | null;
@@ -462,7 +463,6 @@ export function PipeViewport({
   queuedIntents = [],
   reservedIntents = [],
   result: sessionResult = null,
-  fullResult = null,
   resultStanding = null,
   ruleCheckRun = null,
   selection,
@@ -795,17 +795,32 @@ export function PipeViewport({
   const rotation = useMemo(() => buildRotationOverlay(model, result, { basisKey: deflectionCase?.key ?? null }), [deflectionCase, model, result]);
   const elementAxes = useMemo(() => elementAxesFrame ? buildElementAxesView(model, elementAxesFrame) : null, [elementAxesFrame, model]);
   // The rule ratios come from the stress and ratio table's own reading of the session's run (A3).
+  // A native result's run reads the rows it binds from the held result by id.
+  const ruleRows = useRuleCheckRows(resultColourOn ? sessionResult : null, ruleCheckRun);
   const ratioTable = useMemo(
     () => {
-      // The rule-check run's ratios look its rows up by id: a native result's C2 full copy.
-      const rows = isNativeResult(sessionResult) ? fullResult : result;
-      return resultColourOn && ruleCheckRun && rows ? buildStressRatioTable({ model, result: rows, standing: resultStanding, ruleCheckRun }) : null;
+      if (!resultColourOn || !ruleCheckRun || !result) return null;
+      if (!isNativeResult(sessionResult)) return buildStressRatioTable({ model, result, standing: resultStanding, ruleCheckRun });
+      const summary = boundSummary(sessionResult, model);
+      return summary
+        ? stressRatioTableWithRuleRows({
+          summaryTable: stressRatioTableFromSummary(summary, nativeRowKey),
+          cases: summary.header.tables.support_load_cases as unknown as SupportLoadCase[],
+          standing: resultStanding,
+          ruleCheckRun,
+          rows: ruleRowsRead(ruleRows)
+        })
+        : null;
     },
-    [model, result, sessionResult, fullResult, resultColourOn, resultStanding, ruleCheckRun]
+    [model, result, sessionResult, ruleRows, resultColourOn, resultStanding, ruleCheckRun]
   );
   const overlayQuantities = useMemo(() => availableResultColourQuantities(model, result, ratioTable), [model, ratioTable, result]);
   const overlayCase = overlayCases.find((item) => item.key === overlayCaseKey) ?? overlayCases[0] ?? null;
-  const overlayQuantity = overlayQuantities.find((item) => item.id === overlayQuantityId) ?? overlayQuantities[0] ?? null;
+  // A requested rule ratio the run does not offer (its rows still being read, or refused) is kept,
+  // drawing nothing, rather than replaced by the first quantity.
+  const overlayQuantity = overlayQuantities.find((item) => item.id === overlayQuantityId)
+    ?? (overlayQuantityId !== null && ruleCheckRun ? requestedRuleRatioQuantity(overlayQuantityId) : null)
+    ?? overlayQuantities[0] ?? null;
   const colourOverlay = useMemo(
     () => resultColourOn
       ? buildResultColourOverlay({ model, result, standing: resultStanding, quantity: overlayQuantity, overlayCase, resolution: overlayResolution, ratioTable })

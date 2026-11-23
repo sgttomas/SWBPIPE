@@ -21,7 +21,7 @@ import {
   type ResultOverlayCase
 } from "../viewport/resultColourOverlay";
 import type { ResultOverlayStanding } from "./numericalHealth";
-import { buildStressRatioTable, type StressRatioGroup } from "./stressRatioTable";
+import { buildStressRatioTable, type StressRatioGroup, type StressRatioTable } from "./stressRatioTable";
 import { SUPPORT_LOAD_WITHHELD_NOT_ELIGIBLE, buildSupportLoadSummaries, caseWithheldReason } from "./supportLoadSummary";
 import { overlayMayShowRow } from "./numericalHealth";
 import { rowCaseKey } from "./resultsNavigator";
@@ -113,7 +113,9 @@ export type KeyRatioCategory = Readonly<{
   unavailableReason: string | null;
 }>;
 
-export type KeyRatioState = "absent" | "not_run" | "not_this_result" | "no_outcomes" | "used";
+/** "rows_pending", "rows_unread": the run's bound rows are being read from the held result, or could
+ * not be read (its note says why); the ratio is withheld. */
+export type KeyRatioState = "absent" | "not_run" | "not_this_result" | "no_outcomes" | "rows_pending" | "rows_unread" | "used";
 
 export type KeyRatioSection = Readonly<{
   state: KeyRatioState;
@@ -169,15 +171,14 @@ function ratioCategory(group: StressRatioGroup, cases: readonly ResultOverlayCas
   });
 }
 
+/** The ratio section, read from `table`: the stress and ratio table of `ruleCheckRun` on this result. */
 function ratioSection(input: {
   model: PreviewModel;
-  result: MechanicsResult;
-  standing: ResultOverlayStanding | null | undefined;
+  table: StressRatioTable;
   ruleCheckRun: SessionRuleCheckRun | null;
   cases: readonly ResultOverlayCase[];
 }): KeyRatioSection {
-  const { model, result, standing, ruleCheckRun, cases } = input;
-  const table = buildStressRatioTable({ model, result, standing, ruleCheckRun });
+  const { model, table, ruleCheckRun, cases } = input;
   const packCount = model.rule_pack_refs?.length ?? 0;
   const run = table.run;
   const base = { aggregate: null, incompleteNote: null, categories: Object.freeze([]), declaredWithoutOutcomes: Object.freeze([]) };
@@ -187,6 +188,7 @@ function ratioSection(input: {
   const token = ruleCheckRun!.result.aggregate_status;
   const aggregate = Object.freeze({ token, text: statusDisplay(token) });
   if (run.state === "not_this_result") return Object.freeze({ ...base, state: "not_this_result" as const, note: KEY_RATIO_NOT_THIS_RESULT });
+  if (run.state === "rows_pending" || run.state === "rows_unread") return Object.freeze({ ...base, aggregate, state: run.state, note: run.note });
   if (run.state === "no_outcomes") return Object.freeze({ ...base, aggregate, state: "no_outcomes" as const, note: keyRatioNoOutcomesText(run.rulePackId ?? "") });
   const pipeIds = new Set(model.pipe_segments.map((pipe) => pipe.id));
   const groups = table.groups.filter((group) => group.source === "rule_category");
@@ -262,7 +264,7 @@ export function buildKeyResults(input: {
     state: "available",
     reason: null,
     standingText: standingText(standing),
-    ratio: ratioSection({ model, result, standing, ruleCheckRun, cases }),
+    ratio: ratioSection({ model, table: buildStressRatioTable({ model, result, standing, ruleCheckRun }), ruleCheckRun, cases }),
     cases,
     supports: keySupports(model, result, standing),
     contact: supportStateCounts(result.results)
@@ -291,4 +293,21 @@ export function keyResultsAutoOpen(
   const fresh = input.result !== null && !input.historical && input.result.status.mechanics === "MECHANICS_SOLVED";
   const open = fresh && (!memory.openedOnce || input.everySolve);
   return { open, memory: Object.freeze({ lastResult: input.result, openedOnce: memory.openedOnce || open }) };
+}
+
+/**
+ * A native result's key results with the session's rule-check run, as `buildKeyResults` forms them on
+ * the full rows: the summary's key results (`key_results`, the builder's output without a run) with
+ * the ratio section read from `table`, the run's stress and ratio table on this result
+ * (`stressRatioTableWithRuleRows`). A result with no key results to show keeps the summary's.
+ */
+export function keyResultsWithRuleCheckRun(input: {
+  model: PreviewModel;
+  summaryKeyResults: KeyResults;
+  table: StressRatioTable;
+  ruleCheckRun: SessionRuleCheckRun;
+}): KeyResults {
+  const { model, summaryKeyResults, table, ruleCheckRun } = input;
+  if (summaryKeyResults.state !== "available") return summaryKeyResults;
+  return Object.freeze({ ...summaryKeyResults, ratio: ratioSection({ model, table, ruleCheckRun, cases: summaryKeyResults.cases }) });
 }

@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "../test/nativeMechanicsReplay";
-import { loadBundledMechanicsReference, loadPreviewModel, runPreviewMechanics } from "./previewService";
+import { awaitPreviewMechanicsJob, disposeDeliveredMechanicsResult, loadBundledMechanicsReference, loadPreviewModel, readNativeFreshResult, resetSessionResultCustodyForTests, runPreviewMechanics, startPreviewMechanicsJob } from "./previewService";
+import { resetNativeResultsForTests, type NativeResult } from "./nativeResult";
 import {
   deriveRuleCheckBindingPlan,
   loadDemoRuleCheckPack,
@@ -16,6 +17,8 @@ import {
   solverSelectorForRow,
   RULE_CHECK_BACKEND_DIAGNOSTIC,
   N_RULE_CHECK_NOT_NUMERICALLY_ELIGIBLE,
+  RULE_CHECK_RESULT_NOT_HELD,
+  previewSolverRowsByHandle,
   type RuleCheckBasisRef,
   type SolverResultRef
 } from "./ruleCheckService";
@@ -23,7 +26,8 @@ import connectorCorpus from "../../../../fixtures/results/pressure_v3_connector_
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { createSolveJobTransport } from "../test/nativeMechanicsReplay";
-import { hasNativeMechanicsInvocation } from "./previewService";
+import { solveHeldCopy } from "../test/heldResultCopy";
+import { deliveredMechanicsResultJob, hasNativeMechanicsInvocation } from "./previewService";
 import {
   LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE,
   SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED,
@@ -401,20 +405,19 @@ describe("runRuleChecks", () => {
     // An ungated (preview-physics-2) run carries no load/reference-state line (epoch 8).
     expect(route).toMatchObject({ loadReferenceDisclosure: null });
     // The transient solve goes through the job path and is released after the rule run used it.
-    expect(invokeMock.mock.calls.map(([command]) => command)).toEqual([
-      "start_preview_mechanics_job", "poll_preview_mechanics_job", "take_preview_mechanics_job_result",
-      "run_rule_checks", "dispose_preview_mechanics_result"
-    ]);
+    expectTransientCommands(invokeMock.mock.calls.map(([command]) => command as string), ["run_rule_checks", "dispose_preview_mechanics_result"]);
     const [, body, options] = invokeMock.mock.calls[0];
     expect(JSON.parse(new TextDecoder().decode(body as Uint8Array))).toEqual(pair.model);
-    expect(options).toEqual({ headers: { "x-swbpipe-solver-mode": "sparse_interactive" } });
+    // The transient result stays in native custody.
+    expect(options).toEqual({ headers: { "x-swbpipe-solver-mode": "sparse_interactive", "x-swbpipe-result-custody": "native" } });
     expect(replay.custody()).toEqual([]);
-    const [command, args] = invokeMock.mock.calls[3];
+    const [command, args] = invokeMock.mock.calls.find(([name]) => name === "run_rule_checks")!;
     expect(command).toBe("run_rule_checks");
     expect(args).toHaveProperty("rulePackDocument");
     expect(args).toHaveProperty("model", pair.model);
-    // The envelope travels as the JSON text Tauri itself sent for it.
-    expect(args).toHaveProperty("solvedEnvelope", JSON.parse(JSON.stringify(pair.source)));
+    // Only the held job's handle travels, never a copy of the result.
+    expect(args).not.toHaveProperty("solvedEnvelope");
+    expect(args).toHaveProperty("jobId", await startedJobId());
     // Empty binding arrays are omitted (backend treats absent as unsupplied).
     expect(args).not.toHaveProperty("sourceBlockInvocation");
     expect(args).not.toHaveProperty("solverResultBindings");
@@ -434,7 +437,7 @@ describe("runRuleChecks", () => {
     invokeMock.mockImplementation(async (command, args, options) => command === "run_rule_checks" ? ruleResponse : replay.invoke(command, args, options));
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
 
-    const solvedEnvelope = await runPreviewMechanics(pair.model);
+    const solvedEnvelope = await solveHeldCopy(pair.model);
     invokeMock.mockClear();
     await runRuleChecks({
       rulePackDocument: { metadata: { rule_pack_id: "x" } },
@@ -446,9 +449,10 @@ describe("runRuleChecks", () => {
 
     const [, args] = invokeMock.mock.calls[0];
     const typed = args as Record<string, unknown>;
-    expect(typed).toHaveProperty("solvedEnvelope");
+    // Only the custody handle of the job that holds the result travels, never a copy.
+    expect(typed).not.toHaveProperty("solvedEnvelope");
     expect(typed).toHaveProperty("model", pair.model);
-    expect(typed.solvedEnvelope).toStrictEqual(JSON.parse(JSON.stringify(solvedEnvelope)));
+    expect(typed.jobId).toBe(deliveredMechanicsResultJob(solvedEnvelope));
     expect(invokeMock).toHaveBeenCalledTimes(1);
     // Solver inputs bind only through the pack's own selector (format 0.5.0):
     // no caller-supplied solver binding is ever sent.
@@ -588,10 +592,7 @@ describe("T0R rule-binding pre-check (mirror of rule_binding_refusal; display on
     invokeMock.mockImplementation(async (command, args, options) => command === "run_rule_checks" ? RULE_RESPONSE : replay.invoke(command, args, options));
     const route = await runRuleChecks({ rulePackDocument: { metadata: { rule_pack_id: "x" } }, model: pair.model });
     expect(route).toMatchObject({ route: "tauri_backend", result: RULE_RESPONSE, loadReferenceDisclosure: null });
-    expect(invokeMock.mock.calls.map(([command]) => command)).toEqual([
-      "start_preview_mechanics_job", "poll_preview_mechanics_job", "take_preview_mechanics_job_result",
-      "run_rule_checks", "dispose_preview_mechanics_result"
-    ]);
+    expectTransientCommands(invokeMock.mock.calls.map(([command]) => command as string), ["run_rule_checks", "dispose_preview_mechanics_result"]);
     expect(replay.custody()).toEqual([]);
   });
 });
@@ -669,7 +670,21 @@ function installNative({ model, bytes }: ExactInput, mode: Mode) {
   return transport;
 }
 const commands = () => invokeMock.mock.calls.map(([command]) => command as string);
-const TRANSIENT_COMMANDS = ["start_preview_mechanics_job", "poll_preview_mechanics_job", "take_preview_mechanics_job_result"];
+/** A transient solve held natively, as the session holds its own: started, polled and read by its
+ * native readers, never taken into the webview; then `tail`. */
+function expectTransientCommands(seen: readonly string[], tail: readonly string[]) {
+  expect(seen.slice(0, 2)).toEqual(["start_preview_mechanics_job", "poll_preview_mechanics_job"]);
+  expect(seen).not.toContain("take_preview_mechanics_job_result");
+  const readers = seen.slice(2, seen.length - tail.length);
+  expect(readers.length).toBeGreaterThan(0);
+  for (const command of readers) expect(command).toMatch(/^(read|query)_preview_mechanics_job_/);
+  expect(seen.slice(seen.length - tail.length)).toEqual([...tail]);
+}
+/** The job id the transient solve's start answered with. */
+async function startedJobId(): Promise<string> {
+  const at = invokeMock.mock.calls.findIndex(([command]) => command === "start_preview_mechanics_job");
+  return ((await invokeMock.mock.results[at].value) as { job_id: string }).job_id;
+}
 const exactRulePack = { metadata: { rule_pack_id: "invented-test-only" } };
 
 describe("epoch 8: the exact routes reach the rule backend only at Rust's eligible standing", () => {
@@ -678,7 +693,8 @@ describe("epoch 8: the exact routes reach the rule backend only at Rust's eligib
     const { route, loadReference, input } = ADMITTED[name];
     const exact = input(mode);
     installNative(exact, mode);
-    const source = await runPreviewMechanics(exact.model, mode);
+    // The session's full copy of a result native custody holds: the run sends that job's handle.
+    const source = await solveHeldCopy(exact.model, mode);
     expect(hasNativeMechanicsInvocation(source, exact.model, mode)).toBe(true);
     expect(numericalResultStanding(source, exact.model)).toMatchObject({ contract: route, eligible: true, findings: [] });
     invokeMock.mockClear();
@@ -686,8 +702,8 @@ describe("epoch 8: the exact routes reach the rule backend only at Rust's eligib
     expect(answer).toStrictEqual({ route: "tauri_backend", result: RULE_RESPONSE, loadReferenceDisclosure: loadReference ? expectedDisclosure(exact.bytes) : null });
     expect(commands()).toEqual(["run_rule_checks"]);
     const args = invokeMock.mock.calls[0][1] as Record<string, unknown>;
-    expect((args.solvedEnvelope as MechanicsResult).run_id).toBe(source.run_id);
-    expect((args.solvedEnvelope as MechanicsResult).producer).toEqual(source.producer);
+    expect(args).not.toHaveProperty("solvedEnvelope");
+    expect(args.jobId).toBe(deliveredMechanicsResultJob(source));
     expect(args.model).toEqual(exact.model);
     // pressure-source-1 carries its registered invocation; pressure-2 needs none.
     if (route === "pressure_source") expect(args.sourceBlockInvocation).toEqual({ request: { model: exact.model, materials: [] }, solver_mode: mode });
@@ -701,11 +717,13 @@ describe("epoch 8: the exact routes reach the rule backend only at Rust's eligib
     const transport = installNative(exact, mode);
     const answer = await runRuleChecks({ rulePackDocument: exactRulePack, model: exact.model });
     expect(answer).toStrictEqual({ route: "tauri_backend", result: RULE_RESPONSE, loadReferenceDisclosure: loadReference ? expectedDisclosure(exact.bytes) : null });
-    expect(commands()).toEqual([...TRANSIENT_COMMANDS, "run_rule_checks", "dispose_preview_mechanics_result"]);
+    expectTransientCommands(commands(), ["run_rule_checks", "dispose_preview_mechanics_result"]);
     expect(transport.custody()).toEqual([]);
     expect(transport.disposed()).toHaveLength(1);
-    const args = invokeMock.mock.calls[3][1] as Record<string, unknown>;
-    expect((args.solvedEnvelope as MechanicsResult).run_id).toBe(JSON.parse(exact.bytes).run_id);
+    const args = invokeMock.mock.calls.find(([command]) => command === "run_rule_checks")![1] as Record<string, unknown>;
+    // The run names the held job; no copy of the result travels.
+    expect(args).not.toHaveProperty("solvedEnvelope");
+    expect(args.jobId).toBe(await startedJobId());
     expect(args.model).toEqual(exact.model);
     if (route === "pressure_source") expect(args.sourceBlockInvocation).toEqual({ request: { model: exact.model, materials: [] }, solver_mode: mode });
     else expect(args).not.toHaveProperty("sourceBlockInvocation");
@@ -734,7 +752,7 @@ describe("epoch 8: the exact routes reach the rule backend only at Rust's eligib
     const transport = installNative(exact, mode);
     await expect(runRuleChecks({ rulePackDocument: exactRulePack, model: exact.model }))
       .rejects.toThrow(new Error(`${finding}: ${N_RULE_CHECK_NOT_NUMERICALLY_ELIGIBLE}`));
-    expect(commands()).toEqual([...TRANSIENT_COMMANDS, "dispose_preview_mechanics_result"]);
+    expectTransientCommands(commands(), ["dispose_preview_mechanics_result"]);
     expect(transport.custody()).toEqual([]);
   });
 
@@ -749,7 +767,7 @@ describe("epoch 8: the exact routes reach the rule backend only at Rust's eligib
     await expect(runRuleChecks({ rulePackDocument: exactRulePack, model: exact.model, solvedEnvelope: source })).rejects.toThrow("RULE_NATIVE_INVOCATION_REQUIRED");
     expect(invokeMock).not.toHaveBeenCalled();
     await expect(runRuleChecks({ rulePackDocument: exactRulePack, model: exact.model })).rejects.toThrow("RULE_NATIVE_INVOCATION_REQUIRED");
-    expect(commands()).toEqual([...TRANSIENT_COMMANDS, "dispose_preview_mechanics_result"]);
+    expectTransientCommands(commands(), ["dispose_preview_mechanics_result"]);
     // The transient result is released; only the test's own held source remains in custody.
     expect(transport.disposed()).toHaveLength(1);
     expect(transport.custody()).toHaveLength(1);
@@ -788,5 +806,129 @@ describe("epoch 8: the exact routes reach the rule backend only at Rust's eligib
     const edited = structuredClone(exact.model); edited.nodes[0].position.x += 1;
     await expect(runRuleChecks({ rulePackDocument: exactRulePack, model: edited, solvedEnvelope: source })).rejects.toThrow("RULE_NATIVE_INVOCATION_REQUIRED");
     expect(invokeMock).not.toHaveBeenCalled();
+  });
+});
+
+/* ----------------------------------------------------------------------------
+ * C1 custody while a rule check or a preview is in flight, and the transient
+ * solve's failure paths. Unit transport replay of the captured preview pair;
+ * the rule and preview replies are unit simulations.
+ * -------------------------------------------------------------------------- */
+describe("custody that ends while a reply is awaited, and the transient solve's failures", () => {
+  const pack = { metadata: { rule_pack_id: "invented-test-only" } };
+  const answer = { document_kind: "openpipestress.rule_check.run", rule_pack_id: "invented-test-only", grammar_version: "1.0.0", aggregate_status: "RULE_INPUTS_INCOMPLETE", checks: [], professional_boundary_notice: "notice" };
+  const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" });
+  beforeEach(() => { resetSessionResultCustodyForTests(); resetNativeResultsForTests(); });
+  /** A native handle held as the session holds its own; `reply` answers the rule and preview commands. */
+  async function heldHandle(reply: (command: string, args: unknown) => Promise<unknown> = () => Promise.reject(new Error("UNEXPECTED"))): Promise<NativeResult> {
+    const replay = createNativeMechanicsReplay({ profile: "preview" });
+    invokeMock.mockImplementation((command: string, args?: unknown, options?: unknown) =>
+      command === "run_rule_checks" || command === "preview_rule_solver_rows" ? reply(command, args) : replay.invoke(command, args, options));
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const started = await startPreviewMechanicsJob(pair.model, "sparse_interactive", { custody: "native" });
+    if (started.mode !== "backend_job") throw new Error("not a backend job");
+    const terminal = await awaitPreviewMechanicsJob(started.job_id);
+    return (await readNativeFreshResult(started.job_id, terminal.result_bytes ?? 0, { standingModel: pair.model, summaryModel: pair.model })).result;
+  }
+  const sent = (command: string) => invokeMock.mock.calls.filter(([name]) => name === command);
+
+  it("refuses a disposed native handle as not held, and sends nothing for it", async () => {
+    const result = await heldHandle();
+    await disposeDeliveredMechanicsResult(result);
+    invokeMock.mockClear();
+    await expect(runRuleChecks({ rulePackDocument: pack, model: pair.model, solvedEnvelope: result })).rejects.toThrow(`${RULE_CHECK_RESULT_NOT_HELD}: the solved result is no longer held.`);
+    expect(invokeMock).not.toHaveBeenCalled();
+  });
+
+  it("discards a run reply that arrives after the handle's custody ended", async () => {
+    let held: NativeResult | null = null;
+    const result = await heldHandle(async (command) => {
+      // The session releases the result while the check is in flight; the reply then arrives.
+      await disposeDeliveredMechanicsResult(held);
+      return command === "run_rule_checks" ? structuredClone(answer) : null;
+    });
+    held = result;
+    await expect(runRuleChecks({ rulePackDocument: pack, model: pair.model, solvedEnvelope: result })).rejects.toThrow(`${RULE_CHECK_RESULT_NOT_HELD}: the solved result is no longer held.`);
+    expect(sent("run_rule_checks")).toHaveLength(1);
+  });
+
+  it("discards a preview reply that arrives after the handle's custody ended", async () => {
+    let held: NativeResult | null = null;
+    const result = await heldHandle(async () => {
+      await disposeDeliveredMechanicsResult(held);
+      return { document_kind: "swbpipe.desktop.rule_solver_rows_preview", version: 1, row_count: pair.source.results.length, inputs: [] };
+    });
+    held = result;
+    await expect(previewSolverRowsByHandle(result, [])).rejects.toThrow(`${RULE_CHECK_RESULT_NOT_HELD}: the solved result is no longer held.`);
+    expect(sent("preview_rule_solver_rows")).toHaveLength(1);
+  });
+
+  it("refuses a run or preview refusal that arrives after the handle's custody ended as not held, not as the command's refusal", async () => {
+    let held: NativeResult | null = null;
+    const result = await heldHandle(async (command) => {
+      await disposeDeliveredMechanicsResult(held);
+      throw `RULE_CHECK_RESULT_UNREADABLE: ${command} could not read the job`;
+    });
+    held = result;
+    await expect(runRuleChecks({ rulePackDocument: pack, model: pair.model, solvedEnvelope: result })).rejects.toThrow(`${RULE_CHECK_RESULT_NOT_HELD}: the solved result is no longer held.`);
+    const again = await heldHandle(async () => {
+      await disposeDeliveredMechanicsResult(held);
+      throw "RULE_CHECK_RESULT_UNREADABLE: preview_rule_solver_rows could not read the job";
+    });
+    held = again;
+    await expect(previewSolverRowsByHandle(again, [])).rejects.toThrow(`${RULE_CHECK_RESULT_NOT_HELD}: the solved result is no longer held.`);
+  });
+
+  it("sends no resend for a headroom refusal once the handle's custody has ended", async () => {
+    let held: NativeResult | null = null;
+    const headroom = { code: "RESOURCE_UNAVAILABLE", refusal: { kind: "headroom_insufficient", required_bytes: 68165632, available_bytes: 52641792 }, pool: null };
+    const result = await heldHandle(async () => {
+      await disposeDeliveredMechanicsResult(held);
+      throw headroom;
+    });
+    held = result;
+    await expect(runRuleChecks({ rulePackDocument: pack, model: pair.model, solvedEnvelope: result })).rejects.toThrow(`${RULE_CHECK_RESULT_NOT_HELD}: the solved result is no longer held.`);
+    expect(sent("run_rule_checks")).toHaveLength(1);
+    const again = await heldHandle(async () => {
+      await disposeDeliveredMechanicsResult(held);
+      throw headroom;
+    });
+    held = again;
+    await expect(previewSolverRowsByHandle(again, [])).rejects.toThrow(`${RULE_CHECK_RESULT_NOT_HELD}: the solved result is no longer held.`);
+    expect(sent("preview_rule_solver_rows")).toHaveLength(1);
+  });
+
+  /** The transient solve's transport, with `fail` failing one command and releases answered late. */
+  function transient(fail: string) {
+    const replay = createNativeMechanicsReplay({ profile: "preview" });
+    const released: string[] = [];
+    invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
+      if (command === fail) throw new Error(`simulated ${command} failure`);
+      if (command === "cancel_preview_mechanics_job" || command === "dispose_preview_mechanics_result") {
+        await new Promise((resolve) => setTimeout(resolve, 30));
+        const reply = await replay.invoke(command, args, options);
+        released.push(command);
+        return reply;
+      }
+      return replay.invoke(command, args, options);
+    });
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    return released;
+  }
+
+  it("a transient solve whose poll fails is abandoned, and its release completes before the run rejects", async () => {
+    const released = transient("poll_preview_mechanics_job");
+    let seenAtRejection: string[] | null = null;
+    await runRuleChecks({ rulePackDocument: pack, model: pair.model }).catch(() => { seenAtRejection = [...released]; });
+    expect(seenAtRejection).toEqual(["cancel_preview_mechanics_job", "dispose_preview_mechanics_result"]);
+    expect(sent("run_rule_checks")).toHaveLength(0);
+  });
+
+  it("a transient solve whose native read fails is released, and its release completes before the run rejects", async () => {
+    const released = transient("read_preview_mechanics_job_verdict");
+    let seenAtRejection: string[] | null = null;
+    await runRuleChecks({ rulePackDocument: pack, model: pair.model }).catch(() => { seenAtRejection = [...released]; });
+    expect(seenAtRejection).toEqual(["dispose_preview_mechanics_result"]);
+    expect(sent("run_rule_checks")).toHaveLength(0);
   });
 });

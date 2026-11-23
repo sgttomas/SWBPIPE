@@ -2,7 +2,8 @@ import { LoadReferenceDisclosure } from "../results/loadReferenceDisclosure";
 import { QuantityReadout } from "../display-units";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { ListChecks, Play, ShieldAlert } from "lucide-react";
-import type { MechanicsResult, PreviewModel } from "../../types";
+import type { PreviewModel } from "../../types";
+import { isNativeResult, resultRowCount, type SessionResult } from "../../services/nativeResult";
 import type { SessionRuleCheckRun } from "../report/renderableReportInput";
 import {
   listLocalRulePacks,
@@ -14,14 +15,19 @@ import {
   deriveRuleCheckBindingPlan,
   describeSolverSelector,
   loadDemoRuleCheckPack,
+  bindingPrecheckFromPreview,
+  previewSolverRowsByHandle,
   resolveSolverSelector,
   solverInputBases,
+  solverResolutionFromPreview,
+  solverRowsQueries,
   runRuleChecks,
   ruleBindingPrecheck,
   ruleCheckOutcomeIdentity,
   ruleCheckOutcomeTestId,
   type LibraryInputRequirement,
   type LibraryValueRef,
+  type RuleBindingPrecheckFinding,
   type RuleCheckBasisRef,
   type RuleCheckBindingPlan,
   type RuleCheckOutcome,
@@ -373,7 +379,9 @@ export function RuleCheckRunPanel({
 }: {
   basis?: RuleCheckRunBasis;
   model: PreviewModel | null;
-  result: MechanicsResult | null;
+  // The session's solved result: a native handle (its rows stay native and are read by handle)
+  // or a full result already in the webview.
+  result: SessionResult | null;
   // Lifts the pack rule-check aggregate to the app so it can be wired into
   // the app-held analysis-run envelope (TP-C4-APPAGG-001). Called with the
   // aggregate on a successful run, and with null whenever there is no current
@@ -415,7 +423,9 @@ export function RuleCheckRunPanel({
   const projectId = model?.project.id ?? null;
   const parsed = useMemo(() => parsePack(packText), [packText]);
   const plan: RuleCheckBindingPlan | null = parsed?.ok ? deriveRuleCheckBindingPlan(parsed.document) : null;
-  const resultRows = result?.results ?? [];
+  const resultRowTotal = result ? resultRowCount(result) : 0;
+  // A native handle's binding pre-check is read natively, for the result and pack it was read on.
+  const [nativePrecheck, setNativePrecheck] = useState<{ of: SessionResult; pack: ParsedPack | null; findings: RuleBindingPrecheckFinding[] } | null>(null);
   const hasRuntimeUnitBindings = Boolean(plan && (plan.valueInputs.length > 0 || plan.valueSlots.length > 0));
 
   useLayoutEffect(() => {
@@ -456,6 +466,25 @@ export function RuleCheckRunPanel({
     scopedBusyGenerationRef.current = null;
     setInFlight(false);
   }
+
+  // The binding pre-check of a native handle, read natively whenever the result or the pack changes.
+  useEffect(() => {
+    if (!isNativeResult(result) || !parsed?.ok) return undefined;
+    const queries = solverRowsQueries(deriveRuleCheckBindingPlan(parsed.document));
+    if (queries.length === 0) return undefined;
+    let cancelled = false;
+    previewSolverRowsByHandle(result, queries)
+      .then((preview) => {
+        if (!cancelled) setNativePrecheck({ of: result, pack: parsed, findings: bindingPrecheckFromPreview(preview, deriveRuleCheckBindingPlan(parsed.document)) });
+      })
+      // Display only: a refused read shows no pre-check; the run reports on its own terms.
+      .catch(() => {
+        if (!cancelled) setNativePrecheck({ of: result, pack: parsed, findings: [] });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [result, parsed]);
 
   useEffect(() => {
     if (!hasRuntimeUnitBindings) {
@@ -569,14 +598,27 @@ export function RuleCheckRunPanel({
     return valueBindings[refId]?.unit ?? fallback;
   }
 
-  function handlePreviewSolver(input: SolverInputRequirement) {
+  async function handlePreviewSolver(input: SolverInputRequirement) {
     const selector = input.solver_result_ref;
     if (!selector || !plan) return;
-    setSolverPreviews((current) => ({
-      ...current,
-      // The input's own bases (the checks that use it), as the run binds it.
-      [input.input_id]: resolveSolverSelector(result, selector, solverInputBases(plan, input.input_id))
-    }));
+    // The input's own bases (the checks that use it), as the run binds it.
+    const bases = solverInputBases(plan, input.input_id);
+    if (!isNativeResult(result)) {
+      setSolverPreviews((current) => ({ ...current, [input.input_id]: resolveSolverSelector(result, selector, bases) }));
+      return;
+    }
+    // A native handle's rows are read natively, by handle.
+    const request = beginScopedRequest();
+    try {
+      const preview = await previewSolverRowsByHandle(result, [{ input_id: input.input_id, selector, bases }]);
+      if (!isScopedRequestCurrent(request)) return;
+      setSolverPreviews((current) => ({ ...current, [input.input_id]: solverResolutionFromPreview(preview, input.input_id, bases) }));
+    } catch (error) {
+      if (!isScopedRequestCurrent(request)) return;
+      setActionStatus(`RULE-CHECK-BACKEND-ERROR (preview): ${String(error)}`);
+    } finally {
+      finishScopedRequest(request);
+    }
   }
 
   async function handleLoadDemo() {
@@ -717,7 +759,11 @@ export function RuleCheckRunPanel({
     }
   }
 
-  const bindingPrecheck = plan ? ruleBindingPrecheck(result, plan) : [];
+  const bindingPrecheck = !plan
+    ? []
+    : isNativeResult(result)
+      ? (nativePrecheck?.of === result && nativePrecheck.pack === parsed ? nativePrecheck.findings : [])
+      : ruleBindingPrecheck(result, plan);
   const runDisabled = !parsed?.ok || inFlight;
   const runDisabledReason = !parsed?.ok ? NO_PACK_REASON : inFlight ? BUSY_REASON : undefined;
 
@@ -734,7 +780,7 @@ export function RuleCheckRunPanel({
         </small>
         <small data-testid="rule-check-run-solve-status">
           {result
-            ? `Solved result available (${resultRows.length} result row(s)); mechanics=${result.status.mechanics}.`
+            ? `Solved result available (${resultRowTotal} result row(s)); mechanics=${result.status.mechanics}.`
             : NO_SOLVE_REASON}
         </small>
         {bindingPrecheck.length > 0 ? (
@@ -875,7 +921,7 @@ export function RuleCheckRunPanel({
                           ? BUSY_REASON
                           : "Show which row of the current solved result the selector names on each load case of the checks that use this input. Read-only: this never changes the rule pack."
                       }
-                      onClick={() => handlePreviewSolver(input)}
+                      onClick={() => void handlePreviewSolver(input)}
                     >
                       Preview selected rows
                     </button>

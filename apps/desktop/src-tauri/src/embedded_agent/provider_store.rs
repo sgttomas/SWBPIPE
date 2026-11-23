@@ -946,7 +946,7 @@ mod tests {
     fn setup() -> (Fixture, Store<Keys>, Keys) {
         let f = Fixture::new();
         let k = Keys(Arc::new(Mutex::new(Vault::default())));
-        let r = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let r = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed");
         let store = Store::open(&f.0, k.clone(), r).unwrap();
         (f, store, k)
     }
@@ -994,7 +994,7 @@ mod tests {
         s.db.execute_batch("CREATE VIEW unexpected AS SELECT 1;")
             .unwrap();
         drop(s);
-        let r = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let r = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed");
         assert!(matches!(Store::open(&f.0, k, r), Err(Error::Corrupt)));
     }
     #[test]
@@ -1078,7 +1078,7 @@ mod tests {
         assert!(!public.contains("owner"));
         let r = revision(&a).to_owned();
         drop(s);
-        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed");
         let mut s = Store::open(&f.0, k, registry).unwrap();
         let loaded = s.load(&r).unwrap();
         assert_eq!(
@@ -1165,7 +1165,7 @@ mod tests {
         assert_eq!(k.0.lock().unwrap().items.len(), 1);
         assert_eq!(s.snapshot().unwrap().cleanup_pending, Some(1));
         drop(s);
-        let r = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let r = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed");
         let mut s = Store::open(&f.0, k.clone(), r).unwrap();
         assert!(s.snapshot().unwrap().provider.is_none());
         s.recover().unwrap();
@@ -1302,7 +1302,7 @@ mod tests {
         let canary = outside.0.join("canary");
         fs::write(&canary, b"invented unrelated data").unwrap();
         std::os::unix::fs::symlink(&canary, f.0.join(DB_NAME)).unwrap();
-        let r = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let r = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed");
         let k = Keys(Arc::new(Mutex::new(Vault::default())));
         assert!(matches!(Store::open(&f.0, k, r), Err(Error::Unavailable)));
         assert_eq!(fs::read(canary).unwrap(), b"invented unrelated data");
@@ -1352,7 +1352,7 @@ mod tests {
     #[test]
     fn cross_instance_file_gate_and_revision_cas_are_both_enforced() {
         let (f, mut a, k) = setup();
-        let r = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let r = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed");
         let mut b = Store::open(&f.0, k.clone(), r).unwrap();
         let lock = gate(&f.0).unwrap();
         assert_eq!(
@@ -1386,7 +1386,7 @@ mod tests {
         assert_eq!(k.0.lock().unwrap().loads, 0);
         s.db.pragma_update(None, "user_version", 99).unwrap();
         drop(s);
-        let r = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let r = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed");
         assert!(matches!(Store::open(&f.0, k, r), Err(Error::Corrupt)));
     }
     /// A version 1 store, written as the previous build wrote it.
@@ -1414,7 +1414,7 @@ mod tests {
         let f = Fixture::new();
         version_one(&f, None);
         let k = Keys(Arc::new(Mutex::new(Vault::default())));
-        let r = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let r = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed");
         let migrated = Store::open(&f.0, k, r).unwrap();
         assert_eq!(ddl(&migrated), PROVIDER_SQL);
         let version: i64 = migrated.db.pragma_query_value(None, "user_version", |r| r.get(0)).unwrap();
@@ -1426,7 +1426,7 @@ mod tests {
         let f = Fixture::new();
         version_one(&f, Some(("http://127.0.0.1:8123/v1", "invented-model")));
         let k = Keys(Arc::new(Mutex::new(Vault::default())));
-        let r = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let r = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed");
         let mut s = Store::open(&f.0, k.clone(), r).unwrap();
         let old = s.snapshot().unwrap().provider.unwrap();
         assert_eq!((old.revision.as_str(), old.endpoint.as_str(), old.model.as_str()), ("b".repeat(48).as_str(), "http://127.0.0.1:8123/v1", "invented-model"));
@@ -1445,7 +1445,7 @@ mod tests {
         assert_eq!(s.load(&saved.revision).unwrap().context_window, 65536);
         // Reopening keeps version 2 and the saved window.
         drop(s);
-        let r = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let r = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed");
         let reopened = Store::open(&f.0, k, r).unwrap();
         assert_eq!(reopened.snapshot().unwrap().provider.unwrap().context_window, Some(65536));
     }
@@ -1462,7 +1462,7 @@ mod tests {
         s.db.execute_batch("ALTER TABLE provider DROP COLUMN context_window;PRAGMA user_version=1;").unwrap();
         assert_eq!(ddl(&s), PROVIDER_SQL_V1);
         drop(s);
-        let r = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let r = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed");
         let mut s = Store::open(&f.0, k.clone(), r).unwrap();
         let migrated = s.snapshot().unwrap().provider.unwrap();
         assert_eq!((migrated.revision.as_str(), migrated.credential_mode, migrated.context_window), (saved.revision.as_str(), CredentialMode::Keychain, None));
@@ -1505,7 +1505,7 @@ mod tests {
         let f = Fixture::new();
         let k = Keys(Arc::new(Mutex::new(Vault::default())));
         let host = ScriptedHost::normal();
-        let r = SolveJobRegistry::new(MemoryPool::new(host.clone()));
+        let r = SolveJobRegistry::new(MemoryPool::new(host.clone())).expect("the registry is constructed");
         host.set(|s| s.headroom_bytes = Some(0));
         assert!(matches!(
             Store::open(&f.0, k.clone(), r),

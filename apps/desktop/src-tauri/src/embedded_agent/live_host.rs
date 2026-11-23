@@ -1435,7 +1435,7 @@ mod tests {
             .unwrap()
     }
     fn registered() -> Owner {
-        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed");
         let mut owner = Owner::new(registry, Arc::new(AtomicBool::new(false)));
         let backing = lease(&owner);
         owner

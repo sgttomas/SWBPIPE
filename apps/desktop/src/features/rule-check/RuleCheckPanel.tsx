@@ -3,7 +3,8 @@ import { surfaceRouteRefusal } from "../results/outputPolicy";
 import { numericalResultStanding } from "../results/resultStanding";
 import { Download, ShieldAlert } from "lucide-react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
-import type { Diagnostic, MechanicsResult, PreviewModel } from "../../types";
+import type { Diagnostic, PreviewModel } from "../../types";
+import type { SessionResult } from "../../services/nativeResult";
 
 type WarningClass = "RULE_CHECK_BLOCKING" | "PROVENANCE_WARNING" | "ASSUMPTION_WARNING" | "IP_BOUNDARY_WARNING";
 
@@ -44,11 +45,11 @@ type RuleCompletenessUnitPolicyEvidence = {
   private_payload_included: false;
 };
 
-function eligibleStanding(result: MechanicsResult, model: PreviewModel): boolean {
+function eligibleStanding(result: SessionResult, model: PreviewModel): boolean {
   try { return numericalResultStanding(result, model).eligible; } catch { return false; }
 }
 
-export function RuleCheckPanel({ model, result }: { model: PreviewModel; result: MechanicsResult | null }) {
+export function RuleCheckPanel({ model, result }: { model: PreviewModel; result: SessionResult | null }) {
   const review = buildRuleCompletenessReview({ model, result });
   // Epoch 8: the line shows only where the gate admits the result and Rust's
   // standing is eligible (this panel receives only the Current result, which already is).
@@ -124,7 +125,7 @@ function ReviewLine({ label, value, testId }: { label: string; value: string; te
   );
 }
 
-function buildRuleCompletenessReview({ model, result }: { model: PreviewModel; result: MechanicsResult | null }) {
+function buildRuleCompletenessReview({ model, result }: { model: PreviewModel; result: SessionResult | null }) {
   const ruleStatus = result?.status.rule_check ?? model.analysis_status.rule_check;
   const mechanicsStatus = result?.status.mechanics ?? model.analysis_status.mechanics;
   const professionalStatus = result?.status.professional_acceptance ?? model.analysis_status.professional_acceptance;
@@ -201,7 +202,7 @@ function buildFindings({
   ruleStatus
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
+  result: SessionResult | null;
   diagnostics: Diagnostic[];
   ruleStatus: string;
 }): CompletenessFinding[] {

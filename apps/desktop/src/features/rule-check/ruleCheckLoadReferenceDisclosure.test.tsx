@@ -16,7 +16,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 import { createSolveJobTransport, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
-import { hasNativeMechanicsInvocation, runPreviewMechanics, type PreviewSolverMode } from "../../services/previewService";
+import { deliveredMechanicsResultJob, hasNativeMechanicsInvocation, runPreviewMechanics, type PreviewSolverMode } from "../../services/previewService";
+import { solveHeldCopy } from "../../test/heldResultCopy";
 import { N_RULE_CHECK_NOT_NUMERICALLY_ELIGIBLE } from "../../services/ruleCheckService";
 import { LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE, numericalResultStanding } from "../results/resultStanding";
 import { N_LOAD_REFERENCE_RULE_CHECK } from "../results/loadReferenceDisclosure";
@@ -72,10 +73,10 @@ function install({ model, bytes }: Input, mode: Mode, ruleAnswer: () => unknown 
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
   return transport;
 }
-/** A natively solved, registered source. */
+/** A natively solved, registered source: the full copy of a result native custody holds. */
 async function solved(input: Input, mode: Mode) {
   const transport = install(input, mode);
-  const result = await runPreviewMechanics(input.model, mode);
+  const result = await solveHeldCopy(input.model, mode);
   expect(hasNativeMechanicsInvocation(result, input.model, mode)).toBe(true);
   invokeMock.mockClear();
   return { result, transport };
@@ -153,7 +154,7 @@ describe("the rule-check run panel (RuleCheckRunPanel)", () => {
     await screen.findByTestId("rule-check-run-result");
     expect(screen.getByTestId("rule-check-run-load-reference-disclosure").textContent).toBe(expectedLine(input.bytes));
     expect(ruleRuns()).toHaveLength(1);
-    expect((ruleRuns()[0][1] as { solvedEnvelope: MechanicsResult }).solvedEnvelope.run_id).toBe(result.run_id);
+    expect((ruleRuns()[0][1] as { jobId: string }).jobId).toBe(deliveredMechanicsResultJob(result));
     // UI text only: the line is not part of the run result the panel shows.
     expect(screen.getByTestId("rule-check-run-result").textContent).not.toContain("load/reference states");
   });
@@ -166,10 +167,12 @@ describe("the rule-check run panel (RuleCheckRunPanel)", () => {
     await pasteAndRun();
     await screen.findByTestId("rule-check-run-result");
     expect(screen.getByTestId("rule-check-run-load-reference-disclosure").textContent).toBe(expectedLine(input.bytes));
-    expect(invokeMock.mock.calls.map(([command]) => command)).toEqual([
-      "start_preview_mechanics_job", "poll_preview_mechanics_job", "take_preview_mechanics_job_result",
-      "run_rule_checks", "dispose_preview_mechanics_result"
-    ]);
+    // The transient solve is held natively and read by its native readers, never taken whole.
+    const seen = invokeMock.mock.calls.map(([command]) => command as string);
+    expect(seen.slice(0, 2)).toEqual(["start_preview_mechanics_job", "poll_preview_mechanics_job"]);
+    expect(seen).not.toContain("take_preview_mechanics_job_result");
+    expect(seen).not.toContain("read_preview_mechanics_job_rows_all");
+    expect(seen.slice(-2)).toEqual(["run_rule_checks", "dispose_preview_mechanics_result"]);
     expect(transport.custody()).toEqual([]);
   });
 

@@ -1,5 +1,5 @@
 /** C1 interim (DEL-04-05 `c1-native-custody-plan.md` slice 4): the C2 consumers (reports,
- * comparisons, rule checks, stress-neutral and JSON derivative exports, the handoff panels) keep
+ * comparisons, stress-neutral and JSON derivative exports, the handoff panels) keep
  * full rows until C2 lands. For a native result they get them only through this gate: lazily, when
  * the panel is shown (or, with `explicit`, when the person asks), copied once per result at or under
  * 64 MiB and read with the legacy readers on the exact copied bytes. A consumer given the run record
@@ -8,7 +8,8 @@
  * limit (the result's, or the record's for a consumer given it) the panel says what is too large
  * for the feature with both sizes, what can still be read and #51's advice, with the code and the
  * exact sizes behind Details; nothing is withheld silently. A full result in the webview already (historical, browser reference) passes
- * through unchanged. No C1 surface uses this gate. */
+ * through unchanged. No C1 surface uses this gate. Rule checks do not: they send the native
+ * handle, and the native host checks the result it holds. */
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { FullResultRefused, fullResultRefusalWords, isNativeAnalysisRun, isNativeJobLive, isNativeResult, nativeCustody, type FullResultRefusalWords, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
 import { nativeFailureText } from "../../services/nativeIngress";

@@ -302,7 +302,7 @@ mod tests {
     fn scope() -> std::sync::Arc<Loopback> {
         Loopback::bind(&SolveJobRegistry::new(MemoryPool::new(
             ScriptedHost::normal(),
-        )))
+        )).expect("the registry is constructed"))
         .unwrap()
     }
     fn head(scope: &Loopback, extra: &str) -> Vec<u8> {

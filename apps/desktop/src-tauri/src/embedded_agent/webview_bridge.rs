@@ -276,7 +276,7 @@ mod tests {
     }
     fn setup() -> (Bridge, Protocol, Arc<ScriptedHost>) {
         let host = ScriptedHost::normal();
-        let registry = SolveJobRegistry::new(MemoryPool::new(host.clone()));
+        let registry = SolveJobRegistry::new(MemoryPool::new(host.clone())).expect("the registry is constructed");
         let dispatcher = Dispatcher::new(registry.clone(), TOKEN, "main", &basis(2), 16).unwrap();
         let mut b = Bridge::new(registry, dispatcher).unwrap();
         let mut p = Protocol::new(Catalog::load().unwrap(), TOKEN.into(), 16).unwrap();

@@ -289,8 +289,7 @@ describe("the status chip policy through the product (§5.4)", () => {
     setTauriRuntime(true);
     act(() => nativeMenuCommand("analyze.rule-checks"));
     const solvePage = screen.getByTestId("workspace-section-solve");
-    // Rule checks read full rows (C2): their copy loads on request, never at the solve's first paint.
-    fireEvent.click(within(solvePage).getByTestId("c2-result-load"));
+    // Rule checks read the held result by its handle: no full copy is loaded for them.
     fireEvent.click(await within(solvePage).findByTestId("rule-check-load-demo"));
     await within(solvePage).findByTestId("rule-check-binding-plan");
     fireEvent.click(within(solvePage).getByTestId("rule-check-run"));

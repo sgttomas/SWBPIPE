@@ -739,6 +739,18 @@ export function disposeDeliveredMechanicsResult(result: MechanicsResult | Native
   return disposePreviewMechanicsResult(delivered.jobId);
 }
 
+/** Query only: the native job holding this result's exact bytes natively, while it holds them: a
+ * native handle's job, or the job a full copy was copied from. Null for a result taken into the
+ * webview (its job no longer holds it natively) and once the job's custody has ended. */
+export function nativeHeldMechanicsResultJob(result: MechanicsResult | NativeResult | null | undefined): string | null {
+  if (isNativeResult(result)) {
+    const { jobId } = nativeCustody(result);
+    return isNativeJobLive(jobId) ? jobId : null;
+  }
+  const copied = result ? fullCopyJobs.get(result) : undefined;
+  return copied !== undefined && isNativeJobLive(copied) ? copied : null;
+}
+
 /** Query only: the native job a held result was delivered by, while it is held. */
 export function deliveredMechanicsResultJob(result: MechanicsResult | NativeResult | null | undefined): string | null {
   if (isNativeResult(result)) {

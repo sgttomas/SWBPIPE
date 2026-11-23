@@ -667,7 +667,7 @@ mod tests {
     };
     const KEY: &str = "fixture-provider-credential-long";
     fn registry() -> SolveJobRegistry {
-        SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()))
+        SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed")
     }
     fn wait_ready(relay: &mut Relay) {
         let deadline = Instant::now() + Duration::from_secs(5);
@@ -994,7 +994,7 @@ mod tests {
     #[test]
     fn admission_failure_precedes_worker_and_does_not_consume_service_claim() {
         let host = ScriptedHost::normal();
-        let registry = SolveJobRegistry::new(MemoryPool::new(host.clone()));
+        let registry = SolveJobRegistry::new(MemoryPool::new(host.clone())).expect("the registry is constructed");
         let scope = Loopback::bind(&registry).unwrap();
         host.set(|s| s.headroom_bytes = Some(0));
         assert!(matches!(
@@ -1048,7 +1048,7 @@ mod additional_tests {
         time::Instant,
     };
     fn registry() -> SolveJobRegistry {
-        SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()))
+        SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed")
     }
     fn ready(relay: &mut Relay) {
         let end = Instant::now() + Duration::from_secs(5);
@@ -1280,7 +1280,7 @@ mod native_control_tests {
     };
     #[test]
     fn proxy_environment_is_ignored_and_loopback_listeners_do_not_survive_exec() {
-        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed");
         let scope = Loopback::bind(&registry).unwrap();
         let proxy = TcpListener::bind("127.0.0.1:0").unwrap();
         proxy.set_nonblocking(true).unwrap();
@@ -1329,7 +1329,7 @@ mod native_control_tests {
             .unwrap()
             .parse()
             .unwrap();
-        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed");
         let control = Loopback::bind(&registry).unwrap();
         let positive = Command::new("/usr/sbin/lsof")
             .args([
@@ -1497,7 +1497,7 @@ mod tls_tests {
             let read = connection.reader().read(&mut bytes).unwrap_or(0);
             (result.is_err(), read)
         });
-        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed");
         let scope = Loopback::bind(&registry).unwrap();
         let mut relay = Relay::start(
             &registry,

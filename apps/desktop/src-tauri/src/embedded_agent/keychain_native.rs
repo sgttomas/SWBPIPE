@@ -349,7 +349,7 @@ mod live {
             time::{Duration, Instant},
         };
         fn registry() -> SolveJobRegistry {
-            SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()))
+            SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed")
         }
         fn directory() -> PathBuf {
             assert_eq!(
@@ -786,7 +786,7 @@ mod smoke {
 
         const DENIED: KeyError = KeyError::SmokeConfigurationDenied;
         fn registry() -> SolveJobRegistry {
-            SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()))
+            SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed")
         }
         fn nonce() -> String {
             let mut bytes = [0u8; 24];

@@ -821,7 +821,6 @@ function AppSession() {
                 <StressRatioTablePanel
                   model={model}
                   result={result}
-                  fullResult={session.results.fullResult}
                   analysisRun={currentSolvedResult !== null && result === currentSolvedResult ? analysisRun : null}
                   standing={viewportResultStanding}
                   ruleCheckRun={currentSolvedResult !== null && result === currentSolvedResult ? ruleCheckReportRun : null}
@@ -985,7 +984,6 @@ function AppSession() {
           <div className="workspace-pane workspace-pane-viewport">
             <PartErrorBoundary subject="The 3D view" resetKey={projectSessionGeneration}>
             <PipeViewport
-              fullResult={session.results.fullResult}
               authoringPanelContainer={routingPanelContainer}
               presentationBottomInsetPx={treeCollapsed && (stageView === "model" || (stageView === "both" && narrowWindow)) ? 28 : 0}
               viewCommandRef={viewportViewCommandRef}
@@ -1183,27 +1181,21 @@ function AppSession() {
               <button type="button" onClick={() => void handleInspectBundledReference()}>
                 Inspect bundled reference
               </button>
-              {/* The Solve section is open when a solve lands: its rule checks read full rows (C2), so
-                  they load them only when the person asks, never at a solve's first paint. */}
-              <C2ResultGate result={currentSolvedResult} analysisRun={null} feature="rule checks" explicit>
-                {(full) => (
-                  <>
-                    <RuleCheckPanel model={model} result={full.result} />
-                    <RuleCheckRunPanel
-                      basis={ruleCheckRunBasis}
-                      model={model}
-                      result={full.result}
-                      onAggregateChange={(aggregate, run) => void handleRuleCheckAggregate(aggregate, {
-                        projectSessionGeneration,
-                        modelRevision: uiModelRevision,
-                        result: currentSolvedResult,
-                        inputManifest
-                      }, run ?? null)}
-                      onR3JourneyEvent={recordR3JourneyEvent}
-                    />
-                  </>
-                )}
-              </C2ResultGate>
+              {/* Rule checks run on the result native custody holds: the run and the selector
+                  preview send its handle, so no full copy enters the webview for them. */}
+              <RuleCheckPanel model={model} result={currentSolvedResult} />
+              <RuleCheckRunPanel
+                basis={ruleCheckRunBasis}
+                model={model}
+                result={currentSolvedResult}
+                onAggregateChange={(aggregate, run) => void handleRuleCheckAggregate(aggregate, {
+                  projectSessionGeneration,
+                  modelRevision: uiModelRevision,
+                  result: currentSolvedResult,
+                  inputManifest
+                }, run ?? null)}
+                onR3JourneyEvent={recordR3JourneyEvent}
+              />
               <KnowledgePanel knowledge={knowledge} model={model} result={currentSolvedResult} />
               </DormantSection>) : null}
             </section>
@@ -1300,7 +1292,6 @@ function AppSession() {
       {keyResults.open ? (
         <PartErrorBoundary subject="The Key results panel" className="key-results-panel" resetKey={projectSessionGeneration}>
         <KeyResultsPanel
-          fullResult={session.results.fullResult}
           model={model}
           result={result}
           standing={viewportResultStanding}

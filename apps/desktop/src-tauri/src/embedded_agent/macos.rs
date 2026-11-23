@@ -565,7 +565,7 @@ mod tests {
     }
     #[test]
     fn portable_configuration_excludes_provider_secrets_and_escapes_model() {
-        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed");
         let relay = Loopback::bind(&registry).unwrap();
         let text = supplier_config("invented \"model\" \\ variant", 32768, &relay).unwrap();
         assert!(text.starts_with("model = \"invented \\\"model\\\" \\\\ variant\"\nmodel_context_window = 32768\n"));
@@ -649,7 +649,7 @@ mod tests {
     #[test]
     fn the_launched_command_is_exactly_the_fixed_one() {
         let root = fixture();
-        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed");
         let mut relay = ready_relay(&registry);
         let endpoint = relay.endpoint().unwrap();
         let capability = endpoint.scope().capability().to_owned();
@@ -752,7 +752,7 @@ mod tests {
     #[test]
     fn invalid_configuration_is_refused_before_runtime_or_marker_creation() {
         let state = fixture();
-        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed");
         let mut relay = ready_relay(&registry);
         let lease = registry.acquire_interactive_ingress(STARTUP_BYTES).unwrap();
         let result = prepare(
@@ -773,7 +773,7 @@ mod tests {
     #[test]
     fn stopped_relay_endpoint_cannot_prepare_a_supplier_scope() {
         let state = fixture();
-        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed");
         let mut relay = ready_relay(&registry);
         let endpoint = relay.endpoint().unwrap();
         stop_relay(&mut relay);
@@ -803,7 +803,7 @@ mod tests {
     #[test]
     fn missing_bundled_supplier_is_refused_before_marker_creation() {
         let state = fixture();
-        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed");
         let mut relay = ready_relay(&registry);
         let lease = registry.acquire_interactive_ingress(STARTUP_BYTES).unwrap();
         let result = prepare(
@@ -839,7 +839,7 @@ mod tests {
         let resources =
             std::env::var_os("SWBPIPE_CODEX_RESOURCES").expect("selected app resource directory");
         let state = fixture();
-        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed");
         let lease = registry.acquire_interactive_ingress(STARTUP_BYTES).unwrap();
         let mut relay = ready_relay(&registry);
         let prepared = prepare(

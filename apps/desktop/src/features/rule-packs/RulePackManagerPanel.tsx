@@ -749,7 +749,7 @@ export function RulePackManagerPanel({
                 summary={inputsSummary(document)}
                 fault={partFaults.inputs}
               >
-            {/* The selector offers read every row (a rule-check consumer, C2): a native result's
+            {/* The rule-pack editor's selector offers read every row (a C2 consumer): a native result's
                 bounded full copy, loaded when the person asks. */}
             <C2ResultGate result={result ?? null} analysisRun={null} feature="the solved-result selector" explicit>
               {(full) => (

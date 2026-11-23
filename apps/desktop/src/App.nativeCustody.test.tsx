@@ -86,21 +86,22 @@ describe("a native result's first paint in the app", () => {
     expect(sent("take_preview_mechanics_job_result")).toBe(0);
     expect(sent("read_preview_mechanics_job_rows_all")).toBe(0);
     expect(fullRecordBuilds).not.toHaveBeenCalled();
-    // The Solve section is open: its rule checks offer to read the full rows, and wait.
+    // The Solve section is open: its rule checks read the held result by its handle, so they are
+    // shown at once and copy nothing.
     const solveSection = screen.getByTestId("workspace-section-solve");
-    expect(within(solveSection).queryByTestId("rule-check-load-demo")).toBeNull();
-    fireEvent.click(within(solveSection).getByTestId("c2-result-load"));
     expect(await within(solveSection).findByTestId("rule-check-load-demo")).toBeInTheDocument();
-    expect(sent("read_preview_mechanics_job_rows_all")).toBe(1);
-    // Rule checks are given no run record, so none is built for them.
+    expect(within(solveSection).queryByTestId("c2-result-load")).toBeNull();
+    await settle();
+    expect(sent("read_preview_mechanics_job_rows_all")).toBe(0);
+    // Rule checks copy nothing and are given no run record, so none is built for them.
     expect(fullRecordBuilds).not.toHaveBeenCalled();
 
-    // Opening the Report section reads the same copy: none is made again for the job.
+    // Opening the Report section reads the full copy, once for the job.
     nativeMenuCommand("view.section.report");
     expect(await within(screen.getByTestId("workspace-section-report")).findByTestId("report-panel")).toBeInTheDocument();
     await settle();
     expect(sent("read_preview_mechanics_job_rows_all")).toBe(1);
-    // ... and the report, given the record, gets its full record, built once on that copy and shared.
+    // ... and the report, given the record, gets its full record, built once on that copy.
     expect(fullRecordBuilds).toHaveBeenCalledTimes(1);
 
     // A second solve releases the first job; with Report dormant again, nothing is copied.
@@ -109,11 +110,12 @@ describe("a native result's first paint in the app", () => {
     expect(mechanics.nativeHeld()).toHaveLength(1);
     expect(sent("read_preview_mechanics_job_rows_all")).toBe(1);
     expect(fullRecordBuilds).toHaveBeenCalledTimes(1);
-    expect(within(screen.getByTestId("workspace-section-solve")).getByTestId("c2-result-load")).toBeInTheDocument();
+    expect(within(screen.getByTestId("workspace-section-solve")).getByTestId("rule-check-load-demo")).toBeInTheDocument();
+    expect(within(screen.getByTestId("workspace-section-solve")).queryByTestId("c2-result-load")).toBeNull();
     expect(sent("take_preview_mechanics_job_result")).toBe(0);
   }, 90_000);
 
-  it("refuses for a run record above the limit only the outputs given it: comparisons and rule checks load, the report shows the record's sizes", async () => {
+  it("refuses for a run record above the limit only the outputs given it: comparisons load, rule checks need no copy, the report shows the record's sizes", async () => {
     const mechanics = await installPreviewReplay();
     const sent = (command: string) => mechanics.commands().filter((name) => name === command).length;
     const fullRecordBuilds = vi.spyOn(previewService, "buildAnalysisRunPreview");
@@ -123,10 +125,12 @@ describe("a native result's first paint in the app", () => {
     await screen.findByTestId("workspace-toolbar");
     await solve();
 
+    // Rule checks read the held result by its handle: available at once, with no full copy.
     const solveSection = screen.getByTestId("workspace-section-solve");
-    fireEvent.click(within(solveSection).getByTestId("c2-result-load"));
     expect(await within(solveSection).findByTestId("rule-check-load-demo")).toBeInTheDocument();
+    expect(within(solveSection).queryByTestId("c2-result-load")).toBeNull();
     expect(within(solveSection).queryByTestId("c2-result-refused")).toBeNull();
+    expect(sent("read_preview_mechanics_job_rows_all")).toBe(0);
 
     nativeMenuCommand("view.section.results");
     const resultsSection = screen.getByTestId("workspace-section-results");
@@ -159,9 +163,16 @@ describe("a native result's first paint in the app", () => {
     render(<App />);
     await screen.findByTestId("workspace-toolbar");
     await solve();
+    // Rule checks need no copy: available, nothing refused.
     const solveSection = screen.getByTestId("workspace-section-solve");
-    fireEvent.click(within(solveSection).getByTestId("c2-result-load"));
-    expectSizeRefusal(await within(solveSection).findByTestId("c2-result-refused"), "result", ["rule checks"]);
+    expect(await within(solveSection).findByTestId("rule-check-load-demo")).toBeInTheDocument();
+    expect(within(solveSection).queryByTestId("c2-result-load")).toBeNull();
+    expect(within(solveSection).queryByTestId("c2-result-refused")).toBeNull();
+    // The comparison's loader is refused for the result's size.
+    nativeMenuCommand("view.section.results");
+    const resultsSection = screen.getByTestId("workspace-section-results");
+    fireEvent.click(within(resultsSection).getByTestId("c2-result-load"));
+    expectSizeRefusal(await within(resultsSection).findByTestId("c2-result-refused"), "result", ["comparisons"]);
     nativeMenuCommand("view.section.report");
     const refusals = await within(screen.getByTestId("workspace-section-report")).findAllByTestId("c2-result-refused");
     for (const refusal of refusals) expectSizeRefusal(refusal, "result", REPORT_GATES);

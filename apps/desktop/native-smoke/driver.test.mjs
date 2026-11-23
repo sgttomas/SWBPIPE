@@ -406,7 +406,7 @@ test("a matching gate that refused ends the wait at once with its own text; anot
   });
 });
 
-test("rule checks: through the gate, the demo pack is loaded, the run made and its outcome read", { timeout: 8000 }, async () => {
+test("rule checks: with no full-copy gate, the demo pack is loaded, the run made and its outcome read", { timeout: 8000 }, async () => {
   const w = gatedWindow({ onMenu: (commandId) => {
     for (const [name, root] of w.sections) root.offsetParent = commandId === `view.section.${name}` ? {} : null;
   } });
@@ -414,12 +414,11 @@ test("rule checks: through the gate, the demo pack is loaded, the run made and i
   const results = w.section("results", false);
   const status = w.element("rule-check-run-status");
   const run = w.element("rule-check-run", { disabled: true });
-  w.explicitGate(solve, "rule checks", () => {
-    w.place(solve, w.element("rule-check-run-panel"));
-    w.place(solve, status);
-    w.place(solve, run);
-    w.place(solve, w.element("rule-check-load-demo", { click: () => setTimeout(() => { status.textContent = "Loaded the bundled invented demonstration rule pack."; run.disabled = false; }, 100) }));
-  });
+  // The panel is shown with no full-copy gate: the run reads the held result by its handle.
+  w.place(solve, w.element("rule-check-run-panel"));
+  w.place(solve, status);
+  w.place(solve, run);
+  w.place(solve, w.element("rule-check-load-demo", { click: () => setTimeout(() => { status.textContent = "Loaded the bundled invented demonstration rule pack."; run.disabled = false; }, 100) }));
   run.click = () => setTimeout(() => {
     w.place(solve, w.element("rule-check-aggregate-status", { textContent: "Aggregate statusINCOMPLETE — 0 check(s) failed; 1 check(s) blocked (RULE_INPUTS_INCOMPLETE)" }));
     w.place(solve, w.element("rule-check-outcomes", { textContent: "demo_training_check: RULE_INPUTS_INCOMPLETE inputs: demo_actual_quantity=MISSING, demo_limit_quantity=MISSING" }));
@@ -431,12 +430,29 @@ test("rule checks: through the gate, the demo pack is loaded, the run made and i
   w.place(results, w.element("stress-ratio-group", { value: "rule:demo_training_check", querySelectorAll: (selector) => (selector.includes("rule:") ? [{}] : []) }));
   w.place(results, w.element("stress-ratio-mode", { getAttribute: (name) => (name === "data-mode" ? "ratio" : null) }));
   const observation = await w.hooks.runRuleChecks("demo/rule-checks");
-  assert.equal(observation.gate.loaded_on_request, true);
+  assert.equal(observation.gate.full_copy_offered, false);
   assert.match(observation.aggregate, /RULE_INPUTS_INCOMPLETE/);
   assert.match(observation.outcomes, /demo_actual_quantity=MISSING, demo_limit_quantity=MISSING/);
   assert.equal(observation.stress_ratio.rule_groups, 1);
   assert.equal(observation.stress_ratio.pinned_incomplete, 1);
   assert.deepEqual(w.sent, ["view.section.results"]);
+});
+
+// A regressed rule check that offers a full-copy gate again fails the step at once, with what the
+// gate showed, rather than after the panel's timeout.
+test("rule checks: a full-copy gate for rule checks ends the step at once", { timeout: 5000 }, async () => {
+  for (const shown of ["explicit", "reading"]) {
+    const w = gatedWindow();
+    const solve = w.section("solve");
+    if (shown === "explicit") w.explicitGate(solve, "rule checks", () => w.place(solve, w.element("rule-check-run-panel")));
+    else w.place(solve, w.element("c2-result-loading", { textContent: "Reading the full result for rule checks…" }));
+    const started = Date.now();
+    await assert.rejects(w.hooks.runRuleChecks("demo/rule-checks"), (error) => {
+      assert.match(error.message, /^demo\/rule-checks: a full-copy gate for rule checks appeared /, shown);
+      return true;
+    });
+    assert.ok(Date.now() - started < 1000, shown);
+  }
 });
 
 // A gate that failed, in each of the product's two failure forms for its feature (C2ResultGate.tsx:68,

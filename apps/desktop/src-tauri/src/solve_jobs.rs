@@ -644,6 +644,28 @@ pub(crate) struct EnvelopeBasis {
 /// The most envelope bases a handle keeps (its reopen basis and the latest re-saves').
 pub(crate) const MAX_ENVELOPE_BASES: usize = 32;
 
+/// The refusal to construct a registry whose issue tag cannot be drawn.
+pub(crate) const SOLVE_JOB_ISSUE_TAG_UNAVAILABLE: &str = "SOLVE-JOB-ISSUE-TAG-UNAVAILABLE";
+
+/// A registry that was not constructed because its issue tag could not be
+/// drawn from the system random source ([`SolveJobRegistry::new`]).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct IssueTagUnavailable(String);
+
+impl std::fmt::Display for IssueTagUnavailable {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(formatter, "{SOLVE_JOB_ISSUE_TAG_UNAVAILABLE}: the system random source failed ({}); the solve-job registry was not constructed, so no handle is issued", self.0)
+    }
+}
+
+/// A registry's issue tag: 64 bits from `fill`, written as 16 hex digits. A
+/// failing source refuses by name; there is no fallback tag, empty or fixed.
+fn issue_tag_from(fill: impl FnOnce(&mut [u8]) -> Result<(), String>) -> Result<String, IssueTagUnavailable> {
+    let mut bytes = [0u8; 8];
+    fill(&mut bytes).map_err(IssueTagUnavailable)?;
+    Ok(bytes.iter().map(|byte| format!("{byte:02x}")).collect())
+}
+
 /// The prefix of a restored result's handle (a solve's is `backend-solve-job-`).
 pub(crate) const RESTORED_HANDLE_PREFIX: &str = "restored-stored-result-";
 /// The route pricing a restored result's status reports: no worker ran.
@@ -849,6 +871,25 @@ pub(crate) struct SolveJobRegistry {
     /// The largest result a solve job may publish:
     /// [`MAX_DISPLAYABLE_RESULT_BYTES`], lowered only by tests.
     result_limit: u64,
+    /// This registry's issue tag, written into every handle it issues
+    /// ([`Self::handle`]): 64 bits from the system random source for a registry
+    /// built by [`Self::new`], which refuses to construct without them.
+    ///
+    /// What it is for: an accidental match. A handle another registry issued (in
+    /// another process, or in a test beside this one) names no record here,
+    /// although its number may equal one of this registry's; and since numbers are
+    /// never reused within one registry, resets included, a handle from before a
+    /// reset names a disposed record, never a later result.
+    ///
+    /// What it is not: an authority token or a secret. The web view that sends a
+    /// handle is the application's own code; the tag is visible in every handle,
+    /// including the job identifiers a person saves in Solve job JSON and Runner
+    /// JSON, and grants nothing. Custody is decided by the registry's records.
+    ///
+    /// Empty for a test registry built with [`Self::with_hooks`] unless a test sets
+    /// one ([`Self::with_issue_tag`]), so the committed native replies keep their
+    /// handles.
+    issue_tag: Arc<str>,
 }
 
 fn thread_spawn(job: Box<dyn FnOnce() + Send + 'static>) -> std::io::Result<()> {
@@ -925,8 +966,37 @@ impl Drop for WorkerExit {
 }
 
 impl SolveJobRegistry {
-    pub(crate) fn new(pool: Arc<MemoryPool>) -> Self {
-        Self::with_hooks(pool, Arc::new(CurrentExeLauncher), Arc::new(thread_spawn))
+    /// The process's registry, issuing handles under a tag drawn from the system
+    /// random source; refused by name ([`IssueTagUnavailable`]) when the source fails.
+    pub(crate) fn new(pool: Arc<MemoryPool>) -> Result<Self, IssueTagUnavailable> {
+        Self::new_with_tag_source(pool, |bytes| getrandom::fill(bytes).map_err(|error| error.to_string()))
+    }
+
+    /// [`Self::new`] drawing its tag from `fill`.
+    fn new_with_tag_source(pool: Arc<MemoryPool>, fill: impl FnOnce(&mut [u8]) -> Result<(), String>) -> Result<Self, IssueTagUnavailable> {
+        let tag = issue_tag_from(fill)?;
+        let mut registry = Self::with_hooks(pool, Arc::new(CurrentExeLauncher), Arc::new(thread_spawn));
+        registry.issue_tag = tag.into();
+        Ok(registry)
+    }
+
+    /// Test support: this registry's issue tag.
+    #[cfg(test)]
+    pub(crate) fn issue_tag(&self) -> &str {
+        &self.issue_tag
+    }
+
+    /// Test seam: the same registry issuing handles under `tag`.
+    #[cfg(test)]
+    pub(crate) fn with_issue_tag(mut self, tag: &str) -> Self {
+        self.issue_tag = tag.into();
+        self
+    }
+
+    /// The handle for the `number`th job or restored result, under `prefix`
+    /// (`backend-solve-job-` or [`RESTORED_HANDLE_PREFIX`]) and this registry's tag.
+    fn handle(&self, prefix: &str, number: u64) -> String {
+        if self.issue_tag.is_empty() { format!("{prefix}{number}") } else { format!("{prefix}{}-{number}", self.issue_tag) }
     }
 
     pub(crate) fn with_hooks(pool: Arc<MemoryPool>, launcher: Arc<dyn WorkerLauncher>, spawn: SpawnFn) -> Self {
@@ -939,6 +1009,7 @@ impl SolveJobRegistry {
             checks: Arc::default(),
             hanger_sizing: crate::hanger_sizing_job::HangerSizingRuns::default(),
             result_limit: MAX_DISPLAYABLE_RESULT_BYTES,
+            issue_tag: "".into(),
         }
     }
 
@@ -1115,7 +1186,7 @@ impl SolveJobRegistry {
             table.next_job_number += 1;
             let number = table.next_job_number;
             let nanos = SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_nanos()).unwrap_or_default();
-            let job_id = format!("backend-solve-job-{number}");
+            let job_id = self.handle("backend-solve-job-", number);
             let token = format!("solve-cancel-token-{number}-{nanos:x}");
             table.records.insert(
                 job_id.clone(),
@@ -1705,7 +1776,7 @@ impl SolveJobRegistry {
         }
         table.next_job_number += 1;
         let number = table.next_job_number;
-        let job_id = format!("{RESTORED_HANDLE_PREFIX}{number}");
+        let job_id = self.handle(RESTORED_HANDLE_PREFIX, number);
         let result_bytes = result.text.len() as u64;
         // C1: the handle's custody is established here, under the registry
         // lock that inserts it: the leases backing its bytes leave the
@@ -3799,5 +3870,35 @@ mod tests {
         assert_eq!((status.result_available, status.result_bytes), (false, None));
         assert_eq!(registry.pool().reserved_total(), 0, "the result's lease is released at once");
         assert!(matches!(registry.take_result(&receipt.job_id), Err(SolveJobError::InvalidRequest { message }) if message.starts_with("PREVIEW-SOLVE-RESULT-TOO-LARGE: ")));
+    }
+}
+
+#[cfg(test)]
+mod issue_tag_tests {
+    use super::*;
+    use crate::memory_pool::test_host::ScriptedHost;
+
+    /// Two registries made by the production constructor carry distinct,
+    /// non-empty tags, and their first handles differ although their numbers match.
+    #[test]
+    fn production_registries_carry_distinct_non_empty_tags() {
+        let first = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("constructed");
+        let second = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("constructed");
+        for registry in [&first, &second] {
+            assert_eq!(registry.issue_tag().len(), 16, "{}", registry.issue_tag());
+            assert!(registry.issue_tag().chars().all(|c| c.is_ascii_hexdigit()));
+        }
+        assert_ne!(first.issue_tag(), second.issue_tag());
+        assert_ne!(first.handle("backend-solve-job-", 1), second.handle("backend-solve-job-", 1));
+        assert_eq!(first.handle("backend-solve-job-", 1), format!("backend-solve-job-{}-1", first.issue_tag()));
+    }
+
+    /// A failing random source refuses construction by name: no registry, and no
+    /// fallback tag (empty, fixed or time-derived).
+    #[test]
+    fn a_failing_random_source_refuses_to_construct_the_registry() {
+        let refused = SolveJobRegistry::new_with_tag_source(MemoryPool::new(ScriptedHost::normal()), |_| Err("source unavailable".to_string()));
+        let error = refused.err().expect("refused");
+        assert_eq!(error.to_string(), "SOLVE-JOB-ISSUE-TAG-UNAVAILABLE: the system random source failed (source unavailable); the solve-job registry was not constructed, so no handle is issued");
     }
 }
