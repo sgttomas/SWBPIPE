@@ -15,6 +15,9 @@
 // (`features/workspace/reportSourceSequence.ts`); the native side refuses one
 // that is retired or not yet registered.
 // Outside the native application the panel keeps its link and iframe.
+// Open in a window (`open_rendered_report_view`, `src-tauri/src/report_view.rs`)
+// shows the held document in a native window of its own, named the same way;
+// nothing leaves through it, so it carries no controlled export's evidence.
 import { invokeWithIngress, IngressRequestRetiredError } from "./nativeIngress";
 import { ResourceUnavailableError } from "./memoryPool";
 import type { ReportRenderRequest, ReportSourceMark } from "../features/workspace/reportSourceSequence";
@@ -239,4 +242,73 @@ export function printOutcomeText(outcome: RenderedReportRouteOutcome<RenderedRep
 function destinationText(error: RenderedReportRouteError): string {
   if (error.destination !== "as_it_was") return "";
   return ` The destination was left as it was${error.cleanup_code ? `; a temporary file could not be removed (${error.cleanup_code})` : ""}.`;
+}
+
+// Open in a window (DEL-08-01 REQ-022; `src-tauri/src/report_view.rs`). The words a person sees
+// are each here once.
+
+/** The panel's button. */
+export const OPEN_REPORT_VIEW_LABEL = "Open in a window";
+export const REPORT_VIEW_OPENING = "Opening the report window…";
+export const REPORT_VIEW_OPENED = "Report opened in a window.";
+export const REPORT_VIEW_BROUGHT_FORWARD = "The report's window was brought forward.";
+/** The refusal when the workspace changed after the shown report was rendered. */
+export const REPORT_VIEW_STALE = "The workspace changed after this report was rendered. Render it again.";
+export const REPORT_VIEW_STALE_CODE = "REPORT-SOURCE-STALE-VIEW";
+/** The words before the reason when the open's reply was lost and a window may have opened. */
+export const REPORT_VIEW_NOT_KNOWN = "It is not known whether the report window opened:";
+
+/** The refusal for a source that could not be named for the open: the stale view in its own
+ * words, any other coded error as it came. */
+export function reportViewSourceRefusalText(text: string): string {
+  const at = text.indexOf(": ");
+  const code = at > 0 && /^[A-Z0-9-]+$/.test(text.slice(0, at)) ? text.slice(0, at) : null;
+  if (code === REPORT_VIEW_STALE_CODE) return reportViewRefusalText(REPORT_VIEW_STALE, code);
+  return reportViewRefusalText(code ? text.slice(at + 2) : text, code);
+}
+
+/** A refusal: the message first, the code last in brackets. */
+export function reportViewRefusalText(message: string, code: string | null): string {
+  return `The report could not be opened in a window: ${message}${code ? ` (${code})` : ""}`;
+}
+
+export type RenderedReportViewReceipt = {
+  outcome: "opened" | "brought_forward";
+  kind: string;
+  sha256_hex: string;
+};
+
+/** Opens the shown render in a window of its own: the request names the render by the SHA-256
+ * the render's reply gave and the source it was prepared for; it carries no document. */
+export async function openRenderedReportView(
+  request: { sha256Hex: string; source: ReportSourceMark },
+  stillCurrent: () => boolean
+): Promise<RenderedReportRouteOutcome<RenderedReportViewReceipt>> {
+  try {
+    const receipt = await invokeWithIngress<RenderedReportViewReceipt>(
+      "open_rendered_report_view",
+      { sha256Hex: request.sha256Hex, source: { incarnation: request.source.incarnation, sequence: request.source.sequence } },
+      { stillCurrent }
+    );
+    return { kind: "done", receipt };
+  } catch (error) {
+    if (error instanceof IngressRequestRetiredError) return { kind: "retired" };
+    if (isRouteError(error)) return { kind: "refused", error };
+    return { kind: "failed", message: error instanceof Error ? error.message : String(error), failure: error };
+  }
+}
+
+export function viewOutcomeText(outcome: RenderedReportRouteOutcome<RenderedReportViewReceipt>): string {
+  switch (outcome.kind) {
+    case "done":
+      return outcome.receipt.outcome === "brought_forward" ? REPORT_VIEW_BROUGHT_FORWARD : REPORT_VIEW_OPENED;
+    case "refused":
+      return reportViewRefusalText(outcome.error.message, outcome.error.code);
+    case "retired":
+      return reportViewRefusalText("the report is no longer current; nothing was sent.", null);
+    case "failed":
+      return refusedBeforeRunning(outcome.failure)
+        ? reportViewRefusalText(outcome.message, null)
+        : `${REPORT_VIEW_NOT_KNOWN} ${outcome.message}`;
+  }
 }

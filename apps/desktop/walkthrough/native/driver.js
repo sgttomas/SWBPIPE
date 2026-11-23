@@ -22,13 +22,14 @@
   const ipc = window.__TAURI_INTERNALS__;
   // The scripted-run build's substitutions for a person's act (DEL-07-11 REQ-010). Each one a step uses is recorded
   // on that step, so the index can mark it: the file a chooser returns, a native menu command, a request to quit or
-  // to close the main window, the print dialog.
+  // to close the main window, the print dialog, the close of a report view window.
   let substitutions = null;
   const SUBSTITUTED = {
     native_smoke_choose: (args) => ({ kind: "file chooser", what: `the next file chooser returns ${String(args.path).split("/").pop()}, named by the harness; no chooser is shown` }),
     native_smoke_menu: (args) => ({ kind: "native menu command", what: `${args.commandId} delivered through the menu's own dispatch, not by a click in the menu bar` }),
     native_smoke_request_close: (args) => ({ kind: "quit or window close request", what: args.kind === "window" ? "the main window asked to close by the window's own close request, not by a click on its close button" : "Quit asked by the menu item's own handling, not by a click in the menu bar or the keyboard shortcut" }),
-    native_smoke_take_report_prints: () => ({ kind: "report print dialog", what: "the print document recorded in place of the system print dialog" })
+    native_smoke_take_report_prints: () => ({ kind: "report print dialog", what: "the print document recorded in place of the system print dialog" }),
+    native_smoke_close_report_views: () => ({ kind: "report view window close", what: "the report view window closed by the harness through the window's own API, not by a click on its close button" })
   };
   const call = (command, args) => {
     if (substitutions && SUBSTITUTED[command]) substitutions.push(SUBSTITUTED[command](args ?? {}));
@@ -500,6 +501,30 @@
     await journey.scrolled("issues-drawer", "The Issues drawer", 2, '[data-testid="issues-home"]');
   }
 
+  // Open in a window (report_view.rs), pressed as a person does. The build records what the view window's protocol
+  // served it (native_smoke_take_report_views), not what WebKit drew. The step fails unless the window opened and was
+  // served the rendered document (its SHA-256 the render's). The window is then closed (native_smoke_close_report_views,
+  // a substitution) and its leaving the window registry confirmed, so that later steps and captures show the main window.
+  async function openViewWindow() {
+    await press("rendered-report-open-window");
+    const status = await waitFor("the window's outcome", () => { const now = text("rendered-report-view-status"); return now && !/^Opening/.test(now) ? now : null; }, T.step);
+    if (status !== "Report opened in a window.") throw new Error(`the report window did not open: ${status}`);
+    const views = [];
+    const started = Date.now();
+    for (;;) {
+      views.push(...(await call("native_smoke_take_report_views")));
+      if (views.some((view) => view.document_served) || Date.now() - started > T.ui) break;
+      await sleep(250);
+    }
+    const served = views.find((view) => view.document_served);
+    if (!served) throw new Error(`the report window was not served its document within ${Math.round(T.ui / 1000)} s (${views.length} record(s))`);
+    const rendered = /[0-9a-f]{64}/.exec(text("rendered-report-hash") ?? "")?.[0] ?? null;
+    if (served.document_sha256_hex !== rendered) throw new Error(`the report window was served a document of SHA-256 ${served.document_sha256_hex}, not the render's ${rendered ?? "(no hash shown)"}`);
+    const closed = await call("native_smoke_close_report_views");
+    if (!Array.isArray(closed) || !closed.includes(served.window_label)) throw new Error(`the report window ${served.window_label} was not closed (closed: ${JSON.stringify(closed)})`);
+    return `${status} ${served.window_label} ${served.kind}: wrapper ${served.wrapper_served ? "served" : "not served"}, document served (${served.document_byte_count} B, SHA-256 ${served.document_sha256_hex}, the render's); closed ${closed.join(", ")}`;
+  }
+
   // B. The report, from the Review stage to a saved package.
   async function report(journey, plan) {
     await journey.step("run", "Run pressed on the demonstration model", pressRun);
@@ -538,6 +563,7 @@
       const preview = await control("rendered-report-preview", { timeoutMs: T.ui });
       await scrollTo(preview, "start");
     });
+    await journey.step("view-window", "Open in a window: the rendered report in a native window of its own, then closed", openViewWindow);
     await journey.step("shareable-dialog", "File > Save Shareable Report Package…: the release dialog", async () => {
       await menu("file.save-shareable-report-package");
       await waitFor("the release dialog", () => visible(byTestId("user-release-dialog")), T.step);

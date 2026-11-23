@@ -632,8 +632,12 @@ const ENTRY_RULES: [(&str, &str, Entry); 6] = [
 /// `check_saved_package_entry`, `remove_saved_package_entry` and
 /// `keep_held_saved_package_entries`; the previous digest `659a5501…a8939a8`
 /// reproduced first; no `mod`, no `$parameter ::`, no scanned name).
+/// The report view window adds one ordinary handler entry after
+/// `print_rendered_report`: `open_rendered_report_view` (the previous digest
+/// `4511e433…ee63b14` reproduced first; the macro's only change is that line;
+/// no `mod`, no `$parameter ::`, no scanned name).
 const MACRO_DEFINITIONS: [(&str, &str, &str); 3] = [
-    ("src-tauri/src/lib.rs", "app_invoke_handler", "4511e43392e8b239241c1c6d292e9b026224e491ae90f982ef7e8a307ee63b14"),
+    ("src-tauri/src/lib.rs", "app_invoke_handler", "8abc6274ea4e2306a98461e8f2ffcaefea211ce1c03bcda7faff1d6a988bafdb"),
     ("headless/src/reader_binding.rs", "base", "d80e766036e0f651522ebfe11ebc6ba1fc32ec2b9c2b3702e0b978eb86558cb2"),
     ("headless/src/reader_binding.rs", "transport", "057aa56311a7531f094632a3fe9f2d781b9364ab4865add6c7d257403732169a"),
 ];

@@ -30,12 +30,19 @@ import type { CurrentSessionInputManifestEvidence } from "../../services/inputMa
 import {
   controlRenderedReportHtml,
   isNativeRenderedReportRuntime,
+  OPEN_REPORT_VIEW_LABEL,
+  openRenderedReportView,
   printOutcomeText,
   printRenderedReport,
   renderedReportRouteOpen,
+  REPORT_VIEW_OPENING,
+  REPORT_VIEW_STALE,
+  REPORT_VIEW_STALE_CODE,
+  reportViewSourceRefusalText,
   retireRenderedReport,
   saveOutcomeText,
-  saveRenderedReportHtml
+  saveRenderedReportHtml,
+  viewOutcomeText
 } from "../../services/renderedReportRoutes";
 import type { ReportRenderRequest, ReportSourceMark, ReportSourceSequence } from "../workspace/reportSourceSequence";
 import { currentLibraryRefFindings, NO_LIBRARY_REF_FINDINGS, type LibraryRefFindingsState } from "../library/libraryRefFindings";
@@ -92,6 +99,13 @@ import {
 // request: on unmount the panel retires the render it holds and every request it sent whose
 // answer is outstanding, and it retires at once a request whose answer arrives after the
 // panel has discarded it or whose outcome is not known. It never retires globally.
+//
+// Open in a window (DEL-08-01 REQ-022; `report_view.rs`): the shown render opens in a native
+// window that is served the desktop's held document, never this web view's copy. The window's
+// life is the desktop's: it closes when the desktop retires the render it shows (a registered
+// source change, another render's entry, a new workspace incarnation, or this panel's retirement
+// of its requests on unmount), and the panel sends nothing else about it. Nothing leaves through
+// the window, so it writes no entry in the session's output outcomes.
 
 /** Whether a saved package records the user's per-report user release. Only a saved outcome
  * wrote a package, so no other outcome shows a user release, whatever its members say. The
@@ -269,8 +283,8 @@ export function RenderedReportPanel({
   const heldRequest = useRef<ReportRenderRequest | null>(null);
   const outstandingRequests = useRef(new Set<ReportRenderRequest>());
   const routeInFlight = useRef(false);
-  const [routeBusy, setRouteBusy] = useState<"save" | "print" | null>(null);
-  const [routeStatus, setRouteStatus] = useState<{ generation: number; save?: string; print?: string } | null>(null);
+  const [routeBusy, setRouteBusy] = useState<"save" | "print" | "view" | null>(null);
+  const [routeStatus, setRouteStatus] = useState<{ generation: number; save?: string; print?: string; view?: string } | null>(null);
   // The native side retires a held render when its source advances (a registered
   // source change) or another render request enters; here, on unmount, the panel
   // retires the exact requests it holds or has outstanding.
@@ -538,6 +552,36 @@ export function RenderedReportPanel({
     }
   }
 
+  /** Open in a window: names the shown render by its hash and source; writes no output outcome. */
+  async function onOpenView() {
+    if (routeInFlight.current || !nativeRoutes || outcome === null || outcome.export_blocked || previewHtml === null || renderState === null) return;
+    routeInFlight.current = true;
+    const generation = renderGeneration.current;
+    const stillCurrent = () => renderGeneration.current === generation;
+    const renderedFor = renderState.source;
+    const viewSequence = reportSourceSequence;
+    const sha256Hex = outcome.sha256_hex;
+    const show = (text: string) => {
+      if (stillCurrent()) setRouteStatus((previous) => ({ ...(previous?.generation === generation ? previous : {}), generation, view: text }));
+    };
+    setRouteBusy("view");
+    show(REPORT_VIEW_OPENING);
+    try {
+      let source: ReportSourceMark;
+      try {
+        if (viewSequence !== renderedFor.sequence) throw new Error(`${REPORT_VIEW_STALE_CODE}: ${REPORT_VIEW_STALE}`);
+        source = reportSource ? await reportSource.registeredFor(viewSequence) : renderedFor;
+      } catch (error) {
+        show(reportViewSourceRefusalText(error instanceof Error ? error.message : String(error)));
+        return;
+      }
+      show(viewOutcomeText(await openRenderedReportView({ sha256Hex, source }, stillCurrent)));
+    } finally {
+      routeInFlight.current = false;
+      setRouteBusy(null);
+    }
+  }
+
   return (
     <section
       className="panel rendered-report-panel"
@@ -726,6 +770,16 @@ export function RenderedReportPanel({
                 <Printer size={14} aria-hidden="true" />
                 Print / PDF (derived view)
               </button>
+              {nativeRoutes ? (
+                <button
+                  type="button"
+                  data-testid="rendered-report-open-window"
+                  disabled={routeBusy !== null}
+                  onClick={() => void onOpenView()}
+                >
+                  {OPEN_REPORT_VIEW_LABEL}
+                </button>
+              ) : null}
               <p data-testid="rendered-report-list-notice">
                 The project does not keep or list saved or printed reports. An HTML save and a saved report package are each a file you keep.
               </p>
@@ -739,6 +793,7 @@ export function RenderedReportPanel({
             <div className="report-list">
               <span role="status" data-testid="rendered-report-save-status">{shownRouteStatus?.save ?? ""}</span>
               <span role="status" data-testid="rendered-report-print-status">{shownRouteStatus?.print ?? ""}</span>
+              <span role="status" data-testid="rendered-report-view-status">{shownRouteStatus?.view ?? ""}</span>
             </div>
           ) : null}
           {previewHtml !== null ? (
