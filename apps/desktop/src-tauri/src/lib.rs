@@ -128,7 +128,7 @@ use std::{
     sync::Arc,
     time::{SystemTime, UNIX_EPOCH},
 };
-use tauri::menu::{CheckMenuItemBuilder, MenuBuilder, MenuItemBuilder, MenuItemKind, SubmenuBuilder};
+use tauri::menu::{AboutMetadataBuilder, CheckMenuItemBuilder, MenuBuilder, MenuItemBuilder, MenuItemKind, SubmenuBuilder};
 use tauri::{AppHandle, Manager};
 use tauri_plugin_dialog::DialogExt;
 
@@ -5839,8 +5839,20 @@ fn build_app_menu<R: tauri::Runtime>(
     let quit = MenuItemBuilder::with_id(QUIT_MENU_ID, "Quit SWBPIPE")
         .accelerator("CmdOrCtrl+Q")
         .build(handle)?;
+    // About names the product, never the process: the system's own wording for an
+    // unnamed About item is the running process's name, which is the binary's
+    // wherever the application is started outside its bundle.
+    let info = handle.package_info();
+    let about = AboutMetadataBuilder::new()
+        .name(Some(info.name.clone()))
+        .version(Some(info.version.to_string()))
+        .build();
     let app_menu = SubmenuBuilder::new(handle, "SWBPIPE")
-        .about(None)
+        .about_with_text("About SWBPIPE", Some(about))
+        .separator()
+        .hide_with_text("Hide SWBPIPE")
+        .hide_others()
+        .show_all()
         .separator()
         .item(&quit)
         .build()?;
@@ -5862,8 +5874,12 @@ fn build_app_menu<R: tauri::Runtime>(
     let edit = SubmenuBuilder::new(handle, "Edit")
         .text("edit.undo", "Undo Model Edit")
         .text("edit.redo", "Redo Model Edit")
-        .undo()
-        .redo()
+        .separator()
+        // The system's own pair, which acts on the text field being edited and
+        // holds ⌘Z and ⇧⌘Z: named for what it undoes, so that it cannot be taken
+        // for the model's pair above.
+        .undo_with_text("Undo Text Edit")
+        .redo_with_text("Redo Text Edit")
         .separator()
         .cut()
         .copy()
@@ -7467,6 +7483,23 @@ mod tests {
             validate_native_shell_state(&invalid_review).unwrap_err(),
             "NATIVE-SHELL-STATE-INVALID: Review stage must use Table view"
         );
+    }
+
+    /// Each of these builders leaves the item's words to the system, which writes the
+    /// running process's name into About, Hide and Quit, and a bare "Undo" and "Redo"
+    /// beside the model's own pair. The menu names every such item itself.
+    #[test]
+    fn the_native_menu_leaves_no_item_for_the_system_to_name() {
+        let source = std::fs::read_to_string(
+            std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src/lib.rs"),
+        )
+        .expect("read src/lib.rs");
+        let start = source.find("\nfn build_app_menu<").expect("the menu's builder");
+        let body = &source[start + 1..];
+        let body = &body[..body.find("\n}\n").expect("the builder's end")];
+        for unnamed in [".about(", ".hide()", ".quit()", ".undo()", ".redo()"] {
+            assert!(!body.contains(unnamed), "the native menu builds an item with `{unnamed}`, whose words the system chooses");
+        }
     }
 
     #[test]
