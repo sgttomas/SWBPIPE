@@ -3426,6 +3426,8 @@ export function useWorkspaceSession() {
     if (!model) return;
     const owner = acquireProjectOperation();
     if (!owner) return;
+    // Issue 519: the status line as this write found it, so that a late outcome never hides a newer one.
+    const messageAtStart = projectMessage;
     const request = ++projectRequest.current;
     let epoch = requestEpochRef.current;
     // Save as a new project follows the session's own adoption of the renamed
@@ -3571,9 +3573,11 @@ export function useWorkspaceSession() {
       const keepStoredBinding = () => {
         if (!(verifiedBasis && request === projectRequest.current && sameProjectSession())) return;
         setProjectSummary(created.summary);
-        // Issue 519: what this write did to the stored proposal stays true whatever came after it.
+        // Issue 519: what this write did to the stored proposal stays true whatever came after it. It
+        // takes the line only if nothing newer was published there (a close refused while the write ran
+        // publishes without a new request); otherwise it is added to that newer message.
         const outcome = writtenStoredProposalSentence(unadmitted, { projectId: requestModel.project.id, generation, kept: false, replacedWhole: true });
-        if (outcome) setProjectMessage(`${created.summary.message}${outcome}`);
+        if (outcome) setProjectMessage((current) => current === messageAtStart ? `${created.summary.message}${outcome}` : `${current}${outcome}`);
       };
       if (!stillCurrent()) { keepStoredBinding(); return; }
       const returnedHistory = requestHistoricalRun
@@ -4411,6 +4415,8 @@ export function useWorkspaceSession() {
     if (!model) return;
     const owner = acquireProjectOperation();
     if (!owner) return;
+    // Issue 519: the status line as this write found it, so that a late outcome never hides a newer one.
+    const messageAtStart = projectMessage;
     const request = ++projectRequest.current;
     let epoch = requestEpochRef.current;
     // Save as a new project follows the session's own adoption of the renamed
@@ -4612,9 +4618,11 @@ export function useWorkspaceSession() {
       const keepStoredBinding = () => {
         if (!(verifiedBasis && request === projectRequest.current && sameProjectSession())) return;
         setProjectSummary(saved.summary);
-        // Issue 519: what this write did to the stored proposal stays true whatever came after it.
+        // Issue 519: what this write did to the stored proposal stays true whatever came after it. It
+        // takes the line only if nothing newer was published there (a close refused while the write ran
+        // publishes without a new request); otherwise it is added to that newer message.
         const outcome = writtenStoredProposalSentence(unadmitted, { projectId: requestModel.project.id, generation, kept, replacedWhole: keepStoredProposal && !kept });
-        if (outcome) setProjectMessage(`${saved.summary.message}${outcome}`);
+        if (outcome) setProjectMessage((current) => current === messageAtStart ? `${saved.summary.message}${outcome}` : `${current}${outcome}`);
       };
       if (!stillCurrent()) { keepStoredBinding(); return; }
       // A kept save's history is read from the stored envelope as written (the browser preview's

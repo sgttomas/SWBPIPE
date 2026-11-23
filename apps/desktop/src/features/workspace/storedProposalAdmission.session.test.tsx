@@ -10,6 +10,13 @@ import { resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock, { nativeReopen: "actual" }) }));
+// A native close request while a write runs (issue 519 review of the merge): the host accepts the
+// acknowledgement and takes the answer; nothing else in this file sends one.
+vi.mock("../../services/nativeMenu", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../services/nativeMenu")>()),
+  acknowledgeNativeCloseRequest: async () => true,
+  resolveNativeCloseRequest: async () => undefined
+}));
 import { useWorkspaceSession } from "./workspaceSession";
 import { buildGridOperationIntent, type GridColumn } from "./table/modelTableAdapter";
 import { ProjectValidationPanel } from "../project-validation/ProjectValidationPanel";
@@ -22,6 +29,7 @@ import { loadDesignKnowledge } from "../../services/previewService";
 import { storedSampleProposal } from "../../test/storedSampleProposal";
 import { REPLACE_REMOVES_STORED_PROPOSAL, STORED_PROPOSAL_NOT_ADMITTED, admitStoredProposal, storedEditorIntentsSentence, storedProposalSentence } from "./storedProposalAdmission";
 import type { AgentProposal, MechanicsResult, PreviewModel } from "../../types";
+import { NATIVE_CLOSE_REQUEST_DOM_EVENT } from "../../services/nativeMenu";
 
 /** A well-formed stored proposal, as an earlier version saved it: the sample over the bundled demo result. */
 const wellFormedStoredProposal = () => storedSampleProposal(JSON.parse(readFileSync(resolve(__dirname, "../../../../../fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json"), "utf8")) as MechanicsResult);
@@ -402,6 +410,34 @@ describe("the notice at the write's commit, while the session moved on (issue 51
     expect(keeping).not.toHaveBeenCalled();
     expect(result.current.project.projectMessage).not.toContain(STORED_PROPOSAL_NOT_ADMITTED);
     expect((await openLocalProject(model.project.id))!.proposal).toBeNull();
+  });
+
+  it("adds the Replace's sentence to a close refused while it was written, and hides neither", async () => {
+    const { result } = await readySession();
+    const model = await storedWith(result.current.model.model!, "project:issue-519-r2-replace-close", UNADMITTED);
+    await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
+    await anotherWriterSaves(model.project.id, { ...UNADMITTED, proposal_id: "proposal:other-writer" });
+    const write = pausedOnce("saveLocalProject", "replace");
+    let pending!: Promise<void>;
+    act(() => { pending = result.current.project.handleSaveProject(); });
+    await waitFor(() => expect(result.current.project.replaceProjectPrompt).not.toBeNull());
+    act(() => result.current.project.replaceProjectPrompt!.choose("replace"));
+    await act(async () => { await write.started; });
+    changeSelection(result);
+    // The window is asked to close while the write runs; the person keeps waiting.
+    act(() => { window.dispatchEvent(new CustomEvent(NATIVE_CLOSE_REQUEST_DOM_EVENT, { detail: { requestId: 1, attempt: 1, kind: "window" } })); });
+    await waitFor(() => expect(result.current.project.quitWhileBusyPrompt).not.toBeNull());
+    act(() => result.current.project.quitWhileBusyPrompt!.choose("wait"));
+    await waitFor(() => expect(result.current.project.projectOperation).toBe("close_kept_waiting"));
+    const refusal = result.current.project.projectMessage;
+    expect(refusal).toContain("Window not closed");
+    write.release();
+    await act(async () => { await pending; });
+    expect((await openLocalProject(model.project.id))!.proposal).toBeNull();
+    expect(result.current.project.projectMessage).toContain(refusal);
+    expect(result.current.project.projectMessage).toContain(storedProposalSentence(notice.notice, "replaced"));
+    expect(result.current.project.projectMessage).not.toContain(OPEN_SENTENCE);
+    expect(result.current.project.projectOperation).toBe("close_kept_waiting");
   });
 
   it("is cleared by New Local Project's confirmed Replace that lands after a selection change", async () => {
