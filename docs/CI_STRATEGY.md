@@ -213,13 +213,14 @@ alters a read. Their shape is checked strictly, and a semantic error selects
 every crate: an unknown or misspelt key, a malformed scan rule, a scan that
 finds no files, an unresolved filesystem API, an escaping path, a missing exact
 input file, a runtime read with no declaration, an unused or unknown declaration
-or an anchor absent from compiled source. A scan's file inventory is computed
-from the tree, and a reader's callers from the Cargo graph, so neither is kept
-in the record: the record's `source_trees` digests, each declaration's
-`source_trees` list and a scan's `files` are retained and need no edit. The
-selector derives callers and scan membership from the tree. A hosted-CI
-regression also uses one retained caller list as an expected subset of the
-selected manifests. A deleted path that any scan's root and rule cover, or that any
+or an anchor absent from compiled source. The selector computes each scan's
+current file inventory from the tree and each reader's callers from the Cargo
+graph. The routing record retains its `source_trees` digests, each
+declaration's `source_trees` list and each scan's existing `files` list.
+Routine changes to callers and scan membership require no refreshed inventory.
+One hosted-CI regression uses the retained caller list for
+`rule_pack_lifecycle` as an expected subset of the selected manifests. Revisit
+that expectation if a listed caller legitimately leaves the selection. A deleted path that any scan's root and rule cover, or that any
 declaration lists, selects every crate, as an unknown path does.
 
 Each declaration attests its reader's `sha256` and each anchor source's
