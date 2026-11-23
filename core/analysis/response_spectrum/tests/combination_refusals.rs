@@ -3,15 +3,15 @@
 use open_pipe_stress_response_spectrum::combination_json::combine_json;
 use open_pipe_stress_response_spectrum::{
     combine, ClusterIndex, CombinationRequest, Direction, DirectionalRule, DisplacementComponent, End, ForceComponent,
-    Frame, MissingMass, ModalContribution, ModalMode, ModalRule, ModeIndex, Quantity, RefusalCode, RigidContribution,
-    RigidRule,
+    Frame, MemberFamily, MissingMass, ModalContribution, ModalMode, ModalRule, ModeIndex, Quantity, RefusalCode,
+    RigidContribution, RigidRule,
 };
 use serde_json::{json, Value};
 
 fn rows() -> Vec<Quantity> {
     vec![
         Quantity::NodeDisplacement { node: "N2".into(), component: DisplacementComponent::Uy },
-        Quantity::ElementEndForce { member: "P1".into(), end: End::I, component: ForceComponent::Mz, frame: Frame::MemberAxes },
+        Quantity::ElementEndAction { member: "P1".into(), family: MemberFamily::Straight, end: End::I, component: ForceComponent::Mz, frame: Frame::MemberAxes },
     ]
 }
 
@@ -55,7 +55,9 @@ fn codes(request: &CombinationRequest) -> Vec<&'static str> {
 fn the_base_request_combines() {
     let c = combine(&base()).unwrap();
     assert_eq!(c.clusters.len(), 3);
-    assert_eq!(c.cluster_sums.len(), 4); // two periodic clusters × two directions
+    // Cluster 1 (modes 1 and 2) states its sums in both directions; cluster 2 is one mode and does not.
+    assert_eq!(c.cluster_sums.len(), 2);
+    assert!(c.cluster_sums.iter().all(|s| s.cluster == ClusterIndex(1)));
     // Cluster 1's sum under X is 2.0e-3 − 1.5e-3, with signs.
     assert_eq!(c.cluster_sums[0].values[0], 2.0e-3 + -1.5e-3);
     // N2.uy: under Z both cluster sums are positive (0.7e-3 and 1.1e-3) and outweigh X's.
@@ -137,13 +139,25 @@ fn every_refusal_is_named() {
         assert!(codes(&r).iter().all(|c| *c == "SPECTRUM_MODAL_METADATA_INVALID"), "metadata mutation {i}: {:?}", codes(&r));
     }
 
-    // Rows: none, repeated, an id with a dot.
+    // Rows: repeated, a blank identity, an arc end in member axes. An identity with a dot is a
+    // model identity like any other.
     let mut r = base();
     r.rows.push(r.rows[0].clone());
     assert!(codes(&r).contains(&"SPECTRUM_ROW_INVALID"));
     let mut r = base();
-    r.rows[0] = Quantity::NodeDisplacement { node: "N.2".into(), component: DisplacementComponent::Uy };
+    r.rows[0] = Quantity::NodeDisplacement { node: " ".into(), component: DisplacementComponent::Uy };
     assert!(codes(&r).contains(&"SPECTRUM_ROW_INVALID"));
+    let mut r = base();
+    r.rows[0] = Quantity::NodeDisplacement { node: "N.2".into(), component: DisplacementComponent::Uy };
+    assert!(combine(&r).is_ok());
+    let mut r = base();
+    r.rows[1] = Quantity::ElementEndAction { member: "BEND1".into(), family: MemberFamily::Arc, end: End::I, component: ForceComponent::Mz, frame: Frame::MemberAxes };
+    let refusals = combine(&r).unwrap_err();
+    assert_eq!(refusals.len(), 1);
+    assert_eq!(refusals[0].code, RefusalCode::RowInvalid);
+    assert_eq!(refusals[0].object, r.rows[1].label());
+    assert_eq!(refusals[0].field.as_deref(), Some("frame"));
+    assert!(refusals[0].detail.contains("member_axes") && refusals[0].detail.contains("never an arc's frame"), "{}", refusals[0].detail);
 
     // Contributions: nonfinite, wrong length, missing, repeated, unknown mode, unrequested direction.
     let contributions: [fn(&mut CombinationRequest); 6] = [
@@ -197,7 +211,8 @@ fn a_refusal_names_its_object_and_field() {
     let refusal = &combine(&r).unwrap_err()[0];
     assert_eq!(refusal.code, RefusalCode::ContributionInvalid);
     assert_eq!(refusal.object, "mode:1 X");
-    assert_eq!(refusal.field.as_deref(), Some("P1.i.Mz_m"));
+    // The field is the row, stated here as the label of P1's member-axes Mz row at end i.
+    assert_eq!(refusal.field.as_deref(), Some("element_end_action member [P1] end i Mz (member_axes)"));
 }
 
 #[test]
@@ -286,7 +301,7 @@ fn repeated_runs_and_permuted_inputs_give_identical_bytes() {
 /// A minimal JSON input document; `edit` removes or changes members.
 fn document(edit: impl FnOnce(&mut Value)) -> String {
     let mut v = json!({
-        "schema": "openpipestress.spectrum_combination.input/v1",
+        "schema": "openpipestress.spectrum_combination.input/v2",
         "provenance": "invented values for a refusal test",
         "damping_ratio": 0.05,
         "modal_combination": "SRSS",
@@ -294,7 +309,8 @@ fn document(edit: impl FnOnce(&mut Value)) -> String {
         "missing_mass": {"applied": false},
         "directions": ["X"],
         "modes": [{"mode": 1, "cluster": 1, "frequency_hz": 2.0}],
-        "rows": [{"key": "N2.uy", "quantity": "node_displacement", "object": "N2", "component": "uy", "unit": "m", "frame": "global"}],
+        "rows": [{"quantity": "node_displacement", "entity_kind": "node", "node": "N2", "component": "uy", "unit": "unit:meter",
+            "frame": "global_axes", "sign_convention": "positive_along_axis"}],
         "contributions": [{"mode": 1, "direction": "X", "sign_status": "signed_contribution", "values": [-0.003]}],
         "rigid_responses": []
     });
@@ -336,7 +352,12 @@ fn the_json_entry_supplies_no_default() {
         ["SPECTRUM_CONTRIBUTION_INVALID"]);
     assert_eq!(json_codes(&document(|v| v["rows"][0]["unit"] = json!("mm"))), ["SPECTRUM_ROW_INVALID"]);
     assert_eq!(json_codes(&document(|v| v["rows"][0]["frame"] = json!("member_axes"))), ["SPECTRUM_ROW_INVALID"]);
-    assert_eq!(json_codes(&document(|v| v["rows"][0]["key"] = json!("N2.ux"))), ["SPECTRUM_ROW_INVALID"]);
+    assert_eq!(json_codes(&document(|v| v["rows"][0]["frame"] = json!("global"))), ["SPECTRUM_ROW_INVALID"]);
+    assert_eq!(json_codes(&document(|v| v["rows"][0]["sign_convention"] = json!("tension_positive"))), ["SPECTRUM_ROW_INVALID"]);
+    assert_eq!(json_codes(&document(|v| v["rows"][0]["entity_kind"] = json!("member"))), ["SPECTRUM_ROW_INVALID"]);
+    assert_eq!(json_codes(&document(|v| v["rows"][0]["member"] = json!("P1"))), ["SPECTRUM_ROW_INVALID"]);
+    // A composed key is not part of the row form.
+    assert!(combine_json(&document(|v| v["rows"][0]["key"] = json!("N2.uy"))).is_err());
     assert_eq!(json_codes(&document(|v| v["directions"] = json!(["W"]))), ["SPECTRUM_DIRECTION_INVALID"]);
     // A document that does not decode is an error, not an output: a missing damping ratio, an
     // unknown member, the wrong schema.

@@ -10,7 +10,12 @@ needs:
     A modal request can include dynamic-only restraints and name a state case. The assembled mass
     and the rigid translation of all degrees of freedom can be read unchanged for the inertia terms
     and the missing-mass correction. A set the modal solve
-    refuses is not published, and a set published as sensitive carries that standing.
+    refuses is not published, and a set published as sensitive carries that standing. For the
+    spectrum result document, the modal result also states each mode's circular frequency, the
+    cluster tolerance its clusters were formed with, its extraction endpoint with the reported
+    and established finite mode counts and the next computed mode, the total mass in each
+    direction, and its run id with the digests of its request, model, materials, integrity
+    parameters and state case.
   gating: true
 - from: DEL-02-01
   condition: >-
@@ -113,9 +118,14 @@ needs:
   gating: false
 # The product's units S2 (the validated spectrum table and its evaluation) and S4 (the combinations
 # of supplied signed contributions and their contract, with the contract fixtures), with their
-# tests against the frozen references and their examples. No spectrum solve exists yet.
+# tests against the frozen references and their examples, and the assembler of the spectrum result
+# document from supplied contributions. No spectrum solve exists yet.
 code_paths:
 - core/analysis/response_spectrum/**
+# The committed spectrum result documents, each with its stand-in model and request, and the
+# `spectrum-1` semantic table (REQ-006, "The document and the readers' checks").
+- fixtures/results/spectrum_*
+- fixtures/results/semantic_contract_spectrum_1.json
 # The frozen references and their maintained regeneration and independence check.
 - validation/references/f2_spectrum/**
 - tests/test_dynamics_references.py

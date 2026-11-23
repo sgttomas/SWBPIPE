@@ -1,7 +1,8 @@
 //! The combinations of supplied signed contributions (CLM-001; REQ-003, REQ-004; unit S4).
 use crate::contract::{
-    ClusterClass, ClusterIndex, ClusterStatement, ClusterSum, Combination, CombinationRequest, CombinedRow, Direction,
-    DirectionalPart, DirectionalRule, Magnitude, MissingMass, ModalRule, ModeIndex, RigidRule,
+    ClusterClass, ClusterIndex, ClusterStatement, ClusterSum, Combination, CombinationRequest, CombinedRow,
+    CorrelationStatement, Direction, DirectionalPart, DirectionalRule, Frame, Magnitude, MemberFamily, MissingMass, ModalRule,
+    ModeIndex, Quantity, RigidRule,
 };
 use crate::refusal::{Refusal, RefusalCode};
 use crate::dyadic::{Dyadic, Interval};
@@ -15,12 +16,12 @@ fn refuse(code: RefusalCode, object: &str, field: Option<&str>, detail: String) 
     Refusal::new(code, object, field, detail)
 }
 
-/// A supplied cluster, with its modes in ascending order.
-struct Cluster {
-    index: ClusterIndex,
-    modes: Vec<usize>,
-    standing: f64,
-    class: ClusterClass,
+/// A supplied cluster, with its modes (positions in the request) in ascending order.
+pub(crate) struct Cluster {
+    pub(crate) index: ClusterIndex,
+    pub(crate) modes: Vec<usize>,
+    pub(crate) standing: f64,
+    pub(crate) class: ClusterClass,
 }
 
 fn check_choices(request: &CombinationRequest, refusals: &mut Vec<Refusal>) {
@@ -52,7 +53,7 @@ fn check_choices(request: &CombinationRequest, refusals: &mut Vec<Refusal>) {
 
 /// The modal result's structure: modes 1..n in ascending frequency, clusters chained from 1
 /// over adjacent modes. Nothing is inferred; a breach is refused.
-fn check_modes(request: &CombinationRequest, refusals: &mut Vec<Refusal>) -> bool {
+pub(crate) fn check_modes(request: &CombinationRequest, refusals: &mut Vec<Refusal>) -> bool {
     let before = refusals.len();
     let invalid = |object: String, field: &str, detail: String| {
         refuse(RefusalCode::ModalMetadataInvalid, &object, Some(field), detail)
@@ -60,7 +61,7 @@ fn check_modes(request: &CombinationRequest, refusals: &mut Vec<Refusal>) -> boo
     // REQ-002 permits an empty extracted set. With correction off its modal sums are zero;
     // the existing missing-mass admission is unchanged by this empty-set repair.
     if request.modes.is_empty() && matches!(request.missing_mass, MissingMass::Applied { .. }) {
-        refusals.push(invalid(REQUEST.into(), "modes", "no extracted mode is supplied".into()));
+        refusals.push(no_extracted_mode());
     }
     for (i, m) in request.modes.iter().enumerate() {
         let object = m.mode.to_string();
@@ -88,24 +89,75 @@ fn check_modes(request: &CombinationRequest, refusals: &mut Vec<Refusal>) -> boo
     refusals.len() == before
 }
 
-fn check_rows(request: &CombinationRequest, refusals: &mut Vec<Refusal>) {
+/// The refusal of a request with no extracted mode (`SPECTRUM_MODAL_METADATA_INVALID`).
+pub(crate) fn no_extracted_mode() -> Refusal {
+    refuse(RefusalCode::ModalMetadataInvalid, REQUEST, Some("modes"), "no extracted mode is supplied".into())
+}
+
+/// The rows (REQ-006, "Roster", "Identity", "Frame and sign"): each identity once, by its fields;
+/// every entity identity a non-blank string; an end action in a frame its member family admits
+/// (member axes are never an arc's frame); a member stated as one family throughout; a rigid
+/// constraint held by at least one support, each named once. With `duplicates` false the repeat
+/// of an identity is left to the caller (the spectrum document refuses it against its roster).
+pub(crate) fn check_rows(request: &CombinationRequest, refusals: &mut Vec<Refusal>, duplicates: bool) {
     if request.rows.is_empty() {
         refusals.push(refuse(RefusalCode::RowInvalid, REQUEST, Some("rows"), "no row is supplied".into()));
     }
     let mut seen = BTreeSet::new();
+    let mut families: BTreeMap<&str, MemberFamily> = BTreeMap::new();
     for row in &request.rows {
-        let object = row.object();
-        if object.is_empty() || object.contains('.') || object.chars().any(char::is_whitespace) {
-            refusals.push(refuse(RefusalCode::RowInvalid, &row.key(), Some("object"),
-                format!("`{object}` is not an object id (empty, or containing `.` or white space)")));
+        let label = row.label();
+        for id in row.entity() {
+            if id.trim().is_empty() {
+                refusals.push(refuse(RefusalCode::RowInvalid, &label, Some("entity"),
+                    format!("`{id}` is not a model identity: an identity is a non-blank string")));
+            }
         }
-        if !seen.insert(row.key()) {
-            refusals.push(refuse(RefusalCode::RowInvalid, &row.key(), Some("rows"), "the row is supplied more than once".into()));
+        if let Quantity::ElementEndAction { member, family, frame, .. } = row {
+            let admitted = match family {
+                MemberFamily::Straight => matches!(frame, Frame::GlobalAxes | Frame::MemberAxes),
+                MemberFamily::Arc => matches!(frame, Frame::GlobalAxes | Frame::ArcTangentFrame),
+            };
+            if !admitted {
+                let why = if *family == MemberFamily::Arc && *frame == Frame::MemberAxes {
+                    "an arc end is stated in member axes; member axes are never an arc's frame".to_string()
+                } else {
+                    format!("a {} member's end action is not stated in the {} frame", family.as_str(), frame.as_str())
+                };
+                refusals.push(refuse(RefusalCode::RowInvalid, &label, Some("frame"), format!("{why} (frame `{}`)", frame.as_str())));
+            }
+            match families.get(member.as_str()) {
+                Some(previous) if previous != family => refusals.push(refuse(RefusalCode::RowInvalid, &label, Some("member_family"),
+                    format!("member `{member}` is stated as both {} and {}", previous.as_str(), family.as_str()))),
+                _ => {
+                    families.insert(member, *family);
+                }
+            }
+        }
+        if let Quantity::ConstraintReaction { holders, .. } = row {
+            if holders.is_empty() {
+                refusals.push(refuse(RefusalCode::RowInvalid, &label, Some("holders"), "a rigid constraint names no support that holds it".into()));
+            }
+            let mut named = BTreeSet::new();
+            for h in holders {
+                if h.trim().is_empty() {
+                    refusals.push(refuse(RefusalCode::RowInvalid, &label, Some("holders"),
+                        format!("`{h}` is not a model identity: an identity is a non-blank string")));
+                }
+                if !named.insert(h) {
+                    refusals.push(refuse(RefusalCode::RowInvalid, &label, Some("holders"), format!("support `{h}` is named more than once")));
+                }
+            }
+        }
+        if duplicates && !seen.insert(row.identity()) {
+            refusals.push(refuse(RefusalCode::RowInvalid, &label, Some("rows"), "the row is supplied more than once".into()));
         }
     }
 }
 
-fn clusters(request: &CombinationRequest) -> Vec<Cluster> {
+/// The supplied clusters, classified: periodic when the correction is not applied, otherwise when
+/// the cluster's lowest frequency is below f_r. The modes must have passed [`check_modes`].
+pub(crate) fn clusters(request: &CombinationRequest) -> Vec<Cluster> {
     let mut out: Vec<Cluster> = Vec::new();
     for (i, m) in request.modes.iter().enumerate() {
         match out.last_mut() {
@@ -131,7 +183,7 @@ fn check_values(values: &[f64], rows: usize, object: &str, code: RefusalCode, re
     let mut ok = true;
     for (v, row) in values.iter().zip(&request.rows) {
         if !v.is_finite() {
-            refusals.push(refuse(code, object, Some(&row.key()), format!("{v} is not a finite value")));
+            refusals.push(refuse(code, object, Some(&row.label()), format!("{v} is not a finite value")));
             ok = false;
         }
     }
@@ -349,7 +401,7 @@ pub fn combine(request: &CombinationRequest) -> Result<Combination, Vec<Refusal>
     let mut refusals = Vec::new();
     check_choices(request, &mut refusals);
     let modes_ok = check_modes(request, &mut refusals);
-    check_rows(request, &mut refusals);
+    check_rows(request, &mut refusals, true);
     if !modes_ok {
         return Err(refusals);
     }
@@ -391,14 +443,19 @@ pub fn combine(request: &CombinationRequest) -> Result<Combination, Vec<Refusal>
                     *sum = sum.add(&Dyadic::from_f64(*v));
                 }
             }
-            let values: Vec<f64> = sums.iter().map(Dyadic::to_f64).collect();
-            for (value, row) in values.iter().zip(&request.rows) {
-                if !value.is_finite() {
-                    refusals.push(refuse(RefusalCode::CombinationNonfinite, &row.key(), Some(d.as_str()),
-                        format!("the exact signed sum of {} is beyond the binary64 range", c.index)));
+            // A cluster of more than one mode states its signed sums (REQ-006, "Cluster sums"); a
+            // cluster of one mode does not repeat its contribution. The combinations use the
+            // exact sums either way.
+            if c.modes.len() > 1 {
+                let values: Vec<f64> = sums.iter().map(Dyadic::to_f64).collect();
+                for (value, row) in values.iter().zip(&request.rows) {
+                    if !value.is_finite() {
+                        refusals.push(refuse(RefusalCode::CombinationNonfinite, &row.label(), Some(d.as_str()),
+                            format!("the exact signed sum of {} is beyond the binary64 range", c.index)));
+                    }
                 }
+                cluster_sums.push(ClusterSum { cluster: c.index, direction: d, values });
             }
-            cluster_sums.push(ClusterSum { cluster: c.index, direction: d, values });
             per_unit.push(sums);
         }
         exact.push(per_unit);
@@ -430,13 +487,13 @@ pub fn combine(request: &CombinationRequest) -> Result<Combination, Vec<Refusal>
                     break;
                 }
                 Err(RowFail::Nonfinite { field }) => {
-                    refusals.push(refuse(RefusalCode::CombinationNonfinite, &quantity.key(), Some(&field),
+                    refusals.push(refuse(RefusalCode::CombinationNonfinite, &quantity.label(), Some(&field),
                         "the combined value is beyond the binary64 range".into()));
                     break;
                 }
                 Err(RowFail::Uncertain { field, cause }) => {
                     if p == cap {
-                        refusals.push(refuse(RefusalCode::CombinationAccuracyUnsupported, &quantity.key(), Some(&field),
+                        refusals.push(refuse(RefusalCode::CombinationAccuracyUnsupported, &quantity.label(), Some(&field),
                             uncertain_detail(cause, cap)));
                     }
                 }
@@ -446,8 +503,21 @@ pub fn combine(request: &CombinationRequest) -> Result<Combination, Vec<Refusal>
     if !refusals.is_empty() {
         return Err(refusals);
     }
-    let correlation = (request.modal_rule == ModalRule::Cqc)
-        .then(|| tables[0].get_or_insert_with(|| CorrelationTable::new(&frequencies, request.damping_ratio, PRECISION_LADDER[0])).nearest(units.len()));
+    // The informational coefficient of each unordered pair of distinct periodic clusters: the value
+    // the public `correlation_coefficient` gives for the pair, so that both agree.
+    let correlation = (request.modal_rule == ModalRule::Cqc).then(|| {
+        let mut pairs = Vec::new();
+        for (i, a) in units.iter().enumerate() {
+            for b in &units[i + 1..] {
+                pairs.push(CorrelationStatement {
+                    first: a.index,
+                    second: b.index,
+                    rho: rules::correlation_coefficient(a.standing, b.standing, request.damping_ratio),
+                });
+            }
+        }
+        pairs
+    });
 
     let statements = clusters
         .iter()

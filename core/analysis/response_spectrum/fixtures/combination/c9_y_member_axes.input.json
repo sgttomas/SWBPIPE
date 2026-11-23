@@ -666,867 +666,1059 @@
     {
       "component": "Fx",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P1.i.Fx_m",
-      "object": "P1",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fy",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P1.i.Fy_m",
-      "object": "P1",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fz",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P1.i.Fz_m",
-      "object": "P1",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Mx",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P1.i.Mx_m",
-      "object": "P1",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "My",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P1.i.My_m",
-      "object": "P1",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Mz",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P1.i.Mz_m",
-      "object": "P1",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Fx",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P1.j.Fx_m",
-      "object": "P1",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fy",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P1.j.Fy_m",
-      "object": "P1",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fz",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P1.j.Fz_m",
-      "object": "P1",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Mx",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P1.j.Mx_m",
-      "object": "P1",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "My",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P1.j.My_m",
-      "object": "P1",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Mz",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P1.j.Mz_m",
-      "object": "P1",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Fx",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P2.i.Fx_m",
-      "object": "P2",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fy",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P2.i.Fy_m",
-      "object": "P2",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fz",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P2.i.Fz_m",
-      "object": "P2",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Mx",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P2.i.Mx_m",
-      "object": "P2",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "My",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P2.i.My_m",
-      "object": "P2",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Mz",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P2.i.Mz_m",
-      "object": "P2",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Fx",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P2.j.Fx_m",
-      "object": "P2",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fy",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P2.j.Fy_m",
-      "object": "P2",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fz",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P2.j.Fz_m",
-      "object": "P2",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Mx",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P2.j.Mx_m",
-      "object": "P2",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "My",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P2.j.My_m",
-      "object": "P2",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Mz",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P2.j.Mz_m",
-      "object": "P2",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Fx",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P3.i.Fx_m",
-      "object": "P3",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P3",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fy",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P3.i.Fy_m",
-      "object": "P3",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P3",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fz",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P3.i.Fz_m",
-      "object": "P3",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P3",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Mx",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P3.i.Mx_m",
-      "object": "P3",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P3",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "My",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P3.i.My_m",
-      "object": "P3",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P3",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Mz",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P3.i.Mz_m",
-      "object": "P3",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P3",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Fx",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P3.j.Fx_m",
-      "object": "P3",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P3",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fy",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P3.j.Fy_m",
-      "object": "P3",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P3",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fz",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P3.j.Fz_m",
-      "object": "P3",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P3",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Mx",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P3.j.Mx_m",
-      "object": "P3",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P3",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "My",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P3.j.My_m",
-      "object": "P3",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P3",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Mz",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P3.j.Mz_m",
-      "object": "P3",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P3",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Fx",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P4.i.Fx_m",
-      "object": "P4",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P4",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fy",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P4.i.Fy_m",
-      "object": "P4",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P4",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fz",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P4.i.Fz_m",
-      "object": "P4",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P4",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Mx",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P4.i.Mx_m",
-      "object": "P4",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P4",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "My",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P4.i.My_m",
-      "object": "P4",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P4",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Mz",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P4.i.Mz_m",
-      "object": "P4",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P4",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Fx",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P4.j.Fx_m",
-      "object": "P4",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P4",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fy",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P4.j.Fy_m",
-      "object": "P4",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P4",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fz",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P4.j.Fz_m",
-      "object": "P4",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P4",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Mx",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P4.j.Mx_m",
-      "object": "P4",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P4",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "My",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P4.j.My_m",
-      "object": "P4",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P4",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Mz",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P4.j.Mz_m",
-      "object": "P4",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P4",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Fx",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P5.i.Fx_m",
-      "object": "P5",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P5",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fy",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P5.i.Fy_m",
-      "object": "P5",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P5",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fz",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P5.i.Fz_m",
-      "object": "P5",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P5",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Mx",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P5.i.Mx_m",
-      "object": "P5",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P5",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "My",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P5.i.My_m",
-      "object": "P5",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P5",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Mz",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P5.i.Mz_m",
-      "object": "P5",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P5",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Fx",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P5.j.Fx_m",
-      "object": "P5",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P5",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fy",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P5.j.Fy_m",
-      "object": "P5",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P5",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fz",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P5.j.Fz_m",
-      "object": "P5",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P5",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Mx",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P5.j.Mx_m",
-      "object": "P5",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P5",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "My",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P5.j.My_m",
-      "object": "P5",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P5",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Mz",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P5.j.Mz_m",
-      "object": "P5",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P5",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Fx",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P6.i.Fx_m",
-      "object": "P6",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P6",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fy",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P6.i.Fy_m",
-      "object": "P6",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P6",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fz",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P6.i.Fz_m",
-      "object": "P6",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P6",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Mx",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P6.i.Mx_m",
-      "object": "P6",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P6",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "My",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P6.i.My_m",
-      "object": "P6",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P6",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Mz",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P6.i.Mz_m",
-      "object": "P6",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P6",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Fx",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P6.j.Fx_m",
-      "object": "P6",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P6",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fy",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P6.j.Fy_m",
-      "object": "P6",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P6",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fz",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P6.j.Fz_m",
-      "object": "P6",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P6",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Mx",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P6.j.Mx_m",
-      "object": "P6",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P6",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "My",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P6.j.My_m",
-      "object": "P6",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P6",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Mz",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P6.j.Mz_m",
-      "object": "P6",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P6",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Fx",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P7.i.Fx_m",
-      "object": "P7",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P7",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fy",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P7.i.Fy_m",
-      "object": "P7",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P7",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fz",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P7.i.Fz_m",
-      "object": "P7",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P7",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Mx",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P7.i.Mx_m",
-      "object": "P7",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P7",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "My",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P7.i.My_m",
-      "object": "P7",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P7",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Mz",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P7.i.Mz_m",
-      "object": "P7",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P7",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Fx",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P7.j.Fx_m",
-      "object": "P7",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P7",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fy",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P7.j.Fy_m",
-      "object": "P7",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P7",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fz",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P7.j.Fz_m",
-      "object": "P7",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P7",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Mx",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P7.j.Mx_m",
-      "object": "P7",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P7",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "My",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P7.j.My_m",
-      "object": "P7",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P7",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Mz",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P7.j.Mz_m",
-      "object": "P7",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P7",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Fx",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P8.i.Fx_m",
-      "object": "P8",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P8",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fy",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P8.i.Fy_m",
-      "object": "P8",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P8",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fz",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P8.i.Fz_m",
-      "object": "P8",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P8",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Mx",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P8.i.Mx_m",
-      "object": "P8",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P8",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "My",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P8.i.My_m",
-      "object": "P8",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P8",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Mz",
       "end": "i",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P8.i.Mz_m",
-      "object": "P8",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P8",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Fx",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P8.j.Fx_m",
-      "object": "P8",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P8",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fy",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P8.j.Fy_m",
-      "object": "P8",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P8",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fz",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P8.j.Fz_m",
-      "object": "P8",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "member": "P8",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Mx",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P8.j.Mx_m",
-      "object": "P8",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P8",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "My",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P8.j.My_m",
-      "object": "P8",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P8",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Mz",
       "end": "j",
+      "entity_kind": "member",
       "frame": "member_axes",
-      "key": "P8.j.Mz_m",
-      "object": "P8",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "member": "P8",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     }
   ],
-  "schema": "openpipestress.spectrum_combination.input/v1"
+  "schema": "openpipestress.spectrum_combination.input/v2"
 }

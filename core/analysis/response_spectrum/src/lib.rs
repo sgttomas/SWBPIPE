@@ -49,6 +49,7 @@ mod bigint;
 mod combine;
 pub mod combination_json;
 pub mod contract;
+pub mod document;
 mod dyadic;
 mod exact;
 mod record;
@@ -60,10 +61,11 @@ mod table;
 
 pub use combine::combine;
 pub use contract::{
-    ClusterClass, ClusterIndex, ClusterStatement, ClusterSum, Combination, CombinationRequest, CombinedRow, Direction,
-    DirectionalPart, DirectionalRule, DisplacementComponent, End, ForceComponent, Frame, Magnitude, MissingMass,
-    ModalContribution, ModalMode, ModalRule, ModeIndex, Quantity, ReactionComponent, RigidContribution, RigidRule,
-    RowUnit, SignStatus, COMBINATION_STATEMENT,
+    ClusterClass, ClusterIndex, ClusterStatement, ClusterSum, Combination, CombinationRequest, CombinedRow,
+    ConnectorComponent, CorrelationStatement, Direction, DirectionalPart, DirectionalRule, DisplacementComponent, End,
+    ForceComponent, Frame, Magnitude, MemberFamily, MissingMass, ModalContribution, ModalMode, ModalRule, ModeIndex, Quantity,
+    ReactionComponent, RigidContribution, RigidRule, RowIdentity, RowUnit, SignConvention, SignStatus, COMBINATION_STATEMENT,
+    QUANTITY_KINDS, TIE_ROD_COMPONENT,
 };
 pub use exact::period_query_ordering;
 pub use rules::{correlation_coefficient, within_ten_percent, PRECISION_LADDER};

@@ -1,0 +1,31 @@
+{
+  "directional_combination": "SRSS",
+  "directions": [
+    {
+      "direction": "X",
+      "scale_factor": 1.0,
+      "spectrum": "S-W2-LL"
+    },
+    {
+      "direction": "Y",
+      "scale_factor": 0.75,
+      "spectrum": "S-W2-GG"
+    },
+    {
+      "direction": "Z",
+      "scale_factor": 0.5,
+      "spectrum": "S-W2-PLG"
+    }
+  ],
+  "document_kind": "openpipestress.spectrum_request",
+  "missing_mass": {
+    "applied": true,
+    "rigid_combination": "SRSS",
+    "rigid_frequency": {
+      "unit": "Hz",
+      "value": 500.0
+    }
+  },
+  "modal_combination": "CQC",
+  "schema_version": "0.1.0"
+}

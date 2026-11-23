@@ -1,0 +1,203 @@
+{
+  "admission": {
+    "public_engineering_result": false,
+    "status": "experimental"
+  },
+  "bindings": {
+    "model": {
+      "binds": "model_document",
+      "canonical_form": "openpipestress_jcs_ijson_v1",
+      "hash_algorithm": "sha-256",
+      "sha256": "53a26d4f9044726492ad0683b144502cc7d540476f571b4a8189bde47acb51bc"
+    },
+    "request": {
+      "binds": "spectrum_request",
+      "canonical_form": "openpipestress_jcs_ijson_v1",
+      "hash_algorithm": "sha-256",
+      "sha256": "a5575bed361320144078cf1e1a5d51de60ee8124477895b0bc88d370bbdf0b2c"
+    }
+  },
+  "canonical_profile": "openpipestress_jcs_ijson_v1",
+  "document_kind": "openpipestress.spectrum_result",
+  "modal_result": {
+    "binding": "not_applicable",
+    "integrity_parameters_sha256": null,
+    "materials_sha256": null,
+    "model_sha256": null,
+    "reason": "constructed from a frozen reference's contributions: no modal result exists, and the modal basis is the reference's, stated in modal_basis and attributed to it",
+    "request_sha256": null,
+    "run_id": null,
+    "state_case": null
+  },
+  "origin": {
+    "constructed": [
+      "Mutation: the arc's twelve arc-tangent-frame rows are stated in member axes, with their values unchanged; member axes are never an arc's frame, so the request is refused.",
+      "P1's and P2's member-axes rows are constructed, not published by the reference: each signed contribution and rigid response is the exact rotation, by the member's rows x, y and z (x along the member, y = (0, 0, 1) normal to x, z = x cross y; exact rationals), of the reference's published global decimals, rounded once to the nearest binary64.",
+      "P1's and P2's member axes stated in the census are constructed: each component is the exact rational over 25 that REQ-006's definition gives from the stand-in's node coordinates with reference vector (0, 0, 1), rounded once to binary64; the reference does not state them.",
+      "The anchors at A and D have no identity in the reference, which names each reaction by its node; their support identities A-anchor and D-anchor are constructed.",
+      "The arc's rows are its total end action as published (BEND1.<end>.* and BEND1.<end>.*_t); the reference's elastic and lump_load parts are not rows.",
+      "Except where stated above, each entity identity and the spectra are the reference's. The model document is a stand-in in the model document's shape, not a schema-checked model; its materials, sections and support families are placeholders, not checked against the reference. The spectrum request is this unit's stand-in shape. The extraction endpoint, the reported and established mode counts and the completion evidence sentence in modal_basis are derived by this writer from the reference's mode list and its Sturm evidence; they are not fields of the reference. Each direction's formation record (its spectrum, the digest of that spectrum's record in the model stand-in, and its scale factor) is this writer's statement of the reference's request."
+    ],
+    "kind": "constructed_from_reference",
+    "produced_by_spectrum_solve": false,
+    "reference": {
+      "analysis": "V-ARC-OBL base request",
+      "case": "V-ARC-OBL",
+      "package": "validation/references/f2_spectrum/recovery_w2"
+    },
+    "statement": "Constructed from the signed contributions of a frozen reference, not produced by a spectrum solve; its combined magnitudes are formed from those contributions by the product's combinations. It is not evidence that the product recovers these contributions."
+  },
+  "profile": {
+    "limitations": [
+      "Experimental response-spectrum preview under uniform support motion, formed from the signed modal and rigid contributions of a small-displacement, linear-elastic modal basis, with damping represented only through the user's pseudo-acceleration spectra; it is not a public engineering result, it is not recorded as an analysis run, and it establishes neither physical correctness nor code compliance.",
+      "Every row is the response to the support motion alone, about the state the modal model was formed at: a combined row is an unsigned magnitude in its stated frame, formed in that frame from signed contributions, and is never a signed quantity, a total force with the state's own action, or a stress; a signed contribution or a signed cluster sum is not a peak response.",
+      "That this document is consistent with itself and with the inputs it states does not show that the census is the model's, that a stated frame is the entity's, that the modal basis is an eigenbasis of the model, that a signed contribution was recovered correctly, or that the product produced the document."
+    ],
+    "profile_id": "product_preview_spectrum_v1"
+  },
+  "refusals": {
+    "digest": "d2265fdf3756a5c8181bbcd882fc63c543747deddfa39ef027c443c852f0122d",
+    "row_count": 12,
+    "rows": [
+      {
+        "checksum": "af6406c300d1377992fb93b916ef8a0778ca8892803cdf1235721948c875220d",
+        "code": "SPECTRUM_ROW_INVALID",
+        "detail": "an arc end is stated in member axes; member axes are never an arc's frame (frame `member_axes`)",
+        "diagnostic_id": "diagnostic:spectrum:refusal:1",
+        "field": "frame",
+        "object": "element_end_action member [BEND1] end i Fx (member_axes)",
+        "ordinal": 0,
+        "row_id": "refusal:1",
+        "severity": "blocking"
+      },
+      {
+        "checksum": "e861fce4cfc9c34cf056c5a7fc398f69a2d02afd5dcd84cfc12afe1684766910",
+        "code": "SPECTRUM_ROW_INVALID",
+        "detail": "an arc end is stated in member axes; member axes are never an arc's frame (frame `member_axes`)",
+        "diagnostic_id": "diagnostic:spectrum:refusal:2",
+        "field": "frame",
+        "object": "element_end_action member [BEND1] end i Fy (member_axes)",
+        "ordinal": 1,
+        "row_id": "refusal:2",
+        "severity": "blocking"
+      },
+      {
+        "checksum": "433f37a47a7b00647cc74b38863ebecc044d0f4b51a770578793c702676f9b38",
+        "code": "SPECTRUM_ROW_INVALID",
+        "detail": "an arc end is stated in member axes; member axes are never an arc's frame (frame `member_axes`)",
+        "diagnostic_id": "diagnostic:spectrum:refusal:3",
+        "field": "frame",
+        "object": "element_end_action member [BEND1] end i Fz (member_axes)",
+        "ordinal": 2,
+        "row_id": "refusal:3",
+        "severity": "blocking"
+      },
+      {
+        "checksum": "0f4073854f36301af4aa1438956717ef2fb54aa7c301d4d101781d39fcf8a230",
+        "code": "SPECTRUM_ROW_INVALID",
+        "detail": "an arc end is stated in member axes; member axes are never an arc's frame (frame `member_axes`)",
+        "diagnostic_id": "diagnostic:spectrum:refusal:4",
+        "field": "frame",
+        "object": "element_end_action member [BEND1] end i Mx (member_axes)",
+        "ordinal": 3,
+        "row_id": "refusal:4",
+        "severity": "blocking"
+      },
+      {
+        "checksum": "63cf09b95677a543f0c4717e4e801c0ddffdb2f69386961240bbd52e7dc89408",
+        "code": "SPECTRUM_ROW_INVALID",
+        "detail": "an arc end is stated in member axes; member axes are never an arc's frame (frame `member_axes`)",
+        "diagnostic_id": "diagnostic:spectrum:refusal:5",
+        "field": "frame",
+        "object": "element_end_action member [BEND1] end i My (member_axes)",
+        "ordinal": 4,
+        "row_id": "refusal:5",
+        "severity": "blocking"
+      },
+      {
+        "checksum": "377249be8510e077b56fe3191b264ee3f15f3bbec0aa55e8fd347850835cbcf6",
+        "code": "SPECTRUM_ROW_INVALID",
+        "detail": "an arc end is stated in member axes; member axes are never an arc's frame (frame `member_axes`)",
+        "diagnostic_id": "diagnostic:spectrum:refusal:6",
+        "field": "frame",
+        "object": "element_end_action member [BEND1] end i Mz (member_axes)",
+        "ordinal": 5,
+        "row_id": "refusal:6",
+        "severity": "blocking"
+      },
+      {
+        "checksum": "9fabec57cbf2d30849c8e6ed0d4743c24943e092967da70483844d0f8ad3250d",
+        "code": "SPECTRUM_ROW_INVALID",
+        "detail": "an arc end is stated in member axes; member axes are never an arc's frame (frame `member_axes`)",
+        "diagnostic_id": "diagnostic:spectrum:refusal:7",
+        "field": "frame",
+        "object": "element_end_action member [BEND1] end j Fx (member_axes)",
+        "ordinal": 6,
+        "row_id": "refusal:7",
+        "severity": "blocking"
+      },
+      {
+        "checksum": "7c52b3262b8723cf5cf1a759e7aeddb2d9e41b87686ccb114e07c09fbcacb31a",
+        "code": "SPECTRUM_ROW_INVALID",
+        "detail": "an arc end is stated in member axes; member axes are never an arc's frame (frame `member_axes`)",
+        "diagnostic_id": "diagnostic:spectrum:refusal:8",
+        "field": "frame",
+        "object": "element_end_action member [BEND1] end j Fy (member_axes)",
+        "ordinal": 7,
+        "row_id": "refusal:8",
+        "severity": "blocking"
+      },
+      {
+        "checksum": "a48adf23d312d197d97a91f8a7b6a3f7b5de14d4ccb98b2ae45e601c783931f8",
+        "code": "SPECTRUM_ROW_INVALID",
+        "detail": "an arc end is stated in member axes; member axes are never an arc's frame (frame `member_axes`)",
+        "diagnostic_id": "diagnostic:spectrum:refusal:9",
+        "field": "frame",
+        "object": "element_end_action member [BEND1] end j Fz (member_axes)",
+        "ordinal": 8,
+        "row_id": "refusal:9",
+        "severity": "blocking"
+      },
+      {
+        "checksum": "6ac76faeffef63f63ad19dd650c4128efa78356f65d543ae5dc214cc9de717cb",
+        "code": "SPECTRUM_ROW_INVALID",
+        "detail": "an arc end is stated in member axes; member axes are never an arc's frame (frame `member_axes`)",
+        "diagnostic_id": "diagnostic:spectrum:refusal:10",
+        "field": "frame",
+        "object": "element_end_action member [BEND1] end j Mx (member_axes)",
+        "ordinal": 9,
+        "row_id": "refusal:10",
+        "severity": "blocking"
+      },
+      {
+        "checksum": "d3cddafedc7c099d92e2df901d123016fd6284923b09cf2e822a49a56a2b4163",
+        "code": "SPECTRUM_ROW_INVALID",
+        "detail": "an arc end is stated in member axes; member axes are never an arc's frame (frame `member_axes`)",
+        "diagnostic_id": "diagnostic:spectrum:refusal:11",
+        "field": "frame",
+        "object": "element_end_action member [BEND1] end j My (member_axes)",
+        "ordinal": 10,
+        "row_id": "refusal:11",
+        "severity": "blocking"
+      },
+      {
+        "checksum": "22176b1d190284648dfde777a7ff901d431d36c36e1ddf10f9d8bdd019663627",
+        "code": "SPECTRUM_ROW_INVALID",
+        "detail": "an arc end is stated in member axes; member axes are never an arc's frame (frame `member_axes`)",
+        "diagnostic_id": "diagnostic:spectrum:refusal:12",
+        "field": "frame",
+        "object": "element_end_action member [BEND1] end j Mz (member_axes)",
+        "ordinal": 11,
+        "row_id": "refusal:12",
+        "severity": "blocking"
+      }
+    ],
+    "status": "published"
+  },
+  "schema_version": "0.1.0",
+  "semantic_contract": {
+    "id": "openpipestress.result_semantics/spectrum-1",
+    "sha256": "318f40b2679cb72794f83dc8701841a9af047f344836916fe3e04b08b4aa60fb"
+  },
+  "status": "refused"
+}

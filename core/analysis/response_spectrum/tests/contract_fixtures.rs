@@ -184,7 +184,7 @@ fn fixtures_state_their_outcome() {
     }
     // The sign mutation changes CQC of N3.uy under X and nothing under Y.
     let (base, flipped) = (outcome("c4_base"), outcome("c4_mutated_sign"));
-    let row = |o: &Value| o["rows"].as_array().unwrap().iter().find(|r| r["key"] == "N3.uy").unwrap().clone();
+    let row = |o: &Value| o["rows"].as_array().unwrap().iter().find(|r| r["node"] == "N3" && r["component"] == "uy").unwrap().clone();
     assert_ne!(row(&base)["per_direction"][0]["periodic"], row(&flipped)["per_direction"][0]["periodic"]);
     assert_eq!(row(&base)["per_direction"][1], row(&flipped)["per_direction"][1]);
 }

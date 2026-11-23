@@ -1,0 +1,389 @@
+{
+  "combinations": [],
+  "components": [],
+  "document_kind": "openpipestress.product_preview.model",
+  "load_cases": [],
+  "materials": [
+    {
+      "elastic_modulus": {
+        "unit": "Pa",
+        "value": 200000000000.0
+      },
+      "id": "steel",
+      "provenance": "stand-in: discrete C8-PIPE-X, with a constructed rigid snubber SN-B at B on UZ",
+      "shear_modulus": {
+        "unit": "Pa",
+        "value": 78125000000.0
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "A",
+      "position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "provenance": "stand-in: discrete C8-PIPE-X, with a constructed rigid snubber SN-B at B on UZ"
+    },
+    {
+      "id": "M1",
+      "position": {
+        "x": 1.875,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "provenance": "stand-in: discrete C8-PIPE-X, with a constructed rigid snubber SN-B at B on UZ"
+    },
+    {
+      "id": "M2",
+      "position": {
+        "x": 3.75,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "provenance": "stand-in: discrete C8-PIPE-X, with a constructed rigid snubber SN-B at B on UZ"
+    },
+    {
+      "id": "M3",
+      "position": {
+        "x": 5.625,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "provenance": "stand-in: discrete C8-PIPE-X, with a constructed rigid snubber SN-B at B on UZ"
+    },
+    {
+      "id": "M4",
+      "position": {
+        "x": 7.5,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "provenance": "stand-in: discrete C8-PIPE-X, with a constructed rigid snubber SN-B at B on UZ"
+    },
+    {
+      "id": "M5",
+      "position": {
+        "x": 9.375,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "provenance": "stand-in: discrete C8-PIPE-X, with a constructed rigid snubber SN-B at B on UZ"
+    },
+    {
+      "id": "M6",
+      "position": {
+        "x": 11.25,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "provenance": "stand-in: discrete C8-PIPE-X, with a constructed rigid snubber SN-B at B on UZ"
+    },
+    {
+      "id": "M7",
+      "position": {
+        "x": 13.125,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "provenance": "stand-in: discrete C8-PIPE-X, with a constructed rigid snubber SN-B at B on UZ"
+    },
+    {
+      "id": "B",
+      "position": {
+        "x": 15.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "provenance": "stand-in: discrete C8-PIPE-X, with a constructed rigid snubber SN-B at B on UZ"
+    }
+  ],
+  "pipe_segments": [
+    {
+      "from": "A",
+      "id": "P1",
+      "material": "steel",
+      "provenance": "stand-in: discrete C8-PIPE-X, with a constructed rigid snubber SN-B at B on UZ",
+      "section": {
+        "material_density": {
+          "unit": "kg/m^3",
+          "value": 7850.0
+        },
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.0603
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.00391
+        }
+      },
+      "to": "M1",
+      "y_reference": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      }
+    },
+    {
+      "from": "M1",
+      "id": "P2",
+      "material": "steel",
+      "provenance": "stand-in: discrete C8-PIPE-X, with a constructed rigid snubber SN-B at B on UZ",
+      "section": {
+        "material_density": {
+          "unit": "kg/m^3",
+          "value": 7850.0
+        },
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.0603
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.00391
+        }
+      },
+      "to": "M2",
+      "y_reference": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      }
+    },
+    {
+      "from": "M2",
+      "id": "P3",
+      "material": "steel",
+      "provenance": "stand-in: discrete C8-PIPE-X, with a constructed rigid snubber SN-B at B on UZ",
+      "section": {
+        "material_density": {
+          "unit": "kg/m^3",
+          "value": 7850.0
+        },
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.0603
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.00391
+        }
+      },
+      "to": "M3",
+      "y_reference": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      }
+    },
+    {
+      "from": "M3",
+      "id": "P4",
+      "material": "steel",
+      "provenance": "stand-in: discrete C8-PIPE-X, with a constructed rigid snubber SN-B at B on UZ",
+      "section": {
+        "material_density": {
+          "unit": "kg/m^3",
+          "value": 7850.0
+        },
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.0603
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.00391
+        }
+      },
+      "to": "M4",
+      "y_reference": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      }
+    },
+    {
+      "from": "M4",
+      "id": "P5",
+      "material": "steel",
+      "provenance": "stand-in: discrete C8-PIPE-X, with a constructed rigid snubber SN-B at B on UZ",
+      "section": {
+        "material_density": {
+          "unit": "kg/m^3",
+          "value": 7850.0
+        },
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.0603
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.00391
+        }
+      },
+      "to": "M5",
+      "y_reference": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      }
+    },
+    {
+      "from": "M5",
+      "id": "P6",
+      "material": "steel",
+      "provenance": "stand-in: discrete C8-PIPE-X, with a constructed rigid snubber SN-B at B on UZ",
+      "section": {
+        "material_density": {
+          "unit": "kg/m^3",
+          "value": 7850.0
+        },
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.0603
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.00391
+        }
+      },
+      "to": "M6",
+      "y_reference": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      }
+    },
+    {
+      "from": "M6",
+      "id": "P7",
+      "material": "steel",
+      "provenance": "stand-in: discrete C8-PIPE-X, with a constructed rigid snubber SN-B at B on UZ",
+      "section": {
+        "material_density": {
+          "unit": "kg/m^3",
+          "value": 7850.0
+        },
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.0603
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.00391
+        }
+      },
+      "to": "M7",
+      "y_reference": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      }
+    },
+    {
+      "from": "M7",
+      "id": "P8",
+      "material": "steel",
+      "provenance": "stand-in: discrete C8-PIPE-X, with a constructed rigid snubber SN-B at B on UZ",
+      "section": {
+        "material_density": {
+          "unit": "kg/m^3",
+          "value": 7850.0
+        },
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.0603
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.00391
+        }
+      },
+      "to": "B",
+      "y_reference": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      }
+    }
+  ],
+  "project": {
+    "id": "project:spectrum-c8",
+    "units": {
+      "angle": "rad",
+      "force": "N",
+      "length": "m",
+      "pressure": "Pa",
+      "stress": "Pa",
+      "temperature": "degC"
+    }
+  },
+  "schema_version": "0.9.0",
+  "spectra": [
+    {
+      "abscissa": "frequency",
+      "damping_ratio": 0.05,
+      "id": "S-C8-TRUNC",
+      "interpolation": {
+        "abscissa": "linear",
+        "ordinate": "linear"
+      },
+      "ordinate": "acceleration",
+      "points": [
+        [
+          0.125,
+          1.25
+        ],
+        [
+          0.75,
+          3.5
+        ],
+        [
+          1000,
+          3.5
+        ]
+      ],
+      "units": {
+        "abscissa": "Hz",
+        "ordinate": "m/s^2"
+      }
+    }
+  ],
+  "supports": [
+    {
+      "family": "anchor",
+      "id": "SA",
+      "node": "A",
+      "provenance": "stand-in: discrete C8-PIPE-X, with a constructed rigid snubber SN-B at B on UZ",
+      "restraints": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    },
+    {
+      "family": "line_stop",
+      "id": "SB",
+      "node": "B",
+      "provenance": "stand-in: discrete C8-PIPE-X, with a constructed rigid snubber SN-B at B on UZ",
+      "restraints": [
+        "UZ"
+      ]
+    },
+    {
+      "family": "snubber",
+      "id": "SN-B",
+      "node": "B",
+      "provenance": "stand-in: discrete C8-PIPE-X, with a constructed rigid snubber SN-B at B on UZ",
+      "restraints": [
+        "UZ"
+      ]
+    }
+  ]
+}

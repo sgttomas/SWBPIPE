@@ -1,0 +1,177 @@
+{
+  "combinations": [],
+  "components": [],
+  "document_kind": "openpipestress.product_preview.model",
+  "load_cases": [],
+  "materials": [
+    {
+      "elastic_modulus": {
+        "unit": "Pa",
+        "value": 200000000000.0
+      },
+      "id": "steel",
+      "provenance": "stand-in: discrete C7-REPEATED-PAIR, reduced to the quantities its basis witness publishes per vector",
+      "shear_modulus": {
+        "unit": "Pa",
+        "value": 78125000000.0
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "N1",
+      "position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "provenance": "stand-in: discrete C7-REPEATED-PAIR, reduced to the quantities its basis witness publishes per vector"
+    },
+    {
+      "id": "N2",
+      "position": {
+        "x": 2.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "provenance": "stand-in: discrete C7-REPEATED-PAIR, reduced to the quantities its basis witness publishes per vector"
+    },
+    {
+      "id": "N3",
+      "position": {
+        "x": 4.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "provenance": "stand-in: discrete C7-REPEATED-PAIR, reduced to the quantities its basis witness publishes per vector"
+    }
+  ],
+  "pipe_segments": [
+    {
+      "from": "N1",
+      "id": "P1",
+      "material": "steel",
+      "provenance": "stand-in: discrete C7-REPEATED-PAIR, reduced to the quantities its basis witness publishes per vector",
+      "section": {
+        "material_density": {
+          "unit": "kg/m^3",
+          "value": 7850.0
+        },
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.21875
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.0078125
+        }
+      },
+      "to": "N2",
+      "y_reference": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      }
+    },
+    {
+      "from": "N2",
+      "id": "P2",
+      "material": "steel",
+      "provenance": "stand-in: discrete C7-REPEATED-PAIR, reduced to the quantities its basis witness publishes per vector",
+      "section": {
+        "material_density": {
+          "unit": "kg/m^3",
+          "value": 7850.0
+        },
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.21875
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.0078125
+        }
+      },
+      "to": "N3",
+      "y_reference": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      }
+    }
+  ],
+  "project": {
+    "id": "project:spectrum-c7",
+    "units": {
+      "angle": "rad",
+      "force": "N",
+      "length": "m",
+      "pressure": "Pa",
+      "stress": "Pa",
+      "temperature": "degC"
+    }
+  },
+  "schema_version": "0.9.0",
+  "spectra": [
+    {
+      "abscissa": "frequency",
+      "damping_ratio": 0.05,
+      "id": "S-LL",
+      "interpolation": {
+        "abscissa": "linear",
+        "ordinate": "linear"
+      },
+      "ordinate": "acceleration",
+      "points": [
+        [
+          0.5,
+          1.25
+        ],
+        [
+          2,
+          3.5
+        ],
+        [
+          6,
+          8.75
+        ],
+        [
+          12,
+          11.5
+        ],
+        [
+          30,
+          7.25
+        ],
+        [
+          80,
+          4.5
+        ],
+        [
+          1000,
+          3
+        ]
+      ],
+      "units": {
+        "abscissa": "Hz",
+        "ordinate": "m/s^2"
+      }
+    }
+  ],
+  "supports": [
+    {
+      "family": "anchor",
+      "id": "A1",
+      "node": "N1",
+      "provenance": "stand-in: discrete C7-REPEATED-PAIR, reduced to the quantities its basis witness publishes per vector",
+      "restraints": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    }
+  ]
+}

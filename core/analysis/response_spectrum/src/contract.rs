@@ -1,11 +1,11 @@
-//! The signed-contribution contract of DEL-04-10's combinations (unit S4).
+//! The signed-contribution contract of DEL-04-10's combinations (unit S4), corrected to the row
+//! contract of REQ-006.
 //!
 //! These are the types through which a producer of signed per-mode, per-direction response
 //! values (the modal-response recovery, a later unit) hands them to the combinations, and
-//! through which the combinations hand back unsigned combined magnitudes. A later document unit
-//! and its readers can build on the same identities, units, frames and sign tags. This module
-//! fixes them; it does not publish a spectrum result (`spectrum-1`, REQ-006), and nothing here
-//! carries standing as an engineering result.
+//! through which the combinations hand back unsigned combined magnitudes. The spectrum result
+//! document (`crate::document`) carries the same identities, units, frames, sign conventions and
+//! sign statuses. Nothing here carries standing as an engineering result.
 //!
 //! **What is supplied, and by whom.** Every value entering a combination is supplied:
 //! - the modal metadata of each extracted mode, as DEL-04-09's modal result publishes it: its
@@ -17,19 +17,25 @@
 //!   response of every row, with the clusters its load left out as periodic (CLM-001, Rigid
 //!   response).
 //!
-//! **Sign conventions** a producer follows so that a sum of signed contributions means what the
-//! method says (the frozen references' conventions, `validation/references/f2_spectrum/discrete/
-//! README.md`, "Conventions a product must match or map"):
-//! - a node displacement or rotation is in global axes, positive along the axis;
-//! - an element end force or moment is the generalized force acting **on the element** at that
-//!   end, in global axes or in the member's axes as the row's [`Frame`] states. A combined
-//!   magnitude belongs to the frame it was combined in: a combination of member-axis
-//!   contributions is not a rotation of a global-axis combination;
-//! - a support reaction is the generalized force the support applies **to the piping**, in
-//!   global axes; `Fd` is the signed component along a skew support's unit direction d/|d|.
+//! **The rows** are REQ-006's roster ([`Quantity`]): a node's displacement or rotation; a straight
+//! member's end action in global and member axes; a realized arc's end action in global axes and
+//! its arc tangent frame; a connector's six generalized forces and its end actions; a tie rod's
+//! axial force; a rigid constraint's reaction, naming every support that holds it; and a compliant
+//! support's force or moment on each global component. A row is identified by its fields
+//! ([`RowIdentity`]), never by a composed key. Nothing here states a restraint along a skew
+//! direction: those rows are not stated (REQ-006).
 //!
-//! Units are SI and fixed by the row's component: m, rad, N or N*m (the unit catalog's
-//! symbols). No unit is converted here.
+//! **Frames and signs.** Every row states one of the five frames of [`Frame`]. Every signed row (a
+//! contribution or a cluster sum) states its [`SignConvention`], the static result's convention of
+//! the same quantity (REQ-006, "Frame and sign"); a combined row states its frame and that it is an
+//! unsigned combined magnitude, and carries no sign convention. A combined magnitude belongs to
+//! the frame its contributions were supplied in: a contribution is rotated into its row's frame
+//! before it is combined, and a combination of member-axis contributions is not a rotation of a
+//! global-axis combination.
+//!
+//! Units are SI entries of the unit catalog fixed by the row's component ([`RowUnit`]): metre,
+//! radian, newton and newton metre. No unit is converted here.
+use open_pipe_stress_units::UnitId;
 use std::fmt;
 
 /// The fixed statement of every combination output: what the numbers are, and what they are not.
@@ -110,7 +116,8 @@ pub enum DisplacementComponent {
     Rz,
 }
 
-/// The component of an element end force or moment.
+/// The component of an end action: three forces and three moments along the axes of the
+/// row's frame.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum ForceComponent {
     Fx,
@@ -121,45 +128,97 @@ pub enum ForceComponent {
     Mz,
 }
 
-/// The component of a support reaction, in global axes; `Fd` along a skew support's d/|d|.
+/// The global component of a support reaction or a compliant support's force or moment: the
+/// degree of freedom it acts on, a force for UX, UY, UZ and a moment about the node for RX, RY,
+/// RZ. There is no component along a skew direction: those rows are not stated (REQ-006, "Not
+/// yet stated: a restraint along a skew direction").
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum ReactionComponent {
-    Fx,
-    Fy,
-    Fz,
-    Mx,
-    My,
-    Mz,
-    Fd,
+    Ux,
+    Uy,
+    Uz,
+    Rx,
+    Ry,
+    Rz,
 }
 
-/// An element end: node i or node j of the member.
+/// A connector's generalized force, in its own axes, work-conjugate to its relative
+/// displacements.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum ConnectorComponent {
+    Axial,
+    LateralY,
+    LateralZ,
+    Torsion,
+    BendingY,
+    BendingZ,
+}
+
+/// An end: node i or node j of a member, an arc or a connector.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum End {
     I,
     J,
 }
 
-/// The axes a row's value is expressed in.
+/// The frame of a row (REQ-006, "Frame and sign"): the spectrum result family's own names,
+/// not the static result's coordinate-system values.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Frame {
     /// Global axes.
-    Global,
-    /// The member's axes (x along the member, y from its reference vector, z = x × y). Only an
-    /// element end force may be supplied in member axes.
+    GlobalAxes,
+    /// A straight member's axes: x from end i to end j, y the part of the member's reference
+    /// vector normal to x, normalized, z = x × y.
     MemberAxes,
+    /// The tangent frame of an arc at the row's end, the static result's (DEL-04-01/REQ-018).
+    ArcTangentFrame,
+    /// A connector's own axes.
+    ConnectorAxes,
+    /// A tie rod's axis, from its attachment at end i to its attachment at end j.
+    RodAxis,
 }
 
 impl Frame {
+    pub const ALL: [Frame; 5] = [Self::GlobalAxes, Self::MemberAxes, Self::ArcTangentFrame, Self::ConnectorAxes, Self::RodAxis];
+
     pub const fn as_str(self) -> &'static str {
         match self {
-            Self::Global => "global",
+            Self::GlobalAxes => "global_axes",
             Self::MemberAxes => "member_axes",
+            Self::ArcTangentFrame => "arc_tangent_frame",
+            Self::ConnectorAxes => "connector_axes",
+            Self::RodAxis => "rod_axis",
         }
+    }
+
+    pub fn parse(text: &str) -> Option<Self> {
+        Self::ALL.into_iter().find(|f| f.as_str() == text)
     }
 }
 
-/// The SI unit of a row, a symbol of the unit catalog.
+/// Whether a member of the dynamic stiffness is a straight member or a realized arc. It is not
+/// part of a row's identity (the entity of either is the member); it decides which frames the
+/// member's end rows may state.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum MemberFamily {
+    Straight,
+    Arc,
+}
+
+impl MemberFamily {
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Straight => "straight",
+            Self::Arc => "arc",
+        }
+    }
+
+    pub fn parse(text: &str) -> Option<Self> {
+        [Self::Straight, Self::Arc].into_iter().find(|f| f.as_str() == text)
+    }
+}
+
+/// The SI unit of a row, an entry of the unit catalog.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum RowUnit {
     Meter,
@@ -169,22 +228,127 @@ pub enum RowUnit {
 }
 
 impl RowUnit {
-    pub const fn symbol(self) -> &'static str {
+    /// The catalog entry.
+    pub const fn unit_id(self) -> UnitId {
         match self {
-            Self::Meter => "m",
-            Self::Radian => "rad",
-            Self::Newton => "N",
-            Self::NewtonMeter => "N*m",
+            Self::Meter => UnitId::Meter,
+            Self::Radian => UnitId::Radian,
+            Self::Newton => UnitId::Newton,
+            Self::NewtonMeter => UnitId::NewtonMeter,
+        }
+    }
+
+    /// The catalog id, `unit:…`.
+    pub fn catalog_id(self) -> &'static str {
+        self.unit_id().catalog_id()
+    }
+
+    /// The catalog symbol.
+    pub fn symbol(self) -> &'static str {
+        self.unit_id().definition().symbol
+    }
+}
+
+/// The sign convention of a signed row: a contribution or a stated cluster sum (REQ-006, "Frame
+/// and sign", "As the static result publishes them"). A combined row has none.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum SignConvention {
+    /// A node displacement or rotation: positive along the global axis.
+    PositiveAlongAxis,
+    /// An end action of a member, an arc or a connector, in the row's frame: the generalized force
+    /// acting on the element at its end node.
+    ActionOnElementAtEndNode,
+    /// A connector's generalized force: positive along the connector axes.
+    PositiveAlongConnectorAxes,
+    /// A tie rod's axial force: positive in tension.
+    TensionPositive,
+    /// A reaction or a compliant support's force: the force or moment the support applies to the
+    /// piping.
+    ActionOfSupportOnPiping,
+}
+
+impl SignConvention {
+    pub const ALL: [SignConvention; 5] = [
+        Self::PositiveAlongAxis,
+        Self::ActionOnElementAtEndNode,
+        Self::PositiveAlongConnectorAxes,
+        Self::TensionPositive,
+        Self::ActionOfSupportOnPiping,
+    ];
+
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::PositiveAlongAxis => "positive_along_axis",
+            Self::ActionOnElementAtEndNode => "action_on_element_at_end_node",
+            Self::PositiveAlongConnectorAxes => "positive_along_connector_axes",
+            Self::TensionPositive => "tension_positive",
+            Self::ActionOfSupportOnPiping => "action_of_support_on_piping",
+        }
+    }
+
+    pub fn parse(text: &str) -> Option<Self> {
+        Self::ALL.into_iter().find(|c| c.as_str() == text)
+    }
+
+    /// The convention in words. Positive rotations and moments follow the right-hand rule about
+    /// their axis.
+    pub const fn statement(self) -> &'static str {
+        match self {
+            Self::PositiveAlongAxis => "A displacement is positive along its global axis; a rotation is positive by the \
+right-hand rule about its global axis.",
+            Self::ActionOnElementAtEndNode => "The generalized force acting on the element at its end node, each component \
+positive along the axis of the row's frame; a moment is about the end node, positive by the right-hand rule. For a \
+member or an arc the internal section force at end i is its negative.",
+            Self::PositiveAlongConnectorAxes => "A connector's generalized force, positive along its connector axes and \
+work-conjugate to its relative displacements; a moment is positive by the right-hand rule.",
+            Self::TensionPositive => "A tie rod's axial force, positive in tension, its axis running from its attachment \
+at end i to its attachment at end j.",
+            Self::ActionOfSupportOnPiping => "The force or moment the support applies to the piping, positive along the \
+global axis; a moment is about the node, positive by the right-hand rule.",
         }
     }
 }
 
-/// The identity of one response quantity (one row). Its key, unit and frame follow from it.
+/// The identity of one response quantity (one row; REQ-006, "Roster" and "Identity"). Its unit,
+/// frame and sign convention follow from it.
+///
+/// Every entity identity is the model document's, carried byte for byte: any non-blank string
+/// (DEL-02-01). A row is identified by its fields ([`RowIdentity`]); [`Quantity::label`] composes
+/// a readable label from them that nothing parses and nothing compares.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Quantity {
+    /// A node's displacement or rotation, global axes, relative to the supports.
     NodeDisplacement { node: String, component: DisplacementComponent },
-    ElementEndForce { member: String, end: End, component: ForceComponent, frame: Frame },
-    SupportReaction { support: String, component: ReactionComponent },
+    /// A straight member's or a realized arc's end action. A straight member's rows are in global
+    /// axes or member axes; an arc's in global axes or its tangent frame at that end. An arc end
+    /// stated in member axes is refused (`SPECTRUM_ROW_INVALID`).
+    ElementEndAction { member: String, family: MemberFamily, end: End, component: ForceComponent, frame: Frame },
+    /// A connector's generalized force, connector axes, once for the connector (no end).
+    ConnectorGeneralizedForce { connector: String, component: ConnectorComponent },
+    /// A connector's end action, global axes, moments about its end node.
+    ConnectorEndAction { connector: String, end: End, component: ForceComponent },
+    /// A tie rod's axial force along its rod axis (no end), identified by its connector's
+    /// identity and its own, which is unique only within its connector.
+    TieRodForce { connector: String, rod: String },
+    /// The reaction of a rigid constraint: the force or moment of one global component that the
+    /// modal model rigidly restrains at a node, identified by the node and the component, and
+    /// carrying the identities of every support that holds it (not part of its identity).
+    ConstraintReaction { node: String, component: ReactionComponent, holders: Vec<String> },
+    /// A compliant support's own force or moment −K_s·u on one global component.
+    CompliantSupportForce { support: String, component: ReactionComponent },
+}
+
+/// The fields that identify a row (REQ-006, "Identity"): the kind of quantity, the kind of
+/// model entity, that entity's identity (a tie rod's is its connector's and its own), the end
+/// where the quantity has one, the component and the frame. Rows are de-duplicated on it.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct RowIdentity {
+    pub quantity_kind: &'static str,
+    pub entity_kind: &'static str,
+    pub entity: Vec<String>,
+    pub end: Option<End>,
+    pub component: &'static str,
+    pub frame: Frame,
 }
 
 const DISPLACEMENT_NAMES: [(DisplacementComponent, &str); 6] = [
@@ -203,15 +367,24 @@ const FORCE_NAMES: [(ForceComponent, &str); 6] = [
     (ForceComponent::My, "My"),
     (ForceComponent::Mz, "Mz"),
 ];
-const REACTION_NAMES: [(ReactionComponent, &str); 7] = [
-    (ReactionComponent::Fx, "Fx"),
-    (ReactionComponent::Fy, "Fy"),
-    (ReactionComponent::Fz, "Fz"),
-    (ReactionComponent::Mx, "Mx"),
-    (ReactionComponent::My, "My"),
-    (ReactionComponent::Mz, "Mz"),
-    (ReactionComponent::Fd, "Fd"),
+const REACTION_NAMES: [(ReactionComponent, &str); 6] = [
+    (ReactionComponent::Ux, "UX"),
+    (ReactionComponent::Uy, "UY"),
+    (ReactionComponent::Uz, "UZ"),
+    (ReactionComponent::Rx, "RX"),
+    (ReactionComponent::Ry, "RY"),
+    (ReactionComponent::Rz, "RZ"),
 ];
+const CONNECTOR_NAMES: [(ConnectorComponent, &str); 6] = [
+    (ConnectorComponent::Axial, "axial"),
+    (ConnectorComponent::LateralY, "lateral_y"),
+    (ConnectorComponent::LateralZ, "lateral_z"),
+    (ConnectorComponent::Torsion, "torsion"),
+    (ConnectorComponent::BendingY, "bending_y"),
+    (ConnectorComponent::BendingZ, "bending_z"),
+];
+/// A tie rod's one component.
+pub const TIE_ROD_COMPONENT: &str = "axial";
 
 fn name_of<T: PartialEq + Copy>(table: &[(T, &'static str)], value: T) -> &'static str {
     table.iter().find(|(v, _)| *v == value).map(|(_, n)| *n).expect("every component is named")
@@ -260,8 +433,23 @@ impl ReactionComponent {
     }
     pub fn unit(self) -> RowUnit {
         match self {
-            Self::Fx | Self::Fy | Self::Fz | Self::Fd => RowUnit::Newton,
-            Self::Mx | Self::My | Self::Mz => RowUnit::NewtonMeter,
+            Self::Ux | Self::Uy | Self::Uz => RowUnit::Newton,
+            Self::Rx | Self::Ry | Self::Rz => RowUnit::NewtonMeter,
+        }
+    }
+}
+
+impl ConnectorComponent {
+    pub fn as_str(self) -> &'static str {
+        name_of(&CONNECTOR_NAMES, self)
+    }
+    pub fn parse(text: &str) -> Option<Self> {
+        value_of(&CONNECTOR_NAMES, text)
+    }
+    pub fn unit(self) -> RowUnit {
+        match self {
+            Self::Axial | Self::LateralY | Self::LateralZ => RowUnit::Newton,
+            Self::Torsion | Self::BendingY | Self::BendingZ => RowUnit::NewtonMeter,
         }
     }
 }
@@ -273,61 +461,135 @@ impl End {
             Self::J => "j",
         }
     }
+
+    pub fn parse(text: &str) -> Option<Self> {
+        [Self::I, Self::J].into_iter().find(|e| e.as_str() == text)
+    }
 }
 
+/// The quantity kinds, as the contract names them.
+pub const QUANTITY_KINDS: [&str; 7] = [
+    "node_displacement",
+    "element_end_action",
+    "connector_generalized_force",
+    "connector_end_action",
+    "tie_rod_force",
+    "constraint_reaction",
+    "compliant_support_force",
+];
+
 impl Quantity {
-    /// The quantity's kind, as the contract names it.
+    /// The quantity's kind.
     pub fn kind(&self) -> &'static str {
         match self {
-            Self::NodeDisplacement { .. } => "node_displacement",
-            Self::ElementEndForce { .. } => "element_end_force",
-            Self::SupportReaction { .. } => "support_reaction",
+            Self::NodeDisplacement { .. } => QUANTITY_KINDS[0],
+            Self::ElementEndAction { .. } => QUANTITY_KINDS[1],
+            Self::ConnectorGeneralizedForce { .. } => QUANTITY_KINDS[2],
+            Self::ConnectorEndAction { .. } => QUANTITY_KINDS[3],
+            Self::TieRodForce { .. } => QUANTITY_KINDS[4],
+            Self::ConstraintReaction { .. } => QUANTITY_KINDS[5],
+            Self::CompliantSupportForce { .. } => QUANTITY_KINDS[6],
         }
     }
 
-    /// The model object the row belongs to: a node, member or support id.
-    pub fn object(&self) -> &str {
+    /// The kind of model entity the row belongs to.
+    pub fn entity_kind(&self) -> &'static str {
         match self {
-            Self::NodeDisplacement { node, .. } => node,
-            Self::ElementEndForce { member, .. } => member,
-            Self::SupportReaction { support, .. } => support,
+            Self::NodeDisplacement { .. } => "node",
+            Self::ElementEndAction { .. } => "member",
+            Self::ConnectorGeneralizedForce { .. } | Self::ConnectorEndAction { .. } => "connector",
+            Self::TieRodForce { .. } => "tie_rod",
+            Self::ConstraintReaction { .. } => "rigid_constraint",
+            Self::CompliantSupportForce { .. } => "compliant_support",
+        }
+    }
+
+    /// The entity's identity: one model identity, or a tie rod's connector and rod.
+    pub fn entity(&self) -> Vec<&str> {
+        match self {
+            Self::NodeDisplacement { node, .. } | Self::ConstraintReaction { node, .. } => vec![node],
+            Self::ElementEndAction { member, .. } => vec![member],
+            Self::ConnectorGeneralizedForce { connector, .. } | Self::ConnectorEndAction { connector, .. } => vec![connector],
+            Self::TieRodForce { connector, rod } => vec![connector, rod],
+            Self::CompliantSupportForce { support, .. } => vec![support],
+        }
+    }
+
+    /// The end, where the quantity has one.
+    pub fn end(&self) -> Option<End> {
+        match self {
+            Self::ElementEndAction { end, .. } | Self::ConnectorEndAction { end, .. } => Some(*end),
+            _ => None,
         }
     }
 
     pub fn component_name(&self) -> &'static str {
         match self {
             Self::NodeDisplacement { component, .. } => component.as_str(),
-            Self::ElementEndForce { component, .. } => component.as_str(),
-            Self::SupportReaction { component, .. } => component.as_str(),
+            Self::ElementEndAction { component, .. } | Self::ConnectorEndAction { component, .. } => component.as_str(),
+            Self::ConnectorGeneralizedForce { component, .. } => component.as_str(),
+            Self::TieRodForce { .. } => TIE_ROD_COMPONENT,
+            Self::ConstraintReaction { component, .. } | Self::CompliantSupportForce { component, .. } => component.as_str(),
         }
     }
 
     pub fn unit(&self) -> RowUnit {
         match self {
             Self::NodeDisplacement { component, .. } => component.unit(),
-            Self::ElementEndForce { component, .. } => component.unit(),
-            Self::SupportReaction { component, .. } => component.unit(),
+            Self::ElementEndAction { component, .. } | Self::ConnectorEndAction { component, .. } => component.unit(),
+            Self::ConnectorGeneralizedForce { component, .. } => component.unit(),
+            Self::TieRodForce { .. } => RowUnit::Newton,
+            Self::ConstraintReaction { component, .. } | Self::CompliantSupportForce { component, .. } => component.unit(),
         }
     }
 
+    /// The row's frame: stated for an element end action, fixed by the kind otherwise.
     pub fn frame(&self) -> Frame {
         match self {
-            Self::ElementEndForce { frame, .. } => *frame,
-            _ => Frame::Global,
+            Self::ElementEndAction { frame, .. } => *frame,
+            Self::ConnectorGeneralizedForce { .. } => Frame::ConnectorAxes,
+            Self::TieRodForce { .. } => Frame::RodAxis,
+            _ => Frame::GlobalAxes,
         }
     }
 
-    /// The row key, in the frozen references' form: `N3.uy`, `P1.i.Fx` (global axes),
-    /// `P1.i.Fx_m` (member axes), `A1.Fx`.
-    pub fn key(&self) -> String {
+    /// The sign convention of the quantity's signed rows.
+    pub fn sign_convention(&self) -> SignConvention {
         match self {
-            Self::NodeDisplacement { node, component } => format!("{node}.{}", component.as_str()),
-            Self::ElementEndForce { member, end, component, frame } => {
-                let suffix = if *frame == Frame::MemberAxes { "_m" } else { "" };
-                format!("{member}.{}.{}{suffix}", end.as_str(), component.as_str())
-            }
-            Self::SupportReaction { support, component } => format!("{support}.{}", component.as_str()),
+            Self::NodeDisplacement { .. } => SignConvention::PositiveAlongAxis,
+            Self::ElementEndAction { .. } | Self::ConnectorEndAction { .. } => SignConvention::ActionOnElementAtEndNode,
+            Self::ConnectorGeneralizedForce { .. } => SignConvention::PositiveAlongConnectorAxes,
+            Self::TieRodForce { .. } => SignConvention::TensionPositive,
+            Self::ConstraintReaction { .. } | Self::CompliantSupportForce { .. } => SignConvention::ActionOfSupportOnPiping,
         }
+    }
+
+    /// The supports that hold a rigid constraint; empty for every other kind.
+    pub fn holders(&self) -> &[String] {
+        match self {
+            Self::ConstraintReaction { holders, .. } => holders,
+            _ => &[],
+        }
+    }
+
+    /// The fields that identify the row.
+    pub fn identity(&self) -> RowIdentity {
+        RowIdentity {
+            quantity_kind: self.kind(),
+            entity_kind: self.entity_kind(),
+            entity: self.entity().into_iter().map(str::to_string).collect(),
+            end: self.end(),
+            component: self.component_name(),
+            frame: self.frame(),
+        }
+    }
+
+    /// A readable label composed from the identity fields, for messages and display only: a model
+    /// identity may contain any character, so nothing parses or compares a label.
+    pub fn label(&self) -> String {
+        let end = self.end().map(|e| format!(" end {}", e.as_str())).unwrap_or_default();
+        format!("{} {} [{}]{end} {} ({})", self.kind(), self.entity_kind(), self.entity().join("] ["), self.component_name(),
+            self.frame().as_str())
     }
 }
 
@@ -533,8 +795,9 @@ pub struct ClusterStatement {
     pub class: ClusterClass,
 }
 
-/// The signed cluster sums of one periodic cluster in one direction, one per row: the binary64
-/// nearest each exact sum.
+/// The signed cluster sums of one periodic cluster of more than one mode in one direction, one per
+/// row: the binary64 nearest each exact sum, ties to even. A cluster of one mode has none: its
+/// contribution is the sum and is not repeated.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ClusterSum {
     pub cluster: ClusterIndex,
@@ -566,13 +829,23 @@ pub struct CombinedRow {
     pub governing_direction: Option<Direction>,
 }
 
+/// The informational correlation coefficient of one unordered pair of distinct periodic clusters,
+/// `first` below `second`: [`crate::correlation_coefficient`] at their standing frequencies and the
+/// damping ratio.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct CorrelationStatement {
+    pub first: ClusterIndex,
+    pub second: ClusterIndex,
+    pub rho: f64,
+}
+
 /// The output of a combination: the rules, the cluster statement, what the closeness rules and
 /// CQC used, the signed cluster sums and the unsigned combined rows.
 ///
 /// Field semantics (released by Agent 0 for readers): published cluster sums are the correctly
 /// rounded binary64 of exact sums while combinations use the retained exact sums; the published
-/// correlation is informational, from the first level enclosure, while combined magnitudes come
-/// from the enclosure at the level required; a reader derives its arithmetic from the original
+/// correlation is informational, the value [`crate::correlation_coefficient`] gives for the pair,
+/// while combined magnitudes come from the enclosure at the level required; a reader derives its arithmetic from the original
 /// represented signed contributions, frequencies, damping and method, and never from the rounded
 /// display values.
 /// No standing beyond these values is implied.
@@ -585,16 +858,15 @@ pub struct Combination {
     pub directions: Vec<Direction>,
     /// Every supplied cluster in ascending order.
     pub clusters: Vec<ClusterStatement>,
-    /// Under CQC, ρ over the periodic clusters in ascending order (row i, column j): the binary64
-    /// nearest the midpoint of each first-level enclosure (binary64-guided, ends rounded outward
-    /// to 64 bits; relative width about 2^-48). Informational; the combinations use the
-    /// enclosures themselves.
-    pub correlation: Option<Vec<Vec<f64>>>,
+    /// Under CQC, one coefficient per unordered pair of distinct periodic clusters, in ascending
+    /// order of the pair (no diagonal, no second triangle). Informational; the combinations use
+    /// the enclosures themselves.
+    pub correlation: Option<Vec<CorrelationStatement>>,
     /// Under the grouping method, the groups of periodic clusters.
     pub groups: Option<Vec<Vec<ClusterIndex>>>,
     /// Under the ten percent method, every coupled pair of periodic clusters.
     pub close_pairs: Option<Vec<(ClusterIndex, ClusterIndex)>>,
-    /// Per requested direction and periodic cluster.
+    /// Per requested direction (X, Y, Z order) and periodic cluster of more than one mode.
     pub cluster_sums: Vec<ClusterSum>,
     pub rows: Vec<CombinedRow>,
 }
